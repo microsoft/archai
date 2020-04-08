@@ -7,7 +7,8 @@ from overrides import EnforceOverrides
 
 from .cell_builder import CellBuilder
 from .arch_trainer import TArchTrainer
-from ..common.common import common_init, expdir_abspath
+from ..common.common import common_init
+from ..common import utils
 from ..common.config import Config
 from . import evaluate
 from .search import Search
@@ -54,13 +55,13 @@ class ExperimentRunner(ABC, EnforceOverrides):
     def _copy_final_desc(self, search_conf)->Tuple[Config, Config]:
         # get desc file path that search has produced
         search_desc_filename = search_conf['nas']['search']['final_desc_filename']
-        search_desc_filepath = expdir_abspath(search_desc_filename)
+        search_desc_filepath = utils.full_path(search_desc_filename)
         assert search_desc_filepath and os.path.exists(search_desc_filepath)
 
         # get file path that eval would need
         eval_conf = self._init('eval')
         eval_desc_filename = eval_conf['nas']['eval']['final_desc_filename']
-        eval_desc_filepath = expdir_abspath(eval_desc_filename)
+        eval_desc_filepath = utils.full_path(eval_desc_filename)
         assert eval_desc_filepath
         shutil.copy2(search_desc_filepath, eval_desc_filepath)
 

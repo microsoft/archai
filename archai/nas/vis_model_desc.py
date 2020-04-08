@@ -6,7 +6,7 @@ from typing import Union, List, Tuple, Optional
 from .model_desc import CellDesc, CellType, ModelDesc
 from ..common.utils import first_or_default
 
-def draw_model_desc(model_desc:ModelDesc, file_path:str=None, caption:str=None,
+def draw_model_desc(model_desc:ModelDesc, filepath:str=None, caption:str=None,
                     render=True)->Tuple[Optional[Digraph],Optional[Digraph]]:
     normal_cell_desc = first_or_default((c for c in model_desc.cell_descs() \
                                         if c.cell_type == CellType.Regular), None)
@@ -14,16 +14,18 @@ def draw_model_desc(model_desc:ModelDesc, file_path:str=None, caption:str=None,
     reduced_cell_desc = first_or_default((c for c in model_desc.cell_descs() \
                                         if c.cell_type == CellType.Reduction), None)
 
-    g_normal = draw_cell_desc(normal_cell_desc, file_path, caption, render) \
-            if normal_cell_desc is not None else None
-    g_reduct = draw_cell_desc(reduced_cell_desc, file_path, caption, render) \
-            if reduced_cell_desc is not None else None
+    g_normal = draw_cell_desc(normal_cell_desc,
+        filepath+'-normal.png' if filepath else None,
+        caption) if normal_cell_desc is not None else None
+    g_reduct = draw_cell_desc(reduced_cell_desc,
+        filepath+'-reduced.png' if filepath else None,
+        caption) if reduced_cell_desc is not None else None
 
     return g_normal, g_reduct
 
-def draw_cell_desc(cell_desc:CellDesc, file_path:str=None, caption:str=None,
-                   render=True)->Digraph:
-    """ make DAG plot and optionally save to file_path as .png """
+def draw_cell_desc(cell_desc:CellDesc, filepath:str=None, caption:str=None
+                   )->Digraph:
+    """ make DAG plot and optionally save to filepath as .png """
 
     edge_attr = {
         'fontsize': '20',
@@ -79,6 +81,6 @@ def draw_cell_desc(cell_desc:CellDesc, file_path:str=None, caption:str=None,
     if caption:
         g.attr(label=caption, overlap='false', fontsize='20', fontname='times')
 
-    if render:
-        g.render(file_path, view=False)
+    if filepath:
+        g.render(filepath, view=False)
     return g

@@ -7,7 +7,7 @@ import copy
 
 import yaml
 
-from ..common.common import expdir_abspath, expdir_filepath
+from archai.common import utils
 
 
 """
@@ -317,22 +317,20 @@ class ModelDesc:
             op_desc = getattr(self, attr)
             op_desc.load_state_dict(attr_state_dict)
 
-    def save(self, filename:str, subdir:List[str]=[])->Optional[str]:
-        yaml_filepath = expdir_filepath(filename, subdir)
-        if yaml_filepath:
-            if not yaml_filepath.endswith('.yaml'):
-                yaml_filepath += '.yaml'
+    def save(self, filename:str)->Optional[str]:
+        if filename:
+            filename = utils.full_path(filename)
 
             # clear so PyTorch state is not saved in yaml
             state_dict = self.state_dict(clear=True)
-            pt_filepath = ModelDesc._pt_filepath(yaml_filepath)
+            pt_filepath = ModelDesc._pt_filepath(filename)
             torch.save(state_dict, pt_filepath)
             # save yaml
-            pathlib.Path(yaml_filepath).write_text(yaml.dump(self))
+            pathlib.Path(filename).write_text(yaml.dump(self))
             # restore state
             self.load_state_dict(state_dict)
 
-        return yaml_filepath
+        return filename
 
     @staticmethod
     def _pt_filepath(desc_filepath:str)->str:
@@ -340,8 +338,8 @@ class ModelDesc:
         return str(pathlib.Path(desc_filepath).with_suffix('.pth'))
 
     @staticmethod
-    def load(yaml_filename:str)->'ModelDesc':
-        yaml_filepath = expdir_abspath(yaml_filename)
+    def load(filename:str)->'ModelDesc':
+        yaml_filepath = utils.full_path(filename)
         if not yaml_filepath or not os.path.exists(yaml_filepath):
             raise RuntimeError("Model description file is not found."
                 "Typically this file should be generated from the search."

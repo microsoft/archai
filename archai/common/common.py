@@ -110,10 +110,10 @@ def common_init(config_filepath: Optional[str]=None,
 
     if expdir:
         # copy net config to experiment folder for reference
-        with open(os.path.join(expdir, 'full_config.yaml'), 'w') as f:
-            yaml.dump(conf, f)
+        with open(expdir_abspath('config_used.yaml'), 'w') as f:
+            yaml.dump(conf.to_dict(), f)
         if not utils.is_debugging():
-            sysinfo_filepath = os.path.join(expdir, 'sysinfo.txt')
+            sysinfo_filepath = expdir_abspath('sysinfo.txt')
             subprocess.Popen([f'./sysinfo.sh "{expdir}" > "{sysinfo_filepath}"'],
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             shell=True)
@@ -128,44 +128,23 @@ def common_init(config_filepath: Optional[str]=None,
 
     return conf
 
-def expdir_abspath(subpath:Optional[str], ensure_exists=False)->Optional[str]:
-    """Returns full path for given relative path within experiment directory.
-       If experiment directory is not setup then None is returned.
-    """
-
-    expdir = get_expdir()
-    if not expdir or not subpath:
-        return None
-    if subpath:
-        expdir = os.path.join(expdir, subpath)
-        if ensure_exists:
-            os.makedirs(expdir, exist_ok=True)
-
-    return expdir
-
-def expdir_filepath(filename:str, subdir:List[str]=[], ensure_path=True)\
-        ->Optional[str]:
-    if len(subdir):
-        filepath = expdir_abspath(os.path.join(*subdir), ensure_path)
-        if filepath:
-            filepath = os.path.join(filepath, filename)
-    else:
-        filepath = expdir_abspath(filename)
-    return filepath
+def expdir_abspath(path:str, create=False)->str:
+    """Returns full path for given relative path within experiment directory."""
+    return utils.full_path(os.path.join('$expdir',path), create=create)
 
 def _create_tb_writer(is_master=True)-> SummaryWriterAny:
     conf_common = get_conf_common()
 
-    tbdir, conf_enable_tb = expdir_abspath('tb'), conf_common['enable_tb']
-    enable_tb = conf_enable_tb and is_master and tbdir is not None and len(tbdir) > 0
+    tb_dir, conf_enable_tb = utils.full_path(conf_common['tb_dir']), conf_common['tb_enable']
+    tb_enable = conf_enable_tb and is_master and tb_dir is not None and len(tb_dir) > 0
 
     logger.info({'conf_enable_tb': conf_enable_tb,
-                 'enable_tb': enable_tb,
-                 'tbdir': tbdir})
+                 'tb_enable': tb_enable,
+                 'tb_dir': tb_dir})
 
-    WriterClass = SummaryWriter if enable_tb else SummaryWriterDummy
+    WriterClass = SummaryWriter if tb_enable else SummaryWriterDummy
 
-    return WriterClass(log_dir=tbdir)
+    return WriterClass(log_dir=tb_dir)
 
 def _setup_dirs()->Optional[str]:
     conf_common = get_conf_common()
@@ -179,17 +158,17 @@ def _setup_dirs()->Optional[str]:
     # make sure logdir and expdir exists
     logdir = conf_common['logdir']
     if logdir:
-        logdir = utils.full_path(os.path.expandvars(logdir))
+        logdir = utils.full_path(logdir)
         expdir = os.path.join(logdir, experiment_name)
         os.makedirs(expdir, exist_ok=True)
     else:
-        expdir = ''
+        raise RuntimeError('The logdir setting must be specified for the output directory in yaml')
 
     # update conf so everyone gets expanded full paths from here on
     conf_common['logdir'], conf_data['dataroot'], conf_common['expdir'] = \
         logdir, dataroot, expdir
 
-    # set environment variable so it can be referenced in paths
+    # set environment variable so it can be referenced in paths used in config
     os.environ['expdir'] = expdir
 
     return expdir
@@ -203,8 +182,10 @@ def _setup_logger():
     if not sys_log_filepath:
         sys_logger.warn(
             'logdir not specified, no logs will be created or any models saved')
+
     global logger
-    logger.reset(expdir_abspath('logs.yaml'), sys_logger)
+    logs_yaml_filepath = expdir_abspath('logs.yaml')
+    logger.reset(logs_yaml_filepath, sys_logger)
 
 def _setup_gpus():
     conf_common = get_conf_common()

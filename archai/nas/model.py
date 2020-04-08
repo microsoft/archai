@@ -13,7 +13,7 @@ from overrides import overrides
 from .cell import Cell
 from .operations import Op, DropPath_
 from .model_desc import ModelDesc, AuxTowerDesc, CellDesc
-from ..common.common import logger, expdir_filepath
+from ..common.common import logger
 from ..common import utils, ml_utils
 
 class Model(nn.Module):
@@ -136,11 +136,11 @@ class Model(nn.Module):
             if isinstance(module, DropPath_):
                 module.p = p
 
-    def save(self, filename:str, subdir:List[str]=[])->Optional[str]:
-        save_path = expdir_filepath(filename, subdir)
-        if save_path:
-            ml_utils.save_model(self, save_path)
-        return save_path
+    def save(self, filepath:str)->Optional[str]:
+        if filepath:
+            filepath = utils.full_path(filepath)
+            ml_utils.save_model(self, filepath)
+        return filepath
 
 
 class AuxTower(nn.Module):

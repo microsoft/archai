@@ -8,7 +8,7 @@ import tensorwatch as tw
 from torch.utils.data.dataloader import DataLoader
 import yaml
 
-from archai.common.common import expdir_filepath, logger
+from archai.common.common import logger
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
 from .cell_builder import CellBuilder
@@ -20,6 +20,7 @@ from archai.datasets import data
 from .model import Model
 from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
+import os
 
 class MetricsStats:
     """Holds model statistics and training metrics for given description"""
@@ -94,6 +95,7 @@ class Search:
         self.conf_train = conf_search['trainer']
         self.final_desc_filename = conf_search['final_desc_filename']
         self.full_desc_filename = conf_search['full_desc_filename']
+        self.metrics_dir = conf_search['metrics_dir']
         self.conf_presearch_train = conf_search['seed_train']
         self.conf_postsearch_train = conf_search['post_train']
         conf_pareto = conf_search['pareto']
@@ -105,13 +107,14 @@ class Search:
         self.max_nodes = conf_pareto['max_nodes']
         self.search_iters = conf_search['search_iters']
         self.pareto_enabled = conf_pareto['enabled']
+        pareto_summary_filename = conf_pareto['summary_filename']
         # endregion
 
         self.device = torch.device(conf_search['device'])
         self.cell_builder = cell_builder
         self.trainer_class = trainer_class
         self._data_cache = {}
-        self._parito_filepath = expdir_filepath('perito.tsv')
+        self._parito_filepath = utils.full_path(pareto_summary_filename)
         self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
 
         logger.info({'pareto_enabled': self.pareto_enabled,
@@ -236,21 +239,22 @@ class Search:
         """Save the model and metric info into a log file"""
 
         # construct path where we will save
-        subdir = ['models', str(reductions), str(cells), str(nodes),
-                  str(search_iter)]
+        subdir = utils.full_path(self.metrics_dir.format(**vars()), create=True)
 
         # save metric_infi
-        metrics_stats_filepath = expdir_filepath('metrics_stats.yaml', subdir,
-                                             ensure_path=True)
+        metrics_stats_filepath = os.path.join(subdir, 'metrics_stats.yaml')
         if metrics_stats_filepath:
             with open(metrics_stats_filepath, 'w') as f:
                 yaml.dump(metrics_stats, f)
 
         # save just metrics separately
-        metrics_filepath = expdir_filepath('metrics.yaml', subdir)
+        metrics_filepath = os.path.join(subdir, 'metrics.yaml')
         if metrics_filepath:
             with open(metrics_filepath, 'w') as f:
                 yaml.dump(metrics_stats.train_metrics, f)
+
+        logger.info({'metrics_stats_filepath': metrics_stats_filepath,
+                     'metrics_filepath': metrics_filepath})
 
         # append key info in root pareto data
         if self._parito_filepath:

@@ -105,10 +105,14 @@ def deep_comp(o1:Any, o2:Any)->bool:
 def is_debugging()->bool:
     return 'pydevd' in sys.modules # works for vscode
 
-def full_path(path:str)->str:
-    path = os.path.expandvars(path)
-    path = os.path.expanduser(path)
-    return os.path.abspath(path)
+def full_path(path:str, create=False)->str:
+    assert path
+    path = os.path.abspath(
+            os.path.expanduser(
+                os.path.expandvars(path)))
+    if create:
+        os.makedirs(path, exist_ok=True)
+    return path
 
 def zero_file(filepath)->None:
     """Creates or truncates existing file"""

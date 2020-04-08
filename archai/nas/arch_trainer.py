@@ -10,7 +10,7 @@ from torch.optim.lr_scheduler import _LRScheduler
 from overrides import overrides, EnforceOverrides
 
 from ..common.config import Config
-from ..common import common
+from ..common import common, utils
 from ..nas.model import Model
 from ..nas.model_desc import ModelDesc
 from ..common.trainer import Trainer
@@ -25,7 +25,7 @@ class ArchTrainer(Trainer, EnforceOverrides):
         super().__init__(conf_train, model, device, checkpoint, aux_tower=True)
 
         self._l1_alphas = conf_train['l1_alphas']
-        self._plotsdir = common.expdir_abspath(conf_train['plotsdir'], True)
+        self._plotsdir = conf_train['plotsdir']
 
     @overrides
     def compute_loss(self, lossfn: Callable,
@@ -55,7 +55,9 @@ class ArchTrainer(Trainer, EnforceOverrides):
             is_best = is_best or best_train==train_metrics.cur_epoch()
             if is_best:
                 # log model_desc as a image
-                plot_filepath = os.path.join(
-                    self._plotsdir, "EP{train_metrics.epoch:03d}")
-                draw_model_desc(self.model.finalize(), plot_filepath+"-normal",
-                                caption=f"Epoch {train_metrics.epochs()-1}")
+                plot_filepath = utils.full_path(os.path.join(
+                                    self._plotsdir,
+                                    f"EP{train_metrics.cur_epoch().index:03d}"),
+                                create=True)
+                draw_model_desc(self.model.finalize(), filepath=plot_filepath,
+                                caption=f"Epoch {train_metrics.cur_epoch().index}")

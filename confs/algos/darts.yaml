@@ -5,11 +5,12 @@ common:
   experiment_desc: 'throwaway'
   logdir: '~/logdir'
   seed: 2.0
-  enable_tb: False # if True then TensorBoard logging is enabled (may impact perf)
+  tb_enable: False # if True then TensorBoard logging is enabled (may impact perf)
+  tb_dir: '$expdir/tb' # path where tensorboard logs would be stored
   horovod: False
   device: 'cuda'
   checkpoint:
-    filename: 'checkpoint.pth'
+    filename: '$expdir/checkpoint.pth'
     freq: 10
   detect_anomaly: False # if True, PyTorch code will run 6X slower
   # TODO: workers setting
@@ -28,9 +29,10 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   eval:
-    full_desc_filename: 'full_model_desc.yaml' # model desc used for building model for evaluation
-    final_desc_filename: 'final_model_desc.yaml' # model desc used as template to construct cells
-    save_filename: 'model.pt' # file to which trained model will be saved
+    full_desc_filename: '$expdir/full_model_desc.yaml' # model desc used for building model for evaluation
+    final_desc_filename: '$expdir/final_model_desc.yaml' # model desc used as template to construct cells
+    metric_filename: '$expdir/eval_train_metrics.yaml'
+    model_filename: '$expdir/model.pt' # file to which trained model will be saved
     device: '_copy: common/device'
     data_parallel: False
     checkpoint:
@@ -100,8 +102,9 @@ nas:
       _copy: 'common/checkpoint'
     resume: '_copy: common/resume'
     search_iters: 1
-    full_desc_filename: 'full_model_desc.yaml' # arch before it was finalized
-    final_desc_filename: 'final_model_desc.yaml' # final arch is saved in this file
+    full_desc_filename: '$expdir/full_model_desc.yaml' # arch before it was finalized
+    final_desc_filename: '$expdir/final_model_desc.yaml' # final arch is saved in this file
+    metrics_dir: '$expdir/models/{reductions}/{cells}/{nodes}/{search_iter}' # where metrics and model stats would be saved from each pareto iteration
     device: '_copy: common/device'
     seed_train:
       trainer:
@@ -131,6 +134,7 @@ nas:
       max_reductions: 2
       max_nodes: 4
       enabled: False
+      summary_filename: '$expdir/perito.tsv' # for each iteration of macro, we fave model and perf summary
     model_desc:
       _copy: 'nas/eval/model_desc'
       init_ch_out: 16 # num of output channels for the first cell
@@ -162,7 +166,7 @@ nas:
       title: 'search_train'
       epochs: 50
       # additional vals for the derived class
-      plotsdir: '' # use default subfolder in logdir
+      plotsdir: '' #empty string means no plots, other wise plots are generated for each epoch in this dir
       l1_alphas: 0.0   # weight to be applied to sum(abs(alphas)) to loss term
       lossfn:
         type: 'CrossEntropyLoss'

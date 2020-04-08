@@ -13,7 +13,7 @@ conf_eval = conf['nas']['eval']
 conf_model_desc   = conf_eval['model_desc']
 
 conf_model_desc['n_cells'] = 14
-template_model_desc = ModelDesc.load('final_model_desc.yaml')
+template_model_desc = ModelDesc.load('$expdir/final_model_desc.yaml')
 model_desc = create_macro_desc(conf_model_desc, True, template_model_desc)
 
 mb = PetridishCellBuilder()

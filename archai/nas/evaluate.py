@@ -15,7 +15,8 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
 
     # region conf vars
     conf_loader       = conf_eval['loader']
-    save_filename    = conf_eval['save_filename']
+    model_filename    = conf_eval['model_filename']
+    metric_filename    = conf_eval['metric_filename']
     conf_model_desc   = conf_eval['model_desc']
     conf_checkpoint = conf_eval['checkpoint']
     resume = conf_eval['resume']
@@ -45,10 +46,10 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
     trainer = Trainer(conf_train, model, device, checkpoint, aux_tower=True)
     train_metrics = trainer.fit(train_dl, test_dl)
-    train_metrics.save('eval_train_metrics')
+    train_metrics.save(metric_filename)
 
     # save model
-    save_path = model.save(save_filename)
+    save_path = model.save(model_filename)
     logger.info({'model_save_path': save_path})
     logger.popd()
 

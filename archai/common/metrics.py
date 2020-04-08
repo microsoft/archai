@@ -11,7 +11,7 @@ from torch import Tensor
 import yaml
 
 from . import utils, ml_utils
-from .common import logger, get_tb_writer, expdir_abspath
+from .common import logger, get_tb_writer
 
 class Metrics:
     """Record top1, top5, loss metrics, track best so far.
@@ -153,13 +153,11 @@ class Metrics:
         # simply convert current object to dictionary
         utils.load_state_dict(self, state_dict)
 
-    def save(self, filename:str)->Optional[str]:
-        save_path = expdir_abspath(filename)
-        if save_path:
-            if not save_path.endswith('.yaml'):
-                save_path += '.yaml'
-            pathlib.Path(save_path).write_text(yaml.dump(self))
-        return save_path
+    def save(self, filepath:str)->Optional[str]:
+        if filepath:
+            filepath = utils.full_path(filepath)
+            pathlib.Path(filepath).write_text(yaml.dump(self))
+        return filepath
 
     def epochs(self)->int:
         """Returns epochs recorded so far"""
