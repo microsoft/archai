@@ -38,6 +38,14 @@
             "args": ["--no-eval", "--algos", "darts"]
         },
         {
+            "name": "Darts-E2E-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "darts"]
+        },
+        {
             "name": "Darts-Food101-Toy",
             "type": "python",
             "request": "launch",

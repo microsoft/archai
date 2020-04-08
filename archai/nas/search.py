@@ -301,14 +301,15 @@ class Search:
 
     def _train_desc(self, model_desc:ModelDesc, conf_train:Config)->MetricsStats:
         """Train given description"""
-        logger.pushd('train')
-
         # region conf vars
         conf_trainer = conf_train['trainer']
         conf_loader = conf_train['loader']
+        trainer_title = conf_trainer['title']
         epochs = conf_trainer['epochs']
         drop_path_prob = conf_trainer['drop_path_prob']
         # endregion
+
+        logger.pushd(trainer_title)
 
         if epochs == 0:
             # nothing to pretrain, save time
@@ -338,7 +339,7 @@ class Search:
             return MetricsStats(finalized, train_metrics, model_stats)
 
     def _search_desc(self, model_desc:ModelDesc, search_iter:int)->ModelDesc:
-        logger.pushd('search')
+        logger.pushd('arch_search')
 
         nas_utils.build_cell(model_desc, self.cell_builder, search_iter)
 

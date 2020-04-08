@@ -156,10 +156,10 @@ def _get_datasets(ds_provider:DatasetProvider, load_train:bool, load_test:bool,
                                                  transform_train, transform_test)
 
     if train_max_size > 0:
-        logger.warn({'train_max_batches': train_max_size})
+        logger.warn({'train_max_size': train_max_size})
         trainset = LimitDataset(trainset, train_max_size)
     if test_max_size > 0:
-        logger.warn({'test_max_batches': test_max_size})
+        logger.warn({'test_max_size': test_max_size})
         testset = LimitDataset(testset, test_max_size)
 
     return  trainset, testset
