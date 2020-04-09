@@ -287,7 +287,9 @@ class Identity(Op):
 
 
 class Zero(Op):
-    """Represents no connection """
+    """Represents no connection. Zero op can be thought of 1x1 kernal with fixed zero weight.
+    For stride=1, it will produce output of same dimension as input but with all 0s. Now with stride of 2, it will zero out every other pixel in output.
+    """
 
     def __init__(self, op_desc:OpDesc):
         super().__init__()
