@@ -45,7 +45,7 @@ def model_from_conf(full_desc_filename:str, conf_model_desc: Config,
     # create model
     model_desc = create_macro_desc(conf_model_desc, aux_tower,
                                     template_model_desc)
-    # TODO: saving seems unnecessory?
+    # save model that we would eval for reference
     model_desc.save(full_desc_filename)
 
     return model_from_desc(model_desc, device, droppath=droppath, affine=affine)

@@ -41,14 +41,10 @@ class OpDesc:
         self.children_ins = children_ins
 
     def clone(self, clone_trainables=True)->'OpDesc':
-        c_children = None if self.children is None else [c.clone() for c in self.children]
-        return OpDesc(self.name,
-                      copy.deepcopy(self.params), # because these may contain objects!
-                      self.in_len,
-                      None if not clone_trainables else copy.deepcopy(self.trainables),
-                      c_children,
-                      copy.deepcopy(self.children_ins) # don't leak by keeping refs
-                      )
+        cloned = copy.deepcopy(self)
+        if not clone_trainables:
+            cloned.clear_trainables()
+        return cloned
 
     def clear_trainables(self)->None:
         self.trainables = None
@@ -61,30 +57,18 @@ class OpDesc:
                     'trainables': self.trainables,
                     'children': [child.state_dict() if child is not None else None
                                  for child in self.children] \
-                                     if self.children is not None else None,
-                    'children_ins': [child_in if child_in is not None else None
-                                 for child_in in self.children_ins] \
-                                     if self.children_ins is not None else None,
+                                     if self.children is not None else None
                 }
 
     def load_state_dict(self, state_dict)->None:
-        if state_dict is not None:
-            self.trainables = state_dict['trainables']
-            c, cs = self.children, state_dict['children']
-            assert (c is None and cs is None) or \
-                   (c is not None and cs is not None and len(c) == len(cs))
-            c_ins, cs_ins = self.children_ins, state_dict['children_ins']
-            assert (c_ins is None and cs_ins is None) or \
-                   (c_ins is not None and cs_ins is not None and len(c_ins) == len(cs_ins))
-            if c is not None:
-                assert c_ins is not None and len(c) == len(c_ins)
-                for i, (cx, csx, csix) in enumerate(zip(c, cs, cs_ins)):
-                    assert (cx is None and csx is None) or \
-                            (cx is not None and csx is not None)
-                    if cx is not None:
-                        assert csix is not None
-                        cx.load_state_dict(csx)
-                        c_ins[i] = csix
+        self.trainables = state_dict['trainables']
+        c, cs = self.children, state_dict['children']
+        assert (c is None and cs is None) or \
+                (c is not None and cs is not None and len(c) == len(cs))
+        for cx, csx in zip(c, cs):
+            if cx is not None and csx is not None:
+                cx.load_state_dict(csx)
+
 
 class EdgeDesc:
     """Edge description between two nodes in the cell
@@ -98,7 +82,8 @@ class EdgeDesc:
             ->'EdgeDesc':
         # edge cloning is same as deep copy except that we do it through
         # constructor for future proofing any additional future rules and
-        # that we allow oveeriding conv_params and clearning weights
+        # that we allow oveeriding conv_params and clearning weights. This later
+        # bit used in model builder to create edge from template
 
         e = EdgeDesc(self.op_desc.clone(), self.input_ids)
         # op_desc should have params set from cloning. If no override supplied
@@ -109,6 +94,15 @@ class EdgeDesc:
             e.op_desc.clear_trainables()
         return e
 
+    def clear_trainables(self)->None:
+        self.op_desc.clear_trainables()
+
+    def state_dict(self)->dict:
+        return  {'op_desc': self.op_desc.state_dict()}
+
+    def load_state_dict(self, state_dict)->None:
+        self.op_desc.load_state_dict(state_dict['op_desc'])
+
 class NodeDesc:
     def __init__(self, edges:List[EdgeDesc]) -> None:
         self.edges = edges
@@ -118,6 +112,18 @@ class NodeDesc:
         # node cloning is currently equivalent to deep copy
         return NodeDesc(edges=[e.clone(conv_params=None, clear_trainables=False)
                                for e in self.edges])
+
+    def clear_trainables(self)->None:
+        for edge in self.edges:
+            edge.clear_trainables()
+
+
+    def state_dict(self)->dict:
+        return  { 'edges': [e.state_dict() for e in self.edges] }
+
+    def load_state_dict(self, state_dict)->None:
+        for e, es in zip(self.edges, state_dict['edges']):
+            e.load_state_dict(es)
 
 class AuxTowerDesc:
     def __init__(self, ch_in:int, n_classes:int) -> None:
@@ -150,6 +156,13 @@ class CellDesc:
         c.id = id
         return c
 
+    def clear_trainables(self)->None:
+        for attr in ['s0_op', 's1_op', 'post_op']:
+            op_desc:OpDesc = getattr(self, attr)
+            op_desc.clear_trainables()
+        for node in self._nodes:
+            node.clear_trainables()
+
     def nodes_editable(self)->bool:
         """Can we change node count without having to rebuild entire model desc?
            This is possible if post op outputs same number of channels regardless
@@ -158,6 +171,21 @@ class CellDesc:
         _, cell_ch_out1, _ = CellDesc._post_op_ch(1, 1, self.post_op.name)
         _, cell_ch_out2, _ = CellDesc._post_op_ch(2, 1, self.post_op.name)
         return cell_ch_out1 == cell_ch_out2
+
+    def state_dict(self)->dict:
+        return  {
+                    'nodes': [n.state_dict() for n in self.nodes()],
+                    's0_op': self.s0_op.state_dict(),
+                    's1_op': self.s1_op.state_dict(),
+                    'post_op': self.post_op.state_dict()
+                }
+
+    def load_state_dict(self, state_dict)->None:
+        for n, ns in zip(self.nodes(), state_dict['nodes']):
+            n.load_state_dict(ns)
+        self.s0_op.load_state_dict(state_dict['s0_op'])
+        self.s1_op.load_state_dict(state_dict['s1_op'])
+        self.post_op.load_state_dict(state_dict['post_op'])
 
     @staticmethod
     def _post_op_ch(node_count:int, node_ch_out:int,
@@ -262,6 +290,13 @@ class ModelDesc:
         self._cell_descs = cell_descs
         self.aux_tower_descs = aux_tower_descs
 
+    def clear_trainables(self)->None:
+        for attr in ['stem0_op', 'stem1_op', 'pool_op', 'logits_op']:
+            op_desc:OpDesc = getattr(self, attr)
+            op_desc.clear_trainables()
+        for cell_desc in self._cell_descs:
+            cell_desc.clear_trainables()
+
     def cell_descs(self)->List[CellDesc]:
         return self._cell_descs
 
@@ -283,52 +318,36 @@ class ModelDesc:
     def all_nodes_editable(self)->bool:
         return all((c.nodes_editable() for c in self._cell_descs))
 
-    def state_dict(self, clear=False)->dict:
-        cells_state_dict = {}
-        for ci, cell_desc in enumerate(self._cell_descs):
-            sd_cell = cells_state_dict[ci] = {}
-            for ni, node in enumerate(cell_desc.nodes()):
-                sd_node = sd_cell[ni] = {}
-                for ei, edge_desc in enumerate(node.edges):
-                    sd_node[ei] = edge_desc.op_desc.state_dict()
-                    if clear:
-                        edge_desc.op_desc.clear_trainables()
-        attrs_state_dict = {}
-        for attr in ['stem0_op', 'stem1_op', 'pool_op', 'logits_op']:
-            op_desc = getattr(self, attr)
-            attrs_state_dict[attr] = op_desc.state_dict()
-            if clear:
-                op_desc.clear_trainables()
-        return {'cells': cells_state_dict, 'attr': attrs_state_dict}
+    def state_dict(self)->dict:
+        return  {
+                    'cell_descs': [c.state_dict() for c in self.cell_descs()],
+                    'stem0_op': self.stem0_op.state_dict(),
+                    'stem1_op': self.stem1_op.state_dict(),
+                    'pool_op': self.pool_op.state_dict(),
+                    'logits_op': self.logits_op.state_dict()
+                }
 
-    def load_state_dict(self, state_dict:dict)->None:
-        cells_state_dict = state_dict['cells']
-        attrs_state_dict = state_dict['attr']
-        # restore cells
-        for ci, cell_desc in enumerate(self._cell_descs):
-            sd_cell = cells_state_dict[ci]
-            for ni, node in enumerate(cell_desc.nodes()):
-                sd_node = sd_cell[ni]
-                for ei, edge_desc in enumerate(node.edges):
-                    edge_desc.op_desc.load_state_dict(sd_node[ei])
+    def load_state_dict(self, state_dict)->None:
+        for c, cs in zip(self.cell_descs(), state_dict['cell_descs']):
+            c.load_state_dict(cs)
+        self.stem0_op.load_state_dict(state_dict['stem0_op'])
+        self.stem1_op.load_state_dict(state_dict['stem1_op'])
+        self.pool_op.load_state_dict(state_dict['pool_op'])
+        self.logits_op.load_state_dict(state_dict['logits_op'])
 
-        # restore attributes
-        for attr, attr_state_dict in attrs_state_dict.items():
-            op_desc = getattr(self, attr)
-            op_desc.load_state_dict(attr_state_dict)
-
-    def save(self, filename:str)->Optional[str]:
+    def save(self, filename:str, save_trainables=False)->Optional[str]:
         if filename:
             filename = utils.full_path(filename)
 
-            # clear so PyTorch state is not saved in yaml
-            state_dict = self.state_dict(clear=True)
-            pt_filepath = ModelDesc._pt_filepath(filename)
-            torch.save(state_dict, pt_filepath)
+            if save_trainables:
+                state_dict = self.state_dict()
+                pt_filepath = ModelDesc._pt_filepath(filename)
+                torch.save(state_dict, pt_filepath)
+
             # save yaml
-            pathlib.Path(filename).write_text(yaml.dump(self))
-            # restore state
-            self.load_state_dict(state_dict)
+            cloned = self.clone()
+            cloned.clear_trainables()
+            pathlib.Path(filename).write_text(yaml.dump(cloned))
 
         return filename
 
@@ -338,7 +357,7 @@ class ModelDesc:
         return str(pathlib.Path(desc_filepath).with_suffix('.pth'))
 
     @staticmethod
-    def load(filename:str)->'ModelDesc':
+    def load(filename:str, load_trainables=False)->'ModelDesc':
         filename = utils.full_path(filename)
         if not filename or not os.path.exists(filename):
             raise RuntimeError("Model description file is not found."
@@ -349,11 +368,12 @@ class ModelDesc:
         with open(filename, 'r') as f:
             model_desc = yaml.load(f, Loader=yaml.Loader)
 
-        # look for pth file that should have pytorch parameters state_dict
-        pt_filepath = ModelDesc._pt_filepath(filename)
-        if os.path.exists(pt_filepath):
-            state_dict = torch.load(pt_filepath, map_location=torch.device('cpu'))
-            model_desc.load_state_dict(state_dict)
-        # else no need to restore weights
+        if load_trainables:
+            # look for pth file that should have pytorch parameters state_dict
+            pt_filepath = ModelDesc._pt_filepath(filename)
+            if os.path.exists(pt_filepath):
+                state_dict = torch.load(pt_filepath, map_location=torch.device('cpu'))
+                model_desc.load_state_dict(state_dict)
+            # else no need to restore weights
 
         return model_desc
