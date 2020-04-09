@@ -8,7 +8,7 @@ import copy
 import yaml
 
 from archai.common import utils
-
+from archai.common.common import logger
 
 """
 Note: All classes in this file needs to be deepcopy compatible because
@@ -339,18 +339,21 @@ class ModelDesc:
 
     @staticmethod
     def load(filename:str)->'ModelDesc':
-        yaml_filepath = utils.full_path(filename)
-        if not yaml_filepath or not os.path.exists(yaml_filepath):
+        filename = utils.full_path(filename)
+        if not filename or not os.path.exists(filename):
             raise RuntimeError("Model description file is not found."
                 "Typically this file should be generated from the search."
-                "Please copy this file to '{}'".format(yaml_filepath))
-        with open(yaml_filepath, 'r') as f:
+                "Please copy this file to '{}'".format(filename))
+
+        logger.info({'final_desc_filename': filename})
+        with open(filename, 'r') as f:
             model_desc = yaml.load(f, Loader=yaml.Loader)
 
         # look for pth file that should have pytorch parameters state_dict
-        pt_filepath = ModelDesc._pt_filepath(yaml_filepath)
+        pt_filepath = ModelDesc._pt_filepath(filename)
         if os.path.exists(pt_filepath):
             state_dict = torch.load(pt_filepath, map_location=torch.device('cpu'))
             model_desc.load_state_dict(state_dict)
         # else no need to restore weights
+
         return model_desc

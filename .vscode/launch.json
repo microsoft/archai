@@ -38,6 +38,14 @@
             "args": ["--no-eval", "--algos", "darts"]
         },
         {
+            "name": "Darts-Eval-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--no-search", "--algos", "darts", "--nas.eval.final_desc_filename", "models/final_model_desc.yaml"]
+        },
+        {
             "name": "Darts-E2E-Toy",
             "type": "python",
             "request": "launch",
