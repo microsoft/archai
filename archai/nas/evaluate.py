@@ -39,6 +39,12 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
                                 aux_tower=True, affine=True, droppath=True,
                                 template_model_desc=template_model_desc)
 
+    logger.info({'cells_len':len(model.desc.cell_descs()),
+                 'init_ch_out': conf_model_desc['init_ch_out'],
+                 'n_cells': conf_model_desc['n_cells'],
+                 'n_reductions': conf_model_desc['n_reductions'],
+                 'n_nodes': conf_model_desc['n_nodes']})
+
     # get data
     train_dl, _, test_dl = data.get_data(conf_loader)
     assert train_dl is not None and test_dl is not None
