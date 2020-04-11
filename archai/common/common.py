@@ -174,6 +174,9 @@ def _setup_dirs()->Optional[str]:
     return expdir
 
 def _setup_logger():
+    global logger
+    logger.close()  # close any previous instances
+
     experiment_name = get_experiment_name()
 
     # file where logger would log messages
@@ -183,7 +186,7 @@ def _setup_logger():
         sys_logger.warn(
             'logdir not specified, no logs will be created or any models saved')
 
-    global logger
+    # reset to new file path
     logs_yaml_filepath = expdir_abspath('logs.yaml')
     logger.reset(logs_yaml_filepath, sys_logger)
 

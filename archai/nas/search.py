@@ -148,6 +148,7 @@ class Search:
 
 
         assert best_result is not None
+        best_result.model_desc().clear_trainables()
         logger.info({'best_macro_params':best_result.macro_params,
                      'best_metric':best_result.metrics_stats})
         best_result.model_desc().save(self.final_desc_filename)

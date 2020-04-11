@@ -122,13 +122,10 @@ def setup_logging(filepath:Optional[str]=None,
                   name:Optional[str]=None, level=logging.INFO)->logging.Logger:
     logger = logging.getLogger()
 
-    # is it already setup?
-    if len(logger.handlers)==2 and \
-        isinstance(logger.handlers[0], logging.StreamHandler) and \
-        isinstance(logger.handlers[1], logging.FileHandler):
-            return logger
-
-    assert len(logger.handlers)==0, 'Root logger has unexpected setup!'
+    # close current handlers
+    for handler in logger.handlers[:]:
+        handler.close()
+        logger.removeHandler(handler)
 
     logger.setLevel(level)
     ch = logging.StreamHandler()
