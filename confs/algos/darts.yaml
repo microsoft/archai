@@ -141,7 +141,7 @@ nas:
       n_cells: 8 # number of cells
       n_reductions: 2 # number of reductions to be applied
       aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
-      params: { 'gs_num_sample': 4 } # number of times to sample in ensemble gumbelsoftmax
+      params: {} # additional model desc params for algos
     loader:
       aug: '' # additional augmentations to use
       cutout: 0 # cutout length, use cutout augmentation when > 0
