@@ -5,4 +5,6 @@ Report dir {out_dir}
 
 Job count: {job_count}
 
-{epochs_info}
+{summary_text}
+
+{details_text}
