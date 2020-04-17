@@ -10,7 +10,7 @@ from threading import Lock
 class ImageStats:
     def __init__(self) -> None:
         self.dims = set()
-        self.count = 0
+        self.counts = {}
         self.sizes = Statistics()
         self.suffixes = set()
         self.lock = Lock()
@@ -21,7 +21,8 @@ class ImageStats:
 
         with self.lock:
             self.dims.add(shape)
-            self.count += 1
+            parent = str(filepath.parent)
+            self.counts[parent] = self.counts.get(parent, 0)+1
             self.sizes.push(filesize)
             self.suffixes.add(filepath.suffix)
 
@@ -36,6 +37,10 @@ if __name__ == '__main__':
                              pathlib.Path(path).rglob('*.png')):
         executor.submit(stats.push, p)
 
-    print(yaml.dump(stats))
+    print(stats.sizes.mean())
+    print(stats.sizes.stddev())
+    print(stats.suffixes)
+    print(stats.counts)
+    print(stats.dims)
 
     exit(0)
