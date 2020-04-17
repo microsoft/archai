@@ -26,7 +26,7 @@ def collate_epoch_nodes(logs:List[OrderedDict])->Dict[str, List[OrderedDict]]:
     for log in logs:
         for path, epoch_node in epoch_nodes(log):
             path_key = '/'.join(path)
-            if not path_key in collated.items():
+            if not path_key in collated:
                 collated[path_key] = []
             v = collated[path_key]
             v.append(epoch_node)
@@ -66,7 +66,7 @@ def stat2str(stat:Statistics)->str:
         return '-'
     s = f'{stat.mean():.4f}'
     if len(stat)>1:
-        s += f'±{stat.stddev():.4f}'
+        s += f'<sup> ± {stat.stddev():.4f}</sup>'
     return s
 
 def epoch_nodes_lines(node_path:str, logs_epochs_nodes:List[OrderedDict])->List[str]:
@@ -84,6 +84,21 @@ def epoch_nodes_lines(node_path:str, logs_epochs_nodes:List[OrderedDict])->List[
 
     lines = []
     lines.append(f'### Epochs: {node_path}')
+    lines.append('#### Summary')
+
+    train_duration = Statistics()
+    for epoch_stat in epoch_stats:
+        train_duration += epoch_stat.train_fold.duration
+
+    lines.append(f'Train epoch time: {stat2str(train_duration)}')
+    lines.append('')
+    for milestone in [35-1, 200-1, 600-1, 1500-1]:
+        if len(epoch_stats) >= milestone:
+            lines.append(f'{stat2str(epoch_stats[milestone].val_fold.top1)} val top1 @ {milestone} epochs')
+
+    lines.append('')
+    lines.append('#### Data')
+
     lines.append('|Epoch   |Val Top1   |Val Top5   |Train  Top1 |Train Top5   |Train Duration   |Val Duration   |Train Step Time     |Val Step Time   |StartLR   |EndLR   |')
     lines.append('|---|---|---|---|---|---|---|---|---|---|---|')
 
