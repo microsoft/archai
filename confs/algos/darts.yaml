@@ -32,11 +32,10 @@ nas:
     full_desc_filename: '$expdir/full_model_desc.yaml' # model desc used for building model for evaluation
     final_desc_filename: '$expdir/final_model_desc.yaml' # model desc used as template to construct cells
 
-    # if below is specified then final_desc_filename is ignored and model is created through factory function instead.
-    # this is useful for running eval for manually designed models such as resnet-50
-    # keys: module, function, args. module is fully namespaced module where function exist. The function
-    # returns nn.Module. If args exist, it should be dictionary and it will be passed as **kwargs to the function.
-    final_model_factory: {}
+    # If below is specified then final_desc_filename is ignored and model is created through factory function instead.
+    # This is useful for running eval for manually designed models such as resnet-50.
+    # The value is string of form 'some.namespace.module.function'. The function returns nn.Module and no required args.
+    final_model_factory: ''
 
     metric_filename: '$expdir/eval_train_metrics.yaml'
     model_filename: '$expdir/model.pt' # file to which trained model will be saved
@@ -77,6 +76,7 @@ nas:
         _copy: '/dataset'
     trainer:
       apex: False
+      aux_tower: True
       aux_weight: '_copy: nas/eval/model_desc/aux_weight'
       drop_path_prob: 0.2 # probability that given edge will be dropped
       grad_clip: 5.0 # grads above this value is clipped
@@ -118,6 +118,7 @@ nas:
         _copy: 'nas/eval/trainer'
         title: 'seed_train'
         epochs: 0 # number of epochs model will be trained before search
+        aux_tower: True
         aux_weight: 0.0
         drop_path_prob: 0.0
       loader:
@@ -129,6 +130,7 @@ nas:
         _copy: 'nas/eval/trainer'
         title: 'post_train'
         epochs: 0 # number of epochs model will be trained after search
+        aux_tower: True
         aux_weight: 0.0
         drop_path_prob: 0.0
       loader:
@@ -167,6 +169,7 @@ nas:
     trainer:
       apex: False
       aux_weight: '_copy: nas/search/model_desc/aux_weight'
+      aux_tower: True
       drop_path_prob: 0.0 # probability that given edge will be dropped
       grad_clip: 5.0 # grads above this value is clipped
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger

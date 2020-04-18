@@ -31,7 +31,7 @@ def train_test(conf_eval:Config):
     train_dl, _, test_dl = data.get_data(conf_loader)
     assert train_dl is not None and test_dl is not None
 
-    trainer = Trainer(conf_trainer, model, device, None, False)
+    trainer = Trainer(conf_trainer, model, device, None)
     trainer.fit(train_dl, test_dl)
 
 

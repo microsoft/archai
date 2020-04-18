@@ -13,11 +13,15 @@ class ManualExperimentRunner(ExperimentRunner):
     """Runs manually designed models such as resnet"""
 
     @overrides
+    def run_search(self)->Config:
+        raise NotImplementedError('Cannot perform search on manually crafted nn.Module, only eval is allowed')
+
+    @overrides
     def cell_builder(self)->Optional[CellBuilder]:
         return None
 
     @overrides
     def trainer_class(self)->TArchTrainer:
-        return None
+        return None # no search trainer
 
 

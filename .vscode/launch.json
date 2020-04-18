@@ -150,6 +150,22 @@
             "args": ["--algos", "random"]
         },
         {
+            "name": "Resnet-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--no-search", "--algos", "manual"]
+        },
+        {
+            "name": "Resnet-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--no-search", "--full", "--algos", "manual"]
+        },
+        {
             "name": "AML-Darts-Full",
             "type": "python",
             "request": "launch",

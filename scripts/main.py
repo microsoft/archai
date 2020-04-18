@@ -5,6 +5,7 @@ from archai.nas.exp_runner import ExperimentRunner
 from archai.algos.darts.darts_exp_runner import DartsExperimentRunner
 from archai.algos.petridish.petridish_exp_runner import PetridishExperimentRunner
 from archai.algos.random.random_exp_runner import RandomExperimentRunner
+from archai.algos.manual.manual_exp_runner import ManualExperimentRunner
 from archai.algos.xnas.xnas_exp_runner import XnasExperimentRunner
 from archai.algos.gumbelsoftmax.gs_exp_runner import GsExperimentRunner
 
@@ -14,6 +15,7 @@ def main():
         'petridish': PetridishExperimentRunner,
         'xnas': XnasExperimentRunner,
         'random': RandomExperimentRunner,
+        'manual': ManualExperimentRunner,
         'gs': GsExperimentRunner
     }
 

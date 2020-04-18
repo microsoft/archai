@@ -323,7 +323,7 @@ class Search:
             train_dl, val_dl = self.get_data(conf_loader)
             assert train_dl is not None
 
-            trainer = Trainer(conf_trainer, model, self.device, checkpoint=None, aux_tower=True)
+            trainer = Trainer(conf_trainer, model, self.device, checkpoint=None)
             train_metrics = trainer.fit(train_dl, val_dl)
 
             metrics_stats = Search._create_metrics_stats(model, train_metrics)

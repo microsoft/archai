@@ -1,5 +1,6 @@
 from typing import Tuple, Optional
 
+from torch import nn
 from torch.utils.data.dataloader import DataLoader
 
 from .model_desc import ModelDesc
@@ -52,6 +53,9 @@ def model_from_conf(full_desc_filename:str, conf_model_desc: Config,
 
 def model_from_desc(model_desc, device, droppath:bool, affine:bool)->Model:
     model = Model(model_desc, droppath=droppath, affine=affine)
+    return to_device(model) # type: ignore
+
+def to_device(model:nn.Module, device)->nn.Module:
     # TODO: enable DataParallel
     # if data_parallel:
     #     model = nn.DataParallel(model).to(device)

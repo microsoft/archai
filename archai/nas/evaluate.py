@@ -1,5 +1,6 @@
 from typing import Optional
 import importlib
+import sys
 
 import torch
 from torch import nn
@@ -37,7 +38,7 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     assert train_dl is not None and test_dl is not None
 
     checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
-    trainer = Trainer(conf_train, model, device, checkpoint, aux_tower=True)
+    trainer = Trainer(conf_train, model, device, checkpoint)
     train_metrics = trainer.fit(train_dl, test_dl)
     train_metrics.save(metric_filename)
 
@@ -59,13 +60,14 @@ def create_model(conf_eval:Config, device)->nn.Module:
     # endregion
 
     if final_model_factory:
-        module_name = final_model_factory['module']
-        function_name = final_model_factory['function']
-        args = final_model_factory.get('args', {})
+        splitted = final_model_factory.rsplit('.', 1)
+        module_name = splitted[0] if len(splitted) > 1 else ''
+        function_name = splitted[-1]
 
-        module = importlib.import_module(module_name)
+        module = importlib.import_module(module_name) if module_name else sys.modules[__name__]
         function = getattr(module, function_name)
-        model = function(**args)
+        model = function()
+        model = nas_utils.to_device(model, device)
 
         logger.info({'model_factory':True,
                     'module_name': module_name,

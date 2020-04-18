@@ -18,11 +18,11 @@ from .apex_utils import Amp
 
 class Trainer(EnforceOverrides):
     def __init__(self, conf_train:Config, model:nn.Module, device,
-                 checkpoint:Optional[CheckPoint], aux_tower:bool)->None:
+                 checkpoint:Optional[CheckPoint])->None:
         # region config vars
         conf_lossfn = conf_train['lossfn']
         self._apex = conf_train['apex']
-        self._aux_tower = aux_tower
+        self._aux_tower = conf_train['aux_tower']
         self._aux_weight = conf_train['aux_weight']
         self._grad_clip = conf_train['grad_clip']
         self._drop_path_prob = conf_train['drop_path_prob']
@@ -40,7 +40,7 @@ class Trainer(EnforceOverrides):
         self.device = device
         self._lossfn = ml_utils.get_lossfn(conf_lossfn).to(device)
         self._tester = Tester(conf_validation, model, device,
-                              aux_tower=aux_tower) \
+                              aux_tower=self._aux_tower) \
                         if conf_validation else None
         self._metrics:Optional[Metrics] = None
         self._amp = Amp(self._apex)
@@ -202,7 +202,7 @@ class Trainer(EnforceOverrides):
 
             logits, aux_logits = self.model(x), None
             if self._aux_tower:
-                assert isinstance(logits, Tuple) and len(logits) >=2
+                assert isinstance(logits, Tuple) and len(logits) >=2, "aux_logits cannot be None unless aux tower is disabled"
                 logits, aux_logits = logits[0], logits[1]
             loss = self.compute_loss(self._lossfn, x, y, logits,
                                     self._aux_weight, aux_logits)

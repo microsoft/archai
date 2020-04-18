@@ -1,0 +1,26 @@
+__include__: 'darts.yaml' # just use darts defaults
+
+
+nas:
+  eval:
+    final_model_factory: 'archai.cifar10_models.resnet.resnet18'
+    loader:
+      train_batch: 96
+      test_batch: 1024
+    trainer:
+      apex: False
+      aux_weight: 0.0
+      aux_tower: False
+      drop_path_prob: 0.0 # probability that given edge will be dropped
+      epochs: 600
+      optimizer:
+        type: 'sgd'
+        lr: 0.025 # init learning rate
+        decay: 3.0e-4 # pytorch default is 0.0
+        momentum: 0.9 # pytorch default is 0.0
+        nesterov: False # pytorch default is False
+        warmup: null
+      lr_schedule:
+        type: 'cosine'
+        min_lr: 0.001 # min learning rate to se bet in eta_min param of scheduler
+
