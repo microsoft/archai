@@ -83,7 +83,7 @@ class ExperimentRunner(ABC, EnforceOverrides):
         return search_conf, eval_conf
 
     @abstractmethod
-    def cell_builder(self)->CellBuilder:
+    def cell_builder(self)->Optional[CellBuilder]:
         pass
 
     @abstractmethod

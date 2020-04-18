@@ -10,7 +10,7 @@ from .model import Model
 from ..common.common import logger
 from ..common.checkpoint import CheckPoint
 
-def build_cell(model_desc, cell_builder: CellBuilder, search_iter:int)->None:
+def build_cell(model_desc, cell_builder:Optional[CellBuilder], search_iter:int)->None:
     if cell_builder:
         cell_builder.register_ops()
         cell_builder.build(model_desc, search_iter)

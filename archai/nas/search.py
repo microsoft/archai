@@ -85,7 +85,7 @@ class SearchResult:
         return self.metrics_stats.model_desc
 
 class Search:
-    def __init__(self, conf_search:Config, cell_builder:CellBuilder,
+    def __init__(self, conf_search:Config, cell_builder:Optional[CellBuilder],
                  trainer_class:TArchTrainer) -> None:
         # region config vars
         conf_checkpoint = conf_search['checkpoint']

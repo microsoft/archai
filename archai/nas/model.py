@@ -136,12 +136,6 @@ class Model(nn.Module):
             if isinstance(module, DropPath_):
                 module.p = p
 
-    def save(self, filepath:str)->Optional[str]:
-        if filepath:
-            filepath = utils.full_path(filepath)
-            ml_utils.save_model(self, filepath)
-        return filepath
-
 
 class AuxTower(nn.Module):
     def __init__(self, aux_tower_desc:AuxTowerDesc, pool_stride:int):

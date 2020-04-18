@@ -31,6 +31,13 @@ nas:
   eval:
     full_desc_filename: '$expdir/full_model_desc.yaml' # model desc used for building model for evaluation
     final_desc_filename: '$expdir/final_model_desc.yaml' # model desc used as template to construct cells
+
+    # if below is specified then final_desc_filename is ignored and model is created through factory function instead.
+    # this is useful for running eval for manually designed models such as resnet-50
+    # keys: module, function, args. module is fully namespaced module where function exist. The function
+    # returns nn.Module. If args exist, it should be dictionary and it will be passed as **kwargs to the function.
+    final_model_factory: {}
+
     metric_filename: '$expdir/eval_train_metrics.yaml'
     model_filename: '$expdir/model.pt' # file to which trained model will be saved
     device: '_copy: common/device'
