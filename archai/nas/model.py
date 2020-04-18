@@ -44,8 +44,7 @@ class Model(nn.Module):
                     droppath:bool, affine:bool)->None:
         alphas_cell = None if cell_desc.alphas_from==cell_desc.id  \
                             else self._cells[cell_desc.alphas_from]
-        cell = Cell(cell_desc,
-                    affine=affine, droppath=droppath,
+        cell = Cell(cell_desc, affine=affine, droppath=droppath,
                     alphas_cell=alphas_cell)
         self._cells.append(cell)
         self._aux_towers.append(AuxTower(aux_tower_desc, pool_stride=3) \

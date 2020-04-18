@@ -75,6 +75,10 @@ class Trainer(EnforceOverrides):
                      'checkpoint_val': checkpoint_val,
                      'start_epoch': self._start_epoch,
                      'total_epochs': self._epochs})
+        logger.info({'aux_weight': self._aux_weight,
+                     'grad_clip': self._grad_clip,
+                     'drop_path_prob': self._drop_path_prob,
+                     'validation_freq': self._validation_freq})
 
         if self._start_epoch >= self._epochs:
             logger.warn(f'fit done because start_epoch {self._start_epoch}>={self._epochs}')
