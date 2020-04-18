@@ -15,15 +15,13 @@ class Tester(EnforceOverrides):
     """Evaluate model on given data
     """
 
-    def __init__(self, conf_eval:Config, model:nn.Module, device,
-                 aux_tower:bool)->None:
+    def __init__(self, conf_eval:Config, model:nn.Module, device)->None:
         self._title = conf_eval['title']
         self._logger_freq = conf_eval['logger_freq']
         conf_lossfn = conf_eval['lossfn']
 
         self.model = model
         self.device = device
-        self._aux_tower = aux_tower
         self._lossfn = ml_utils.get_lossfn(conf_lossfn).to(device)
         self._metrics = None
 
@@ -54,7 +52,8 @@ class Tester(EnforceOverrides):
 
                 self._pre_step(x, y, self._metrics)
                 logits = self.model(x)
-                if self._aux_tower:
+                tupled_out = isinstance(logits, Tuple) and len(logits) >=2
+                if tupled_out:
                     logits = logits[0]
                 loss = self._lossfn(logits, y)
                 self._post_step(x, y, logits, loss, steps, self._metrics)

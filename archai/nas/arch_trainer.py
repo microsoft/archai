@@ -22,7 +22,7 @@ TArchTrainer = Optional[Type['ArchTrainer']]
 class ArchTrainer(Trainer, EnforceOverrides):
     def __init__(self, conf_train: Config, model: Model, device,
                  checkpoint:Optional[CheckPoint]) -> None:
-        super().__init__(conf_train, model, device, checkpoint, aux_tower=True)
+        super().__init__(conf_train, model, device, checkpoint)
 
         self._l1_alphas = conf_train['l1_alphas']
         self._plotsdir = conf_train['plotsdir']

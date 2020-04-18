@@ -10,7 +10,6 @@ nas:
     trainer:
       apex: False
       aux_weight: 0.0
-      aux_tower: False
       drop_path_prob: 0.0 # probability that given edge will be dropped
       epochs: 600
       optimizer:

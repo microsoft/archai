@@ -17,7 +17,7 @@
 #     device = torch.device('cuda')
 
 #     model = create_model(conf_model_desc, device,
-#                          aux_tower=False, affine=False, droppath=False,
+#                           affine=False, droppath=False,
 #                          cell_builder=None, template_model_desc=None)
 
 #     x = torch.randn(64, 3, 32, 32).to(device)

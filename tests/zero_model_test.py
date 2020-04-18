@@ -8,7 +8,7 @@ def test_darts_zero_model():
     conf_search = conf['nas']['search']
     model_desc = conf_search['model_desc']
 
-    macro_builder = MacroBuilder(model_desc, aux_tower=False)
+    macro_builder = MacroBuilder(model_desc)
     model_desc = macro_builder.build()
     m = Model(model_desc, False, True)
     y, aux = m(torch.rand((1, 3, 32, 32)))
@@ -19,7 +19,7 @@ def test_petridish_zero_model():
     conf_search = conf['nas']['search']
     model_desc = conf_search['model_desc']
 
-    macro_builder = MacroBuilder(model_desc, aux_tower=False)
+    macro_builder = MacroBuilder(model_desc)
     model_desc = macro_builder.build()
     m = Model(model_desc, False, True)
     y, aux = m(torch.rand((1, 3, 32, 32)))

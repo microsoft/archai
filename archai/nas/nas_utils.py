@@ -16,11 +16,9 @@ def build_cell(model_desc, cell_builder:Optional[CellBuilder], search_iter:int)-
         cell_builder.register_ops()
         cell_builder.build(model_desc, search_iter)
 
-def create_macro_desc(conf_model_desc: Config, aux_tower:bool,
+def create_macro_desc(conf_model_desc: Config,
                       template_model_desc:Optional[ModelDesc])->ModelDesc:
-    builder = MacroBuilder(conf_model_desc,
-                            aux_tower=aux_tower,
-                            template=template_model_desc)
+    builder = MacroBuilder(conf_model_desc, template=template_model_desc)
     model_desc = builder.build()
     return model_desc
 
@@ -40,12 +38,11 @@ def create_checkpoint(conf_checkpoint:Config, resume:bool)->Optional[CheckPoint]
     return checkpoint
 
 def model_from_conf(full_desc_filename:str, conf_model_desc: Config,
-        device, aux_tower:bool, affine:bool, droppath:bool,
+        device, affine:bool, droppath:bool,
         template_model_desc:ModelDesc)->Model:
     """Creates model given desc config and template"""
     # create model
-    model_desc = create_macro_desc(conf_model_desc, aux_tower,
-                                    template_model_desc)
+    model_desc = create_macro_desc(conf_model_desc, template_model_desc)
     # save model that we would eval for reference
     model_desc.save(full_desc_filename)
 
@@ -53,7 +50,7 @@ def model_from_conf(full_desc_filename:str, conf_model_desc: Config,
 
 def model_from_desc(model_desc, device, droppath:bool, affine:bool)->Model:
     model = Model(model_desc, droppath=droppath, affine=affine)
-    return to_device(model) # type: ignore
+    return to_device(model, device) # type: ignore
 
 def to_device(model:nn.Module, device)->nn.Module:
     # TODO: enable DataParallel

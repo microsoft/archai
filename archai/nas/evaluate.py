@@ -77,10 +77,9 @@ def create_model(conf_eval:Config, device)->nn.Module:
         # load model desc file to get template model
         template_model_desc = ModelDesc.load(final_desc_filename)
 
-        # TODO: move aux_tower, droppath into config
         model = nas_utils.model_from_conf(full_desc_filename,
                                     conf_model_desc, device,
-                                    aux_tower=True, affine=True, droppath=True,
+                                    affine=True, droppath=True,
                                     template_model_desc=template_model_desc)
 
         logger.info({'model_factory':False,

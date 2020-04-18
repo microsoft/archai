@@ -76,7 +76,6 @@ nas:
         _copy: '/dataset'
     trainer:
       apex: False
-      aux_tower: True
       aux_weight: '_copy: nas/eval/model_desc/aux_weight'
       drop_path_prob: 0.2 # probability that given edge will be dropped
       grad_clip: 5.0 # grads above this value is clipped
@@ -118,7 +117,6 @@ nas:
         _copy: 'nas/eval/trainer'
         title: 'seed_train'
         epochs: 0 # number of epochs model will be trained before search
-        aux_tower: True
         aux_weight: 0.0
         drop_path_prob: 0.0
       loader:
@@ -130,7 +128,6 @@ nas:
         _copy: 'nas/eval/trainer'
         title: 'post_train'
         epochs: 0 # number of epochs model will be trained after search
-        aux_tower: True
         aux_weight: 0.0
         drop_path_prob: 0.0
       loader:
@@ -169,7 +166,6 @@ nas:
     trainer:
       apex: False
       aux_weight: '_copy: nas/search/model_desc/aux_weight'
-      aux_tower: True
       drop_path_prob: 0.0 # probability that given edge will be dropped
       grad_clip: 5.0 # grads above this value is clipped
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger

@@ -8,7 +8,7 @@ from .model_desc import ModelDesc, OpDesc, CellType, NodeDesc, EdgeDesc, \
 from ..common.common import logger
 
 class MacroBuilder(EnforceOverrides):
-    def __init__(self, conf_model_desc: Config, aux_tower:bool,
+    def __init__(self, conf_model_desc: Config,
                  template:Optional[ModelDesc]=None)->None:
         # region conf vars
         conf_data = conf_model_desc['dataset']
@@ -38,7 +38,6 @@ class MacroBuilder(EnforceOverrides):
             [self.n_cells*(i+1) // (self.n_reductions+1) \
                 for i in range(self.n_reductions)]
 
-        self.aux_tower = aux_tower
         self._set_templates(template)
 
     def _set_templates(self, template:Optional[ModelDesc])->None:
@@ -179,9 +178,7 @@ class MacroBuilder(EnforceOverrides):
 
     def _get_aux_tower(self, cell_desc:CellDesc, cell_index:int)->Optional[AuxTowerDesc]:
         # TODO: shouldn't we be adding aux tower at *every* 1/3rd?
-        if self.aux_tower and    \
-                self.aux_weight > 0.0 and   \
-                cell_index == 2*self.n_cells//3:
+        if self.aux_weight and cell_index == 2*self.n_cells//3:
             return AuxTowerDesc(cell_desc.cell_ch_out, self.n_classes)
         return None
 

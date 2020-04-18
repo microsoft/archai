@@ -210,7 +210,8 @@ class Search:
         return model_desc, best_result
 
     def _seed_model(self, model_desc, reductions, cells, nodes)->ModelDesc:
-        self.cell_builder.seed(model_desc)
+        if self.cell_builder:
+            self.cell_builder.seed(model_desc)
         metrics_stats = self._train_desc(model_desc, self.conf_presearch_train)
         self._save_trained(reductions, cells, nodes, -1, metrics_stats)
         return metrics_stats.model_desc
@@ -231,7 +232,7 @@ class Search:
         # create model desc for search using model config
         # we will build model without call to cell_builder for pre-training
         model_desc = nas_utils.create_macro_desc(self.conf_model_desc,
-                                    aux_tower=False, template_model_desc=None)
+                                    template_model_desc=None)
         return model_desc
 
     def _save_trained(self, reductions:int, cells:int, nodes:int,
