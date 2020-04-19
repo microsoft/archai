@@ -62,6 +62,14 @@
             "args": ["--algos", "darts", "--datasets", "food101"]
         },
         {
+            "name": "Darts-ImageNet-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "darts", "--datasets", "imagenet"]
+        },
+        {
             "name": "Petridish-Full",
             "type": "python",
             "request": "launch",

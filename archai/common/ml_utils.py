@@ -71,19 +71,22 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
         steps_per_epoch:Optional[int])-> Tuple[Optional[_LRScheduler], bool]:
 
     # epoch_or_step - apply every epoch or every step
-    scheduler, epoch_or_step = None, True
+    scheduler, epoch_or_step = None, True # by default sched step on epoch
+
+    # TODO: adjust max epochs for warmup?
+    # if conf_lrs.get('warmup', None):
+    #     epochs -= conf_lrs['warmup']['epochs']
 
     if conf_lrs is not None:
         lr_scheduler_type = conf_lrs['type'] # TODO: default should be none?
+
         if lr_scheduler_type == 'cosine':
-            # adjust max epochs for warmup
-            # TODO: shouldn't we be increasing epochs or schedule lr only after warmup?
-            if conf_lrs.get('warmup', None):
-                epochs -= conf_lrs['warmup']['epochs']
             scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs,
                 eta_min=conf_lrs['min_lr'])
-        elif lr_scheduler_type == 'resnet':
-            scheduler = _adjust_learning_rate_resnet(optimizer, epochs)
+        elif lr_scheduler_type == 'multi_step':
+            scheduler = lr_scheduler.MultiStepLR(optimizer,
+                                                 milestones=conf_lrs['milestones'],
+                                                 gamma=conf_lrs['gamma'])
         elif lr_scheduler_type == 'pyramid':
             scheduler = _adjust_learning_rate_pyramid(optimizer, epochs,
                 get_optim_lr(optimizer))
@@ -100,7 +103,7 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
                             epochs=epochs, steps_per_epoch=steps_per_epoch,
                         )  # TODO: other params
         elif not lr_scheduler_type:
-                scheduler = None # TODO: check support for this or use StepLR
+                scheduler = None
         else:
             raise ValueError('invalid lr_schduler=%s' % lr_scheduler_type)
 
@@ -123,18 +126,6 @@ def _adjust_learning_rate_pyramid(optimizer, max_epoch:int, base_lr:float):
 
     return lr_scheduler.LambdaLR(optimizer, _internal_adjust_learning_rate_pyramid)
 
-def _adjust_learning_rate_resnet(optimizer, epoch):
-    """
-    Sets the learning rate to the initial LR decayed by 10 every [90, 180, 240] epochs
-    Ref: AutoAugment
-    """
-
-    if epoch == 90:
-        return lr_scheduler.MultiStepLR(optimizer, [30, 60, 80])
-    elif epoch == 270:   # autoaugment
-        return lr_scheduler.MultiStepLR(optimizer, [90, 180, 240])
-    else:
-        raise ValueError('invalid epoch=%d for resnet scheduler' % epoch)
 
 # TODO: replace this with SmoothCrossEntropyLoss class
 # def cross_entropy_smooth(input: torch.Tensor, target, size_average=True, label_smoothing=0.1):
@@ -159,8 +150,10 @@ class SmoothCrossEntropyLoss(_WeightedLoss):
     def _smooth_one_hot(targets:torch.Tensor, n_classes:int, smoothing=0.0):
         assert 0 <= smoothing < 1
         with torch.no_grad():
-            targets = torch.empty(size=(targets.size(0), n_classes),
-                    device=targets.device) \
+            # For label smoothing, we replace 1-hot vector with 0.9-hot vector instead.
+            # Create empty vector of same size as targets, fill them up with smoothing/(n-1)
+            # then replace element where 1 supposed to go and put there 1-smoothing instead
+            targets = torch.empty(size=(targets.size(0), n_classes), device=targets.device) \
                 .fill_(smoothing /(n_classes-1)) \
                 .scatter_(1, targets.data.unsqueeze(1), 1.-smoothing)
         return targets
@@ -170,7 +163,7 @@ class SmoothCrossEntropyLoss(_WeightedLoss):
             self.smoothing)
         lsm = F.log_softmax(inputs, -1)
 
-        if self.weight is not None:
+        if self.weight is not None: # to support weighted targets
             lsm = lsm * self.weight.unsqueeze(0)
 
         loss = -(targets * lsm).sum(-1)

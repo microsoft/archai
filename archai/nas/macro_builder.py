@@ -6,6 +6,7 @@ from ..common.config import Config
 from .model_desc import ModelDesc, OpDesc, CellType, NodeDesc, EdgeDesc, \
                         CellDesc, AuxTowerDesc, ConvMacroParams
 from ..common.common import logger
+from .operations import ModelStemBase, Op
 
 class MacroBuilder(EnforceOverrides):
     def __init__(self, conf_model_desc: Config,
@@ -34,6 +35,7 @@ class MacroBuilder(EnforceOverrides):
         assert self.n_cells >= self.n_reductions * 2 + 1
 
         # for each reduction, we create one indice
+        # for cifar and imagenet, reductions=2 creating cuts at n//3, n*2//3
         self._reduction_cell_indices = \
             [self.n_cells*(i+1) // (self.n_reductions+1) \
                 for i in range(self.n_reductions)]
@@ -59,8 +61,12 @@ class MacroBuilder(EnforceOverrides):
         # create model stems
         stem0_op, stem1_op = self._create_model_stems()
 
+        # need to get reduction factors for model stems
+        stem0_reduction, stem1_reduction = MacroBuilder._stem_reductions(stem0_op, stem1_op)
+        assert stem0_reduction <= stem1_reduction # probably this is not needed
+
         # create cell descriptions
-        cell_descs, aux_tower_descs = self._get_cell_descs(
+        cell_descs, aux_tower_descs = self._get_cell_descs(stem0_reduction < stem1_reduction,
             stem0_op.params['conv'].ch_out, self.max_final_edges)
 
         if len(cell_descs):
@@ -79,10 +85,9 @@ class MacroBuilder(EnforceOverrides):
                          self.n_classes, cell_descs, aux_tower_descs,
                          logits_op, self.model_desc_params.to_dict())
 
-    def _get_cell_descs(self, stem_ch_out:int, max_final_edges:int)\
+    def _get_cell_descs(self, reduction_p:bool, stem_ch_out:int, max_final_edges:int)\
             ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
         cell_descs, aux_tower_descs = [], []
-        reduction_p = False
         pp_ch_out, p_ch_out, ch_out = stem_ch_out, stem_ch_out, self.init_ch_out
 
         first_normal, first_reduction = -1, -1
@@ -193,3 +198,9 @@ class MacroBuilder(EnforceOverrides):
         stem1_op = OpDesc(name=self.model_stem1_op, params={'conv': conv_params},
                           in_len=1, trainables=None)
         return stem0_op, stem1_op
+
+    @staticmethod
+    def _stem_reductions(stem0_op:OpDesc, stem1_op:OpDesc)->Tuple[int, int]:
+        op1, op2 = Op.create(stem0_op, affine=False), Op.create(stem1_op, affine=False)
+        assert isinstance(op1, ModelStemBase) and isinstance(op2, ModelStemBase)
+        return op1.reduction, op2.reduction

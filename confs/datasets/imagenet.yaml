@@ -1,26 +1,37 @@
-dataset:
+
+common:
+  seed: 0.0
+
+imagenet_dataset:
   name: 'imagenet'
-  dataroot: '~/data/ImageNet' #torchvision data folder
+  dataroot: '~/dataroot' #torchvision data folder
   n_classes: 1000
+  channels: 3 # number of channels in image
+  storage_name: 'ImageNet' # name of folder or tar file to copy from cloud storage
+  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
 
 nas:
   eval:
     model_desc:
-      init_ch_out: 36 # num of channels for stem outpt node
+      init_ch_out: 48 # num of channels for stem outpt node
       n_cells: 14 # number of cells
       stem_multiplier: 1 # output channels multiplier for the stem
-      model_stem0_op: 'stem0_imagenet'
-      model_stem1_op: 'stem1_imagenet'
-      model_post_op: 'pool_imagenet'
+      model_stem0_op: 'stem_conv3x3_s4'
+      model_stem1_op: 'stem_conv3x3_s4s2'
+      model_post_op: 'pool_avg2d7x7'
+      dataset:
+        _copy: '/imagenet_dataset'
     loader:
       batch: 128
+      dataset:
+        _copy: '/imagenet_dataset'
     trainer:
       aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
       drop_path_prob: 0.0 # probability that given edge will be dropped
       epochs: 250
       lossfn: # TODO: this is perhaps reversed for test/train?
         type: 'CrossEntropyLabelSmooth'
-        smoothing: 0.1
+        smoothing: 0.1 # label smoothing
       optimizer:
         lr: 0.1 # init learning rate
         decay: 3.0e-5

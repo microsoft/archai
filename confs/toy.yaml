@@ -20,7 +20,7 @@ nas:
         train_batch: 32
         test_batch: 64
         dataset:
-          max_batches: 4
+          max_batches: 2
     post_train:
       trainer:
         epochs: 1
@@ -28,29 +28,29 @@ nas:
         train_batch: 32
         test_batch: 64
         dataset:
-          max_batches: 4
+          max_batches: 2
     model_desc:
       n_reductions: 1 # number of reductions to be applied
       n_cells: 3 # number of cells
-      n_nodes: 1 # number of nodes in a cell
+      n_nodes: 2 # number of nodes in a cell
     loader:
       train_batch: 32
       test_batch: 64
       dataset:
-        max_batches: 4
+        max_batches: 2
     trainer:
       epochs: 1
   eval:
     data_parallel: False
     checkpoint: null
     model_desc:
-      n_cells: 3 # number of cells
+      n_cells: 5 # number of cells
       n_nodes: 2 # number of nodes in a cell
-      n_reductions: 1 # number of reductions to be applied
+      n_reductions: 2 # number of reductions to be applied
     loader:
       train_batch: 32
       test_batch: 64
       dataset:
-        max_batches: 4
+        max_batches: 2
     trainer:
       epochs: 1

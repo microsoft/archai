@@ -61,8 +61,17 @@ def create_model(conf_eval:Config, device)->nn.Module:
 
     if final_model_factory:
         splitted = final_model_factory.rsplit('.', 1)
-        module_name = splitted[0] if len(splitted) > 1 else ''
         function_name = splitted[-1]
+
+        if len(splitted) > 1:
+            module_name = splitted[0]
+        else: # to support lazyness while submitting scripts, we do bit of unnecessory smarts
+            if function_name.startswith('res'): # support resnext as well
+                module_name = 'archai.cifar10_models.resnet'
+            elif function_name.startswith('dense'):
+                module_name = 'archai.cifar10_models.densenet'
+            else:
+                    module_name = ''
 
         module = importlib.import_module(module_name) if module_name else sys.modules[__name__]
         function = getattr(module, function_name)

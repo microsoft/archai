@@ -44,14 +44,14 @@ _ops_factory:Dict[str, Callable] = {
                             ReLUConvBN(op_desc, 1, 1, 0, affine),
     'stem_conv3x3':       lambda op_desc, alphas, affine:
                             StemConv3x3(op_desc, affine),
-    'stem0_imagenet':   lambda op_desc, alphas, affine:
-                            Stem0Imagenet(op_desc, affine),
-    'stem1_imagenet':   lambda op_desc, alphas, affine:
-                            Stem1Imagenet(op_desc, affine),
+    'stem_conv3x3_s4':   lambda op_desc, alphas, affine:
+                            StemConv3x3S4(op_desc, affine),
+    'stem_conv3x3_s4s2':   lambda op_desc, alphas, affine:
+                            StemConv3x3S4S2(op_desc, affine),
     'pool_adaptive_avg2d':       lambda op_desc, alphas, affine:
                             PoolAdaptiveAvg2D(),
-    'pool_imagenet':    lambda op_desc, alphas, affine:
-                            PoolImagenet(),
+    'pool_avg2d7x7':    lambda op_desc, alphas, affine:
+                            AvgPool2d7x7(),
     'concate_channels':   lambda op_desc, alphas, affine:
                             ConcateChannelsOp(op_desc, affine),
     'proj_channels':   lambda op_desc, alphas, affine:
@@ -340,9 +340,17 @@ class FactorizedReduce(Op):
         out = self.bn(out)
         return out
 
-class StemConv3x3(Op):
-    def __init__(self, op_desc:OpDesc, affine:bool)->None:
+
+class ModelStemBase(Op):
+    """Abstract base class for model stems that enforces reduction property
+    indicating amount of reductions performed by stem, i.e., reduction=2 for stride=2"""
+    def __init__(self, reduction:int) -> None:
         super().__init__()
+        self.reduction = reduction
+
+class StemConv3x3(ModelStemBase):
+    def __init__(self, op_desc:OpDesc, affine:bool)->None:
+        super().__init__(1)
 
         conv_params:ConvMacroParams = op_desc.params['conv']
         ch_in = conv_params.ch_in
@@ -363,15 +371,16 @@ class StemConv3x3(Op):
     def can_drop_path(self)->bool:
         return False
 
-class Stem0Imagenet(Op):
+class StemConv3x3S4(ModelStemBase):
     def __init__(self, op_desc, affine:bool)->None:
-        super().__init__()
+        super().__init__(4)
 
         conv_params:ConvMacroParams = op_desc.params['conv']
         ch_in = conv_params.ch_in
         ch_out = conv_params.ch_out
 
         self._op = nn.Sequential(
+            # keep in sync with StemConv3x3S4S2
             nn.Conv2d(ch_in, ch_out//2, kernel_size=3, stride=2, padding=1, bias=False),
             nn.BatchNorm2d(ch_out//2, affine=affine),
             nn.ReLU(inplace=True),
@@ -387,17 +396,25 @@ class Stem0Imagenet(Op):
     def can_drop_path(self)->bool:
         return False
 
-class Stem1Imagenet(Op):
+class StemConv3x3S4S2(ModelStemBase):
     def __init__(self, op_desc, affine:bool)->None:
-        super().__init__()
+        super().__init__(8)
 
         conv_params:ConvMacroParams = op_desc.params['conv']
         ch_in = conv_params.ch_in
         ch_out = conv_params.ch_out
 
         self._op = nn.Sequential(
+            # s4 ops - keep in sync with StemConv3x3S4
+            nn.Conv2d(ch_in, ch_out//2, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(ch_out//2, affine=affine),
             nn.ReLU(inplace=True),
-            nn.Conv2d(ch_in, ch_out, 3, stride=2, padding=1, bias=False),
+            nn.Conv2d(ch_out//2, ch_out, 3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(ch_out, affine=affine),
+
+            # s2 ops
+            nn.ReLU(inplace=True),
+            nn.Conv2d(ch_out, ch_out, 3, stride=2, padding=1, bias=False),
             nn.BatchNorm2d(ch_out, affine=affine)
         )
 
@@ -409,7 +426,7 @@ class Stem1Imagenet(Op):
     def can_drop_path(self)->bool:
         return False
 
-class PoolImagenet(Op):
+class AvgPool2d7x7(Op):
     def __init__(self)->None:
         super().__init__()
         self._op = nn.AvgPool2d(7)

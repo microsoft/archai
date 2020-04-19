@@ -110,6 +110,10 @@ class Trainer(EnforceOverrides):
 
     def _create_scheduler(self, optim:Optimizer, steps_per_epoch:int) \
             ->Tuple[Optional[_LRScheduler],bool]:
+
+        logger.info({'steps_per_epoch': steps_per_epoch,
+                     'scheduler': self._conf_sched.to_dict()})
+
         return ml_utils.create_lr_scheduler(self._conf_sched, self._epochs,
             optim, steps_per_epoch)
 

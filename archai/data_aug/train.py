@@ -57,7 +57,7 @@ def run_epoch(conf, logger, model:nn.Module, loader, loss_fn, optimizer,
             if getattr(optimizer, "synchronize", None):
                 optimizer.synchronize()     # for horovod
             # grad clipping defaults to 5 (same as Darts)
-            if grad_clip > 0:
+            if grad_clip > 0.0:
                 nn.utils.clip_grad_norm_(model.parameters(),
                     grad_clip)
             optimizer.step()

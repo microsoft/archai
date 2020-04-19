@@ -78,7 +78,6 @@ class Model(nn.Module):
 
     @overrides
     def forward(self, x)->Tuple[Tensor, Optional[Tensor]]:
-        # TODO: original code has slighly different way of applying stems
         s0 = self._stem0_op(x)
         s1 = self._stem1_op(x)
 
@@ -139,7 +138,7 @@ class Model(nn.Module):
 class AuxTower(nn.Module):
     def __init__(self, aux_tower_desc:AuxTowerDesc, pool_stride:int):
         """assuming input size 14x14"""
-        # TODO: assert input size
+        # TODO: assert input size?
         super().__init__()
 
         self.features = nn.Sequential(
@@ -160,6 +159,5 @@ class AuxTower(nn.Module):
 
     def forward(self, x:torch.Tensor):
         x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self._logits_op(x)
+        x = self._logits_op(x.view(x.size(0), -1))
         return x
