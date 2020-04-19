@@ -13,7 +13,7 @@ install_requires=[
     'tensorwatch>=0.9.1', 'tensorboard',
     'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib', 'psutil',
     'requests',
-    'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil'
+    'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt'
 ]
 
 if platform.system()!='Windows':

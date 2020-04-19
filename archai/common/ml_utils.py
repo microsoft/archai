@@ -22,6 +22,7 @@ from torch.utils.model_zoo import tqdm
 
 import yaml
 import runstats
+import statopt
 
 from .config import Config
 from .cocob import CocobBackprop
@@ -44,6 +45,9 @@ def create_optimizer(conf_opt:Config, params)->Optimizer:
             weight_decay=conf_opt['decay'])
     elif conf_opt['type'] == 'cocob':
         return CocobBackprop(params,
+            alpha=conf_opt['alpha'])
+    elif conf_opt['type'] == 'salsa':
+        return statopt.SALSA(params,
             alpha=conf_opt['alpha'])
     else:
         raise ValueError('invalid optimizer type=%s' % conf_opt['type'])
