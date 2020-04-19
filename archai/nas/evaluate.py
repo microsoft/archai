@@ -93,7 +93,7 @@ def create_model(conf_eval:Config, device)->nn.Module:
 
         logger.info({'model_factory':False,
                     'cells_len':len(model.desc.cell_descs()),
-                    'init_ch_out': conf_model_desc['init_ch_out'],
+                    'init_node_ch': conf_model_desc['init_node_ch'],
                     'n_cells': conf_model_desc['n_cells'],
                     'n_reductions': conf_model_desc['n_reductions'],
                     'n_nodes': conf_model_desc['n_nodes']})

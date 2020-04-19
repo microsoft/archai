@@ -142,12 +142,13 @@ class PoolBN(Op):
         else:
             raise ValueError()
 
-        self.bn = nn.BatchNorm2d(ch_in, affine=affine)
+        # TODO: pt.darts applies BN but original implementation doesn't
+        # self.bn = nn.BatchNorm2d(ch_in, affine=affine)
 
     @overrides
     def forward(self, x):
         out = self.pool(x)
-        out = self.bn(out)
+        #out = self.bn(out)
         return out
 
 class SkipConnect(Op):
@@ -343,7 +344,7 @@ class FactorizedReduce(Op):
 
 class ModelStemBase(Op):
     """Abstract base class for model stems that enforces reduction property
-    indicating amount of reductions performed by stem, i.e., reduction=2 for stride=2"""
+    indicating amount of spatial map reductions performed by stem, i.e., reduction=2 for each stride=2"""
     def __init__(self, reduction:int) -> None:
         super().__init__()
         self.reduction = reduction

@@ -67,7 +67,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--algos", "darts", "--datasets", "imagenet"]
+            "args": ["--no-search",  "--algos", "darts", "--datasets", "imagenet", "--nas.eval.final_desc_filename", "models/darts/final_model_desc1.yaml"]
         },
         {
             "name": "Petridish-Full",

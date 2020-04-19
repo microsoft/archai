@@ -37,7 +37,11 @@ class Model(nn.Module):
         # it indicates the input channel number
         self._logits_op = Op.create(model_desc.logits_op, affine=affine)
 
+        # for i,cell in enumerate(self._cells):
+        #     print(i, ml_utils.param_size(cell))
         logger.info({'model_summary': self.summary()})
+
+
 
     def _build_cell(self, cell_desc:CellDesc,
                     aux_tower_desc:Optional[AuxTowerDesc],
@@ -47,7 +51,7 @@ class Model(nn.Module):
         cell = Cell(cell_desc, affine=affine, droppath=droppath,
                     alphas_cell=alphas_cell)
         self._cells.append(cell)
-        self._aux_towers.append(AuxTower(aux_tower_desc, pool_stride=3) \
+        self._aux_towers.append(AuxTower(aux_tower_desc) \
                                 if aux_tower_desc else None)
 
     def summary(self)->dict:
@@ -78,22 +82,29 @@ class Model(nn.Module):
 
     @overrides
     def forward(self, x)->Tuple[Tensor, Optional[Tensor]]:
+        #print(torch.cuda.memory_allocated()/1.0e6)
         s0 = self._stem0_op(x)
+        #print(torch.cuda.memory_allocated()/1.0e6)
         s1 = self._stem1_op(x)
+        #print(-1, s0.shape, s1.shape, torch.cuda.memory_allocated()/1.0e6)
 
         logits_aux = None
-        for cell, aux_tower in zip(self._cells, self._aux_towers):
+        for ci, (cell, aux_tower) in enumerate(zip(self._cells, self._aux_towers)):
             #print(s0.shape, s1.shape, end='')
             s0, s1 = s1, cell.forward(s0, s1)
-            #print('\t->\t', s0.shape, s1.shape)
+            #print(ci, s0.shape, s1.shape, torch.cuda.memory_allocated()/1.0e6)
 
             # TODO: this mimics darts but won't work for multiple aux towers
             if aux_tower is not None and self.training:
                 logits_aux = aux_tower(s1)
+                #print(ci, 'aux', logits_aux.shape)
 
         # s1 is now the last cell's output
         out = self._pool_op(s1)
         logits = self._logits_op(out) # flatten
+
+        #print(-1, 'out', out.shape)
+        #print(-1, 'logits', logits.shape)
 
         return logits, logits_aux
 
@@ -136,24 +147,21 @@ class Model(nn.Module):
 
 
 class AuxTower(nn.Module):
-    def __init__(self, aux_tower_desc:AuxTowerDesc, pool_stride:int):
+    def __init__(self, aux_tower_desc:AuxTowerDesc):
         """assuming input size 14x14"""
         # TODO: assert input size?
         super().__init__()
 
         self.features = nn.Sequential(
             nn.ReLU(inplace=True),
-            nn.AvgPool2d(5, stride=pool_stride, padding=0, count_include_pad=False),
+            nn.AvgPool2d(5, stride=aux_tower_desc.stride, padding=0, count_include_pad=False),
             nn.Conv2d(aux_tower_desc.ch_in, 128, 1, bias=False),
             nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
             nn.Conv2d(128, 768, 2, bias=False),
             # TODO: This batchnorm was omitted in orginal implementation due to a typo.
-            # nn.BatchNorm2d(768),
+            nn.BatchNorm2d(768),
             nn.ReLU(inplace=True),
-            # TODO: original code does't have adaptive pooling but things
-            # don't work for variable cells otherwise
-            nn.AdaptiveAvgPool2d(1)
         )
         self._logits_op = nn.Linear(768, aux_tower_desc.n_classes)
 

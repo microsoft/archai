@@ -16,7 +16,8 @@ class MacroBuilder(EnforceOverrides):
         self.ds_name = conf_data['name']
         self.ds_ch = conf_data['channels']
         self.n_classes = conf_data['n_classes']
-        self.init_ch_out = conf_model_desc['init_ch_out']
+        self.init_node_ch = conf_model_desc['init_node_ch']
+        self.aux_tower_stride = conf_model_desc['aux_tower_stride']
         self.stem_multiplier = conf_model_desc['stem_multiplier']
         self.aux_weight = conf_model_desc['aux_weight']
         self.max_final_edges = conf_model_desc['max_final_edges']
@@ -61,42 +62,52 @@ class MacroBuilder(EnforceOverrides):
         # create model stems
         stem0_op, stem1_op = self._create_model_stems()
 
-        # need to get reduction factors for model stems
+        # both stems should have same channel outs (same true for cell outputs)
+        assert stem0_op.params['conv'].ch_out == stem1_op.params['conv'].ch_out
+
+        # get reduction factors in spatial dimensions
         stem0_reduction, stem1_reduction = MacroBuilder._stem_reductions(stem0_op, stem1_op)
-        assert stem0_reduction <= stem1_reduction # probably this is not needed
 
         # create cell descriptions
-        cell_descs, aux_tower_descs = self._get_cell_descs(stem0_reduction < stem1_reduction,
-            stem0_op.params['conv'].ch_out, self.max_final_edges)
+        cell_descs, aux_tower_descs = self._get_cell_descs(
+            stem0_reduction < stem1_reduction,
+            stem0_op.params['conv'].ch_out,
+            self.max_final_edges)
 
+        # get last cell channels
         if len(cell_descs):
-            ch_out = cell_descs[-1].cell_ch_out
+            last_ch_out = cell_descs[-1].cell_ch_out
         else:
-            ch_out = stem1_op.params['conv'].ch_out
+            last_ch_out = stem1_op.params['conv'].ch_out
 
         pool_op = OpDesc(self.model_post_op,
-                         params={'conv': ConvMacroParams(ch_out, ch_out)},
+                         params={'conv': ConvMacroParams(last_ch_out, last_ch_out)},
                          in_len=1, trainables=None)
 
         logits_op = OpDesc('linear',
-                        params={'n_ch':ch_out,'n_classes': self.n_classes}, in_len=1,
+                        params={'n_ch':last_ch_out,'n_classes': self.n_classes}, in_len=1,
                         trainables=None)
         return ModelDesc(stem0_op, stem1_op, pool_op, self.ds_ch,
                          self.n_classes, cell_descs, aux_tower_descs,
                          logits_op, self.model_desc_params.to_dict())
 
-    def _get_cell_descs(self, reduction_p:bool, stem_ch_out:int, max_final_edges:int)\
+    def _get_cell_descs(self, reduction_p, stem_ch_out:int, max_final_edges:int)\
             ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
-        cell_descs, aux_tower_descs = [], []
-        pp_ch_out, p_ch_out, ch_out = stem_ch_out, stem_ch_out, self.init_ch_out
 
+        cell_descs, aux_tower_descs = [], []
+
+        # chennels of prev-prev whole cell, prev whole cell and current cell node
+        pp_ch_out, p_ch_out, node_ch_out = stem_ch_out, stem_ch_out, self.init_node_ch
+
+        # stores first cells of each time with whom alphas would be shared
         first_normal, first_reduction = -1, -1
+
         for ci in range(self.n_cells):
             # find cell type and output channels for this cell
             # also update if this is our first cell from which alphas will be shared
             reduction = self._is_reduction(ci)
             if reduction:
-                ch_out, cell_type = ch_out*2, CellType.Reduction
+                node_ch_out, cell_type = node_ch_out*2, CellType.Reduction
                 first_reduction = ci if first_reduction < 0 else first_reduction
                 alphas_from = first_reduction
             else:
@@ -105,12 +116,17 @@ class MacroBuilder(EnforceOverrides):
                 alphas_from = first_normal
 
             s0_op, s1_op = self._get_cell_stems(
-                ch_out, p_ch_out, pp_ch_out, reduction_p)
+                node_ch_out, p_ch_out, pp_ch_out, reduction_p)
 
+            # cell template for this cell contains nodes we can use as template
             cell_template = self._cell_template(cell_type)
 
+            # cell template is not available in search time in which case we
+            # will take number of nodes from config
             node_count = len(cell_template.nodes()) if cell_template \
                                                     else self.n_nodes
+
+            # create nodes with empty edges
             nodes:List[NodeDesc] =  [NodeDesc(edges=[])
                                      for _ in range(node_count)]
 
@@ -120,7 +136,7 @@ class MacroBuilder(EnforceOverrides):
                 s0_op=s0_op, s1_op=s1_op,
                 alphas_from=alphas_from,
                 max_final_edges=max_final_edges,
-                node_ch_out=ch_out,
+                node_ch_out=node_ch_out,
                 post_op=self.cell_post_op
             ))
             # add any nodes from the template to the just added cell
@@ -167,24 +183,27 @@ class MacroBuilder(EnforceOverrides):
         # Between two reduction cells we have regular cells.
         return cell_index in self._reduction_cell_indices
 
-    def _get_cell_stems(self, ch_out: int, p_ch_out: int, pp_ch_out:int,
+    def _get_cell_stems(self, node_ch_out: int, p_ch_out: int, pp_ch_out:int,
                    reduction_p: bool)->Tuple[OpDesc, OpDesc]:
-        # TODO: investigate why affine=False for search but True for test
+
+        # Cell stemps will take prev channels and out sameput channels as nodes would.
+        # If prev cell was reduction then we need to increase channels of prev-prev
+        # by 2X. This is done by prepr_reduce stem.
         s0_op = OpDesc('prepr_reduce' if reduction_p else 'prepr_normal',
                     params={
-                        'conv': ConvMacroParams(pp_ch_out, ch_out)
+                        'conv': ConvMacroParams(pp_ch_out, node_ch_out)
                     }, in_len=1, trainables=None)
 
         s1_op = OpDesc('prepr_normal',
                     params={
-                        'conv': ConvMacroParams(p_ch_out, ch_out)
+                        'conv': ConvMacroParams(p_ch_out, node_ch_out)
                     }, in_len=1, trainables=None)
         return s0_op, s1_op
 
     def _get_aux_tower(self, cell_desc:CellDesc, cell_index:int)->Optional[AuxTowerDesc]:
         # TODO: shouldn't we be adding aux tower at *every* 1/3rd?
         if self.aux_weight and cell_index == 2*self.n_cells//3:
-            return AuxTowerDesc(cell_desc.cell_ch_out, self.n_classes)
+            return AuxTowerDesc(cell_desc.cell_ch_out, self.n_classes, self.aux_tower_stride)
         return None
 
     def _create_model_stems(self)->Tuple[OpDesc, OpDesc]:
@@ -192,7 +211,7 @@ class MacroBuilder(EnforceOverrides):
         # TODO: why do we need stem_multiplier?
         # TODO: in original paper stems are always affine
         conv_params = ConvMacroParams(self.ds_ch,
-                                      self.init_ch_out*self.stem_multiplier)
+                                      self.init_node_ch*self.stem_multiplier)
         stem0_op = OpDesc(name=self.model_stem0_op, params={'conv': conv_params},
                           in_len=1, trainables=None)
         stem1_op = OpDesc(name=self.model_stem1_op, params={'conv': conv_params},

@@ -126,9 +126,10 @@ class NodeDesc:
             e.load_state_dict(es)
 
 class AuxTowerDesc:
-    def __init__(self, ch_in:int, n_classes:int) -> None:
+    def __init__(self, ch_in:int, n_classes:int, stride:int) -> None:
         self.ch_in = ch_in
         self.n_classes = n_classes
+        self.stride = stride
 
 class CellType(Enum):
     Regular = 'regular'
@@ -147,7 +148,7 @@ class CellDesc:
         self.alphas_from = alphas_from # cell id with which we share alphas
         self.max_final_edges = max_final_edges
 
-        self.cell_ch_out = -1 # will be set by reset_nodes
+        self.cell_ch_out = -1 # will be set later by reset_nodes
         self.reset_nodes(nodes, node_ch_out, post_op)
         assert self.cell_ch_out > 0
 
@@ -225,6 +226,7 @@ class CellDesc:
 
     def reset_nodes(self, nodes:List[NodeDesc], node_ch_out:int,
                     post_op:Union[str,OpDesc])->None:
+
         self._nodes = nodes
         self.node_ch_out = node_ch_out
 
