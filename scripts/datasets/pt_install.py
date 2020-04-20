@@ -29,6 +29,25 @@ def _create_ram_disk(req_ram:int, path:str)->bool:
     #     print('RAM disk is not created because not enough memory')
     #     return False
 
+def untar_dataset(pt_data_dir:str, conf_data:Config, dataroot:str)->None:
+    storage_name = conf_data['storage_name']
+    tar_filepath = os.path.join(pt_data_dir, storage_name + '.tar')
+    if not os.path.isfile(tar_filepath):
+        raise RuntimeError(f'Tar file for dataset at {tar_filepath} was not found')
+
+    tar_size = pathlib.Path(tar_filepath).stat().st_size
+    print('tar_filepath:', tar_filepath, 'tar_size:', tar_size)
+
+    local_dataroot = utils.full_path(dataroot)
+    print('local_dataroot:', local_dataroot)
+    _create_ram_disk(tar_size, local_dataroot)
+    # os.makedirs(local_dataroot, exist_ok=True)
+
+    utils.exec_shell_command(f'tar -xf "{tar_filepath}" -C "{local_dataroot}"')
+
+    print(f'dataset copied from {tar_filepath} to {local_dataroot} sucessfully')
+
+
 def main():
     parser = argparse.ArgumentParser(description='Archai data install')
     parser.add_argument('--dataroot', type=str, default='~/dataroot',
@@ -46,23 +65,12 @@ def main():
     conf_data_filepath = f'confs/datasets/{args.dataset}.yaml'
     print('conf_data_filepath:', conf_data_filepath)
 
-    conf_data = Config(config_filepath=conf_data_filepath)['dataset']
-    storage_name = conf_data['storage_name']
-    tar_filepath = os.path.join(pt_data_dir, storage_name + '.tar')
-    if not os.path.isfile(tar_filepath):
-        raise RuntimeError(f'Tar file for dataset at {tar_filepath} was not found')
+    conf = Config(config_filepath=conf_data_filepath)
+    for dataset_key in ['dataset', 'dataset_search', 'dataset_eval']:
+        if dataset_key in conf:
+            conf_data = conf[dataset_key]
+            untar_dataset(pt_data_dir, conf_data, args.dataroot)
 
-    tar_size = pathlib.Path(tar_filepath).stat().st_size
-    print('tar_filepath:', tar_filepath, 'tar_size:', tar_size)
-
-    local_dataroot = utils.full_path(args.dataroot)
-    print('local_dataroot:', local_dataroot)
-    _create_ram_disk(tar_size, local_dataroot)
-    # os.makedirs(local_dataroot, exist_ok=True)
-
-    utils.exec_shell_command(f'tar -xf "{tar_filepath}" -C "{local_dataroot}"')
-
-    print(f'dataset copied from {tar_filepath} to {local_dataroot} sucessfully')
 
 if __name__ == '__main__':
     main()

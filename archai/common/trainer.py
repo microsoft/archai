@@ -42,6 +42,11 @@ class Trainer(EnforceOverrides):
                         if conf_validation else None
         self._metrics:Optional[Metrics] = None
         self._amp = Amp(self._apex)
+
+        self._droppath_module = self._get_droppath_module()
+        if self._droppath_module is None and self._drop_path_prob > 0.0:
+            logger.warn({'droppath_module': None})
+
         self._start_epoch = -1 # nothing is started yet
 
     def fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->Metrics:
@@ -208,8 +213,8 @@ class Trainer(EnforceOverrides):
 
             logits, aux_logits = self.model(x), None
             tupled_out = isinstance(logits, Tuple) and len(logits) >=2
-            if self._aux_weight:
-                assert tupled_out, "aux_logits cannot be None unless aux tower is disabled"
+            # if self._aux_weight: # TODO: some other way to validate?
+            #     assert tupled_out, "aux_logits cannot be None unless aux tower is disabled"
             if tupled_out: # then we are using model created by desc
                 logits, aux_logits = logits[0], logits[1]
             loss = self.compute_loss(self._lossfn, x, y, logits,
@@ -239,8 +244,16 @@ class Trainer(EnforceOverrides):
             loss += aux_weight * lossfn(aux_logits, y)
         return loss
 
+    def _get_droppath_module(self)->Optional[nn.Module]:
+        m = self.model
+        if hasattr(self.model, 'module'): # for data parallel model
+            m = self.model.module
+        if hasattr(m, 'drop_path_prob'):
+            return m
+        return None
+
     def _set_drop_path(self, epoch:int, epochs:int)->None:
-        if self._drop_path_prob:
+        if self._drop_path_prob and self._droppath_module is not None:
             drop_prob = self._drop_path_prob * epoch / epochs
             # set value as property in model (it will be used by forward())
             # this is necessory when using DataParallel(model)

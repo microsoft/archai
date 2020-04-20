@@ -163,7 +163,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--no-search", "--algos", "manual"]
+            "args": ["--no-search", "--algos", "manual", "--datasets", "imagenet"]
         },
         {
             "name": "Resnet-Full",

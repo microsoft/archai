@@ -2,7 +2,7 @@
 common:
   seed: 0.0
 
-imagenet_dataset:
+dataset_eval:
   name: 'imagenet'
   dataroot: '~/dataroot' #torchvision data folder
   n_classes: 1000
@@ -21,11 +21,11 @@ nas:
       model_stem1_op: 'stem_conv3x3_s4s2'
       model_post_op: 'pool_avg2d7x7'
       dataset:
-        _copy: '/imagenet_dataset'
+        _copy: '/dataset_eval'
     loader:
       batch: 128
       dataset:
-        _copy: '/imagenet_dataset'
+        _copy: '/dataset_eval'
     trainer:
       aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
       drop_path_prob: 0.0 # probability that given edge will be dropped

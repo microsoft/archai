@@ -51,8 +51,23 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
 
     logger.popd()
 
+
+def _default_module_name(dataset_name:str, function_name:str)->str:
+    module_name = ''
+    if dataset_name.startswith('cifar'):
+        if function_name.startswith('res'): # support resnext as well
+            module_name = 'archai.cifar10_models.resnet'
+        elif function_name.startswith('dense'):
+            module_name = 'archai.cifar10_models.densenet'
+    elif dataset_name.startswith('imagenet'):
+        module_name = 'torchvision.models'
+    if not module_name:
+        raise NotImplementedError(f'Cannot get default module for {function_name} and dataset {dataset_name} because it is not supported yet')
+    return module_name
+
 def create_model(conf_eval:Config, device)->nn.Module:
     # region conf vars
+    dataset_name = conf_eval['loader']['dataset']['name']
     final_desc_filename = conf_eval['final_desc_filename']
     final_model_factory = conf_eval['final_model_factory']
     full_desc_filename = conf_eval['full_desc_filename']
@@ -65,13 +80,8 @@ def create_model(conf_eval:Config, device)->nn.Module:
 
         if len(splitted) > 1:
             module_name = splitted[0]
-        else: # to support lazyness while submitting scripts, we do bit of unnecessory smarts
-            if function_name.startswith('res'): # support resnext as well
-                module_name = 'archai.cifar10_models.resnet'
-            elif function_name.startswith('dense'):
-                module_name = 'archai.cifar10_models.densenet'
-            else:
-                    module_name = ''
+        else:
+            module_name = _default_module_name(dataset_name, function_name)
 
         module = importlib.import_module(module_name) if module_name else sys.modules[__name__]
         function = getattr(module, function_name)
