@@ -14,12 +14,12 @@ conf_model_desc   = conf_eval['model_desc']
 
 conf_model_desc['n_cells'] = 14
 template_model_desc = ModelDesc.load('$expdir/final_model_desc.yaml')
-model_desc = create_macro_desc(conf_model_desc, True, template_model_desc)
+model_desc = create_macro_desc(conf_model_desc, template_model_desc)
 
 mb = PetridishCellBuilder()
 mb.register_ops()
 model = Model(model_desc, droppath=False, affine=False)
-#model.cuda()
+
 summary(model, [64, 3, 32, 32])
 
 

@@ -10,6 +10,8 @@ import pathlib
 
 TItems = Union[Mapping, str]
 
+# do not reference common or otherwise we will have circular deps
+
 def _fmt(val:Any)->str:
     if isinstance(val, float):
         return f'{val:.4g}'

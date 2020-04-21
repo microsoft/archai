@@ -110,7 +110,6 @@ class Search:
         pareto_summary_filename = conf_pareto['summary_filename']
         # endregion
 
-        self.device = torch.device(conf_search['device'])
         self.cell_builder = cell_builder
         self.trainer_class = trainer_class
         self._data_cache = {}
@@ -317,14 +316,15 @@ class Search:
             # nothing to pretrain, save time
             metrics_stats = MetricsStats(model_desc, None, None)
         else:
-            model = nas_utils.model_from_desc(model_desc, self.device,
-                droppath=drop_path_prob>0.0, affine=True)
+            model = nas_utils.model_from_desc(model_desc,
+                                              droppath=drop_path_prob>0.0,
+                                              affine=True)
 
             # get data
             train_dl, val_dl = self.get_data(conf_loader)
             assert train_dl is not None
 
-            trainer = Trainer(conf_trainer, model, self.device, checkpoint=None)
+            trainer = Trainer(conf_trainer, model, checkpoint=None)
             train_metrics = trainer.fit(train_dl, val_dl)
 
             metrics_stats = Search._create_metrics_stats(model, train_metrics)
@@ -346,16 +346,16 @@ class Search:
         nas_utils.build_cell(model_desc, self.cell_builder, search_iter)
 
         if self.trainer_class:
-            model = nas_utils.model_from_desc(model_desc, self.device,
-                                              droppath=False, affine=False)
+            model = nas_utils.model_from_desc(model_desc,
+                                              droppath=False,
+                                              affine=False)
 
             # get data
             train_dl, val_dl = self.get_data(self.conf_loader)
             assert train_dl is not None
 
             # search arch
-            arch_trainer = self.trainer_class(self.conf_train, model, self.device,
-                                            checkpoint=None)
+            arch_trainer = self.trainer_class(self.conf_train, model, checkpoint=None)
             train_metrics = arch_trainer.fit(train_dl, val_dl)
 
             metrics_stats = Search._create_metrics_stats(model, train_metrics)

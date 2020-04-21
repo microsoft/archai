@@ -11,7 +11,7 @@ from .wideresnet import WideResNet
 from .shakeshake.shake_resnext import ShakeResNeXt
 
 
-def get_model(conf, num_class=10, data_parallel=True):
+def get_model(conf, num_class=10):
     name = conf['type']
 
     if name == 'resnet50':
@@ -39,15 +39,6 @@ def get_model(conf, num_class=10, data_parallel=True):
         model = PyramidNet('cifar10', depth=conf['depth'], alpha=conf['alpha'], n_classes=num_class, bottleneck=conf['bottleneck'])
     else:
         raise NameError('no model named, %s' % name)
-
-    if data_parallel:
-        model = model.cuda()
-        model = DataParallel(model)
-    else:
-        import horovod.torch as hvd
-        device = torch.device('cuda', hvd.local_rank())
-        model = model.to(device)
-    return model
 
 
 def num_class(dataset):

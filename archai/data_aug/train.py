@@ -142,7 +142,7 @@ def train_and_eval(conf, val_ratio, val_fold, save_path, only_eval,
         reporter = lambda **kwargs: 0
 
     # get dataloaders with transformations and splits applied
-    train_dl, valid_dl, test_dl, trainsampler = get_dataloaders(ds_name,
+    train_dl, valid_dl, test_dl = get_dataloaders(ds_name,
         batch_size, dataroot, aug, cutout,
         load_train=True, load_test=True, val_ratio=val_ratio, val_fold=val_fold,
         horovod=horovod, n_workers=n_workers, max_batches=max_batches)

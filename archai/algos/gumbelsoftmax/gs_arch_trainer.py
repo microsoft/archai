@@ -19,9 +19,9 @@ from archai.common.common import logger
 
 
 class GsArchTrainer(ArchTrainer):
-    def __init__(self, conf_train: Config, model: Model, device,
+    def __init__(self, conf_train: Config, model: Model,
                  checkpoint:Optional[CheckPoint]) -> None:
-        super().__init__(conf_train, model, device, checkpoint)
+        super().__init__(conf_train, model, checkpoint)
 
         self._conf_w_optim = conf_train['optimizer']
         # self._conf_w_lossfn = conf_train['lossfn']

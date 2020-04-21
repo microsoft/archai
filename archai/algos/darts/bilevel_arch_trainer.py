@@ -15,13 +15,13 @@ from archai.nas.arch_trainer import ArchTrainer
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
-from archai.common.common import logger
+from archai.common.common import logger, get_device
 from .bilevel_optimizer import BilevelOptimizer
 
 class BilevelArchTrainer(ArchTrainer):
-    def __init__(self, conf_train: Config, model: Model, device,
+    def __init__(self, conf_train: Config, model: Model,
                  checkpoint:Optional[CheckPoint]) -> None:
-        super().__init__(conf_train, model, device, checkpoint)
+        super().__init__(conf_train, model, checkpoint)
 
         self._conf_w_optim = conf_train['optimizer']
         self._conf_w_lossfn = conf_train['lossfn']
@@ -36,7 +36,7 @@ class BilevelArchTrainer(ArchTrainer):
         assert val_dl is not None
         w_momentum = self._conf_w_optim['momentum']
         w_decay = self._conf_w_optim['decay']
-        lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.device)
+        lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(get_device())
 
         self._bilevel_optim = BilevelOptimizer(self._conf_alpha_optim, w_momentum,
                                                 w_decay, self.model, lossfn)
@@ -71,8 +71,7 @@ class BilevelArchTrainer(ArchTrainer):
             self._valid_iter = iter(self._val_dl)
             x_val, y_val = next(self._valid_iter)
 
-        x_val, y_val = x_val.to(self.device), y_val.to(
-            self.device, non_blocking=True)
+        x_val, y_val = x_val.to(get_device()), y_val.to(get_device(), non_blocking=True)
 
         # update alphas
         self._bilevel_optim.step(x, y, x_val, y_val, super().get_optimizer())

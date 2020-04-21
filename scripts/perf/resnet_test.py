@@ -5,7 +5,7 @@ from archai import cifar10_models
 
 from archai.common.trainer import Trainer
 from archai.common.config import Config
-from archai.common.common import logger, common_init
+from archai.common.common import logger, common_init, get_device
 from archai.datasets import data
 
 def train_test(conf_eval:Config):
@@ -23,15 +23,14 @@ def train_test(conf_eval:Config):
     conf_trainer['grad_clip'] = 0.0
     conf_trainer['aux_weight'] = 0.0
 
-    device = torch.device(conf_eval['device'])
     Net = cifar10_models.resnet34
-    model = Net().to(device)
+    model = Net().to(get_device())
 
     # get data
     train_dl, _, test_dl = data.get_data(conf_loader)
     assert train_dl is not None and test_dl is not None
 
-    trainer = Trainer(conf_trainer, model, device, None)
+    trainer = Trainer(conf_trainer, model, None)
     trainer.fit(train_dl, test_dl)
 
 

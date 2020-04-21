@@ -9,20 +9,19 @@ from overrides import EnforceOverrides
 from .metrics import Metrics
 from .config import Config
 from . import utils, ml_utils
-from .common import logger
+from .common import logger, get_device
 
 class Tester(EnforceOverrides):
     """Evaluate model on given data
     """
 
-    def __init__(self, conf_eval:Config, model:nn.Module, device)->None:
+    def __init__(self, conf_eval:Config, model:nn.Module)->None:
         self._title = conf_eval['title']
         self._logger_freq = conf_eval['logger_freq']
         conf_lossfn = conf_eval['lossfn']
 
         self.model = model
-        self.device = device
-        self._lossfn = ml_utils.get_lossfn(conf_lossfn).to(device)
+        self._lossfn = ml_utils.get_lossfn(conf_lossfn).to(get_device())
         self._metrics = None
 
     def test(self, test_dl: DataLoader)->Metrics:
@@ -45,7 +44,7 @@ class Tester(EnforceOverrides):
 
         with torch.no_grad(), logger.pushd('steps'):
             for step, (x, y) in enumerate(test_dl):
-                x, y = x.to(self.device, non_blocking=True), y.to(self.device, non_blocking=True)
+                x, y = x.to(get_device(), non_blocking=True), y.to(get_device(), non_blocking=True)
 
                 assert not self.model.training # derived class might alter the mode
                 logger.pushd(step)

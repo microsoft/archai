@@ -7,8 +7,6 @@ common:
   seed: 2.0
   tb_enable: False # if True then TensorBoard logging is enabled (may impact perf)
   tb_dir: '$expdir/tb' # path where tensorboard logs would be stored
-  horovod: False
-  device: 'cuda'
   checkpoint:
     filename: '$expdir/checkpoint.pth'
     freq: 10
@@ -19,7 +17,17 @@ common:
   # otherwise it should something like host:6379. Make sure to run on head node:
   # "ray start --head --redis-port=6379"
   redis: null
-  gpus: 0 # use GPU IDs specified here (comma separated), if null then use all GPUs
+  apex:
+    gpus: '' # use GPU IDs specified here (comma separated), if '' then use all GPUs
+    enabled: False # global switch to disable anything apex
+    opt_level: 'O1' # optimization level for mixed precision
+    bn_fp32: True # keep BN in fp32
+    loss_scale: None # loss scaling mode for mixed prec
+    sync_bn: False # should be replace BNs with sync BNs for distributed model
+    distributed: False # enable/disable distributed mode
+    scale_lr: True # enable/disable distributed mode
+    min_world_size: 0 # allows to confirm we are indeed in distributed setting
+
 
   smoke_test: False
   only_eval: False
@@ -39,7 +47,6 @@ nas:
 
     metric_filename: '$expdir/eval_train_metrics.yaml'
     model_filename: '$expdir/model.pt' # file to which trained model will be saved
-    device: '_copy: common/device'
     data_parallel: False
     checkpoint:
       _copy: 'common/checkpoint'
@@ -74,7 +81,6 @@ nas:
       val_ratio: 0.0 #split portion for test set, 0 to 1
       val_fold: 0 #Fold number to use (0 to 4)
       cv_num: 5 # total number of folds available
-      horovod: '_copy: common/horovod'
       dataset:
         _copy: '/dataset'
     trainer:
@@ -114,7 +120,6 @@ nas:
     full_desc_filename: '$expdir/full_model_desc.yaml' # arch before it was finalized
     final_desc_filename: '$expdir/final_model_desc.yaml' # final arch is saved in this file
     metrics_dir: '$expdir/models/{reductions}/{cells}/{nodes}/{search_iter}' # where metrics and model stats would be saved from each pareto iteration
-    device: '_copy: common/device'
     seed_train:
       trainer:
         _copy: 'nas/eval/trainer'
@@ -176,7 +181,6 @@ nas:
       val_ratio: 0.5 #split portion for test set, 0 to 1
       val_fold: 0 #Fold number to use (0 to 4)
       cv_num: 5 # total number of folds available
-      horovod: '_copy: common/horovod'
       dataset:
         _copy: '/dataset'
     trainer:
@@ -233,7 +237,6 @@ autoaug:
     val_ratio: 0.4 #split portion for test set, 0 to 1
     val_fold: 0 #Fold number to use (0 to 4)
     cv_num: 5 # total number of folds available
-    horovod: '_copy: common/horovod'
     dataset:
       _copy: '/dataset'
   optimizer:

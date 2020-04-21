@@ -58,7 +58,8 @@ class ImagenetProvider(DatasetProvider):
         transform_train, transform_test = None, None
 
         transform_train = transforms.Compose([
-            transforms.RandomResizedCrop(224, scale=(0.08, 1.0),
+            transforms.RandomResizedCrop(224,
+                scale=(0.08, 1.0), # TODO: these two params are normally not specified
                 interpolation=Image.BICUBIC),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(

@@ -118,8 +118,10 @@ def zero_file(filepath)->None:
     """Creates or truncates existing file"""
     open(filepath, 'w').close()
 
-def setup_logging(filepath:Optional[str]=None,
-                  name:Optional[str]=None, level=logging.INFO)->logging.Logger:
+def create_logger(filepath:Optional[str]=None,
+                  name:Optional[str]=None,
+                  level=logging.INFO,
+                  enable_stdout=True)->logging.Logger:
     logger = logging.getLogger()
 
     # close current handlers
@@ -128,10 +130,13 @@ def setup_logging(filepath:Optional[str]=None,
         logger.removeHandler(handler)
 
     logger.setLevel(level)
-    ch = logging.StreamHandler()
-    ch.setLevel(level)
-    ch.setFormatter(logging.Formatter('%(asctime)s %(message)s', '%H:%M'))
-    logger.addHandler(ch)
+
+    if enable_stdout:
+        ch = logging.StreamHandler()
+        ch.setLevel(level)
+        ch.setFormatter(logging.Formatter('%(asctime)s %(message)s', '%H:%M'))
+        logger.addHandler(ch)
+
     logger.propagate = False # otherwise root logger prints things again
 
     if filepath:
@@ -209,7 +214,8 @@ def setup_cuda(seed):
     np.random.seed(seed)
     torch.manual_seed(seed)
     #torch.cuda.manual_seed_all(seed)
-    cudnn.benchmark = True
+    cudnn.benchmark = True # set to false if deterministic
+    torch.set_printoptions(precision=10)
     #cudnn.deterministic = False
     # torch.cuda.empty_cache()
     # torch.cuda.synchronize()
@@ -221,3 +227,4 @@ def exec_shell_command(command:str, print_command=True)->None:
     if print_command:
         print(command)
     subprocess.run(command, shell=True, check=True)
+

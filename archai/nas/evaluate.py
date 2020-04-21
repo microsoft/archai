@@ -26,19 +26,17 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     conf_train = conf_eval['trainer']
     # endregion
 
-    device = torch.device(conf_eval['device'])
-
     if cell_builder:
         cell_builder.register_ops()
 
-    model = create_model(conf_eval, device)
+    model = create_model(conf_eval)
 
     # get data
     train_dl, _, test_dl = data.get_data(conf_loader)
     assert train_dl is not None and test_dl is not None
 
     checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
-    trainer = Trainer(conf_train, model, device, checkpoint)
+    trainer = Trainer(conf_train, model, checkpoint)
     train_metrics = trainer.fit(train_dl, test_dl)
     train_metrics.save(metric_filename)
 
@@ -65,7 +63,7 @@ def _default_module_name(dataset_name:str, function_name:str)->str:
         raise NotImplementedError(f'Cannot get default module for {function_name} and dataset {dataset_name} because it is not supported yet')
     return module_name
 
-def create_model(conf_eval:Config, device)->nn.Module:
+def create_model(conf_eval:Config)->nn.Module:
     # region conf vars
     dataset_name = conf_eval['loader']['dataset']['name']
     final_desc_filename = conf_eval['final_desc_filename']
@@ -86,7 +84,6 @@ def create_model(conf_eval:Config, device)->nn.Module:
         module = importlib.import_module(module_name) if module_name else sys.modules[__name__]
         function = getattr(module, function_name)
         model = function()
-        model = nas_utils.to_device(model, device)
 
         logger.info({'model_factory':True,
                     'module_name': module_name,
@@ -97,8 +94,7 @@ def create_model(conf_eval:Config, device)->nn.Module:
         template_model_desc = ModelDesc.load(final_desc_filename)
 
         model = nas_utils.model_from_conf(full_desc_filename,
-                                    conf_model_desc, device,
-                                    affine=True, droppath=True,
+                                    conf_model_desc, affine=True, droppath=True,
                                     template_model_desc=template_model_desc)
 
         logger.info({'model_factory':False,

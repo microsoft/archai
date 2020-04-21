@@ -55,7 +55,10 @@ def create_optimizer(conf_opt:Config, params)->Optimizer:
 def get_optim_lr(optimizer:Optimizer)->float:
     for param_group in optimizer.param_groups:
         return param_group['lr']
-    raise RuntimeError('optimizer did not had any param_group named lr!')
+
+def set_optim_lr(optimizer:Optimizer, lr:float)->None:
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
 
 def ensure_pytorch_ver(min_ver:str, error_msg:str)->bool:
     tv = torch.__version__.split('.')
