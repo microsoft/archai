@@ -70,7 +70,7 @@ class ApexUtils:
 
         assert self._gpu < torch.cuda.device_count()
         torch.cuda.set_device(self._gpu)
-        self.device = torch.device(f'cuda:{self._gpu}')
+        self.device = torch.device('cuda', self._gpu)
 
         logger.info({'amp_available': self._amp is not None, 'distributed_available': self._distributed is not None})
         logger.info({'distributed': self._distributed, 'world_size': self._world_size,
