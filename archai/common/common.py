@@ -30,7 +30,7 @@ class SummaryWriterDummy:
 SummaryWriterAny = Union[SummaryWriterDummy, SummaryWriter]
 logger = OrderedDictLogger(None, None)
 _tb_writer: SummaryWriterAny = None
-_apex_utils = None
+_apex_utils = ApexUtils()
 _atexit_reg = False # is hook for atexit registered?
 
 def get_conf()->Config:
@@ -138,12 +138,8 @@ def common_init(config_filepath: Optional[str]=None,
     logger.info({'expdir': expdir,
                  'PT_DATA_DIR': pt_data_dir, 'PT_OUTPUT_DIR': pt_output_dir})
 
-    # set up amp, apex, mixed-prec, distributed training stubs
-    _setup_apex()
     # create global logger
     _setup_logger()
-    # init GPU settings
-    _setup_gpus()
     # create info file for current system
     _create_sysinfo(conf)
 
@@ -249,10 +245,6 @@ def _setup_logger():
         sys_logger.warn(
             'logdir not specified, no logs will be created or any models saved')
 
-    # We need to create ApexUtils before we have logger. Now that we have logger
-    # lets give it to ApexUtils
-    get_apex_utils().set_replica_logger(logger)
-
     # reset to new file path
     logger.reset(logs_yaml_filepath, sys_logger)
     logger.info({
@@ -263,40 +255,7 @@ def _setup_logger():
         'sys_log_filepath': sys_log_filepath
     })
 
-def _setup_apex():
-    conf_common = get_conf_common()
-    distdir = conf_common['distdir']
-
-    global _apex_utils
-    _apex_utils = ApexUtils(distdir, conf_common['apex'])
-
-def _setup_gpus():
-    conf_common = get_conf_common()
-
-    utils.setup_cuda(conf_common['seed'], get_apex_utils().local_rank)
-
-    if conf_common['detect_anomaly']:
-        logger.warn({'set_detect_anomaly':True})
-        torch.autograd.set_detect_anomaly(True)
-
-    logger.info({'gpu_names': utils.cuda_device_names(),
-                 'gpu_count': torch.cuda.device_count(),
-                 'CUDA_VISIBLE_DEVICES': os.environ['CUDA_VISIBLE_DEVICES']
-                     if 'CUDA_VISIBLE_DEVICES' in os.environ else 'NotSet',
-                'cudnn.enabled': cudnn.enabled,
-                'cudnn.benchmark': cudnn.benchmark,
-                'cudnn.deterministic': cudnn.deterministic,
-                'cudnn.version': cudnn.version()
-                 })
-    logger.info({'memory': str(psutil.virtual_memory())})
-    logger.info({'CPUs': str(psutil.cpu_count())})
 
 
-    # gpu_usage = os.popen(
-    #     'nvidia-smi --query-gpu=memory.total,memory.used --format=csv,nounits,noheader'
-    # ).read().split('\n')
-    # for i, line in enumerate(gpu_usage):
-    #     vals = line.split(',')
-    #     if len(vals) == 2:
-    #         logger.info('GPU {} mem: {}, used: {}'.format(i, vals[0], vals[1]))
+
 
