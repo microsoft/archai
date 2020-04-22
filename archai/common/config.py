@@ -129,6 +129,8 @@ class Config(UserDict):
         else:
             return 1 # path not found, ignore this
 
+    def get_val(self, key, default_val):
+        return super().get(key, default_val)
 
     @staticmethod
     def set(instance:'Config')->None:

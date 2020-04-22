@@ -1,56 +1,63 @@
 from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Sequence
 import  numpy as np
-import logging
-import csv
-from collections import OrderedDict
-import sys
-import  os
-import pathlib
-import time
+import math
 
 import  torch
-import torch.backends.cudnn as cudnn
-from torch import nn
+from torch import isnan, nn
 from torch.optim import lr_scheduler, SGD, Adam
 from warmup_scheduler import GradualWarmupScheduler
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.nn.modules.loss import _WeightedLoss, _Loss
 import torch.nn.functional as F
-from torchvision.datasets.utils import check_integrity, download_url
-from torch.utils.model_zoo import tqdm
 
-import yaml
-import runstats
 import statopt
 
 from .config import Config
 from .cocob import CocobBackprop
-from torch.utils.data.dataloader import DataLoader
-
+from .ml_losses import SmoothCrossEntropyLoss
+from .common import logger
 
 def create_optimizer(conf_opt:Config, params)->Optimizer:
-    if conf_opt['type'] == 'sgd':
+    optim_type = conf_opt['type']
+    lr = conf_opt.get_val('lr', math.nan)
+    decay = conf_opt.get_val('decay', math.nan)
+    decay_bn = conf_opt.get_val('decay_bn', math.nan) # some optim may not support weight decay
+
+    logger.info({'optim_type': optim_type, 'lr':lr, 'decay':decay, 'decay_bn': decay_bn})
+
+    if not isnan(decay_bn):
+        bn_params = [v for n, v in params if 'bn' in n]
+        rest_params = [v for n, v in params if not 'bn' in n]
+        params = [{
+            'params': bn_params,
+            'weight_decay': 0
+        }, {
+            'params': rest_params,
+            'weight_decay': decay
+        }]
+
+    if optim_type == 'sgd':
         return SGD(
            params,
-            lr=conf_opt['lr'],
+            lr=lr,
             momentum=conf_opt['momentum'],
-            weight_decay=conf_opt['decay'],
+            weight_decay=decay,
             nesterov=conf_opt['nesterov']
         )
-    elif conf_opt['type'] == 'adam':
+    elif optim_type == 'adam':
          return Adam(params,
-            lr=conf_opt['lr'],
+            lr=lr,
             betas=conf_opt['betas'],
-            weight_decay=conf_opt['decay'])
-    elif conf_opt['type'] == 'cocob':
+            weight_decay=decay)
+    elif optim_type == 'cocob':
         return CocobBackprop(params,
             alpha=conf_opt['alpha'])
-    elif conf_opt['type'] == 'salsa':
+    elif optim_type == 'salsa':
         return statopt.SALSA(params,
             alpha=conf_opt['alpha'])
     else:
-        raise ValueError('invalid optimizer type=%s' % conf_opt['type'])
+        raise ValueError('invalid optimizer type=%s' % optim_type)
 
 def get_optim_lr(optimizer:Optimizer)->float:
     for param_group in optimizer.param_groups:
@@ -80,22 +87,25 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
     # epoch_or_step - apply every epoch or every step
     scheduler, epoch_or_step = None, True # by default sched step on epoch
 
-    # TODO: adjust max epochs for warmup?
-    # if conf_lrs.get('warmup', None):
-    #     epochs -= conf_lrs['warmup']['epochs']
+    conf_warmup = conf_lrs.get_val('warmup', None)
+    warmup_epochs = 0
+    if conf_warmup is not None and 'epochs' in conf_warmup:
+        warmup_epochs = conf_warmup['epochs']
 
     if conf_lrs is not None:
         lr_scheduler_type = conf_lrs['type'] # TODO: default should be none?
 
         if lr_scheduler_type == 'cosine':
-            scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs,
+            scheduler = lr_scheduler.CosineAnnealingLR(optimizer,
+                T_max=epochs-warmup_epochs,
                 eta_min=conf_lrs['min_lr'])
         elif lr_scheduler_type == 'multi_step':
             scheduler = lr_scheduler.MultiStepLR(optimizer,
                                                  milestones=conf_lrs['milestones'],
                                                  gamma=conf_lrs['gamma'])
         elif lr_scheduler_type == 'pyramid':
-            scheduler = _adjust_learning_rate_pyramid(optimizer, epochs,
+            scheduler = _adjust_learning_rate_pyramid(optimizer,
+                epochs-warmup_epochs,
                 get_optim_lr(optimizer))
         elif lr_scheduler_type == 'step':
             decay_period = conf_lrs['decay_period']
@@ -107,7 +117,8 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
             max_lr = conf_lrs['max_lr']
             epoch_or_step = False
             scheduler = lr_scheduler.OneCycleLR(optimizer, max_lr=max_lr,
-                            epochs=epochs, steps_per_epoch=steps_per_epoch,
+                            epochs=epochs-warmup_epochs,
+                            steps_per_epoch=steps_per_epoch,
                         )  # TODO: other params
         elif not lr_scheduler_type:
                 scheduler = None
@@ -115,15 +126,16 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
             raise ValueError('invalid lr_schduler=%s' % lr_scheduler_type)
 
         # select warmup for LR schedule
-        if conf_lrs.get('warmup', None):
+        if conf_lrs.get_val('warmup', None):
             scheduler = GradualWarmupScheduler(
                 optimizer,
-                multiplier=conf_lrs['warmup']['multiplier'],
+                multiplier=conf_lrs['warmup'].get_val('multiplier', 1.0),
                 total_epoch=conf_lrs['warmup']['epochs'],
                 after_scheduler=scheduler
             )
 
     return scheduler, epoch_or_step
+
 
 def _adjust_learning_rate_pyramid(optimizer, max_epoch:int, base_lr:float):
     def _internal_adjust_learning_rate_pyramid(epoch):
@@ -133,54 +145,6 @@ def _adjust_learning_rate_pyramid(optimizer, max_epoch:int, base_lr:float):
 
     return lr_scheduler.LambdaLR(optimizer, _internal_adjust_learning_rate_pyramid)
 
-
-# TODO: replace this with SmoothCrossEntropyLoss class
-# def cross_entropy_smooth(input: torch.Tensor, target, size_average=True, label_smoothing=0.1):
-#     y = torch.eye(10).to(input.device)
-#     lb_oh = y[target]
-
-#     target = lb_oh * (1 - label_smoothing) + 0.5 * label_smoothing
-
-#     logsoftmax = nn.LogSoftmax()
-#     if size_average:
-#         return torch.mean(torch.sum(-target * logsoftmax(input), dim=1))
-#     else:
-#         return torch.sum(torch.sum(-target * logsoftmax(input), dim=1))
-class SmoothCrossEntropyLoss(_WeightedLoss):
-    def __init__(self, weight=None, reduction='mean', smoothing=0.0):
-        super().__init__(weight=weight, reduction=reduction)
-        self.smoothing = smoothing
-        self.weight = weight
-        self.reduction = reduction
-
-    @staticmethod
-    def _smooth_one_hot(targets:torch.Tensor, n_classes:int, smoothing=0.0):
-        assert 0 <= smoothing < 1
-        with torch.no_grad():
-            # For label smoothing, we replace 1-hot vector with 0.9-hot vector instead.
-            # Create empty vector of same size as targets, fill them up with smoothing/(n-1)
-            # then replace element where 1 supposed to go and put there 1-smoothing instead
-            targets = torch.empty(size=(targets.size(0), n_classes), device=targets.device) \
-                .fill_(smoothing /(n_classes-1)) \
-                .scatter_(1, targets.data.unsqueeze(1), 1.-smoothing)
-        return targets
-
-    def forward(self, inputs, targets):
-        targets = SmoothCrossEntropyLoss._smooth_one_hot(targets, inputs.size(-1),
-            self.smoothing)
-        lsm = F.log_softmax(inputs, -1)
-
-        if self.weight is not None: # to support weighted targets
-            lsm = lsm * self.weight.unsqueeze(0)
-
-        loss = -(targets * lsm).sum(-1)
-
-        if  self.reduction == 'sum':
-            loss = loss.sum()
-        elif  self.reduction == 'mean':
-            loss = loss.mean()
-
-        return loss
 
 def get_lossfn(conf_lossfn:Config)->_Loss:
     type = conf_lossfn['type']

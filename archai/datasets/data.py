@@ -77,7 +77,7 @@ def get_dataloaders(ds_provider:DatasetProvider,
         train_workers = test_workers = 0
         logger.warn({'debugger': True})
     if train_workers is None:
-        train_workers = 4
+        train_workers = 4 # following NVidia DeepLearningExamples
     if test_workers is None:
         test_workers = 4
     logger.info({'train_workers': train_workers, 'test_workers':test_workers})

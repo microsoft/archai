@@ -228,11 +228,16 @@ class Trainer(EnforceOverrides):
             get_apex_utils().clip_grad(self._grad_clip, self.model, self._optim)
 
             self._optim.step()
+
+            get_apex_utils().sync_devices()
+
             if self._sched and not self._sched_on_epoch:
                 self._sched.step()
 
             self.post_step(x, y, logits, loss, steps)
             logger.popd()
+
+            # end of step
 
         if self._sched and self._sched_on_epoch:
             self._sched.step()

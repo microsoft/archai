@@ -20,14 +20,13 @@ common:
   apex:
     gpus: '' # use GPU IDs specified here (comma separated), if '' then use all GPUs
     enabled: False # global switch to disable anything apex
-    opt_level: 'O1' # optimization level for mixed precision
+    opt_level: 'O2' # optimization level for mixed precision
     bn_fp32: True # keep BN in fp32
-    loss_scale: None # loss scaling mode for mixed prec
+    loss_scale: "dynamic" # loss scaling mode for mixed prec, must be string reprenting floar ot "dynamic"
     sync_bn: False # should be replace BNs with sync BNs for distributed model
     distributed: False # enable/disable distributed mode
     scale_lr: True # enable/disable distributed mode
     min_world_size: 0 # allows to confirm we are indeed in distributed setting
-
 
   smoke_test: False
   only_eval: False
@@ -74,10 +73,10 @@ nas:
       cutout: 16 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
       train_batch: 96
-      train_workers: null # if null then gpu_count*4
+      train_workers: null # if null then 4
       load_test: True # load test split of dataset
       test_batch: 1024
-      test_workers: null # if null then gpu_count*4
+      test_workers: null # if null then 4
       val_ratio: 0.0 #split portion for test set, 0 to 1
       val_fold: 0 #Fold number to use (0 to 4)
       cv_num: 5 # total number of folds available
@@ -100,10 +99,13 @@ nas:
         decay: 3.0e-4 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: False # pytorch default is False
-        warmup: null
+        decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
       lr_schedule:
         type: 'cosine'
         min_lr: 0.001 # min learning rate to se bet in eta_min param of scheduler
+        warmup: null # increases LR for 0 to current in specified epochs and then hands over to main scheduler
+          # multiplier: 1 # end warmup at this multiple of LR
+          # epochs: 1
       validation:
         title: 'eval_test'
         logger_freq: 0
@@ -202,15 +204,17 @@ nas:
         decay: 3.0e-4
         momentum: 0.9 # pytorch default is 0
         nesterov: False
-        warmup: null
+        decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
       alpha_optimizer:
         type: 'adam'
         lr: 3.0e-4
         decay: 1.0e-3
         betas: [0.5, 0.999]
+        decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
       lr_schedule:
         type: 'cosine'
         min_lr: 0.001 # min learning rate, this will be used in eta_min param of scheduler
+        warmup: null
       validation:
         title: 'search_val'
         logger_freq: 0
@@ -246,11 +250,9 @@ autoaug:
     momentum: 0.9 # pytorch default is 0.0
     nesterov: False # pytorch default is False
     clip: 5.0 # grads above this value is clipped # TODO: Why is this also in trainer?
-    warmup:
-      null
-      # multiplier: 2
-      # epochs: 3
+    decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
     #betas: [0.9, 0.999] # PyTorch default betas for Adam
   lr_schedule:
     type: 'cosine'
     min_lr: 0.0 # min learning rate, this will be used in eta_min param of scheduler
+    warmup: null

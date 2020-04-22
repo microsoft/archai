@@ -138,7 +138,7 @@ class ApexUtils:
     def is_master(self)->bool:
         return self.global_rank == 0
 
-    def sync_dist(self)->None:
+    def sync_devices(self)->None:
         if self._distributed:
             torch.cuda.synchronize()
 
@@ -149,7 +149,7 @@ class ApexUtils:
             rt /= self._world_size
             return rt
         else:
-            return tensor.data
+            return tensor
 
     def backward(self, loss:torch.Tensor, optim:Optimizer)->None:
         if self._amp:
