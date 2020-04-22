@@ -11,7 +11,8 @@ from torch import Tensor
 import yaml
 
 from . import utils, ml_utils
-from .common import logger, get_tb_writer
+from .common import logger, get_tb_writer, is_dist, reduce_mean, reduce_sum, reduce_min, reduce_max
+
 
 class Metrics:
     """Record top1, top5, loss metrics, track best so far.
@@ -58,16 +59,27 @@ class Metrics:
                 logger.info({'epoch':self.run_metrics.epoch_time_avg(),
                             'step': self.run_metrics.step_time_avg(),
                             'run': self.run_metrics.duration()})
+                if is_dist():
+                    logger.info({'dist_epoch_sum': reduce_sum(self.run_metrics.epoch_time_avg()),
+                                'dist_step': reduce_mean(self.run_metrics.step_time_avg()),
+                                'dist_run_sum': reduce_sum(self.run_metrics.duration())})
+
 
             best_train, best_val = self.run_metrics.best_epoch()
             with logger.pushd('best_train'):
                 logger.info({'epoch': best_train.index,
                             'top1': best_train.top1.avg})
+                if is_dist():
+                    logger.info({'dist_epoch': reduce_mean(best_train.index),
+                                'dist_top1': reduce_mean(best_train.top1.avg)})
 
             if best_val:
                 with logger.pushd('best_val'):
                     logger.info({'epoch': best_val.index,
                                 'top1': best_val.val_metrics.top1.avg})
+                    if is_dist():
+                        logger.info({'dist_epoch': reduce_mean(best_val.index),
+                                    'dist_top1': reduce_mean(best_val.val_metrics.top1.avg)})
 
     def pre_step(self, x: Tensor, y: Tensor):
         self.run_metrics.cur_epoch().pre_step()
@@ -89,6 +101,13 @@ class Metrics:
                         'top5': epoch.top5.avg,
                         'loss': epoch.loss.avg,
                         'step_time': epoch.step_time.last})
+
+            if is_dist():
+                logger.info({'dist_top1': reduce_mean(epoch.top1.avg),
+                            'dist_top5': reduce_mean(epoch.top5.avg),
+                            'dist_loss': reduce_mean(epoch.loss.avg),
+                            'dist_step_time': reduce_mean(epoch.step_time.last)})
+
 
         # NOTE: Tensorboard step-level logging is removed as it becomes exponentially expensive on Azure blobs
         # writer = get_tb_writer()
@@ -124,27 +143,39 @@ class Metrics:
                             'duration': epoch.duration(),
                             'step_time': epoch.step_time.avg,
                             'end_lr': lr})
+                if is_dist():
+                    logger.info({'dist_top1': reduce_mean(epoch.top1.avg),
+                                'dist_top5': reduce_mean(epoch.top5.avg),
+                                'dist_loss': reduce_mean(epoch.loss.avg),
+                                'dist_duration': reduce_mean(epoch.duration()),
+                                'dist_step_time': reduce_mean(epoch.step_time.avg),
+                                'dist_end_lr': reduce_mean(lr)})
             if test_epoch:
                 with logger.pushd('val'):
                     logger.info({'top1': test_epoch.top1.avg,
                                 'top5': test_epoch.top5.avg,
                                 'loss': test_epoch.loss.avg,
                                 'duration': epoch.duration()})
+                    if is_dist():
+                        logger.info({'dist_top1': reduce_mean(test_epoch.top1.avg),
+                                    'dist_top5': reduce_mean(test_epoch.top5.avg),
+                                    'dist_loss': reduce_mean(test_epoch.loss.avg),
+                                    'dist_duration': reduce_mean(test_epoch.duration())})
 
-        writer = get_tb_writer()
-        writer.add_scalar(f'{self._tb_path}/train_epochs/loss',
-                            epoch.loss.avg, epoch.index)
-        writer.add_scalar(f'{self._tb_path}/train_epochs/top1',
-                            epoch.top1.avg, epoch.index)
-        writer.add_scalar(f'{self._tb_path}/train_epochs/top5',
-                            epoch.top5.avg, epoch.index)
-        if test_epoch:
-            writer.add_scalar(f'{self._tb_path}/val_epochs/loss',
-                                test_epoch.loss.avg, epoch.index)
-            writer.add_scalar(f'{self._tb_path}/val_epochs/top1',
-                                test_epoch.top1.avg, epoch.index)
-            writer.add_scalar(f'{self._tb_path}/val_epochs/top5',
-                                test_epoch.top5.avg, epoch.index)
+        # writer = get_tb_writer()
+        # writer.add_scalar(f'{self._tb_path}/train_epochs/loss',
+        #                     epoch.loss.avg, epoch.index)
+        # writer.add_scalar(f'{self._tb_path}/train_epochs/top1',
+        #                     epoch.top1.avg, epoch.index)
+        # writer.add_scalar(f'{self._tb_path}/train_epochs/top5',
+        #                     epoch.top5.avg, epoch.index)
+        # if test_epoch:
+        #     writer.add_scalar(f'{self._tb_path}/val_epochs/loss',
+        #                         test_epoch.loss.avg, epoch.index)
+        #     writer.add_scalar(f'{self._tb_path}/val_epochs/top1',
+        #                         test_epoch.top1.avg, epoch.index)
+        #     writer.add_scalar(f'{self._tb_path}/val_epochs/top5',
+        #                         test_epoch.top5.avg, epoch.index)
 
     def state_dict(self)->Mapping:
         return utils.state_dict(self)

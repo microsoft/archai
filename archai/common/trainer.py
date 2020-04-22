@@ -231,6 +231,7 @@ class Trainer(EnforceOverrides):
 
             self._optim.step()
 
+            # TODO: we possibly need to sync so all replicas are upto date
             get_apex_utils().sync_devices()
 
             if self._sched and not self._sched_on_epoch:

@@ -1,10 +1,10 @@
-from typing import Optional, Tuple, List
+from typing import Optional, Sequence, Tuple, List
 import os
 import argparse
 
 import torch
 from torch.optim.optimizer import Optimizer
-from torch import nn
+from torch import Tensor, nn
 from torch.backends import cudnn
 import torch.distributed as dist
 
@@ -14,8 +14,6 @@ from archai.common import ml_utils, utils
 from archai.common.ordereddict_logger import OrderedDictLogger
 
 class ApexUtils:
-    _warning_shown = False
-
     def __init__(self, distdir:Optional[str], apex_config:Config)->None:
         logger = self._create_init_logger(distdir)
 
@@ -60,6 +58,9 @@ class ApexUtils:
                 assert dist.is_nccl_available()
                 dist.init_process_group(backend='nccl', init_method='env://')
                 assert dist.is_initialized()
+
+                self._op_map = {'mean': dist.ReduceOp.SUM, 'sum': dist.ReduceOp.SUM,
+                            'min': dist.ReduceOp.MIN, 'max': dist.ReduceOp.MAX}
 
                 self._set_ranks()
 
@@ -131,9 +132,9 @@ class ApexUtils:
         # We can't create replica specific logger at time of init so this is set later.
         self.logger = logger
 
-    def amp_available(self)->bool:
+    def is_mixed(self)->bool:
         return self._amp is not None
-    def dist_available(self)->bool:
+    def is_dist(self)->bool:
         return self._ddp is not None
     def is_master(self)->bool:
         return self.global_rank == 0
@@ -142,14 +143,20 @@ class ApexUtils:
         if self._distributed:
             torch.cuda.synchronize()
 
-    def reduce_tensor(self, tensor:torch.Tensor):
+    def reduce(self, val, op='mean'):
         if self._distributed:
-            rt = tensor.clone()
-            torch.dist.all_reduce(rt, op=torch.dist.reduce_op.SUM)
-            rt /= self._world_size
+            if not isinstance(val, Tensor):
+                rt = torch.tensor(val)
+            else:
+                rt = val.clone()
+
+            r_op = self._op_map[op]
+            torch.dist.all_reduce(rt, op=r_op)
+            if op=='mean':
+                rt /= self._world_size
             return rt
         else:
-            return tensor
+            return val
 
     def backward(self, loss:torch.Tensor, optim:Optimizer)->None:
         if self._amp:

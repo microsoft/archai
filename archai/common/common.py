@@ -45,6 +45,27 @@ def get_apex_utils()->ApexUtils:
     assert _apex_utils
     return _apex_utils
 
+def is_dist()->bool:
+    global _apex_utils
+    return _apex_utils.is_dist()
+
+def reduce_min(val):
+    global _apex_utils
+    return _apex_utils.reduce(val, op='min')
+def reduce_max(val):
+    global _apex_utils
+    return _apex_utils.reduce(val, op='max')
+def reduce_sum(val):
+    global _apex_utils
+    return _apex_utils.reduce(val, op='sum')
+def reduce_mean(val):
+    global _apex_utils
+    return _apex_utils.reduce(val, op='mean')
+
+def is_dist()->bool:
+    global _apex_utils
+    return _apex_utils.is_dist()
+
 def get_conf_common()->Config:
     return get_conf()['common']
 
