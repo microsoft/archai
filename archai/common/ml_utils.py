@@ -3,7 +3,7 @@ import  numpy as np
 import math
 
 import  torch
-from torch import isnan, nn
+from torch import nn
 from torch.optim import lr_scheduler, SGD, Adam
 from warmup_scheduler import GradualWarmupScheduler
 from torch.optim.lr_scheduler import _LRScheduler
@@ -16,7 +16,7 @@ import statopt
 from .config import Config
 from .cocob import CocobBackprop
 from .ml_losses import SmoothCrossEntropyLoss
-from .common import logger
+
 
 def create_optimizer(conf_opt:Config, params)->Optimizer:
     optim_type = conf_opt['type']
@@ -24,9 +24,7 @@ def create_optimizer(conf_opt:Config, params)->Optimizer:
     decay = conf_opt.get_val('decay', math.nan)
     decay_bn = conf_opt.get_val('decay_bn', math.nan) # some optim may not support weight decay
 
-    logger.info({'optim_type': optim_type, 'lr':lr, 'decay':decay, 'decay_bn': decay_bn})
-
-    if not isnan(decay_bn):
+    if not math.isnan(decay_bn):
         bn_params = [v for n, v in params if 'bn' in n]
         rest_params = [v for n, v in params if not 'bn' in n]
         params = [{

@@ -14,7 +14,6 @@ import torch.backends.cudnn as cudnn
 import psutil
 
 from .config import Config
-from .stopwatch import StopWatch
 from . import utils
 from .ordereddict_logger import OrderedDictLogger
 from .apex_utils import ApexUtils

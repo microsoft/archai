@@ -113,7 +113,9 @@ class Trainer(EnforceOverrides):
         return self.get_metrics()
 
     def create_optimizer(self)->Optimizer:
-        return ml_utils.create_optimizer(self._conf_optim, self.model.parameters())
+        optim = ml_utils.create_optimizer(self._conf_optim, self.model.parameters())
+        logger.info({'conf_optim': self._conf_optim})
+        return optim
 
     def _create_scheduler(self, optim:Optimizer, steps_per_epoch:int) \
             ->Tuple[Optional[_LRScheduler],bool]:
