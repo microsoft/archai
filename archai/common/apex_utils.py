@@ -53,32 +53,15 @@ class ApexUtils:
 
             # enable distributed processing
             if self._distributed:
+                from apex import parallel
+                self._ddp = parallel
+
                 assert dist.is_available() # distributed module is available
                 assert dist.is_nccl_available()
                 dist.init_process_group(backend='nccl', init_method='env://')
                 assert dist.is_initialized()
 
-                if 'WORLD_SIZE' in os.environ:
-                    self._world_size = int(os.environ['WORLD_SIZE'])
-                    assert dist.get_world_size() == self._world_size
-                else:
-                    raise RuntimeError('WORLD_SIZE must be set by distributed launcher when distributed mode is enabled')
-
-                parser = argparse.ArgumentParser()
-                parser.add_argument('--local-rank', type=int, help='local-rank must be supplied by torch distributed launcher!')
-                args, extra_args = parser.parse_known_args()
-
-                self.local_rank = args.local_rank
-                self.global_rank = dist.get_rank()
-
-                from apex import parallel
-                self._ddp = parallel
-                assert self.local_rank < torch.cuda.device_count()
-                self._gpu = self.local_rank # reset to default assignment for rank
-                # remap if GPU IDs are specified
-                if len(self.gpu_ids):
-                    assert len(self.gpu_ids) > self.local_rank
-                    self._gpu = self.gpu_ids[self.local_rank]
+                self._set_ranks()
 
         assert self._world_size >= 1
         assert not self._min_world_size or self._world_size >= self._min_world_size
@@ -96,6 +79,32 @@ class ApexUtils:
         logger.info({'dist_initialized': dist.is_initialized() if dist.is_available() else False})
 
         logger.close()
+
+
+    def _set_ranks(self)->None:
+        if 'WORLD_SIZE' in os.environ:
+            self._world_size = int(os.environ['WORLD_SIZE'])
+            assert dist.get_world_size() == self._world_size
+        else:
+            raise RuntimeError('WORLD_SIZE must be set by distributed launcher when distributed mode is enabled')
+
+        if 'LOCAL_RANK' in os.environ:
+            self.local_rank = int(os.environ['LOCAL_RANK'])
+        else:
+            raise RuntimeError('LOCAL_RANK must be set by distributed launcher when distributed mode is enabled')
+
+        self.global_rank = dist.get_rank()
+        # parser = argparse.ArgumentParser()
+        # parser.add_argument('--local-rank', type=int, help='local-rank must be supplied by torch distributed launcher!')
+        # args, extra_args = parser.parse_known_args()
+        # self.local_rank = args.local_rank
+
+        assert self.local_rank < torch.cuda.device_count()
+        self._gpu = self.local_rank % torch.cuda.device_count()
+        # remap if GPU IDs are specified
+        if len(self.gpu_ids):
+            assert len(self.gpu_ids) > self.local_rank
+            self._gpu = self.gpu_ids[self.local_rank]
 
 
     def _create_init_logger(self, distdir:Optional[str])->OrderedDictLogger:

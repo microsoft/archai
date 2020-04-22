@@ -10,7 +10,7 @@ from torch_testbed.dataloader_dali import cifar10_dataloaders
 
 
 utils.create_logger()
-utils.setup_cuda(42)
+utils.setup_cuda(42, 0)
 
 batch_size = 512
 half = True

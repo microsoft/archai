@@ -1,4 +1,4 @@
-from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List
+from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
 import  numpy as np
 import logging
 import csv
@@ -6,7 +6,7 @@ from collections import OrderedDict
 import sys
 import  os
 import pathlib
-import time
+import random
 
 import  torch
 import torch.backends.cudnn as cudnn
@@ -207,12 +207,15 @@ def download_and_extract_tar(url, download_root, extract_root=None, filename=Non
 
     extract_tar(os.path.join(download_root, filename), extract_root, **kwargs)
 
-def setup_cuda(seed):
-    seed = int(seed)
+def setup_cuda(seed:Union[float, int], local_rank:int):
+    seed = int(seed) + local_rank
     # setup cuda
     cudnn.enabled = True
-    np.random.seed(seed)
     torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+
     #torch.cuda.manual_seed_all(seed)
     cudnn.benchmark = True # set to false if deterministic
     torch.set_printoptions(precision=10)

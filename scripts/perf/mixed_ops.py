@@ -6,7 +6,7 @@ import torch.backends.cudnn as cudnn
 import numpy as np
 
 
-utils.setup_cuda(2)
+utils.setup_cuda(2, 0)
 
 device = torch.device('cuda')
 

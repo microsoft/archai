@@ -253,7 +253,7 @@ def _setup_apex():
 def _setup_gpus():
     conf_common = get_conf_common()
 
-    utils.setup_cuda(conf_common['seed'])
+    utils.setup_cuda(conf_common['seed'], get_apex_utils().local_rank)
 
     if conf_common['detect_anomaly']:
         logger.warn({'set_detect_anomaly':True})
