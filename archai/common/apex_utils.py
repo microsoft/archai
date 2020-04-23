@@ -54,7 +54,7 @@ class ApexUtils:
         self.local_rank = 0
         self.global_rank = 0
 
-        logger.info({'apex_config': apex_config.to_dict()})
+        #logger.info({'apex_config': apex_config.to_dict()})
         logger.info({'torch.distributed.is_available': dist.is_available()})
         if dist.is_available():
             logger.info({'gloo_available': dist.is_gloo_available(),
@@ -165,14 +165,19 @@ class ApexUtils:
     def reduce(self, val, op='mean'):
         if self._distributed_enabled:
             if not isinstance(val, Tensor):
-                rt = torch.tensor(val)
+                rt = torch.tensor(val).to(self.device)
+                converted = True
             else:
-                rt = val.clone()
+                rt = val.clone().to(self.device)
+                converted = False
 
             r_op = self._op_map[op]
-            torch.dist.all_reduce(rt, op=r_op)
+            dist.all_reduce(rt, op=r_op)
             if op=='mean':
                 rt /= self._world_size
+
+            if converted and len(rt.shape)==0:
+                return rt.item()
             return rt
         else:
             return val
