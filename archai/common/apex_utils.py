@@ -34,9 +34,6 @@ class ApexUtils:
         # to avoid circular references= with common, logger is passed from outside
         self.logger = logger
 
-        self._op_map = {'mean': dist.ReduceOp.SUM, 'sum': dist.ReduceOp.SUM,
-                    'min': dist.ReduceOp.MIN, 'max': dist.ReduceOp.MAX}
-
         # defaults for non-distributed mode
         self._amp, self._ddp = None, None
         self.world_size = 1
@@ -50,6 +47,9 @@ class ApexUtils:
         #_log_info({'apex_config': apex_config.to_dict()})
         self._log_info({'torch.distributed.is_available': dist.is_available()})
         if dist.is_available():
+            # dist.* properties are otherwise not accessible
+            self._op_map = {'mean': dist.ReduceOp.SUM, 'sum': dist.ReduceOp.SUM,
+                        'min': dist.ReduceOp.MIN, 'max': dist.ReduceOp.MAX}
             self._log_info({'gloo_available': dist.is_gloo_available(),
                         'mpi_available': dist.is_mpi_available(),
                         'nccl_available': dist.is_nccl_available()})

@@ -88,7 +88,7 @@ nas:
     trainer:
       apex:
         _copy: 'common/apex'
-        enabled: True
+        enabled: False
       aux_weight: '_copy: nas/eval/model_desc/aux_weight'
       drop_path_prob: 0.2 # probability that given edge will be dropped
       grad_clip: 5.0 # grads above this value is clipped

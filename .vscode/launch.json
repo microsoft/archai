@@ -43,7 +43,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--no-search", "--algos", "darts", "--nas.eval.final_desc_filename", "models/final_model_desc.yaml"]
+            "args": ["--no-search", "--algos", "darts", "--nas.eval.final_desc_filename", "models/darts/final_model_desc1.yaml"]
         },
         {
             "name": "Darts-E2E-Toy",
