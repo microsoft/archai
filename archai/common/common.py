@@ -210,7 +210,7 @@ def _setup_logger(apex:ApexUtils):
         logs_yaml_filepath = utils.full_path(os.path.join(distdir, f'logs_{global_rank}.yaml'))
         experiment_name = get_experiment_name() + '_' + str(global_rank)
         enable_stdout = False
-        print(f'log_global_rank={global_rank}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}')
+    print(f'log_global_rank={global_rank}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}')
 
     sys_logger = utils.create_logger(filepath=sys_log_filepath,
                                      name=experiment_name,

@@ -94,7 +94,8 @@ class ApexUtils:
         self._log_info({'dist_initialized': dist.is_initialized() if dist.is_available() else False,
                      'world_size': self.world_size,
                      'gpu': self._gpu, 'gpu_ids':self.gpu_ids,
-                     'local_rank': self.local_rank})
+                     'local_rank': self.local_rank,
+                     'global_rank': self.global_rank})
 
 
     def _setup_gpus(self, seed:float, detect_anomaly:bool):
@@ -152,7 +153,7 @@ class ApexUtils:
     def is_dist(self)->bool:
         return self._enabled and self._distributed_enabled
     def is_master(self)->bool:
-        return self.global_rank == 0 and self.local_rank == 0
+        return self.global_rank == 0
 
     def _log_info(self, d:dict)->None:
         if self.logger is not None:
