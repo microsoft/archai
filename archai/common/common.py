@@ -236,7 +236,7 @@ def _setup_logger():
         logs_yaml_filepath = utils.full_path(os.path.join(distdir, f'logs_{global_rank}.yaml'))
         experiment_name = get_experiment_name() + '_' + str(global_rank)
         enable_stdout = False
-        print('No stdout logging for replica {global_rank}')
+        print(f'No stdout logging for replica {global_rank}')
 
     sys_logger = utils.create_logger(filepath=sys_log_filepath,
                                      name=experiment_name,
