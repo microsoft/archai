@@ -20,7 +20,6 @@ class Trainer(EnforceOverrides):
                  checkpoint:Optional[CheckPoint])->None:
         # region config vars
         conf_lossfn = conf_train['lossfn']
-        self._apex = conf_train['apex']
         self._aux_weight = conf_train['aux_weight']
         self._grad_clip = conf_train['grad_clip']
         self._drop_path_prob = conf_train['drop_path_prob']
