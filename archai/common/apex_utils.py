@@ -152,7 +152,7 @@ class ApexUtils:
     def is_dist(self)->bool:
         return self._enabled and self._distributed_enabled
     def is_master(self)->bool:
-        return self.global_rank == 0
+        return self.global_rank == 0 and self.local_rank == 0
 
     def _log_info(self, d:dict)->None:
         if self.logger is not None:
