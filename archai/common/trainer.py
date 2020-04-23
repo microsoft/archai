@@ -29,8 +29,11 @@ class Trainer(EnforceOverrides):
         self._conf_optim = conf_train['optimizer']
         self._conf_sched = conf_train['lr_schedule']
         conf_validation = conf_train['validation']
+        conf_apex = conf_train['apex']
         self._validation_freq = 0 if conf_validation is None else conf_validation['freq']
         # endregion
+
+        get_apex_utils().reset(logger, conf_apex)
 
         self._checkpoint = checkpoint
         self.model = model

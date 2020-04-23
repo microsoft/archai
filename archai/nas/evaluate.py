@@ -7,7 +7,7 @@ from torch import nn
 
 from archai.common.trainer import Trainer
 from archai.common.config import Config
-from archai.common.common import logger, get_apex_utils
+from archai.common.common import logger
 from archai.datasets import data
 from archai.nas.model_desc import ModelDesc
 from archai.nas.cell_builder import CellBuilder
@@ -24,10 +24,7 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     conf_checkpoint = conf_eval['checkpoint']
     resume = conf_eval['resume']
     conf_train = conf_eval['trainer']
-    conf_apex = conf_eval['apex']
     # endregion
-
-    get_apex_utils().reset(logger, conf_apex)
 
     if cell_builder:
         cell_builder.register_ops()

@@ -8,7 +8,7 @@ import tensorwatch as tw
 from torch.utils.data.dataloader import DataLoader
 import yaml
 
-from archai.common.common import logger, get_apex_utils
+from archai.common.common import logger
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
 from .cell_builder import CellBuilder
@@ -108,7 +108,6 @@ class Search:
         self.search_iters = conf_search['search_iters']
         self.pareto_enabled = conf_pareto['enabled']
         pareto_summary_filename = conf_pareto['summary_filename']
-        conf_apex = conf_search['apex']
         # endregion
 
         self.cell_builder = cell_builder
@@ -116,8 +115,6 @@ class Search:
         self._data_cache = {}
         self._parito_filepath = utils.full_path(pareto_summary_filename)
         self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
-
-        get_apex_utils().reset(logger, conf_apex)
 
         logger.info({'pareto_enabled': self.pareto_enabled,
                      'base_reductions': self.base_reductions,

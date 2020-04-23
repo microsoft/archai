@@ -10,12 +10,11 @@ from .metrics import Metrics
 from .config import Config
 from . import utils, ml_utils
 from .common import logger, get_device
+from archai.common.common import get_apex_utils
 
 class Tester(EnforceOverrides):
-    """Evaluate model on given data
-    """
-
     def __init__(self, conf_eval:Config, model:nn.Module)->None:
+        # TODO: currently we expect that given model and dataloader will already be distributed
         self._title = conf_eval['title']
         self._logger_freq = conf_eval['logger_freq']
         conf_lossfn = conf_eval['lossfn']
@@ -56,6 +55,9 @@ class Tester(EnforceOverrides):
                     logits = logits[0]
                 loss = self._lossfn(logits, y)
                 self._post_step(x, y, logits, loss, steps, self._metrics)
+
+                # TODO: we possibly need to sync so all replicas are upto date
+                get_apex_utils().sync_devices()
 
                 logger.popd()
         self._metrics.post_epoch(None)
