@@ -30,41 +30,10 @@ class SummaryWriterDummy:
 SummaryWriterAny = Union[SummaryWriterDummy, SummaryWriter]
 logger = OrderedDictLogger(None, None)
 _tb_writer: SummaryWriterAny = None
-_apex_utils = ApexUtils()
 _atexit_reg = False # is hook for atexit registered?
 
 def get_conf()->Config:
     return Config.get()
-
-def get_device():
-    global _apex_utils
-    return _apex_utils.device
-
-def get_apex_utils()->ApexUtils:
-    global _apex_utils
-    assert _apex_utils
-    return _apex_utils
-
-def is_dist()->bool:
-    global _apex_utils
-    return _apex_utils.is_dist()
-
-def reduce_min(val):
-    global _apex_utils
-    return _apex_utils.reduce(val, op='min')
-def reduce_max(val):
-    global _apex_utils
-    return _apex_utils.reduce(val, op='max')
-def reduce_sum(val):
-    global _apex_utils
-    return _apex_utils.reduce(val, op='sum')
-def reduce_mean(val):
-    global _apex_utils
-    return _apex_utils.reduce(val, op='mean')
-
-def is_dist()->bool:
-    global _apex_utils
-    return _apex_utils.is_dist()
 
 def get_conf_common()->Config:
     return get_conf()['common']
@@ -138,14 +107,18 @@ def common_init(config_filepath: Optional[str]=None,
     logger.info({'expdir': expdir,
                  'PT_DATA_DIR': pt_data_dir, 'PT_OUTPUT_DIR': pt_output_dir})
 
+    # create a[ex to know distributed processing paramters
+    conf_apex = get_conf_common()['apex']
+    apex = ApexUtils(conf_apex, None)
+
     # create global logger
-    _setup_logger()
+    _setup_logger(apex)
     # create info file for current system
     _create_sysinfo(conf)
 
     # setup tensorboard
     global _tb_writer
-    _tb_writer = _create_tb_writer(get_apex_utils().is_master())
+    _tb_writer = _create_tb_writer(apex.is_master())
 
     # create hooks to execute code when script exits
     global _atexit_reg
@@ -216,17 +189,18 @@ def _setup_dirs()->Optional[str]:
     os.environ['distdir'] = conf_common['distdir'] = distdir
 
 
-def _setup_logger():
+def _setup_logger(apex:ApexUtils):
     global logger
     logger.close()  # close any previous instances
 
     conf_common = get_conf_common()
     expdir = conf_common['expdir']
     distdir = conf_common['distdir']
-    global_rank = get_apex_utils().global_rank
+
+    global_rank = apex.global_rank
 
     # file where logger would log messages
-    if get_apex_utils().is_master():
+    if apex.is_master():
         sys_log_filepath = utils.full_path(os.path.join(expdir, 'logs.log'))
         logs_yaml_filepath = utils.full_path(os.path.join(expdir, 'logs.yaml'))
         experiment_name = get_experiment_name()

@@ -11,8 +11,9 @@ from .metrics import Metrics
 from .tester import Tester
 from .config import Config
 from . import utils, ml_utils
-from ..common.common import logger, get_device, get_apex_utils
+from ..common.common import logger
 from ..common.checkpoint import CheckPoint
+from ..common.apex_utils import ApexUtils
 
 
 class Trainer(EnforceOverrides):
@@ -33,13 +34,13 @@ class Trainer(EnforceOverrides):
         self._validation_freq = 0 if conf_validation is None else conf_validation['freq']
         # endregion
 
-        get_apex_utils().reset(logger, conf_apex)
+        self._apex = ApexUtils(conf_apex, logger)
 
         self._checkpoint = checkpoint
         self.model = model
 
         self._lossfn = ml_utils.get_lossfn(conf_lossfn)
-        self._tester = Tester(conf_validation, model) \
+        self._tester = Tester(conf_validation, model, self._apex) \
                         if conf_validation else None
         self._metrics:Optional[Metrics] = None
 
@@ -52,7 +53,7 @@ class Trainer(EnforceOverrides):
     def fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->Metrics:
         logger.pushd(self._title)
 
-        self._metrics = Metrics(self._title, logger_freq=self._logger_freq)
+        self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
         # optimizers, schedulers needs to be recreated for each fit call
         # as they have state specific to each run
@@ -60,10 +61,10 @@ class Trainer(EnforceOverrides):
         # create scheduler for optim before applying amp
         self._sched, self._sched_on_epoch = self._create_scheduler(optim, len(train_dl))
         # before checkpoint restore, convert to amp
-        self.model, self._optim = get_apex_utils().to_amp(self.model, optim,
+        self.model, self._optim = self._apex.to_amp(self.model, optim,
                                                           batch_size=train_dl.batch_size)
 
-        self._lossfn = self._lossfn.to(get_device())
+        self._lossfn = self._lossfn.to(self.get_device())
 
         self.pre_fit(train_dl, val_dl)
 
@@ -158,7 +159,7 @@ class Trainer(EnforceOverrides):
         self._metrics.post_epoch(val_metrics, lr=self._optim.param_groups[0]['lr'])
 
         # checkpoint if enabled with given freq or if this is the last epoch
-        if self._checkpoint is not None and get_apex_utils().is_master() and \
+        if self._checkpoint is not None and self._apex.is_master() and \
             self._checkpoint.freq > 0 and (self._metrics.epochs() % self._checkpoint.freq == 0 or \
                     self._metrics.epochs() >= self._epochs):
             self._checkpoint.new()
@@ -173,6 +174,9 @@ class Trainer(EnforceOverrides):
         self._metrics.post_step(x, y, logits, loss, steps)
     #########################  hooks #########################
 
+    def get_device(self):
+        return self._apex.device
+
     def restore_checkpoint(self)->None:
         state = self._checkpoint['trainer']
         last_epoch = state['last_epoch']
@@ -180,7 +184,7 @@ class Trainer(EnforceOverrides):
 
         self._metrics.load_state_dict(state['metrics'])
         assert self._metrics.epochs() == last_epoch+1
-        get_apex_utils().load_state_dict(state['amp'])
+        self._apex.load_state_dict(state['amp'])
         self.model.load_state_dict(state['model'])
         self._optim.load_state_dict(state['optim'])
         if self._sched:
@@ -198,7 +202,7 @@ class Trainer(EnforceOverrides):
             'model': self.model.state_dict(),
             'optim': self._optim.state_dict(),
             'sched': self._sched.state_dict() if self._sched else None,
-            'amp': get_apex_utils().state_dict()
+            'amp': self._apex.state_dict()
         }
         self._checkpoint['trainer'] = state
 
@@ -208,7 +212,7 @@ class Trainer(EnforceOverrides):
 
         logger.pushd('steps')
         for step, (x, y) in enumerate(train_dl):
-            x, y = x.to(get_device(), non_blocking=True), y.to(get_device(), non_blocking=True)
+            x, y = x.to(self.get_device(), non_blocking=True), y.to(self.get_device(), non_blocking=True)
 
             logger.pushd(step)
             assert self.model.training # derived class might alter the mode
@@ -226,15 +230,15 @@ class Trainer(EnforceOverrides):
             loss = self.compute_loss(self._lossfn, x, y, logits,
                                     self._aux_weight, aux_logits)
 
-            get_apex_utils().backward(loss, self._optim)
+            self._apex.backward(loss, self._optim)
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
-            get_apex_utils().clip_grad(self._grad_clip, self.model, self._optim)
+            self._apex.clip_grad(self._grad_clip, self.model, self._optim)
 
             self._optim.step()
 
             # TODO: we possibly need to sync so all replicas are upto date
-            get_apex_utils().sync_devices()
+            self._apex.sync_devices()
 
             if self._sched and not self._sched_on_epoch:
                 self._sched.step()

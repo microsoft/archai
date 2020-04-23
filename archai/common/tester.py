@@ -9,18 +9,18 @@ from overrides import EnforceOverrides
 from .metrics import Metrics
 from .config import Config
 from . import utils, ml_utils
-from .common import logger, get_device
-from archai.common.common import get_apex_utils
+from .common import logger
+from archai.common.apex_utils import ApexUtils
 
 class Tester(EnforceOverrides):
-    def __init__(self, conf_eval:Config, model:nn.Module)->None:
-        # TODO: currently we expect that given model and dataloader will already be distributed
+    def __init__(self, conf_eval:Config, model:nn.Module, apex:ApexUtils)->None:
         self._title = conf_eval['title']
         self._logger_freq = conf_eval['logger_freq']
         conf_lossfn = conf_eval['lossfn']
 
+        self._apex = apex
         self.model = model
-        self._lossfn = ml_utils.get_lossfn(conf_lossfn).to(get_device())
+        self._lossfn = ml_utils.get_lossfn(conf_lossfn).to(apex.device)
         self._metrics = None
 
     def test(self, test_dl: DataLoader)->Metrics:
@@ -43,7 +43,7 @@ class Tester(EnforceOverrides):
 
         with torch.no_grad(), logger.pushd('steps'):
             for step, (x, y) in enumerate(test_dl):
-                x, y = x.to(get_device(), non_blocking=True), y.to(get_device(), non_blocking=True)
+                x, y = x.to(self._apex.device, non_blocking=True), y.to(self._apex.device, non_blocking=True)
 
                 assert not self.model.training # derived class might alter the mode
                 logger.pushd(step)
@@ -57,7 +57,7 @@ class Tester(EnforceOverrides):
                 self._post_step(x, y, logits, loss, steps, self._metrics)
 
                 # TODO: we possibly need to sync so all replicas are upto date
-                get_apex_utils().sync_devices()
+                self._apex.sync_devices()
 
                 logger.popd()
         self._metrics.post_epoch(None)
@@ -87,5 +87,5 @@ class Tester(EnforceOverrides):
         metrics.post_step(x, y, logits, loss, steps)
 
     def _create_metrics(self)->Metrics:
-        return Metrics(self._title, logger_freq=self._logger_freq)
+        return Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 

@@ -1,10 +1,27 @@
+from collections import UserDict
 import yaml
+from typing import Iterator
 
-y = """
-a: .NaN
+class A(object):
+    def __init__(self):
+        self.hidden = 42
+        self.visible = 5
 
-"""
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['hidden'] # cannot serialize this
+        return state
 
-d=yaml.load(y, Loader=yaml.Loader)
+a = A()
+d = yaml.dump(a)
 print(d)
-print(type( d['a']))
+
+
+# y = """
+# a: .NaN
+
+# """
+
+# d=yaml.load(y, Loader=yaml.Loader)
+# print(d)
+# print(type( d['a']))

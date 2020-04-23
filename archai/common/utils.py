@@ -55,7 +55,7 @@ def deep_update(d:MutableMapping, u:Mapping, map_type:Type[MutableMapping]=dict)
     return d
 
 def state_dict(val)->Mapping:
-    assert hasattr(val, '__dict__'), 'val must be object with __dict__'
+    assert hasattr(val, '__dict__'), 'val must be object with __dict__ otherwise it cannot be loaded back in load_state_dict'
 
     # Can't do below because val has state_dict() which calls utils.state_dict
     # if has_method(val, 'state_dict'):
@@ -76,8 +76,8 @@ def load_state_dict(val:Any, state_dict:Mapping)->None:
     assert s is not None, 'state_dict must contain yaml key'
 
     obj = yaml.load(s, Loader=yaml.Loader)
-    for k in val.__dict__.keys():
-        setattr(val, k, getattr(obj, k))
+    for k, v in obj.__dict__.items():
+        setattr(val, k, v)
 
 def deep_comp(o1:Any, o2:Any)->bool:
     # NOTE: dict don't have __dict__

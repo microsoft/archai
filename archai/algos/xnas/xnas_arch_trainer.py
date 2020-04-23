@@ -15,7 +15,7 @@ from archai.nas.arch_trainer import ArchTrainer
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
-from archai.common.common import logger, get_device
+from archai.common.common import logger
 
 
 class XnasArchTrainer(ArchTrainer):
@@ -39,7 +39,7 @@ class XnasArchTrainer(ArchTrainer):
         # optimizers, schedulers needs to be recreated for each fit call
         # as they have state
         assert val_dl is not None
-        lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(get_device())
+        lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
 
         self._xnas_optim = _XnasOptimizer(self._conf_alpha_optim, self.model, lossfn)
 
@@ -74,7 +74,7 @@ class XnasArchTrainer(ArchTrainer):
             self._valid_iter = iter(self._val_dl)
             x_val, y_val = next(self._valid_iter)
 
-        x_val, y_val = x_val.to(get_device()), y_val.to(get_device(), non_blocking=True)
+        x_val, y_val = x_val.to(self.get_device()), y_val.to(self.get_device(), non_blocking=True)
 
         # update alphas
         self._xnas_optim.step(x, y, x_val, y_val)

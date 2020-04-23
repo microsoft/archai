@@ -19,8 +19,8 @@ common:
   redis: null
   apex: # this is overriden in search and eval individually
     enabled: False # global switch to disable anything apex
-    distributed_enabled: False # enable/disable distributed mode
-    mixed_prec_enabled: False # switch to disable amp mixed precision
+    distributed_enabled: True # enable/disable distributed mode
+    mixed_prec_enabled: True # switch to disable amp mixed precision
     gpus: '' # use GPU IDs specified here (comma separated), if '' then use all GPUs
     opt_level: 'O2' # optimization level for mixed precision
     bn_fp32: True # keep BN in fp32
@@ -88,6 +88,7 @@ nas:
     trainer:
       apex:
         _copy: 'common/apex'
+        enabled: True
       aux_weight: '_copy: nas/eval/model_desc/aux_weight'
       drop_path_prob: 0.2 # probability that given edge will be dropped
       grad_clip: 5.0 # grads above this value is clipped

@@ -9,11 +9,11 @@ from torch.optim.optimizer import Optimizer
 from archai.common.config import Config
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
-from archai.common.common import logger, get_device
+from archai.common.common import logger
 
 class BilevelOptimizer:
     def __init__(self, conf_alpha_optim:Config, w_momentum: float, w_decay: float,
-                 model: Model, lossfn: _Loss) -> None:
+                 model: Model, lossfn: _Loss, device) -> None:
         self._w_momentum = w_momentum  # momentum for w
         self._w_weight_decay = w_decay  # weight decay for w
         self._lossfn = lossfn
@@ -22,7 +22,7 @@ class BilevelOptimizer:
         # create a copy of model which we will use
         # to compute grads for alphas without disturbing
         # original weights
-        self._vmodel = copy.deepcopy(model).to(get_device())
+        self._vmodel = copy.deepcopy(model).to(device)
         # this is the optimizer to optimize alphas parameter
         self._alpha_optim = ml_utils.create_optimizer(conf_alpha_optim, model.alphas())
 
