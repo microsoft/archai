@@ -108,9 +108,9 @@ nas:
       lr_schedule:
         type: 'cosine'
         min_lr: 0.001 # min learning rate to se bet in eta_min param of scheduler
-        warmup: null # increases LR for 0 to current in specified epochs and then hands over to main scheduler
-          # multiplier: 1 # end warmup at this multiple of LR
-          # epochs: 1
+        warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
+          multiplier: 1
+          epochs: 0 # 0 disables warmup
       validation:
         title: 'eval_test'
         logger_freq: 0

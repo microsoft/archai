@@ -124,11 +124,11 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
             raise ValueError('invalid lr_schduler=%s' % lr_scheduler_type)
 
         # select warmup for LR schedule
-        if conf_lrs.get_val('warmup', None):
+        if warmup_epochs:
             scheduler = GradualWarmupScheduler(
                 optimizer,
                 multiplier=conf_lrs['warmup'].get_val('multiplier', 1.0),
-                total_epoch=conf_lrs['warmup']['epochs'],
+                total_epoch=warmup_epochs,
                 after_scheduler=scheduler
             )
 

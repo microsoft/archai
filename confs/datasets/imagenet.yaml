@@ -26,48 +26,48 @@ nas:
         _copy: '/dataset_eval'
 
     # darts setup
-    loader:
-      batch: 128
-      dataset:
-        _copy: '/dataset_eval'
-    trainer:
-      aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
-      drop_path_prob: 0.0 # probability that given edge will be dropped
-      epochs: 250
-      lossfn: # TODO: this is perhaps reversed for test/train?
-        type: 'CrossEntropyLabelSmooth'
-        smoothing: 0.1 # label smoothing
-      optimizer:
-        lr: 0.1 # init learning rate
-        decay: 3.0e-5
-      lr_schedule:
-        type: 'step'
-        decay_period: 1 # epochs between two learning rate decays
-        gamma: 0.97 # learning rate decay
-
-    # NVidia benchmark setup DGX1_RN50_AMP_90E.sh
-    # Enable amp and distributed 8 GPUs in apex section
     # loader:
-    #   batch: 256
-    #   train_workers: 5
-    #   test_workers: 5
+    #   batch: 128
     #   dataset:
     #     _copy: '/dataset_eval'
     # trainer:
-    #   aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
+    #   aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
     #   drop_path_prob: 0.0 # probability that given edge will be dropped
-    #   epochs: 90
+    #   epochs: 250
     #   lossfn: # TODO: this is perhaps reversed for test/train?
     #     type: 'CrossEntropyLabelSmooth'
     #     smoothing: 0.1 # label smoothing
     #   optimizer:
-    #     lr: 2.048 # init learning rate
-    #     decay: 3.05e-5
-    #     decay_bn: 0.0 # if NaN then same as decay otherwise apply different decay to BN layers
-    #     momentum: 0.875 # pytorch default is 0.0
+    #     lr: 0.1 # init learning rate
+    #     decay: 3.0e-5
     #   lr_schedule:
-    #     type: 'cosine'
-    #     min_lr: 0.0 # min learning rate to se bet in eta_min param of scheduler
-    #     warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
-    #       multiplier: 1
-    #       epochs: 8
+    #     type: 'step'
+    #     decay_period: 1 # epochs between two learning rate decays
+    #     gamma: 0.97 # learning rate decay
+
+    # NVidia benchmark setup DGX1_RN50_AMP_90E.sh
+    # Enable amp and distributed 8 GPUs in apex section
+    loader:
+      batch: 256
+      train_workers: 5
+      test_workers: 5
+      dataset:
+        _copy: '/dataset_eval'
+    trainer:
+      aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
+      drop_path_prob: 0.0 # probability that given edge will be dropped
+      epochs: 90
+      lossfn: # TODO: this is perhaps reversed for test/train?
+        type: 'CrossEntropyLabelSmooth'
+        smoothing: 0.1 # label smoothing
+      optimizer:
+        lr: 2.048 # init learning rate
+        decay: 3.05e-5
+        decay_bn: 0.0 # if NaN then same as decay otherwise apply different decay to BN layers
+        momentum: 0.875 # pytorch default is 0.0
+      lr_schedule:
+        type: 'cosine'
+        min_lr: 0.0 # min learning rate to se bet in eta_min param of scheduler
+        warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
+          multiplier: 1
+          epochs: 8
