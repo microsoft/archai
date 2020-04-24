@@ -56,7 +56,7 @@ nas:
     trainer:
       aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
       drop_path_prob: 0.0 # probability that given edge will be dropped
-      epochs: 90
+      epochs: 250
       lossfn: # TODO: this is perhaps reversed for test/train?
         type: 'CrossEntropyLabelSmooth'
         smoothing: 0.1 # label smoothing
