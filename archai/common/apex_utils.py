@@ -162,6 +162,9 @@ class ApexUtils:
     def sync_devices(self)->None:
         if self.is_dist():
             torch.cuda.synchronize(self.device)
+    def barrier(self)->None:
+        if self.is_dist():
+            dist.barrier() # wait for all processes to come to this point
 
     def reduce(self, val, op='mean'):
         if self.is_dist():
