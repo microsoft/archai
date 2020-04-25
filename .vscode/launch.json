@@ -62,7 +62,7 @@
             "args": ["--algos", "darts", "--datasets", "food101"]
         },
         {
-            "name": "Darts-ImageNet-Toy",
+            "name": "Darts-ImageNet-Eval-Toy",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/main.py",

@@ -10,7 +10,10 @@ common:
   checkpoint:
     filename: '$expdir/checkpoint.pth'
     freq: 10
-
+  toy_mode: # this section will be used by toy.yaml to setup the toy mode
+    max_batches: 4
+    train_batch: 32
+    test_batch: 64
   # TODO: workers setting
 
   # reddis address of Ray cluster. Use None for single node run

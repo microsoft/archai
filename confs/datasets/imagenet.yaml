@@ -3,6 +3,10 @@ common:
   seed: 0.0
   apex:
     loss_scale: "128" # loss scaling mode for mixed prec, must be string reprenting floar ot "dynamic"
+  toy_mode: # this section will be used by toy.yaml to setup the toy mode
+    max_batches: 25
+    train_batch: 64
+    test_batch: 64
 
 dataset_eval:
   name: 'imagenet'
@@ -63,11 +67,11 @@ nas:
       optimizer:
         lr: 2.048 # init learning rate
         decay: 3.05e-5
-        decay_bn: 0.0 # if NaN then same as decay otherwise apply different decay to BN layers
+        decay_bn: .NaN # if .NaN then same as decay otherwise apply different decay to BN layers
         momentum: 0.875 # pytorch default is 0.0
       lr_schedule:
         type: 'cosine'
         min_lr: 0.0 # min learning rate to se bet in eta_min param of scheduler
         warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
-          multiplier: 1
+          multiplier: 1.0
           epochs: 8

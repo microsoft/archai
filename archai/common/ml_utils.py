@@ -5,7 +5,6 @@ import math
 import  torch
 from torch import nn
 from torch.optim import lr_scheduler, SGD, Adam
-from warmup_scheduler import GradualWarmupScheduler
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.nn.modules.loss import _WeightedLoss, _Loss
@@ -16,6 +15,7 @@ import statopt
 from .config import Config
 from .cocob import CocobBackprop
 from .ml_losses import SmoothCrossEntropyLoss
+from .warmup_scheduler import GradualWarmupScheduler
 
 
 def create_optimizer(conf_opt:Config, params)->Optimizer:
