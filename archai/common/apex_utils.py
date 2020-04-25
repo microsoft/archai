@@ -66,10 +66,6 @@ class ApexUtils:
                 assert dist.is_initialized()
             assert dist.get_world_size() == self.world_size
             assert dist.get_rank() == self.global_rank
-        else:
-            assert self.world_size == 1
-            assert self.local_rank == 0
-            assert self.global_rank == 0
 
         assert self.world_size >= 1
         assert not self._min_world_size or self.world_size >= self._min_world_size

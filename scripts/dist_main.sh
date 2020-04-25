@@ -15,4 +15,4 @@ echo "*****************************************"
 set -e -o xtrace
 
 
-python -m torch.distributed.launch --nproc_per_node=$gpu_count scripts/main.py --nas.eval.trainer.apex.enabled True $*
+python -m torch.distributed.launch --nproc_per_node=$gpu_count scripts/main.py $*
