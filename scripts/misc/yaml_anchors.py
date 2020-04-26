@@ -11,20 +11,20 @@ common:
     logging: True
 
 autoaug:
-    dataset: '_copy: nas/train/dataset'
-    logging: '_copy: nas/logging'
+    dataset: '_copy: /nas/train/dataset'
+    logging: '_copy: /nas/logging'
 
 nas:
     train:
         dataset:
-            _copy: 'common/dataset'
+            _copy: '/common/dataset'
             classes: 4
             cifar:
                 workers: 0
-    logging: '_copy: common/logging'
+    logging: '_copy: /common/logging'
 """
 
 d = yaml.safe_load(s)
 print(d)
-resolve_all(d, d)
-print(d)
+resolve_all(d)
+print(yaml.dump(d))

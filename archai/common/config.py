@@ -71,7 +71,7 @@ class Config(UserDict):
         # replace _copy paths
         # HACK: using file names to detect root config, may be there should be a flag?
         if resolve_redirects:
-            yaml_utils.resolve_all(self, self)
+            yaml_utils.resolve_all(self)
 
         self.config_filepath = config_filepath
 

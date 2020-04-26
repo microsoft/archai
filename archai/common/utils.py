@@ -92,7 +92,7 @@ def deep_comp(o1:Any, o2:Any)->bool:
     if o1 is not None and o2 is not None:
         # if both are dictionaries, we will compare each key
         if isinstance(o1, dict) and isinstance(o2, dict):
-            for k in set().union(o1.keys() ,o2.keys()):
+            for k in set().union(o1.keys(), o2.keys()):
                 if k in o1 and k in o2:
                     if not deep_comp(o1[k], o2[k]):
                         return False

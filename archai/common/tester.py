@@ -13,10 +13,11 @@ from .common import logger
 from archai.common.apex_utils import ApexUtils
 
 class Tester(EnforceOverrides):
-    def __init__(self, conf_eval:Config, model:nn.Module, apex:ApexUtils)->None:
-        self._title = conf_eval['title']
-        self._logger_freq = conf_eval['logger_freq']
-        conf_lossfn = conf_eval['lossfn']
+    def __init__(self, conf_val:Config, model:nn.Module, apex:ApexUtils)->None:
+        self._title = conf_val['title']
+        self._logger_freq = conf_val['logger_freq']
+        conf_lossfn = conf_val['lossfn']
+        self._batch_chunks = conf_val['batch_chunks']
 
         self._apex = apex
         self.model = model
@@ -43,18 +44,34 @@ class Tester(EnforceOverrides):
 
         with torch.no_grad(), logger.pushd('steps'):
             for step, (x, y) in enumerate(test_dl):
-                x, y = x.to(self._apex.device, non_blocking=True), y.to(self._apex.device, non_blocking=True)
-
-                assert not self.model.training # derived class might alter the mode
+                # derived class might alter the mode through pre/post hooks
+                assert not self.model.training
                 logger.pushd(step)
 
                 self._pre_step(x, y, self._metrics)
-                logits = self.model(x)
-                tupled_out = isinstance(logits, Tuple) and len(logits) >=2
-                if tupled_out:
-                    logits = logits[0]
-                loss = self._lossfn(logits, y)
-                self._post_step(x, y, logits, loss, steps, self._metrics)
+
+                # divide batch in to chunks if needed so it fits in GPU RAM
+                if self._batch_chunks > 1:
+                    x_chunks, y_chunks = torch.chunk(x, self._batch_chunks), torch.chunk(y, self._batch_chunks)
+                else:
+                    x_chunks, y_chunks = ((x,), (y,))
+
+                loss_chunks, logits_chunks = [],[]
+                for xc, yc in zip(x_chunks, y_chunks):
+                    xc, yc = xc.to(self.get_device(), non_blocking=True), yc.to(self.get_device(), non_blocking=True)
+
+                    logits_c = self.model(x)
+                    tupled_out = isinstance(logits_c, Tuple) and len(logits_c) >=2
+                    if tupled_out:
+                        logits_c = logits_c[0]
+                    loss_c = self._lossfn(logits_c, y)
+
+                    loss_chunks.append(loss_c.cpu())
+                    logits_chunks.append(logits_c.cpu())
+
+                self._post_step(x, y,
+                                torch.cat(logits_chunks), torch.cat(loss_chunks),
+                                steps, self._metrics)
 
                 # TODO: we possibly need to sync so all replicas are upto date
                 self._apex.sync_devices()

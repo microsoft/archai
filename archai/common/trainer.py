@@ -1,6 +1,6 @@
 from typing import Callable, Tuple, Optional
 
-from torch import nn, Tensor
+from torch import nn, Tensor, torch
 from torch.optim.optimizer import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
@@ -29,6 +29,7 @@ class Trainer(EnforceOverrides):
         self._epochs = conf_train['epochs']
         self._conf_optim = conf_train['optimizer']
         self._conf_sched = conf_train['lr_schedule']
+        self._batch_chunks = conf_train['batch_chunks']
         conf_validation = conf_train['validation']
         conf_apex = conf_train['apex']
         self._validation_freq = 0 if conf_validation is None else conf_validation['freq']
@@ -40,6 +41,8 @@ class Trainer(EnforceOverrides):
         self.model = model
 
         self._lossfn = ml_utils.get_lossfn(conf_lossfn)
+        # using separate apex for Tester is not possible because we must use
+        # same distributed model as Trainer and hence they must share apex
         self._tester = Tester(conf_validation, model, self._apex) \
                         if conf_validation else None
         self._metrics:Optional[Metrics] = None
@@ -212,8 +215,6 @@ class Trainer(EnforceOverrides):
 
         logger.pushd('steps')
         for step, (x, y) in enumerate(train_dl):
-            x, y = x.to(self.get_device(), non_blocking=True), y.to(self.get_device(), non_blocking=True)
-
             logger.pushd(step)
             assert self.model.training # derived class might alter the mode
 
@@ -221,16 +222,29 @@ class Trainer(EnforceOverrides):
 
             self._optim.zero_grad()
 
-            logits, aux_logits = self.model(x), None
-            tupled_out = isinstance(logits, Tuple) and len(logits) >=2
-            # if self._aux_weight: # TODO: some other way to validate?
-            #     assert tupled_out, "aux_logits cannot be None unless aux tower is disabled"
-            if tupled_out: # then we are using model created by desc
-                logits, aux_logits = logits[0], logits[1]
-            loss = self.compute_loss(self._lossfn, x, y, logits,
-                                    self._aux_weight, aux_logits)
+            # divide batch in to chunks if needed so it fits in GPU RAM
+            if self._batch_chunks > 1:
+                x_chunks, y_chunks = torch.chunk(x, self._batch_chunks), torch.chunk(y, self._batch_chunks)
+            else:
+                x_chunks, y_chunks = ((x,), (y,))
 
-            self._apex.backward(loss, self._optim)
+            loss_chunks, logits_chunks = [],[]
+            for xc, yc in zip(x_chunks, y_chunks):
+                xc, yc = xc.to(self.get_device(), non_blocking=True), yc.to(self.get_device(), non_blocking=True)
+
+                logits_c, aux_logits = self.model(xc), None
+                tupled_out = isinstance(logits_c, Tuple) and len(logits_c) >=2
+                # if self._aux_weight: # TODO: some other way to validate?
+                #     assert tupled_out, "aux_logits cannot be None unless aux tower is disabled"
+                if tupled_out: # then we are using model created by desc
+                    logits_c, aux_logits = logits_c[0], logits_c[1]
+                loss_c = self.compute_loss(self._lossfn, yc, logits_c,
+                                        self._aux_weight, aux_logits)
+
+                self._apex.backward(loss_c, self._optim)
+
+                loss_chunks.append(loss_c.cpu())
+                logits_chunks.append(logits_c.cpu())
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
             self._apex.clip_grad(self._grad_clip, self.model, self._optim)
@@ -243,7 +257,9 @@ class Trainer(EnforceOverrides):
             if self._sched and not self._sched_on_epoch:
                 self._sched.step()
 
-            self.post_step(x, y, logits, loss, steps)
+            self.post_step(x, y,
+                           torch.cat(logits_chunks), torch.cat(loss_chunks),
+                           steps)
             logger.popd()
 
             # end of step
@@ -252,8 +268,7 @@ class Trainer(EnforceOverrides):
             self._sched.step()
         logger.popd()
 
-    def compute_loss(self, lossfn:Callable,
-                     x:Tensor, y:Tensor, logits:Tensor,
+    def compute_loss(self, lossfn:Callable, y:Tensor, logits:Tensor,
                      aux_weight:float, aux_logits:Optional[Tensor])->Tensor:
         loss = lossfn(logits, y)
         if aux_weight > 0.0 and  aux_logits is not None:

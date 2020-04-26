@@ -31,7 +31,7 @@ class ArchTrainer(Trainer, EnforceOverrides):
     def compute_loss(self, lossfn: Callable,
                      x: Tensor, y: Tensor, logits: Tensor,
                      aux_weight: float, aux_logits: Optional[Tensor]) -> Tensor:
-        loss = super().compute_loss(lossfn, x, y, logits,
+        loss = super().compute_loss(lossfn, y, logits,
                                     aux_weight, aux_logits)
         # add L1 alpha regularization
         if self._l1_alphas > 0.0:

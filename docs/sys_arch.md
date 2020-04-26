@@ -304,11 +304,11 @@ child calls. The big downside of this is that if any of the child is long runnin
 than any other then we can't checkpoint within that specific child.
 
 ## Yaml design
-Copy node value using '_copy :path/to/node'.
+Copy node value using '_copy :/path/to/node'.
     - target will always be scaler
     - source could be dict or scaler
     - recursive replacements
     - this will replace above string path with target value
-Insert node childs using _copy: path/to/node
+Insert node childs using _copy: /path/to/node
     - content of source node is copied
     - rest of the child overrides
