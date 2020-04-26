@@ -17,7 +17,7 @@ class Tester(EnforceOverrides):
         self._title = conf_val['title']
         self._logger_freq = conf_val['logger_freq']
         conf_lossfn = conf_val['lossfn']
-        self._batch_chunks = conf_val['batch_chunks']
+        self.batch_chunks = conf_val['batch_chunks']
 
         self._apex = apex
         self.model = model
@@ -51,26 +51,29 @@ class Tester(EnforceOverrides):
                 self._pre_step(x, y, self._metrics)
 
                 # divide batch in to chunks if needed so it fits in GPU RAM
-                if self._batch_chunks > 1:
-                    x_chunks, y_chunks = torch.chunk(x, self._batch_chunks), torch.chunk(y, self._batch_chunks)
+                if self.batch_chunks > 1:
+                    x_chunks, y_chunks = torch.chunk(x, self.batch_chunks), torch.chunk(y, self.batch_chunks)
                 else:
-                    x_chunks, y_chunks = ((x,), (y,))
+                    x_chunks, y_chunks = (x,), (y,)
 
-                loss_chunks, logits_chunks = [],[]
+                logits_chunks = []
+                loss_sum, loss_count = 0.0, 0
                 for xc, yc in zip(x_chunks, y_chunks):
                     xc, yc = xc.to(self.get_device(), non_blocking=True), yc.to(self.get_device(), non_blocking=True)
 
-                    logits_c = self.model(x)
+                    logits_c = self.model(xc)
                     tupled_out = isinstance(logits_c, Tuple) and len(logits_c) >=2
                     if tupled_out:
                         logits_c = logits_c[0]
-                    loss_c = self._lossfn(logits_c, y)
+                    loss_c = self._lossfn(logits_c, yc)
 
-                    loss_chunks.append(loss_c.cpu())
-                    logits_chunks.append(logits_c.cpu())
+                    loss_sum += loss_c.item() * len(logits_c)
+                    loss_count += len(logits_c)
+                    logits_chunks.append(logits_c.detach().cpu())
 
                 self._post_step(x, y,
-                                torch.cat(logits_chunks), torch.cat(loss_chunks),
+                                ml_utils.join_chunks(logits_chunks),
+                                torch.tensor(loss_sum/loss_count),
                                 steps, self._metrics)
 
                 # TODO: we possibly need to sync so all replicas are upto date
@@ -86,6 +89,9 @@ class Tester(EnforceOverrides):
         return {
             'metrics': self._metrics.state_dict()
         }
+
+    def get_device(self):
+        return self._apex.device
 
     def load_state_dict(self, state_dict:dict)->None:
         self._metrics.load_state_dict(state_dict['metrics'])

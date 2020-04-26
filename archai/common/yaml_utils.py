@@ -145,5 +145,8 @@ def _resolve_path(root_d:MutableMapping, path:str, prev_paths:set)->Any:
     # last child is our answer
     rpath = _req_resolve(d)
     if rpath:
-        d = _resolve_path(root_d, _rel2full_path(cur_path, rpath), prev_paths)
+        next_path = _rel2full_path(cur_path, rpath)
+        if next_path == path:
+            raise RuntimeError(f'Cannot resolve path "{path}" because it is circular reference')
+        d = _resolve_path(root_d, next_path, prev_paths)
     return d

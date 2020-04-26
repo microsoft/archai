@@ -3,7 +3,7 @@ import  numpy as np
 import math
 
 import  torch
-from torch import nn
+from torch import Tensor, nn
 from torch.optim import lr_scheduler, SGD, Adam
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
@@ -78,6 +78,14 @@ def ensure_pytorch_ver(min_ver:str, error_msg:str)->bool:
             return False
     return True
 
+def join_chunks(chunks:List[Tensor])->Tensor:
+    """If batch was divided in chunks, this functions joins them again"""
+    assert len(chunks)
+    if len(chunks) == 1:
+        return chunks[0] # nothing to concate
+    if len(chunks[0].shape):
+        return torch.cat(chunks)
+    return torch.stack(chunks) # TODO: this adds new dimension
 
 def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
         steps_per_epoch:Optional[int])-> Tuple[Optional[_LRScheduler], bool]:

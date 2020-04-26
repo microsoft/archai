@@ -89,6 +89,7 @@ class Metrics:
 
     def post_step(self, x: Tensor, y: Tensor, logits: Tensor,
                   loss: Tensor, steps: int) -> None:
+        assert len(x)==len(y) and len(y)==len(logits) and len(loss.shape)==0
         # update metrics after optimizer step
         batch_size = x.size(0)
         top1, top5 = ml_utils.accuracy(logits, y, topk=(1, 5))

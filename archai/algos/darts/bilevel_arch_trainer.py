@@ -40,7 +40,7 @@ class BilevelArchTrainer(ArchTrainer):
 
         self._bilevel_optim = BilevelOptimizer(self._conf_alpha_optim, w_momentum,
                                                 w_decay, self.model, lossfn,
-                                                self.get_device())
+                                                self.get_device(), self.batch_chunks)
 
     @overrides
     def post_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
@@ -71,8 +71,6 @@ class BilevelArchTrainer(ArchTrainer):
             # reinit iterator
             self._valid_iter = iter(self._val_dl)
             x_val, y_val = next(self._valid_iter)
-
-        x_val, y_val = x_val.to(self.get_device()), y_val.to(self.get_device(), non_blocking=True)
 
         # update alphas
         self._bilevel_optim.step(x, y, x_val, y_val, super().get_optimizer())

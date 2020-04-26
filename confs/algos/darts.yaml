@@ -117,7 +117,7 @@ nas:
           epochs: 0 # 0 disables warmup
       validation:
         title: 'eval_test'
-        batch_chunks: '_copy: ../batch_chunks' # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
+        batch_chunks: '_copy: ../../batch_chunks' # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
         logger_freq: 0
         freq: 1 # perform validation only every N epochs
         lossfn:
@@ -234,7 +234,7 @@ nas:
       validation:
         title: 'search_val'
         logger_freq: 0
-        batch_chunks: '_copy: ../batch_chunks' # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
+        batch_chunks: '_copy: ../../batch_chunks' # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
         freq: 1 # perform validation only every N epochs
         lossfn:
           type: 'CrossEntropyLoss'

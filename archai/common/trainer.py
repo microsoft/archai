@@ -29,7 +29,7 @@ class Trainer(EnforceOverrides):
         self._epochs = conf_train['epochs']
         self._conf_optim = conf_train['optimizer']
         self._conf_sched = conf_train['lr_schedule']
-        self._batch_chunks = conf_train['batch_chunks']
+        self.batch_chunks = conf_train['batch_chunks']
         conf_validation = conf_train['validation']
         conf_apex = conf_train['apex']
         self._validation_freq = 0 if conf_validation is None else conf_validation['freq']
@@ -91,7 +91,8 @@ class Trainer(EnforceOverrides):
         logger.info({'aux_weight': self._aux_weight,
                      'grad_clip': self._grad_clip,
                      'drop_path_prob': self._drop_path_prob,
-                     'validation_freq': self._validation_freq})
+                     'validation_freq': self._validation_freq,
+                     'batch_chunks': self.batch_chunks})
 
         if self._start_epoch >= self._epochs:
             logger.warn(f'fit done because start_epoch {self._start_epoch}>={self._epochs}')
@@ -223,12 +224,13 @@ class Trainer(EnforceOverrides):
             self._optim.zero_grad()
 
             # divide batch in to chunks if needed so it fits in GPU RAM
-            if self._batch_chunks > 1:
-                x_chunks, y_chunks = torch.chunk(x, self._batch_chunks), torch.chunk(y, self._batch_chunks)
+            if self.batch_chunks > 1:
+                x_chunks, y_chunks = torch.chunk(x, self.batch_chunks), torch.chunk(y, self.batch_chunks)
             else:
-                x_chunks, y_chunks = ((x,), (y,))
+                x_chunks, y_chunks = (x,), (y,)
 
-            loss_chunks, logits_chunks = [],[]
+            logits_chunks = []
+            loss_sum, loss_count = 0.0, 0
             for xc, yc in zip(x_chunks, y_chunks):
                 xc, yc = xc.to(self.get_device(), non_blocking=True), yc.to(self.get_device(), non_blocking=True)
 
@@ -243,8 +245,9 @@ class Trainer(EnforceOverrides):
 
                 self._apex.backward(loss_c, self._optim)
 
-                loss_chunks.append(loss_c.cpu())
-                logits_chunks.append(logits_c.cpu())
+                loss_sum += loss_c.item() * len(logits_c)
+                loss_count += len(logits_c)
+                logits_chunks.append(logits_c.detach().cpu())
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
             self._apex.clip_grad(self._grad_clip, self.model, self._optim)
@@ -258,7 +261,8 @@ class Trainer(EnforceOverrides):
                 self._sched.step()
 
             self.post_step(x, y,
-                           torch.cat(logits_chunks), torch.cat(loss_chunks),
+                           ml_utils.join_chunks(logits_chunks),
+                           torch.tensor(loss_sum/loss_count),
                            steps)
             logger.popd()
 
