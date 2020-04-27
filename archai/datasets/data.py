@@ -17,7 +17,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 from .augmentation import add_named_augs
 from ..common.common import logger
-from ..common.common import utils
+from ..common import utils, apex_utils
 from archai.datasets.dataset_provider import DatasetProvider, get_provider_type
 from ..common.config import Config
 from .limit_dataset import LimitDataset, DatasetLike
@@ -25,6 +25,9 @@ from .distributed_stratified_sampler import DistributedStratifiedSampler
 
 def get_data(conf_loader:Config)\
         -> Tuple[Optional[DataLoader], Optional[DataLoader], Optional[DataLoader]]:
+
+    logger.pushd('data')
+
     # region conf vars
     # dataset
     conf_data = conf_loader['dataset']
@@ -40,18 +43,24 @@ def get_data(conf_loader:Config)\
     load_test = conf_loader['load_test']
     test_batch = conf_loader['test_batch']
     test_workers = conf_loader['test_workers']
+    conf_apex  = conf_loader['apex']
     # endregion
 
     ds_provider = create_dataset_provider(conf_data)
+
+    apex = apex_utils.ApexUtils(conf_apex, logger)
 
     train_dl, val_dl, test_dl = get_dataloaders(ds_provider,
         load_train=load_train, train_batch_size=train_batch,
         load_test=load_test, test_batch_size=test_batch,
         aug=aug, cutout=cutout,  val_ratio=val_ratio, val_fold=val_fold,
         train_workers=train_workers, test_workers=test_workers,
-        max_batches=max_batches)
+        max_batches=max_batches, apex=apex)
 
     assert train_dl is not None
+
+    logger.popd()
+
     return train_dl, val_dl, test_dl
 
 def create_dataset_provider(conf_data:Config)->DatasetProvider:
@@ -67,20 +76,25 @@ def create_dataset_provider(conf_data:Config)->DatasetProvider:
 def get_dataloaders(ds_provider:DatasetProvider,
     load_train:bool, train_batch_size:int,
     load_test:bool, test_batch_size:int,
-    aug, cutout:int, val_ratio:float, val_fold=0,
-    train_workers:Optional[int]=None, test_workers:Optional[int]=None,
+    aug, cutout:int, val_ratio:float, apex:apex_utils.ApexUtils,
+    val_fold=0, train_workers:Optional[int]=None, test_workers:Optional[int]=None,
     target_lb=-1, max_batches:int=-1) \
         -> Tuple[Optional[DataLoader], Optional[DataLoader], Optional[DataLoader]]:
 
     # if debugging in vscode, workers > 0 gets termination
+    default_workers = 4
     if utils.is_debugging():
         train_workers = test_workers = 0
         logger.warn({'debugger': True})
     if train_workers is None:
-        train_workers = 4 # following NVidia DeepLearningExamples
+        train_workers = default_workers # following NVidia DeepLearningExamples
     if test_workers is None:
-        test_workers = 4
-    logger.info({'train_workers': train_workers, 'test_workers':test_workers})
+        test_workers = default_workers
+
+    train_workers = round((1-val_ratio)*train_workers)
+    val_workers = round(val_ratio*train_workers)
+    logger.info({'train_workers': train_workers, 'val_workers': val_workers,
+                 'test_workers':test_workers})
 
     transform_train, transform_test = ds_provider.get_transforms()
     add_named_augs(transform_train, aug, cutout)
@@ -103,27 +117,40 @@ def get_dataloaders(ds_provider:DatasetProvider,
     if trainset:
         # sample validation set from trainset if cv_ratio > 0
         train_sampler, valid_sampler = _get_sampler(trainset, val_ratio=val_ratio,
-                                                    shuffle=True,
+                                                    shuffle=True, apex=apex,
                                                     max_items=max_train_fold)
+        logger.info({'train_sampler_world_size':train_sampler.world_size,
+                    'train_sampler_rank':train_sampler.rank,
+                    'train_sampler_len': len(train_sampler)})
+        if valid_sampler:
+            logger.info({'valid_sampler_world_size':valid_sampler.world_size,
+                        'valid_sampler_rank':valid_sampler.rank,
+                        'valid_sampler_len': len(valid_sampler)
+                        })
 
         # shuffle is performed by sampler at each epoch
         trainloader = DataLoader(trainset,
             batch_size=train_batch_size, shuffle=False,
-            num_workers=round((1-val_ratio)*train_workers),
+            num_workers=train_workers,
             pin_memory=True,
             sampler=train_sampler, drop_last=False) # TODO: original paper has this True
 
         if val_ratio > 0.0:
             validloader = DataLoader(trainset,
                 batch_size=train_batch_size, shuffle=False,
-                num_workers=round(val_ratio*train_workers),  # if val_ratio = 0.5, then both sets re same
-                pin_memory=True, #TODO: set n_workers per ratio?
+                num_workers=val_workers,
+                pin_memory=True,
                 sampler=valid_sampler, drop_last=False)
         # else validloader is left as None
     if testset:
-        test_sampler, _ = _get_sampler(testset, val_ratio=0.0,
-                                       shuffle=False,
+        test_sampler, test_val_sampler = _get_sampler(testset, val_ratio=None,
+                                       shuffle=False, apex=apex,
                                        max_items=max_test_fold)
+        logger.info({'test_sampler_world_size':test_sampler.world_size,
+                    'test_sampler_rank':test_sampler.rank,
+                    'test_sampler_len': len(test_sampler)})
+        assert test_val_sampler is None
+
         testloader = DataLoader(testset,
             batch_size=test_batch_size, shuffle=False,
             num_workers=test_workers,
@@ -169,16 +196,20 @@ def _get_datasets(ds_provider:DatasetProvider, load_train:bool, load_test:bool,
 
 # target_lb allows to filter dataset for a specific class, not used
 def _get_sampler(dataset:Dataset, val_ratio:Optional[float], shuffle:bool,
-                 max_items:Optional[int])->Tuple[Sampler, Optional[Sampler]]:
+                 max_items:Optional[int], apex:apex_utils.ApexUtils)\
+        ->Tuple[DistributedStratifiedSampler, Optional[DistributedStratifiedSampler]]:
+
+    world_size, global_rank = apex.world_size, apex.global_rank
+
     # we cannot not shuffle just for train or just val because of in distributed mode both must come from same shrad
     train_sampler = DistributedStratifiedSampler(dataset,
                         val_ratio=val_ratio, is_val=False, shuffle=shuffle,
-                        max_items=max_items)
+                        max_items=max_items, world_size=world_size, rank=global_rank)
+
     valid_sampler = DistributedStratifiedSampler(dataset,
                         val_ratio=val_ratio, is_val=True, shuffle=shuffle,
-                        max_items=max_items) \
+                        max_items=max_items, world_size=world_size, rank=global_rank) \
                     if val_ratio is not None else None
-
 
     return train_sampler, valid_sampler
 

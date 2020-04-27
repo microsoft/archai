@@ -294,7 +294,9 @@ class Search:
                 ])
 
     def get_data(self, conf_loader:Config)->Tuple[Optional[DataLoader], Optional[DataLoader]]:
+        # first get from cache
         train_ds, val_ds = self._data_cache.get(id(conf_loader), (None, None))
+        # if not found in cache then create
         if train_ds is None:
             train_ds, val_ds, _ = data.get_data(conf_loader)
             self._data_cache[id(conf_loader)] = (train_ds, val_ds)

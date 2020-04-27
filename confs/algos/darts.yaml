@@ -21,7 +21,7 @@ common:
   # "ray start --head --redis-port=6379"
   redis: null
   apex: # this is overriden in search and eval individually
-    enabled: False # global switch to disable anything apex
+    enabled: False # global switch to disable everything apex
     distributed_enabled: True # enable/disable distributed mode
     mixed_prec_enabled: True # switch to disable amp mixed precision
     gpus: '' # use GPU IDs specified here (comma separated), if '' then use all GPUs
@@ -75,6 +75,8 @@ nas:
       n_cells: 20 # number of cells
       aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
     loader:
+      apex:
+        _copy: '../../trainer/apex'
       aug: '' # additional augmentations to use
       cutout: 16 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
@@ -91,7 +93,6 @@ nas:
     trainer:
       apex:
         _copy: '/common/apex'
-        enabled: False
       aux_weight: '_copy: /nas/eval/model_desc/aux_weight'
       drop_path_prob: 0.2 # probability that given edge will be dropped
       grad_clip: 5.0 # grads above this value is clipped
@@ -135,8 +136,6 @@ nas:
     seed_train:
       trainer:
         _copy: '/nas/eval/trainer'
-        apex:
-          enabled: False
         title: 'seed_train'
         epochs: 0 # number of epochs model will be trained before search
         aux_weight: 0.0
@@ -148,8 +147,6 @@ nas:
     post_train:
       trainer:
         _copy: '/nas/eval/trainer'
-        apex:
-          enabled: False
         title: 'post_train'
         epochs: 0 # number of epochs model will be trained after search
         aux_weight: 0.0
@@ -186,6 +183,8 @@ nas:
       n_cells: 8 # number of cells
       aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
     loader:
+      apex:
+        _copy: '../../trainer/apex'
       aug: '' # additional augmentations to use
       cutout: 0 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
@@ -246,6 +245,8 @@ autoaug:
   num_search: 200
   num_result_per_cv: 10 # after conducting N trials, we will chose the results of top num_result_per_cv
   loader:
+    apex:
+      _copy: '/common/apex'
     aug: '' # additional augmentations to use
     cutout: 16 # cutout length, use cutout augmentation when > 0
     epochs: 50

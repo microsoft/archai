@@ -1,11 +1,16 @@
-from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
-import torch
-from torch.utils.data import Dataset
+from archai.common.config import Config
 import numpy as np
 import math
 import time
 from collections import Counter
 import random
+
+import torch
+from torch.utils.data import Dataset
+
+from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.datasets import data
+from archai.common import common
 
 class ListDataset(Dataset):
     def __init__(self, x, y, transform=None):
@@ -81,6 +86,12 @@ def test_combinations():
                     _dist_no_val(rep_count=rep_count, val_ratio=val_ratio, data_len=data_len, labels_len=labels_len)
     elapsed = time.time()-st
     print('elapsed', elapsed, 'combs', combs)
+
+def imagenet_test():
+    conf = Config('confs/algos/darts.yaml;confs/datasets/imagenet.yaml',)
+    conf_loader = conf['nas']['eval']['loader']
+    dl_train, *_ = data.get_data(conf_loader)
+
 
 _dist_no_val(1, 100, val_ratio=0.1)
 test_combinations()

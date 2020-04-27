@@ -10,9 +10,9 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 
 class DistributedStratifiedSampler(Sampler):
-    def __init__(self, dataset:Dataset, num_replicas:Optional[int]=None,
+    def __init__(self, dataset:Dataset, world_size:Optional[int]=None,
                  rank:Optional[int]=None, shuffle=True,
-                 val_ratio=0.0, is_val=False, auto_epoch=True,
+                 val_ratio:Optional[float]=0.0, is_val=False, auto_epoch=True,
                  max_items:Optional[int]=None):
         """Performs stratified sampling of dataset for each replica in the distributed as well as non-distributed setting. If validation split is needed then yet another stratified sampling within replica's split is performed to further obtain the train/validation splits.
 
@@ -26,7 +26,7 @@ class DistributedStratifiedSampler(Sampler):
             dataset -- PyTorch dataset like object
 
         Keyword Arguments:
-            num_replicas -- Total number of replicas running in distributed setting, if None then auto-detect, 1 for non distributed setting (default: {None})
+            world_size -- Total number of replicas running in distributed setting, if None then auto-detect, 1 for non distributed setting (default: {None})
             rank -- Global rank of this replica, if None then auto-detect, 0 for non distributed setting (default: {None})
             shuffle {bool} -- If True then suffle at every epoch (default: {True})
             val_ratio {float} -- If you want to create validation split then set to > 0 (default: {0.0})
@@ -39,23 +39,25 @@ class DistributedStratifiedSampler(Sampler):
         # cifar10 amd DatasetFolder has this attribute, for others it may be easy to add from outside
         assert hasattr(dataset, 'targets') and dataset.targets is not None, 'dataset needs to have targets attribute to work with this sampler'
 
-        if num_replicas is None:
+        if world_size is None:
             if dist.is_available() and dist.is_initialized():
-                num_replicas = dist.get_world_size()
+                world_size = dist.get_world_size()
             else:
-                num_replicas = 1
+                world_size = 1
         if rank is None:
             if dist.is_available() and dist.is_initialized():
                 rank = dist.get_rank()
             else:
                 rank = 0
+        if val_ratio is None:
+            val_ratio = 0.0
 
-        assert num_replicas >= 1
-        assert rank >= 0 and rank < num_replicas
+        assert world_size >= 1
+        assert rank >= 0 and rank < world_size
         assert val_ratio < 1.0 and val_ratio >= 0.0
 
         self.dataset = dataset
-        self.num_replicas = num_replicas
+        self.world_size = world_size
         self.rank = rank
         self.epoch = -1
         self.auto_epoch = auto_epoch
@@ -67,8 +69,8 @@ class DistributedStratifiedSampler(Sampler):
         self.is_val = is_val
 
         # computing duplications we needs
-        self.replica_len = self.replica_len_full =  int(math.ceil(float(self.data_len)/self.num_replicas))
-        self.total_size = self.replica_len_full * self.num_replicas
+        self.replica_len = self.replica_len_full =  int(math.ceil(float(self.data_len)/self.world_size))
+        self.total_size = self.replica_len_full * self.world_size
         assert self.total_size >= self.data_len
 
         if self.max_items is not None:
@@ -104,9 +106,9 @@ class DistributedStratifiedSampler(Sampler):
     def _replica_fold(self, indices:np.ndarray, targets:np.ndarray)\
             ->Tuple[np.ndarray, np.ndarray]:
 
-        if self.num_replicas > 1:
+        if self.world_size > 1:
             replica_fold_idxs = None
-            rfolder = StratifiedKFold(n_splits=self.num_replicas, shuffle=False)
+            rfolder = StratifiedKFold(n_splits=self.world_size, shuffle=False)
             folds = rfolder.split(indices, targets)
             for _ in range(self.rank + 1):
                 other_fold_idxs, replica_fold_idxs = next(folds)
@@ -116,7 +118,7 @@ class DistributedStratifiedSampler(Sampler):
 
             return indices[replica_fold_idxs], targets[replica_fold_idxs]
         else:
-            assert self.num_replicas == 1
+            assert self.world_size == 1
             return indices, targets
 
 
