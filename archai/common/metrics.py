@@ -158,7 +158,7 @@ class Metrics:
                     logger.info({'top1': test_epoch.top1.avg,
                                 'top5': test_epoch.top5.avg,
                                 'loss': test_epoch.loss.avg,
-                                'duration': epoch.duration()})
+                                'duration': test_epoch.duration()})
                     if self.is_dist():
                         logger.info({'dist_top1': self.reduce_mean(test_epoch.top1.avg),
                                     'dist_top5': self.reduce_mean(test_epoch.top5.avg),

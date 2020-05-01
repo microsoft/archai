@@ -65,13 +65,16 @@ class Config(UserDict):
         if config_filepath:
             for filepath in config_filepath.strip().split(';'):
                 self._load_from_file(filepath.strip())
-        self._update_from_args(param_args)      # merge from params
-        self._update_from_args(self.extra_args) # merge from command line
 
         # replace _copy paths
         # HACK: using file names to detect root config, may be there should be a flag?
         if resolve_redirects:
             yaml_utils.resolve_all(self)
+
+        # TODO: currently update from args is applied after _copy resolution which
+        #   limits to only fine grain overriding and probably can be made better
+        self._update_from_args(param_args)      # merge from params
+        self._update_from_args(self.extra_args) # merge from command line
 
         self.config_filepath = config_filepath
 

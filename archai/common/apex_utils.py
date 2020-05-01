@@ -39,7 +39,11 @@ class ApexUtils:
         self._set_ranks(conf_gpu_ids)
 
         #_log_info({'apex_config': apex_config.to_dict()})
-        self._log_info({'torch.distributed.is_available': dist.is_available()})
+        self._log_info({'torch.distributed.is_available': dist.is_available(),
+                        'apex.enabled': self._enabled,
+                        'apex.distributed_enabled': self._distributed_enabled,
+                        'apex.mixed_prec_enabled': self._mixed_prec_enabled})
+
         if dist.is_available():
             # dist.* properties are otherwise not accessible
             self._op_map = {'mean': dist.ReduceOp.SUM, 'sum': dist.ReduceOp.SUM,
