@@ -81,7 +81,7 @@ nas:
       cutout: 16 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
       train_batch: 96
-      train_workers: null # if null then 4
+      train_workers: 4
       test_workers: '_copy: ../train_workers' # if null then 4
       load_test: True # load test split of dataset
       test_batch: 1024
@@ -189,10 +189,10 @@ nas:
       cutout: 0 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
       train_batch: 64
-      train_workers: null # if null then gpu_count*4
+      train_workers: 4 # if null then gpu_count*4
+      test_workers: '_copy: ../train_workers' # if null then 4
       load_test: False # load test split of dataset
       test_batch: 1024
-      test_workers: null # if null then gpu_count*4
       val_ratio: 0.5 #split portion for test set, 0 to 1
       val_fold: 0 #Fold number to use (0 to 4)
       cv_num: 5 # total number of folds available
@@ -252,10 +252,10 @@ autoaug:
     epochs: 50
     load_train: True # load train split of dataset
     train_batch: 64
-    train_workers: null # if null then gpu_count*4
+    train_workers: 4 # if null then gpu_count*4
+    test_workers: '_copy: ../train_workers' # if null then 4
     load_test: True # load test split of dataset
     test_batch: 1024
-    test_workers: null # if null then gpu_count*4
     val_ratio: 0.4 #split portion for test set, 0 to 1
     val_fold: 0 #Fold number to use (0 to 4)
     cv_num: 5 # total number of folds available
