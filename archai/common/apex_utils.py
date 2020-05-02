@@ -204,7 +204,7 @@ class ApexUtils:
 
         if self.is_mixed():
             # scale LR
-            if self._scale_lr:
+            if self.is_dist() and self._scale_lr:
                 lr = ml_utils.get_optim_lr(optim)
                 scaled_lr = lr * self.world_size / float(batch_size)
                 ml_utils.set_optim_lr(optim, scaled_lr)
