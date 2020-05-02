@@ -33,6 +33,9 @@ nas:
     #   dataset:
     #     _copy: '/dataset_eval'
     # trainer:
+    #   apex: # this is overriden in search and eval individually
+    #     enabled: False # global switch to disable everything apex
+    #     distributed_enabled: False # enable/disable distributed mode
     #   aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
     #   drop_path_prob: 0.0 # probability that given edge will be dropped
     #   epochs: 250
