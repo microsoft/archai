@@ -1,8 +1,6 @@
 
 common:
   seed: 0.0
-  apex:
-    loss_scale: "128" # loss scaling mode for mixed prec, must be string reprenting floar ot "dynamic"
   toy_mode: # this section will be used by toy.yaml to setup the toy mode
     max_batches: 25
     train_batch: 64
@@ -58,6 +56,8 @@ nas:
       dataset:
         _copy: '/dataset_eval'
     trainer:
+      apex:
+        loss_scale: "128.0" # loss scaling mode for mixed prec, must be string reprenting float ot "dynamic"
       aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
       drop_path_prob: 0.0 # probability that given edge will be dropped
       epochs: 250
