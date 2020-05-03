@@ -22,6 +22,53 @@ from archai.common.ordereddict_logger import OrderedDictLogger
 import re
 
 
+def main():
+    parser = argparse.ArgumentParser(description='Report creator')
+    parser.add_argument('--results-dir', '-d', type=str, default=r'D:\GitHubSrc\archaiphilly\phillytools\darts_baseline_20200411',
+                        help='folder with experiment results from pt')
+    parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
+                        help='folder to output reports')
+    args, extra_args = parser.parse_known_args()
+
+    # root dir where all results are stored
+    results_dir = pathlib.Path(utils.full_path(args.results_dir))
+    print(f'results_dir: {results_dir}')
+
+    # extract experiment name which is top level directory
+    exp_name = results_dir.stem
+
+    # create results dir for experiment
+    out_dir = utils.full_path(os.path.join(args.out_dir, exp_name))
+    print(f'out_dir: {out_dir}')
+    os.makedirs(out_dir, exist_ok=True)
+
+    # get list of all structured logs for each job
+    logs = []
+    job_count = 0
+    for job_dir in results_dir.iterdir():
+        job_count += 1
+        for subdir in job_dir.iterdir():
+            # currently we expect that each job was ExperimentRunner job which should have
+            # _search or _eval folders
+            is_search = subdir.stem.endswith('_search')
+            is_eval = subdir.stem.endswith('_eval')
+            assert is_search or is_eval
+
+            logs_filepath = os.path.join(str(subdir), 'logs.yaml')
+            if os.path.isfile(logs_filepath):
+                with open(logs_filepath, 'r') as f:
+                    logs.append(yaml.load(f, Loader=yaml.Loader))
+
+    collated_logs = collate_epoch_nodes(logs)
+    summary_text, details_text = '', ''
+    for node_path, logs_epochs_nodes in collated_logs.items():
+        collated_epoch_stats = get_epoch_stats(node_path, logs_epochs_nodes)
+        summary_text += get_summary_text(out_dir, node_path, collated_epoch_stats)
+        details_text += get_details_text(out_dir, node_path, collated_epoch_stats)
+
+    write_report('summary.md', **vars())
+    write_report('details.md', **vars())
+
 def epoch_nodes(node:OrderedDict, path=[])->Iterator[Tuple[List[str], OrderedDictLogger]]:
     for k,v in node.items():
         if k == 'epochs' and isinstance(v, OrderedDict) and len(v) and '0' in v:
@@ -216,47 +263,6 @@ def plot_epochs(epoch_stats:List[EpochStats], filepath:str):
     plt.savefig(filepath)
     plt.close()
 
-def main():
-    parser = argparse.ArgumentParser(description='Report creator')
-    parser.add_argument('--results-dir', '-d', type=str, default=r'D:\GitHubSrc\archaiphilly\phillytools\darts_baseline_20200411',
-                        help='folder with experiment results from pt')
-    parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
-                        help='folder to output reports')
-    args, extra_args = parser.parse_known_args()
-
-    results_dir = pathlib.Path(utils.full_path(args.results_dir))
-    print(f'results_dir: {results_dir}')
-
-    exp_name = results_dir.stem
-
-    out_dir = utils.full_path(os.path.join(args.out_dir, exp_name))
-    print(f'out_dir: {out_dir}')
-    os.makedirs(out_dir, exist_ok=True)
-
-    logs = []
-
-    job_count = 0
-    for job_dir in results_dir.iterdir():
-        job_count += 1
-        for subdir in job_dir.iterdir():
-            is_search = subdir.stem.endswith('_search')
-            is_eval = subdir.stem.endswith('_eval')
-            assert is_search or is_eval
-
-            logs_filepath = os.path.join(str(subdir), 'logs.yaml')
-            if os.path.isfile(logs_filepath):
-                with open(logs_filepath, 'r') as f:
-                    logs.append(yaml.load(f, Loader=yaml.Loader))
-
-    collated_logs = collate_epoch_nodes(logs)
-    summary_text, details_text = '', ''
-    for node_path, logs_epochs_nodes in collated_logs.items():
-        collated_epoch_stats = get_epoch_stats(node_path, logs_epochs_nodes)
-        summary_text += get_summary_text(out_dir, node_path, collated_epoch_stats)
-        details_text += get_details_text(out_dir, node_path, collated_epoch_stats)
-
-    write_report('summary.md', **vars())
-    write_report('details.md', **vars())
 
 def write_report(template_filename:str, **kwargs)->None:
     script_dir = os.path.dirname(os.path.abspath(getsourcefile(lambda:0)))
