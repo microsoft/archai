@@ -238,6 +238,6 @@ class ApexUtils:
 
     def load_state_dict(self, state_dict):
         if self.is_mixed():
-            self._amp.load_state_dict()
+            self._amp.load_state_dict(state_dict)
 
 
