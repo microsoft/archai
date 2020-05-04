@@ -33,7 +33,7 @@ _tb_writer: SummaryWriterAny = None
 _atexit_reg = False # is hook for atexit registered?
 
 def get_conf()->Config:
-    return Config.get()
+    return Config.get_inst()
 
 def get_conf_common()->Config:
     return get_conf()['common']
@@ -96,7 +96,7 @@ def common_init(config_filepath: Optional[str]=None,
     conf = Config(config_filepath=config_filepath,
                   param_args=param_overrides,
                   use_args=use_args)
-    Config.set(conf)
+    Config.set_inst(conf)
 
     # create experiment dir
     _setup_dirs()

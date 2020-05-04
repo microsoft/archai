@@ -62,7 +62,7 @@ gorilla.apply(patch)
 @ray.remote(num_gpus=torch.cuda.device_count(), max_calls=1)
 def _train_model(conf, dataroot, augment, val_ratio, val_fold, save_path=None,
         only_eval=False):
-    Config.set(conf)
+    Config.set_inst(conf)
     conf['autoaug']['loader']['aug'] = augment
     model_type = conf['autoaug']['model']['type']
 
@@ -310,7 +310,7 @@ def search(conf):
 
 
 def _eval_tta(conf, augment, reporter):
-    Config.set(conf)
+    Config.set_inst(conf)
 
     # region conf vars
     conf_data     = conf['dataset']

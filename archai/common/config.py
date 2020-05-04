@@ -51,8 +51,6 @@ class Config(UserDict):
             resolve_redirects -- [if True then _copy commands in yaml are executed]
         """
         super(Config, self).__init__()
-        # without below Python would let static method override instance method
-        self.get = super(Config, self).get
 
         self.args, self.extra_args = None, []
 
@@ -145,12 +143,12 @@ class Config(UserDict):
         return super().get(key, default_val)
 
     @staticmethod
-    def set(instance:'Config')->None:
+    def set_inst(instance:'Config')->None:
         global _config
         _config = instance
 
     @staticmethod
-    def get()->'Config':
+    def get_inst()->'Config':
         global _config
         return _config
 
