@@ -76,7 +76,7 @@ def main():
             logs_filepath = os.path.join(str(subdir), 'logs.yaml')
             if os.path.isfile(logs_filepath):
                 with open(logs_filepath, 'r') as f:
-                    key = job_dir.stem + ':' + sub_job
+                    key = job_dir.name + ':' + sub_job
                     logs[key] = yaml.load(f, Loader=yaml.Loader)
 
     # create list of epoch nodes having same path in the logs
@@ -273,10 +273,10 @@ def plot_epochs(epoch_stats:List[EpochStats], filepath:str):
         ax.grid('on')
 
         # add more ticks
-        ax.set_xticks(np.arange(max([len(m) for m in metrics])))
+        #ax.set_xticks(np.arange(max([len(m) for m in metrics])))
         # remove tick marks
-        ax.xaxis.set_tick_params(size=0)
-        ax.yaxis.set_tick_params(size=0)
+        # ax.xaxis.set_tick_params(size=0)
+        # ax.yaxis.set_tick_params(size=0)
 
         # change the color of the top and right spines to opaque gray
         # ax.spines['right'].set_color((.8,.8,.8))
