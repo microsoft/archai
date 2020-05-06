@@ -8,7 +8,12 @@ from archai.nas.cell import Cell
 from archai.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
 
 class Finalizers(EnforceOverrides):
-    """Provides base algorithms for finalizing model, cell and edge which can be overriden"""
+    """Provides base algorithms for finalizing model, cell and edge which can be overriden
+
+    For op-level finalize, just put logic in op's finalize.
+
+    For model/cell/edge level finalize, you can override the methods in this class to customize the behavior. To override any of these methods, simply create new class in your algos folder, for example, diversity/diversity_finalizers.py. In this file create class that derives from Finalizers. Then in your algos exp_runner.py, return instance of that class in its finalizers() method.
+    """
 
     def finalize_model(self, model:Model, to_cpu=True, restore_device=True)->ModelDesc:
         # move model to CPU before finalize because each op will serialize
