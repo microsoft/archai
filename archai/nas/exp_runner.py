@@ -5,13 +5,14 @@ import os
 
 from overrides import EnforceOverrides
 
-from .cell_builder import CellBuilder
-from .arch_trainer import TArchTrainer
-from ..common.common import common_init
-from ..common import utils
-from ..common.config import Config
-from . import evaluate
-from .search import Search
+from archai.nas.cell_builder import CellBuilder
+from archai.nas.arch_trainer import TArchTrainer
+from archai.common.common import common_init
+from archai.common import utils
+from archai.common.config import Config
+from archai.nas import evaluate
+from archai.nas.search import Search
+from archai.nas.finalizers import Finalizers
 
 
 class ExperimentRunner(ABC, EnforceOverrides):
@@ -29,8 +30,9 @@ class ExperimentRunner(ABC, EnforceOverrides):
     def _run_search(self, conf_search:Config)->None:
         cell_builder = self.cell_builder()
         trainer_class = self.trainer_class()
+        finalizers = self.finalizers()
 
-        search = Search(conf_search, cell_builder, trainer_class)
+        search = Search(conf_search, cell_builder, trainer_class, finalizers)
         search.generate_pareto()
 
     def _init(self, suffix:str)->Config:
@@ -89,3 +91,6 @@ class ExperimentRunner(ABC, EnforceOverrides):
     @abstractmethod
     def trainer_class(self)->TArchTrainer:
         pass
+
+    def finalizers(self)->Finalizers:
+        return Finalizers()
