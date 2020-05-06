@@ -16,21 +16,17 @@ class DagEdge(nn.Module):
         if droppath and self._op.can_drop_path():
             assert self.training
             self._wrapped = nn.Sequential(self._op, DropPath_())
-        self._input_ids = desc.input_ids
+        self.input_ids = desc.input_ids
         self.desc = desc
 
     @overrides
     def forward(self, inputs:List[torch.Tensor]):
-        if len(self._input_ids)==1:
-            return self._wrapped(inputs[self._input_ids[0]])
-        elif len(self._input_ids) == len(inputs): # for perf
+        if len(self.input_ids)==1:
+            return self._wrapped(inputs[self.input_ids[0]])
+        elif len(self.input_ids) == len(inputs): # for perf
             return self._wrapped(inputs)
         else:
-            return self._wrapped([inputs[i] for i in self._input_ids])
-
-    def finalize(self)->Tuple[EdgeDesc, Optional[float]]:
-        op_desc, rank = self._op.finalize()
-        return (EdgeDesc(op_desc, self._input_ids), rank)
+            return self._wrapped([inputs[i] for i in self.input_ids])
 
     def alphas(self)->Iterable[nn.Parameter]:
         for alpha in self._op.alphas():

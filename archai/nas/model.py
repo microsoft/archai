@@ -20,11 +20,12 @@ class Model(nn.Module):
     def __init__(self, model_desc:ModelDesc, droppath:bool, affine:bool):
         super().__init__()
 
+        # some of these fields are public as finalizer needs access to them
         self.desc = model_desc
-        self._stem0_op = Op.create(model_desc.stem0_op, affine=affine)
-        self._stem1_op = Op.create(model_desc.stem1_op, affine=affine)
+        self.stem0_op = Op.create(model_desc.stem0_op, affine=affine)
+        self.stem1_op = Op.create(model_desc.stem1_op, affine=affine)
 
-        self._cells = nn.ModuleList()
+        self.cells = nn.ModuleList()
         self._aux_towers = nn.ModuleList()
 
         for i, (cell_desc, aux_tower_desc) in \
@@ -32,32 +33,30 @@ class Model(nn.Module):
             self._build_cell(cell_desc, aux_tower_desc, droppath, affine)
 
         # adaptive pooling output size to 1x1
-        self._pool_op = Op.create(model_desc.pool_op, affine=affine)
+        self.pool_op = Op.create(model_desc.pool_op, affine=affine)
         # since ch_p records last cell's output channels
         # it indicates the input channel number
-        self._logits_op = Op.create(model_desc.logits_op, affine=affine)
+        self.logits_op = Op.create(model_desc.logits_op, affine=affine)
 
-        # for i,cell in enumerate(self._cells):
+        # for i,cell in enumerate(self.cells):
         #     print(i, ml_utils.param_size(cell))
         logger.info({'model_summary': self.summary()})
-
-
 
     def _build_cell(self, cell_desc:CellDesc,
                     aux_tower_desc:Optional[AuxTowerDesc],
                     droppath:bool, affine:bool)->None:
         alphas_cell = None if cell_desc.alphas_from==cell_desc.id  \
-                            else self._cells[cell_desc.alphas_from]
+                            else self.cells[cell_desc.alphas_from]
         cell = Cell(cell_desc, affine=affine, droppath=droppath,
                     alphas_cell=alphas_cell)
-        self._cells.append(cell)
+        self.cells.append(cell)
         self._aux_towers.append(AuxTower(aux_tower_desc) \
                                 if aux_tower_desc else None)
 
     def summary(self)->dict:
         return {
-            'cell_count': len(self._cells),
-            #'cell_params': [ml_utils.param_size(c) for c in self._cells]
+            'cell_count': len(self.cells),
+            #'cell_params': [ml_utils.param_size(c) for c in self.cells]
             'params': ml_utils.param_size(self),
             'alphas_p': len(list(a for a in self.alphas())),
             'alphas': np.sum(a.numel() for a in self.alphas()),
@@ -65,31 +64,31 @@ class Model(nn.Module):
         }
 
     def alphas(self)->Iterable[nn.Parameter]:
-        for cell in self._cells:
+        for cell in self.cells:
             if not cell.shared_alphas:
                 for alpha in cell.alphas():
                     yield alpha
 
     def weights(self)->Iterable[nn.Parameter]:
-        for cell in self._cells:
+        for cell in self.cells:
             for w in cell.weights():
                 yield w
 
     def ops(self)->Iterable[Op]:
-        for cell in self._cells:
+        for cell in self.cells:
             for op in cell.ops():
                 yield op
 
     @overrides
     def forward(self, x)->Tuple[Tensor, Optional[Tensor]]:
         #print(torch.cuda.memory_allocated()/1.0e6)
-        s0 = self._stem0_op(x)
+        s0 = self.stem0_op(x)
         #print(torch.cuda.memory_allocated()/1.0e6)
-        s1 = self._stem1_op(x)
+        s1 = self.stem1_op(x)
         #print(-1, s0.shape, s1.shape, torch.cuda.memory_allocated()/1.0e6)
 
         logits_aux = None
-        for ci, (cell, aux_tower) in enumerate(zip(self._cells, self._aux_towers)):
+        for ci, (cell, aux_tower) in enumerate(zip(self.cells, self._aux_towers)):
             #print(s0.shape, s1.shape, end='')
             s0, s1 = s1, cell.forward(s0, s1)
             #print(ci, s0.shape, s1.shape, torch.cuda.memory_allocated()/1.0e6)
@@ -100,8 +99,8 @@ class Model(nn.Module):
                 #print(ci, 'aux', logits_aux.shape)
 
         # s1 is now the last cell's output
-        out = self._pool_op(s1)
-        logits = self._logits_op(out) # flatten
+        out = self.pool_op(s1)
+        logits = self.logits_op(out) # flatten
 
         #print(-1, 'out', out.shape)
         #print(-1, 'logits', logits.shape)
@@ -110,31 +109,6 @@ class Model(nn.Module):
 
     def device_type(self)->str:
         return next(self.parameters()).device.type
-
-    def finalize(self, to_cpu=True, restore_device=True)->ModelDesc:
-        # move model to CPU before finalize because each op will serialize
-        # its parameters and we don't want copy of these parameters lying on GPU
-        original = self.device_type()
-        if to_cpu:
-            self.cpu()
-
-        # finalize will create copy of state and this can overflow GPU RAM
-        assert self.device_type() == 'cpu'
-
-        cell_descs = [cell.finalize() for cell in self._cells]
-
-        if restore_device:
-            self.to(original, non_blocking=True)
-
-        return ModelDesc(stem0_op=self._stem0_op.finalize()[0],
-                         stem1_op=self._stem1_op.finalize()[0],
-                         pool_op=self._pool_op.finalize()[0],
-                         ds_ch=self.desc.ds_ch,
-                         n_classes=self.desc.n_classes,
-                         cell_descs=cell_descs,
-                         aux_tower_descs=self.desc.aux_tower_descs,
-                         logits_op=self._logits_op.finalize()[0],
-                         params=self.desc.params)
 
     def drop_path_prob(self, p:float):
         """ Set drop path probability
@@ -163,9 +137,9 @@ class AuxTower(nn.Module):
             nn.BatchNorm2d(768),
             nn.ReLU(inplace=True),
         )
-        self._logits_op = nn.Linear(768, aux_tower_desc.n_classes)
+        self.logits_op = nn.Linear(768, aux_tower_desc.n_classes)
 
     def forward(self, x:torch.Tensor):
         x = self.features(x)
-        x = self._logits_op(x.view(x.size(0), -1))
+        x = self.logits_op(x.view(x.size(0), -1))
         return x

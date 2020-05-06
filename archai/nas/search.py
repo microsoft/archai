@@ -2,6 +2,7 @@ from typing import Iterator, Mapping, Type, Optional, Tuple, List
 import math
 import copy
 import random
+import os
 
 import torch
 import tensorwatch as tw
@@ -11,16 +12,16 @@ import yaml
 from archai.common.common import logger
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
-from .cell_builder import CellBuilder
-from .arch_trainer import TArchTrainer
-from . import nas_utils
-from .model_desc import CellType, ModelDesc
+from archai.nas.cell_builder import CellBuilder
+from archai.nas.arch_trainer import TArchTrainer
+from archai.nas import nas_utils
+from archai.nas.model_desc import CellType, ModelDesc
 from archai.common.trainer import Trainer
 from archai.datasets import data
-from .model import Model
+from archai.nas.model import Model
 from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
-import os
+from archai.nas.finalizers import Finalizers
 
 class MetricsStats:
     """Holds model statistics and training metrics for given description"""
@@ -336,7 +337,8 @@ class Search:
 
     @staticmethod
     def _create_metrics_stats(model:Model, train_metrics:Metrics)->MetricsStats:
-            finalized = model.finalize(restore_device=False)
+            finalizers = Finalizers()
+            finalized = finalizers.finalize_model(model, restore_device=False)
             # model stats is doing some hooks so do it last
             model_stats = tw.ModelStats(model, [1,3,32,32],# TODO: remove this hard coding
                                         clone_model=True)

@@ -1,11 +1,8 @@
-from copy import deepcopy
 from typing import Callable, Iterable, List, Optional, Tuple
 from abc import ABC, abstractmethod
 
-from overrides import overrides, EnforceOverrides
-
-import torch
 from torch import nn, tensor
+from overrides import overrides, EnforceOverrides
 
 from ..common.common import logger
 from .dag_edge import DagEdge
@@ -18,16 +15,17 @@ class Cell(nn.Module, ABC, EnforceOverrides):
                  alphas_cell:Optional['Cell']):
         super().__init__()
 
+        # some of these members are public as finalizer needs access
         self.shared_alphas = alphas_cell is not None
         self.desc = desc
-        self._s0_op = Op.create(desc.s0_op, affine=affine)
-        self._s1_op = Op.create(desc.s1_op, affine=affine)
+        self.s0_op = Op.create(desc.s0_op, affine=affine)
+        self.s1_op = Op.create(desc.s1_op, affine=affine)
 
-        self._dag =  Cell._create_dag(desc.nodes(),
+        self.dag =  Cell._create_dag(desc.nodes(),
             affine=affine, droppath=droppath,
             alphas_cell=alphas_cell)
 
-        self._post_op = Op.create(desc.post_op, affine=affine)
+        self.post_op = Op.create(desc.post_op, affine=affine)
 
     @staticmethod
     def _create_dag(nodes_desc:List[NodeDesc],
@@ -41,34 +39,33 @@ class Cell(nn.Module, ABC, EnforceOverrides):
             for j, edge_desc in enumerate(node_desc.edges):
                 edges.append(DagEdge(edge_desc,
                     affine=affine, droppath=droppath,
-                    alphas_edge=alphas_cell._dag[i][j] if alphas_cell else None))
+                    alphas_edge=alphas_cell.dag[i][j] if alphas_cell else None))
         return dag
 
     def alphas(self)->Iterable[nn.Parameter]:
-        for node in self._dag:
+        for node in self.dag:
             for edge in node:
                 for alpha in edge.alphas():
                     yield alpha
 
     def weights(self)->Iterable[nn.Parameter]:
-        for node in self._dag:
+        for node in self.dag:
             for edge in node:
                 for p in edge.weights():
                     yield p
 
     def ops(self)->Iterable[Op]:
-        for node in self._dag:
+        for node in self.dag:
             for edge in node:
                 yield edge.op()
 
-
     @overrides
     def forward(self, s0, s1):
-        s0 = self._s0_op(s0)
-        s1 = self._s1_op(s1)
+        s0 = self.s0_op(s0)
+        s1 = self.s1_op(s1)
 
         states = [s0, s1]
-        for node in self._dag:
+        for node in self.dag:
             # TODO: we should probably do average here otherwise output will
             #   blow up as number of primitives grows
             # TODO: Current assumption is that each edge has k channel
@@ -83,33 +80,5 @@ class Cell(nn.Module, ABC, EnforceOverrides):
 
         # TODO: Below assumes same shape except for channels but this won't
         #   happen for max pool etc shapes? Also, remove hard coded 2.
-        return self._post_op(states)
+        return self.post_op(states)
 
-    def finalize(self)->CellDesc:
-        nodes_desc:List[NodeDesc] = []
-        for node in self._dag:
-            edge_descs, edge_desc_ranks = [], []
-            for edge in node:
-                edge_desc, rank = edge.finalize()
-                if rank is None:
-                    edge_descs.append(edge_desc) # required edge
-                else: # optional edge
-                    edge_desc_ranks.append((edge_desc, rank))
-            if len(edge_desc_ranks) > self.desc.max_final_edges:
-                 edge_desc_ranks.sort(key=lambda d:d[1], reverse=True)
-                 edge_desc_ranks = edge_desc_ranks[:self.desc.max_final_edges]
-            edge_descs.extend((edr[0] for edr in edge_desc_ranks))
-            nodes_desc.append(NodeDesc(edge_descs))
-
-        finalized = CellDesc(
-            cell_type=self.desc.cell_type,
-            id = self.desc.id,
-            nodes = nodes_desc,
-            s0_op=self._s0_op.finalize()[0],
-            s1_op=self._s1_op.finalize()[0],
-            alphas_from = self.desc.alphas_from,
-            max_final_edges=self.desc.max_final_edges,
-            node_ch_out=self.desc.node_ch_out,
-            post_op=self._post_op.finalize()[0]
-        )
-        return finalized
