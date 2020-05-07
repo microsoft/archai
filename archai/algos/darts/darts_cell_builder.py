@@ -3,7 +3,7 @@ from overrides import overrides
 from archai.nas.cell_builder import CellBuilder
 from archai.nas.operations import Op
 from archai.nas.model_desc import ModelDesc, CellDesc, CellType, OpDesc, EdgeDesc
-from .mixed_op import MixedOp
+from archai.algos.darts.mixed_op import MixedOp
 
 class DartsCellBuilder(CellBuilder):
     @overrides

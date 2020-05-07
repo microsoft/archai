@@ -16,7 +16,7 @@ from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
 from archai.common.common import logger
-from .bilevel_optimizer import BilevelOptimizer
+from archai.algos.darts.bilevel_optimizer import BilevelOptimizer
 
 class BilevelArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: Model,

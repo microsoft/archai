@@ -4,8 +4,8 @@ from overrides import overrides
 
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import TArchTrainer
-from .darts_cell_builder import DartsCellBuilder
-from .bilevel_arch_trainer import BilevelArchTrainer
+from archai.algos.darts.darts_cell_builder import DartsCellBuilder
+from archai.algos.darts.bilevel_arch_trainer import BilevelArchTrainer
 
 
 class DartsExperimentRunner(ExperimentRunner):
