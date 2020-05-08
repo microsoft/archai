@@ -11,6 +11,7 @@ class DagEdge(nn.Module):
     def __init__(self, desc:EdgeDesc, affine:bool, droppath:bool,
                  alphas_edge:Optional['DagEdge'])->None:
         super().__init__()
+        # we may need to wrap op is droppath is needed
         self._wrapped = self._op = Op.create(desc.op_desc, affine,
                         alphas_edge.alphas() if alphas_edge else [])
         if droppath and self._op.can_drop_path():
