@@ -29,7 +29,7 @@ def create_optimizer(conf_opt:Config, params)->Optimizer:
         rest_params = [v for n, v in params if not 'bn' in n]
         params = [{
             'params': bn_params,
-            'weight_decay': 0
+            'weight_decay': decay_bn
         }, {
             'params': rest_params,
             'weight_decay': decay

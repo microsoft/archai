@@ -312,3 +312,25 @@ Copy node value using '_copy :/path/to/node'.
 Insert node childs using _copy: /path/to/node
     - content of source node is copied
     - rest of the child overrides
+
+## Pytorch parameter naming convention
+
+- Parameter object is same as Tensor
+- Within each module, parameter gets named by variable name it is assigned to
+- Parameter is only added in .parameters() or .named_parameters() if its instance wasn't already added
+- Optimizer is supplied with parameters iterator or name,parameter tuple iterator so shared params doesn't get operated more than once
+- If parameter is stored in ParameterList then the parameter name will be variable_name.index
+- name of the parameter depends on at which level .named_parameters gets called
+- Pytorch ignores underscore in variable names and it doesn't mean they will not be in parameters collection.
+
+## Arch params
+
+Imagine we have N arch parameters of K kinds, each kind having count N_k. Each parameter is one tensor. Some of the parameters may reside in
+ops, some may be at cell or model level. Their names are determined by where they reside. For example, cell level arch param might get named at model level as cells.0.arch_param1. Some of these parameters may get shared in different parts of the model.
+
+So we need ways to retrieve parameters by:
+- their kind
+- by owner
+- Are they shared or owned
+
+This can be achieved by naming convention for variables where such parameters will be stored. Let's define this convention as kind_arch_param. This way any parameter with name ending in _arch_param is considered as architecture parameter. Their full name in the form module1.module2.kind1_arch_param defines where they reside. The part after last "." and without _arch_param suffix defines the kind of the parameter. While Pytorch automatically avoids double listing for shared parameters, a module can have following convention to keep things clean: Module keeps arch parameters in dictionary where key is same as what their variable names would have been. This way Pytorch doesn't register them automatically. If module does own these parameters, it will create variables with same name so they get registered. Module then can provide following methods: get_owned_params, get_shared_params, is_owned_param(p). For parameter sharing, module may receive dictionary of parameters owned by someone else and given module can decide to share some or all of those.
