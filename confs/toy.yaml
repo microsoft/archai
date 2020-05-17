@@ -15,7 +15,7 @@ nas:
       enabled: False
     seed_train:
       trainer:
-        epochs: 0 # number of epochs model will be trained before search
+        epochs: '_copy: /common/toy_mode/seed_train_epochs' # number of epochs model will be trained before search
       loader:
         train_batch: '_copy: /common/toy_mode/train_batch'
         test_batch: '_copy: /common/toy_mode/test_batch'
@@ -23,7 +23,7 @@ nas:
           max_batches: '_copy: /common/toy_mode/max_batches'
     post_train:
       trainer:
-        epochs: 1
+        epochs: '_copy: /common/toy_mode/post_train_epochs'
       loader:
         train_batch: '_copy: /common/toy_mode/train_batch'
         test_batch: '_copy: /common/toy_mode/test_batch'

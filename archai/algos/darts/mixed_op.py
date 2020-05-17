@@ -1,12 +1,8 @@
 from typing import Iterable, Optional, Tuple, List
-from collections import deque
 
 import torch
 from torch import nn
 import torch.nn.functional as F
-
-import numpy as np
-import h5py
 
 from overrides import overrides
 
@@ -47,10 +43,10 @@ class MixedOp(Op):
                 OpDesc(primitive, op_desc.params, in_len=1, trainables=None),
                 affine=affine, alphas=alphas)
             self._ops.append(op)
-        
+
     @overrides
     def forward(self, x):
-        asm = F.softmax(self._alphas[0], dim=0)            
+        asm = F.softmax(self._alphas[0], dim=0)
         return sum(w * op(x) for w, op in zip(asm, self._ops))
 
     @overrides
