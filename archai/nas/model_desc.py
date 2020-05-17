@@ -82,9 +82,7 @@ class EdgeDesc:
             ->'EdgeDesc':
         # edge cloning is same as deep copy except that we do it through
         # constructor for future proofing any additional future rules and
-        # that we allow oveeriding conv_params and clearning weights. This later
-        # bit used in model builder to create edge from template
-
+        # that we allow overiding conv_params and clearing weights
         e = EdgeDesc(self.op_desc.clone(), self.input_ids)
         # op_desc should have params set from cloning. If no override supplied
         # then don't change it

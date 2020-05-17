@@ -32,7 +32,7 @@ class MacroBuilder(EnforceOverrides):
         self.model_desc_params = conf_model_desc['params']
         # endregion
 
-        # this satiesfies N R N R N pattern
+        # this satisfies N R N R N pattern
         assert self.n_cells >= self.n_reductions * 2 + 1
 
         # for each reduction, we create one indice

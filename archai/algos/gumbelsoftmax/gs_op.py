@@ -1,6 +1,6 @@
 from random import sample
 from archai.common.utils import AverageMeter
-from collections import defaultdict
+from collections import defaultdict, deque
 from typing import Iterable, Optional, Tuple, List
 
 import torch
@@ -49,7 +49,6 @@ class GsOp(Op):
                 affine=affine, alphas=alphas)
             self._ops.append(op)
 
-
     @overrides
     def forward(self, x):
         # soft sample from the categorical distribution
@@ -57,12 +56,11 @@ class GsOp(Op):
         # TODO: should we be normalizing the ensemble?
         #sampled = torch.zeros(self._alphas[0].size(), requires_grad=True)
         sample_storage = []
-        for i in range(self._gs_num_sample):
+        for _ in range(self._gs_num_sample):
             sampled = F.gumbel_softmax(self._alphas[0], tau=1, hard=False, eps=1e-10, dim=-1)
             sample_storage.append(sampled)
 
         samples_summed = torch.sum(torch.stack(sample_storage, dim=0), dim=0)
-
         return sum(w * op(x) for w, op in zip(samples_summed, self._ops))
 
 
@@ -119,6 +117,13 @@ class GsOp(Op):
     @overrides
     def can_drop_path(self) -> bool:
         return False
+
+    
+    def get_op_desc(self, index:int)->OpDesc:
+        ''' index: index in the primitives list '''
+        assert index < len(self.PRIMITIVES)
+        desc, _ = self._ops[index].finalize()
+        return desc
 
 
     def _set_alphas(self, alphas: Iterable[nn.Parameter]) -> None:

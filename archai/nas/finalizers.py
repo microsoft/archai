@@ -43,7 +43,7 @@ class Finalizers(EnforceOverrides):
     def finalize_cells(self, model:Model)->List[CellDesc]:
         return [self.finalize_cell(cell) for cell in model.cells]
 
-    def finalize_cell(self, cell:Cell)->CellDesc:
+    def finalize_cell(self, cell:Cell, *args, **kwargs)->CellDesc:
         # first finalize each node, we will need to recreate node desc with final version
         node_descs:List[NodeDesc] = []
         for node in cell.dag:
@@ -63,7 +63,7 @@ class Finalizers(EnforceOverrides):
         )
         return finalized
 
-    def finalize_node(self, node:nn.ModuleList, max_final_edges:int)->NodeDesc:
+    def finalize_node(self, node:nn.ModuleList, max_final_edges:int, *args, **kwargs)->NodeDesc:
         # get edge ranks, if rank is None it is deemed as required
         pre_selected, edge_desc_ranks = self.get_edge_ranks(node)
         ranked_selected = self.select_edges(edge_desc_ranks, max_final_edges)

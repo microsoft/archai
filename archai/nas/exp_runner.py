@@ -13,6 +13,8 @@ from archai.common.config import Config
 from archai.nas import evaluate
 from archai.nas.search import Search
 from archai.nas.finalizers import Finalizers
+from archai.common.common import get_conf
+from archai.nas.random_finalizers import RandomFinalizers
 
 
 class ExperimentRunner(ABC, EnforceOverrides):
@@ -93,4 +95,13 @@ class ExperimentRunner(ABC, EnforceOverrides):
         pass
 
     def finalizers(self)->Finalizers:
-        return Finalizers()
+        conf = get_conf()
+        finalizer = conf['nas']['search']['finalizer']
+        
+        if finalizer == 'default':
+            return Finalizers()
+        elif finalizer == 'random':
+            return RandomFinalizers()
+        else:
+            raise NotImplementedError
+    

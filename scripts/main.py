@@ -8,6 +8,7 @@ from archai.algos.random.random_exp_runner import RandomExperimentRunner
 from archai.algos.manual.manual_exp_runner import ManualExperimentRunner
 from archai.algos.xnas.xnas_exp_runner import XnasExperimentRunner
 from archai.algos.gumbelsoftmax.gs_exp_runner import GsExperimentRunner
+from archai.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
 
 def main():
     runner_types:Dict[str, Type[ExperimentRunner]] = {
@@ -16,14 +17,15 @@ def main():
         'xnas': XnasExperimentRunner,
         'random': RandomExperimentRunner,
         'manual': ManualExperimentRunner,
-        'gs': GsExperimentRunner
+        'gs': GsExperimentRunner,
+        'divnas': DivnasExperimentRunner
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
-    parser.add_argument('--algos', type=str, default='darts,petridish,xnas,random,gs,manual',
+    parser.add_argument('--algos', type=str, default='darts,petridish,xnas,random,gs,divnas,manual',
                         help='NAS algos to run, seperated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
-                        help='datasets to use, seperated by comma')
+                        help='datasets to use, separated by comma')
     parser.add_argument('--full', type=lambda x:x.lower()=='true',
                         nargs='?', const=True, default=False,
                         help='Run in full or toy mode just to check for compile errors')

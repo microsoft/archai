@@ -110,6 +110,31 @@
             "args": ["--algos", "xnas"]
         },
         {
+            "name": "Divnas-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "divnas"]
+        },
+        {
+            "name": "Divnas-Search-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--no-eval", "--algos", "divnas"]
+        },
+        {
+            "name": "Divnas-E2E-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "divnas"]
+        },
+
+        {
             "name": "Gs-Full",
             "type": "python",
             "request": "launch",

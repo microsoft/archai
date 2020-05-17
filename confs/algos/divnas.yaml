@@ -125,12 +125,16 @@ nas:
           type: 'CrossEntropyLoss'
 
   search:
-    finalizer: 'default' # options are 'random' or 'default'
+    finalizer: 'random' # options are mutual information based 'mi' or 'random' or 'default'. NOTE: 'default' is not compatible with 'noalpha' trainer as 'default' uses the darts finalizer and needs alphas
+    divnas:
+      sigma: 168
+      archtrainer: 'bilevel' # options are 'bilevel', 'noalpha'      
     data_parallel: False
     checkpoint:
       _copy: '/common/checkpoint'
     resume: '_copy: /common/resume'
     search_iters: 1
+    collect_activations: True
     full_desc_filename: '$expdir/full_model_desc.yaml' # arch before it was finalized
     final_desc_filename: '$expdir/final_model_desc.yaml' # final arch is saved in this file
     metrics_dir: '$expdir/models/{reductions}/{cells}/{nodes}/{search_iter}' # where metrics and model stats would be saved from each pareto iteration

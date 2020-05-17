@@ -1,0 +1,44 @@
+from typing import Type
+
+from overrides import overrides
+
+from archai.common.common import get_conf
+from archai.nas.exp_runner import ExperimentRunner
+from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
+from archai.algos.darts.bilevel_arch_trainer import BilevelArchTrainer
+from archai.algos.gumbelsoftmax.gs_arch_trainer import GsArchTrainer
+from .divnas_cell_builder import DivnasCellBuilder
+from .divnas_finalizers import DivnasFinalizers
+from archai.nas.finalizers import Finalizers
+
+class DivnasExperimentRunner(ExperimentRunner):
+
+    @overrides
+    def cell_builder(self)->DivnasCellBuilder:
+        return DivnasCellBuilder()
+
+    @overrides
+    def trainer_class(self)->TArchTrainer:
+        conf = get_conf()
+        trainer = conf['nas']['search']['divnas']['archtrainer']
+        
+        if trainer == 'bilevel':
+            return BilevelArchTrainer
+        elif trainer == 'noalpha':
+            return ArchTrainer
+        else:
+            raise NotImplementedError
+
+
+    @overrides
+    def finalizers(self)->Finalizers:
+        conf = get_conf()
+        finalizer = conf['nas']['search']['finalizer']
+
+        if finalizer == 'mi':
+            return DivnasFinalizers()
+        else:
+            return super().finalizers()
+
+
+        

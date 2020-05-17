@@ -8,6 +8,7 @@ from overrides import overrides, EnforceOverrides
 import torch
 from torch import affine_grid_generator, nn, Tensor, strided
 
+
 from ..common import utils, ml_utils
 from .model_desc import OpDesc, ConvMacroParams
 
@@ -116,6 +117,7 @@ class Op(nn.Module, ABC, EnforceOverrides):
     # if op should not be dropped during drop path then return False
     def can_drop_path(self)->bool:
         return True
+
 
 class PoolBN(Op):
     """AvgPool or MaxPool - BN """
@@ -288,7 +290,7 @@ class Identity(Op):
 
 
 class Zero(Op):
-    """Represents no connection. Zero op can be thought of 1x1 kernal with fixed zero weight.
+    """Represents no connection. Zero op can be thought of 1x1 kernel with fixed zero weight.
     For stride=1, it will produce output of same dimension as input but with all 0s. Now with stride of 2, it will zero out every other pixel in output.
     """
 
@@ -568,6 +570,7 @@ class MultiOp(Op):
             },
             in_len=1, trainables=None, children=None)
         self._ch_adj = Op.create(ch_adj_desc, affine=affine)
+
 
     @overrides
     def forward(self, x:Union[Tensor, List[Tensor]])->Tensor:
