@@ -1,7 +1,4 @@
-from random import sample
-from archai.common.utils import AverageMeter
-from collections import defaultdict, deque
-from typing import Iterable, Optional, Tuple, List
+from typing import Iterable, Optional, Tuple, List, Iterator
 
 import torch
 from torch import nn
@@ -118,13 +115,9 @@ class GsOp(Op):
     def can_drop_path(self) -> bool:
         return False
 
-    
-    def get_op_desc(self, index:int)->OpDesc:
-        ''' index: index in the primitives list '''
-        assert index < len(self.PRIMITIVES)
-        desc, _ = self._ops[index].finalize()
-        return desc
-
+    @overrides
+    def ops(self)->Iterator['Op']: # type: ignore
+        return iter(self._ops)
 
     def _set_alphas(self, alphas: Iterable[nn.Parameter]) -> None:
         # must call before adding other ops

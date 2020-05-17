@@ -1,5 +1,5 @@
 from argparse import ArgumentError
-from typing import Callable, Iterable, List, Mapping, Tuple, Dict, Optional, Union
+from typing import Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
 from abc import ABC, abstractmethod
 import copy
 
@@ -113,6 +113,10 @@ class Op(nn.Module, ABC, EnforceOverrides):
         # make copy of trainables so we don't keep around references
         desc.trainables = copy.deepcopy(self.get_trainables())
         return desc, None # desc, rank (None means op is unranked and cannot be removed)
+
+    def ops(self)->Iterator['Op']:
+        """Return contituent ops, if this op is primitive just return self"""
+        yield self
 
     # if op should not be dropped during drop path then return False
     def can_drop_path(self)->bool:

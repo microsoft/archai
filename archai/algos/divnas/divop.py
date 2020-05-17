@@ -1,4 +1,4 @@
-from typing import Iterable, Optional, Tuple, List
+from typing import Iterable, Optional, Tuple, List, Iterator
 from collections import deque
 
 import torch
@@ -34,7 +34,7 @@ class DivOp(Op):
         'none'  # this must be at the end so top1 doesn't choose it
     ]
 
-    # list of primitive ops not allowed in the 
+    # list of primitive ops not allowed in the
     # diversity calculation
     # NOTALLOWED = ['skip_connect', 'none']
     NOTALLOWED = ['none']
@@ -103,10 +103,10 @@ class DivOp(Op):
     @property
     def num_valid_div_ops(self)->int:
         return len(self.PRIMITIVES) - len(self.NOTALLOWED)
-        
+
     @overrides
     def forward(self, x):
-    
+
         # save activations to object
         if self._collect_activations:
             self._forward_counter += 1
@@ -121,7 +121,7 @@ class DivOp(Op):
             result = sum(w * op(x) for w, op in zip(asm, self._ops))
         else:
             result = sum(op(x) for op in self._ops)
-            
+
         return result
 
     @overrides
@@ -136,18 +136,14 @@ class DivOp(Op):
             for w in op.parameters():
                 yield w
 
-
-    def get_op_desc(self, index:int)->OpDesc:
-        ''' index: index in the primitives list '''
-        assert index < len(self.PRIMITIVES)
-        desc, _ = self._ops[index].finalize()
-        return desc
-
+    @overrides
+    def ops(self)->Iterator['Op']: # type: ignore
+        return iter(self._ops)
 
     def get_valid_op_desc(self, index:int)->OpDesc:
         ''' index: index in the valid index list '''
         assert index <= self.num_valid_div_ops
-        orig_index = self._valid_to_orig[index]        
+        orig_index = self._valid_to_orig[index]
         desc, _ = self._ops[orig_index].finalize()
         return desc
 

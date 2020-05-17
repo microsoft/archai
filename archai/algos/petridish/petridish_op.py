@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Iterable, List, Optional, Sequence, Tuple, Mapping
+from typing import Iterable, List, Optional, Iterator, Tuple, Mapping
 import heapq
 import copy
 
@@ -180,11 +180,9 @@ class PetridishOp(Op):
         # rank=None to indicate no further selection needed as in darts
         return final_op_desc, None
 
-    def get_op_desc(self, index:int)->OpDesc:
-        ''' index: index in the primitives list '''
-        assert index < len(self.PRIMITIVES)
-        desc, _ = self._ops[index].finalize()
-        return desc
+    @overrides
+    def ops(self)->Iterator['Op']: # type: ignore
+        return iter(self._ops)
 
     def _set_alphas(self, alphas: Iterable[nn.Parameter], in_len:int) -> None:
         assert len(list(self.parameters()))==0 # must call before adding other ops
