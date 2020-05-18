@@ -11,8 +11,8 @@ pool:
   vmImage: 'ubuntu-latest'
 strategy:
   matrix:
-    Python36:
-      python.version: '3.6'
+    # Python36:
+    #   python.version: '3.6'
     Python37:
       python.version: '3.7'
 
@@ -39,7 +39,12 @@ steps:
     scanType: 'Register'
     verbosity: 'Verbose'
     alertWarningLevel: 'High'
-    
+
+- task: uploadScanResults@1
+  inputs:
+    uploadUrl: '$(UploadUrl)'
+    areaPathParent: 'archai'
+
 # - task: corygehr.air-autoassess.uploadScanResults.uploadScanResults@1
 #   displayName: 'Upload Scan Results for Analysis'
 #   inputs:
