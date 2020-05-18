@@ -27,7 +27,7 @@ class DivnasFinalizers(Finalizers):
         # get config and train data loader
         # TODO: confirm this is correct in case you get silent bugs
         conf = get_conf()
-        conf_loader = conf['nas']['search']['loader'] 
+        conf_loader = conf['nas']['search']['loader']
         train_dl, val_dl, test_dl = get_data(conf_loader)
 
         # wrap all cells in the model
@@ -36,12 +36,12 @@ class DivnasFinalizers(Finalizers):
             divnas_cell = Divnas_Cell(cell)
             self._divnas_cells[id(cell)] = divnas_cell
 
-        # go through all edges in the DAG and if they are of divop  
+        # go through all edges in the DAG and if they are of divop
         # type then set them to collect activations
         sigma = conf['nas']['search']['divnas']['sigma']
         for _, dcell in enumerate(self._divnas_cells.values()):
             dcell.collect_activations(DivOp, sigma)
-        
+
         # now we need to run one evaluation epoch to collect activations
         # we do it on cpu otherwise we might run into memory issues
         # later we can redo the whole logic in pytorch itself
@@ -53,7 +53,7 @@ class DivnasFinalizers(Finalizers):
             for _ in range(1):
                 for _, (x, _) in enumerate(train_dl):
                     _, _ = model(x), None
-                    # now you can go through and update the 
+                    # now you can go through and update the
                     # node covariances in every cell
                     for dcell in self._divnas_cells.values():
                         dcell.update_covs()
@@ -83,7 +83,7 @@ class DivnasFinalizers(Finalizers):
             nodes = node_descs,
             s0_op=cell.s0_op.finalize()[0],
             s1_op=cell.s1_op.finalize()[0],
-            alphas_from = cell.desc.alphas_from,
+            template_cell = cell.desc.template_cell,
             max_final_edges=cell.desc.max_final_edges,
             node_ch_out=cell.desc.node_ch_out,
             post_op=cell.post_op.finalize()[0]
@@ -101,17 +101,17 @@ class DivnasFinalizers(Finalizers):
         assert cov.shape[0] == cov.shape[1]
 
         # the number of primitive operators has to be greater
-        # than equal to the maximum number of final edges 
+        # than equal to the maximum number of final edges
         # allowed
         assert cov.shape[0] >= max_final_edges
-        
+
         # get total number of ops incoming to this node
         num_ops = sum([edge._op.num_valid_div_ops for edge in node])
 
         # and collect some bookkeeping indices
         edge_num_and_op_ind = []
         for j, edge in enumerate(node):
-            if type(edge._op) == DivOp:               
+            if type(edge._op) == DivOp:
                 for k in range(edge._op.num_valid_div_ops):
                     edge_num_and_op_ind.append((j, k))
 
@@ -127,7 +127,7 @@ class DivnasFinalizers(Finalizers):
             op_desc = node[edge_ind]._op.get_valid_op_desc(op_ind)
             new_edge = EdgeDesc(op_desc, node[edge_ind].input_ids)
             selected_edges.append(new_edge)
-            
+
         # for edge in selected_edges:
         #     self.finalize_edge(edge)
 

@@ -13,6 +13,7 @@ from overrides import overrides
 from archai.nas.model_desc import OpDesc
 from archai.nas.operations import Op
 from archai.common.common import get_conf
+from archai.nas.arch_params import ArchParams
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only
@@ -55,7 +56,7 @@ class DivOp(Op):
             else:
                 self._valid_to_orig.append(i)
 
-    def __init__(self, op_desc:OpDesc, alphas: Iterable[nn.Parameter],
+    def __init__(self, op_desc:OpDesc, arch_params:Optional[ArchParams],
                  affine:bool):
         super().__init__()
 
@@ -67,10 +68,10 @@ class DivOp(Op):
         finalizer = conf['nas']['search']['finalizer']
 
         if trainer == 'noalpha' and finalizer == 'default':
-            raise NotImplementedError
+            raise NotImplementedError('noalpha trainer is not implemented for the default finalizer')
 
         if trainer != 'noalpha':
-            self._set_alphas(alphas)
+            self._setup_arch_params(arch_params)
         else:
             self._alphas = None
 
@@ -78,7 +79,7 @@ class DivOp(Op):
         for primitive in DivOp.PRIMITIVES:
             op = Op.create(
                 OpDesc(primitive, op_desc.params, in_len=1, trainables=None),
-                affine=affine, alphas=alphas)
+                affine=affine, arch_params=None)
             self._ops.append(op)
 
         # various state variables for diversity
@@ -125,43 +126,24 @@ class DivOp(Op):
         return result
 
     @overrides
-    def alphas(self) -> Iterable[nn.Parameter]:
-        if self._alphas:
-            for alpha in self._alphas:
-                yield alpha
-
-    @overrides
-    def weights(self) -> Iterable[nn.Parameter]:
-        for op in self._ops:
-            for w in op.parameters():
-                yield w
-
-    @overrides
-    def ops(self)->Iterator['Op']: # type: ignore
-        return iter(self._ops)
-
-    def get_valid_op_desc(self, index:int)->OpDesc:
-        ''' index: index in the valid index list '''
-        assert index <= self.num_valid_div_ops
-        orig_index = self._valid_to_orig[index]
-        desc, _ = self._ops[orig_index].finalize()
-        return desc
-
+    def ops(self)->Iterator['Op']:
+        return iter(self._ops) # type: ignore
 
     @overrides
     def can_drop_path(self) -> bool:
         return False
 
-    def _set_alphas(self, alphas: Iterable[nn.Parameter]) -> None:
-        # must call before adding other ops
-        assert len(list(self.parameters())) == 0
-        self._alphas = list(alphas)
-        if not len(self._alphas):
+    def _setup_arch_params(self, arch_params:Optional[ArchParams])->None:
+        # do we have shared arch params?
+        if arch_params is None:
+            # create our own arch params
             new_p = nn.Parameter(  # TODO: use better init than uniform random?
-                1.0e-3*torch.randn(len(DivOp.PRIMITIVES)), requires_grad=True)
-            # NOTE: This is a way to register parameters with PyTorch.
-            # One creates a dummy variable with the parameters and then
-            # asks back for the parameters in the object from Pytorch
-            # which automagically registers the just created parameters.
-            self._reg_alphas = new_p
-            self._alphas = [p for p in self.parameters()]
+                1.0e-3*torch.randn(len(self.PRIMITIVES)), requires_grad=True)
+            self.create_arch_params([('alphas', new_p)])
+        else:
+            assert arch_params.has_kind('alphas')
+            self.set_arch_params(arch_params)
+
+        # we store alphas in list so Pytorch don't register them
+        self._alphas = list(self.arch_params().param_by_kind('alphas'))
+        assert len(self._alphas)==1
