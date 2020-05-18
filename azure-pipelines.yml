@@ -33,7 +33,6 @@ steps:
   displayName: 'pytest'
 
 - task: CredScan@3
-  inputs:
 
 - task: ComponentGovernanceComponentDetection@0
   inputs:
