@@ -129,6 +129,13 @@ class DivOp(Op):
     def ops(self)->Iterator['Op']:
         return iter(self._ops) # type: ignore
 
+    def get_valid_op_desc(self, index:int)->OpDesc:
+        ''' index: index in the valid index list '''
+        assert index <= self.num_valid_div_ops
+        orig_index = self._valid_to_orig[index]        
+        desc, _ = self._ops[orig_index].finalize()
+        return desc
+
     @overrides
     def can_drop_path(self) -> bool:
         return False

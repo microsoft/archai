@@ -5,8 +5,12 @@ import torch
 from torch import nn
 
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
 
 from archai.common.common import get_conf
+from archai.common.common import get_expdir
 from archai.common.common import logger
 from archai.datasets.data import get_data
 from archai.nas.model import Model
@@ -25,7 +29,6 @@ class DivnasFinalizers(Finalizers):
         logger.pushd('finalize')
 
         # get config and train data loader
-        # TODO: confirm this is correct in case you get silent bugs
         conf = get_conf()
         conf_loader = conf['nas']['search']['loader']
         train_dl, val_dl, test_dl = get_data(conf_loader)
@@ -53,8 +56,7 @@ class DivnasFinalizers(Finalizers):
             for _ in range(1):
                 for _, (x, _) in enumerate(train_dl):
                     _, _ = model(x), None
-                    # now you can go through and update the
-                    # node covariances in every cell
+                    #update the node covariances in all cells
                     for dcell in self._divnas_cells.values():
                         dcell.update_covs()
 
@@ -66,12 +68,14 @@ class DivnasFinalizers(Finalizers):
     @overrides
     def finalize_cell(self, cell:Cell, *args, **kwargs)->CellDesc:
         # first finalize each node, we will need to recreate node desc with final version
+        logger.info(f'cell id {cell.desc.id}')
         node_descs:List[NodeDesc] = []
         dcell = self._divnas_cells[id(cell)]
         assert len(cell.dag) == len(list(dcell.node_covs.values()))
-        for node in cell.dag:
+        for i, node in enumerate(cell.dag):
             node_cov = dcell.node_covs[id(node)]
-            node_desc = self.finalize_node(node, cell.desc.max_final_edges, node_cov)
+            logger.info(f'node {i}')
+            node_desc = self.finalize_node(node, cell.desc.max_final_edges, node_cov, cell.desc.id, i)
             node_descs.append(node_desc)
 
         # (optional) clear out all activation collection information
@@ -92,7 +96,7 @@ class DivnasFinalizers(Finalizers):
 
 
     @overrides
-    def finalize_node(self, node:nn.ModuleList, max_final_edges:int, cov:np.array,  *args, **kwargs)->NodeDesc:
+    def finalize_node(self, node:nn.ModuleList, max_final_edges:int, cov:np.array,  cell_id, node_id, *args, **kwargs)->NodeDesc:
         # node is a list of edges
         assert len(node) >= max_final_edges
 
@@ -125,10 +129,17 @@ class DivnasFinalizers(Finalizers):
         for ind in max_subset:
             edge_ind, op_ind = edge_num_and_op_ind[ind]
             op_desc = node[edge_ind]._op.get_valid_op_desc(op_ind)
+            logger.info(f'selected edge: {edge_ind}, op: {op_desc.name}')
             new_edge = EdgeDesc(op_desc, node[edge_ind].input_ids)
             selected_edges.append(new_edge)
 
-        # for edge in selected_edges:
-        #     self.finalize_edge(edge)
+        # save diagnostic information to disk
+        expdir = get_expdir()
+        sns.heatmap(cov, annot=True, fmt='.1g', cmap='coolwarm')
+        savename = os.path.join(expdir, f'cell_{cell_id}_node_{node_id}_cov.png')
+        plt.savefig(savename)
+
+        logger.info('')
+
 
         return NodeDesc(selected_edges)
