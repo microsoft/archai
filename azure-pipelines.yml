@@ -1,4 +1,5 @@
 # Python package
+
 # Create and test a Python package on multiple Python versions.
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
@@ -7,11 +8,11 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 strategy:
   matrix:
-    Python36:
-      python.version: '3.6'
+    # Python36:
+    #   python.version: '3.6'
     Python37:
       python.version: '3.7'
 
@@ -21,20 +22,34 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
+# - script: |
+#     python -m pip install --upgrade pip
+#     pip install -e .
+#   displayName: 'Install dependencies'
 
-- script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'pytest'
-- task: corygehr.air-autoassess.uploadScanResults.uploadScanResults@1
-  displayName: 'Upload Scan Results for Analysis'
+# - script: |
+#     pip install pytest pytest-azurepipelines
+#     pytest
+#   displayName: 'pytest'
+
+- task: CredScan@3
+
+- task: ComponentGovernanceComponentDetection@0
   inputs:
-    areaPathParent: '{Insert Area Path for Work Items}'
-    areaPathChild: '{Optionally, enter a child area path from the parent above}'
-    uploadUrl: 'https://airbuildscan.azurewebsites.net/api/Upload'
-  env:
-    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    scanType: 'Register'
+    verbosity: 'Verbose'
+    alertWarningLevel: 'High'
+
+- task: uploadScanResults@1
+  inputs:
+    uploadUrl: '$(UploadUrl)'
+    areaPathParent: 'archai'
+
+# - task: corygehr.air-autoassess.uploadScanResults.uploadScanResults@1
+#   displayName: 'Upload Scan Results for Analysis'
+#   inputs:
+#     areaPathParent: '{Insert Area Path for Work Items}'
+#     areaPathChild: '{Optionally, enter a child area path from the parent above}'
+#     uploadUrl: 'https://airbuildscan.azurewebsites.net/api/Upload'
+#   env:
+#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
