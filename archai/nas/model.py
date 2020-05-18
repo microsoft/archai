@@ -6,17 +6,17 @@ import os
 
 import torch
 from torch import nn, Tensor
-
 from overrides import overrides
 
+from archai.nas.arch_params import ArchParams
+from archai.nas.cell import Cell
+from archai.nas.operations import Op, DropPath_
+from archai.nas.model_desc import ModelDesc, AuxTowerDesc, CellDesc
+from archai.common.common import logger
+from archai.common import utils, ml_utils
+from archai.nas.arch_module import ArchModule
 
-from .cell import Cell
-from .operations import Op, DropPath_
-from .model_desc import ModelDesc, AuxTowerDesc, CellDesc
-from ..common.common import logger
-from ..common import utils, ml_utils
-
-class Model(nn.Module):
+class Model(ArchModule):
     def __init__(self, model_desc:ModelDesc, droppath:bool, affine:bool):
         super().__init__()
 
@@ -45,34 +45,25 @@ class Model(nn.Module):
     def _build_cell(self, cell_desc:CellDesc,
                     aux_tower_desc:Optional[AuxTowerDesc],
                     droppath:bool, affine:bool)->None:
-        alphas_cell = None if cell_desc.alphas_from==cell_desc.id  \
-                            else self.cells[cell_desc.alphas_from]
+        template_cell = None if cell_desc.template_cell==cell_desc.id  \
+                            else self.cells[cell_desc.template_cell]
         cell = Cell(cell_desc, affine=affine, droppath=droppath,
-                    alphas_cell=alphas_cell)
+                    template_cell=template_cell)
         self.cells.append(cell)
         self._aux_towers.append(AuxTower(aux_tower_desc) \
                                 if aux_tower_desc else None)
 
     def summary(self)->dict:
+        all_arch_params = list(self.all_owned()
+                               .param_by_kind(kind=None))
         return {
             'cell_count': len(self.cells),
             #'cell_params': [ml_utils.param_size(c) for c in self.cells]
             'params': ml_utils.param_size(self),
-            'alphas_p': len(list(a for a in self.alphas())),
-            'alphas': np.sum(a.numel() for a in self.alphas()),
+            'arch_params_len': len(all_arch_params),
+            'arch_params_numel': np.sum(a.numel() for a in all_arch_params),
             'ops': np.sum(len(n.edges) for c in self.desc.cell_descs() for n in c.nodes()),
         }
-
-    def alphas(self)->Iterable[nn.Parameter]:
-        for cell in self.cells:
-            if not cell.shared_alphas:
-                for alpha in cell.alphas():
-                    yield alpha
-
-    def weights(self)->Iterable[nn.Parameter]:
-        for cell in self.cells:
-            for w in cell.weights():
-                yield w
 
     def ops(self)->Iterable[Op]:
         for cell in self.cells:

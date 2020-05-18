@@ -1,25 +1,28 @@
 from typing import Callable, Tuple, Optional
 
-from torch import nn, Tensor, torch
+import torch
+from torch import nn, Tensor
 from torch.optim.optimizer import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
 
 from overrides import EnforceOverrides
 
-from .metrics import Metrics
-from .tester import Tester
-from .config import Config
-from . import utils, ml_utils
-from ..common.common import logger
-from ..common.checkpoint import CheckPoint
-from ..common.apex_utils import ApexUtils
+from archai.common.metrics import Metrics
+from archai.common.tester import Tester
+from archai.common.config import Config
+from archai.common import utils, ml_utils
+from archai.common.common import logger
+from archai.common.checkpoint import CheckPoint
+from archai.common.apex_utils import ApexUtils
+from archai.common.multi_optim import MultiOptim, OptimSched
 
 
 class Trainer(EnforceOverrides):
     def __init__(self, conf_train:Config, model:nn.Module,
                  checkpoint:Optional[CheckPoint])->None:
         # region config vars
+        self.conf_train = conf_train
         conf_lossfn = conf_train['lossfn']
         self._aux_weight = conf_train['aux_weight']
         self._grad_clip = conf_train['grad_clip']
@@ -27,8 +30,8 @@ class Trainer(EnforceOverrides):
         self._logger_freq = conf_train['logger_freq']
         self._title = conf_train['title']
         self._epochs = conf_train['epochs']
-        self._conf_optim = conf_train['optimizer']
-        self._conf_sched = conf_train['lr_schedule']
+        self.conf_optim = conf_train['optimizer']
+        self.conf_sched = conf_train['lr_schedule']
         self.batch_chunks = conf_train['batch_chunks']
         conf_validation = conf_train['validation']
         conf_apex = conf_train['apex']
@@ -58,14 +61,11 @@ class Trainer(EnforceOverrides):
 
         self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
-        # optimizers, schedulers needs to be recreated for each fit call
-        # as they have state specific to each run
-        optim = self.create_optimizer()
-        # create scheduler for optim before applying amp
-        self._sched, self._sched_on_epoch = self._create_scheduler(optim, len(train_dl))
+        # create optimizers and schedulers
+        self._multi_optim = self.create_multi_optim(len(train_dl))
         # before checkpoint restore, convert to amp
-        self.model, self._optim = self._apex.to_amp(self.model, optim,
-                                                          batch_size=train_dl.batch_size)
+        self.model = self._apex.to_amp(self.model, self._multi_optim,
+                                       batch_size=train_dl.batch_size)
 
         self._lossfn = self._lossfn.to(self.get_device())
 
@@ -101,42 +101,53 @@ class Trainer(EnforceOverrides):
         logger.pushd('epochs')
         for epoch in range(self._start_epoch, self._epochs):
             logger.pushd(epoch)
+            assert self._metrics.epochs() == epoch
             self._set_drop_path(epoch, self._epochs)
 
             self.pre_epoch(train_dl, val_dl)
             self._train_epoch(train_dl)
             self.post_epoch(train_dl, val_dl)
-
             logger.popd()
         logger.popd()
         self.post_fit(train_dl, val_dl)
 
         # make sure we don't keep references to the graph
-        del self._optim
-        del self._sched
-
+        del self._multi_optim
 
         logger.popd()
         return self.get_metrics()
 
-    def create_optimizer(self)->Optimizer:
-        optim = ml_utils.create_optimizer(self._conf_optim, self.model.parameters())
-        logger.info({'conf_optim': self._conf_optim})
+    def create_multi_optim(self, train_len:int)->MultiOptim:
+        logger.info({'steps_per_epoch': train_len,
+                     'conf_sched': self.conf_sched.to_dict()})
+        logger.info({'conf_optim': self.conf_optim.to_dict()})
+
+        # optimizers, schedulers needs to be recreated for each fit call
+        # as they have state specific to each run
+        optim = self.create_optimizer(self.conf_optim, self.model.parameters())
+        # create scheduler for optim before applying amp
+        sched, sched_on_epoch = self.create_scheduler(self.conf_sched, optim, train_len)
+
+        multi_optim = MultiOptim()
+        multi_optim.append(OptimSched(optim, sched, sched_on_epoch))
+
+        logger.info({'multi_optim_len': len(multi_optim)})
+
+        return multi_optim
+
+    def create_optimizer(self, conf_optim:Config, params)->Optimizer:
+        optim = ml_utils.create_optimizer(conf_optim, params)
         return optim
 
-    def _create_scheduler(self, optim:Optimizer, steps_per_epoch:int) \
+    def create_scheduler(self, conf_sched:Config, optim:Optimizer, steps_per_epoch:int) \
             ->Tuple[Optional[_LRScheduler],bool]:
-
-        logger.info({'steps_per_epoch': steps_per_epoch,
-                     'scheduler': self._conf_sched.to_dict()})
-
-        return ml_utils.create_lr_scheduler(self._conf_sched, self._epochs,
+        return ml_utils.create_lr_scheduler(conf_sched, self._epochs,
             optim, steps_per_epoch)
 
-    def get_optimizer(self)->Optimizer:
-        return self._optim
-    def get_scheduler(self)->Optional[_LRScheduler]:
-        return self._sched
+    def get_optimizer(self, index=0)->Optimizer:
+        return self._multi_optim[index].optim
+    def get_scheduler(self, index=0)->Optional[_LRScheduler]:
+        return self._multi_optim[index].sched
 
     def get_metrics(self)->Metrics:
         return self._metrics
@@ -149,7 +160,7 @@ class Trainer(EnforceOverrides):
         self._metrics.post_run()
 
     def pre_epoch(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
-        self._metrics.pre_epoch(lr=self._optim.param_groups[0]['lr'])
+        self._metrics.pre_epoch(lr=self._multi_optim.get_lr(0, 0))
 
     def post_epoch(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
         val_metrics = None
@@ -157,10 +168,15 @@ class Trainer(EnforceOverrides):
         if val_dl and self._tester and self._validation_freq > 0:
             if self._metrics.epochs() % self._validation_freq == 0 or \
                     self._metrics.epochs() >= self._epochs:
+                # optimizers such as bi-level may use val set for its own use
+                # which causes reshuffling due to automatic epoch counting
+                # here we make sure that val_dl has same epoch as train_dl
+                if hasattr(val_dl.sampler, 'set_epoch'):
+                    val_dl.sampler.set_epoch(self._metrics.epochs())
                 val_metrics = self._tester.test(val_dl)
 
         # update val metrics
-        self._metrics.post_epoch(val_metrics, lr=self._optim.param_groups[0]['lr'])
+        self._metrics.post_epoch(val_metrics, lr=self._multi_optim.get_lr(0, 0))
 
         # checkpoint if enabled with given freq or if this is the last epoch
         if self._checkpoint is not None and self._apex.is_master() and \
@@ -190,11 +206,7 @@ class Trainer(EnforceOverrides):
         assert self._metrics.epochs() == last_epoch+1
         self._apex.load_state_dict(state['amp'])
         self.model.load_state_dict(state['model'])
-        self._optim.load_state_dict(state['optim'])
-        if self._sched:
-            self._sched.load_state_dict(state['sched'])
-        else:
-            assert state['sched'] is None
+        self._multi_optim.load_state_dict(state['multi_optim'])
 
         self._start_epoch = last_epoch + 1
 
@@ -204,8 +216,7 @@ class Trainer(EnforceOverrides):
             'last_epoch': self._metrics.epochs()-1,
             'metrics': self._metrics.state_dict(),
             'model': self.model.state_dict(),
-            'optim': self._optim.state_dict(),
-            'sched': self._sched.state_dict() if self._sched else None,
+            'multi_optim': self._multi_optim.state_dict(),
             'amp': self._apex.state_dict()
         }
         self._checkpoint['trainer'] = state
@@ -221,7 +232,7 @@ class Trainer(EnforceOverrides):
 
             self.pre_step(x, y)
 
-            self._optim.zero_grad()
+            self._multi_optim.zero_grad()
 
             # divide batch in to chunks if needed so it fits in GPU RAM
             if self.batch_chunks > 1:
@@ -243,22 +254,19 @@ class Trainer(EnforceOverrides):
                 loss_c = self.compute_loss(self._lossfn, yc, logits_c,
                                         self._aux_weight, aux_logits)
 
-                self._apex.backward(loss_c, self._optim)
+                self._apex.backward(loss_c, self._multi_optim)
 
                 loss_sum += loss_c.item() * len(logits_c)
                 loss_count += len(logits_c)
                 logits_chunks.append(logits_c.detach().cpu())
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
-            self._apex.clip_grad(self._grad_clip, self.model, self._optim)
+            self._apex.clip_grad(self._grad_clip, self.model, self._multi_optim)
 
-            self._optim.step()
+            self._multi_optim.step()
 
             # TODO: we possibly need to sync so all replicas are upto date
             self._apex.sync_devices()
-
-            if self._sched and not self._sched_on_epoch:
-                self._sched.step()
 
             self.post_step(x, y,
                            ml_utils.join_chunks(logits_chunks),
@@ -268,8 +276,7 @@ class Trainer(EnforceOverrides):
 
             # end of step
 
-        if self._sched and self._sched_on_epoch:
-            self._sched.step()
+        self._multi_optim.epoch()
         logger.popd()
 
     def compute_loss(self, lossfn:Callable, y:Tensor, logits:Tensor,

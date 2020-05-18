@@ -9,8 +9,8 @@ class GsCellBuilder(CellBuilder):
     @overrides
     def register_ops(self) -> None:
         Op.register_op('gs_op',
-                       lambda op_desc, alphas, affine:
-                           GsOp(op_desc, alphas, affine))
+                       lambda op_desc, arch_params, affine:
+                           GsOp(op_desc, arch_params, affine))
 
     @overrides
     def build(self, model_desc:ModelDesc, search_iter:int)->None:

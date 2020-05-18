@@ -10,7 +10,8 @@ from overrides import overrides
 
 from archai.nas.model_desc import ConvMacroParams, OpDesc
 from archai.nas.operations import Identity, Op, FactorizedReduce
-
+from archai.common.utils import zip_eq
+from archai.nas.arch_params import ArchParams
 
 class StopForward(Op):
     def __init__(self):
@@ -79,15 +80,12 @@ class PetridishOp(Op):
         'none'  # this must be at the end so top1 doesn't chose it
     ]
 
-    def __init__(self, op_desc:OpDesc, alphas: Iterable[nn.Parameter],
+    def __init__(self, op_desc:OpDesc, arch_params: Optional[ArchParams],
                  reduction:bool, affine:bool):
         super().__init__()
 
         # assume last PRIMITIVE is 'none' (this is used for finalize)
         assert PetridishOp.PRIMITIVES[-1] == 'none'
-
-        # create alphas for the op
-        self._set_alphas(alphas, op_desc.in_len)
 
         # create edges for the op, each edge connects input state,
         # within each edge we will have all N primitives
@@ -107,7 +105,7 @@ class PetridishOp(Op):
             for primitive in PetridishOp.PRIMITIVES:
                 primitive_op = Op.create(OpDesc(primitive, params=params,
                                                 in_len=1, trainables=None),
-                                        affine=affine, alphas=alphas)
+                                        affine=affine, arch_params=None)
                 # wrap primitive with sg
                 op = nn.Sequential(StopGradient(), primitive_op)
                 edge.append(op)
@@ -120,30 +118,22 @@ class PetridishOp(Op):
         # won't match. So you have to use StopGradientReductionOp on s_1 to make it match.
         self._sf = StopForward()
 
+        # we do this at the end so that we can capture all arch params registered by
+        # any previous child modules
+        self._setup_arch_params(arch_params, op_desc.in_len)
+
     @overrides
     def forward(self, x:List[Tensor]):
         assert not isinstance(x, torch.Tensor)
+
         s = 0.0
         # apply each input in the list to associated edge
-        for i, (xi, edge) in enumerate(zip(x, self._edges)):
+        for i, (xi, edge) in enumerate(zip_eq(x, self._edges)):
             # apply input to each primitive within edge
             # TODO: is avg better idea than sum here? sum can explode as
             #   number of primitives goes up
-            s = sum(a * op(xi) for a, op in zip(self._alphas[i], edge)) + s
+            s = sum(a * op(xi) for a, op in zip_eq(self._alphas[0][i], edge)) + s
         return self._sf(s)
-
-    @overrides
-    def alphas(self) -> Iterable[nn.Parameter]:
-        for alpha in self._alphas:
-            yield alpha
-
-    @overrides
-    def weights(self) -> Iterable[nn.Parameter]:
-        #TODO: cache this?
-        for edge in self._edges:
-            for op in edge:
-                for w in op.parameters():
-                    yield w
 
     @overrides
     def finalize(self) -> Tuple[OpDesc, Optional[float]]:
@@ -152,10 +142,10 @@ class PetridishOp(Op):
             # Here op should be nn.Sequence of sg followed by primitive.
             # First for loop gets edge and associated alphas.
             # Second for loop gets op and associated alpha.
-            l = ((a, i, op[1])                                         \
+            l = ((a, i, op[1])                                              \
                 for edge_alphas, i, edge in                                 \
-                    zip(self._alphas, range(self.desc.in_len), self._edges) \
-                for a, op in zip(edge_alphas, edge)) # op is nn.Sequence
+                    zip_eq(self._alphas[0], range(self.desc.in_len), self._edges)       \
+                for a, op in zip_eq(edge_alphas, edge)) # op is nn.Sequence
 
             # select 3 largest ops by alpha
             sel = heapq.nlargest(3, l, key=lambda t: t[0])  # TODO: add config
@@ -184,12 +174,9 @@ class PetridishOp(Op):
     def ops(self)->Iterator['Op']: # type: ignore
         return iter(self._ops)
 
-    def _set_alphas(self, alphas: Iterable[nn.Parameter], in_len:int) -> None:
-        assert len(list(self.parameters()))==0 # must call before adding other ops
-
-        # If we are using shared alphas from another cell, don't create our own
-        self._alphas = list(alphas)
-        if not len(self._alphas):
+    def _setup_arch_params(self, arch_params:Optional[ArchParams], in_len:int)->None:
+        # do we have shared arch params?
+        if arch_params is None:
             # Each nn.Parameter is tensor with alphas for entire edge.
             # We will create same numbers of nn.Parameter as number of edges
             n_primitives = len(PetridishOp.PRIMITIVES)
@@ -199,7 +186,12 @@ class PetridishOp(Op):
                     requires_grad=True)
                 for _ in range(in_len)
             ))
-            # register parameters with module
-            self._reg_alphas = pl
-            # save PyTorch registered alphas into list for later use
-            self._alphas = [p for p in self.parameters()]
+            self.create_arch_params([('alphas', pl)])
+        else:
+            assert arch_params.has_kind('alphas')
+            self.set_arch_params(arch_params)
+
+        # we store alphas in list so Pytorch don't register them
+        self._alphas = list(self.arch_params().paramlist_by_kind('alphas'))
+        assert len(self._alphas)==1
+

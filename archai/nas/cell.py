@@ -1,36 +1,35 @@
 from typing import Callable, Iterable, List, Optional, Tuple
-from abc import ABC, abstractmethod
 
 from torch import nn, tensor
 from overrides import overrides, EnforceOverrides
 
 from ..common.common import logger
-from .dag_edge import DagEdge
-from .model_desc import ConvMacroParams, CellDesc, OpDesc, NodeDesc
-from .operations import Op
+from archai.nas.dag_edge import DagEdge
+from archai.nas.model_desc import ConvMacroParams, CellDesc, OpDesc, NodeDesc
+from archai.nas.operations import Op
+from archai.nas.arch_module import ArchModule
 
-class Cell(nn.Module, ABC, EnforceOverrides):
+class Cell(ArchModule, EnforceOverrides):
     def __init__(self, desc:CellDesc,
                  affine:bool, droppath:bool,
-                 alphas_cell:Optional['Cell']):
+                 template_cell:Optional['Cell']): # template cell, if any, to use for arch params
         super().__init__()
 
         # some of these members are public as finalizer needs access
-        self.shared_alphas = alphas_cell is not None
         self.desc = desc
         self.s0_op = Op.create(desc.s0_op, affine=affine)
         self.s1_op = Op.create(desc.s1_op, affine=affine)
 
         self.dag =  Cell._create_dag(desc.nodes(),
             affine=affine, droppath=droppath,
-            alphas_cell=alphas_cell)
+            template_cell=template_cell)
 
         self.post_op = Op.create(desc.post_op, affine=affine)
 
     @staticmethod
     def _create_dag(nodes_desc:List[NodeDesc],
                     affine:bool, droppath:bool,
-                    alphas_cell:Optional['Cell'])->nn.ModuleList:
+                    template_cell:Optional['Cell'])->nn.ModuleList:
         dag = nn.ModuleList()
         for i, node_desc in enumerate(nodes_desc):
             edges:nn.ModuleList = nn.ModuleList()
@@ -39,20 +38,8 @@ class Cell(nn.Module, ABC, EnforceOverrides):
             for j, edge_desc in enumerate(node_desc.edges):
                 edges.append(DagEdge(edge_desc,
                     affine=affine, droppath=droppath,
-                    alphas_edge=alphas_cell.dag[i][j] if alphas_cell else None))
+                    template_edge=template_cell.dag[i][j] if template_cell else None))
         return dag
-
-    def alphas(self)->Iterable[nn.Parameter]:
-        for node in self.dag:
-            for edge in node:
-                for alpha in edge.alphas():
-                    yield alpha
-
-    def weights(self)->Iterable[nn.Parameter]:
-        for node in self.dag:
-            for edge in node:
-                for p in edge.weights():
-                    yield p
 
     def ops(self)->Iterable[Op]:
         for node in self.dag:

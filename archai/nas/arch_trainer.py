@@ -27,6 +27,10 @@ class ArchTrainer(Trainer, EnforceOverrides):
         self._l1_alphas = conf_train['l1_alphas']
         self._plotsdir = conf_train['plotsdir']
 
+        # if l1 regularization is needed then cache alphas
+        if self._l1_alphas > 0.0:
+            self._alphas = list(self.model.all_owned().param_by_kind('alphas'))
+
     @overrides
     def compute_loss(self, lossfn: Callable,
                      y: Tensor, logits: Tensor,
@@ -35,7 +39,7 @@ class ArchTrainer(Trainer, EnforceOverrides):
                                     aux_weight, aux_logits)
         # add L1 alpha regularization
         if self._l1_alphas > 0.0:
-            l_extra = sum(torch.sum(a.abs()) for a in self.model.alphas())
+            l_extra = sum(torch.sum(a.abs()) for a in self._alphas)
             loss += self._l1_alphas * l_extra
         return loss
 

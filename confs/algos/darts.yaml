@@ -82,7 +82,7 @@ nas:
       aug: '' # additional augmentations to use
       cutout: 16 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
-      train_batch: 96
+      train_batch: 68 # 96 is too aggressive for 1080Ti, better set it to 68
       train_workers: 4
       test_workers: '_copy: ../train_workers' # if null then 4
       load_test: True # load test split of dataset
@@ -229,6 +229,8 @@ nas:
         decay: 1.0e-3
         betas: [0.5, 0.999]
         decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
+      alpha_lr_schedule:
+        type: ''
       lr_schedule:
         type: 'cosine'
         min_lr: 0.001 # min learning rate, this will be used in eta_min param of scheduler

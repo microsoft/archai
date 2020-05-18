@@ -9,8 +9,8 @@ class XnasCellBuilder(CellBuilder):
     @overrides
     def register_ops(self) -> None:
         Op.register_op('xnas_op',
-                       lambda op_desc, alphas, affine:
-                           XnasOp(op_desc, alphas, affine))
+                       lambda op_desc, arch_params, affine:
+                           XnasOp(op_desc, arch_params, affine))
 
     @overrides
     def build(self, model_desc:ModelDesc, search_iter:int)->None:

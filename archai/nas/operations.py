@@ -8,66 +8,69 @@ from overrides import overrides, EnforceOverrides
 import torch
 from torch import affine_grid_generator, nn, Tensor, strided
 
-
-from ..common import utils, ml_utils
-from .model_desc import OpDesc, ConvMacroParams
+from archai.common import utils, ml_utils
+from archai.nas.model_desc import OpDesc, ConvMacroParams
+from archai.nas.arch_params import ArchParams
+from archai.nas.arch_module import ArchModule
 
 # type alias
 OpFactoryFn = Callable[[OpDesc, Iterable[nn.Parameter]], 'Op']
 
 # Each op is a unary tensor operator, all take same constructor params
+# TODO: swap order of arch_params and affine to match with create signature
 _ops_factory:Dict[str, Callable] = {
-    'max_pool_3x3':     lambda op_desc, alphas, affine:
+    'max_pool_3x3':     lambda op_desc, arch_params, affine:
                             PoolBN('max', op_desc, affine),
-    'avg_pool_3x3':     lambda op_desc, alphas, affine:
+    'avg_pool_3x3':     lambda op_desc, arch_params, affine:
                             PoolBN('avg', op_desc, affine),
-    'skip_connect':     lambda op_desc, alphas, affine:
+    'skip_connect':     lambda op_desc, arch_params, affine:
                             SkipConnect(op_desc, affine),
-    'sep_conv_3x3':     lambda op_desc, alphas, affine:
+    'sep_conv_3x3':     lambda op_desc, arch_params, affine:
                             SepConv(op_desc, 3, 1, affine),
-    'sep_conv_5x5':     lambda op_desc, alphas, affine:
+    'sep_conv_5x5':     lambda op_desc, arch_params, affine:
                             SepConv(op_desc, 5, 2, affine),
-    'dil_conv_3x3':     lambda op_desc, alphas, affine:
+    'dil_conv_3x3':     lambda op_desc, arch_params, affine:
                             DilConv(op_desc, 3, op_desc.params['stride'], 2, 2, affine),
-    'dil_conv_5x5':     lambda op_desc, alphas, affine:
+    'dil_conv_5x5':     lambda op_desc, arch_params, affine:
                             DilConv(op_desc, 5, op_desc.params['stride'], 4, 2, affine),
-    'none':             lambda op_desc, alphas, affine:
+    'none':             lambda op_desc, arch_params, affine:
                             Zero(op_desc),
-    'identity':         lambda op_desc, alphas, affine:
+    'identity':         lambda op_desc, arch_params, affine:
                             Identity(op_desc),
-    'sep_conv_7x7':     lambda op_desc, alphas, affine:
+    'sep_conv_7x7':     lambda op_desc, arch_params, affine:
                             SepConv(op_desc, 7, 3, affine),
-    'conv_7x1_1x7':     lambda op_desc, alphas, affine:
+    'conv_7x1_1x7':     lambda op_desc, arch_params, affine:
                             FacConv(op_desc, 7, 3, affine),
-    'prepr_reduce':     lambda op_desc, alphas, affine:
+    'prepr_reduce':     lambda op_desc, arch_params, affine:
                             FactorizedReduce(op_desc, affine),
-    'prepr_normal':     lambda op_desc, alphas, affine:
+    'prepr_normal':     lambda op_desc, arch_params, affine:
                             ReLUConvBN(op_desc, 1, 1, 0, affine),
-    'stem_conv3x3':       lambda op_desc, alphas, affine:
+    'stem_conv3x3':       lambda op_desc, arch_params, affine:
                             StemConv3x3(op_desc, affine),
-    'stem_conv3x3_s4':   lambda op_desc, alphas, affine:
+    'stem_conv3x3_s4':   lambda op_desc, arch_params, affine:
                             StemConv3x3S4(op_desc, affine),
-    'stem_conv3x3_s4s2':   lambda op_desc, alphas, affine:
+    'stem_conv3x3_s4s2':   lambda op_desc, arch_params, affine:
                             StemConv3x3S4S2(op_desc, affine),
-    'pool_adaptive_avg2d':       lambda op_desc, alphas, affine:
+    'pool_adaptive_avg2d':       lambda op_desc, arch_params, affine:
                             PoolAdaptiveAvg2D(),
-    'pool_avg2d7x7':    lambda op_desc, alphas, affine:
+    'pool_avg2d7x7':    lambda op_desc, arch_params, affine:
                             AvgPool2d7x7(),
-    'concate_channels':   lambda op_desc, alphas, affine:
+    'concate_channels':   lambda op_desc, arch_params, affine:
                             ConcateChannelsOp(op_desc, affine),
-    'proj_channels':   lambda op_desc, alphas, affine:
+    'proj_channels':   lambda op_desc, arch_params, affine:
                             ProjectChannelsOp(op_desc, affine),
-    'linear':           lambda op_desc, alphas, affine:
+    'linear':           lambda op_desc, arch_params, affine:
                             LinearOp(op_desc),
-    'multi_op':         lambda op_desc, alphas, affine:
+    'multi_op':         lambda op_desc, arch_params, affine:
                             MultiOp(op_desc, affine)
 }
 
-class Op(nn.Module, ABC, EnforceOverrides):
+class Op(ArchModule, ABC, EnforceOverrides):
     @staticmethod
-    def create(op_desc:OpDesc, affine:bool,
-               alphas:Iterable[nn.Parameter]=[])->'Op':
-        op = _ops_factory[op_desc.name](op_desc, alphas, affine)
+    def create(op_desc:OpDesc, affine:bool, arch_params:Optional[ArchParams]=None)->'Op':
+        global _ops_factory
+        op = _ops_factory[op_desc.name](op_desc, arch_params, affine)
+
         # TODO: annotate as Final?
         op.desc = op_desc # type: ignore
         # load any pre-trained weights
@@ -76,6 +79,7 @@ class Op(nn.Module, ABC, EnforceOverrides):
 
     def get_trainables(self)->Mapping:
         return {'name': self.desc.name, 'sd': self.state_dict()}
+
     def set_trainables(self, state_dict)->None:
         if state_dict is not None:
             assert state_dict['name'] == self.desc.name
@@ -94,16 +98,6 @@ class Op(nn.Module, ABC, EnforceOverrides):
             # else no need to register again
         else:
             _ops_factory[name] = factory_fn
-
-    # must override if op has alphas, otherwise this returns nothing!
-    def alphas(self)->Iterable[nn.Parameter]:
-        return # when supported, derived class should override it
-        yield
-
-    # must override if op has alphas, otherwise this will return weights + alphas!
-    def weights(self)->Iterable[nn.Parameter]:
-        for w in self.parameters():
-            yield w
 
     def finalize(self)->Tuple[OpDesc, Optional[float]]:
         """for trainable op, return final op and its rank"""

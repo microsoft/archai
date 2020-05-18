@@ -11,13 +11,13 @@ class PetridishCellBuilder(CellBuilder):
     @overrides
     def register_ops(self) -> None:
         Op.register_op('petridish_normal_op',
-                    lambda op_desc, alphas, affine:
-                        PetridishOp(op_desc, alphas, False, affine))
+                    lambda op_desc, arch_params, affine:
+                        PetridishOp(op_desc, arch_params, False, affine))
         Op.register_op('petridish_reduction_op',
-                    lambda op_desc, alphas, affine:
-                        PetridishOp(op_desc, alphas, True, affine))
+                    lambda op_desc, arch_params, affine:
+                        PetridishOp(op_desc, arch_params, True, affine))
         Op.register_op('temp_identity_op',
-                    lambda op_desc, alphas, affine:
+                    lambda op_desc, arch_params, affine:
                         TempIdentityOp(op_desc))
 
     @overrides

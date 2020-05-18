@@ -8,7 +8,7 @@ nas:
     model_desc:
       cell_post_op: 'proj_channels'
     loader:
-      train_batch: 96
+      train_batch: 64
   search:
     search_iters: 4
     pareto:

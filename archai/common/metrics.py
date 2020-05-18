@@ -188,7 +188,8 @@ class Metrics:
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        del state['_apex'] # cannot serialize this
+        if '_apex' in state:
+            del state['_apex'] # cannot serialize this
         return state
     # no need to define __setstate__ because _apex should be set from constructor
 

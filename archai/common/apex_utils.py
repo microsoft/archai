@@ -13,6 +13,7 @@ import psutil
 from archai.common.config import Config
 from archai.common import ml_utils, utils
 from archai.common.ordereddict_logger import OrderedDictLogger
+from archai.common.multi_optim import MultiOptim
 
 class ApexUtils:
     def __init__(self, apex_config:Config, logger:Optional[OrderedDictLogger])->None:
@@ -186,15 +187,22 @@ class ApexUtils:
         else:
             return val
 
-    def backward(self, loss:torch.Tensor, optim:Optimizer)->None:
+    def _get_optim(self, multi_optim:MultiOptim)->Optimizer:
+        assert len(multi_optim)==1, \
+            'Mixed precision is only supported for one optimizer'  \
+            f' but {len(multi_optim)} optimizers were supplied'
+        return multi_optim[0].optim
+
+    def backward(self, loss:torch.Tensor, multi_optim:MultiOptim)->None:
         if self.is_mixed():
+            optim = self._get_optim(multi_optim)
             with self._amp.scale_loss(loss, optim) as scaled_loss:
                 scaled_loss.backward()
         else:
             loss.backward()
 
-    def to_amp(self, model:nn.Module, optim:Optimizer, batch_size:int)\
-                ->Tuple[nn.Module, Optimizer]:
+    def to_amp(self, model:nn.Module, multi_optim:MultiOptim, batch_size:int)\
+                ->nn.Module:
         # conver BNs to sync BNs in distributed mode
         if self.is_dist() and self._sync_bn:
             model = self._ddp.convert_syncbn_model(model)
@@ -203,6 +211,8 @@ class ApexUtils:
         model = model.to(self.device)
 
         if self.is_mixed():
+            optim = self._get_optim(multi_optim)
+
             # scale LR
             if self.is_dist() and self._scale_lr:
                 lr = ml_utils.get_optim_lr(optim)
@@ -215,17 +225,21 @@ class ApexUtils:
                 keep_batchnorm_fp32=self._bn_fp32, loss_scale=self._loss_scale
             )
 
+            # put back amp'd optim
+            multi_optim[0].optim = optim
+
         if self.is_dist():
             # By default, apex.parallel.DistributedDataParallel overlaps communication with
             # computation in the backward pass.
             # delay_allreduce delays all communication to the end of the backward pass.
             model = self._ddp.DistributedDataParallel(model, delay_allreduce=True)
 
-        return model, optim
+        return model
 
-    def clip_grad(self, clip:float, model:nn.Module, optim:Optimizer)->None:
+    def clip_grad(self, clip:float, model:nn.Module, multi_optim:MultiOptim)->None:
         if clip > 0.0:
             if self.is_mixed():
+                optim = self._get_optim(multi_optim)
                 nn.utils.clip_grad_norm_(self._amp.master_params(optim), clip)
             else:
                 nn.utils.clip_grad_norm_(model.parameters(), clip)

@@ -23,14 +23,14 @@ class XnasArchTrainer(ArchTrainer):
                  checkpoint:Optional[CheckPoint]) -> None:
         super().__init__(conf_train, model, checkpoint)
 
-        self._conf_w_optim = conf_train['optimizer']
         self._conf_w_lossfn = conf_train['lossfn']
         self._conf_alpha_optim = conf_train['alpha_optimizer']
 
     @overrides
-    def create_optimizer(self) -> Optimizer:
+    def create_optimizer(self, conf_optim:Config, params) -> Optimizer:
         # return optim that only operates on w, not alphas
-        return ml_utils.create_optimizer(self._conf_w_optim, self.model.weights())
+        return ml_utils.create_optimizer(conf_optim,
+                                         self.model.nonarch_params(recurse=True))
 
     @overrides
     def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
@@ -42,7 +42,6 @@ class XnasArchTrainer(ArchTrainer):
         lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
 
         self._xnas_optim = _XnasOptimizer(self._conf_alpha_optim, self.model, lossfn)
-
 
     @overrides
     def post_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
@@ -98,7 +97,6 @@ class _XnasOptimizer:
         return lossfn(logits, y)
 
     def step(self, x_train: Tensor, y_train: Tensor, x_valid: Tensor, y_valid: Tensor) -> None:
-
         # put model in train mode just to be safe
         self._model.train()
 

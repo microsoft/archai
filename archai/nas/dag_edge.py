@@ -4,16 +4,17 @@ import torch
 from torch import nn
 from overrides import overrides
 
-from .operations import Op, DropPath_
-from .model_desc import EdgeDesc
+from archai.nas.operations import Op, DropPath_
+from archai.nas.model_desc import EdgeDesc
+from archai.nas.arch_module import ArchModule
 
-class DagEdge(nn.Module):
+class DagEdge(ArchModule):
     def __init__(self, desc:EdgeDesc, affine:bool, droppath:bool,
-                 alphas_edge:Optional['DagEdge'])->None:
+                 template_edge:Optional['DagEdge'])->None:
         super().__init__()
         # we may need to wrap op is droppath is needed
         self._wrapped = self._op = Op.create(desc.op_desc, affine,
-                        alphas_edge.alphas() if alphas_edge else [])
+                        template_edge.op().arch_params() if template_edge is not None else None)
         if droppath and self._op.can_drop_path():
             assert self.training
             self._wrapped = nn.Sequential(self._op, DropPath_())
@@ -28,15 +29,6 @@ class DagEdge(nn.Module):
             return self._wrapped(inputs)
         else:
             return self._wrapped([inputs[i] for i in self.input_ids])
-
-    def alphas(self)->Iterable[nn.Parameter]:
-        for alpha in self._op.alphas():
-            if alpha is not None:
-                yield alpha
-
-    def weights(self)->Iterable[nn.Parameter]:
-        for w in self._op.weights():
-            yield w
 
     def op(self)->Op:
         return self._op

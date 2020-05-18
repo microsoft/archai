@@ -8,6 +8,7 @@ from overrides import overrides
 
 from archai.nas.model_desc import OpDesc
 from archai.nas.operations import Op
+from archai.nas.arch_params import ArchParams
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only
@@ -29,7 +30,7 @@ class GsOp(Op):
         'none'  # this must be at the end so top1 doesn't chose it
     ]
 
-    def __init__(self, op_desc:OpDesc, alphas: Iterable[nn.Parameter],
+    def __init__(self, op_desc:OpDesc, arch_params:Optional[ArchParams],
                  affine:bool):
         super().__init__()
 
@@ -38,20 +39,23 @@ class GsOp(Op):
 
         self._gs_num_sample = op_desc.params['gs_num_sample']
 
-        self._set_alphas(alphas)
         self._ops = nn.ModuleList()
         for primitive in GsOp.PRIMITIVES:
             op = Op.create(
                 OpDesc(primitive, op_desc.params, in_len=1, trainables=None),
-                affine=affine, alphas=alphas)
+                affine=affine, arch_params=None)
             self._ops.append(op)
+        # we do this at the end so that we can capture all arch params registered by
+        # any previous child modules
+        self._setup_arch_params(arch_params)
 
     @overrides
     def forward(self, x):
         # soft sample from the categorical distribution
         # via gumbel softmax distribution
         # TODO: should we be normalizing the ensemble?
-        #sampled = torch.zeros(self._alphas[0].size(), requires_grad=True)
+        #sampled = torch.zeros(alphas.size(), requires_grad=True)
+
         sample_storage = []
         for _ in range(self._gs_num_sample):
             sampled = F.gumbel_softmax(self._alphas[0], tau=1, hard=False, eps=1e-10, dim=-1)
@@ -59,18 +63,6 @@ class GsOp(Op):
 
         samples_summed = torch.sum(torch.stack(sample_storage, dim=0), dim=0)
         return sum(w * op(x) for w, op in zip(samples_summed, self._ops))
-
-
-    @overrides
-    def alphas(self) -> Iterable[nn.Parameter]:
-        for alpha in self._alphas:
-            yield alpha
-
-    @overrides
-    def weights(self) -> Iterable[nn.Parameter]:
-        for op in self._ops:
-            for w in op.parameters():
-                yield w
 
     @overrides
     def finalize(self) -> Tuple[OpDesc, Optional[float]]:
@@ -110,7 +102,6 @@ class GsOp(Op):
 
         return final_op_desc, None
 
-
     @overrides
     def can_drop_path(self) -> bool:
         return False
@@ -119,16 +110,17 @@ class GsOp(Op):
     def ops(self)->Iterator['Op']: # type: ignore
         return iter(self._ops)
 
-    def _set_alphas(self, alphas: Iterable[nn.Parameter]) -> None:
-        # must call before adding other ops
-        assert len(list(self.parameters())) == 0
-        self._alphas = list(alphas)
-        if not len(self._alphas):
-            # TODO: Better initialization than random?
-            new_p = nn.Parameter(1.0e-3*torch.randn(len(GsOp.PRIMITIVES)), requires_grad=True)
-            # NOTE: This is a way to register parameters with PyTorch.
-            # One creates a dummy variable with the parameters and then
-            # asks back for the parameters in the object from Pytorch
-            # which automagically registers the just created parameters.
-            self._reg_alphas = new_p
-            self._alphas = [p for p in self.parameters()]
+    def _setup_arch_params(self, arch_params:Optional[ArchParams])->None:
+        # do we have shared arch params?
+        if arch_params is None:
+            # create our own arch params
+            new_p = nn.Parameter(  # TODO: use better init than uniform random?
+                1.0e-3*torch.randn(len(GsOp.PRIMITIVES)), requires_grad=True)
+            self.create_arch_params([('alphas', new_p)])
+        else:
+            assert arch_params.has_kind('alphas')
+            self.set_arch_params(arch_params)
+
+        # we store alphas in list so Pytorch don't register them
+        self._alphas = list(self.arch_params().param_by_kind('alphas'))
+        assert len(self._alphas)==1

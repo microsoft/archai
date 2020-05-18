@@ -99,21 +99,21 @@ class MacroBuilder(EnforceOverrides):
         # chennels of prev-prev whole cell, prev whole cell and current cell node
         pp_ch_out, p_ch_out, node_ch_out = stem_ch_out, stem_ch_out, self.init_node_ch
 
-        # stores first cells of each time with whom alphas would be shared
+        # stores first cells of each time with whom arch params would be shared
         first_normal, first_reduction = -1, -1
 
         for ci in range(self.n_cells):
             # find cell type and output channels for this cell
-            # also update if this is our first cell from which alphas will be shared
+            # also update if this is our first cell from which arch params will be shared
             reduction = self._is_reduction(ci)
             if reduction:
                 node_ch_out, cell_type = node_ch_out*2, CellType.Reduction
                 first_reduction = ci if first_reduction < 0 else first_reduction
-                alphas_from = first_reduction
+                template_cell = first_reduction
             else:
                 cell_type = CellType.Regular
                 first_normal = ci if first_normal < 0 else first_normal
-                alphas_from = first_normal
+                template_cell = first_normal
 
             s0_op, s1_op = self._get_cell_stems(
                 node_ch_out, p_ch_out, pp_ch_out, reduction_p)
@@ -134,7 +134,7 @@ class MacroBuilder(EnforceOverrides):
                 cell_type=cell_type, id=ci,
                 nodes=nodes,
                 s0_op=s0_op, s1_op=s1_op,
-                alphas_from=alphas_from,
+                template_cell=template_cell,
                 max_final_edges=max_final_edges,
                 node_ch_out=node_ch_out,
                 post_op=self.cell_post_op

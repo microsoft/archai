@@ -7,6 +7,7 @@ import sys
 import  os
 import pathlib
 import random
+from itertools import zip_longest
 
 import  torch
 import torch.backends.cudnn as cudnn
@@ -230,3 +231,10 @@ def exec_shell_command(command:str, print_command=True)->None:
         print(command)
     subprocess.run(command, shell=True, check=True)
 
+def zip_eq(*iterables):
+    sentinel = object()
+    for count, combo in enumerate(zip_longest(*iterables, fillvalue=sentinel)):
+        if any(True for c in combo if sentinel is c):
+            shorter_its = ','.join([str(i) for i,c in enumerate(combo) if sentinel is c])
+            raise ValueError(f'Iterator {shorter_its} have length {count} which is shorter than others')
+        yield combo

@@ -14,7 +14,6 @@ import yaml
 from . import yaml_utils
 
 
-
 # global config instance
 _config:'Config' = None
 

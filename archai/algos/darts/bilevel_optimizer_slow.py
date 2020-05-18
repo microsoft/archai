@@ -1,4 +1,4 @@
-from typing import Mapping, Optional, Union
+from typing import Mapping, Optional, Union, Iterator
 import copy
 
 import torch
@@ -10,7 +10,7 @@ from archai.common.config import Config
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.common.common import logger
-
+from archai.common.utils import zip_eq
 
 def _flatten_concate(xs):
     """
@@ -21,6 +21,13 @@ def _flatten_concate(xs):
     """
     return torch.cat([x.view(-1) for x in xs])
 
+def _get_alphas(model:Model)->Iterator[nn.Parameter]:
+    return model.all_owned().param_by_kind('alphas')
+
+def _get_loss(model:Model, lossfn, x, y):
+    logits, *_ = model(x) # might also return aux tower logits
+    return lossfn(logits, y)
+
 class BilevelOptimizer:
     def __init__(self, conf_alpha_optim:Config, w_momentum: float, w_decay: float,
                  model: Model, lossfn: _Loss) -> None:
@@ -29,8 +36,10 @@ class BilevelOptimizer:
         self._lossfn = lossfn
         self._model = model  # main model with respect to w and alpha
 
+        self._alphas = list(_get_alphas(self._model))
+
         # this is the optimizer to optimize alphas parameter
-        self._alpha_optim = ml_utils.create_optimizer(conf_alpha_optim, model.alphas())
+        self._alpha_optim = ml_utils.create_optimizer(conf_alpha_optim, self._alphas)
 
     def state_dict(self)->dict:
         return {
@@ -40,14 +49,9 @@ class BilevelOptimizer:
     def load_state_dict(self, state_dict)->None:
         self._alpha_optim.load_state_dict(state_dict['alpha_optim'])
 
-    @staticmethod
-    def _get_loss(model, lossfn, x, y):
-        logits, *_ = model(x) # might also return aux tower logits
-        return lossfn(logits, y)
-
     def _unrolled_model(self, x, y, lr: float, main_optim: Optimizer)->Model:
         # TODO: should this loss be stored for later use?
-        loss = BilevelOptimizer._get_loss(self._model, self._lossfn, x, y)
+        loss = _get_loss(self._model, self._lossfn, x, y)
         params = _flatten_concate(self._model.parameters()).detach()
 
         try:
@@ -113,9 +117,9 @@ class BilevelOptimizer:
         # compute loss on validation set for model with w'
         # wrt alphas. The autograd.grad is used instead of backward()
         # to avoid having to loop through params
-        vloss = BilevelOptimizer._get_loss(unrolled_model, self._lossfn, x_valid, y_valid)
+        vloss = _get_loss(unrolled_model, self._lossfn, x_valid, y_valid)
         vloss.backward()
-        dalpha = [v.grad for v in unrolled_model.alphas()]
+        dalpha = [v.grad for v in _get_alphas(unrolled_model)]
         dparams = [v.grad.data for v in unrolled_model.parameters()]
 
         hessian = self._hessian_vector_product(dparams, x_train, y_train)
@@ -125,7 +129,7 @@ class BilevelOptimizer:
         # update final gradient = dalpha - xi*hessian
         # TODO: currently alphas lr is same as w lr
         with torch.no_grad():
-            for alpha, da, h in zip(self._model.alphas(), dalpha, hessian):
+            for alpha, da, h in zip_eq(self._alphas, dalpha, hessian):
                 alpha.grad = da - lr*h
         # now that model has both w and alpha grads,
         # we can run main_optim.step() to update the param values
@@ -151,32 +155,32 @@ class BilevelOptimizer:
 
         # w+ = w + epsilon * grad(w')
         with torch.no_grad():
-            for p, v in zip(self._model.parameters(), dw):
+            for p, v in zip_eq(self._model.parameters(), dw):
                 p += epsilon * v
 
         # Now that we have model with w+, we need to compute grads wrt alphas
         # This loss needs to be on train set, not validation set
-        loss = BilevelOptimizer._get_loss(self._model, self._lossfn, x, y)
+        loss = _get_loss(self._model, self._lossfn, x, y)
         dalpha_plus = autograd.grad(
-            loss, self._model.alphas())  # dalpha{L_trn(w+)}
+            loss, self._alphas)  # dalpha{L_trn(w+)}
 
         # get model with w- and then compute grads wrt alphas
         # w- = w - eps*dw`
         with torch.no_grad():
-            for p, v in zip(self._model.parameters(), dw):
+            for p, v in zip_eq(self._model.parameters(), dw):
                 # we had already added dw above so sutracting twice gives w-
                 p -= 2. * epsilon * v
 
         # similarly get dalpha_minus
-        loss = BilevelOptimizer._get_loss(self._model, self._lossfn, x, y)
-        dalpha_minus = autograd.grad(loss, self._model.alphas())
+        loss = _get_loss(self._model, self._lossfn, x, y)
+        dalpha_minus = autograd.grad(loss, self._alphas)
 
         # reset back params to original values by adding dw
         with torch.no_grad():
-            for p, v in zip(self._model.parameters(), dw):
+            for p, v in zip_eq(self._model.parameters(), dw):
                 p += epsilon * v
 
         # apply eq 8, final difference to compute hessian
         h = [(p - m) / (2. * epsilon)
-             for p, m in zip(dalpha_plus, dalpha_minus)]
+             for p, m in zip_eq(dalpha_plus, dalpha_minus)]
         return h

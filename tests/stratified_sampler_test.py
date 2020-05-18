@@ -93,5 +93,28 @@ def imagenet_test():
     dl_train, *_ = data.get_data(conf_loader)
 
 
+def exclusion_test(data_len=32, labels_len=2, val_ratio=0.5):
+    x = np.array(range(data_len))
+    labels = np.array(range(labels_len))
+    y = np.repeat(labels, math.ceil(float(data_len)/labels_len))[:data_len]
+    np.random.shuffle(y)
+    dataset = ListDataset(x, y)
+
+    train_sampler = DistributedStratifiedSampler(dataset,
+                        val_ratio=val_ratio, is_val=False, shuffle=True,
+                        max_items=-1, world_size=1, rank=0)
+
+    valid_sampler = DistributedStratifiedSampler(dataset,
+                        val_ratio=val_ratio, is_val=True, shuffle=True,
+                        max_items=-1, world_size=1, rank=0)
+    tidx = list(train_sampler)
+    vidx = list(valid_sampler)
+
+    assert len(tidx) == len(vidx) == 16
+    assert all(ti not in vidx for ti in tidx)
+    # print(len(tidx), tidx)
+    # print(len(vidx), vidx)
+
+exclusion_test()
 _dist_no_val(1, 100, val_ratio=0.1)
 test_combinations()

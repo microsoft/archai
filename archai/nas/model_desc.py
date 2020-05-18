@@ -135,7 +135,7 @@ class CellType(Enum):
 
 class CellDesc:
     def __init__(self, cell_type:CellType, id:int, nodes:List[NodeDesc],
-            s0_op:OpDesc, s1_op:OpDesc, alphas_from:int, max_final_edges:int,
+            s0_op:OpDesc, s1_op:OpDesc, template_cell:int, max_final_edges:int,
             node_ch_out:int, post_op:Union[str,OpDesc])->None:
         assert s0_op.params['conv'].ch_out == s1_op.params['conv'].ch_out
         assert s0_op.params['conv'].ch_out == node_ch_out
@@ -143,7 +143,7 @@ class CellDesc:
         self.cell_type = cell_type
         self.id = id
         self.s0_op, self.s1_op = s0_op, s1_op
-        self.alphas_from = alphas_from # cell id with which we share alphas
+        self.template_cell = template_cell # cell id with which we share arch params
         self.max_final_edges = max_final_edges
 
         self.cell_ch_out = -1 # will be set later by reset_nodes
@@ -151,7 +151,7 @@ class CellDesc:
         assert self.cell_ch_out > 0
 
     def clone(self, id:int)->'CellDesc':
-        c = copy.deepcopy(self) # note that alphas_from is also cloned
+        c = copy.deepcopy(self) # note that template_cell is also cloned
         c.id = id
         return c
 
@@ -284,7 +284,7 @@ class ModelDesc:
     def reset_cells(self, cell_descs:List[CellDesc],
                     aux_tower_descs:List[Optional[AuxTowerDesc]])->None:
         assert len(cell_descs) == len(aux_tower_descs)
-        # every cell should have unique ID so we can tell where alphas are shared
+        # every cell should have unique ID so we can tell where arch params are shared
         assert len(set(c.id for c in cell_descs)) == len(cell_descs)
 
         self._cell_descs = cell_descs

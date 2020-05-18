@@ -1,4 +1,4 @@
-from typing import Mapping, Optional, Union
+from typing import Mapping, Optional, Union, Tuple
 import copy
 
 import torch
@@ -16,7 +16,7 @@ from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
 from archai.common.common import logger
-from archai.algos.darts.bilevel_optimizer import BilevelOptimizer
+from archai.common.multi_optim import MultiOptim, OptimSched
 
 class DidartsArchTrainer(ArchTrainer):
     """Train network using different optimizers for alphas and other parameters"""
@@ -25,65 +25,29 @@ class DidartsArchTrainer(ArchTrainer):
                  checkpoint:Optional[CheckPoint]) -> None:
         super().__init__(conf_train, model, checkpoint)
 
-        self._conf_w_optim = conf_train['optimizer']
-        self._conf_w_lossfn = conf_train['lossfn']
         self._conf_alpha_optim = conf_train['alpha_optimizer']
+        self._conf_alpha_sched = conf_train['alpha_lr_schedule']
+
 
     @overrides
-    def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
-        super().pre_fit(train_dl, val_dl)
-
+    def create_multi_optim(self, train_len:int)->MultiOptim:
         # optimizers, schedulers needs to be recreated for each fit call
-        # as they have state
-        assert val_dl is not None
-        w_momentum = self._conf_w_optim['momentum']
-        w_decay = self._conf_w_optim['decay']
-        lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
+        # as they have state specific to each run
+        optim = self.create_optimizer(self.conf_optim, self.model.nonarch_params(recurse=True))
+        # create scheduler for optim before applying amp
+        sched, sched_on_epoch = self.create_scheduler(self.conf_sched, optim, train_len)
 
-        self._bilevel_optim = BilevelOptimizer(self._conf_alpha_optim, w_momentum,
-                                                w_decay, self.model, lossfn,
-                                                self.get_device(), self.batch_chunks)
+        alpha_optim = self.create_optimizer(self._conf_alpha_optim,
+                                            self.model.all_owned().param_by_kind(None))
+        alpha_sched, alpha_sched_on_epoch = self.create_scheduler(self._conf_alpha_sched, alpha_optim, train_len)
 
-    @overrides
-    def post_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
-        # delete state we created in pre_fit
-        del self._bilevel_optim
-        return super().post_fit(train_dl, val_dl)
+        multi_optim = MultiOptim()
+        multi_optim.append(OptimSched(optim, sched, sched_on_epoch))
+        multi_optim.append(OptimSched(alpha_optim, alpha_sched, alpha_sched_on_epoch))
 
-    @overrides
-    def pre_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
-        super().pre_epoch(train_dl, val_dl)
+        logger.info({'multi_optim_len': len(multi_optim)})
 
-        # prep val set to train alphas
-        self._valid_iter = iter(val_dl)  # type: ignore
+        return multi_optim
 
-    @overrides
-    def post_epoch(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
-        del self._valid_iter # clean up
-        super().post_epoch(train_dl, val_dl)
 
-    @overrides
-    def pre_step(self, x: Tensor, y: Tensor) -> None:
-        super().pre_step(x, y)
-
-        # reset val loader if we exausted it
-        try:
-            x_val, y_val = next(self._valid_iter)
-        except StopIteration:
-            # reinit iterator
-            self._valid_iter = iter(self._val_dl)
-            x_val, y_val = next(self._valid_iter)
-
-        # update alphas
-        self._bilevel_optim.step(x, y, x_val, y_val, super().get_optimizer())
-
-    @overrides
-    def update_checkpoint(self, check_point:CheckPoint)->None:
-        super().update_checkpoint(check_point)
-        check_point['bilevel_optim'] = self._bilevel_optim.state_dict()
-
-    @overrides
-    def restore_checkpoint(self)->None:
-        super().restore_checkpoint()
-        self._bilevel_optim.load_state_dict(self.check_point['bilevel_optim'])
 

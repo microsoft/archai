@@ -54,6 +54,14 @@
             "args": ["--algos", "darts"]
         },
         {
+            "name": "DiDarts-E2E-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "didarts"]
+        },
+        {
             "name": "Darts-Food101-Toy",
             "type": "python",
             "request": "launch",

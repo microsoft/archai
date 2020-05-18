@@ -19,16 +19,11 @@ from archai.common.common import logger
 
 
 class GsArchTrainer(ArchTrainer):
-    def __init__(self, conf_train: Config, model: Model,
-                 checkpoint:Optional[CheckPoint]) -> None:
-        super().__init__(conf_train, model, checkpoint)
-
-        self._conf_w_optim = conf_train['optimizer']
-        # self._conf_w_lossfn = conf_train['lossfn']
-
     @overrides
-    def create_optimizer(self) -> Optimizer:
-        # in this case we don't need to differentiate between alphas and weights
+    def create_optimizer(self, conf_optim:Config, params) -> Optimizer:
+        # in this case we don't need to differentiate between arch_params and weights
         # as the same optimizer will update both
-        param_groups = [{'params': self.model.weights()}, {'params': self.model.alphas()}]
-        return ml_utils.create_optimizer(self._conf_w_optim, param_groups)
+        arch_params = list(self.model.all_owned().param_by_kind('alphas'))
+        nonarch_params = list(self.model.nonarch_params(recurse=True))
+        param_groups = [{'params': nonarch_params}, {'params': arch_params}]
+        return ml_utils.create_optimizer(conf_optim, param_groups)

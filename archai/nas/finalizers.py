@@ -56,7 +56,7 @@ class Finalizers(EnforceOverrides):
             nodes = node_descs,
             s0_op=cell.s0_op.finalize()[0],
             s1_op=cell.s1_op.finalize()[0],
-            alphas_from = cell.desc.alphas_from,
+            template_cell = cell.desc.template_cell,
             max_final_edges=cell.desc.max_final_edges,
             node_ch_out=cell.desc.node_ch_out,
             post_op=cell.post_op.finalize()[0]

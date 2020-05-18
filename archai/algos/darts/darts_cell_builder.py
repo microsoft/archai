@@ -9,8 +9,8 @@ class DartsCellBuilder(CellBuilder):
     @overrides
     def register_ops(self) -> None:
         Op.register_op('mixed_op',
-                       lambda op_desc, alphas, affine:
-                           MixedOp(op_desc, alphas, affine))
+                       lambda op_desc, arch_params, affine:
+                           MixedOp(op_desc, arch_params, affine))
 
     @overrides
     def build(self, model_desc:ModelDesc, search_iter:int)->None:
