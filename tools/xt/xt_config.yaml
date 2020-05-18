@@ -1,0 +1,113 @@
+# local xt_config.yaml file for cmdlineTest directory
+
+external-services:
+    archaixtstorage: {type: "storage", provider: "archaixtblob001", key: "$vault"}
+    archaixtmongodb: {type: "mongo", mongo-connection-string: "$vault"}
+    archaixtkeyvault: {type: "vault", url: "https://archaixtkeyvault.vault.azure.net/"}
+    archaixtregistry: {type: "registry", login-server: "archaixtregistry.azurecr.io", username: "archaixtregistry", password: "$vault", login: "true"}
+
+# TODO: Fix the docker names
+compute-targets:
+    philly-rr2: {service: "philly", cluster: "rr2", vc: "msrlabspvc1", sku: "G1", nodes: 1, low-pri: false, environment: "archaicuda92"}
+
+# TODO: I am not logging any primary metric yet. Will that work?
+# TODO: I don't want conda or pip packages list. I want to do user managed environment for both philly and aml.
+general:
+    workspace: "archaiws"                   # name of current workspace
+    experiment: "archaitest"               # default name of experiment associated with each run
+    primary-metric: "test-acc"         # name of metric to optimize in roll-ups, hyperparameter search, and early stopping
+    maximize-metric: true              # how primary metric is aggregated for hp search, hp explorer, early stopping
+    xt-team-name: "archai"            # for use with XT Grok
+
+    # getting torchvision + pillow to run on correctly batch, philly, and aml is tricky
+    # pip-packages: ["torch==1.2.0", "torchvision==0.4.1", "Pillow==6.2.0", "watchdog==0.9.0", "xtlib==*"]
+
+internal:
+    stack-trace: true
+    start-visible: true                   # run XT controller in a visible cmd window
+
+code:
+    code-dirs: [$scriptdir/../**]
+    code-upload: true
+    xtlib-upload: true                   # upload XTLIB sources files for each run and use for controller and ML app
+    code-zip: "compress"                       # none/fast/compress ("fast" means zip w/o compression)
+    code-omit: [".git", "__pycache__"]      # directories and files to omit when capturing before/after files
+
+# TODO: Does this mean that philly/aml jobs will be writing to local disks and then
+# upload to the store at the end? This will be nice since it will avoid all kinds of
+# bandwidth issues. Also does this mean that we need to know exactly what the folders
+# will be named by our application? Looks that way.
+after-files:
+    after-dirs: ["../logdir/**"]   # specifies output files (for capture from compute node to STORE)
+    after-upload: true                     # should after files be uploaded at end of run?
+    after-omit: []                 # directories and files to omit when capturing after files
+
+# TODO: In archai code will have to get the local folder from XT_DATA_DIR
+data:
+    data-upload: true
+    data-share: "cifar10"                    # path to data in data share
+    data-local: "$scriptdir/../../dataroot"       # local directory of data for app
+    data-action: "mount"                   # data action at start of run: none, download, mount
+    data-writable : false
+
+# TODO: Understand how models are handled.
+model:
+    model-share-path: "archaimodels"          # path to model in model share
+    model-action: "mount"                  # model action at start of run: none, download, mount
+    model-writable: true
+
+hyperparameter-explorer:
+    steps-name: "epochs"                   # name of metric that represents total # of steps taken
+    log-interval-name: "log-interval"      # name of hyperparameter that specifies # of steps between metric reports
+    step-name: "epoch"                     # name of a single step
+
+run-reports:
+    columns: ["run", "created:$do", "experiment", "queued", "job", "target", "repeat", "search", "status",
+        "tags.priority", "tags.description", "tags.top5", "tags.good_run",
+        "hparams.lr", "hparams.momentum", "hparams.optimizer",
+
+        "metrics.step", "hparams.steps",  "metrics.epoch", "hparams.epochs", "hparams.seed",
+        "metrics.train-loss", "metrics.dev-loss", "metrics.test-loss",
+        "metrics.train-acc",  "metrics.dev-acc",  "metrics.test-acc",
+        "duration",
+        ]
+
+job-reports:
+    columns: ["job", "created", "started", "workspace", "experiment", "target", "nodes", "repeat", "tags.description", "tags.urgent", "tags.sad=SADD", "tags.funny", "low_pri",
+        "vm_size", "azure_image", "service", "vc", "cluster", "queue", "service_type", "search",
+        "job_status:$bz", "running_nodes:$bz", "running_runs:$bz", "error_runs:$bz", "completed_runs:$bz"]
+
+environments:
+    archaicuda92: {registry: "archaixtregistry", image: "archaicuda92"}
+    archaicuda101: {registry: "archaixtregistry", image: "archaicuda101"}
+
+boxes:
+    # This section lets you define remote computers for running your experiments (samples listed below).
+    # REQUIREMENTS: each box needs to have ports 22 and 18861 open for incoming messages.
+    # The "actions" property is a list of store names ("data", "model") whose download or mount actions should be performed on the box.
+    local: {address: "localhost", os: "linux", box-class: "linux", max-runs: 1, actions: []}
+    # vm1: {address: "$username@52.170.38.14", os: "linux", box-class: "linux", max-runs: 1, actions: []}
+    # vm10: {address: "$username@52.224.239.149", os: "linux", box-class: "linux", max-runs: 1, actions: []}
+    # vm15: {address: "$username@104.211.38.125", os: "linux", box-class: "linux", max-runs: 1, actions: []}
+    # vm100: {address: "$username@40.76.209.50", os: "linux", box-class: "linux", max-runs: 1}
+    # vm101: {address: "$username@137.117.99.158", os: "linux", box-class: "linux", max-runs: 1}
+    # vm102: {address: "$username@13.82.95.85", os: "linux", box-class: "linux", max-runs: 1}
+
+    # vm106: ubuntu 16, V100 GPU (created Feb-04-2020)
+    # vm106: {address: "$username@40.121.178.127", os: "linux", box-class: "linux", max-runs: 1}
+
+    # vm108: ubuntu 18, V100 GPU (created Feb-04-2020)
+    # vm108: {address: "$username@52.170.155.182", os: "linux", box-class: "linux", max-runs: 1}
+
+    # biased: {address: "$username@13.92.132.202", os: "linux", box-class: "linux", max-runs: 1}
+    # vm400: {address: "$username@13.92.102.252", os: "linux", box-class: "linux", max-runs: 4}
+    # vm2400: {address: "$username@52.224.50.47", os: "linux", box-class: "linux", max-runs: 4}
+
+    # grokserver (VM for running flask backend of XT Grok)
+    # grokserver: {address: "$username@52.170.5.196", os: "linux", box-class: "linux", max-runs: 1}
+
+# don't release as uncommented (will cause "no extensions module" error for users)
+# providers:
+#     command: {
+#         "mycmds": "extensions.user_commands.ImplMyCommands"
+#     }

@@ -1,0 +1,172 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "All-Toy-NoPareto",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "All-Toy-Pareto",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--nas.search.pareto.enabled", "True",
+                     "--nas.search.seed_train.trainer.epochs", "1",
+                     "--nas.search.post_train.trainer.epochs", "1"]
+        },
+        {
+            "name": "Darts-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "darts"]
+        },
+        {
+            "name": "Darts-Search-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--no-eval", "--algos", "darts"]
+        },
+        {
+            "name": "Darts-Food101-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "darts", "--datasets", "food101"]
+        },
+        {
+            "name": "Petridish-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "petridish"]
+        },
+        {
+            "name": "Petridish-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "petridish"]
+        },
+        {
+            "name": "Xnas-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "xnas"]
+        },
+        {
+            "name": "Xnas-Search-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--no-eval", "--algos", "xnas"]
+        },
+        {
+            "name": "Xnas-E2E-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "xnas"]
+        },
+        {
+            "name": "Gs-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "gs"]
+        },
+        {
+            "name": "Gs-Search-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--no-eval", "--algos", "gs"]
+        },
+        {
+            "name": "Gs-E2E-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "gs"]
+        },
+        {
+            "name": "Petridish-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "petridish"]
+        },
+        {
+            "name": "Random-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "random"]
+        },
+        {
+            "name": "Random-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "random"]
+        },
+        {
+            "name": "AML-Darts-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/tools/azure/aml_launch_main.py",
+            "console": "integratedTerminal",
+            "args": ["--aml_secrets_filepath", "/home/dedey/aml_secrets/aml_secrets_msrlabspvc1.yaml", "--algo", "darts", "--full"]
+        },
+        {
+            "name": "TrainAug resnet50 cocob cifar10",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/auto_aug/aug_train.py",
+            "console": "integratedTerminal",
+            "args": ["--config", "confs/aug_cifar.yaml;confs/aug_cifar_cocob_resnet50.yaml",
+                    "--aug", "fa_reduced_cifar10"
+            ]
+        },
+        {
+            "name": "TrainAug resnet50 sgd cifar10",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/auto_aug/aug_train.py",
+            "console": "integratedTerminal",
+            "args": ["--config", "confs/aug_cifar.yaml;confs/aug_cifar_sgd_resnet50.yaml",
+                    "--aug", "fa_reduced_cifar10"
+            ]
+        },
+        {
+            "name": "CurrentFile",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        }
+    ]
+}

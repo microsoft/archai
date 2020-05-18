@@ -1,0 +1,34 @@
+__include__: 'darts.yaml' # defaults are loaded from this file
+
+# common:
+#   experiment_name: 'petridish_run2_seed42_eval'
+
+nas:
+  eval:
+    model_desc:
+      cell_post_op: 'proj_channels'
+    loader:
+      train_batch: 96
+  search:
+    search_iters: 4
+    pareto:
+      max_cells: 8
+      max_reductions: 3
+      max_nodes: 1
+    model_desc:
+      n_cells: 3
+      n_reductions: 1
+      n_nodes: 1
+      cell_post_op: 'proj_channels'
+    seed_train:
+      trainer:
+        epochs: 80 # number of epochs model will be trained before search
+    post_train:
+      trainer:
+        epochs: 80 # number of epochs model will be trained before search
+    trainer:
+      l1_alphas:  0.001   # as per paper
+      epochs: 80 # number of epochs model will be trained before search
+    loader:
+      train_batch: 64
+      val_ratio: 0.1 #split portion for test set, 0 to 1

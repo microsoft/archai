@@ -1,0 +1,30 @@
+dataset:
+  name: 'imagenet'
+  dataroot: '~/data/ImageNet' #torchvision data folder
+  n_classes: 1000
+
+nas:
+  eval:
+    model_desc:
+      init_ch_out: 36 # num of channels for stem outpt node
+      n_cells: 14 # number of cells
+      stem_multiplier: 1 # output channels multiplier for the stem
+      model_stem0_op: 'stem0_imagenet'
+      model_stem1_op: 'stem1_imagenet'
+      model_post_op: 'pool_imagenet'
+    loader:
+      batch: 128
+    trainer:
+      aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
+      drop_path_prob: 0.0 # probability that given edge will be dropped
+      epochs: 250
+      lossfn: # TODO: this is perhaps reversed for test/train?
+        type: 'CrossEntropyLabelSmooth'
+        smoothing: 0.1
+      optimizer:
+        lr: 0.1 # init learning rate
+        decay: 3.0e-5
+      lr_schedule:
+        type: 'step'
+        decay_period: 1 # epochs between two learning rate decays
+        gamma: 0.97 # learning rate decay

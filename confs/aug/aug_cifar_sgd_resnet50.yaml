@@ -1,0 +1,24 @@
+common:
+    checkpoint:
+        freq: 20
+
+dataset: 
+    max_batches: -1
+
+autoaug:
+    loader:
+        epochs: 200
+        batch: 512
+    lr_schedule:
+        type: 'cosine'
+        warmup:
+            multiplier: 4
+            epochs: 5
+    optimizer:
+        lr: 0.1
+        type: 'sgd'
+        nesterov: True
+        decay: 0.0002
+    model:
+        type: 'resnet50'
+
