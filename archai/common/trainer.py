@@ -101,9 +101,7 @@ class Trainer(EnforceOverrides):
         logger.pushd('epochs')
         for epoch in range(self._start_epoch, self._epochs):
             logger.pushd(epoch)
-            assert self._metrics.epochs() == epoch
-            self._set_drop_path(epoch, self._epochs)
-
+            self._set_epoch(epoch, train_dl, val_dl)
             self.pre_epoch(train_dl, val_dl)
             self._train_epoch(train_dl)
             self.post_epoch(train_dl, val_dl)
@@ -152,6 +150,20 @@ class Trainer(EnforceOverrides):
     def get_metrics(self)->Metrics:
         return self._metrics
 
+    def _set_epoch(self, epoch:int, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+        # optimizers such as bi-level may use val set for its own use
+        # which causes reshuffling due to automatic epoch counting
+        # here we make sure that val_dl has same epoch as train_dl
+        if hasattr(train_dl.sampler, 'set_epoch'):
+            train_dl.sampler.set_epoch(epoch)
+        if hasattr(val_dl.sampler, 'set_epoch'):
+            val_dl.sampler.set_epoch(epoch)
+
+        # apply droppath
+        self._set_drop_path(epoch, self._epochs)
+
+        assert self._metrics.epochs() == epoch
+
     #########################  hooks #########################
     def pre_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
         self._metrics.pre_run()
@@ -168,11 +180,13 @@ class Trainer(EnforceOverrides):
         if val_dl and self._tester and self._validation_freq > 0:
             if self._metrics.epochs() % self._validation_freq == 0 or \
                     self._metrics.epochs() >= self._epochs:
-                # optimizers such as bi-level may use val set for its own use
-                # which causes reshuffling due to automatic epoch counting
-                # here we make sure that val_dl has same epoch as train_dl
-                if hasattr(val_dl.sampler, 'set_epoch'):
-                    val_dl.sampler.set_epoch(self._metrics.epochs())
+
+                # these asserts makes sure train and val are not ovrlapiing
+                # assert train_dl.sampler.epoch == val_dl.sampler.epoch
+                # tidx = list(train_dl.sampler)
+                # vidx = list(val_dl.sampler)
+                # assert all(ti not in vidx for ti in tidx)
+
                 val_metrics = self._tester.test(val_dl)
 
         # update val metrics
