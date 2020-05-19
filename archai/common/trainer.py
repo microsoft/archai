@@ -156,7 +156,7 @@ class Trainer(EnforceOverrides):
         # here we make sure that val_dl has same epoch as train_dl
         if hasattr(train_dl.sampler, 'set_epoch'):
             train_dl.sampler.set_epoch(epoch)
-        if hasattr(val_dl.sampler, 'set_epoch'):
+        if val_dl is not None and hasattr(val_dl.sampler, 'set_epoch'):
             val_dl.sampler.set_epoch(epoch)
 
         # apply droppath
