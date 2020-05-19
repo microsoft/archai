@@ -12,7 +12,7 @@ from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 class DistributedStratifiedSampler(Sampler):
     def __init__(self, dataset:Dataset, world_size:Optional[int]=None,
                  rank:Optional[int]=None, shuffle=True,
-                 val_ratio:Optional[float]=0.0, is_val=False, auto_epoch=True,
+                 val_ratio:Optional[float]=0.0, is_val=False,
                  max_items:Optional[int]=None):
         """Performs stratified sampling of dataset for each replica in the distributed as well as non-distributed setting. If validation split is needed then yet another stratified sampling within replica's split is performed to further obtain the train/validation splits.
 
@@ -20,7 +20,7 @@ class DistributedStratifiedSampler(Sampler):
 
         To perform stratified sampling we need labels. This sampler assumes that labels for each datapoint is available in dataset.targets property which should be array like containing as many values as length of the dataset. This is availalble already for many popular datasets such as cifar and, with newer PyTorch versions, ImageFolder as well as DatasetFolder. If you are using custom dataset, you can usually create this property with one line of code such as `dataset.targets = [yi for _, yi in dataset]`.
 
-        Generally, to do distributed sampling, each replica must shuffle with same seed as all other replicas with every epoch and then chose some subset of dataset for itself. Traditionally, we use epoch number as seed for shuffling for each replica. However, this then requires that training code calls sampler.set_epoch(epoch) to set seed at every epoch. This breaks many training code which doesn't have access to the sampler. However, this is unnecessory as well. Sampler knows when each new iteration is requested, so it can automatically increment epoch and make call to set_epoch by itself. This is what this sampler does. This makes things transparent to users in distributed or non-distributed setting. If you don't want this behaviour then pass auto_epoch=False.
+        Generally, to do distributed sampling, each replica must shuffle with same seed as all other replicas with every epoch and then chose some subset of dataset for itself. Traditionally, we use epoch number as seed for shuffling for each replica. However, this then requires that training code calls sampler.set_epoch(epoch) to set seed at every epoch.
 
         Arguments:
             dataset -- PyTorch dataset like object
@@ -31,7 +31,6 @@ class DistributedStratifiedSampler(Sampler):
             shuffle {bool} -- If True then suffle at every epoch (default: {True})
             val_ratio {float} -- If you want to create validation split then set to > 0 (default: {0.0})
             is_val {bool} -- If True then validation split is returned set to val_ratio otherwise main split is returned (default: {False})
-            auto_epoch {bool} -- if True then automatically count epoch for each new iteration eliminating the need to call set_epoch() in distributed setting (default: {True})
             max_items -- if >= 0 then dataset will be trimmed to these many items for each replica (useful to test on smaller dataset)
         """
 
@@ -60,7 +59,6 @@ class DistributedStratifiedSampler(Sampler):
         self.world_size = world_size
         self.rank = rank
         self.epoch = -1
-        self.auto_epoch = auto_epoch
         self.shuffle = shuffle
         self.data_len = len(self.dataset)
         self.max_items = max_items if max_items is not None and max_items >= 0 else None
@@ -82,11 +80,6 @@ class DistributedStratifiedSampler(Sampler):
 
 
     def __iter__(self):
-        # every time new iterator is requested, we increase epoch count
-        # assuming all replicas do same thing, this avoids need to call set_epoch
-        if self.auto_epoch:
-            self.epoch += 1
-
         # get shuffled indices, dataset is extended if needed to divide equally
         # between replicas
         indices, targets = self._indices()
