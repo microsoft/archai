@@ -6,6 +6,10 @@ common:
     post_train_epochs: 0 # has to be zero otherwise errors
 
 nas:
+  eval:
+    loader:
+      train_batch: 40
+
   search:
     finalizer: 'mi' # options are mutual information based 'mi' or 'random' or 'default'. NOTE: 'default' is not compatible with 'noalpha' trainer as 'default' uses the darts finalizer and needs alphas
     divnas:
