@@ -332,8 +332,8 @@ def main():
     all_edges_list = []
     all_names_list = []
 
-    # edge_list = ['activations_node_0_edge_0']
-    edge_list = ['activations_node_0_edge_0', 'activations_node_0_edge_1']
+    edge_list = ['activations_node_0_edge_0']
+    # edge_list = ['activations_node_0_edge_0', 'activations_node_0_edge_1']
     # edge_list = ['activations_node_1_edge_0', 'activations_node_1_edge_1', 'activations_node_1_edge_2']
     # edge_list = ['activations_node_2_edge_0', 'activations_node_2_edge_1', 'activations_node_2_edge_2', 'activations_node_2_edge_3']
     # edge_list = ['activations_node_3_edge_0', 'activations_node_3_edge_1', 'activations_node_3_edge_2', 'activations_node_3_edge_3', 'activations_node_3_edge_4']
