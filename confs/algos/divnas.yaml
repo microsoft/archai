@@ -8,7 +8,7 @@ common:
 nas:
   eval:
     loader:
-      train_batch: 40
+      train_batch: 68
 
   search:
     finalizer: 'mi' # options are mutual information based 'mi' or 'random' or 'default'. NOTE: 'default' is not compatible with 'noalpha' trainer as 'default' uses the darts finalizer and needs alphas
