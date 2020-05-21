@@ -109,12 +109,11 @@ def get_dataloaders(ds_provider:DatasetProvider,
 
     trainloader, validloader, testloader, train_sampler = None, None, None, None
 
-    max_train_fold = max_batches*train_batch_size if max_batches else None
-    max_test_fold = max_batches*test_batch_size if max_batches else None
-    logger.info({'val_ratio': val_ratio, 'max_batches': max_batches,
-                    'max_train_fold': max_train_fold, 'max_test_fold': max_test_fold})
-
     if trainset:
+        max_train_fold = min(len(trainset), max_batches*train_batch_size) if max_batches else None
+        logger.info({'val_ratio': val_ratio, 'max_train_batches': max_batches,
+                    'max_train_fold': max_train_fold})
+
         # sample validation set from trainset if cv_ratio > 0
         train_sampler, valid_sampler = _get_sampler(trainset, val_ratio=val_ratio,
                                                     shuffle=True, apex=apex,
@@ -143,6 +142,10 @@ def get_dataloaders(ds_provider:DatasetProvider,
                 sampler=valid_sampler, drop_last=False)
         # else validloader is left as None
     if testset:
+        max_test_fold = min(len(testset), max_batches*test_batch_size) if max_batches else None
+        logger.info({'max_test_batches': max_batches,
+                    'max_test_fold': max_test_fold})
+
         test_sampler, test_val_sampler = _get_sampler(testset, val_ratio=None,
                                        shuffle=False, apex=apex,
                                        max_items=max_test_fold)
