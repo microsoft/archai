@@ -9,6 +9,7 @@ from overrides import overrides
 from archai.nas.model_desc import OpDesc
 from archai.nas.operations import Op
 from archai.nas.arch_params import ArchParams
+from archai.common.utils import zip_eq
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only
@@ -107,8 +108,9 @@ class GsOp(Op):
         return False
 
     @overrides
-    def ops(self)->Iterator['Op']: # type: ignore
-        return iter(self._ops)
+    def ops(self)->Iterator[Tuple['Op', float]]: # type: ignore
+        return iter(sorted(zip_eq(self._ops, self._alphas[0]),
+                           key=lambda t:t[1], reverse=True))
 
     def _setup_arch_params(self, arch_params:Optional[ArchParams])->None:
         # do we have shared arch params?

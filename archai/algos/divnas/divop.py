@@ -6,7 +6,7 @@ from torch import nn
 import torch.nn.functional as F
 
 import numpy as np
-import h5py
+import math
 
 from overrides import overrides
 
@@ -14,6 +14,7 @@ from archai.nas.model_desc import OpDesc
 from archai.nas.operations import Op
 from archai.common.common import get_conf
 from archai.nas.arch_params import ArchParams
+from archai.common.utils import zip_eq
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only
@@ -126,8 +127,10 @@ class DivOp(Op):
         return result
 
     @overrides
-    def ops(self)->Iterator['Op']:
-        return iter(self._ops) # type: ignore
+    def ops(self)->Iterator[Tuple['Op', float]]: # type: ignore
+        return iter(sorted(zip_eq(self._ops,
+                                  self._alphas[0] if self._alphas is not None else math.nan),
+                           key=lambda t:t[1], reverse=True))
 
     @overrides
     def can_drop_path(self) -> bool:

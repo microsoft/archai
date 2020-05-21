@@ -16,6 +16,7 @@ from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
 from archai.common.common import logger
+from archai.common.utils import zip_eq
 
 
 class XnasArchTrainer(ArchTrainer):
