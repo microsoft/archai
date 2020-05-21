@@ -129,7 +129,7 @@ class DivOp(Op):
     @overrides
     def ops(self)->Iterator[Tuple['Op', float]]: # type: ignore
         return iter(sorted(zip_eq(self._ops,
-                                  self._alphas[0] if self._alphas is not None else math.nan),
+                                  self._alphas[0] if self._alphas is not None else [math.nan for _ in range(len(self._ops))]),
                            key=lambda t:t[1], reverse=True))
 
     def get_valid_op_desc(self, index:int)->OpDesc:
