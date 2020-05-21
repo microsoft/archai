@@ -137,7 +137,9 @@ class ApexUtils:
         else:
             self.global_rank = 0
 
-        assert self.local_rank < torch.cuda.device_count()
+        assert self.local_rank < torch.cuda.device_count(), \
+            f'local_rank={self.local_rank} but device_count={torch.cuda.device_count()}' \
+            ' Possible cause may be Pytorch is not GPU enabled or you have too few GPUs'
 
         self.gpu_ids = [int(i) for i in conf_gpu_ids.split(',') if i]
         # which GPU to use, we will use only 1 GPU per process to avoid complications with apex

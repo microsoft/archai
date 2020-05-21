@@ -2,6 +2,7 @@ from argparse import ArgumentError
 from typing import Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
 from abc import ABC, abstractmethod
 import copy
+import math
 
 from overrides import overrides, EnforceOverrides
 
@@ -12,6 +13,7 @@ from archai.common import utils, ml_utils
 from archai.nas.model_desc import OpDesc, ConvMacroParams
 from archai.nas.arch_params import ArchParams
 from archai.nas.arch_module import ArchModule
+from archai.common.utils import zip_eq
 
 # type alias
 OpFactoryFn = Callable[[OpDesc, Iterable[nn.Parameter]], 'Op']
@@ -108,9 +110,9 @@ class Op(ArchModule, ABC, EnforceOverrides):
         desc.trainables = copy.deepcopy(self.get_trainables())
         return desc, None # desc, rank (None means op is unranked and cannot be removed)
 
-    def ops(self)->Iterator['Op']:
+    def ops(self)->Iterator[Tuple['Op', float]]: # type: ignore
         """Return contituent ops, if this op is primitive just return self"""
-        yield self
+        yield self, math.nan
 
     # if op should not be dropped during drop path then return False
     def can_drop_path(self)->bool:
