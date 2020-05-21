@@ -16,13 +16,18 @@ from archai.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
 from archai.nas.finalizers import Finalizers
 from archai.algos.divnas.analyse_activations import compute_brute_force_sol
 from archai.algos.divnas.divop import DivOp
+from archai.common.utils import zip_eq
+from archai.common.utils import zip_eq
+from archai.nas.operations import Zero
 
 
 class RandomFinalizers(Finalizers):
     @overrides
     def finalize_node(self, node:nn.ModuleList, max_final_edges:int)->NodeDesc:
         # get total number of ops incoming to this node
-        in_ops = [(edge,op) for edge in node for op in edge._op.ops()]
+        in_ops = [(edge,op) for edge in node \
+                            for op, order in edge._op.ops()
+                            if not isinstance(op, Zero)]
         assert len(in_ops) >= max_final_edges
 
         selected = random.sample(in_ops, max_final_edges)

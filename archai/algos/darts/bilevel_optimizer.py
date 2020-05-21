@@ -56,8 +56,10 @@ class BilevelOptimizer:
     # with weights() but that tanks accuracy below 97.0 for cifar10
     def _model_params(self):
         return self._model.parameters()
+        #return self._model.nonarch_params(recurse=True)
     def _vmodel_params(self):
         return self._vmodel.parameters()
+        #return self._vmodel.nonarch_params(recurse=True)
 
     def _update_vmodel(self, x, y, lr: float, w_optim: Optimizer) -> None:
         """ Update vmodel with w' (main model has w) """

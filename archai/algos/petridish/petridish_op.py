@@ -135,17 +135,20 @@ class PetridishOp(Op):
             s = sum(a * op(xi) for a, op in zip_eq(self._alphas[0][i], edge)) + s
         return self._sf(s)
 
-    @overrides
-    def finalize(self) -> Tuple[OpDesc, Optional[float]]:
-        with torch.no_grad(): # probably this is not needed
+    def _flatten_ops_alphas(self):
             # Create list of (alpha, input_id, op_desc), sort them, select top k.
             # Here op should be nn.Sequence of sg followed by primitive.
             # First for loop gets edge and associated alphas.
             # Second for loop gets op and associated alpha.
-            l = ((a, i, op[1])                                              \
+            return ((a, i, op[1])       # op is nn.Sequence of stop grad and primitive op                                       \
                 for edge_alphas, i, edge in                                 \
                     zip_eq(self._alphas[0], range(self.desc.in_len), self._edges)       \
-                for a, op in zip_eq(edge_alphas, edge)) # op is nn.Sequence
+                for a, op in zip_eq(edge_alphas, edge))
+
+    @overrides
+    def finalize(self) -> Tuple[OpDesc, Optional[float]]:
+        with torch.no_grad(): # probably this is not needed
+            l = self._flatten_ops_alphas()
 
             # select 3 largest ops by alpha
             sel = heapq.nlargest(3, l, key=lambda t: t[0])  # TODO: add config
@@ -171,8 +174,9 @@ class PetridishOp(Op):
         return final_op_desc, None
 
     @overrides
-    def ops(self)->Iterator['Op']: # type: ignore
-        return iter(self._ops)
+    def ops(self)->Iterator[Tuple['Op', float]]: # type: ignore
+        return iter(sorted(((op, a) for a, i, op in self._flatten_ops_alphas()),
+                    key=lambda t:t[1], reverse=True))
 
     def _setup_arch_params(self, arch_params:Optional[ArchParams], in_len:int)->None:
         # do we have shared arch params?
