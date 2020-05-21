@@ -4,7 +4,7 @@ nas:
 
   eval:
     loader:
-      train_batch: 64
+      train_batch: 68
 
   search:
     loader:
@@ -12,4 +12,4 @@ nas:
     model_desc:
       params: {'gs_num_sample': 4}
     trainer:
-      epochs: 1
+      epochs: 50
