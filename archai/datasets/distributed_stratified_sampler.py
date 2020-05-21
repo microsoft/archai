@@ -95,6 +95,12 @@ class DistributedStratifiedSampler(Sampler):
         indices, _ = self._split(indices, targets, self.val_split_len, self.is_val)
         assert len(indices) == self._len
 
+        # when val fold is needed and shuffle is on, for epoch > 0 we can
+        # shuffle only val fold. The seed for other epochs is 0 so that we don't
+        # mix val with other folds
+        if self.shuffle and self.val_ratio > 0.0 and self.epoch > 0:
+            np.random.shuffle(indices)
+
         return iter(indices)
 
     def _replica_fold(self, indices:np.ndarray, targets:np.ndarray)\
@@ -102,8 +108,10 @@ class DistributedStratifiedSampler(Sampler):
 
         if self.world_size > 1:
             replica_fold_idxs = None
+            # we don't need shuffling here as it has already been done in _indices()
             rfolder = StratifiedKFold(n_splits=self.world_size, shuffle=False)
             folds = rfolder.split(indices, targets)
+            # walk to the split for our rank
             for _ in range(self.rank + 1):
                 other_fold_idxs, replica_fold_idxs = next(folds)
 
@@ -117,10 +125,9 @@ class DistributedStratifiedSampler(Sampler):
 
 
     def _indices(self)->Tuple[np.ndarray, np.ndarray]:
-        # deterministically shuffle based on epoch
-        g = torch.Generator()
-        g.manual_seed(self.epoch)
         if self.shuffle:
+            g = torch.Generator()
+            g.manual_seed(self._get_seed())
             indices = torch.randperm(self.data_len, generator=g).numpy()
         else:
             indices = np.arange(self.data_len)
@@ -140,9 +147,15 @@ class DistributedStratifiedSampler(Sampler):
 
     def _limit(self, indices:np.ndarray, targets:np.ndarray, max_items:Optional[int])\
             ->Tuple[np.ndarray, np.ndarray]:
+        # this will limit the items to specified max value
         if max_items is not None:
             return self._split(indices, targets, len(indices)-max_items, False)
         return indices, targets
+
+    def _get_seed(self)->int:
+        # if val fold is needed then only do the first shuffle
+        # otherwise deterministically shuffle on every epoch
+        return self.epoch if self.val_ratio==0.0 else 0
 
     def _split(self, indices:np.ndarray, targets:np.ndarray, test_size:int,
                return_test_split:bool)->Tuple[np.ndarray, np.ndarray]:
@@ -150,7 +163,7 @@ class DistributedStratifiedSampler(Sampler):
             assert isinstance(test_size, int) # othewise next call assumes ratio instead of count
             vfolder = StratifiedShuffleSplit(n_splits=1,
                                              test_size=test_size,
-                                             random_state=self.epoch)
+                                             random_state=self._get_seed())
             vfolder = vfolder.split(indices, targets)
             train_idx, valid_idx = next(vfolder)
 
