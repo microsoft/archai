@@ -11,10 +11,10 @@ nas:
       train_batch: 68
 
   search:
-    finalizer: 'default' # options are mutual information based 'mi' or 'random' or 'default'. NOTE: 'default' is not compatible with 'noalpha' trainer as 'default' uses the darts finalizer and needs alphas
+    finalizer: 'random' # options are mutual information based 'mi' or 'random' or 'default'. NOTE: 'default' is not compatible with 'noalpha' trainer as 'default' uses the darts finalizer and needs alphas
     divnas:
       sigma: 168
-      archtrainer: 'bilevel' # options are 'bilevel', 'noalpha'
+      archtrainer: 'noalpha' # options are 'bilevel', 'noalpha'
     trainer:
       epochs: 1
 
