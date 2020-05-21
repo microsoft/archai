@@ -58,7 +58,7 @@ class DistributedStratifiedSampler(Sampler):
         self.dataset = dataset
         self.world_size = world_size
         self.rank = rank
-        self.epoch = -1
+        self.epoch = 0
         self.shuffle = shuffle
         self.data_len = len(self.dataset)
         self.max_items = max_items if max_items is not None and max_items >= 0 else None
@@ -140,7 +140,7 @@ class DistributedStratifiedSampler(Sampler):
     def _limit(self, indices:np.ndarray, targets:np.ndarray, max_items:Optional[int])\
             ->Tuple[np.ndarray, np.ndarray]:
         if max_items is not None:
-            return self._split(indices, targets, max_items, True)
+            return self._split(indices, targets, len(indices)-max_items, False)
         return indices, targets
 
     def _split(self, indices:np.ndarray, targets:np.ndarray, test_size:int,

@@ -134,6 +134,14 @@
             "args": ["--no-eval", "--algos", "divnas"]
         },
         {
+            "name": "Divnas-Eval-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--no-search", "--full", "--algos", "divnas", "--nas.eval.final_desc_filename", "models/final_model_desc.yaml"]
+        },
+        {
             "name": "Divnas-E2E-Toy",
             "type": "python",
             "request": "launch",
