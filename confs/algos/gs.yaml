@@ -1,8 +1,15 @@
 __include__: "darts.yaml" # just use darts defaults
 
 nas:
+
+  eval:
+    loader:
+      train_batch: 64
+
   search:
     loader:
       val_ratio: 0.0 # don't need val during search
     model_desc:
       params: {'gs_num_sample': 4}
+    trainer:
+      epochs: 1
