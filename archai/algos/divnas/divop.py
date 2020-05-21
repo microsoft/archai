@@ -140,6 +140,16 @@ class DivOp(Op):
         return desc
 
     @overrides
+    def finalize(self) -> Tuple[OpDesc, Optional[float]]:
+        ''' Divnas with default finalizer option needs this override else 
+        the finalizer in base class returns the whole divop '''
+        with torch.no_grad():
+            # select except 'none' op
+            val, i = torch.topk(self._alphas[0][:-1], 1)
+            desc, _ = self._ops[i].finalize()
+            return desc, float(val.item())
+
+    @overrides
     def can_drop_path(self) -> bool:
         return False
 
