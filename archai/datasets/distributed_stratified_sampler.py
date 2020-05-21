@@ -59,6 +59,7 @@ class DistributedStratifiedSampler(Sampler):
         self.world_size = world_size
         self.rank = rank
         self.epoch = 0 # this will be used as seed so cannot be < 0
+
         self.shuffle = shuffle
         self.data_len = len(self.dataset)
         self.max_items = max_items if max_items is not None and max_items >= 0 else None
