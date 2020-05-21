@@ -16,6 +16,6 @@ nas:
       sigma: 168
       archtrainer: 'noalpha' # options are 'bilevel', 'noalpha'
     trainer:
-      epochs: 1
+      epochs: 50
 
 
