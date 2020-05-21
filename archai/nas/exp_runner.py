@@ -97,11 +97,10 @@ class ExperimentRunner(ABC, EnforceOverrides):
     def finalizers(self)->Finalizers:
         conf = get_conf()
         finalizer = conf['nas']['search']['finalizer']
-        
-        if finalizer == 'default':
+
+        if not finalizer or finalizer == 'default':
             return Finalizers()
         elif finalizer == 'random':
             return RandomFinalizers()
         else:
             raise NotImplementedError
-    
