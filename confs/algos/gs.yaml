@@ -4,7 +4,7 @@ nas:
 
   eval:
     loader:
-      train_batch: 96
+      train_batch: 64
 
   search:
     loader:
