@@ -1,3 +1,4 @@
+from archai.nas.operations import Op
 from collections import defaultdict
 from typing import Callable, Iterable, List, Optional, Tuple, Dict
 from abc import ABC, abstractmethod
@@ -13,6 +14,7 @@ from overrides import overrides, EnforceOverrides
 import archai.algos.divnas.analyse_activations as aa
 
 from archai.nas.cell import Cell
+from archai.nas.operations import Zero
 
 
 class Divnas_Cell():
@@ -25,12 +27,26 @@ class Divnas_Cell():
         self._edgeoptype = None
         self._sigma = None
         self._counter = 0
-        self.node_covs:Dict[int, np.array] = {}        
+        self.node_covs:Dict[int, np.array] = {}
+        self.node_num_to_node_op_to_cov_ind:Dict[int, Dict[Op, int]] = {}        
         
     def collect_activations(self, edgeoptype, sigma:float)->None:
         self._collect_activations = True
         self._edgeoptype = edgeoptype
         self._sigma = sigma
+
+        # collect bookkeeping info
+        for i, node in enumerate(self._cell.dag):
+            node_op_to_cov_ind:Dict[Op, int] = {}
+            counter = 0
+            for edge in node:
+                for op, alpha in edge._op.ops():
+                    if isinstance(op, Zero):
+                        continue
+                    node_op_to_cov_ind[op] = counter
+                    counter += 1                        
+            self.node_num_to_node_op_to_cov_ind[i] = node_op_to_cov_ind
+
 
         # go through all edges in the DAG and if they are of edgeoptype
         # type then set them to collect activations
@@ -40,7 +56,7 @@ class Divnas_Cell():
             num_ops = 0
             for edge in node:
                 if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == self._edgeoptype:
-                    num_ops += edge._op.num_valid_div_ops
+                    num_ops += edge._op.num_primitive_ops - 1
                     edge._op.collect_activations = True
                    
             self.node_covs[id(node)] = np.zeros((num_ops, num_ops))
