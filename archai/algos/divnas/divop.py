@@ -36,26 +36,21 @@ class DivOp(Op):
         'none'  # this must be at the end so top1 doesn't choose it
     ]
 
-    # list of primitive ops not allowed in the
-    # diversity calculation
-    # NOTALLOWED = ['skip_connect', 'none']
-    NOTALLOWED = ['none']
+    # def _indices_of_notallowed(self):
+    #     ''' computes indices of notallowed ops in PRIMITIVES '''
+    #     self._not_allowed_indices = []
+    #     for op_name in self.NOTALLOWED:
+    #         self._not_allowed_indices.append(self.PRIMITIVES.index(op_name))
+    #     self._not_allowed_indices = sorted(self._not_allowed_indices, reverse=True)
 
-    def _indices_of_notallowed(self):
-        ''' computes indices of notallowed ops in PRIMITIVES '''
-        self._not_allowed_indices = []
-        for op_name in self.NOTALLOWED:
-            self._not_allowed_indices.append(self.PRIMITIVES.index(op_name))
-        self._not_allowed_indices = sorted(self._not_allowed_indices, reverse=True)
-
-    def _create_mapping_valid_to_orig(self):
-        ''' Creates a list with indices of the valid ops to the original list '''
-        self._valid_to_orig = []
-        for i, prim in enumerate(self.PRIMITIVES):
-            if prim in self.NOTALLOWED:
-                continue
-            else:
-                self._valid_to_orig.append(i)
+    # def _create_mapping_valid_to_orig(self):
+    #     ''' Creates a list with indices of the valid ops to the original list '''
+    #     self._valid_to_orig = []
+    #     for i, prim in enumerate(self.PRIMITIVES):
+    #         if prim in self.NOTALLOWED:
+    #             continue
+    #         else:
+    #             self._valid_to_orig.append(i)
 
     def __init__(self, op_desc:OpDesc, arch_params:Optional[ArchParams],
                  affine:bool):
@@ -103,8 +98,8 @@ class DivOp(Op):
         return self._batch_activs
 
     @property
-    def num_valid_div_ops(self)->int:
-        return len(self.PRIMITIVES) - len(self.NOTALLOWED)
+    def num_primitive_ops(self)->int:
+        return len(self.PRIMITIVES)
 
     @overrides
     def forward(self, x):

@@ -19,10 +19,12 @@ from archai.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
 from archai.nas.finalizers import Finalizers
 from archai.algos.divnas.analyse_activations import compute_brute_force_sol
 from archai.algos.divnas.divop import DivOp
+from archai.nas.operations import Zero
+
 from .divnas_cell import Divnas_Cell
 
 
-class DivnasFinalizers(Finalizers):
+class DivnasRankFinalizers(Finalizers):
 
     @overrides
     def finalize_model(self, model: Model, to_cpu=True, restore_device=True) -> ModelDesc:
@@ -117,14 +119,34 @@ class DivnasFinalizers(Finalizers):
                             if not isinstance(op, Zero)]
         assert len(in_ops) >= max_final_edges
 
-        # run brute force set selection algorithm
-        max_subset, max_mi = compute_brute_force_sol(cov, max_final_edges)
+        # order all the ops by alpha
+        in_ops_sorted = sorted(in_ops, key=lambda in_op:in_op[2], reverse=True)
 
-        # note that the elements of max_subset are indices into
-        # in_ops 
+        # keep under consideration top half of the ops
+        num_to_keep = max(max_final_edges, len(in_ops_sorted)//2)
+        top_ops = in_ops_sorted[:num_to_keep]
+
+        # get the covariance submatrix of the top ops only
+        cov_inds = []
+        for edge, op, alpha in top_ops:
+            ind = self._divnas_cells[cell].node_num_to_node_op_to_cov_ind[node_id][op]
+            cov_inds.append(ind)
+
+        cov_top_ops = cov[np.ix_(cov_inds, cov_inds)]
+
+        assert len(cov_inds) == len(top_ops)
+        assert len(top_ops) >= max_final_edges
+        assert cov_top_ops.shape[0] == cov_top_ops.shape[1]
+        assert len(cov_top_ops.shape) == 2
+
+        # run brute force set selection algorithm
+        # only on the top ops
+        max_subset, max_mi = compute_brute_force_sol(cov_top_ops, max_final_edges)
+
+        # note that elements of max_subset are indices into top_ops only
         selected_edges = []
         for ind in max_subset:
-            edge, op, alpha = in_ops[ind]
+            edge, op, alpha = top_ops[ind]
             op_desc, _ = op.finalize()
             new_edge = EdgeDesc(op_desc, edge.input_ids)
             logger.info(f'selected edge: {edge}, op: {op_desc.name}')
@@ -132,9 +154,9 @@ class DivnasFinalizers(Finalizers):
 
         # save diagnostic information to disk
         expdir = get_expdir()
-        sns.heatmap(cov, annot=True, fmt='.1g', cmap='coolwarm')
+        sns.heatmap(cov_top_ops, annot=True, fmt='.1g', cmap='coolwarm')
         savename = os.path.join(
-            expdir, f'cell_{cell.}_node_{node_id}_cov.png')
+            expdir, f'cell_{cell_id}_node_{node_id}_cov.png')
         plt.savefig(savename)
 
         logger.info('')
