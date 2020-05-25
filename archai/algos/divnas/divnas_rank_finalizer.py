@@ -114,7 +114,7 @@ class DivnasRankFinalizers(Finalizers):
         assert cov.shape[0] >= max_final_edges
 
         # get the order and alpha of all ops other than 'none'
-        in_ops = [(edge,op,alpha) for edge in node \
+        in_ops = [(edge,op,alpha,i) for i, edge in enumerate(node) \
                             for op, alpha in edge._op.ops()
                             if not isinstance(op, Zero)]
         assert len(in_ops) >= max_final_edges
@@ -128,7 +128,7 @@ class DivnasRankFinalizers(Finalizers):
 
         # get the covariance submatrix of the top ops only
         cov_inds = []
-        for edge, op, alpha in top_ops:
+        for edge, op, alpha, edge_num in top_ops:
             ind = self._divnas_cells[cell].node_num_to_node_op_to_cov_ind[node_id][op]
             cov_inds.append(ind)
 
@@ -146,17 +146,17 @@ class DivnasRankFinalizers(Finalizers):
         # note that elements of max_subset are indices into top_ops only
         selected_edges = []
         for ind in max_subset:
-            edge, op, alpha = top_ops[ind]
+            edge, op, alpha, edge_num = top_ops[ind]
             op_desc, _ = op.finalize()
             new_edge = EdgeDesc(op_desc, edge.input_ids)
-            logger.info(f'selected edge: {edge}, op: {op_desc.name}')
+            logger.info(f'selected edge: {edge_num}, op: {op_desc.name}')
             selected_edges.append(new_edge)
 
         # save diagnostic information to disk
         expdir = get_expdir()
         sns.heatmap(cov_top_ops, annot=True, fmt='.1g', cmap='coolwarm')
         savename = os.path.join(
-            expdir, f'cell_{cell_id}_node_{node_id}_cov.png')
+            expdir, f'cell_{cell.desc.id}_node_{node_id}_cov.png')
         plt.savefig(savename)
 
         logger.info('')
