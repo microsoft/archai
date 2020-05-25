@@ -82,8 +82,8 @@ class DivOp(Op):
         self._collect_activations = False
         self._forward_counter = 0
         self._batch_activs = None
-        self._indices_of_notallowed()
-        self._create_mapping_valid_to_orig()
+        #self._indices_of_notallowed()
+        #self._create_mapping_valid_to_orig()
 
     @property
     def collect_activations(self)->bool:
@@ -108,11 +108,11 @@ class DivOp(Op):
         if self._collect_activations:
             self._forward_counter += 1
             activs = [op(x) for op in self._ops]
+            # delete the activation for none type
+            # as we don't consider it
+            activs = activs[:-1]
             self._batch_activs = [t.cpu().detach().numpy() for t in activs]
-            # delete the activations that are not allowed
-            for index in self._not_allowed_indices:
-                del self._batch_activs[index]
-
+            
         if self._alphas:
             asm = F.softmax(self._alphas[0], dim=0)
             result = sum(w * op(x) for w, op in zip(asm, self._ops))
@@ -127,12 +127,12 @@ class DivOp(Op):
                                   self._alphas[0] if self._alphas is not None else [math.nan for _ in range(len(self._ops))]),
                            key=lambda t:t[1], reverse=True))
 
-    def get_valid_op_desc(self, index:int)->OpDesc:
-        ''' index: index in the valid index list '''
-        assert index <= self.num_valid_div_ops
-        orig_index = self._valid_to_orig[index]        
-        desc, _ = self._ops[orig_index].finalize()
-        return desc
+    # def get_valid_op_desc(self, index:int)->OpDesc:
+    #     ''' index: index in the valid index list '''
+    #     assert index <= self.num_valid_div_ops
+    #     orig_index = self._valid_to_orig[index]        
+    #     desc, _ = self._ops[orig_index].finalize()
+    #     return desc
 
     @overrides
     def finalize(self) -> Tuple[OpDesc, Optional[float]]:
