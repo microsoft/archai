@@ -50,8 +50,7 @@ class Divnas_Cell():
 
         # go through all edges in the DAG and if they are of edgeoptype
         # type then set them to collect activations
-        for i, node in enumerate(self._cell.dag):
-            
+        for i, node in enumerate(self._cell.dag):            
             # initialize the covariance matrix for this node
             num_ops = 0
             for edge in node:
@@ -66,7 +65,7 @@ class Divnas_Cell():
         assert self._collect_activations
 
         for _, node in enumerate(self._cell.dag):
-            # TODO: conver to explicit ordering
+            # TODO: convert to explicit ordering
             all_activs = []
             for j, edge in enumerate(node):
                 if type(edge._op) == self._edgeoptype:

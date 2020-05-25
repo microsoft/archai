@@ -17,6 +17,7 @@ from archai.nas.model import Model
 from archai.nas.cell import Cell
 from archai.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
 from archai.nas.finalizers import Finalizers
+from archai.nas.operations import Zero
 from archai.algos.divnas.analyse_activations import compute_brute_force_sol
 from archai.algos.divnas.divop import DivOp
 from .divnas_cell import Divnas_Cell
@@ -112,7 +113,7 @@ class DivnasFinalizers(Finalizers):
         assert cov.shape[0] >= max_final_edges
 
         # get the order and alpha of all ops other than 'none'
-        in_ops = [(edge,op,alpha) for edge in node \
+        in_ops = [(edge,op,alpha,i) for i, edge in enumerate(node) \
                             for op, alpha in edge._op.ops()
                             if not isinstance(op, Zero)]
         assert len(in_ops) >= max_final_edges
@@ -124,17 +125,17 @@ class DivnasFinalizers(Finalizers):
         # in_ops 
         selected_edges = []
         for ind in max_subset:
-            edge, op, alpha = in_ops[ind]
+            edge, op, alpha, edge_num = in_ops[ind]
             op_desc, _ = op.finalize()
             new_edge = EdgeDesc(op_desc, edge.input_ids)
-            logger.info(f'selected edge: {edge}, op: {op_desc.name}')
+            logger.info(f'selected edge: {edge_num}, op: {op_desc.name}')
             selected_edges.append(new_edge)
 
         # save diagnostic information to disk
         expdir = get_expdir()
         sns.heatmap(cov, annot=True, fmt='.1g', cmap='coolwarm')
         savename = os.path.join(
-            expdir, f'cell_{cell.}_node_{node_id}_cov.png')
+            expdir, f'cell_{cell.desc.id}_node_{node_id}_cov.png')
         plt.savefig(savename)
 
         logger.info('')
