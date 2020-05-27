@@ -6,6 +6,7 @@ import pathlib
 from collections import OrderedDict
 import yaml
 from inspect import getsourcefile
+import re
 
 from runstats import Statistics
 
@@ -22,26 +23,15 @@ from archai.common.ordereddict_logger import OrderedDictLogger
 import re
 
 
-"""
-Temp workaround for yaml construction recursion error:
-Search and replace following with blank:
-
-                  get: !!python/object/apply:builtins.getattr
-                  - *id001
-                  - get
-"""
 
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
     parser.add_argument('--results-dir', '-d', type=str,
                         #default=r'D:\GitHubSrc\archaiphilly\phillytools\darts_baseline_20200411',
-                        default=r'D:\GitHubSrc\archaiphilly\phillytools\c10_auxs_droppaths_b96',
+                        default=r'D:\GitHubSrc\archaiphilly\phillytools\didarts_0.25xlr_eu2',
                         help='folder with experiment results from pt')
     parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
                         help='folder to output reports')
-    parser.add_argument('--collate', '-c', type=lambda x:x.lower()=='true',
-                        nargs='?', const=True, default=False,
-                        help='Collate epochs metrics from jobs, useful if jobs are for different seeds')
     args, extra_args = parser.parse_known_args()
 
     # root dir where all results are stored
@@ -49,7 +39,7 @@ def main():
     print(f'results_dir: {results_dir}')
 
     # extract experiment name which is top level directory
-    exp_name = results_dir.stem
+    exp_name = results_dir.parts[-1]
 
     # create results dir for experiment
     out_dir = utils.full_path(os.path.join(args.out_dir, exp_name))
@@ -62,6 +52,8 @@ def main():
     for job_dir in results_dir.iterdir():
         job_count += 1
         for subdir in job_dir.iterdir():
+            if not subdir.is_dir():
+                continue
             # currently we expect that each job was ExperimentRunner job which should have
             # _search or _eval folders
             if subdir.stem.endswith('_search'):
@@ -69,52 +61,96 @@ def main():
             elif subdir.stem.endswith('_eval'):
                 sub_job = 'eval'
             else:
-                raise RuntimeError('Sub directory "{subdir}" in job "{}" must '
+                raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
                                    'end with either _search or _eval which '
                                    'should be the case if ExperimentRunner was used.')
 
             logs_filepath = os.path.join(str(subdir), 'logs.yaml')
             if os.path.isfile(logs_filepath):
+                fix_yaml(logs_filepath)
                 with open(logs_filepath, 'r') as f:
                     key = job_dir.name + ':' + sub_job
                     logs[key] = yaml.load(f, Loader=yaml.Loader)
 
     # create list of epoch nodes having same path in the logs
-    collated_logs = collect_epoch_nodes(logs, args.collate)
+    grouped_logs = group_multi_runs(logs)
+    collated_grouped_logs = collect_epoch_nodes(grouped_logs)
     summary_text, details_text = '', ''
 
-    # for each path for epochs nodes, compute stats
-    for node_path, logs_epochs_nodes in collated_logs.items():
-        collated_epoch_stats = get_epoch_stats(node_path, logs_epochs_nodes)
-        summary_text += get_summary_text(out_dir, node_path, collated_epoch_stats)
-        details_text += get_details_text(out_dir, node_path, collated_epoch_stats)
+    for log_key, grouped_logs in collated_grouped_logs.items():
+        # for each path for epochs nodes, compute stats
+        for node_path, logs_epochs_nodes in grouped_logs.items():
+            collated_epoch_stats = get_epoch_stats(node_path, logs_epochs_nodes)
+            summary_text += get_summary_text(log_key, out_dir, node_path, collated_epoch_stats, len(logs_epochs_nodes))
+            details_text += get_details_text(log_key, out_dir, node_path, collated_epoch_stats, len(logs_epochs_nodes))
 
     write_report('summary.md', **vars())
     write_report('details.md', **vars())
 
-def epoch_nodes(node:OrderedDict, path=[])->Iterator[Tuple[List[str], OrderedDictLogger]]:
+def epoch_nodes(node:OrderedDict, path=[])->Iterator[Tuple[List[str], OrderedDict]]:
     """Search nodes recursively for nodes named 'epochs' and return them along with their paths"""
     for k, v in node.items():
         if k == 'epochs' and isinstance(v, OrderedDict) and len(v) and '0' in v:
             yield path, v
-        elif isinstance(v, OrderedDict):
+        elif isinstance(v, OrderedDict): # make recursive call
             for p, en in epoch_nodes(v, path=path+[k]):
                 yield p, en
 
-def collect_epoch_nodes(logs:Dict[str, OrderedDict], collate:bool)->Dict[str, List[OrderedDict]]:
+def fix_yaml(filepath:str):
+    # fix yaml construction recursion error because of bad lines
+
+    yaml = pathlib.Path(filepath).read_text()
+
+    bad_lines = [
+            r'get: !!python/object/apply:builtins.getattr',
+            r'- *id001',
+            r' - get'
+        ]
+    # form pattern by joining str literals after escape by whitespace /s
+    # Note: don't use re.escape as it cannot be used in re.sub
+    pattern = r'\s+'.join([re.escape(l) for l in bad_lines])
+    fixed_yaml = re.sub(pattern, '', yaml)
+
+    if yaml != fixed_yaml:
+        backup = pathlib.Path(filepath+'.original.yaml')
+        assert not backup.exists(), f'Backup file {backup} should not exist'
+        backup.write_text(yaml)
+        pathlib.Path(filepath).write_text(fixed_yaml)
+        print(f'Yaml at {filepath} was fixed')
+
+def remove_seed_part(log_key:str)->str:
+    # regex identifies seed123, seed123.4, seed_123, seed_123.4
+    # pattern is 'seed' followed by optional '_' followed by int or float number
+    pat = r'seed\_?([0-9]*[.])?[0-9]+'
+    return re.sub(pat, '', log_key)
+
+def group_multi_runs(logs:Dict[str, OrderedDict])->Dict[str, List[OrderedDict]]:
+    result:Dict[str, List[OrderedDict]] = {}
+    for log_key, log in logs.items():
+        seed_less_key = remove_seed_part(log_key)
+        if seed_less_key in result:
+            result[seed_less_key].append(log)
+        else:
+            result[seed_less_key] = [log]
+    return result
+
+
+def collect_epoch_nodes(grouped_logs:Dict[str, List[OrderedDict]])->Dict[str, Dict[str, List[OrderedDict]]]:
     """Make list of epoch nodes in same path in each of the logs if collate=True else
        its just list of epoch nodes with jobdir and path as the key."""
-    collated = OrderedDict()
-    for log_key, log in logs.items():
-        for path, epoch_node in epoch_nodes(log):
-            # for each path get the list where we can put epoch node
-            path_key = '/'.join(path)
-            if not collate:
-                path_key += ' : ' + log_key
-            if not path_key in collated:
-                collated[path_key] = []
-            v = collated[path_key]
-            v.append(epoch_node)
+    collated:Dict[str, Dict[str, List[OrderedDict]]] = {}
+
+    for log_key, logs in grouped_logs.items():
+        collated_logs:Dict[str, List[OrderedDict]] = {}
+        for log in logs:
+            for path, epoch_node in epoch_nodes(log):
+                # for each path get the list where we can put epoch node
+                path_key = '/'.join(path)
+                if not path_key in collated_logs:
+                    collated_logs[path_key] = []
+                v = collated_logs[path_key]
+                v.append(epoch_node)
+        collated[log_key] = collated_logs
     return collated
 
 class EpochStats:
@@ -126,9 +162,9 @@ class EpochStats:
 
     def update(self, epoch_node:OrderedDict)->None:
         self.start_lr.push(epoch_node['start_lr'])
-        self.end_lr.push(epoch_node['train']['end_lr'])
 
         if 'train' in epoch_node:
+            self.end_lr.push(epoch_node['train']['end_lr'])
             self.train_fold.update(epoch_node['train'])
         if 'val' in epoch_node:
             self.val_fold.update(epoch_node['val'])
@@ -153,7 +189,7 @@ def stat2str(stat:Statistics)->str:
         return '-'
     s = f'{stat.mean():.4f}'
     if len(stat)>1:
-        s += f'<sup> ± {stat.stddev():.4f}</sup>'
+        s += f'<sup> &pm; {stat.stddev():.4f}</sup>'
     return s
 
 def get_epoch_stats(node_path:str, logs_epochs_nodes:List[OrderedDict])->List[EpochStats]:
@@ -161,7 +197,7 @@ def get_epoch_stats(node_path:str, logs_epochs_nodes:List[OrderedDict])->List[Ep
 
     for epochs_node in logs_epochs_nodes:
         for epoch_num, epoch_node in epochs_node.items():
-            if not str.isnumeric(epoch_num):
+            if not str.isnumeric(epoch_num): # each epoch key must be numeric
                 continue
             epoch_num = int(epoch_num)
             if epoch_num >= len(epoch_stats):
@@ -175,14 +211,20 @@ def get_valid_filename(s):
     s = str(s).strip().replace(' ', '_')
     return re.sub(r'(?u)[^-\w.]', '', s)
 
-def get_summary_text(out_dir:str, node_path:str, epoch_stats:List[EpochStats])->str:
+def get_summary_text(log_key:str, out_dir:str, node_path:str, epoch_stats:List[EpochStats], seed_runs:int)->str:
     lines = ['','']
 
-    lines.append(f'### Summary: {node_path}')
+    lines.append(f'## Run: {log_key}\n')
+    lines.append(f'### Metric Type: {node_path}\n')
 
+    lines.append(f'Number of epochs: {len(epoch_stats)}\n')
+    lines.append(f'Number of seeds: {seed_runs}\n')
+
+    lines.append('\n')
     plot_filename = get_valid_filename(node_path)+'.png'
     plot_filepath = os.path.join(out_dir, plot_filename)
     plot_epochs(epoch_stats, plot_filepath)
+    lines.append('')
 
     train_duration = Statistics()
     for epoch_stat in epoch_stats:
@@ -195,15 +237,21 @@ def get_summary_text(out_dir:str, node_path:str, epoch_stats:List[EpochStats])->
     milestones = [35, 200, 600, 1500]
     for milestone in milestones:
         if len(epoch_stats) >= milestone:
-            lines.append(f'{stat2str(epoch_stats[milestone-1].val_fold.top1)} val top1 @ {milestone} epochs')
+            lines.append(f'{stat2str(epoch_stats[milestone-1].val_fold.top1)} val top1 @ {milestone} epochs\n')
+    # last epoch
     if not len(epoch_stats) in milestones:
-        lines.append(f'{stat2str(epoch_stats[-1].val_fold.top1)} val top1 @ {len(epoch_stats)} epochs')
+        lines.append(f'{stat2str(epoch_stats[-1].val_fold.top1)} val top1 @ {len(epoch_stats)} epochs\n')
 
     return '\n'.join(lines)
 
-def get_details_text(out_dir:str, node_path:str, epoch_stats:List[EpochStats])->str:
+def get_details_text(log_key:str, out_dir:str, node_path:str, epoch_stats:List[EpochStats], seed_runs:int)->str:
     lines = ['','']
-    lines.append(f'### Data: {node_path}')
+
+    lines.append(f'## Run: {log_key}\n')
+    lines.append(f'### Metric Type: {node_path}\n')
+
+    lines.append(f'Number of seeds: {seed_runs}\n')
+
 
     lines.append('|Epoch   |Val Top1   |Val Top5   |Train  Top1 |Train Top5   |Train Duration   |Val Duration   |Train Step Time     |Val Step Time   |StartLR   |EndLR   |')
     lines.append('|---|---|---|---|---|---|---|---|---|---|---|')
@@ -299,10 +347,11 @@ def plot_epochs(epoch_stats:List[EpochStats], filepath:str):
 
 
 def write_report(template_filename:str, **kwargs)->None:
-    script_dir = os.path.dirname(os.path.abspath(getsourcefile(lambda:0)))
+    source_file = getsourcefile(lambda:0)
+    script_dir = os.path.dirname(os.path.abspath(source_file))
     template = pathlib.Path(os.path.join(script_dir, template_filename)).read_text()
     report = template.format(**kwargs)
-    with open(os.path.join(kwargs['out_dir'], template_filename), 'w') as f:
+    with open(os.path.join(kwargs['out_dir'], template_filename), 'w', encoding='utf-8') as f:
         f.write(report)
 
 if __name__ == '__main__':
