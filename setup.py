@@ -11,7 +11,7 @@ install_requires=[
     'hyperopt', #  @ git+https://github.com/hyperopt/hyperopt.git
     'tensorwatch>=0.9.1', 'tensorboard',
     'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib', 'psutil',
-    'requests', 'seaborn',
+    'requests', 'seaborn', 'h5py',
     'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt'
 ]
 
