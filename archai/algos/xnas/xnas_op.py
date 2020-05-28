@@ -1,4 +1,3 @@
-from archai.common.utils import AverageMeter
 from collections import defaultdict
 from typing import Iterable, Optional, Tuple, List
 
@@ -12,6 +11,7 @@ from archai.nas.model_desc import OpDesc
 from archai.nas.operations import Op
 from archai.nas.arch_params import ArchParams
 from archai.common.utils import zip_eq
+from archai.common.utils import AverageMeter
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only
@@ -62,7 +62,7 @@ class XnasOp(Op):
         grad_flat = torch.flatten(self._avg_grad_meter.avg)
         rewards = torch.tensor([-torch.dot(grad_flat, torch.flatten(activ)) for activ in self._activs])
         exprewards = torch.exp(eta * rewards).cuda()
-        # TODO: Will this remain registered?
+        # NOTE: Will this remain registered?
         self._alphas[0] = torch.mul(self._alphas[0], exprewards)
         # TODO: Implement the weak learner eviction
 
@@ -102,9 +102,9 @@ class XnasOp(Op):
         # do we have shared arch params?
         if arch_params is None:
             # create our own arch params
-            # TODO: dey: why requires_grad = False?
-            new_p = nn.Parameter(  # TODO: use better init than uniform random?
-                1.0e-3*torch.randn(len(XnasOp.PRIMITIVES)), requires_grad=False)
+            # the alphas are updated by exponentiated gradient descent
+            # and not by gradients from backprop. so we don't require grad. 
+            new_p = nn.Parameter(torch.ones(len(XnasOp.PRIMITIVES)), requires_grad=False)
             self.create_arch_params([('alphas', new_p)])
         else:
             assert arch_params.has_kind('alphas')
