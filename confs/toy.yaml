@@ -2,6 +2,7 @@
 
 common:
   detect_anomaly: False # if True, PyTorch code will run 6X slower
+  resume: False
 
 nas:
   search:
