@@ -78,10 +78,12 @@ class GsOp(Op):
         greater_than_0 = samples_summed > 0
         children = []
         children_ins = []
+        selected_alphas = []
 
         for i in range(greater_than_0.size()[0]):
             if greater_than_0[i]:
                 children.append(self._ops[i].finalize()[0])
+                selected_alphas.append(self._alphas[0][i].item())
                 # all the ops will operate on the single node input
                 children_ins.append(0)
 
@@ -101,7 +103,7 @@ class GsOp(Op):
                                 children_ins = children_ins
                                )
 
-        return final_op_desc, None
+        return final_op_desc, max(selected_alphas)
 
     @overrides
     def can_drop_path(self) -> bool:
