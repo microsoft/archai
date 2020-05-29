@@ -4,7 +4,7 @@ __include__: "darts.yaml" # defaults are loaded from this file
 nas:
     search:
         loader:
-            train_batch: 68
+            train_batch: 64
         trainer:
             grad_clip: 1.0
             epochs: 50
