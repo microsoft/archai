@@ -1,5 +1,6 @@
 from collections import defaultdict
 from typing import Iterable, Optional, Tuple, List
+import copy
 
 import torch
 from torch import nn
@@ -49,17 +50,17 @@ class XnasOp(Op):
 
         # for getting gradients to non-leaf node
         self._is_first_call = True
-        self._avg_grad_meter = AverageMeter()
+        self._grad = None
 
         # we do this at the end so that we can capture all arch params registered by
         # any previous child modules
         self._setup_arch_params(arch_params)
 
-    def get_avg_grad(self)->torch.Tensor:
-        return self._avg_grad_meter.avg
-
     def update_alphas(self, eta:float):
-        grad_flat = torch.flatten(self._avg_grad_meter.avg)
+        # if self._grad.shape != self._activs[0].shape:
+        #     logger.info('not updating alphas since grad and activs dont match in shape. probably due to last batch has different size')
+        #     return
+        grad_flat = torch.flatten(self._grad)        
         rewards = torch.tensor([-torch.dot(grad_flat, torch.flatten(activ)) for activ in self._activs])
         exprewards = torch.exp(eta * rewards).cuda()
         # NOTE: Will this remain registered?
@@ -68,8 +69,7 @@ class XnasOp(Op):
 
     def _save_grad(self):
         def hook(grad):
-            # TODO: Note that we have to reduce the minibatch to 1 finally
-            self._avg_grad_meter.update(grad, n=1)
+            self._grad = copy.deepcopy(grad)
         return hook
 
     @overrides
@@ -79,10 +79,12 @@ class XnasOp(Op):
         denom = sum(self._alphas[0])
         self.pt = torch.div(numer, denom)
 
-        # register gradient hook if first time
-        if self._is_first_call:
+        # register hook to save gradients 
+        # NOTE: it has to be done every forward call
+        # otherwise the hook doesn't remain registered
+        # for subsequent loss.backward calls
+        if self.training:
             self.pt.register_hook(self._save_grad())
-            self._is_first_call = False
 
         return self.pt
 
