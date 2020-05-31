@@ -36,22 +36,6 @@ class DivOp(Op):
         'none'  # this must be at the end so top1 doesn't choose it
     ]
 
-    # def _indices_of_notallowed(self):
-    #     ''' computes indices of notallowed ops in PRIMITIVES '''
-    #     self._not_allowed_indices = []
-    #     for op_name in self.NOTALLOWED:
-    #         self._not_allowed_indices.append(self.PRIMITIVES.index(op_name))
-    #     self._not_allowed_indices = sorted(self._not_allowed_indices, reverse=True)
-
-    # def _create_mapping_valid_to_orig(self):
-    #     ''' Creates a list with indices of the valid ops to the original list '''
-    #     self._valid_to_orig = []
-    #     for i, prim in enumerate(self.PRIMITIVES):
-    #         if prim in self.NOTALLOWED:
-    #             continue
-    #         else:
-    #             self._valid_to_orig.append(i)
-
     def __init__(self, op_desc:OpDesc, arch_params:Optional[ArchParams],
                  affine:bool):
         super().__init__()
@@ -126,13 +110,6 @@ class DivOp(Op):
         return iter(sorted(zip_eq(self._ops,
                                   self._alphas[0] if self._alphas is not None else [math.nan for _ in range(len(self._ops))]),
                            key=lambda t:t[1], reverse=True))
-
-    # def get_valid_op_desc(self, index:int)->OpDesc:
-    #     ''' index: index in the valid index list '''
-    #     assert index <= self.num_valid_div_ops
-    #     orig_index = self._valid_to_orig[index]        
-    #     desc, _ = self._ops[orig_index].finalize()
-    #     return desc
 
     @overrides
     def finalize(self) -> Tuple[OpDesc, Optional[float]]:

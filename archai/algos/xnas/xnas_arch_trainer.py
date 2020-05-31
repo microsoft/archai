@@ -21,20 +21,20 @@ from archai.common.utils import zip_eq
 
 class XnasArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: Model,
-                 checkpoint:Optional[CheckPoint]) -> None:
+                 checkpoint: Optional[CheckPoint]) -> None:
         super().__init__(conf_train, model, checkpoint)
 
         self._conf_w_lossfn = conf_train['lossfn']
         self._conf_alpha_optim = conf_train['alpha_optimizer']
 
     @overrides
-    def create_optimizer(self, conf_optim:Config, params) -> Optimizer:
+    def create_optimizer(self, conf_optim: Config, params) -> Optimizer:
         # return optim that only operates on w, not alphas
         return ml_utils.create_optimizer(conf_optim,
                                          self.model.nonarch_params(recurse=True))
 
     @overrides
-    def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
+    def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
         super().pre_fit(train_dl, val_dl)
 
         # optimizers, schedulers needs to be recreated for each fit call
@@ -42,24 +42,25 @@ class XnasArchTrainer(ArchTrainer):
         assert val_dl is not None
         lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
 
-        self._xnas_optim = _XnasOptimizer(self._conf_alpha_optim, self.model, lossfn)
+        self._xnas_optim = _XnasOptimizer(
+            self._conf_alpha_optim, self.model, lossfn)
 
     @overrides
-    def post_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+    def post_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
         # delete state we created in pre_fit
         del self._xnas_optim
         return super().post_fit(train_dl, val_dl)
 
     @overrides
-    def pre_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
+    def pre_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
         super().pre_epoch(train_dl, val_dl)
 
         # prep val set to train alphas
         self._valid_iter = iter(val_dl)  # type: ignore
 
     @overrides
-    def post_epoch(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
-        del self._valid_iter # clean up
+    def post_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
+        del self._valid_iter  # clean up
         super().post_epoch(train_dl, val_dl)
 
     @overrides
@@ -74,18 +75,20 @@ class XnasArchTrainer(ArchTrainer):
             self._valid_iter = iter(self._val_dl)
             x_val, y_val = next(self._valid_iter)
 
-        x_val, y_val = x_val.to(self.get_device()), y_val.to(self.get_device(), non_blocking=True)
+        x_val, y_val = x_val.to(self.get_device()), y_val.to(
+            self.get_device(), non_blocking=True)
 
         # update alphas
-        self._xnas_optim.step(x, y, x_val, y_val)
+        self._xnas_optim.step(x, y, x_val, y_val,
+                              self.epoch(), self._epochs, self._grad_clip)
 
     @overrides
-    def update_checkpoint(self, checkpoint:CheckPoint)->None:
+    def update_checkpoint(self, checkpoint: CheckPoint) -> None:
         super().update_checkpoint(checkpoint)
 
 
 class _XnasOptimizer:
-    def __init__(self, conf_alpha_optim:Config,
+    def __init__(self, conf_alpha_optim: Config,
                  model: Model, lossfn: _Loss) -> None:
         self._alpha_lr = conf_alpha_optim['lr']
 
@@ -94,10 +97,10 @@ class _XnasOptimizer:
 
     @staticmethod
     def _get_loss(model, lossfn, x, y):
-        logits, *_ = model(x) # might also return aux tower logits
+        logits, *_ = model(x)  # might also return aux tower logits
         return lossfn(logits, y)
 
-    def step(self, x_train: Tensor, y_train: Tensor, x_valid: Tensor, y_valid: Tensor) -> None:
+    def step(self, x_train: Tensor, y_train: Tensor, x_valid: Tensor, y_valid: Tensor, epoch: int, epochs: int, grad_clip: float) -> None:
         # put model in train mode just to be safe
         self._model.train()
 
@@ -109,14 +112,5 @@ class _XnasOptimizer:
 
         # for each op in the model update alphas
         for op in self._model.ops():
-            op.update_alphas(self._alpha_lr)
-
-
-
-
-
-
-
-
-
+            op.update_alphas(self._alpha_lr, epoch, epochs, grad_clip)
 
