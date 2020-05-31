@@ -224,6 +224,9 @@ class Trainer(EnforceOverrides):
 
         self._start_epoch = last_epoch + 1
 
+    def epoch(self)->int:
+        return self._metrics.epochs()
+
     def update_checkpoint(self, checkpoint:CheckPoint)->None:
         # save all necessory state
         state = {

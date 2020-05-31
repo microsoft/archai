@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import Iterable, Optional, Tuple, List
 import copy
+import math as ma
 
 import torch
 from torch import nn
@@ -12,7 +13,8 @@ from archai.nas.model_desc import OpDesc
 from archai.nas.operations import Op
 from archai.nas.arch_params import ArchParams
 from archai.common.utils import zip_eq
-from archai.common.utils import AverageMeter
+from archai.common.common import get_conf
+
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only
@@ -40,7 +42,7 @@ class XnasOp(Op):
 
         # assume last PRIMITIVE is 'none'
         assert XnasOp.PRIMITIVES[-1] == 'none'
-
+        
         self._ops = nn.ModuleList()
         for primitive in XnasOp.PRIMITIVES:
             op = Op.create(
@@ -56,16 +58,22 @@ class XnasOp(Op):
         # any previous child modules
         self._setup_arch_params(arch_params)
 
-    def update_alphas(self, eta:float):
-        # if self._grad.shape != self._activs[0].shape:
-        #     logger.info('not updating alphas since grad and activs dont match in shape. probably due to last batch has different size')
-        #     return
+    def update_alphas(self, eta:float, epoch:int, epochs:int, grad_clip:float):       
         grad_flat = torch.flatten(self._grad)        
         rewards = torch.tensor([-torch.dot(grad_flat, torch.flatten(activ)) for activ in self._activs])
         exprewards = torch.exp(eta * rewards).cuda()
         # NOTE: Will this remain registered?
         self._alphas[0] = torch.mul(self._alphas[0], exprewards)
-        # TODO: Implement the weak learner eviction
+
+        # weak learner eviction
+        theta = max(self._alphas[0]) * ma.exp(-2 * eta * grad_clip * (epochs - epoch))
+        assert len(self._ops) == self._alphas[0].shape[0]
+        to_keep_mask = self._alphas[0] > theta
+        num_ops_kept = torch.sum(to_keep_mask).item()
+        # zero out the weights which are evicted
+        self._alphas[0] = torch.mul(self._alphas[0], to_keep_mask)
+        assert num_ops_kept > 0
+        
 
     def _save_grad(self):
         def hook(grad):
