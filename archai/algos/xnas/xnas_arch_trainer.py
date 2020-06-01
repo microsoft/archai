@@ -132,7 +132,7 @@ class _XnasOptimizer:
                 raise NotImplementedError
 
             for op in cell.ops():
-                    op.update_alphas(lr, epoch, epochs, grad_clip)
+                op.update_alphas(lr, epoch, epochs, grad_clip)
 
 
 
