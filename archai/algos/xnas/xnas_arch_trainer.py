@@ -1,5 +1,6 @@
 from typing import Mapping, Optional, Union
 import copy
+import math as ma
 
 import torch
 from torch.utils.data import DataLoader
@@ -14,6 +15,7 @@ from archai.common.config import Config
 from archai.nas.arch_trainer import ArchTrainer
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
+from archai.nas.model_desc import CellType
 from archai.common.checkpoint import CheckPoint
 from archai.common.common import logger
 from archai.common.utils import zip_eq
@@ -25,7 +27,6 @@ class XnasArchTrainer(ArchTrainer):
         super().__init__(conf_train, model, checkpoint)
 
         self._conf_w_lossfn = conf_train['lossfn']
-        self._conf_alpha_optim = conf_train['alpha_optimizer']
 
     @overrides
     def create_optimizer(self, conf_optim: Config, params) -> Optimizer:
@@ -42,8 +43,18 @@ class XnasArchTrainer(ArchTrainer):
         assert val_dl is not None
         lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
 
-        self._xnas_optim = _XnasOptimizer(
-            self._conf_alpha_optim, self.model, lossfn)
+        # TODO: Remove hard coded values
+        num_val_examples = 25000
+        num_normal_cells = 6
+        num_reduction_cells = 2
+        num_primitives = 8
+        normal_cell_effective_t = num_val_examples * self._epochs * num_normal_cells
+        reduction_cell_effective_t = num_val_examples * self._epochs * num_reduction_cells
+    
+        self._normal_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (normal_cell_effective_t * self._grad_clip * self._grad_clip))
+        self._reduction_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (reduction_cell_effective_t * self._grad_clip * self._grad_clip))
+
+        self._xnas_optim = _XnasOptimizer(self._normal_cell_lr, self._reduction_cell_lr, self.model, lossfn)
 
     @overrides
     def post_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
@@ -88,9 +99,10 @@ class XnasArchTrainer(ArchTrainer):
 
 
 class _XnasOptimizer:
-    def __init__(self, conf_alpha_optim: Config,
+    def __init__(self, ncell_lr: float, rcell_lr: float,
                  model: Model, lossfn: _Loss) -> None:
-        self._alpha_lr = conf_alpha_optim['lr']
+        self._ncell_lr = ncell_lr
+        self._rcell_lr = rcell_lr
 
         self._lossfn = lossfn
         self._model = model  # main model with respect to w and alpha
@@ -110,7 +122,17 @@ class _XnasOptimizer:
         # compute gradients
         loss.backward()
 
-        # for each op in the model update alphas
-        for op in self._model.ops():
-            op.update_alphas(self._alpha_lr, epoch, epochs, grad_clip)
+        # for each op in the model update alphas        
+        for cell in self._model.cells:
+            if cell.desc.cell_type  == CellType.Reduction:
+                lr = self._rcell_lr
+            elif cell.desc.cell_type == CellType.Regular:
+                lr = self._ncell_lr
+            else:
+                raise NotImplementedError
+
+            for op in cell.ops():
+                    op.update_alphas(lr, epoch, epochs, grad_clip)
+
+
 
