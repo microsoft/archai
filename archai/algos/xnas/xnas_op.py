@@ -1,7 +1,10 @@
+import os
 from collections import defaultdict
 from typing import Iterable, Optional, Tuple, List
 import copy
 import math as ma
+from itertools import count
+import numpy as np
 
 import torch
 from torch import nn
@@ -14,6 +17,7 @@ from archai.nas.operations import Op
 from archai.nas.arch_params import ArchParams
 from archai.common.utils import zip_eq
 from archai.common.common import get_conf
+from archai.common.common import get_expdir
 
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
@@ -51,8 +55,10 @@ class XnasOp(Op):
             self._ops.append(op)
 
         # for getting gradients to non-leaf node
-        self._is_first_call = True
         self._grad = None
+
+        # for debugging
+        self._last_epoch = -1
 
         # we do this at the end so that we can capture all arch params registered by
         # any previous child modules
@@ -73,6 +79,19 @@ class XnasOp(Op):
         # zero out the weights which are evicted
         self._alphas[0] = torch.mul(self._alphas[0], to_keep_mask)
         assert num_ops_kept > 0
+
+        # save some debugging info
+        expdir = get_expdir()
+        filename = os.path.join(expdir, str(id(self)) + '.txt')
+        if epoch != self._last_epoch:
+            # save debug info to file
+            alphas = [str(self._alphas[0][i].item()) for i in range(self._alphas[0].shape[0])]
+            with open(filename, 'a') as f:
+                f.write(str(alphas))
+                f.write('\n')
+
+            self._last_epoch = epoch
+
         
 
     def _save_grad(self):
