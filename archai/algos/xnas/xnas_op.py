@@ -74,11 +74,11 @@ class XnasOp(Op):
         # weak learner eviction
         theta = max(self._alphas[0]) * ma.exp(-2 * eta * grad_clip * (epochs - epoch))
         assert len(self._ops) == self._alphas[0].shape[0]
-        to_keep_mask = self._alphas[0] > theta
+        to_keep_mask = self._alphas[0] >= theta
         num_ops_kept = torch.sum(to_keep_mask).item()
+        assert num_ops_kept > 0
         # zero out the weights which are evicted
         self._alphas[0] = torch.mul(self._alphas[0], to_keep_mask)
-        assert num_ops_kept > 0
 
         # save some debugging info
         expdir = get_expdir()
@@ -89,7 +89,6 @@ class XnasOp(Op):
             with open(filename, 'a') as f:
                 f.write(str(alphas))
                 f.write('\n')
-
             self._last_epoch = epoch
 
         

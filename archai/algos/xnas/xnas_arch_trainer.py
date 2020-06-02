@@ -133,6 +133,3 @@ class _XnasOptimizer:
 
             for op in cell.ops():
                 op.update_alphas(lr, epoch, epochs, grad_clip)
-
-
-
