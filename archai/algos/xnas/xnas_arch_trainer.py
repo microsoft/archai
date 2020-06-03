@@ -19,6 +19,9 @@ from archai.nas.model_desc import CellType
 from archai.common.checkpoint import CheckPoint
 from archai.common.common import logger
 from archai.common.utils import zip_eq
+from archai.common.common import get_conf
+from .xnas_op import XnasOp
+
 
 
 class XnasArchTrainer(ArchTrainer):
@@ -43,11 +46,18 @@ class XnasArchTrainer(ArchTrainer):
         assert val_dl is not None
         lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
 
-        # TODO: Remove hard coded values
-        num_val_examples = 25000
-        num_normal_cells = 6
-        num_reduction_cells = 2
-        num_primitives = 8
+        conf = get_conf()
+        num_val_examples = len(val_dl) * conf['nas']['search']['loader']['train_batch']
+        num_cells = conf['nas']['search']['model_desc']['n_cells']
+        num_reduction_cells = conf['nas']['search']['model_desc']['n_reductions']
+        num_normal_cells = num_cells - num_reduction_cells
+        num_primitives = len(XnasOp.PRIMITIVES)
+
+        assert num_cells > 0
+        assert num_reduction_cells > 0
+        assert num_normal_cells > 0
+        assert num_primitives > 0
+
         normal_cell_effective_t = num_val_examples * self._epochs * num_normal_cells
         reduction_cell_effective_t = num_val_examples * self._epochs * num_reduction_cells
     
