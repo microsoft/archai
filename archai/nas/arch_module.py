@@ -3,10 +3,12 @@ from typing import Iterable, List, Optional, Tuple, Iterator
 
 from torch import nn
 
+from overrides import overrides, EnforceOverrides
+
 from archai.nas.arch_params import ArchParams, NNTypes
 from archai.common import utils
 
-class ArchModule(nn.Module, ABC):
+class ArchModule(nn.Module, ABC, EnforceOverrides):
     def __init__(self) -> None:
         super().__init__()
 
