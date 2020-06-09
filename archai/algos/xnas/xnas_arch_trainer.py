@@ -47,7 +47,8 @@ class XnasArchTrainer(ArchTrainer):
         lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
 
         conf = get_conf()
-        num_val_examples = len(val_dl) * conf['nas']['search']['loader']['train_batch']
+        self._train_batch = conf['nas']['search']['loader']['train_batch']
+        num_val_examples = len(val_dl) * self._train_batch
         num_cells = conf['nas']['search']['model_desc']['n_cells']
         num_reduction_cells = conf['nas']['search']['model_desc']['n_reductions']
         num_normal_cells = num_cells - num_reduction_cells
@@ -58,13 +59,13 @@ class XnasArchTrainer(ArchTrainer):
         assert num_normal_cells > 0
         assert num_primitives > 0
 
-        normal_cell_effective_t = num_val_examples * self._epochs * num_normal_cells
-        reduction_cell_effective_t = num_val_examples * self._epochs * num_reduction_cells
+        self._normal_cell_effective_t = num_val_examples * self._epochs * num_normal_cells
+        self._reduction_cell_effective_t = num_val_examples * self._epochs * num_reduction_cells
     
-        self._normal_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (normal_cell_effective_t * self._grad_clip * self._grad_clip))
-        self._reduction_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (reduction_cell_effective_t * self._grad_clip * self._grad_clip))
+        self._normal_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (self._normal_cell_effective_t * self._grad_clip * self._grad_clip))
+        self._reduction_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (self._reduction_cell_effective_t * self._grad_clip * self._grad_clip))
 
-        self._xnas_optim = _XnasOptimizer(self._normal_cell_lr, self._reduction_cell_lr, self.model, lossfn)
+        self._xnas_optim = _XnasOptimizer(self._normal_cell_lr, self._reduction_cell_lr, self._normal_cell_effective_t, self._reduction_cell_effective_t, self._train_batch, self.model, lossfn)
 
     @overrides
     def post_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
@@ -100,8 +101,11 @@ class XnasArchTrainer(ArchTrainer):
             self.get_device(), non_blocking=True)
 
         # update alphas
+
+        self._multi_optim.zero_grad()
         self._xnas_optim.step(x, y, x_val, y_val,
-                              self.epoch(), self._epochs, self._grad_clip)
+                              self.epoch(), self._epochs, self._grad_clip, self._multi_optim)
+        self._multi_optim.zero_grad()
 
     @overrides
     def update_checkpoint(self, checkpoint: CheckPoint) -> None:
@@ -110,9 +114,13 @@ class XnasArchTrainer(ArchTrainer):
 
 class _XnasOptimizer:
     def __init__(self, ncell_lr: float, rcell_lr: float,
+                 ncell_effective_t: float, rcell_effective_t: float, train_batch: int,
                  model: Model, lossfn: _Loss) -> None:
         self._ncell_lr = ncell_lr
         self._rcell_lr = rcell_lr
+        self._ncell_effective_t = ncell_effective_t
+        self._rcell_effective_t = rcell_effective_t
+        self._train_batch = train_batch
 
         self._lossfn = lossfn
         self._model = model  # main model with respect to w and alpha
@@ -122,7 +130,7 @@ class _XnasOptimizer:
         logits, *_ = model(x)  # might also return aux tower logits
         return lossfn(logits, y)
 
-    def step(self, x_train: Tensor, y_train: Tensor, x_valid: Tensor, y_valid: Tensor, epoch: int, epochs: int, grad_clip: float) -> None:
+    def step(self, x_train: Tensor, y_train: Tensor, x_valid: Tensor, y_valid: Tensor, epoch: int, epochs: int, grad_clip: float, optim) -> None:
         # put model in train mode just to be safe
         self._model.train()
 
@@ -132,14 +140,20 @@ class _XnasOptimizer:
         # compute gradients
         loss.backward()
 
+        # do grad clip
+        self._apex.clip_grad(grad_clip, model, optim)
+
         # for each op in the model update alphas        
         for cell in self._model.cells:
             if cell.desc.cell_type  == CellType.Reduction:
                 lr = self._rcell_lr
+                T = self._rcell_effective_t
             elif cell.desc.cell_type == CellType.Regular:
                 lr = self._ncell_lr
+                T = self._ncell_effective_t
             else:
                 raise NotImplementedError
 
+            t = epoch * self._train_batch
             for op in cell.ops():
-                op.update_alphas(lr, epoch, epochs, grad_clip)
+                op.update_alphas(lr, t, T, grad_clip)

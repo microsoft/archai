@@ -3,6 +3,8 @@ __include__: "darts.yaml" # defaults are loaded from this file
 # XNAS's parameters
 nas:
   search:
+    xnas:
+      to_evict: True
     loader:
       train_batch: 64
     trainer:

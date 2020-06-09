@@ -64,7 +64,7 @@ class XnasOp(Op):
         # any previous child modules
         self._setup_arch_params(arch_params)
 
-    def update_alphas(self, eta:float, epoch:int, epochs:int, grad_clip:float):       
+    def update_alphas(self, eta:float, current_t:int, total_t:int, grad_clip:float):       
         grad_flat = torch.flatten(self._grad)        
         rewards = torch.tensor([-torch.dot(grad_flat, torch.flatten(activ)) for activ in self._activs])
         exprewards = torch.exp(eta * rewards).cuda()
@@ -72,13 +72,16 @@ class XnasOp(Op):
         self._alphas[0] = torch.mul(self._alphas[0], exprewards)
 
         # weak learner eviction
-        theta = max(self._alphas[0]) * ma.exp(-2 * eta * grad_clip * (epochs - epoch))
-        assert len(self._ops) == self._alphas[0].shape[0]
-        to_keep_mask = self._alphas[0] >= theta
-        num_ops_kept = torch.sum(to_keep_mask).item()
-        assert num_ops_kept > 0
-        # zero out the weights which are evicted
-        self._alphas[0] = torch.mul(self._alphas[0], to_keep_mask)
+        conf = get_conf()
+        to_evict = conf['nas']['search']['xnas']['to_evict']
+        if to_evict:
+            theta = max(self._alphas[0]) * ma.exp(-2 * eta * grad_clip * (total_t - current_t))
+            assert len(self._ops) == self._alphas[0].shape[0]
+            to_keep_mask = self._alphas[0] >= theta
+            num_ops_kept = torch.sum(to_keep_mask).item()
+            assert num_ops_kept > 0
+            # zero out the weights which are evicted
+            self._alphas[0] = torch.mul(self._alphas[0], to_keep_mask)
 
         # save some debugging info
         expdir = get_expdir()
