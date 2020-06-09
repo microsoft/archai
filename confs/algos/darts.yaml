@@ -82,7 +82,7 @@ nas:
       aug: '' # additional augmentations to use
       cutout: 16 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
-      train_batch: 68 # 96 is too aggressive for 1080Ti, better set it to 68
+      train_batch: 96 # 96 is too aggressive for 1080Ti, better set it to 68
       train_workers: 4
       test_workers: '_copy: ../train_workers' # if null then 4
       load_test: True # load test split of dataset
