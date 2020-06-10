@@ -9,7 +9,7 @@ nas:
       train_batch: 64
     trainer:
       grad_clip: 1.0
-      epochs: 1
+      epochs: 50
       optimizer:
         type: "sgd"
         lr: 0.025
