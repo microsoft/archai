@@ -57,9 +57,6 @@ class XnasOp(Op):
         # for getting gradients to non-leaf node
         self._grad = None
 
-        # for debugging
-        self._last_epoch = -1
-
         # we do this at the end so that we can capture all arch params registered by
         # any previous child modules
         self._setup_arch_params(arch_params)
@@ -86,13 +83,13 @@ class XnasOp(Op):
         # save some debugging info
         expdir = get_expdir()
         filename = os.path.join(expdir, str(id(self)) + '.txt')
-        if epoch != self._last_epoch:
-            # save debug info to file
-            alphas = [str(self._alphas[0][i].item()) for i in range(self._alphas[0].shape[0])]
-            with open(filename, 'a') as f:
-                f.write(str(alphas))
-                f.write('\n')
-            self._last_epoch = epoch
+
+        # save debug info to file
+        alphas = [str(self._alphas[0][i].item()) for i in range(self._alphas[0].shape[0])]
+        with open(filename, 'a') as f:
+            f.write(str(alphas))
+            f.write('\n')
+
 
         
 

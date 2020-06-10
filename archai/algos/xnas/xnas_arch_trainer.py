@@ -23,7 +23,6 @@ from archai.common.common import get_conf
 from .xnas_op import XnasOp
 
 
-
 class XnasArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: Model,
                  checkpoint: Optional[CheckPoint]) -> None:
@@ -44,7 +43,6 @@ class XnasArchTrainer(ArchTrainer):
         # optimizers, schedulers needs to be recreated for each fit call
         # as they have state
         assert val_dl is not None
-        lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
 
         conf = get_conf()
         self._train_batch = conf['nas']['search']['loader']['train_batch']
@@ -60,12 +58,17 @@ class XnasArchTrainer(ArchTrainer):
         assert num_primitives > 0
 
         self._normal_cell_effective_t = num_val_examples * self._epochs * num_normal_cells
-        self._reduction_cell_effective_t = num_val_examples * self._epochs * num_reduction_cells
-    
-        self._normal_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (self._normal_cell_effective_t * self._grad_clip * self._grad_clip))
-        self._reduction_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (self._reduction_cell_effective_t * self._grad_clip * self._grad_clip))
+        self._reduction_cell_effective_t = num_val_examples * \
+            self._epochs * num_reduction_cells
 
-        self._xnas_optim = _XnasOptimizer(self._normal_cell_lr, self._reduction_cell_lr, self._normal_cell_effective_t, self._reduction_cell_effective_t, self._train_batch, self.model, lossfn)
+        self._normal_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (
+            self._normal_cell_effective_t * self._grad_clip * self._grad_clip))
+        self._reduction_cell_lr = ma.sqrt(2 * ma.log(num_primitives) / (
+            self._reduction_cell_effective_t * self._grad_clip * self._grad_clip))
+
+        self._xnas_optim = _XnasOptimizer(self._normal_cell_lr, self._reduction_cell_lr, self._normal_cell_effective_t,
+                                          self._reduction_cell_effective_t, self._train_batch, self._grad_clip, 
+                                          self._multi_optim, self._apex, self.model)
 
     @overrides
     def post_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
@@ -101,11 +104,7 @@ class XnasArchTrainer(ArchTrainer):
             self.get_device(), non_blocking=True)
 
         # update alphas
-
-        self._multi_optim.zero_grad()
-        self._xnas_optim.step(x, y, x_val, y_val,
-                              self.epoch(), self._epochs, self._grad_clip, self._multi_optim)
-        self._multi_optim.zero_grad()
+        self._xnas_optim.step(x, y, x_val, y_val)
 
     @overrides
     def update_checkpoint(self, checkpoint: CheckPoint) -> None:
@@ -115,14 +114,24 @@ class XnasArchTrainer(ArchTrainer):
 class _XnasOptimizer:
     def __init__(self, ncell_lr: float, rcell_lr: float,
                  ncell_effective_t: float, rcell_effective_t: float, train_batch: int,
-                 model: Model, lossfn: _Loss) -> None:
+                 grad_clip: float, optim, apex, model: Model) -> None:
+
         self._ncell_lr = ncell_lr
         self._rcell_lr = rcell_lr
         self._ncell_effective_t = ncell_effective_t
         self._rcell_effective_t = rcell_effective_t
         self._train_batch = train_batch
 
-        self._lossfn = lossfn
+        self._grad_clip = grad_clip
+        self._optim = optim
+        self._apex = apex
+
+        self._lossfn = nn.CrossEntropyLoss()
+
+        # to keep track of where we are in effective updates
+        self._t_rcell = 0
+        self._t_ncell = 0
+
         self._model = model  # main model with respect to w and alpha
 
     @staticmethod
@@ -130,30 +139,52 @@ class _XnasOptimizer:
         logits, *_ = model(x)  # might also return aux tower logits
         return lossfn(logits, y)
 
-    def step(self, x_train: Tensor, y_train: Tensor, x_valid: Tensor, y_valid: Tensor, epoch: int, epochs: int, grad_clip: float, optim) -> None:
+    def step(self, x_train: Tensor, y_train: Tensor, x_valid: Tensor, y_valid: Tensor) -> None:
         # put model in train mode just to be safe
         self._model.train()
 
-        # put model through val data
-        loss = self._get_loss(self._model, self._lossfn, x_valid, y_valid)
+        # XNAS authors told Liam Li et al that 
+        # the updates are made per data point instead
+        # of at a batch level. While nn.CrossEntropyLoss
+        # can give back per data point losses by using reduction='none' option, 
+        # loss.backward() can only deal with scalar losses. So for now trying 
+        # to do this one data point at a time to see if that 
+        # runs reasonably fast. If not the next thing to try is 
+        # to get the per data point loss all at once and then 
+        # try to do loss[i].backward() and update alphas
+        
+        batch_size = x_valid.shape[0]
+        for i in range(batch_size):
+            x = torch.unsqueeze(x_valid[i,:], 0)
+            y = torch.unsqueeze(y_valid[i], 0)
 
-        # compute gradients
-        loss.backward()
+            # zero out gradients for safety
+            self._optim.zero_grad()
 
-        # do grad clip
-        self._apex.clip_grad(grad_clip, model, optim)
+            # put model through val data
+            loss = self._get_loss(self._model, self._lossfn, x, y)
 
-        # for each op in the model update alphas        
-        for cell in self._model.cells:
-            if cell.desc.cell_type  == CellType.Reduction:
-                lr = self._rcell_lr
-                T = self._rcell_effective_t
-            elif cell.desc.cell_type == CellType.Regular:
-                lr = self._ncell_lr
-                T = self._ncell_effective_t
-            else:
-                raise NotImplementedError
+            # compute gradients
+            loss.backward()
 
-            t = epoch * self._train_batch
-            for op in cell.ops():
-                op.update_alphas(lr, t, T, grad_clip)
+            # do grad clip
+            self._apex.clip_grad(self._grad_clip, self._model, self._optim)
+
+            # for each op in the model update alphas
+            for cell in self._model.cells:
+                if cell.desc.cell_type == CellType.Reduction:
+                    lr = self._rcell_lr
+                    T = self._rcell_effective_t
+                    self._t_rcell += 1
+                    t = self._t_rcell
+                elif cell.desc.cell_type == CellType.Regular:
+                    lr = self._ncell_lr
+                    T = self._ncell_effective_t
+                    self._t_ncell += 1
+                    t = self._t_ncell
+                else:
+                    raise NotImplementedError
+
+                # BUG: t need to be corrected        
+                for op in cell.ops():
+                    op.update_alphas(lr, t, T, self._grad_clip)
