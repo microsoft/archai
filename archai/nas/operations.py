@@ -101,7 +101,7 @@ class Op(ArchModule, ABC, EnforceOverrides):
         else:
             _ops_factory[name] = factory_fn
 
-    def finalize(self)->Tuple[OpDesc, Optional[float]]:
+    def finalize(self, *args)->Tuple[OpDesc, Optional[float]]:
         """for trainable op, return final op and its rank"""
 
         # make copy because we are going to modify the trainables

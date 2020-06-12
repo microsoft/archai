@@ -4,12 +4,14 @@ nas:
 
   eval:
     loader:
-      train_batch: 68
+      train_batch: 64
 
   search:
+    gs:
+      num_sample: 4
     loader:
       val_ratio: 0.0 # don't need val during search
-    model_desc:
-      params: {'gs_num_sample': 1}
     trainer:
       epochs: 50
+    model_desc:
+      max_final_edges: 4
