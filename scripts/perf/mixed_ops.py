@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from archai.algos.darts.mixed_op import MixedOp
 from archai.common import utils, timing
 

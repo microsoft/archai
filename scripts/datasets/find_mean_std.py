@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from archai.common.config import Config
 from archai.datasets import data
 from torchvision import transforms

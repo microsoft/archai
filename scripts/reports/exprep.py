@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import argparse
 from typing import Dict, List, Type, Iterator, Tuple
 import glob

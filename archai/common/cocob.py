@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """
 The code below is 
 directly from https://raw.githubusercontent.com/IssamLaradji/sls/master/others/cocob.py

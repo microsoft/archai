@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from archai.common.utils import AverageMeter
 from collections import defaultdict
 from typing import Iterable, Optional, Tuple, List

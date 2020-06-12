@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # adapted from https://github.com/ildoonet/pystopwatch2/blob/master/pystopwatch2/watch.py
 
 import threading

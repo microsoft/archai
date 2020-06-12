@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from enum import Enum
 from typing import Mapping, Optional, List, Tuple, Union
 import pathlib

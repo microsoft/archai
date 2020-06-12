@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from collections import defaultdict
 from typing import Callable, Iterable, List, Optional, Tuple, Dict
 from abc import ABC, abstractmethod

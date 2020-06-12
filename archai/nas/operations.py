@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from argparse import ArgumentError
 from typing import Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
 from abc import ABC, abstractmethod

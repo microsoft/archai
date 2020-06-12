@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from archai.nas.model_desc import ModelDesc
 from archai.common.common import common_init
 from archai.nas.model import Model
