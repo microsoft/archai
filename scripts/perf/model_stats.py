@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import tensorwatch as tw
 from archai import cifar10_models
 

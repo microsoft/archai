@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
 import  numpy as np
 import logging

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import numpy as np
 import pdb
 from collections import defaultdict
@@ -53,7 +56,7 @@ def _compute_mi(cov_kernel:np.array, A:Set, V_minus_A:Set):
     return I
 
 
-def compute_brute_force_sol(cov_kernel:np.array, budget:int, plothist=False)->Tuple[Tuple[Any], float]:
+def compute_brute_force_sol(cov_kernel:np.array, budget:int)->Tuple[Tuple[Any], float]:
 
     assert cov_kernel.shape[0] == cov_kernel.shape[1]
     assert len(cov_kernel.shape) == 2
@@ -69,13 +72,6 @@ def compute_brute_force_sol(cov_kernel:np.array, budget:int, plothist=False)->Tu
         V_minus_A = V - A
         I = _compute_mi(cov_kernel, A, V_minus_A)
         mis.append((subset, I))
-
-    # plot histogram of mi distribution
-    if plothist:
-        mi_only = np.array([i[1] for i in mis])
-        plt.hist(mi_only, bins=20)
-        plt.xlabel('Mutual Information')
-        plt.show()
 
     # find the maximum subset
     max_subset, mi = max(mis, key = lambda x: x[1])
@@ -332,8 +328,8 @@ def main():
     all_edges_list = []
     all_names_list = []
 
-    edge_list = ['activations_node_0_edge_0']
-    # edge_list = ['activations_node_0_edge_0', 'activations_node_0_edge_1']
+    # edge_list = ['activations_node_0_edge_0']
+    edge_list = ['activations_node_0_edge_0', 'activations_node_0_edge_1']
     # edge_list = ['activations_node_1_edge_0', 'activations_node_1_edge_1', 'activations_node_1_edge_2']
     # edge_list = ['activations_node_2_edge_0', 'activations_node_2_edge_1', 'activations_node_2_edge_2', 'activations_node_2_edge_3']
     # edge_list = ['activations_node_3_edge_0', 'activations_node_3_edge_1', 'activations_node_3_edge_2', 'activations_node_3_edge_3', 'activations_node_3_edge_4']
@@ -355,20 +351,16 @@ def main():
     cov_kernel_orig = compute_rbf_kernel_covariance(all_edges_list, sigma=168)
     cov_kernel = cov_kernel_orig + 1.0*np.eye(cov_kernel_orig.shape[0])
     print(f'Det before diag addition {np.linalg.det(cov_kernel_orig)}')
-    print(f'Condition number before diag addition is {np.linalg.cond(cov_kernel_orig)}')
     print(f'Det after diag addition {np.linalg.det(cov_kernel)}')
-    print(f'Condition number after diag addition is {np.linalg.cond(cov_kernel)}')
-    sns.heatmap(cov_kernel_orig, annot=True, xticklabels=all_names_list, yticklabels=all_names_list, cmap='coolwarm')
+    print(f'Condition number is {np.linalg.cond(cov_kernel)}')
+    sns.heatmap(cov_kernel, annot=False, xticklabels=all_names_list, yticklabels=all_names_list, cmap='coolwarm')
     plt.axis('equal')
     plt.show()
 
     # brute force solution
-    budget = 2
-    bf_ops, bf_val = compute_brute_force_sol(cov_kernel_orig, budget, plothist=True)
-    print(f'Brute force max subset {bf_ops}, max mi {bf_val}')
-    for i, op_index in enumerate(bf_ops):
-        print(f'Brute force op {i} is {all_names_list[op_index]}')
-    
+    budget = 4
+    bf_sensors, bf_val = compute_brute_force_sol(cov_kernel_orig, budget)
+    print(f'Brute force max subset {bf_sensors}, max mi {bf_val}')
 
     # greedy
     print('Greedy selection')
@@ -416,6 +408,7 @@ def main():
     # print(f'SeqOpt selected primitives are {sel_primitives}')
 
     # check that it is close to greedy and or bruteforce
+    budget = 4
     sel_list = sel_list[:budget]
      # find MI of the greedy solution
     V = set(range(num_items))

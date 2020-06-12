@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from collections import UserDict
 from typing import Callable, Any
 import weakref

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Callable, Tuple, Optional
 
 import torch
@@ -224,9 +227,6 @@ class Trainer(EnforceOverrides):
 
         self._start_epoch = last_epoch + 1
 
-    def epoch(self)->int:
-        return self._metrics.epochs()
-
     def update_checkpoint(self, checkpoint:CheckPoint)->None:
         # save all necessory state
         state = {
@@ -247,10 +247,9 @@ class Trainer(EnforceOverrides):
             logger.pushd(step)
             assert self.model.training # derived class might alter the mode
 
-            # TODO: please check that no algorithm is invalidated by swapping prestep with zero grad
-            self._multi_optim.zero_grad()
-
             self.pre_step(x, y)
+
+            self._multi_optim.zero_grad()
 
             # divide batch in to chunks if needed so it fits in GPU RAM
             if self.batch_chunks > 1:

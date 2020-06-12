@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Dict, Tuple, Type, Optional
 from abc import abstractmethod
 

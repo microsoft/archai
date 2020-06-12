@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import torch
 from archai.nas.model import Model
 from archai.nas.macro_builder import MacroBuilder

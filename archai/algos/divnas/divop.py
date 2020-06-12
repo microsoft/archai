@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Iterable, Optional, Tuple, List, Iterator
 from collections import deque
 
@@ -36,6 +39,27 @@ class DivOp(Op):
         'none'  # this must be at the end so top1 doesn't choose it
     ]
 
+    # list of primitive ops not allowed in the
+    # diversity calculation
+    # NOTALLOWED = ['skip_connect', 'none']
+    NOTALLOWED = ['none']
+
+    def _indices_of_notallowed(self):
+        ''' computes indices of notallowed ops in PRIMITIVES '''
+        self._not_allowed_indices = []
+        for op_name in self.NOTALLOWED:
+            self._not_allowed_indices.append(self.PRIMITIVES.index(op_name))
+        self._not_allowed_indices = sorted(self._not_allowed_indices, reverse=True)
+
+    def _create_mapping_valid_to_orig(self):
+        ''' Creates a list with indices of the valid ops to the original list '''
+        self._valid_to_orig = []
+        for i, prim in enumerate(self.PRIMITIVES):
+            if prim in self.NOTALLOWED:
+                continue
+            else:
+                self._valid_to_orig.append(i)
+
     def __init__(self, op_desc:OpDesc, arch_params:Optional[ArchParams],
                  affine:bool):
         super().__init__()
@@ -66,8 +90,8 @@ class DivOp(Op):
         self._collect_activations = False
         self._forward_counter = 0
         self._batch_activs = None
-        #self._indices_of_notallowed()
-        #self._create_mapping_valid_to_orig()
+        self._indices_of_notallowed()
+        self._create_mapping_valid_to_orig()
 
     @property
     def collect_activations(self)->bool:
@@ -82,8 +106,8 @@ class DivOp(Op):
         return self._batch_activs
 
     @property
-    def num_primitive_ops(self)->int:
-        return len(self.PRIMITIVES)
+    def num_valid_div_ops(self)->int:
+        return len(self.PRIMITIVES) - len(self.NOTALLOWED)
 
     @overrides
     def forward(self, x):
@@ -92,11 +116,11 @@ class DivOp(Op):
         if self._collect_activations:
             self._forward_counter += 1
             activs = [op(x) for op in self._ops]
-            # delete the activation for none type
-            # as we don't consider it
-            activs = activs[:-1]
             self._batch_activs = [t.cpu().detach().numpy() for t in activs]
-            
+            # delete the activations that are not allowed
+            for index in self._not_allowed_indices:
+                del self._batch_activs[index]
+
         if self._alphas:
             asm = F.softmax(self._alphas[0], dim=0)
             result = sum(w * op(x) for w, op in zip(asm, self._ops))
@@ -110,16 +134,6 @@ class DivOp(Op):
         return iter(sorted(zip_eq(self._ops,
                                   self._alphas[0] if self._alphas is not None else [math.nan for _ in range(len(self._ops))]),
                            key=lambda t:t[1], reverse=True))
-
-    @overrides
-    def finalize(self) -> Tuple[OpDesc, Optional[float]]:
-        ''' Divnas with default finalizer option needs this override else 
-        the finalizer in base class returns the whole divop '''
-        with torch.no_grad():
-            # select except 'none' op
-            val, i = torch.topk(self._alphas[0][:-1], 1)
-            desc, _ = self._ops[i].finalize()
-            return desc, float(val.item())
 
     @overrides
     def can_drop_path(self) -> bool:

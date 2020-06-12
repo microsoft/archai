@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from collections import UserDict
 from typing import Dict, Iterable, Iterator, Mapping, Optional, Tuple, Union
 import torch

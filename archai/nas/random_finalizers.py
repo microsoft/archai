@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import List, Tuple, Optional, Iterator, Dict, Set
 from overrides import overrides
 import random

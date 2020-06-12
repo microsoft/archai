@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from .providers.cifar10_provider import Cifar10Provider
 from .providers.cifar100_provider import Cifar100Provider
 from .providers.fashion_mnist_provider import FashionMnistProvider

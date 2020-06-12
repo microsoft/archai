@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from overrides import overrides
 
 from archai.nas.cell_builder import CellBuilder
@@ -14,9 +17,9 @@ class XnasCellBuilder(CellBuilder):
 
     @overrides
     def build(self, model_desc:ModelDesc, search_iter:int)->None:
-        # # if this is not the first iteration, we add new node to each cell
-        # if search_iter > 0:
-        #     self.add_node(model_desc)
+        # if this is not the first iteration, we add new node to each cell
+        if search_iter > 0:
+            self.add_node(model_desc)
 
         for cell_desc in model_desc.cell_descs():
             self._build_cell(cell_desc)

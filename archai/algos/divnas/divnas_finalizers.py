@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import List, Tuple, Optional, Iterator, Dict
 from overrides import overrides
 
@@ -5,23 +8,17 @@ import torch
 from torch import nn
 
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
 
 from archai.common.common import get_conf
-from archai.common.common import get_expdir
 from archai.common.common import logger
 from archai.datasets.data import get_data
 from archai.nas.model import Model
 from archai.nas.cell import Cell
 from archai.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
 from archai.nas.finalizers import Finalizers
-from archai.nas.operations import Zero
 from archai.algos.divnas.analyse_activations import compute_brute_force_sol
 from archai.algos.divnas.divop import DivOp
 from .divnas_cell import Divnas_Cell
-
 
 class DivnasFinalizers(Finalizers):
 
@@ -31,15 +28,16 @@ class DivnasFinalizers(Finalizers):
         logger.pushd('finalize')
 
         # get config and train data loader
+        # TODO: confirm this is correct in case you get silent bugs
         conf = get_conf()
         conf_loader = conf['nas']['search']['loader']
         train_dl, val_dl, test_dl = get_data(conf_loader)
 
         # wrap all cells in the model
-        self._divnas_cells: Dict[Cell, Divnas_Cell] = {}
+        self._divnas_cells:Dict[int, Divnas_Cell] = {}
         for _, cell in enumerate(model.cells):
             divnas_cell = Divnas_Cell(cell)
-            self._divnas_cells[cell] = divnas_cell
+            self._divnas_cells[id(cell)] = divnas_cell
 
         # go through all edges in the DAG and if they are of divop
         # type then set them to collect activations
@@ -58,7 +56,8 @@ class DivnasFinalizers(Finalizers):
             for _ in range(1):
                 for _, (x, _) in enumerate(train_dl):
                     _, _ = model(x), None
-                    # update the node covariances in all cells
+                    # now you can go through and update the
+                    # node covariances in every cell
                     for dcell in self._divnas_cells.values():
                         dcell.update_covs()
 
@@ -66,18 +65,16 @@ class DivnasFinalizers(Finalizers):
 
         return super().finalize_model(model, to_cpu, restore_device)
 
+
     @overrides
-    def finalize_cell(self, cell: Cell, *args, **kwargs) -> CellDesc:
+    def finalize_cell(self, cell:Cell, *args, **kwargs)->CellDesc:
         # first finalize each node, we will need to recreate node desc with final version
-        logger.info(f'cell id {cell.desc.id}')
-        node_descs: List[NodeDesc] = []
-        dcell = self._divnas_cells[cell]
+        node_descs:List[NodeDesc] = []
+        dcell = self._divnas_cells[id(cell)]
         assert len(cell.dag) == len(list(dcell.node_covs.values()))
-        for i, node in enumerate(cell.dag):
+        for node in cell.dag:
             node_cov = dcell.node_covs[id(node)]
-            logger.info(f'node {i}')
-            node_desc = self.finalize_node(
-                node, cell.desc.max_final_edges, node_cov, cell, i)
+            node_desc = self.finalize_node(node, cell.desc.max_final_edges, node_cov)
             node_descs.append(node_desc)
 
         # (optional) clear out all activation collection information
@@ -85,21 +82,20 @@ class DivnasFinalizers(Finalizers):
 
         finalized = CellDesc(
             cell_type=cell.desc.cell_type,
-            id=cell.desc.id,
-            nodes=node_descs,
+            id = cell.desc.id,
+            nodes = node_descs,
             s0_op=cell.s0_op.finalize()[0],
             s1_op=cell.s1_op.finalize()[0],
-            template_cell=cell.desc.template_cell,
+            template_cell = cell.desc.template_cell,
             max_final_edges=cell.desc.max_final_edges,
             node_ch_out=cell.desc.node_ch_out,
             post_op=cell.post_op.finalize()[0]
         )
         return finalized
 
+
     @overrides
-    def finalize_node(self,
-                      node: nn.ModuleList, max_final_edges: int, cov: np.array,
-                      cell: Cell, node_id: int, *args, **kwargs) -> NodeDesc:
+    def finalize_node(self, node:nn.ModuleList, max_final_edges:int, cov:np.array,  *args, **kwargs)->NodeDesc:
         # node is a list of edges
         assert len(node) >= max_final_edges
 
@@ -112,31 +108,30 @@ class DivnasFinalizers(Finalizers):
         # allowed
         assert cov.shape[0] >= max_final_edges
 
-        # get the order and alpha of all ops other than 'none'
-        in_ops = [(edge,op,alpha,i) for i, edge in enumerate(node) \
-                            for op, alpha in edge._op.ops()
-                            if not isinstance(op, Zero)]
-        assert len(in_ops) >= max_final_edges
+        # get total number of ops incoming to this node
+        num_ops = sum([edge._op.num_valid_div_ops for edge in node])
+
+        # and collect some bookkeeping indices
+        edge_num_and_op_ind = []
+        for j, edge in enumerate(node):
+            if type(edge._op) == DivOp:
+                for k in range(edge._op.num_valid_div_ops):
+                    edge_num_and_op_ind.append((j, k))
+
+        assert len(edge_num_and_op_ind) == num_ops
 
         # run brute force set selection algorithm
         max_subset, max_mi = compute_brute_force_sol(cov, max_final_edges)
 
-        # note that the elements of max_subset are indices into
-        # in_ops 
+        # convert the cov indices to edge descs
         selected_edges = []
         for ind in max_subset:
-            edge, op, alpha, edge_num = in_ops[ind]
-            op_desc, _ = op.finalize()
-            new_edge = EdgeDesc(op_desc, edge.input_ids)
-            logger.info(f'selected edge: {edge_num}, op: {op_desc.name}')
+            edge_ind, op_ind = edge_num_and_op_ind[ind]
+            op_desc = node[edge_ind]._op.get_valid_op_desc(op_ind)
+            new_edge = EdgeDesc(op_desc, node[edge_ind].input_ids)
             selected_edges.append(new_edge)
 
-        # save diagnostic information to disk
-        expdir = get_expdir()
-        sns.heatmap(cov, annot=True, fmt='.1g', cmap='coolwarm')
-        savename = os.path.join(
-            expdir, f'cell_{cell.desc.id}_node_{node_id}_cov.png')
-        plt.savefig(savename)
+        # for edge in selected_edges:
+        #     self.finalize_edge(edge)
 
-        logger.info('')
         return NodeDesc(selected_edges)

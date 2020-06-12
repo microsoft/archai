@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Policy found on CIFAR-10 and CIFAR-100
 
 def fa_reduced_cifar10():
