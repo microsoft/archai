@@ -4,7 +4,8 @@ We are striving to rapidly update the list of algorithms and encourage pull-requ
 of new algorithms.
 
 Here is our current deck:
-
+* [PC-DARTS](https://arxiv.org/abs/1907.05737)
+* [Geometric NAS](https://arxiv.org/pdf/2004.07802.pdf)
 * [ProxyLess NAS](https://arxiv.org/abs/1812.00332)
 * [SNAS](https://arxiv.org/abs/1812.09926)
 * [DATA](http://papers.nips.cc/paper/8374-data-differentiable-architecture-approximation.pdf)
