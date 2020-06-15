@@ -91,7 +91,7 @@ Join the Archai group on [Facebook](https://www.facebook.com/groups/113366013036
 ## Team
 Archai has been created and maintained by [Shital Shah](https://shitalshah.com) and [Debadeepta Dey](www.debadeepta.com) in the [Reinforcement Learning Group](https://www.microsoft.com/en-us/research/group/reinforcement-learning-redmond/) at Microsoft Research AI, Redmond, USA. 
 
-We look forward to Archai becoming more community driven and including major contributors here. 
+They look forward to Archai becoming more community driven and including major contributors here. 
 
 ## Credits
 
