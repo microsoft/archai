@@ -1,7 +1,7 @@
 # Welcome to Archai
 
 Archai is a platform for Neural Network Search (NAS) with a goal to unify several recent advancements in research
-and making them accessible to non-experts so that anyone can leverage this research to generate efficient deep networks for their own applications. Archai hopes to accelerate NAS research by easily allowing to mix and match different techniques rapidly while still ensuring reproducibility, documented hyper-parameters and fair comparison across the spectrum of these techniques. Archai is extensible and modular to accommodate new algorithms easily offering clean and robust codebase.
+and making them accessible to non-experts so that anyone can leverage this research to generate efficient deep networks for their own applications. Archai hopes to accelerate NAS research by easily allowing to mix and match different techniques rapidly while still ensuring reproducibility, documented hyper-parameters and fair comparison across the spectrum of these techniques. Archai is extensible and modular to accommodate new algorithms easily (often with only a few new lines of code) offering clean and robust codebase.
 
 [Extensive feature list](docs/features.md)
 
@@ -82,11 +82,16 @@ See detailed [instructions](tools/azure/README.md).
 
 ## Contribute
 
-We would love your contributions, feedback, questions, and feature requests! Please [file a Github issue](https://github.com/microsoft/archai/issues/new) or send us a pull request. Please review the [Microsoft Code of Conduct](https://opensource.microsoft.com/codeofconduct/) and [learn more](https://github.com/microsoft/archai/blob/master/CONTRIBUTING.md).
+We would love your contributions, feedback, questions, algorithm implementations and feature requests! Please [file a Github issue](https://github.com/microsoft/archai/issues/new) or send us a pull request. Please review the [Microsoft Code of Conduct](https://opensource.microsoft.com/codeofconduct/) and [learn more](https://github.com/microsoft/archai/blob/master/CONTRIBUTING.md).
 
 ## Contact
 
 Join the Archai group on [Facebook](https://www.facebook.com/groups/1133660130366735/) to stay up to date or ask any questions.
+
+## Team
+Archai has been created and maintained by [Shital Shah](https://shitalshah.com) and [Debadeepta Dey](www.debadeepta.com) in the [Reinforcement Learning Group](https://www.microsoft.com/en-us/research/group/reinforcement-learning-redmond/) at Microsoft Research AI, Redmond, USA. 
+
+We look forward to Archai becoming more community driven and including major contributors here. 
 
 ## Credits
 
