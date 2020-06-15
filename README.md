@@ -32,8 +32,7 @@ Archai requires Python 3.6+ and is tested with PyTorch 1.3+. For network visuali
 * `cd archai`
 * The below command will run every algorithm through a few batches of cifar10
   and for both search and final training
-* `python scripts/main.py`
-* If all went well, now you have a working installation!
+* `python scripts/main.py`. If all went well, you have a working installation! Yay! 
 * Note one can also build and use the cuda 10.1 or 9.2 compatible dockers
   provided in the [dockers](dockers) folder. These dockers are useful
   for large scale experimentation on compute clusters.
