@@ -64,8 +64,7 @@ class GsOp(Op):
     @overrides
     def finalize(self, sampled_weights) -> Tuple[OpDesc, Optional[float]]:
         # finalization where each edge gets to keep as many
-        # unique operations that are **sampled at the node level**
-        
+        # unique operations that are **sampled at the node level**        
         assert sampled_weights.shape[0] == len(GsOp.PRIMITIVES)
 
         # we can't handle empty op
@@ -75,8 +74,6 @@ class GsOp(Op):
         children = []
         children_ins = []
         selected_alphas = []
-
-    
 
         for i in range(greater_than_0.size()[0]):
             if greater_than_0[i]:
@@ -105,7 +102,7 @@ class GsOp(Op):
         if selected_alphas:
             max_alpha = max(selected_alphas)
         
-        return final_op_desc, max(selected_alphas)
+        return final_op_desc, max_alpha
 
     @overrides
     def can_drop_path(self) -> bool:

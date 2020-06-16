@@ -26,6 +26,7 @@ class GsArchTrainer(ArchTrainer):
         # as the same optimizer will update both
         arch_params = list(self.model.all_owned().param_by_kind('alphas'))
         nonarch_params = list(self.model.nonarch_params(recurse=True))
+        # TODO: do we need different param groups? Check in paper if they are using different optimizers for alphas or not. 
         param_groups = [{'params': nonarch_params}, {'params': arch_params}]
         return ml_utils.create_optimizer(conf_optim, param_groups)
 
@@ -49,9 +50,8 @@ class GsArchTrainer(ArchTrainer):
                 # collect all alphas for all edges in to node
                 node_alphas = []
                 for edge in node:
-                    if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == GsOp:
-                        alphas = [alpha for op, alpha in edge._op.ops()]
-                        node_alphas.extend(alphas)
+                    if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == GsOp:                        
+                        node_alphas.extend(alpha for op, alpha in edge._op.ops())
                     
                 # TODO: will creating a tensor from a list of tensors preserve the graph?
                 node_alphas = torch.Tensor(node_alphas)
@@ -64,24 +64,16 @@ class GsArchTrainer(ArchTrainer):
                         sample_storage.append(sampled)
 
                     samples_summed = torch.sum(torch.stack(sample_storage, dim=0), dim=0)
+                    samples = samples_summed / torch.sum(samples_summed)
 
                     # TODO: should we be normalizing the sampled weights?
+                    # TODO: do gradients blow up as number of samples increases?
 
                     # send the sampled op weights to their respective edges
                     # to be used in forward
                     counter = 0    
-                    for i, edge in enumerate(node):
+                    for _, edge in enumerate(node):
                         if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == GsOp:
-                            this_edge_sampled_weights = samples_summed[counter:counter+len(edge._op.PRIMITIVES)]
+                            this_edge_sampled_weights = samples[counter:counter+len(edge._op.PRIMITIVES)]
                             edge._op.set_op_sampled_weights(this_edge_sampled_weights)
                             counter += len(edge._op.PRIMITIVES)
-
-
-
-
-
-
-
-
-        
-

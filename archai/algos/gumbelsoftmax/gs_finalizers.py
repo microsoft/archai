@@ -63,6 +63,8 @@ class GsFinalizers(Finalizers):
 
         # delete excess edges
         if len(selected_edges) > max_final_edges:
+            # since these are sample edges there is no ordering 
+            # amongst them so we just arbitrarily select a few 
             selected_edges = selected_edges[:max_final_edges]
 
         return NodeDesc(selected_edges)

@@ -247,9 +247,10 @@ class Trainer(EnforceOverrides):
             logger.pushd(step)
             assert self.model.training # derived class might alter the mode
 
-            self.pre_step(x, y)
-
+            # TODO: please check that no algorithm is invalidated by swapping prestep with zero grad
             self._multi_optim.zero_grad()
+
+            self.pre_step(x, y)
 
             # divide batch in to chunks if needed so it fits in GPU RAM
             if self.batch_chunks > 1:
