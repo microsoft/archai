@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """ Script to prepare food101 dataset for pytorch dataloader.
 
 This script assumes that one has downloaded and extracted the full food101 dataset from ETHZ.

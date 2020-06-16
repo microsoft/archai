@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from overrides import overrides
 
 from archai.nas.cell_builder import CellBuilder

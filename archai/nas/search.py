@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Iterator, Mapping, Type, Optional, Tuple, List
 import math
 import copy

@@ -1,4 +1,3 @@
-
 # Credits: https://github.com/ildoonet/pytorch-gradual-warmup-lr
 
 from torch.optim.lr_scheduler import _LRScheduler

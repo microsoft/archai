@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """ Network architecture visualizer using graphviz """
 import sys
 from graphviz import Digraph

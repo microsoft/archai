@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Any, Mapping, Optional, Union, List, Iterator
 from collections import OrderedDict
 import logging

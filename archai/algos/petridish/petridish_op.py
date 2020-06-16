@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from copy import deepcopy
 from typing import Iterable, List, Optional, Iterator, Tuple, Mapping
 import heapq

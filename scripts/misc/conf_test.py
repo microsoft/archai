@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 
 from archai.common.common import common_init
 from archai.common import utils

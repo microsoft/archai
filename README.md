@@ -1,103 +1,43 @@
 # Welcome to Archai
 
-Neural Architecture Search (NAS) aims to automate the process of searching for neural architectures.
-Given a new dataset, it is often a tedious task of trying out many different architectures and
-hyperparameters manually. Even the most skilled machine learning researchers and engineers have to
-resort to the dark arts of finding good architectures and corresponding hyperparameters guided by some
-intuition and a lot of careful experimentation. The NAS community's dream is that this tedium be taken
-over by algorithms, freeing up precious human time for more noble pursuits.
+Archai is a platform for Neural Network Search (NAS) with a goal to unify several recent advancements in research
+and making them accessible to non-experts so that anyone can leverage this research to generate efficient deep networks for their own applications. Archai hopes to accelerate NAS research by easily allowing to mix and match different techniques rapidly while still ensuring reproducibility, documented hyper-parameters and fair comparison across the spectrum of these techniques. Archai is extensible and modular to accommodate new algorithms easily (often with only a few new lines of code) offering clean and robust codebase.
 
-Recently, NAS has made tremendous progress but is merely getting started. Many open problems remain.
-But one of the more immediate problems is fair comparison and reproducibility. To ameliorate these
-issues we are releasing Archai which is a performant platform for NAS algorithms. Archai has the following features:
+[Extensive feature list](docs/features.md)
 
-Arhai has the following features:
+## How to Get It
 
-* NAS for non-experts
-    * Turnkey experimentation platform
-* High performance PyTorch code base
-* Ease of algorithm development
-    * Object-oriented model definition
-    * Unified abstractions for training and evaluation
-    * New algorithms can be written in a few lines of code
-    * Easily mix and match existing algorithm aspects
-    * Easily implement both forward and backward search
-    * Algorithm-agnostic pareto-front generation
-        * Easily add hardware-specific constraints like memory, inference time, flops etc.
+### Install as package
 
-* Efficient experiment management for reproducibility and fair comparison
-    * Flexible configuration system
-    * Structured logging
-    * Metrics management and logging
-    * Declarative experimentation
-    * Declarative support for wide variety of datasets
-    * Custom dataset support
-    * Unified final training procedure for searched models
+```
+pip install archai
+```
 
-## Installation
+### Install from source code
 
-Currently we have tested Archai on Ubuntu 16.04 LTS 64-bit and Ubuntu 18.04 LTS 64-bit on
-Python 3.6+ and PyTorch 1.3+.
+We recommend installing from the source code:
 
-* System prep:
-    * CUDA compatible GPU
-    * Anaconda package manager
-    * Nvidia driver compatible with cuda 9.2 or greater
-* We provide two conda environments for cuda 9.2 and cuda 10.1.
-    * [archaicuda101.yaml](dockers/docker-cuda-10-1/archaicuda101.yml)
-    * [archaicuda92.yaml](dockers/docker-cuda-9-2/archaicuda92.yml)
+```
+git clone https://github.com/microsoft/archai.git
+cd archai
+pip install -e .
+```
 
-* `conda env create -f archaicuda101.yml`
-* `conda activate archaicuda101`
-* `pip install -r requirements.txt`
-* `pip install -e .`
+
+Archai requires Python 3.6+ and is tested with PyTorch 1.3+. For network visualization, you may need to separately install [graphviz](https://graphviz.gitlab.io/download/). We recommand
+
 
 ## Test installation
 
 * `cd archai`
 * The below command will run every algorithm through a few batches of cifar10
   and for both search and final training
-* `python scripts/main.py`
-* If all went well, now you have a working installation!
+* `python scripts/main.py`. If all went well, you have a working installation! Yay! 
 * Note one can also build and use the cuda 10.1 or 9.2 compatible dockers
   provided in the [dockers](dockers) folder. These dockers are useful
   for large scale experimentation on compute clusters.
 
-
-## How to use it?
-
-```
-├── archai
-│   ├── cifar10_models
-│   ├── common
-│   ├── darts
-│   ├── data_aug
-│   ├── nas
-│   ├── networks
-│   ├── petridish
-│   ├── random
-│   └── xnas
-├── archived
-├── confs
-├── dockers
-├── docs
-├── scripts
-├── setup.py
-├── tests
-└── tools
-    ├── azure
-```
-
-Most of the functionality resides in the [`archai`](archai/) folder.
-[`nas`](archai/nas) contains algorithm-agnostic infrastructure
-that is commonly used in NAS algorithms. [`common`](archai/common) contains
-common infrastructure code that has no nas-specific code but is infrastructre
-code that gets widely used.
-Algorithm-specific code resides in appropriately named folder like [`darts`](archai/nas/darts),
-[`petridish`](archai/nas/petridish), [`random`](archai/nas/random),
-[`xnas`](archai/nas/xnas)
-
-[`scripts`](archai/scripts) contains entry-point scripts to running all algorithms.
+## How to Use It
 
 ### Quick start
 
@@ -123,7 +63,8 @@ Current the following algorithms are implemented:
 * [Petridish](https://papers.nips.cc/paper/9202-efficient-forward-architecture-search.pdf)
 * [DARTS](https://deepmind.com/research/publications/darts-differentiable-architecture-search)
 * [Random search baseline]
-* [XNAS](http://papers.nips.cc/paper/8472-xnas-neural-architecture-search-with-expert-advice.pdf) (this is currently experimental and has not been fully reproduced yet as XNAS authors have not released source code at the time of writing.)
+* [XNAS](http://papers.nips.cc/paper/8472-xnas-neural-architecture-search-with-expert-advice.pdf) (this is currently experimental and has not been fully reproduced yet as authors have not released source code at the time of writing.)
+* [DATA](https://papers.nips.cc/paper/8374-data-differentiable-architecture-approximation.pdf) (this is currently experimental and has not been fully reproduced yet as authors have not released source code at the time of writing.)
 
 See [Roadmap](#roadmap) for details on new algorithms coming soon.
 
@@ -133,40 +74,29 @@ See [Roadmap](#roadmap) for details on new algorithms coming soon.
 
 See detailed [instructions](tools/azure/README.md).
 
-## Roadmap
+### Other References
 
-We are striving to rapidly update the list of algorithms and encourage pull-requests from the community
-of new algorithms.
-
-Here is our current deck:
-
-* [ProxyLess NAS](https://arxiv.org/abs/1812.00332)
-* [SNAS](https://arxiv.org/abs/1812.09926)
-* [DATA](http://papers.nips.cc/paper/8374-data-differentiable-architecture-approximation.pdf)
-* [RandNAS](https://liamcli.com/assets/pdf/randnas_arxiv.pdf)
-
-Please file in the issues algorithms you would like to see implemented in Archai. We will try our best to accomodate.
-
-## Paper
-If you use Archai in your work please cite...
+* [Directory Structure](docs/dir_struct.md)
+* [FAQ](docs/faq.md)
+* [Roadmap](docs/roadmap.md)
 
 ## Contribute
 
-We would love your contributions, feedback, questions, and feature requests! Please file a github issue or send us a pull request. Please review the [Microsoft Code of Conduct](https://opensource.microsoft.com/codeofconduct/) and [learn more](CONTRIBUTING.md).
+We would love your contributions, feedback, questions, algorithm implementations and feature requests! Please [file a Github issue](https://github.com/microsoft/archai/issues/new) or send us a pull request. Please review the [Microsoft Code of Conduct](https://opensource.microsoft.com/codeofconduct/) and [learn more](https://github.com/microsoft/archai/blob/master/CONTRIBUTING.md).
 
-## Contacts
+## Contact
 
-Shital Shah shitals@microsoft.com
+Join the Archai group on [Facebook](https://www.facebook.com/groups/1133660130366735/) to stay up to date or ask any questions.
 
-Debadeepta Dey dedey@microsoft.com
+## Team
+Archai has been created and maintained by [Shital Shah](https://shitalshah.com) and [Debadeepta Dey](www.debadeepta.com) in the [Reinforcement Learning Group](https://www.microsoft.com/en-us/research/group/reinforcement-learning-redmond/) at Microsoft Research AI, Redmond, USA. 
 
-Eric Horvitz horvitz@microsoft.com
+They look forward to Archai becoming more community driven and including major contributors here. 
 
 ## Credits
 
-Archai utilizes several open source libraries for many of its features. These includes:[fastautoaugment](https://github.com/kakaobrain/fast-autoaugment), [tensorwatch](https://github.com/microsoft/tensorwatch), and many others.
+Archai builds on several open source codebases. These includes: [Fast AutoAugment](https://github.com/kakaobrain/fast-autoaugment), [pt.darts](https://github.com/khanrc/pt.darts), [DARTS-PyTorch](https://github.com/dragen1860/DARTS-PyTorch), [DARTS](https://github.com/quark0/darts), [petridishnn](https://github.com/microsoft/petridishnn), [PyTorch CIFAR-10 Models](https://github.com/huyvnphan/PyTorch-CIFAR10), [NVidia DeepLearning Examples](https://github.com/NVIDIA/DeepLearningExamples), [PyTorch Warmup Scheduler](https://github.com/ildoonet/pytorch-gradual-warmup-lr). Please see `install_requires` section in [setup.py](setup.py) for up to date dependencies list. If you feel credit to any material is missing, please let us know by filing a [Github issue](https://github.com/microsoft/archai/issues/new).
 
 ## License
-This project is released under the MIT License. Please review the [License file](LICENSE.txt) for further details.
 
-
+This project is released under the MIT License. Please review the [License file](LICENSE.txt) for more details.

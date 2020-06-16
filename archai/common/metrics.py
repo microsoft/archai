@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import time
 import copy
 from typing import List, Mapping, Optional, Tuple

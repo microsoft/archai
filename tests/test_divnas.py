@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -10,7 +13,8 @@ from typing import Any, Callable, List, Tuple, Set
 
 import archai.algos.divnas.analyse_activations as aa
 from archai.algos.divnas.seqopt import SeqOpt
-from archai.algos.divnas.analyse_activations import _compute_mi, compute_brute_force_sol, create_submod_f
+from archai.algos.divnas.analyse_activations import _compute_mi, compute_brute_force_sol
+from archai.algos.divnas.online_analyse_activations import create_submod_f
 from archai.algos.divnas.wmr import Wmr
 
 def create_rbf_func(first:np.array, sigma:float)->Callable:
@@ -198,7 +202,7 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
         print(f'SeqOpt solution is {seqopt_sensors}, mi is {I_seqopt}')
 
         self.assertAlmostEqual(I_seqopt, I_greedy, delta=0.1)
-        self.assertAlmostEqual(I_greedy, bf_val, delta=0.1)
+        self.assertAlmostEqual(I_greedy, bf_val, detal=0.1)
 
 
 

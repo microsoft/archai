@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Callable, Iterable, List, Optional, Tuple
 
 from torch import nn, tensor
