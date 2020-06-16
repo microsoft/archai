@@ -10,7 +10,7 @@ nas:
     gs:
       num_sample: 4
     loader:
-      val_ratio: 0.0 # don't need val during search
+      val_ratio: 0.0 # don't need val during search in gs
     trainer:
       epochs: 50
     model_desc:
