@@ -23,7 +23,7 @@ class AlexNet(nn.Module):
             nn.ReLU(),
             nn.Conv2d(384, 256, kernel_size=(3,3), padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2, padding=1)
+            nn.MaxPool2d(kernel_size=3, stride=2)
         )
         self.avgpool=nn.AdaptiveAvgPool2d((6, 6))
         self.classifier=nn.Sequential(
