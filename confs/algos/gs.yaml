@@ -9,14 +9,14 @@ common:
 nas:
   eval:
     loader:
-      train_batch: 64
+      train_batch: 96
 
   search:
     gs:
-      num_sample: 4
+      num_sample: 1
     loader:
       val_ratio: 0.0 # don't need val during search in gs
     trainer:
-      epochs: 50
+      epochs: 1
     model_desc:
-      max_final_edges: 4
+      max_final_edges: 1
