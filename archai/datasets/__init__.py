@@ -8,3 +8,4 @@ from .providers.imagenet_provider import ImagenetProvider
 from .providers.mnist_provider import MnistProvider
 from .providers.svhn_provider import SvhnProvider
 from .providers.food101_provider import Food101Provider
+from .providers.mit67_provider import Mit67Provider
