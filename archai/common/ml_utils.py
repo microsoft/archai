@@ -213,20 +213,20 @@ def accuracy(output, target, topk=(1,)):
     return res
 
 def channel_norm(dataset, channel_dim=1)->tuple:
-        # collect tensors in list
-        l = [data for data, *_ in dataset]
-        # join back all tensors so the first dimension is count of tensors
-        l = torch.stack(l, dim=0) #size: [N, X, Y, ...] or [N, C, X, Y, ...]
+    # collect tensors in list
+    l = [data for data, *_ in dataset]
+    # join back all tensors so the first dimension is count of tensors
+    l = torch.stack(l, dim=0) #size: [N, X, Y, ...] or [N, C, X, Y, ...]
 
-        if channel_dim is None:
-            # add redundant first dim
-            l = l.unsqueeze(0)
+    if channel_dim is None:
+        # add redundant first dim
+        l = l.unsqueeze(0)
 
-        else:
-            # swap channel dimension to first
-            l = torch.transpose(l, 0, channel_dim).contiguous() #size: [C, N, X, Y, ...]
-        # collapse all except first dimension
-        l = l.view(l.size(0), -1) #size: [C, N*X*Y]
-        mean = torch.mean(l, dim=1) #size: [C]
-        std = torch.std(l, dim=1) #size: [C]
-        return mean, std
+    else:
+        # swap channel dimension to first
+        l = torch.transpose(l, 0, channel_dim).contiguous() #size: [C, N, X, Y, ...]
+    # collapse all except first dimension
+    l = l.view(l.size(0), -1) #size: [C, N*X*Y]
+    mean = torch.mean(l, dim=1) #size: [C]
+    std = torch.std(l, dim=1) #size: [C]
+    return mean, std
