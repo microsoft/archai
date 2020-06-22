@@ -41,10 +41,10 @@ def load_csv_data(filename: str) -> Dict[str, List[str]]:
 
 
 def check_sport8(dataroot: str) -> bool:
-    mit67 = os.path.join(dataroot, 'sport8')
-    train = os.path.join(mit67, 'train')
-    test = os.path.join(mit67, 'test')
-    meta = os.path.join(mit67, 'meta')
+    sport8 = os.path.join(dataroot, 'sport8')
+    train = os.path.join(sport8, 'train')
+    test = os.path.join(sport8, 'test')
+    meta = os.path.join(sport8, 'meta')
 
     if not os.path.isdir(sport8) or not os.path.isdir(train) or not os.path.isdir(test) or not os.path.isdir(meta):
         return False
