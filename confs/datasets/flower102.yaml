@@ -1,0 +1,7 @@
+dataset:
+  dataroot: '~/dataroot' #torchvision data folder
+  name: 'flower102'
+  n_classes: 102
+  channels: 3 # number of channels in image
+  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+  storage_name: 'flower102' # name of folder or tar file to copy from cloud storage
