@@ -36,8 +36,8 @@ class Flower102Provider(DatasetProvider):
     @overrides
     def get_transforms(self)->tuple:
         # MEAN, STD computed for flower102 
-        MEAN = [0.4893, 0.4270, 0.3625]
-        STD = [0.2631, 0.2565, 0.2582] 
+        MEAN = [0.5190, 0.4101, 0.3274]
+        STD = [0.2972, 0.2488, 0.2847]
 
         # transformations match that in 
         # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
@@ -63,4 +63,4 @@ class Flower102Provider(DatasetProvider):
 
         return train_transform, test_transform
 
-register_dataset_provider('flower', Flower102Provider)
+register_dataset_provider('flower102', Flower102Provider)
