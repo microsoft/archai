@@ -40,8 +40,33 @@ def load_csv_data(filename: str) -> Dict[str, List[str]]:
     return data_dict
 
 
-def check_sport8(dataroot:str):
-    return False
+def check_sport8(dataroot: str) -> bool:
+    mit67 = os.path.join(dataroot, 'sport8')
+    train = os.path.join(mit67, 'train')
+    test = os.path.join(mit67, 'test')
+    meta = os.path.join(mit67, 'meta')
+
+    if not os.path.isdir(sport8) or not os.path.isdir(train) or not os.path.isdir(test) or not os.path.isdir(meta):
+        return False
+
+    num_train_files = 0
+    for base, dirs, files in os.walk(train):
+        for file in files:
+            num_train_files += 1
+
+    if num_train_files != 1261:
+        return False
+
+    num_test_files = 0
+    for base, dirs, files in os.walk(test):
+        for file in files:
+            num_test_files += 1
+
+    if num_test_files != 318:
+        return False
+
+    # all checks passed
+    return True
 
 
 def download(dataroot:str):
