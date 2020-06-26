@@ -34,6 +34,10 @@ _ops_factory:Dict[str, Callable] = {
                             SepConv(op_desc, 3, 1, affine),
     'sep_conv_5x5':     lambda op_desc, arch_params, affine:
                             SepConv(op_desc, 5, 2, affine),
+    'convbnrelu_3x3':     lambda op_desc, arch_params, affine:
+                            ConvBNReLU(op_desc, 3, 1, 1, affine),
+    'convbnrelu_1x1':     lambda op_desc, arch_params, affine:
+                            ConvBNReLU(op_desc, 1, 1, 0, affine),
     'dil_conv_3x3':     lambda op_desc, arch_params, affine:
                             DilConv(op_desc, 3, op_desc.params['stride'], 2, 2, affine),
     'dil_conv_5x5':     lambda op_desc, arch_params, affine:
@@ -224,6 +228,26 @@ class ReLUConvBN(Op):
     def forward(self, x):
         return self.op(x)
 
+
+class ConvBNReLU(Op):
+    def __init__(self, op_desc:OpDesc, kernel_size:int, stride:int, padding:int,
+                 affine:bool):
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+
+        super(ConvBNReLU, self).__init__()
+
+        self.op = nn.Sequential(
+            nn.Conv2d(ch_in, ch_out, kernel_size, stride=stride,
+                      padding=padding, bias=False),
+            nn.BatchNorm2d(ch_out, affine=affine),
+            nn.ReLU(inplace=True) #TODO: review inplace
+        )
+
+    @overrides
+    def forward(self, x):
+        return self.op(x)
 
 class DilConv(Op):
     """ (Dilated) depthwise separable conv
