@@ -1,3 +1,4 @@
+__include__: "./dataroot.yaml" # default dataset settings are for cifar
 
 common:
   seed: 0.0
@@ -8,7 +9,6 @@ common:
 
 dataset_eval:
   name: 'imagenet'
-  dataroot: '~/dataroot' #torchvision data folder
   n_classes: 1000
   channels: 3 # number of channels in image
   storage_name: 'ImageNet' # name of folder or tar file to copy from cloud storage

@@ -50,6 +50,9 @@ def get_experiment_name()->str:
 def get_expdir()->Optional[str]:
     return get_conf_common()['expdir']
 
+def get_datadir()->Optional[str]:
+    return get_conf()['dataset']['dataroot']
+
 def get_logger() -> OrderedDictLogger:
     global logger
     if logger is None:

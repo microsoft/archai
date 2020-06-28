@@ -1,5 +1,6 @@
+__include__: "./dataroot.yaml" # default dataset settings are for cifar
+
 dataset:
-  dataroot: '~/dataroot' #torchvision data folder
   name: 'sport8'
   n_classes: 8
   channels: 3 # number of channels in image
