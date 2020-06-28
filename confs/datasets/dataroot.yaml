@@ -1,2 +1,5 @@
 dataset:
   dataroot: '~/dataroot' #folder where directory for each dataset exist
+
+dataset_eval:
+  dataroot: '~/dataroot' #folder where directory for each dataset exist

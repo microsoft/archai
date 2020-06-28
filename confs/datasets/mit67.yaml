@@ -1,4 +1,4 @@
-__include__: "./dataroot.yaml" # default dataset settings are for cifar
+__include__: './dataroot.yaml' # default dataset settings are for cifar
 
 dataset:
   name: 'mit67'

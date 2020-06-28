@@ -1,6 +1,6 @@
-__include__: "./dataroot.yaml" # default dataset settings are for cifar
+__include__: './size_224x224_base.yaml' # inherit settings for 224x224 dataset
 
-dataset:
+dataset_eval: # search dataset default is cifar10, we override eval dataset to sport8
   name: 'sport8'
   n_classes: 8
   channels: 3 # number of channels in image
