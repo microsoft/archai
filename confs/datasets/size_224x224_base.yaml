@@ -1,19 +1,11 @@
-__include__: './size_224x224_base.yaml' # default dataset settings are for cifar
+__include__: './dataroot.yaml' # default dataset settings are for cifar
 
 common:
   seed: 0.0
   toy_mode: # this section will be used by toy.yaml to setup the toy mode
-    max_batches: 25
-    train_batch: 64
-    test_batch: 64
-
-# we use imagenet only for eval, so search dataset is still cifar10 but eval dataset is imagenet
-dataset_eval:
-  name: 'imagenet'
-  n_classes: 1000
-  channels: 3 # number of channels in image
-  storage_name: 'ImageNet' # name of folder or tar file to copy from cloud storage
-  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+    max_batches: 5
+    train_batch: 32
+    test_batch: 32
 
 nas:
   eval:
@@ -61,7 +53,7 @@ nas:
         _copy: '/dataset_eval'
     trainer:
       apex:
-        enabled: True # global switch to disable everything apex
+        enabled: False # global switch to disable everything apex
         distributed_enabled: True # enable/disable distributed mode
         loss_scale: "128.0" # loss scaling mode for mixed prec, must be string reprenting float ot "dynamic"
       aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch

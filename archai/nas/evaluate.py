@@ -55,12 +55,13 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
 
 def _default_module_name(dataset_name:str, function_name:str)->str:
     module_name = ''
+    # TODO: below detection code is too week, need to improve, possibly encode image size in yaml and use that instead
     if dataset_name.startswith('cifar'):
         if function_name.startswith('res'): # support resnext as well
             module_name = 'archai.cifar10_models.resnet'
         elif function_name.startswith('dense'):
             module_name = 'archai.cifar10_models.densenet'
-    elif dataset_name.startswith('imagenet'):
+    elif dataset_name.startswith('imagenet') or dataset_name.startswith('sport8'):
         module_name = 'torchvision.models'
     if not module_name:
         raise NotImplementedError(f'Cannot get default module for {function_name} and dataset {dataset_name} because it is not supported yet')
