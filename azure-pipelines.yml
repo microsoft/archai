@@ -44,6 +44,8 @@ steps:
   inputs:
     uploadUrl: '$(UploadUrl)'
     areaPathParent: 'archai'
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 # - task: corygehr.air-autoassess.uploadScanResults.uploadScanResults@1
 #   displayName: 'Upload Scan Results for Analysis'
