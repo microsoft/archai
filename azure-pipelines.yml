@@ -40,12 +40,13 @@ steps:
     verbosity: 'Verbose'
     alertWarningLevel: 'High'
 
-- task: uploadScanResults@1
-  inputs:
-    uploadUrl: '$(UploadUrl)'
-    areaPathParent: 'archai'
-  env:
-    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+# TODO: below was working before but it doesn't now
+# - task: uploadScanResults@1
+#   inputs:
+#     uploadUrl: '$(UploadUrl)'
+#     areaPathParent: 'archai'
+#   env:
+#     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 # - task: corygehr.air-autoassess.uploadScanResults.uploadScanResults@1
 #   displayName: 'Upload Scan Results for Analysis'
