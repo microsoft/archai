@@ -1,5 +1,6 @@
+__include__: "./dataroot.yaml" # default dataset settings are for cifar
+
 dataset:
-  dataroot: '~/dataroot' #torchvision data folder
   name: 'mit67'
   n_classes: 67
   channels: 3 # number of channels in image

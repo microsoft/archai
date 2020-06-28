@@ -21,7 +21,7 @@ from torch.optim.optimizer import Optimizer
 from torch.nn.modules.loss import _WeightedLoss, _Loss
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
-from torchvision.datasets.utils import check_integrity, download_url
+from torchvision.datasets import utils as tvutils
 
 import yaml
 import subprocess
@@ -205,8 +205,8 @@ def download_and_extract_tar(url, download_root, extract_root=None, filename=Non
     if filename is None:
         filename = os.path.basename(url)
 
-    if not check_integrity(os.path.join(download_root, filename), md5):
-        download_url(url, download_root, filename=filename, md5=md5)
+    if not tvutils.check_integrity(os.path.join(download_root, filename), md5):
+        tvutils.download_url(url, download_root, filename=filename, md5=md5)
 
     extract_tar(os.path.join(download_root, filename), extract_root, **kwargs)
 
@@ -241,3 +241,6 @@ def zip_eq(*iterables):
             shorter_its = ','.join([str(i) for i,c in enumerate(combo) if sentinel is c])
             raise ValueError(f'Iterator {shorter_its} have length {count} which is shorter than others')
         yield combo
+
+def dir_downloads()->str:
+    return full_path(str(os.path.join(pathlib.Path.home(), "Downloads")))

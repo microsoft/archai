@@ -4,9 +4,10 @@
 
 from torchvision import transforms
 import torchvision
+from . import dataset_utils
 
 if __name__ == '__main__':
-    dataroot = 'd:\\datasets'
+    dataroot = dataset_utils.get_dataroot()
     torchvision.datasets.STL10(root=dataroot,
                                 split="train",
                                 #train=True,
