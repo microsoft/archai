@@ -34,9 +34,9 @@ _ops_factory:Dict[str, Callable] = {
                             SepConv(op_desc, 3, 1, affine),
     'sep_conv_5x5':     lambda op_desc, arch_params, affine:
                             SepConv(op_desc, 5, 2, affine),
-    'convbnrelu_3x3':     lambda op_desc, arch_params, affine:
+    'convbnrelu_3x3':     lambda op_desc, arch_params, affine: # used by NASBench-101
                             ConvBNReLU(op_desc, 3, 1, 1, affine),
-    'convbnrelu_1x1':     lambda op_desc, arch_params, affine:
+    'convbnrelu_1x1':     lambda op_desc, arch_params, affine: # used by NASBench-101
                             ConvBNReLU(op_desc, 1, 1, 0, affine),
     'dil_conv_3x3':     lambda op_desc, arch_params, affine:
                             DilConv(op_desc, 3, op_desc.params['stride'], 2, 2, affine),
@@ -103,7 +103,7 @@ class Op(ArchModule, ABC, EnforceOverrides):
         global _ops_factory
         if name in _ops_factory:
             if not exists_ok:
-                raise ArgumentError(f'{name} is already registered in op factory')
+                raise ArgumentError(argument=None, message=f'{name} is already registered in op factory')
             # else no need to register again
         else:
             _ops_factory[name] = factory_fn
@@ -208,7 +208,7 @@ class FacConv(Op):
         return self.net(x)
 
 
-class ReLUConvBN(Op):
+class ReLUConvBN(Op): # std DARTS op has BN at the end
     def __init__(self, op_desc:OpDesc, kernel_size:int, stride:int, padding:int,
                  affine:bool):
         conv_params:ConvMacroParams = op_desc.params['conv']
@@ -229,7 +229,7 @@ class ReLUConvBN(Op):
         return self.op(x)
 
 
-class ConvBNReLU(Op):
+class ConvBNReLU(Op): # NAS bench op has BN in the middle
     def __init__(self, op_desc:OpDesc, kernel_size:int, stride:int, padding:int,
                  affine:bool):
         conv_params:ConvMacroParams = op_desc.params['conv']

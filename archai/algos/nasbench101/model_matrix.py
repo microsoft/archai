@@ -21,7 +21,7 @@ def prune(model_matrix:np.ndarray, vertex_ops:List[str]):
       raise ValueError('model_matrix must be square')
     if shape[0] != len(vertex_ops):
       raise ValueError('length of vertex_ops must match model_matrix dimensions')
-    if not is_upper_triangular(model_matrix):
+    if not _is_upper_triangular(model_matrix):
       raise ValueError('model_matrix must be upper triangular')
 
     # DFS forward from input
