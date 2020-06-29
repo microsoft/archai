@@ -1,0 +1,8 @@
+- Output node is vertex_op(sum(edges)) + projected input
+- Yaml:
+    - every cell reduction, cell stem = max_pool, model stem
+    - Model desc: model matrix, vetex ops
+- Do we need alphas?
+- Do we need to modify finalizers?
+- Ops() overriding in NasBench101Op
+- Do we need to specify children in OpDesc?
