@@ -224,6 +224,8 @@ class Search:
         if not self.pareto_enabled:
             yield self.base_reductions, self.base_cells, self.base_nodes
         else:
+            # TODO: what happens when reductions is 3 but cells is 2? have to step 
+            # through code and check
             for reductions in range(self.base_reductions, self.max_reductions+1):
                 for cells in range(self.base_cells, self.max_cells+1):
                     for nodes in range(self.base_nodes, self.max_nodes+1):
