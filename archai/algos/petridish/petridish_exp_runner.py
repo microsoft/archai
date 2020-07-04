@@ -18,3 +18,13 @@ class PetridishExperimentRunner(ExperimentRunner):
     def trainer_class(self)->TArchTrainer:
         return ArchTrainer
 
+
+    @overrides
+    def _run_search(self, conf_search: Config) -> None:
+        ''' Using special search class designed for petridish '''
+        cell_builder = self.cell_builder()
+        trainer_class = self.trainer_class()
+        finalizers = self.finalizers()
+
+        search = SearchDistributed(conf_search, cell_builder, trainer_class, finalizers)
+        search.search_loop()
