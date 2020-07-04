@@ -19,7 +19,7 @@ import yaml
 from archai.common.common import logger
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
-from archai.nas.cell_builder import CellBuilder, cell_builder
+from archai.nas.cell_builder import CellBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
 from archai.nas.model_desc import CellType, ModelDesc
@@ -97,9 +97,11 @@ class SearchResult:
         return self.metrics_stats.model_desc
 
 
-@ray.remote(num_gpus=1)
-def search_desc(model_desc: ModelDesc, search_iter: int, cell_builder: CellBuilder, trainer_class: TArchTrainer, finalizers: Finalizers, train_dl: DataLoader, val_dl: DataLoader, conf_train: Config) -> Tuple[ModelDesc, MetricsStats]:
 
+
+@ray.remote(num_gpus=1)
+def search_desc(model_desc, search_iter, cell_builder, trainer_class, finalizers, train_dl, val_dl, conf_train):
+    ''' Remote function which does petridish candidate initialization '''
     # TODO: all parallel processes will create this same folder and cause problems in logging
     logger.pushd('arch_search')
 
@@ -234,7 +236,7 @@ class SearchDistributed:
         self._parent_models.append((model_desc, None))
 
         # sample a model from parent pool for initialization phase
-        sampled_model_desc = self._sample_model_from_parent_pool()
+        sampled_model_desc, sampled_metrics_stats = self._sample_model_from_parent_pool()
 
         # seed train that model
         search_iter = -1
@@ -301,6 +303,7 @@ class SearchDistributed:
     def _seed_model(self, model_desc, reductions, cells, nodes) -> ModelDesc:
         if self.cell_builder:
             self.cell_builder.seed(model_desc)
+        train_dl, val_dl = self.get_data(self.conf_loader)
         metrics_stats = self._train_desc(model_desc, self.conf_presearch_train)
         self._save_trained(reductions, cells, nodes, -1, metrics_stats)
         return metrics_stats.model_desc
@@ -316,6 +319,38 @@ class SearchDistributed:
                                                  template_model_desc=None)
         return model_desc
 
+
+    def _train_desc(self, model_desc:ModelDesc, conf_train:Config)->MetricsStats:
+        """Train given description"""
+        # region conf vars
+        conf_trainer = conf_train['trainer']
+        conf_loader = conf_train['loader']
+        trainer_title = conf_trainer['title']
+        epochs = conf_trainer['epochs']
+        drop_path_prob = conf_trainer['drop_path_prob']
+        # endregion
+
+        logger.pushd(trainer_title)
+
+        if epochs == 0:
+            # nothing to pretrain, save time
+            metrics_stats = MetricsStats(model_desc, None, None)
+        else:
+            model = nas_utils.model_from_desc(model_desc,
+                                              droppath=drop_path_prob>0.0,
+                                              affine=True)
+
+            # get data
+            train_dl, val_dl = self.get_data(conf_loader)
+            assert train_dl is not None
+
+            trainer = Trainer(conf_trainer, model, checkpoint=None)
+            train_metrics = trainer.fit(train_dl, val_dl)
+
+            metrics_stats = SearchDistributed._create_metrics_stats(model, train_metrics, self.finalizers)
+
+        logger.popd()
+        return metrics_stats
 
     def _save_trained(self, reductions: int, cells: int, nodes: int,
                       search_iter: int,
