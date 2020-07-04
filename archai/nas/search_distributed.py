@@ -6,6 +6,10 @@ import math
 import copy
 import random
 import os
+from queue import Queue
+
+# only works on linux
+import ray
 
 import torch
 import tensorwatch as tw
@@ -15,7 +19,7 @@ import yaml
 from archai.common.common import logger
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.cell_builder import CellBuilder, cell_builder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
 from archai.nas.model_desc import CellType, ModelDesc
@@ -26,40 +30,42 @@ from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 
+
 class MetricsStats:
     """Holds model statistics and training metrics for given description"""
-    def __init__(self, model_desc:ModelDesc,
-                 train_metrics:Optional[Metrics],
-                 model_stats:Optional[tw.ModelStats])->None:
+
+    def __init__(self, model_desc: ModelDesc,
+                 train_metrics: Optional[Metrics],
+                 model_stats: Optional[tw.ModelStats]) -> None:
         self.model_desc = model_desc
         self.train_metrics = train_metrics
         self.model_stats = model_stats
 
-    def __str__(self)->str:
+    def __str__(self) -> str:
         best = self.best_metrics()
         if best is not None:
             return f'top1={best.top1.avg}'
         return 'None'
 
-    def state_dict(self)->Mapping:
+    def state_dict(self) -> Mapping:
         return {
-                'model_desc': self.model_desc.state_dict(),
-                'train_metrics': self.train_metrics.state_dict(),
-                'model_stats': utils.state_dict(self.model_stats)
-                }
+            'model_desc': self.model_desc.state_dict(),
+            'train_metrics': self.train_metrics.state_dict(),
+            'model_stats': utils.state_dict(self.model_stats)
+        }
 
-    def load_state_dict(self, state_dict:Mapping)->None:
+    def load_state_dict(self, state_dict: Mapping) -> None:
         self.model_desc.load_state_dict(state_dict['model_desc'])
         self.train_metrics.load_state_dict(state_dict['train_metrics'])
         utils.load_state_dict(self.model_stats, state_dict['model_stats'])
 
-    def best_metrics(self)->Optional[EpochMetrics]:
+    def best_metrics(self) -> Optional[EpochMetrics]:
         if self.train_metrics is None:
             return None
         best_train, best_val = self.train_metrics.run_metrics.best_epoch()
         return best_train if best_val is None else best_val
 
-    def is_better(self, other:Optional['MetricsStats'])->bool:
+    def is_better(self, other: Optional['MetricsStats']) -> bool:
         # if both same or other None, this one is better
         if other is None:
             return True
@@ -71,26 +77,91 @@ class MetricsStats:
             return False
         return best_this.top1.avg >= best_other.top1.avg
 
+
 class SearchResult:
-    def __init__(self, metrics_stats:MetricsStats,
-                 macro_params:Tuple[int, int, int]) -> None:
+    def __init__(self, metrics_stats: MetricsStats,
+                 macro_params: Tuple[int, int, int]) -> None:
         self.metrics_stats = metrics_stats
         # macro_params: reductions, cells, nodes
         self.macro_params = macro_params
 
-    def state_dict(self)->Mapping:
+    def state_dict(self) -> Mapping:
         return {'metrics_stats': self.metrics_stats.state_dict(),
                 'macro_params': self.macro_params}
-    def load_state_dict(self, state_dict)->None:
+
+    def load_state_dict(self, state_dict) -> None:
         self.metrics_stats.load_state_dict(state_dict['metrics_stats'])
         self.macro_params = state_dict['macro_params']
 
-    def model_desc(self)->ModelDesc:
+    def model_desc(self) -> ModelDesc:
         return self.metrics_stats.model_desc
 
-class Search:
-    def __init__(self, conf_search:Config, cell_builder:Optional[CellBuilder],
-                 trainer_class:TArchTrainer, finalizers:Finalizers) -> None:
+
+@ray.remote(num_gpus=1)
+def search_desc(model_desc: ModelDesc, search_iter: int, cell_builder: CellBuilder, trainer_class: TArchTrainer, finalizers: Finalizers, train_dl: DataLoader, val_dl: DataLoader, conf_train: Config) -> Tuple[ModelDesc, MetricsStats]:
+
+    # TODO: all parallel processes will create this same folder and cause problems in logging
+    logger.pushd('arch_search')
+
+    nas_utils.build_cell(model_desc, cell_builder, search_iter)
+
+    model = nas_utils.model_from_desc(model_desc,
+                                        droppath=False,
+                                        affine=False)
+
+    # get data
+    assert train_dl is not None
+
+    # search arch
+    arch_trainer = trainer_class(conf_train, model, checkpoint=None)
+    train_metrics = arch_trainer.fit(train_dl, val_dl)
+
+    metrics_stats = SearchDistributed._create_metrics_stats(
+        model, train_metrics, finalizers)
+    found_desc = metrics_stats.model_desc
+
+    logger.popd()
+
+    return found_desc, metrics_stats
+
+@ray.remote(num_gpus=1)
+def train_desc(model_desc: ModelDesc, conf_train: Config, finalizers: Finalizers, train_dl: DataLoader, val_dl: DataLoader) -> Tuple[ModelDesc, MetricsStats]:
+    """Train given description"""
+    # region conf vars
+    conf_trainer = conf_train['trainer']
+    conf_loader = conf_train['loader']
+    trainer_title = conf_trainer['title']
+    epochs = conf_trainer['epochs']
+    drop_path_prob = conf_trainer['drop_path_prob']
+    # endregion
+
+    # TODO: 
+    logger.pushd(trainer_title)
+
+    if epochs == 0:
+        # nothing to pretrain, save time
+        metrics_stats = MetricsStats(model_desc, None, None)
+    else:
+        model = nas_utils.model_from_desc(model_desc,
+                                            droppath=drop_path_prob > 0.0,
+                                            affine=True)
+
+        # get data
+        assert train_dl is not None
+
+        trainer = Trainer(conf_trainer, model, checkpoint=None)
+        train_metrics = trainer.fit(train_dl, val_dl)
+
+        metrics_stats = SearchDistributed._create_metrics_stats(
+            model, train_metrics, finalizers)
+
+    logger.popd()
+    return model_desc, metrics_stats
+
+
+class SearchDistributed:
+    def __init__(self, conf_search: Config, cell_builder: Optional[CellBuilder],
+                 trainer_class: TArchTrainer, finalizers: Finalizers) -> None:
         # region config vars
         conf_checkpoint = conf_search['checkpoint']
         resume = conf_search['resume']
@@ -130,37 +201,68 @@ class Search:
                      'max_nodes': self.max_nodes
                      })
 
-    def generate_pareto(self)->ModelDesc:
-        macro_combinations = list(self._macro_combinations())
-        start_macro, best_result = self._restore_checkpoint(macro_combinations)
+        # initialize ray for distributed training
+        ray.init()
 
-        for macro_comb_i in range(start_macro, len(macro_combinations)):
-            reductions, cells, nodes = macro_combinations[macro_comb_i]
-            logger.pushd(f'r{reductions}.c{cells}.n{nodes}')
+        # parent models list
+        self._parent_models = []
 
-            model_desc = self._build_macro(reductions, cells, nodes)
+        # init models list
+        self._init_models = []
 
-            # prep seed model and train it
-            model_desc = self._seed_model(model_desc, reductions, cells, nodes)
-
-            model_desc, best_result = self._search_iters(model_desc, best_result,
-                                                         reductions, cells, nodes)
-
-            assert best_result is not None
-            self._record_checkpoint(macro_comb_i, best_result)
-            logger.popd() # reductions, cells, nodes
+        # child models list
+        self._child_models = []
 
 
-        assert best_result is not None
-        best_result.model_desc().clear_trainables()
-        logger.info({'best_macro_params':best_result.macro_params,
-                     'best_metric':best_result.metrics_stats})
-        best_result.model_desc().save(self.final_desc_filename)
+    def _get_seed_model_desc(self) -> Tuple[int, int, int]:
+        return self.base_reductions, self.base_cells, self.base_nodes
 
-        return best_result.model_desc()
+
+    def _sample_model_from_parent_pool(self):
+        # TODO: Right now just random sampling
+        # implement proper convex hull based sampling later
+        index = random.randint(0, len(self._parent_models) - 1)
+        return self._parent_models[index]
+
+
+    def search_loop(self)->None:
+        # get seed model
+        reductions, cells, nodes = self._get_seed_model_desc()
+        model_desc = self._build_macro(reductions, cells, nodes)
+        # prep seed model and add to the parent set
+        model_desc = self._seed_model(model_desc, reductions, cells, nodes)
+        self._parent_models.append((model_desc, None))
+
+        # sample a model from parent pool for initialization phase
+        sampled_model_desc = self._sample_model_from_parent_pool()
+
+        # seed train that model
+        search_iter = -1
+        train_dl, val_dl = self.get_data(self.conf_loader)
+        search_ids = [search_desc.remote(sampled_model_desc, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)]
+        child_ids = []
+    
+
+        while len(search_ids):
+            # handle search jobs 
+            print(f'Num search jobs {len(search_ids)}')
+            search_id_done, search_ids = ray.wait(search_ids)
+            print(f'After ray.wait on search pool {len(search_ids)}')
+            search_model_desc, search_metrics_stats = ray.get(search_id_done[0])
+
+            # a model just got initialized
+            # push a job to the child pool to train it
+            this_child_id = train_desc.remote(search_model_desc, self.conf_train, self.finalizers, train_dl, val_dl)
+            child_ids.append(this_child_id)
+
+            # handle child jobs
+            child_id_done, child_ids = ray.wait(child_ids)
+            child_model_desc, child_metrics_stats = ray.get(child_id_done[0])
+            self._parent_models.append((child_model_desc, child_metrics_stats))
+
 
     def _restore_checkpoint(self, macro_combinations)\
-            ->Tuple[int, Optional[SearchResult]]:
+            -> Tuple[int, Optional[SearchResult]]:
         checkpoint_avail = self._checkpoint is not None
         resumed, state = False, None
         start_macro, best_result = 0, None
@@ -168,10 +270,12 @@ class Search:
             state = self._checkpoint.get('search', None)
             if state is not None:
                 start_macro = state['start_macro']
-                assert start_macro >= 0 and start_macro < len(macro_combinations)
-                best_result = yaml.load(state['best_result'], Loader=yaml.Loader)
+                assert start_macro >= 0 and start_macro < len(
+                    macro_combinations)
+                best_result = yaml.load(
+                    state['best_result'], Loader=yaml.Loader)
 
-                start_macro += 1 # resume after the last checkpoint
+                start_macro += 1  # resume after the last checkpoint
                 resumed = True
 
         if not resumed:
@@ -184,7 +288,8 @@ class Search:
                      'total_macro_combinations': len(macro_combinations)})
         return start_macro, best_result
 
-    def _record_checkpoint(self, macro_comb_i:int, best_result:SearchResult)->None:
+
+    def _record_checkpoint(self, macro_comb_i: int, best_result: SearchResult) -> None:
         if self._checkpoint is not None:
             state = {'start_macro': macro_comb_i,
                      'best_result': yaml.dump(best_result)}
@@ -192,62 +297,34 @@ class Search:
             self._checkpoint['search'] = state
             self._checkpoint.commit()
 
-    def _search_iters(self, model_desc:ModelDesc, best_result:Optional[SearchResult],
-                      reductions:int, cells:int, nodes:int)->\
-                          Tuple[ModelDesc, Optional[SearchResult]]:
-        for search_iter in range(self.search_iters):
-            logger.pushd(f'{search_iter}')
 
-            # execute search iteration followed by training the model
-            model_desc = self._search_desc(model_desc, search_iter)
-            metrics_stats = self._train_desc(model_desc, self.conf_postsearch_train)
-            model_desc = metrics_stats.model_desc
-
-            # save result
-            self._save_trained(reductions, cells, nodes, search_iter, metrics_stats)
-            if metrics_stats.is_better(best_result.metrics_stats \
-                                       if best_result is not None else None):
-                best_result = SearchResult(metrics_stats,(reductions, cells, nodes))
-
-            logger.popd() # search_iter
-
-        return model_desc, best_result
-
-    def _seed_model(self, model_desc, reductions, cells, nodes)->ModelDesc:
+    def _seed_model(self, model_desc, reductions, cells, nodes) -> ModelDesc:
         if self.cell_builder:
             self.cell_builder.seed(model_desc)
         metrics_stats = self._train_desc(model_desc, self.conf_presearch_train)
         self._save_trained(reductions, cells, nodes, -1, metrics_stats)
         return metrics_stats.model_desc
 
-    def _macro_combinations(self)->Iterator[Tuple[int, int, int]]:
-        if not self.pareto_enabled:
-            yield self.base_reductions, self.base_cells, self.base_nodes
-        else:
-            # TODO: what happens when reductions is 3 but cells is 2? have to step 
-            # through code and check
-            for reductions in range(self.base_reductions, self.max_reductions+1):
-                for cells in range(self.base_cells, self.max_cells+1):
-                    for nodes in range(self.base_nodes, self.max_nodes+1):
-                        yield reductions, cells, nodes
 
-    def _build_macro(self, reductions:int, cells:int, nodes:int)->ModelDesc:
+    def _build_macro(self, reductions: int, cells: int, nodes: int) -> ModelDesc:
         conf_model_desc = copy.deepcopy(self.conf_model_desc)
         conf_model_desc['n_reductions'] = reductions
         conf_model_desc['n_cells'] = cells
         # create model desc for search using model config
         # we will build model without call to cell_builder for pre-training
         model_desc = nas_utils.create_macro_desc(self.conf_model_desc,
-                                    template_model_desc=None)
+                                                 template_model_desc=None)
         return model_desc
 
-    def _save_trained(self, reductions:int, cells:int, nodes:int,
-                      search_iter:int,
-                      metrics_stats:MetricsStats)->None:
+
+    def _save_trained(self, reductions: int, cells: int, nodes: int,
+                      search_iter: int,
+                      metrics_stats: MetricsStats) -> None:
         """Save the model and metric info into a log file"""
 
         # construct path where we will save
-        subdir = utils.full_path(self.metrics_dir.format(**vars()), create=True)
+        subdir = utils.full_path(
+            self.metrics_dir.format(**vars()), create=True)
 
         # save metric_infi
         metrics_stats_filepath = os.path.join(subdir, 'metrics_stats.yaml')
@@ -273,8 +350,10 @@ class Search:
                 train_top1 = best_metrics[0].top1.avg
                 train_epoch = best_metrics[0].index
                 if best_metrics[1]:
-                    val_top1 = best_metrics[1].top1.avg if len(best_metrics)>1 else math.nan
-                    val_epoch = best_metrics[1].index if len(best_metrics)>1 else math.nan
+                    val_top1 = best_metrics[1].top1.avg if len(
+                        best_metrics) > 1 else math.nan
+                    val_epoch = best_metrics[1].index if len(
+                        best_metrics) > 1 else math.nan
 
             # extract model stats
             if metrics_stats.model_stats:
@@ -298,9 +377,10 @@ class Search:
                 ('params', parameters),
                 ('inference_memory', inference_memory),
                 ('inference_duration', inference_duration)
-                ])
+            ])
 
-    def get_data(self, conf_loader:Config)->Tuple[Optional[DataLoader], Optional[DataLoader]]:
+
+    def get_data(self, conf_loader: Config) -> Tuple[Optional[DataLoader], Optional[DataLoader]]:
         # first get from cache
         train_ds, val_ds = self._data_cache.get(id(conf_loader), (None, None))
         # if not found in cache then create
@@ -309,68 +389,11 @@ class Search:
             self._data_cache[id(conf_loader)] = (train_ds, val_ds)
         return train_ds, val_ds
 
-    def _train_desc(self, model_desc:ModelDesc, conf_train:Config)->MetricsStats:
-        """Train given description"""
-        # region conf vars
-        conf_trainer = conf_train['trainer']
-        conf_loader = conf_train['loader']
-        trainer_title = conf_trainer['title']
-        epochs = conf_trainer['epochs']
-        drop_path_prob = conf_trainer['drop_path_prob']
-        # endregion
-
-        logger.pushd(trainer_title)
-
-        if epochs == 0:
-            # nothing to pretrain, save time
-            metrics_stats = MetricsStats(model_desc, None, None)
-        else:
-            model = nas_utils.model_from_desc(model_desc,
-                                              droppath=drop_path_prob>0.0,
-                                              affine=True)
-
-            # get data
-            train_dl, val_dl = self.get_data(conf_loader)
-            assert train_dl is not None
-
-            trainer = Trainer(conf_trainer, model, checkpoint=None)
-            train_metrics = trainer.fit(train_dl, val_dl)
-
-            metrics_stats = Search._create_metrics_stats(model, train_metrics, self.finalizers)
-
-        logger.popd()
-        return metrics_stats
 
     @staticmethod
-    def _create_metrics_stats(model:Model, train_metrics:Metrics, finalizers:Finalizers)->MetricsStats:
-            finalized = finalizers.finalize_model(model, restore_device=False)
-            # model stats is doing some hooks so do it last
-            model_stats = tw.ModelStats(model, [1,3,32,32],# TODO: remove this hard coding
-                                        clone_model=True)
-            return MetricsStats(finalized, train_metrics, model_stats)
-
-    def _search_desc(self, model_desc:ModelDesc, search_iter:int)->ModelDesc:
-        logger.pushd('arch_search')
-
-        nas_utils.build_cell(model_desc, self.cell_builder, search_iter)
-
-        if self.trainer_class:
-            model = nas_utils.model_from_desc(model_desc,
-                                              droppath=False,
-                                              affine=False)
-
-            # get data
-            train_dl, val_dl = self.get_data(self.conf_loader)
-            assert train_dl is not None
-
-            # search arch
-            arch_trainer = self.trainer_class(self.conf_train, model, checkpoint=None)
-            train_metrics = arch_trainer.fit(train_dl, val_dl)
-
-            metrics_stats = Search._create_metrics_stats(model, train_metrics, self.finalizers)
-            found_desc = metrics_stats.model_desc
-        else: # if no trainer needed, for example, for random search
-            found_desc = model_desc
-
-        logger.popd()
-        return found_desc
+    def _create_metrics_stats(model: Model, train_metrics: Metrics, finalizers: Finalizers) -> MetricsStats:
+        finalized = finalizers.finalize_model(model, restore_device=False)
+        # model stats is doing some hooks so do it last
+        model_stats = tw.ModelStats(model, [1, 3, 32, 32],  # TODO: remove this hard coding
+                                    clone_model=True)
+        return MetricsStats(finalized, train_metrics, model_stats)
