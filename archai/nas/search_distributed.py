@@ -31,6 +31,14 @@ from archai.common import utils
 from archai.nas.finalizers import Finalizers
 
 
+
+class ModelDescWrapper:
+    """ Holds a ModelDesc and a flag indicating whether it is an initialization or a child one """
+    def __init__(self, model_desc: ModelDesc, is_init: bool):
+        self.model_desc = model_desc
+        self.is_init = is_init
+
+
 class MetricsStats:
     """Holds model statistics and training metrics for given description"""
 
@@ -98,12 +106,15 @@ class SearchResult:
 
 
 
-
 @ray.remote(num_gpus=1)
-def search_desc(model_desc, search_iter, cell_builder, trainer_class, finalizers, train_dl, val_dl, conf_train):
+def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, finalizers, train_dl, val_dl, conf_train):
     ''' Remote function which does petridish candidate initialization '''
     # TODO: all parallel processes will create this same folder and cause problems in logging
     logger.pushd('arch_search')
+
+    model_desc = model_desc_wrapped.model_desc
+
+    assert model_desc_wrapped.is_init == True
 
     nas_utils.build_cell(model_desc, cell_builder, search_iter)
 
@@ -126,8 +137,9 @@ def search_desc(model_desc, search_iter, cell_builder, trainer_class, finalizers
 
     return found_desc, metrics_stats
 
+
 @ray.remote(num_gpus=1)
-def train_desc(model_desc: ModelDesc, conf_train: Config, finalizers: Finalizers, train_dl: DataLoader, val_dl: DataLoader) -> Tuple[ModelDesc, MetricsStats]:
+def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, train_dl: DataLoader, val_dl: DataLoader) -> Tuple[ModelDesc, MetricsStats]:
     """Train given description"""
     # region conf vars
     conf_trainer = conf_train['trainer']
@@ -139,6 +151,9 @@ def train_desc(model_desc: ModelDesc, conf_train: Config, finalizers: Finalizers
 
     # TODO: 
     logger.pushd(trainer_title)
+
+    model_desc = model_desc_wrapped.model_desc
+    assert model_desc_wrapped.is_init == False
 
     if epochs == 0:
         # nothing to pretrain, save time
@@ -209,11 +224,7 @@ class SearchDistributed:
         # parent models list
         self._parent_models = []
 
-        # init models list
-        self._init_models = []
-
-        # child models list
-        self._child_models = []
+       
 
 
     def _get_seed_model_desc(self) -> Tuple[int, int, int]:
@@ -233,35 +244,40 @@ class SearchDistributed:
         model_desc = self._build_macro(reductions, cells, nodes)
         # prep seed model and add to the parent set
         model_desc = self._seed_model(model_desc, reductions, cells, nodes)
+        model_desc_wrapped = ModelDescWrapper(model_desc, True)
         self._parent_models.append((model_desc, None))
 
         # sample a model from parent pool for initialization phase
-        sampled_model_desc, sampled_metrics_stats = self._sample_model_from_parent_pool()
+        sampled_model_desc_wrapped, _ = self._sample_model_from_parent_pool()
 
         # seed train that model
         search_iter = -1
         train_dl, val_dl = self.get_data(self.conf_loader)
-        search_ids = [search_desc.remote(sampled_model_desc, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)]
-        child_ids = []
+        future_ids = [search_desc.remote(sampled_model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)]
     
+        while len(future_ids):
+            print(f'Num jobs currently in queue {len(future_ids)}')
 
-        while len(search_ids):
-            # handle search jobs 
-            print(f'Num search jobs {len(search_ids)}')
-            search_id_done, search_ids = ray.wait(search_ids)
-            print(f'After ray.wait on search pool {len(search_ids)}')
-            search_model_desc, search_metrics_stats = ray.get(search_id_done[0])
+            job_id_done, future_ids = ray.wait(future_ids)
+            model_desc_wrapped, metrics_stats = ray.get(job_id_done[0])
 
-            # a model just got initialized
-            # push a job to the child pool to train it
-            this_child_id = train_desc.remote(search_model_desc, self.conf_train, self.finalizers, train_dl, val_dl)
-            child_ids.append(this_child_id)
-
-            # handle child jobs
-            child_id_done, child_ids = ray.wait(child_ids)
-            child_model_desc, child_metrics_stats = ray.get(child_id_done[0])
-            self._parent_models.append((child_model_desc, child_metrics_stats))
-
+            if model_desc_wrapped.is_init:
+                # a model just got initialized
+                # push a job to train it
+                model_desc_wrapped.is_init = False
+                this_child_id = train_desc.remote(model_desc_wrapped, self.conf_train, self.finalizers, train_dl, val_dl)
+                future_ids.append(this_child_id) 
+            else:
+                # a child job finished. 
+                # add it to the parent models pool
+                model_desc_wrapped.is_init = True
+                self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
+                # sample a model from parent pool
+                model_desc = self._sample_model_from_parent_pool()
+                model_desc_wrapped = ModelDescWrapper(model_desc, True)
+                this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)
+                future_ids.append(this_search_id)
+            
 
     def _restore_checkpoint(self, macro_combinations)\
             -> Tuple[int, Optional[SearchResult]]:
@@ -303,7 +319,6 @@ class SearchDistributed:
     def _seed_model(self, model_desc, reductions, cells, nodes) -> ModelDesc:
         if self.cell_builder:
             self.cell_builder.seed(model_desc)
-        train_dl, val_dl = self.get_data(self.conf_loader)
         metrics_stats = self._train_desc(model_desc, self.conf_presearch_train)
         self._save_trained(reductions, cells, nodes, -1, metrics_stats)
         return metrics_stats.model_desc
@@ -351,6 +366,7 @@ class SearchDistributed:
 
         logger.popd()
         return metrics_stats
+
 
     def _save_trained(self, reductions: int, cells: int, nodes: int,
                       search_iter: int,
