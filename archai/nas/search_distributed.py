@@ -222,16 +222,19 @@ class SearchDistributed:
         ray.init()
 
         # parent models list
-        self._parent_models = []
+        self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
 
        
-
-
     def _get_seed_model_desc(self) -> Tuple[int, int, int]:
         return self.base_reductions, self.base_cells, self.base_nodes
 
 
     def _sample_model_from_parent_pool(self):
+        points = []
+        for model_desc, metrics_stats in self._parent_models:
+            points[]
+
+
         # TODO: Right now just random sampling
         # implement proper convex hull based sampling later
         index = random.randint(0, len(self._parent_models) - 1)
@@ -256,7 +259,7 @@ class SearchDistributed:
         future_ids = [search_desc.remote(sampled_model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)]
     
         while len(future_ids):
-            print(f'Num jobs currently in queue {len(future_ids)}')
+            print(f'Num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 
             job_id_done, future_ids = ray.wait(future_ids)
             model_desc_wrapped, metrics_stats = ray.get(job_id_done[0])
@@ -273,7 +276,7 @@ class SearchDistributed:
                 model_desc_wrapped.is_init = True
                 self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
                 # sample a model from parent pool
-                model_desc = self._sample_model_from_parent_pool()
+                model_desc, _ = self._sample_model_from_parent_pool()
                 model_desc_wrapped = ModelDescWrapper(model_desc, True)
                 this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)
                 future_ids.append(this_search_id)
