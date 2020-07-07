@@ -11,6 +11,8 @@ from queue import Queue
 # only works on linux
 import ray
 
+import numpy as np
+
 import torch
 import tensorwatch as tw
 from torch.utils.data.dataloader import DataLoader
@@ -29,6 +31,7 @@ from archai.nas.model import Model
 from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
+from archai.algos.petridish.petridish_geometry import _convex_hull_from_points
 
 
 
@@ -48,6 +51,7 @@ class MetricsStats:
         self.model_desc = model_desc
         self.train_metrics = train_metrics
         self.model_stats = model_stats
+        self.num_sampled = 0
 
     def __str__(self) -> str:
         best = self.best_metrics()
@@ -230,15 +234,28 @@ class SearchDistributed:
 
 
     def _sample_model_from_parent_pool(self):
-        points = []
-        for model_desc, metrics_stats in self._parent_models:
-            points[]
+        xs = []
+        ys = []
+        for _, metrics_stats in self._parent_models:
+            xs.append(metrics_stats.model_stats.Flops)
+            ys.append(metrics_stats.best_metrics().top1.avg)
 
+        # TODO: Make config
+        convex_hull_eps = 0.025
 
-        # TODO: Right now just random sampling
-        # implement proper convex hull based sampling later
-        index = random.randint(0, len(self._parent_models) - 1)
-        return self._parent_models[index]
+        _, eps_indices = _convex_hull_from_points(xs, ys, eps=convex_hull_eps)
+
+        # reverse sort by performance        
+        x_y_num_sampled = [(xs[i], ys[i], self._parent_models[i][1].num_sampled) for i in eps_indices]
+        x_y_num_sampled.sort(reverse=True, key=lambda x:x[1])
+
+        # go through sorted list of models near convex hull 
+        while(True):
+            for i, (_, _, num_sampled) in enumerate(x_y_num_sampled):
+                p = 1.0 / (num_sampled + 1.0)
+                should_select = np.random.binomial(1, p)
+                if should_select == 1:
+                    return self._parent_models[i]                    
 
 
     def search_loop(self)->None:
@@ -248,15 +265,11 @@ class SearchDistributed:
         # prep seed model and add to the parent set
         model_desc = self._seed_model(model_desc, reductions, cells, nodes)
         model_desc_wrapped = ModelDescWrapper(model_desc, True)
-        self._parent_models.append((model_desc, None))
-
-        # sample a model from parent pool for initialization phase
-        sampled_model_desc_wrapped, _ = self._sample_model_from_parent_pool()
 
         # seed train that model
         search_iter = -1
         train_dl, val_dl = self.get_data(self.conf_loader)
-        future_ids = [search_desc.remote(sampled_model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)]
+        future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)]
     
         while len(future_ids):
             print(f'Num jobs currently in pool (waiting or being processed) {len(future_ids)}')
@@ -272,8 +285,10 @@ class SearchDistributed:
                 future_ids.append(this_child_id) 
             else:
                 # a child job finished. 
-                # add it to the parent models pool
                 model_desc_wrapped.is_init = True
+                # increase the counter tracking number of times it has been sampled
+                metrics_stats.num_sampled += 1
+                # add it to the parent models pool
                 self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
                 # sample a model from parent pool
                 model_desc, _ = self._sample_model_from_parent_pool()
