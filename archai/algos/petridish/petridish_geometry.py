@@ -26,7 +26,8 @@ def _convex_hull_from_points(xs, ys, eps=None, allow_increase=False):
 
     Return:
 
-    indices (list): indices for the points on the hull.
+    hull_indices (list): indices for the points on the hull exactly
+    eps_indices (list): indices for the points on the hull + eps tolerance
     """
     indices = list(range(len(xs)))
     if len(xs) <= 1:
