@@ -203,6 +203,7 @@ def _setup_logger(apex:ApexUtils):
     expdir = conf_common['expdir']
     distdir = conf_common['distdir']
     log_prefix = conf_common['log_prefix']
+    yaml_log = conf_common['yaml_log']
 
     global_rank = apex.global_rank
 
@@ -227,7 +228,7 @@ def _setup_logger(apex:ApexUtils):
             'log_prefix not specified, logs will be stdout only')
 
     # reset to new file path
-    logger.reset(logs_yaml_filepath, sys_logger)
+    logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log)
     logger.info({'command_line': ' '.join(sys.argv[1:])})
     logger.info({
         'datetime:': datetime.datetime.now(),
