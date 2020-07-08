@@ -202,18 +202,19 @@ def _setup_logger(apex:ApexUtils):
     conf_common = get_conf_common()
     expdir = conf_common['expdir']
     distdir = conf_common['distdir']
+    log_prefix = conf_common['log_prefix']
 
     global_rank = apex.global_rank
 
     # file where logger would log messages
     if apex.is_master():
-        sys_log_filepath = utils.full_path(os.path.join(expdir, 'logs.log'))
-        logs_yaml_filepath = utils.full_path(os.path.join(expdir, 'logs.yaml'))
+        sys_log_filepath = utils.full_path(os.path.join(expdir, f'{log_prefix}.log')) if log_prefix else None
+        logs_yaml_filepath = utils.full_path(os.path.join(expdir, f'{log_prefix}.yaml')) if log_prefix else None
         experiment_name = get_experiment_name()
         enable_stdout = True
     else:
-        sys_log_filepath = utils.full_path(os.path.join(distdir, f'logs_{global_rank}.log'))
-        logs_yaml_filepath = utils.full_path(os.path.join(distdir, f'logs_{global_rank}.yaml'))
+        sys_log_filepath = utils.full_path(os.path.join(distdir, f'{log_prefix}_{global_rank}.log'))
+        logs_yaml_filepath = utils.full_path(os.path.join(distdir, f'{log_prefix}_{global_rank}.yaml'))
         experiment_name = get_experiment_name() + '_' + str(global_rank)
         enable_stdout = False
     print(f'log_global_rank={global_rank}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}')
@@ -223,7 +224,7 @@ def _setup_logger(apex:ApexUtils):
                                      enable_stdout=enable_stdout)
     if not sys_log_filepath:
         sys_logger.warn(
-            'logdir not specified, no logs will be created or any models saved')
+            'log_prefix not specified, logs will be stdout only')
 
     # reset to new file path
     logger.reset(logs_yaml_filepath, sys_logger)
