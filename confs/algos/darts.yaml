@@ -4,6 +4,8 @@ common:
   experiment_name: 'throwaway' # you should supply from command line
   experiment_desc: 'throwaway'
   logdir: '~/logdir'
+  log_prefix: 'log' # prefix for log files that will becreated (log.log and log.yaml), no log files if ''
+  yaml_log: True # if True, structured logs as yaml are also generated
   seed: 2.0
   tb_enable: False # if True then TensorBoard logging is enabled (may impact perf)
   tb_dir: '$expdir/tb' # path where tensorboard logs would be stored
