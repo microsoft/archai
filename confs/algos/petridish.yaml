@@ -1,7 +1,8 @@
 __include__: 'darts.yaml' # defaults are loaded from this file
 
-# common:
-#   experiment_name: 'petridish_run2_seed42_eval'
+common:
+  yaml_log: False
+  log_prefix: ''
 
 nas:
   eval:

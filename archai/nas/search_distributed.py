@@ -223,7 +223,8 @@ class SearchDistributed:
                      })
 
         # initialize ray for distributed training
-        ray.init()
+        # NOTE: for debugging only setting num cpus to 1
+        ray.init(num_cpus=1, num_gpus=1)
 
         # parent models list
         self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
@@ -295,6 +296,7 @@ class SearchDistributed:
                 model_desc_wrapped = ModelDescWrapper(model_desc, True)
                 this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)
                 future_ids.append(this_search_id)
+                print('Just added a new model to processing pool')
             
 
     def _restore_checkpoint(self, macro_combinations)\
