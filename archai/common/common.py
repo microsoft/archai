@@ -100,6 +100,9 @@ def _setup_pt(param_args: list)->Tuple[str,str, list]:
 
     return pt_data_dir, pt_output_dir, param_args
 
+def get_state()->CommonState:
+    return CommonState()
+
 def init_from(state:CommonState)->None:
     global logger, _tb_writer
     logger = state.logger
