@@ -31,9 +31,11 @@ class SummaryWriterDummy:
         pass
 
 SummaryWriterAny = Union[SummaryWriterDummy, SummaryWriter]
+
 logger = OrderedDictLogger(None, None)
 _tb_writer: SummaryWriterAny = None
 _atexit_reg = False # is hook for atexit registered?
+
 
 def get_conf()->Config:
     return Config.get_inst()
@@ -63,6 +65,13 @@ def get_tb_writer() -> SummaryWriterAny:
     global _tb_writer
     return _tb_writer
 
+class CommonState:
+    def __init__(self) -> None:
+        global logger, _tb_writer
+        self.logger = logger
+        self.tb_writer = _tb_writer
+        self.conf = get_conf()
+
 def on_app_exit():
     writer = get_tb_writer()
     writer.flush()
@@ -91,6 +100,13 @@ def _setup_pt(param_args: list)->Tuple[str,str, list]:
 
     return pt_data_dir, pt_output_dir, param_args
 
+def init_from(state:CommonState)->None:
+    global logger, _tb_writer
+    logger = state.logger
+    _tb_writer = state.tb_writer
+    Config.set_inst(state.conf)
+
+# TODO: rename this simply as init
 # initializes random number gen, debugging etc
 def common_init(config_filepath: Optional[str]=None,
                 param_args: list = [], log_level=logging.INFO, use_args=True)->Config:
