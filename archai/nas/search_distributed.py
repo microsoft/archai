@@ -7,6 +7,8 @@ import copy
 import random
 import os
 from queue import Queue
+import secrets
+import string
 
 # only works on linux
 import ray
@@ -139,7 +141,10 @@ def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, fi
 
     logger.popd()
 
-    return found_desc, metrics_stats
+    # wrap again
+    found_desc_wrapped = ModelDescWrapper(found_desc, model_desc_wrapped.is_init)
+
+    return found_desc_wrapped, metrics_stats
 
 
 @ray.remote(num_gpus=1)
@@ -153,8 +158,12 @@ def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, t
     drop_path_prob = conf_trainer['drop_path_prob']
     # endregion
 
-    # TODO: 
-    logger.pushd(trainer_title)
+    # TODO: logger was throwing errors that key already exists
+    # current hack is to add a random string to create subfolder
+    # need more principled workaround to this
+    res = ''.join(secrets.choice(string.ascii_uppercase + string.digits) 
+                                                  for i in range(7)) 
+    logger.pushd(trainer_title.join(res))
 
     model_desc = model_desc_wrapped.model_desc
     assert model_desc_wrapped.is_init == False
@@ -177,7 +186,7 @@ def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, t
             model, train_metrics, finalizers)
 
     logger.popd()
-    return model_desc, metrics_stats
+    return model_desc_wrapped, metrics_stats
 
 
 class SearchDistributed:
@@ -267,7 +276,7 @@ class SearchDistributed:
         model_desc = self._seed_model(model_desc, reductions, cells, nodes)
         model_desc_wrapped = ModelDescWrapper(model_desc, True)
 
-        # seed train that model
+        # train the seed model
         search_iter = -1
         train_dl, val_dl = self.get_data(self.conf_loader)
         future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)]
@@ -282,7 +291,7 @@ class SearchDistributed:
                 # a model just got initialized
                 # push a job to train it
                 model_desc_wrapped.is_init = False
-                this_child_id = train_desc.remote(model_desc_wrapped, self.conf_train, self.finalizers, train_dl, val_dl)
+                this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl)
                 future_ids.append(this_child_id) 
             else:
                 # a child job finished. 
