@@ -129,11 +129,11 @@ class Metrics:
         epoch.pre_epoch(lr)
         if lr is not None:
             writer = get_tb_writer()
-            print(writer)
-            if self.logger_freq > 0 and not math.isnan(lr):
-                logger.debug({'start_lr': lr})
-            writer.add_scalar(f'{self._tb_path}/train_steps/lr',
-                                lr, self.global_step)
+            if writer is not None:
+                if self.logger_freq > 0 and not math.isnan(lr):
+                    logger.debug({'start_lr': lr})
+                writer.add_scalar(f'{self._tb_path}/train_steps/lr',
+                                    lr, self.global_step)
 
     def post_epoch(self, val_metrics:Optional['Metrics'], lr:float=math.nan):
         epoch = self.run_metrics.cur_epoch()
