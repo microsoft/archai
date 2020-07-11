@@ -20,7 +20,8 @@ import tensorwatch as tw
 from torch.utils.data.dataloader import DataLoader
 import yaml
 
-from archai.common.common import logger
+from archai.common import common
+from archai.common.common import logger, CommonState
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
 from archai.nas.cell_builder import CellBuilder
@@ -113,8 +114,9 @@ class SearchResult:
 
 
 @ray.remote(num_gpus=1)
-def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, finalizers, train_dl, val_dl, conf_train):
+def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, finalizers, train_dl, val_dl, conf_train, common_state):
     ''' Remote function which does petridish candidate initialization '''
+    common.init_from(common_state)
     # TODO: all parallel processes will create this same folder and cause problems in logging
     logger.pushd('arch_search')
 
@@ -148,8 +150,9 @@ def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, fi
 
 
 @ray.remote(num_gpus=1)
-def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, train_dl: DataLoader, val_dl: DataLoader) -> Tuple[ModelDesc, MetricsStats]:
+def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, train_dl: DataLoader, val_dl: DataLoader, common_state: CommonState) -> Tuple[ModelDesc, MetricsStats]:
     """Train given description"""
+    common.init_from(common_state)
     # region conf vars
     conf_trainer = conf_train['trainer']
     conf_loader = conf_train['loader']
@@ -279,7 +282,7 @@ class SearchDistributed:
         # train the seed model
         search_iter = -1
         train_dl, val_dl = self.get_data(self.conf_loader)
-        future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)]
+        future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())]
     
         while len(future_ids):
             print(f'Num jobs currently in pool (waiting or being processed) {len(future_ids)}')
@@ -291,7 +294,7 @@ class SearchDistributed:
                 # a model just got initialized
                 # push a job to train it
                 model_desc_wrapped.is_init = False
-                this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl)
+                this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl, common.get_state())
                 future_ids.append(this_child_id) 
             else:
                 # a child job finished. 
@@ -303,7 +306,7 @@ class SearchDistributed:
                 # sample a model from parent pool
                 model_desc, _ = self._sample_model_from_parent_pool()
                 model_desc_wrapped = ModelDescWrapper(model_desc, True)
-                this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train)
+                this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
                 future_ids.append(this_search_id)
                 print('Just added a new model to processing pool')
             
