@@ -64,7 +64,7 @@ if __name__ == '__main__':
     ray.init(num_gpus=2)
 
     common.common_init(config_filepath='confs/algos/darts.yaml',
-                       param_args=['--common.experiment_name', 'restnet_test'])
+                       param_args=['--common.experiment_name', 'resnet_test'])
 
     train_test_dist()
 
