@@ -28,7 +28,7 @@ from archai.common.config import Config
 from archai.nas.cell_builder import CellBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
-from archai.nas.model_desc import CellType, ModelDesc
+from archai.nas.model_desc import CellType, ModelDesc=  =
 from archai.common.trainer import Trainer
 from archai.datasets import data
 from archai.nas.model import Model
@@ -118,13 +118,13 @@ class SearchResult:
 def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, finalizers, train_dl, val_dl, conf_train, common_state):
     ''' Remote function which does petridish candidate initialization '''
     common.init_from(common_state)
-    # TODO: all parallel processes will create this same folder and cause problems in logging
     logger.pushd('arch_search')
 
     model_desc = model_desc_wrapped.model_desc
-
     assert model_desc_wrapped.is_init == True
 
+    # NOTE: if this is recreating the model from scratch,
+    # how will we warm start?
     nas_utils.build_cell(model_desc, cell_builder, search_iter)
 
     model = nas_utils.model_from_desc(model_desc,
@@ -135,6 +135,10 @@ def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, fi
     assert train_dl is not None
 
     # search arch
+    # NOTE TODO: This gets passed ArchTrainer which is derived from Trainer.
+    # The main difference seems to be that ArchTrainer adds L1 regularization loss
+    # to the overall loss function. This is Petridish-specific code but written out to be 
+    # generic. Perhaps needs a better name! 
     arch_trainer = trainer_class(conf_train, model, checkpoint=None)
     train_metrics = arch_trainer.fit(train_dl, val_dl)
 
@@ -176,6 +180,7 @@ def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, t
         # nothing to pretrain, save time
         metrics_stats = MetricsStats(model_desc, None, None)
     else:
+        # why don't we need nas_utils.build_cells first as in search desc?
         model = nas_utils.model_from_desc(model_desc,
                                             droppath=drop_path_prob > 0.0,
                                             affine=True)
