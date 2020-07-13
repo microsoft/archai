@@ -11,6 +11,9 @@ nas:
     loader:
       train_batch: 64
   search:
+    petridish:
+      convex_hull_eps: 0.025 # tolerance 
+      max_parent_samples: 10000000 # maximum number of trials in the parent pool sampler function before giving up and returning a random parent model
     search_iters: 4
     pareto:
       max_cells: 8
@@ -26,7 +29,7 @@ nas:
         epochs: 80 # number of epochs model will be trained before search
     post_train:
       trainer:
-        epochs: 80 # number of epochs model will be trained before search
+        epochs: 80 # number of epochs model will be trained after search
     trainer:
       l1_alphas:  0.001   # as per paper
       epochs: 80 # number of epochs model will be trained before search

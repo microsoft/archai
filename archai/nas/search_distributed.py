@@ -14,6 +14,7 @@ import string
 import ray
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 import torch
 import tensorwatch as tw
@@ -216,6 +217,7 @@ class SearchDistributed:
         self.search_iters = conf_search['search_iters']
         self.pareto_enabled = conf_pareto['enabled']
         pareto_summary_filename = conf_pareto['summary_filename']
+        self.conf_petridish = conf_search['petridish']
         # endregion
 
         self.cell_builder = cell_builder
@@ -224,6 +226,9 @@ class SearchDistributed:
         self._data_cache = {}
         self._parito_filepath = utils.full_path(pareto_summary_filename)
         self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
+
+        self._convex_hull_eps = self.conf_petridish['convex_hull_eps']
+        self._max_parent_samples = self.conf_petridish['max_parent_samples']
 
         logger.info({'pareto_enabled': self.pareto_enabled,
                      'base_reductions': self.base_reductions,
@@ -250,25 +255,49 @@ class SearchDistributed:
         xs = []
         ys = []
         for _, metrics_stats in self._parent_models:
-            xs.append(metrics_stats.model_stats.Flops)
+            xs.append(metrics_stats.model_stats.MAdd)
             ys.append(metrics_stats.best_metrics().top1.avg)
 
-        # TODO: Make config
-        convex_hull_eps = 0.025
+        hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
 
-        _, eps_indices = _convex_hull_from_points(xs, ys, eps=convex_hull_eps)
+        print(f'Num models in parent pool: {len(self._parent_models)}')
+        print(f'Num models near pareto: {len(eps_indices)}')
 
         # reverse sort by performance        
         x_y_num_sampled = [(xs[i], ys[i], self._parent_models[i][1].num_sampled) for i in eps_indices]
         x_y_num_sampled.sort(reverse=True, key=lambda x:x[1])
 
+        # save a plot of the convex hull to aid debugging
+        
+        hull_xs = [xs[i] for i in eps_indices]
+        hull_ys = [ys[i] for i in eps_indices]
+        bound_xs = [xs[i] for i in hull_indices]
+        bound_ys = [ys[i] * (1+self._convex_hull_eps) for i in hull_indices]
+        plt.plot(bound_xs, bound_ys, c='red', label='eps-bound')
+        plt.scatter(xs, ys, label='pts')
+        plt.scatter(hull_xs, hull_ys, c='black', marker='+', label='eps-hull')
+        plt.xlabel('Multiply-Additions')
+        plt.ylabel('Top1 Accuracy')
+        expdir = common.get_expdir()
+        plt.savefig(os.path.join(expdir, 'convex_hull.png'),
+            dpi=plt.gcf().dpi, bbox_inches='tight')
+
+                
         # go through sorted list of models near convex hull 
-        while(True):
+        counter = 0
+        while(counter < self._max_parent_samples):
+            counter += 1
             for i, (_, _, num_sampled) in enumerate(x_y_num_sampled):
                 p = 1.0 / (num_sampled + 1.0)
                 should_select = np.random.binomial(1, p)
                 if should_select == 1:
                     return self._parent_models[i]                    
+        
+        # if here, sampling was not successful
+        print('WARNING: sampling was not successful, returning a random parent')
+        ind = random.randint(0, len(self._parent_models)-1)
+        return self._parent_models[ind]
+
 
 
     def search_loop(self)->None:
@@ -293,10 +322,12 @@ class SearchDistributed:
             if model_desc_wrapped.is_init:
                 # a model just got initialized
                 # push a job to train it
+                print('Model just got initialized.')
                 model_desc_wrapped.is_init = False
                 this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl, common.get_state())
                 future_ids.append(this_child_id) 
             else:
+                print('Model child just finished training.')
                 # a child job finished. 
                 model_desc_wrapped.is_init = True
                 # increase the counter tracking number of times it has been sampled
