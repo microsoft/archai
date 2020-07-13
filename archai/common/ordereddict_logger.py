@@ -26,11 +26,12 @@ class OrderedDictLogger:
     def __init__(self, filepath:Optional[str], logger:Optional[logging.Logger],
                  save_delay:Optional[float]=30.0, yaml_log=True) -> None:
         super().__init__()
-        self.reset(filepath, logger, save_delay, yaml_log)
+        self.reset(filepath, logger, save_delay, yaml_log=yaml_log)
 
     def reset(self, filepath:Optional[str], logger:Optional[logging.Logger],
                  save_delay:Optional[float]=30.0,
                  load_existing_file=False, backup_existing_file=True, yaml_log=True) -> None:
+
         self._logger = logger
         self._yaml_log = yaml_log
         # stack stores dict for each path
@@ -97,7 +98,7 @@ class OrderedDictLogger:
             with open(filepath, 'w') as f:
                 yaml.dump(self._root(), f)
 
-    def load(self, filepath:str)->None:                
+    def load(self, filepath:str)->None:
         with open(filepath, 'r') as f:
             od = yaml.load(f, Loader=yaml.Loader)
             self._stack = [od]
@@ -119,7 +120,7 @@ class OrderedDictLogger:
                     node:Optional[OrderedDict]=None, path:List[str]=[]):
         if not self._yaml_log:
             return
-        
+
         if not exists_ok and key in self._cur():
             raise KeyError(f'Key "{key}" already exists in log at path {self.path()}')
 
@@ -133,7 +134,7 @@ class OrderedDictLogger:
     def _ensure_paths(self)->None:
         if not self._yaml_log:
             return
-                
+
         if self._stack[-1] is not None:
             return
         last_od = None
@@ -152,7 +153,7 @@ class OrderedDictLogger:
     def pushd(self, *keys:Any)->'OrderedDictLogger':
         if not self._yaml_log:
             return self
-                
+
         """Creates new path as specified by the sequence of the keys"""
         self._paths.append([str(k) for k in keys])
         self._stack.append(None) # delay create
@@ -162,7 +163,7 @@ class OrderedDictLogger:
     def popd(self):
         if not self._yaml_log:
             return
-                
+
         if len(self._stack)==1:
             raise RuntimeError('There is no child logger, popd() call is invalid')
         self._stack.pop()
@@ -171,7 +172,7 @@ class OrderedDictLogger:
     def path(self)->str:
         if not self._yaml_log:
             return '/'
-        
+
         # flatten array of array
         return '/'.join(itertools.chain.from_iterable(self._paths[1:]))
 
