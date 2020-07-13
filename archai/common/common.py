@@ -32,7 +32,7 @@ class SummaryWriterDummy:
 
 SummaryWriterAny = Union[SummaryWriterDummy, SummaryWriter]
 
-logger = OrderedDictLogger(None, None)
+logger = OrderedDictLogger(None, None, yaml_log=False)
 _tb_writer: SummaryWriterAny = None
 _atexit_reg = False # is hook for atexit registered?
 
