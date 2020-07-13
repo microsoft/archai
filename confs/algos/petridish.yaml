@@ -32,7 +32,7 @@ nas:
         epochs: 80 # number of epochs model will be trained after search
     trainer:
       l1_alphas:  0.001   # as per paper
-      epochs: 80 # number of epochs model will be trained before search
+      epochs: 80 # number of epochs model will be trained during search
     loader:
       train_batch: 64
       val_ratio: 0.1 #split portion for test set, 0 to 1

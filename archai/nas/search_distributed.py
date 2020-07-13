@@ -28,7 +28,7 @@ from archai.common.config import Config
 from archai.nas.cell_builder import CellBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
-from archai.nas.model_desc import CellType, ModelDesc=  =
+from archai.nas.model_desc import CellType, ModelDesc
 from archai.common.trainer import Trainer
 from archai.datasets import data
 from archai.nas.model import Model
@@ -318,6 +318,7 @@ class SearchDistributed:
         train_dl, val_dl = self.get_data(self.conf_loader)
         future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())]
     
+        # TODO: Need to add termination criteria and saving of models
         while len(future_ids):
             print(f'Num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 
