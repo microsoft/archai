@@ -124,7 +124,7 @@ def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, fi
     assert model_desc_wrapped.is_init == True
 
     # NOTE: if this is recreating the model from scratch,
-    # how will we warm start?
+    # how will we warm start? Yes, because you are not doing clear_trainables() on the model_desc
     nas_utils.build_cell(model_desc, cell_builder, search_iter)
 
     model = nas_utils.model_from_desc(model_desc,
@@ -245,8 +245,10 @@ class SearchDistributed:
                      })
 
         # initialize ray for distributed training
-        # NOTE: for debugging only setting num cpus to 1
-        ray.init(num_cpus=1, num_gpus=1)
+        ray.init()
+        num_cpus = ray.nodes()[0]['Resources']['CPU']
+        num_gpus = ray.nodes()[0]['Resources']['GPU']
+        logger.info(f'ray detected {num_cpus} cpus and {num_gpus} gpus')
 
         # parent models list
         self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
@@ -265,8 +267,8 @@ class SearchDistributed:
 
         hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
 
-        print(f'Num models in parent pool: {len(self._parent_models)}')
-        print(f'Num models near pareto: {len(eps_indices)}')
+        logger.info(f'num models in parent pool: {len(self._parent_models)}')
+        logger.info(f'num models near pareto: {len(eps_indices)}')
 
         # reverse sort by performance        
         x_y_num_sampled = [(xs[i], ys[i], self._parent_models[i][1].num_sampled) for i in eps_indices]
@@ -287,7 +289,6 @@ class SearchDistributed:
         plt.savefig(os.path.join(expdir, 'convex_hull.png'),
             dpi=plt.gcf().dpi, bbox_inches='tight')
 
-                
         # go through sorted list of models near convex hull 
         counter = 0
         while(counter < self._max_parent_samples):
@@ -299,10 +300,15 @@ class SearchDistributed:
                     return self._parent_models[i]                    
         
         # if here, sampling was not successful
-        print('WARNING: sampling was not successful, returning a random parent')
+        logger.warn('sampling was not successful, returning a random parent')
         ind = random.randint(0, len(self._parent_models)-1)
         return self._parent_models[ind]
 
+
+    def should_terminate_search(self)->bool:
+        ''' Looks at the parent pool and decides whether to terminate search '''
+        # TODO: Implement termination condition
+        return False
 
 
     def search_loop(self)->None:
@@ -310,8 +316,10 @@ class SearchDistributed:
         reductions, cells, nodes = self._get_seed_model_desc()
         model_desc = self._build_macro(reductions, cells, nodes)
         # prep seed model and add to the parent set
+        logger.info("----------------going to train seed model------------------")
         model_desc = self._seed_model(model_desc, reductions, cells, nodes)
         model_desc_wrapped = ModelDescWrapper(model_desc, True)
+        logger.info("----------------finished seed model training---------------")
 
         # train the seed model
         search_iter = -1
@@ -319,8 +327,9 @@ class SearchDistributed:
         future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())]
     
         # TODO: Need to add termination criteria and saving of models
-        while len(future_ids):
-            print(f'Num jobs currently in pool (waiting or being processed) {len(future_ids)}')
+        should_terminate = self.should_terminate_search()
+        while not should_terminate:
+            logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 
             job_id_done, future_ids = ray.wait(future_ids)
             model_desc_wrapped, metrics_stats = ray.get(job_id_done[0])
@@ -328,12 +337,12 @@ class SearchDistributed:
             if model_desc_wrapped.is_init:
                 # a model just got initialized
                 # push a job to train it
-                print('Model just got initialized.')
+                logger.info('model just got initialized.')
                 model_desc_wrapped.is_init = False
                 this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl, common.get_state())
                 future_ids.append(this_child_id) 
             else:
-                print('Model child just finished training.')
+                logger.info('model child just finished training.')
                 # a child job finished. 
                 model_desc_wrapped.is_init = True
                 # increase the counter tracking number of times it has been sampled
@@ -345,7 +354,9 @@ class SearchDistributed:
                 model_desc_wrapped = ModelDescWrapper(model_desc, True)
                 this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
                 future_ids.append(this_search_id)
-                print('Just added a new model to processing pool')
+                logger.info('just added a new model to processing pool')
+
+            should_terminate = self.should_terminate_search()
             
 
     def _restore_checkpoint(self, macro_combinations)\

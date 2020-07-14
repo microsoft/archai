@@ -74,7 +74,11 @@ class PetridishModelBuilder(ModelDescBuilder):
         assert cell_template is not None and len(cell_template.nodes())>0
         assert all(len(n.edges)>0 for n in cell_template.nodes())
 
-        nodes:List[NodeDesc] = [n.clone() for n in cell_template.nodes()]
+        # we operate on last node, inserting another node before it
+        # DEY: check petridish pseudo code again to ascertain
+        new_nodes = [n.clone() for n in cell_desc.nodes()]
+        petridish_node = NodeDesc(edges=[])
+        new_nodes.insert(len(new_nodes)-1, petridish_node)
 
         conv_params = ConvMacroParams(in_shape[0], out_shape[0])
 
