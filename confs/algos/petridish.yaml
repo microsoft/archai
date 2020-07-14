@@ -3,6 +3,12 @@ __include__: 'darts.yaml' # defaults are loaded from this file
 common:
   yaml_log: False
   log_prefix: ''
+  toy_mode:
+    max_batches: 4
+    train_batch: 64
+    test_batch: 64
+    seed_train_epochs: 2
+    post_train_epochs: 2
 
 nas:
   eval:
@@ -20,7 +26,7 @@ nas:
       max_reductions: 3
       max_nodes: 1
     model_desc:
-      n_cells: 3
+      n_cells: 3 # [DEY: why is petridish using such a tiny model during search while darts uses 8 cells?]
       n_reductions: 1
       n_nodes: 1
       cell_post_op: 'proj_channels'
@@ -35,4 +41,4 @@ nas:
       epochs: 80 # number of epochs model will be trained during search
     loader:
       train_batch: 64
-      val_ratio: 0.1 #split portion for test set, 0 to 1
+      val_ratio: 0.1 #split portion for test set, 0 to 1  [DEY: why is this 0.1?]

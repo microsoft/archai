@@ -66,6 +66,7 @@ class PetridishCellBuilder(CellBuilder):
         self._ensure_nonempty_nodes(cell_desc)
 
         # we operate on last node, inserting another node before it
+        # DEY: check petridish pseudo code again to ascertain
         new_nodes = [n.clone() for n in cell_desc.nodes()]
         petridish_node = NodeDesc(edges=[])
         new_nodes.insert(len(new_nodes)-1, petridish_node)
