@@ -262,6 +262,20 @@ class SearchDistributed:
             xs.append(metrics_stats.model_stats.MAdd)
             ys.append(metrics_stats.best_metrics().top1.avg)
 
+        # # DEBUG
+
+        # # plot all the models in the pool
+        # plt.scatter(xs, ys, label='pts')
+        # plt.xlabel('Multiply-Additions')
+        # plt.ylabel('Top1 Accuracy')
+        # expdir = common.get_expdir()
+        # plt.savefig(os.path.join(expdir, 'convex_hull.png'),
+        #     dpi=plt.gcf().dpi, bbox_inches='tight')
+
+        # # find and return the biggest model
+        # largest_model_desc_ind = xs.index(max(xs))
+        # return self._parent_models[largest_model_desc_ind]
+
         hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
 
         logger.info(f'num models in parent pool: {len(self._parent_models)}')
