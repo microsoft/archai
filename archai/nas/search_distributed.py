@@ -123,8 +123,8 @@ def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, fi
     model_desc = model_desc_wrapped.model_desc
     assert model_desc_wrapped.is_init == True
 
-    # NOTE: if this is recreating the model from scratch,
-    # how will we warm start? Yes, because you are not doing clear_trainables() on the model_desc
+    # NOTE: if this is recreating the model from scratch
+    # This is warm starting because you are not calling clear_trainables() on the model_desc
     nas_utils.build_cell(model_desc, cell_builder, search_iter)
 
     model = nas_utils.model_from_desc(model_desc,
@@ -135,10 +135,6 @@ def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, fi
     assert train_dl is not None
 
     # search arch
-    # NOTE TODO: This gets passed ArchTrainer which is derived from Trainer.
-    # The main difference seems to be that ArchTrainer adds L1 regularization loss
-    # to the overall loss function. This is Petridish-specific code but written out to be 
-    # generic. Perhaps needs a better name! 
     arch_trainer = trainer_class(conf_train, model, checkpoint=None)
     train_metrics = arch_trainer.fit(train_dl, val_dl)
 
@@ -180,7 +176,6 @@ def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, t
         # nothing to pretrain, save time
         metrics_stats = MetricsStats(model_desc, None, None)
     else:
-        # why don't we need nas_utils.build_cells first as in search desc?
         model = nas_utils.model_from_desc(model_desc,
                                             droppath=drop_path_prob > 0.0,
                                             affine=True)
@@ -246,9 +241,9 @@ class SearchDistributed:
 
         # initialize ray for distributed training
         ray.init()
-        num_cpus = ray.nodes()[0]['Resources']['CPU']
-        num_gpus = ray.nodes()[0]['Resources']['GPU']
-        logger.info(f'ray detected {num_cpus} cpus and {num_gpus} gpus')
+        self.num_cpus = ray.nodes()[0]['Resources']['CPU']
+        self.num_gpus = ray.nodes()[0]['Resources']['GPU']
+        logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
 
         # parent models list
         self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
@@ -259,6 +254,8 @@ class SearchDistributed:
 
 
     def _sample_model_from_parent_pool(self):
+        assert(len(self._parent_models) > 0)
+
         xs = []
         ys = []
         for _, metrics_stats in self._parent_models:
@@ -356,6 +353,21 @@ class SearchDistributed:
                 future_ids.append(this_search_id)
                 logger.info('just added a new model to processing pool')
 
+            # if we are not utilizing all gpus in the system lets sample more
+            # models from the parent pool
+            num_current_jobs = len(future_ids)
+            num_unused_gpus = int(self.num_gpus - num_current_jobs)
+            if num_unused_gpus > 0 and len(self._parent_models) > 0:
+                for _ in range(num_unused_gpus):
+                    # sample a model from parent pool
+                    model_desc, _ = self._sample_model_from_parent_pool()
+                    model_desc_wrapped = ModelDescWrapper(model_desc, True)
+                    this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
+                    future_ids.append(this_search_id)
+                    logger.info('just added a new model to processing pool')
+            
+
+            # check termination condition
             should_terminate = self.should_terminate_search()
             
 
