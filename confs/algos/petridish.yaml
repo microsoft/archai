@@ -4,9 +4,9 @@ common:
   yaml_log: False
   log_prefix: ''
   toy_mode:
-    max_batches: 4
-    train_batch: 64
-    test_batch: 64
+    max_batches: 21
+    train_batch: 128
+    test_batch: 128
     seed_train_epochs: 2
     post_train_epochs: 2
 
@@ -32,7 +32,7 @@ nas:
       cell_post_op: 'proj_channels'
     seed_train:
       trainer:
-        epochs: 80 # number of epochs model will be trained before search
+        epochs: 1 # number of epochs model will be trained before search
     post_train:
       trainer:
         epochs: 80 # number of epochs model will be trained after search
