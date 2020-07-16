@@ -246,6 +246,9 @@ class SearchDistributed:
         self.num_gpus = ray.nodes()[0]['Resources']['GPU']
         logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
 
+        # make folder to save gallery of models after search
+        self.final_desc_path = utils.full_path(self.final_desc_foldername, create=True)
+
         # parent models list
         self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
 
@@ -322,11 +325,8 @@ class SearchDistributed:
         # NOTE: Placeholder for now
         if len(self._parent_models) > 5:
             return True
-
-
-
-        # TODO: Implement proper termination condition
-        return False
+        else:
+            return False
 
 
     def search_loop(self)->None:
@@ -394,7 +394,7 @@ class SearchDistributed:
         # save the entire gallery of models on the convex hull for evaluation
         eps_models = self._get_models_near_convex_hull()
         for i, eps_model in enumerate(eps_models):
-            savename = os.path.join(self.final_desc_foldername, f'petridish_{i}.yaml')
+            savename = os.path.join(self.final_desc_path, f'petridish_{i}.yaml')
             eps_model.save(savename)
             
 

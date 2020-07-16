@@ -53,6 +53,15 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     logger.popd()
 
 
+def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
+    ''' Takes a folder of model descriptions output by search process and 
+    trains them in a distributed manner using ray with 1 gpu '''
+    logger.pushd('eval_arch')
+
+
+
+
+
 def _default_module_name(dataset_name:str, function_name:str)->str:
     module_name = ''
     # TODO: below detection code is too week, need to improve, possibly encode image size in yaml and use that instead
