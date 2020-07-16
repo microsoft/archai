@@ -393,13 +393,9 @@ class SearchDistributed:
 
         # save the entire gallery of models on the convex hull for evaluation
         eps_models = self._get_models_near_convex_hull()
-
         for i, eps_model in enumerate(eps_models):
             savename = os.path.join(self.final_desc_foldername, f'petridish_{i}.yaml')
             eps_model.save(savename)
-
-
-
             
 
     def _restore_checkpoint(self, macro_combinations)\
