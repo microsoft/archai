@@ -4,6 +4,8 @@
 from typing import Optional
 import importlib
 import sys
+import string
+import os
 
 import torch
 from torch import nn
@@ -23,7 +25,7 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     # region conf vars
     conf_loader       = conf_eval['loader']
     model_filename    = conf_eval['model_filename']
-    metric_filename    = conf_eval['metric_filename']
+    metric_filename    = conf_eval['metric_filename'] p
     conf_checkpoint = conf_eval['checkpoint']
     resume = conf_eval['resume']
     conf_train = conf_eval['trainer']
@@ -58,8 +60,45 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     trains them in a distributed manner using ray with 1 gpu '''
     logger.pushd('eval_arch')
 
+    # region conf vars
+    conf_loader       = conf_eval['loader']
+    final_desc_foldername = conf_eval['final_desc_foldername']
+    final_desc_folderpath = utils.full_path(final_desc_foldername)
+    conf_checkpoint = conf_eval['checkpoint']
+    resume = conf_eval['resume']
+    conf_train = conf_eval['trainer']
+    # endregion
 
+    if cell_builder:
+        cell_builder.register_ops()
 
+    # get list of model descs in the gallery folder
+    files = [f for f in os.listdir(final_desc_folderpath) if os.path.isfile(os.path.join(final_desc_folderpath, f))]
+
+    # TODO: parallelize model training
+    for model_desc_filename in files:
+        final_desc_filename = model_desc_filename.split('.')[0] + '_final.yaml'
+        full_desc_filename = model_desc_filename.split('.')[0] + '_full.yaml'
+        metric_filename = model_desc_filename.split('.')[0] + '_metrics.yaml'
+        model_filename = model_desc_filename.split('.')[0] + '_model.pt'
+        model = create_model(conf_eval, final_desc_filename=final_desc_filename, full_desc_filename=full_desc_filename)
+
+        # get data
+        train_dl, _, test_dl = data.get_data(conf_loader)
+        assert train_dl is not None and test_dl is not None
+
+        checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
+        trainer = Trainer(conf_train, model, checkpoint)
+        train_metrics = trainer.fit(train_dl, test_dl)
+        train_metrics.save(metric_filename)
+
+        # save model
+        if model_filename:
+            model_filename = utils.full_path(model_filename)
+
+    logger.popd()
+
+    
 
 
 def _default_module_name(dataset_name:str, function_name:str)->str:
@@ -76,12 +115,14 @@ def _default_module_name(dataset_name:str, function_name:str)->str:
         raise NotImplementedError(f'Cannot get default module for {function_name} and dataset {dataset_name} because it is not supported yet')
     return module_name
 
-def create_model(conf_eval:Config)->nn.Module:
+def create_model(conf_eval:Config, final_desc_filename=None, full_desc_filename=None)->nn.Module:
     # region conf vars
     dataset_name = conf_eval['loader']['dataset']['name']
-    final_desc_filename = conf_eval['final_desc_filename']
+    # if explicitly passed in then don't get from conf
+    if not final_desc_filename:
+        final_desc_filename = conf_eval['final_desc_filename']
+        full_desc_filename = conf_eval['full_desc_filename']
     final_model_factory = conf_eval['final_model_factory']
-    full_desc_filename = conf_eval['full_desc_filename']
     conf_model_desc   = conf_eval['model_desc']
     # endregion
 
