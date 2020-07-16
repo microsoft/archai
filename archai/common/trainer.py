@@ -228,6 +228,7 @@ class Trainer(EnforceOverrides):
         self._start_epoch = last_epoch + 1
 
     def update_checkpoint(self, checkpoint:CheckPoint)->None:
+        # TODO: Don't need to pass checkpoint
         # save all necessory state
         state = {
             'last_epoch': self._metrics.epochs()-1,

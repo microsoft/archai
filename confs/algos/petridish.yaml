@@ -17,6 +17,7 @@ nas:
     loader:
       train_batch: 64
   search:
+    final_desc_foldername: '$expdir/model_desc_gallery' # the output of petridish search is a gallery of models
     petridish:
       convex_hull_eps: 0.025 # tolerance 
       max_parent_samples: 10000000 # maximum number of trials in the parent pool sampler function before giving up and returning a random parent model

@@ -204,6 +204,7 @@ class SearchDistributed:
         self.conf_train = conf_search['trainer']
         self.final_desc_filename = conf_search['final_desc_filename']
         self.full_desc_filename = conf_search['full_desc_filename']
+        self.final_desc_foldername = conf_search['final_desc_foldername']
         self.metrics_dir = conf_search['metrics_dir']
         self.conf_presearch_train = conf_search['seed_train']
         self.conf_postsearch_train = conf_search['post_train']
@@ -253,7 +254,7 @@ class SearchDistributed:
         return self.base_reductions, self.base_cells, self.base_nodes
 
 
-    def _sample_model_from_parent_pool(self):
+    def _get_models_near_convex_hull(self):
         assert(len(self._parent_models) > 0)
 
         xs = []
@@ -262,19 +263,19 @@ class SearchDistributed:
             xs.append(metrics_stats.model_stats.MAdd)
             ys.append(metrics_stats.best_metrics().top1.avg)
 
-        # # DEBUG
+        _, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
+        eps_models = [self._parent_models[i][0] for i in eps_indices]
+        return eps_models
 
-        # # plot all the models in the pool
-        # plt.scatter(xs, ys, label='pts')
-        # plt.xlabel('Multiply-Additions')
-        # plt.ylabel('Top1 Accuracy')
-        # expdir = common.get_expdir()
-        # plt.savefig(os.path.join(expdir, 'convex_hull.png'),
-        #     dpi=plt.gcf().dpi, bbox_inches='tight')
 
-        # # find and return the biggest model
-        # largest_model_desc_ind = xs.index(max(xs))
-        # return self._parent_models[largest_model_desc_ind]
+    def _sample_model_from_parent_pool(self):
+        assert(len(self._parent_models) > 0)
+
+        xs = []
+        ys = []
+        for _, metrics_stats in self._parent_models:
+            xs.append(metrics_stats.model_stats.MAdd)
+            ys.append(metrics_stats.best_metrics().top1.avg)
 
         hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
 
@@ -318,7 +319,13 @@ class SearchDistributed:
 
     def should_terminate_search(self)->bool:
         ''' Looks at the parent pool and decides whether to terminate search '''
-        # TODO: Implement termination condition
+        # NOTE: Placeholder for now
+        if len(self._parent_models) > 5:
+            return True
+
+
+
+        # TODO: Implement proper termination condition
         return False
 
 
@@ -383,6 +390,16 @@ class SearchDistributed:
 
             # check termination condition
             should_terminate = self.should_terminate_search()
+
+        # save the entire gallery of models on the convex hull for evaluation
+        eps_models = self._get_models_near_convex_hull()
+
+        for i, eps_model in enumerate(eps_models):
+            savename = os.path.join(self.final_desc_foldername, f'petridish_{i}.yaml')
+            eps_model.save(savename)
+
+
+
             
 
     def _restore_checkpoint(self, macro_combinations)\
