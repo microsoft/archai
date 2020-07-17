@@ -51,6 +51,10 @@ class PetridishExperimentRunner(ExperimentRunner):
         eval_desc_foldername = eval_conf['nas']['eval']['final_desc_foldername']
         eval_desc_folderpath = utils.full_path(eval_desc_foldername)
         assert eval_desc_folderpath
+        # only later version of shutil copytree has dirs_exists_ok option
+        # so being robust to pre-existing directory
+        if os.path.exists(eval_desc_folderpath):
+            shutil.rmtree(eval_desc_folderpath)
         shutil.copytree(search_desc_folderpath, eval_desc_folderpath)
 
         return search_conf, eval_conf
