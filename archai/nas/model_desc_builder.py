@@ -5,28 +5,27 @@ from typing import Optional, Tuple, List
 
 from overrides import EnforceOverrides
 
-from ..common.config import Config
-from .model_desc import ModelDesc, OpDesc, CellType, NodeDesc, EdgeDesc, \
+from archai.common.config import Config
+from archai.nas.model_desc import ModelDesc, OpDesc, CellType, NodeDesc, EdgeDesc, \
                         CellDesc, AuxTowerDesc, ConvMacroParams
-from ..common.common import logger
-from .operations import ModelStemBase, Op
+from archai.common.common import logger
+from archai.nas.operations import ModelStemBase, Op
 
-class MacroBuilder(EnforceOverrides):
+class ModelDescBuilder(EnforceOverrides):
     def __init__(self, conf_model_desc: Config,
                  template:Optional[ModelDesc]=None)->None:
         # region conf vars
-        conf_data = conf_model_desc['dataset']
-        self.ds_name = conf_data['name']
-        self.ds_ch = conf_data['channels']
-        self.n_classes = conf_data['n_classes']
+        self.conf_data = conf_model_desc['dataset']
+        self.ds_name = self.conf_data['name']
+        self.ds_ch = self.conf_data['channels']
+        self.n_classes = self.conf_data['n_classes']
         self.init_node_ch = conf_model_desc['init_node_ch']
         self.aux_tower_stride = conf_model_desc['aux_tower_stride']
         self.stem_multiplier = conf_model_desc['stem_multiplier']
         self.aux_weight = conf_model_desc['aux_weight']
         self.max_final_edges = conf_model_desc['max_final_edges']
         self.cell_post_op = conf_model_desc['cell_post_op']
-        self.model_stem0_op = conf_model_desc['model_stem0_op']
-        self.model_stem1_op = conf_model_desc['model_stem1_op']
+        self.conf_model_stems = conf_model_desc['model_stems']
         self.model_post_op = conf_model_desc['model_post_op']
 
         self.n_cells = conf_model_desc['n_cells']
@@ -35,16 +34,21 @@ class MacroBuilder(EnforceOverrides):
         self.model_desc_params = conf_model_desc['params']
         # endregion
 
+        # for each reduction, we create one indice
+        # for cifar and imagenet, reductions=2 creating cuts at n//3, n*2//3
+        self._reduction_indices = self._get_reduction_indices()
+
+        # if template model desc is specified thehn setup regular and reduction cell templates
+        self._set_templates(template)
+
+    def _get_reduction_indices(self)->set:
         # this satisfies N R N R N pattern
         assert self.n_cells >= self.n_reductions * 2 + 1
 
         # for each reduction, we create one indice
         # for cifar and imagenet, reductions=2 creating cuts at n//3, n*2//3
-        self._reduction_cell_indices = \
-            [self.n_cells*(i+1) // (self.n_reductions+1) \
-                for i in range(self.n_reductions)]
-
-        self._set_templates(template)
+        return set(self.n_cells*(i+1) // (self.n_reductions+1) \
+                for i in range(self.n_reductions))
 
     def _set_templates(self, template:Optional[ModelDesc])->None:
         self.template = template
@@ -61,41 +65,52 @@ class MacroBuilder(EnforceOverrides):
                         cell_desc.cell_type==CellType.Reduction:
                     self.reduction_template = cell_desc
 
-    def build(self)->ModelDesc:
+    def build_model_desc(self)->ModelDesc:
         # create model stems
-        stem0_op, stem1_op = self._create_model_stems()
+        model_stems = self.get_model_stems()
 
-        # both stems should have same channel outs (same true for cell outputs)
-        assert stem0_op.params['conv'].ch_out == stem1_op.params['conv'].ch_out
-
-        # get reduction factors in spatial dimensions
-        stem0_reduction, stem1_reduction = MacroBuilder._stem_reductions(stem0_op, stem1_op)
+        # get reduction factors  done by each stem, typically they should be same but for
+        # imagenet they can differ
+        stem_reductions = ModelDescBuilder._stem_reductions(model_stems)
 
         # create cell descriptions
-        cell_descs, aux_tower_descs = self._get_cell_descs(
-            stem0_reduction < stem1_reduction,
-            stem0_op.params['conv'].ch_out,
-            self.max_final_edges)
+        cell_descs, aux_tower_descs = self.get_cell_descs(model_stems,
+           stem_reductions, self.max_final_edges)
 
         # get last cell channels
         if len(cell_descs):
             last_ch_out = cell_descs[-1].cell_ch_out
-        else:
-            last_ch_out = stem1_op.params['conv'].ch_out
+        else: # if no cells and only model stem
+            last_ch_out = model_stems[-1].params['conv'].ch_out
 
-        pool_op = OpDesc(self.model_post_op,
-                         params={'conv': ConvMacroParams(last_ch_out, last_ch_out)},
-                         in_len=1, trainables=None)
+        pool_op = self.get_pool_op(last_ch_out)
 
-        logits_op = OpDesc('linear',
-                        params={'n_ch':last_ch_out,'n_classes': self.n_classes}, in_len=1,
-                        trainables=None)
-        return ModelDesc(stem0_op, stem1_op, pool_op, self.ds_ch,
+        logits_op = self.get_logits_op(last_ch_out)
+
+        return ModelDesc(model_stems, pool_op, self.ds_ch,
                          self.n_classes, cell_descs, aux_tower_descs,
                          logits_op, self.model_desc_params.to_dict())
 
-    def _get_cell_descs(self, reduction_p, stem_ch_out:int, max_final_edges:int)\
-            ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
+    def get_pool_op(self, ch_in:int)->OpDesc:
+        return OpDesc(self.model_post_op,
+                         params={'conv': ConvMacroParams(ch_in, ch_in)},
+                         in_len=1, trainables=None)
+
+    def get_logits_op(self, ch_in:int)->OpDesc:
+        return OpDesc('linear',
+                        params={'n_ch':ch_in,'n_classes': self.n_classes}, in_len=1,
+                        trainables=None)
+
+    def get_cell_descs(self, model_stems:List[OpDesc], stem_reductions:List[int],
+                       max_final_edges:int)->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
+
+        # both stems should have same channel outs (same true for cell outputs)
+        # TODO: support multiple stems
+        assert  len(model_stems)==2 and \
+                model_stems[0].params['conv'].ch_out == model_stems[1].params['conv'].ch_out
+
+        reduction_p = stem_reductions[0] < stem_reductions[1]
+        stem_ch_out = model_stems[0].params['conv'].ch_out
 
         cell_descs, aux_tower_descs = [], []
 
@@ -108,7 +123,7 @@ class MacroBuilder(EnforceOverrides):
         for ci in range(self.n_cells):
             # find cell type and output channels for this cell
             # also update if this is our first cell from which arch params will be shared
-            reduction = self._is_reduction(ci)
+            reduction = self.is_reduction(ci)
             if reduction:
                 node_ch_out, cell_type = node_ch_out*2, CellType.Reduction
                 first_reduction = ci if first_reduction < 0 else first_reduction
@@ -179,12 +194,12 @@ class MacroBuilder(EnforceOverrides):
                             ) for e in node_t.edges]
             node.edges=edges_copy
 
-    def _is_reduction(self, cell_index:int)->bool:
+    def is_reduction(self, cell_index:int)->bool:
         # For darts, n_cells=8 so we build [N N R N N R N N] structure
         # Notice that this will result in only 2 reduction cells no matter
         # total number of cells. Original resnet actually have 3 reduction cells.
         # Between two reduction cells we have regular cells.
-        return cell_index in self._reduction_cell_indices
+        return cell_index in self._reduction_indices
 
     def _get_cell_stems(self, node_ch_out: int, p_ch_out: int, pp_ch_out:int,
                    reduction_p: bool)->Tuple[OpDesc, OpDesc]:
@@ -209,20 +224,21 @@ class MacroBuilder(EnforceOverrides):
             return AuxTowerDesc(cell_desc.cell_ch_out, self.n_classes, self.aux_tower_stride)
         return None
 
-    def _create_model_stems(self)->Tuple[OpDesc, OpDesc]:
+    def get_model_stems(self)->List[OpDesc]:
         # TODO: weired not always use two different stemps as in original code
         # TODO: why do we need stem_multiplier?
         # TODO: in original paper stems are always affine
         conv_params = ConvMacroParams(self.ds_ch,
                                       self.init_node_ch*self.stem_multiplier)
-        stem0_op = OpDesc(name=self.model_stem0_op, params={'conv': conv_params},
-                          in_len=1, trainables=None)
-        stem1_op = OpDesc(name=self.model_stem1_op, params={'conv': conv_params},
-                          in_len=1, trainables=None)
-        return stem0_op, stem1_op
+
+        stems = [OpDesc(name=op_name, params={'conv': conv_params},
+                          in_len=1, trainables=None) \
+                for op_name in self.conf_model_stems]
+        return stems
 
     @staticmethod
-    def _stem_reductions(stem0_op:OpDesc, stem1_op:OpDesc)->Tuple[int, int]:
-        op1, op2 = Op.create(stem0_op, affine=False), Op.create(stem1_op, affine=False)
-        assert isinstance(op1, ModelStemBase) and isinstance(op2, ModelStemBase)
-        return op1.reduction, op2.reduction
+    def _stem_reductions(stems:List[OpDesc])->List[int]:
+        #create stem ops to find out reduction factors
+        ops = [Op.create(stem, affine=False) for stem in stems]
+        assert all(isinstance(op, ModelStemBase) for op in ops)
+        return list(op.reduction for op in ops)

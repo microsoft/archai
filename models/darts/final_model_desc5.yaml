@@ -1330,23 +1330,24 @@ pool_op: !!python/object:archai.nas.model_desc.OpDesc
       ch_in: 256
       ch_out: 256
   trainables: null
-stem0_op: !!python/object:archai.nas.model_desc.OpDesc
-  children: null
-  children_ins: null
-  in_len: 1
-  name: stem_conv3x3
-  params:
-    conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-      ch_in: 3
-      ch_out: 48
-  trainables: null
-stem1_op: !!python/object:archai.nas.model_desc.OpDesc
-  children: null
-  children_ins: null
-  in_len: 1
-  name: stem_conv3x3
-  params:
-    conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-      ch_in: 3
-      ch_out: 48
-  trainables: null
+model_stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
+    children: null
+    children_ins: null
+    in_len: 1
+    name: stem_conv3x3
+    params:
+      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+        ch_in: 3
+        ch_out: 48
+    trainables: null
+  - !!python/object:archai.nas.model_desc.OpDesc
+    children: null
+    children_ins: null
+    in_len: 1
+    name: stem_conv3x3
+    params:
+      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+        ch_in: 3
+        ch_out: 48
+    trainables: null

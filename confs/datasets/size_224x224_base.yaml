@@ -14,8 +14,7 @@ nas:
       stem_multiplier: 1 # output channels multiplier for the stem
       init_node_ch: 48 # num of input/output channels for nodes in 1st cell
       n_cells: 14 # number of cells
-      model_stem0_op: 'stem_conv3x3_s4'
-      model_stem1_op: 'stem_conv3x3_s4s2'
+      model_stems: ['stem_conv3x3_s4', 'stem_conv3x3_s4s2']
       model_post_op: 'pool_avg2d7x7'
       dataset:
         _copy: '/dataset_eval'

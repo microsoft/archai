@@ -68,7 +68,7 @@ class OpDesc:
         c, cs = self.children, state_dict['children']
         assert (c is None and cs is None) or \
                 (c is not None and cs is not None and len(c) == len(cs))
-        for cx, csx in zip(c, cs):
+        for cx, csx in utils.zip_eq(c, cs):
             if cx is not None and csx is not None:
                 cx.load_state_dict(csx)
 
@@ -183,7 +183,7 @@ class CellDesc:
                 }
 
     def load_state_dict(self, state_dict)->None:
-        for n, ns in zip(self.nodes(), state_dict['nodes']):
+        for n, ns in utils.zip_eq(self.nodes(), state_dict['nodes']):
             n.load_state_dict(ns)
         self.s0_op.load_state_dict(state_dict['s0_op'])
         self.s1_op.load_state_dict(state_dict['s1_op'])
@@ -271,11 +271,11 @@ class CellDesc:
 
 
 class ModelDesc:
-    def __init__(self, stem0_op:OpDesc, stem1_op:OpDesc, pool_op:OpDesc,
+    def __init__(self, model_stems:List[OpDesc], pool_op:OpDesc,
                  ds_ch:int, n_classes:int, cell_descs:List[CellDesc],
                  aux_tower_descs:List[Optional[AuxTowerDesc]],
                  logits_op:OpDesc, params:dict)->None:
-        self.stem0_op, self.stem1_op, self.pool_op = stem0_op, stem1_op, pool_op
+        self.model_stems, self.pool_op = model_stems, pool_op
         self.logits_op = logits_op
         self.params = params
 
@@ -294,7 +294,9 @@ class ModelDesc:
         self.aux_tower_descs = aux_tower_descs
 
     def clear_trainables(self)->None:
-        for attr in ['stem0_op', 'stem1_op', 'pool_op', 'logits_op']:
+        for stem in self.model_stems:
+            stem.clear_trainables()
+        for attr in ['pool_op', 'logits_op']:
             op_desc:OpDesc = getattr(self, attr)
             op_desc.clear_trainables()
         for cell_desc in self._cell_descs:
@@ -324,8 +326,7 @@ class ModelDesc:
     def state_dict(self)->dict:
         return  {
                     'cell_descs': [c.state_dict() for c in self.cell_descs()],
-                    'stem0_op': self.stem0_op.state_dict(),
-                    'stem1_op': self.stem1_op.state_dict(),
+                    'model_stems': [stem.state_dict() for stem in self.model_stems],
                     'pool_op': self.pool_op.state_dict(),
                     'logits_op': self.logits_op.state_dict()
                 }
@@ -333,8 +334,8 @@ class ModelDesc:
     def load_state_dict(self, state_dict)->None:
         for c, cs in zip(self.cell_descs(), state_dict['cell_descs']):
             c.load_state_dict(cs)
-        self.stem0_op.load_state_dict(state_dict['stem0_op'])
-        self.stem1_op.load_state_dict(state_dict['stem1_op'])
+        for stem, state in utils.zip_eq(self.model_stems, state_dict['model_stems']):
+            stem.load_state_dict(state)
         self.pool_op.load_state_dict(state_dict['pool_op'])
         self.logits_op.load_state_dict(state_dict['logits_op'])
 

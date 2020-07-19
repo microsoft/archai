@@ -25,8 +25,12 @@ class Model(ArchModule):
 
         # some of these fields are public as finalizer needs access to them
         self.desc = model_desc
-        self.stem0_op = Op.create(model_desc.stem0_op, affine=affine)
-        self.stem1_op = Op.create(model_desc.stem1_op, affine=affine)
+
+        # TODO: support any number of stems
+        assert len(model_desc.model_stems)==2, "Model compiler currently only supports 2 stems"
+        stem0_op = Op.create(model_desc.model_stems[0], affine=affine)
+        stem1_op = Op.create(model_desc.model_stems[1], affine=affine)
+        self.model_stems = nn.ModuleList((stem0_op, stem1_op))
 
         self.cells = nn.ModuleList()
         self._aux_towers = nn.ModuleList()
@@ -76,9 +80,9 @@ class Model(ArchModule):
     @overrides
     def forward(self, x)->Tuple[Tensor, Optional[Tensor]]:
         #print(torch.cuda.memory_allocated()/1.0e6)
-        s0 = self.stem0_op(x)
+        s0 = self.model_stems[0](x)
         #print(torch.cuda.memory_allocated()/1.0e6)
-        s1 = self.stem1_op(x)
+        s1 = self.model_stems[1](x)
         #print(-1, s0.shape, s1.shape, torch.cuda.memory_allocated()/1.0e6)
 
         logits_aux = None
