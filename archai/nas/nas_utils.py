@@ -7,7 +7,7 @@ from torch import nn
 from torch.utils.data.dataloader import DataLoader
 
 from .model_desc import ModelDesc
-from .macro_builder import MacroBuilder
+from .model_desc_builder import ModelDescBuilder
 from .cell_builder import CellBuilder
 from ..common.config import Config
 from .model import Model
@@ -21,8 +21,8 @@ def build_cell(model_desc, cell_builder:Optional[CellBuilder], search_iter:int)-
 
 def create_macro_desc(conf_model_desc: Config,
                       template_model_desc:Optional[ModelDesc])->ModelDesc:
-    builder = MacroBuilder(conf_model_desc, template=template_model_desc)
-    model_desc = builder.build()
+    builder = ModelDescBuilder(conf_model_desc, template=template_model_desc)
+    model_desc = builder.build_model_desc()
     return model_desc
 
 def checkpoint_empty(checkpoint:Optional[CheckPoint])->bool:

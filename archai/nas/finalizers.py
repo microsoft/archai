@@ -33,8 +33,7 @@ class Finalizers(EnforceOverrides):
         if restore_device:
             model.to(original, non_blocking=True)
 
-        return ModelDesc(stem0_op=model.stem0_op.finalize()[0],
-                         stem1_op=model.stem1_op.finalize()[0],
+        return ModelDesc(model_stems=[op.finalize()[0] for op in model.model_stems],
                          pool_op=model.pool_op.finalize()[0],
                          ds_ch=model.desc.ds_ch,
                          n_classes=model.desc.n_classes,
