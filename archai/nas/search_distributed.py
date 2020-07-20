@@ -55,7 +55,7 @@ class MetricsStats:
         self.model_desc = model_desc
         self.train_metrics = train_metrics
         self.model_stats = model_stats
-        self.num_sampled = 0
+        self.num_sampled = 0 # REVIEW: ss: what is the use of this variable?
 
     def __str__(self) -> str:
         best = self.best_metrics()
@@ -162,11 +162,12 @@ def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, t
     drop_path_prob = conf_trainer['drop_path_prob']
     # endregion
 
+    # REVIEW: ss: Is below still happening?
     # TODO: logger was throwing errors that key already exists
     # current hack is to add a random string to create subfolder
     # need more principled workaround to this
-    res = ''.join(secrets.choice(string.ascii_uppercase + string.digits) 
-                                                  for i in range(7)) 
+    res = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
+                                                  for i in range(7))
     logger.pushd(trainer_title.join(res))
 
     model_desc = model_desc_wrapped.model_desc
@@ -252,7 +253,7 @@ class SearchDistributed:
         # parent models list
         self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
 
-       
+
     def _get_seed_model_desc(self) -> Tuple[int, int, int]:
         return self.base_reductions, self.base_cells, self.base_nodes
 
@@ -263,7 +264,7 @@ class SearchDistributed:
         xs = []
         ys = []
         for _, metrics_stats in self._parent_models:
-            xs.append(metrics_stats.model_stats.MAdd)
+            xs.append(metrics_stats.model_stats.MAdd) # REVIEW: ss: why MAdd?
             ys.append(metrics_stats.best_metrics().top1.avg)
 
         _, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
@@ -285,12 +286,12 @@ class SearchDistributed:
         logger.info(f'num models in parent pool: {len(self._parent_models)}')
         logger.info(f'num models near pareto: {len(eps_indices)}')
 
-        # reverse sort by performance        
+        # reverse sort by performance
         x_y_num_sampled = [(xs[i], ys[i], self._parent_models[i][1].num_sampled) for i in eps_indices]
         x_y_num_sampled.sort(reverse=True, key=lambda x:x[1])
 
         # save a plot of the convex hull to aid debugging
-        
+
         hull_xs = [xs[i] for i in eps_indices]
         hull_ys = [ys[i] for i in eps_indices]
         bound_xs = [xs[i] for i in hull_indices]
@@ -304,7 +305,7 @@ class SearchDistributed:
         plt.savefig(os.path.join(expdir, 'convex_hull.png'),
             dpi=plt.gcf().dpi, bbox_inches='tight')
 
-        # go through sorted list of models near convex hull 
+        # go through sorted list of models near convex hull
         counter = 0
         while(counter < self._max_parent_samples):
             counter += 1
@@ -312,8 +313,8 @@ class SearchDistributed:
                 p = 1.0 / (num_sampled + 1.0)
                 should_select = np.random.binomial(1, p)
                 if should_select == 1:
-                    return self._parent_models[i]                    
-        
+                    return self._parent_models[i]
+
         # if here, sampling was not successful
         logger.warn('sampling was not successful, returning a random parent')
         ind = random.randint(0, len(self._parent_models)-1)
@@ -343,7 +344,8 @@ class SearchDistributed:
         search_iter = -1
         train_dl, val_dl = self.get_data(self.conf_loader)
         future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())]
-    
+
+        # REVIEW: ss: should_terminate_search() should be in while condition
         # TODO: Need to add termination criteria and saving of models
         should_terminate = self.should_terminate_search()
         while not should_terminate:
@@ -352,18 +354,20 @@ class SearchDistributed:
             job_id_done, future_ids = ray.wait(future_ids)
             model_desc_wrapped, metrics_stats = ray.get(job_id_done[0])
 
+            # REVIEW: ss: I'm bit confused about role of is_init but lets talk about that on call
             if model_desc_wrapped.is_init:
                 # a model just got initialized
                 # push a job to train it
                 logger.info('model just got initialized.')
                 model_desc_wrapped.is_init = False
                 this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl, common.get_state())
-                future_ids.append(this_child_id) 
+                future_ids.append(this_child_id)
             else:
                 logger.info('model child just finished training.')
-                # a child job finished. 
+                # a child job finished.
                 model_desc_wrapped.is_init = True
                 # increase the counter tracking number of times it has been sampled
+                # REVIEW: ss: why not put num_sampled in ModelDescWrapper
                 metrics_stats.num_sampled += 1
                 # add it to the parent models pool
                 self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
@@ -386,7 +390,7 @@ class SearchDistributed:
                     this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
                     future_ids.append(this_search_id)
                     logger.info('just added a new model to processing pool')
-            
+
 
             # check termination condition
             should_terminate = self.should_terminate_search()
@@ -396,7 +400,7 @@ class SearchDistributed:
         for i, eps_model in enumerate(eps_models):
             savename = os.path.join(self.final_desc_path, f'petridish_{i}.yaml')
             eps_model.save(savename)
-            
+
 
     def _restore_checkpoint(self, macro_combinations)\
             -> Tuple[int, Optional[SearchResult]]:
