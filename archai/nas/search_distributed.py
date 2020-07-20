@@ -279,7 +279,8 @@ class SearchDistributed:
         ys = []
         for _, metrics_stats in self._parent_models:
             xs.append(metrics_stats.model_stats.MAdd)
-            ys.append(metrics_stats.best_metrics().top1.avg)
+            # ys have to be error as we are computing lower convex hull
+            ys.append(1.0 - metrics_stats.best_metrics().top1.avg)
 
         hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
 
@@ -324,7 +325,7 @@ class SearchDistributed:
     def should_terminate_search(self)->bool:
         ''' Looks at the parent pool and decides whether to terminate search '''
         # NOTE: Placeholder for now
-        if len(self._parent_models) > 5:
+        if len(self._parent_models) > 16:
             return True
         else:
             return False
