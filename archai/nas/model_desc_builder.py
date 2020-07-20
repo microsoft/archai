@@ -108,8 +108,7 @@ class ModelDescBuilder(EnforceOverrides):
         # TODO: support multiple stems
         assert  len(model_stems)==2 and \
                 model_stems[0].params['conv'].ch_out == model_stems[1].params['conv'].ch_out
-
-        reduction_p = stem_reductions[0] < stem_reductions[1]
+        reduction_p = stem_reductions[0] < stem_reductions[1] # previous output had reduction
         stem_ch_out = model_stems[0].params['conv'].ch_out
 
         cell_descs, aux_tower_descs = [], []
@@ -124,6 +123,7 @@ class ModelDescBuilder(EnforceOverrides):
             # find cell type and output channels for this cell
             # also update if this is our first cell from which arch params will be shared
             reduction = self.is_reduction(ci)
+            # if this is reduction cell then we will double the node channels in this cell
             if reduction:
                 node_ch_out, cell_type = node_ch_out*2, CellType.Reduction
                 first_reduction = ci if first_reduction < 0 else first_reduction
@@ -133,13 +133,13 @@ class ModelDescBuilder(EnforceOverrides):
                 first_normal = ci if first_normal < 0 else first_normal
                 template_cell = first_normal
 
-            s0_op, s1_op = self._get_cell_stems(
-                node_ch_out, p_ch_out, pp_ch_out, reduction_p)
+            s0_op, s1_op = self.get_cell_stems(
+                node_ch_out, p_ch_out, pp_ch_out, reduction_p, ci)
 
             # cell template for this cell contains nodes we can use as template
             cell_template = self._cell_template(cell_type)
 
-            # cell template is not available in search time in which case we
+            # if cell template was not supplied then we
             # will take number of nodes from config
             node_count = len(cell_template.nodes()) if cell_template \
                                                     else self.n_nodes
@@ -157,10 +157,10 @@ class ModelDescBuilder(EnforceOverrides):
                 node_ch_out=node_ch_out,
                 post_op=self.cell_post_op
             ))
-            # add any nodes from the template to the just added cell
+            # add nodes from the template to the just added cell
             self._copy_template_nodes(cell_template, cell_descs[ci])
             # add aux tower
-            aux_tower_descs.append(self._get_aux_tower(cell_descs[ci], ci))
+            aux_tower_descs.append(self.get_aux_tower(cell_descs[ci], ci))
 
             # we concate all channels so next cell node gets channels from all nodes
             pp_ch_out, p_ch_out = p_ch_out, cell_descs[ci].cell_ch_out
@@ -201,8 +201,8 @@ class ModelDescBuilder(EnforceOverrides):
         # Between two reduction cells we have regular cells.
         return cell_index in self._reduction_indices
 
-    def _get_cell_stems(self, node_ch_out: int, p_ch_out: int, pp_ch_out:int,
-                   reduction_p: bool)->Tuple[OpDesc, OpDesc]:
+    def get_cell_stems(self, node_ch_out: int, p_ch_out: int, pp_ch_out:int,
+                   reduction_p: bool, cell_index:int)->Tuple[OpDesc, OpDesc]:
 
         # Cell stemps will take prev channels and out sameput channels as nodes would.
         # If prev cell was reduction then we need to increase channels of prev-prev
@@ -218,7 +218,7 @@ class ModelDescBuilder(EnforceOverrides):
                     }, in_len=1, trainables=None)
         return s0_op, s1_op
 
-    def _get_aux_tower(self, cell_desc:CellDesc, cell_index:int)->Optional[AuxTowerDesc]:
+    def get_aux_tower(self, cell_desc:CellDesc, cell_index:int)->Optional[AuxTowerDesc]:
         # TODO: shouldn't we be adding aux tower at *every* 1/3rd?
         if self.aux_weight and cell_index == 2*self.n_cells//3:
             return AuxTowerDesc(cell_desc.cell_ch_out, self.n_classes, self.aux_tower_stride)
