@@ -346,10 +346,8 @@ class SearchDistributed:
         train_dl, val_dl = self.get_data(self.conf_loader)
         future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())]
 
-        # REVIEW: ss: should_terminate_search() should be in while condition
-        # TODO: Need to add termination criteria and saving of models
-        should_terminate = self.should_terminate_search()
-        while not should_terminate:
+        # TODO: Need to add proper termination criteria and checkpointing to recover from pre-empted jobs
+        while not self.should_terminate_search():
             logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 
             job_id_done, future_ids = ray.wait(future_ids)
@@ -392,9 +390,6 @@ class SearchDistributed:
                     future_ids.append(this_search_id)
                     logger.info('just added a new model to processing pool')
 
-
-            # check termination condition
-            should_terminate = self.should_terminate_search()
 
         # save the entire gallery of models on the convex hull for evaluation
         eps_models = self._get_models_near_convex_hull()
