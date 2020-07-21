@@ -166,9 +166,9 @@ def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, t
     # TODO: logger was throwing errors that key already exists
     # current hack is to add a random string to create subfolder
     # need more principled workaround to this
-    res = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
-                                                  for i in range(7))
-    logger.pushd(trainer_title.join(res))
+    #res = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
+    #                                              for i in range(7))
+    logger.pushd(trainer_title)
 
     model_desc = model_desc_wrapped.model_desc
     assert model_desc_wrapped.is_init == False
