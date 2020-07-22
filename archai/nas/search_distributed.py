@@ -225,6 +225,7 @@ class SearchDistributed:
 
         self._convex_hull_eps = self.conf_petridish['convex_hull_eps']
         self._max_parent_samples = self.conf_petridish['max_parent_samples']
+        self._max_madd = self.conf_petridish['max_madd']
 
         logger.info({'pareto_enabled': self.pareto_enabled,
                      'base_reductions': self.base_reductions,
@@ -319,10 +320,12 @@ class SearchDistributed:
     def _should_terminate_search(self)->bool:
         ''' Looks at the parent pool and decides whether to terminate search '''
         # TODO: Placeholder for now
-        if len(self._parent_models) > 16:
+        max_madd_parent = max(self._parent_models, key=lambda x: x[1].model_stats.MAdd)
+        if max_madd_parent[1].model_stats.Madd > self._max_madd:
             return True
         else:
             return False
+        
 
     def _macro_combinations(self)->Iterator[Tuple[int, int, int]]:
         if not self.pareto_enabled:

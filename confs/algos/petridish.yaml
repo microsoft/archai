@@ -22,6 +22,7 @@ nas:
     petridish:
       convex_hull_eps: 0.025 # tolerance 
       max_parent_samples: 10000000 # maximum number of trials in the parent pool sampler function before giving up and returning a random parent model
+      max_madd: 20000000 # if any parent model reaches this many multiply-additions then the search terminates
     search_iters: 4
     pareto:
       max_cells: 8
