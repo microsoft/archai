@@ -7,6 +7,9 @@ import sys
 import string
 import os
 
+# only works on linux
+import ray
+
 import torch
 from torch import nn
 
@@ -17,7 +20,9 @@ from archai.datasets import data
 from archai.nas.model_desc import ModelDesc
 from archai.nas.cell_builder import CellBuilder
 from archai.nas import nas_utils
+from archai.common import common
 from archai.common import ml_utils, utils
+
 
 def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     logger.pushd('eval_arch')
@@ -54,11 +59,29 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
 
     logger.popd()
 
+@ray.remote(num_gpus=1)
+def helper_train_desc(model, conf_train, train_dl, test_dl, metric_filename, model_filename, common_state):
+    ''' Train given a model '''
+    common.init_from(common_state)
+    # TODO: checkpointing for distributed training
+    checkpoint = None   
+    trainer = Trainer(conf_train, model, checkpoint)
+    train_metrics = trainer.fit(train_dl, test_dl)
+    train_metrics.save(metric_filename)
+
+    # save model
+    if model_filename:
+        model_filename = utils.full_path(model_filename)
+        ml_utils.save_model(model, model_filename)
+        logger.info({'model_save_path': model_filename})
+
 
 def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     ''' Takes a folder of model descriptions output by search process and 
     trains them in a distributed manner using ray with 1 gpu '''
     logger.pushd('eval_arch')
+
+    logger.info('----------starting to final train all models found by search------------------')
 
     # region conf vars
     conf_loader       = conf_eval['loader']
@@ -74,8 +97,9 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
 
     # get list of model descs in the gallery folder
     files = [os.path.join(final_desc_folderpath, f) for f in os.listdir(final_desc_folderpath) if os.path.isfile(os.path.join(final_desc_folderpath, f))]
+    logger.info(f'found {len(files)} models to final train')
 
-    # TODO: parallelize model training
+    remote_ids = []
     for model_desc_filename in files:
         full_desc_filename = model_desc_filename.split('.')[0] + '_full.yaml'
         metric_filename = model_desc_filename.split('.')[0] + '_metrics.yaml'
@@ -86,18 +110,12 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
         train_dl, _, test_dl = data.get_data(conf_loader)
         assert train_dl is not None and test_dl is not None
 
-        checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
-        trainer = Trainer(conf_train, model, checkpoint)
-        train_metrics = trainer.fit(train_dl, test_dl)
-        train_metrics.save(metric_filename)
+        this_id = helper_train_desc.remote(model, conf_train, train_dl, test_dl, metric_filename, model_filename, common.get_state())
+        remote_ids.append(this_id)
 
-        # save model
-        if model_filename:
-            model_filename = utils.full_path(model_filename)
-            ml_utils.save_model(model, model_filename)
-            logger.info({'model_save_path': model_filename})
-
-
+    # wait for all eval jobs to be finished
+    ray.wait(remote_ids, num_returns=len(remote_ids))
+    logger.info('---------finished training all models on the pareto frontier-----------------')
 
     logger.popd()
 
