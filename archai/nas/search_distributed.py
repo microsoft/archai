@@ -316,7 +316,7 @@ class SearchDistributed:
         return self._parent_models[ind]
 
 
-    def should_terminate_search(self)->bool:
+    def _should_terminate_search(self)->bool:
         ''' Looks at the parent pool and decides whether to terminate search '''
         # TODO: Placeholder for now
         if len(self._parent_models) > 16:
@@ -324,24 +324,40 @@ class SearchDistributed:
         else:
             return False
 
+    def _macro_combinations(self)->Iterator[Tuple[int, int, int]]:
+        if not self.pareto_enabled:
+            yield self.base_reductions, self.base_cells, self.base_nodes
+        else:
+            # TODO: what happens when reductions is 3 but cells is 2? have to step 
+            # through code and check
+            for reductions in range(self.base_reductions, self.max_reductions+1):
+                for cells in range(self.base_cells, self.max_cells+1):
+                    for nodes in range(self.base_nodes, self.max_nodes+1):
+                        yield reductions, cells, nodes
+
 
     def search_loop(self)->None:
-        # get seed model
-        reductions, cells, nodes = self._get_seed_model_desc()
-        model_desc = self._build_macro(reductions, cells, nodes)
-        # prep seed model and add to the parent set
-        logger.info("----------------going to train seed model------------------")
-        model_desc = self._seed_model(model_desc, reductions, cells, nodes)
-        model_desc_wrapped = ModelDescWrapper(model_desc, True)
-        logger.info("----------------finished seed model training---------------")
+        # the pool of ray job ids
+        future_ids = []
+
+        # parallel version of seed model training
+        train_dl, val_dl = self.get_data(self.conf_loader)
+        macro_combinations = list(self._macro_combinations())
+        for reductions, cells, nodes in macro_combinations:
+            model_desc = self._build_macro(reductions, cells, nodes)
+            if self.cell_builder:
+                self.cell_builder.seed(model_desc)
+            model_desc_wrapped = ModelDescWrapper(model_desc, False)
+            this_child_id = train_desc.remote(model_desc_wrapped, self.conf_presearch_train, self.finalizers, train_dl, val_dl, common.get_state())
+            future_ids.append(this_child_id)
 
         # train the seed model
-        search_iter = -1
-        train_dl, val_dl = self.get_data(self.conf_loader)
-        future_ids = [search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())]
+        search_iter = -1 # TODO: this is for legacy reasons only. remove in a bit
+        #train_dl, val_dl = self.get_data(self.conf_loader)
+        #future_ids.append(search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state()))
 
         # TODO: Need to add proper termination criteria and checkpointing to recover from pre-empted jobs
-        while not self.should_terminate_search():
+        while not self._should_terminate_search():
             logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 
             job_id_done, future_ids = ray.wait(future_ids)
@@ -356,7 +372,7 @@ class SearchDistributed:
                 this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl, common.get_state())
                 future_ids.append(this_child_id)
             else:
-                logger.info('model child just finished training.')
+                logger.info('model child or seed model just finished training.')
                 # a child job finished.
                 model_desc_wrapped.is_init = True
                 # increase the counter tracking number of times it has been sampled
