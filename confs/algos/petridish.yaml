@@ -27,6 +27,7 @@ nas:
       max_cells: 8
       max_reductions: 3
       max_nodes: 1
+      enabled: True # if false then there will only be one seed model. if true a number of seed models with different number of cells, reductions and nodes will be used to initialize the search. this provides more coverage of the frontier.
     model_desc:
       n_cells: 3 # [DEY: why is petridish using such a tiny model during search while darts uses 8 cells?]
       n_reductions: 1

@@ -91,7 +91,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--algos", "petridish"]
+            "args": ["--algos", "petridish", "--nas.search.pareto.enabled", "True"]
         },
         {
             "name": "Xnas-Full",
