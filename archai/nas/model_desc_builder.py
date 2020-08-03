@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 from typing import Optional, Tuple, List
+import copy
 
 from overrides import EnforceOverrides
 
@@ -9,7 +10,10 @@ from archai.common.config import Config
 from archai.nas.model_desc import ModelDesc, OpDesc, CellType, NodeDesc, EdgeDesc, \
                         CellDesc, AuxTowerDesc, ConvMacroParams
 from archai.common.common import logger
-from archai.nas.operations import ModelStemBase, Op
+from archai.nas.operations import StemBase, Op
+
+# list of outputs for each module, each module has multiple tensors as output, each tensor shape is list
+TensorShapes=List[List[List[int]]]
 
 class ModelDescBuilder(EnforceOverrides):
     def __init__(self, conf_model_desc: Config,
@@ -19,9 +23,7 @@ class ModelDescBuilder(EnforceOverrides):
         self.ds_name = self.conf_data['name']
         self.ds_ch = self.conf_data['channels']
         self.n_classes = self.conf_data['n_classes']
-        self.init_node_ch = conf_model_desc['init_node_ch']
         self.aux_tower_stride = conf_model_desc['aux_tower_stride']
-        self.stem_multiplier = conf_model_desc['stem_multiplier']
         self.aux_weight = conf_model_desc['aux_weight']
         self.max_final_edges = conf_model_desc['max_final_edges']
         self.cell_post_op = conf_model_desc['cell_post_op']
@@ -39,7 +41,7 @@ class ModelDescBuilder(EnforceOverrides):
         self._reduction_indices = self._get_reduction_indices()
 
         # if template model desc is specified thehn setup regular and reduction cell templates
-        self._set_templates(template)
+        self._set_node_templates(template)
 
     def _get_reduction_indices(self)->set:
         # this satisfies N R N R N pattern
@@ -50,7 +52,7 @@ class ModelDescBuilder(EnforceOverrides):
         return set(self.n_cells*(i+1) // (self.n_reductions+1) \
                 for i in range(self.n_reductions))
 
-    def _set_templates(self, template:Optional[ModelDesc])->None:
+    def _set_node_templates(self, template:Optional[ModelDesc])->None:
         self.template = template
         self.normal_template,  self.reduction_template = None, None
         if self.template is not None:
@@ -67,14 +69,11 @@ class ModelDescBuilder(EnforceOverrides):
 
     def build_model_desc(self)->ModelDesc:
         # create model stems
-        model_stems = self.get_model_stems()
-
-        # get reduction factors  done by each stem, typically they should be same but for
-        # imagenet they can differ
-        stem_reductions = ModelDescBuilder._stem_reductions(model_stems)
+        in_shapes = [[[self.ds_ch, -1, -1, -1]]]
+        stem_out_shapes, model_stems = self.build_model_stems(in_shapes, self.conf_model_stems)
 
         # create cell descriptions
-        cell_descs, aux_tower_descs = self.get_cell_descs(model_stems,
+        cell_descs, aux_tower_descs = self.build_cells(in_shapes, model_stems,
            stem_reductions, self.max_final_edges)
 
         # get last cell channels
@@ -101,17 +100,37 @@ class ModelDescBuilder(EnforceOverrides):
                         params={'n_ch':ch_in,'n_classes': self.n_classes}, in_len=1,
                         trainables=None)
 
-    def get_cell_descs(self, model_stems:List[OpDesc], stem_reductions:List[int],
-                       max_final_edges:int)->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
+    def build_cell(self, in_shapes:TensorShapes, cell_conf:Config)\
+            ->Tuple[TensorShapes, CellDesc, AuxTowerDesc]:
 
-        # both stems should have same channel outs (same true for cell outputs)
+        p_ch_out = in_shapes[-1][0[0]
+        pp_ch_out = in_shapes[-2][0][0] if len(in_shapes)>1 else p_ch_out
+        is_reduction = self.is_reduction(ci)
+
+        node_ch_out = 2*p_ch_out if is_reduction else p_ch_out
+
+        reduction_p = in_shapes[0][0] > in_shapes[0][1] # previous output had reduction
+
+
+
+    def build_cells(self, in_shapes:TensorShapes, cell_conf:Config)\
+            ->Tuple[TensorShapes, List[CellDesc], List[Optional[AuxTowerDesc]]]:
+
         # TODO: support multiple stems
-        assert  len(model_stems)==2 and \
-                model_stems[0].params['conv'].ch_out == model_stems[1].params['conv'].ch_out
-        reduction_p = stem_reductions[0] < stem_reductions[1] # previous output had reduction
-        stem_ch_out = model_stems[0].params['conv'].ch_out
+        assert len(in_shapes) == 1 and len(in_shapes[0])==2, "we must have only two stems output to start with"
+        # both stems should have same channel outs (same true for cell outputs)
+        assert in_shapes[-1][0][0] == in_shapes[-1][1][0]
+        stem_ch_out = in_shapes[-1][0][0]
 
         cell_descs, aux_tower_descs = [], []
+
+        # make copy of input shapes so we can keep adding more shapes as we add cells
+        in_shapes = copy.deepcopy(in_shapes)
+        for ci in range(self.n_cells):
+            out_shapes, cell_desc, aux_desc = self.build_cell(in_shapes, ci, cell_conf)
+            in_shapes.append(out_shapes)
+            cell_descs.append(cell_desc)
+            aux_tower_descs.append(aux_desc)
 
         # chennels of prev-prev whole cell, prev whole cell and current cell node
         pp_ch_out, p_ch_out, node_ch_out = stem_ch_out, stem_ch_out, self.init_node_ch
@@ -224,21 +243,33 @@ class ModelDescBuilder(EnforceOverrides):
             return AuxTowerDesc(cell_desc.cell_ch_out, self.n_classes, self.aux_tower_stride)
         return None
 
-    def get_model_stems(self)->List[OpDesc]:
-        # TODO: weired not always use two different stemps as in original code
+    def build_model_stems(self, in_shapes:TensorShapes,
+            conf_model_stems:Config)->Tuple[TensorShapes, List[OpDesc]]:
         # TODO: why do we need stem_multiplier?
         # TODO: in original paper stems are always affine
-        conv_params = ConvMacroParams(self.ds_ch,
-                                      self.init_node_ch*self.stem_multiplier)
+
+        init_node_ch = conf_model_stems['init_node_ch']
+        stem_multiplier = conf_model_stems['stem_multiplier']
+        ops = conf_model_stems['ops']
+
+        conv_params = ConvMacroParams(in_shapes[-1][0][0], # channels of first input tensor
+                                      init_node_ch*stem_multiplier)
 
         stems = [OpDesc(name=op_name, params={'conv': conv_params},
                           in_len=1, trainables=None) \
-                for op_name in self.conf_model_stems]
-        return stems
+                for op_name in ops]
+
+        # get reduction factors  done by each stem, typically they should be same but for
+        # imagenet they can differ
+        stem_reductions = ModelDescBuilder._stem_reductions(stems)
+
+        out_shapes = [[init_node_ch, -1.0/stem_reduction, -1.0/stem_reduction, -1] for stem_reduction in stem_reductions]
+
+        return out_shapes, stems
 
     @staticmethod
     def _stem_reductions(stems:List[OpDesc])->List[int]:
         #create stem ops to find out reduction factors
         ops = [Op.create(stem, affine=False) for stem in stems]
-        assert all(isinstance(op, ModelStemBase) for op in ops)
+        assert all(isinstance(op, StemBase) for op in ops)
         return list(op.reduction for op in ops)

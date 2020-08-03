@@ -65,16 +65,17 @@ nas:
         _copy: '/dataset'
       max_final_edges: 2 # max edge that can be in final arch per node
       cell_post_op: 'concate_channels'
-      model_stems: ['stem_conv3x3', 'stem_conv3x3']
+      model_stems:
+        ops: ['stem_conv3x3', 'stem_conv3x3']
+        init_node_ch: 36 # num of input/output channels for nodes in 1st cell
+        stem_multiplier: 3 # output channels multiplier for the stem
       model_post_op: 'pool_adaptive_avg2d'
       aux_tower_stride: 3 # stride that aux tower should use, 3 is good for 32x32 images, 2 for imagenet
-      stem_multiplier: 3 # output channels multiplier for the stem
       params: {}
 
       n_nodes: 4 # number of nodes in a cell
       n_reductions: 2 # number of reductions to be applied
 
-      init_node_ch: 36 # num of input/output channels for nodes in 1st cell
       n_cells: 20 # number of cells
       aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
     loader:
@@ -173,16 +174,17 @@ nas:
         _copy: '/dataset'
       max_final_edges: 2 # max edge that can be in final arch per node
       cell_post_op: 'concate_channels'
-      model_stems: ['stem_conv3x3', 'stem_conv3x3']
+      model_stems:
+        ops: ['stem_conv3x3', 'stem_conv3x3']
+        stem_multiplier: 3 # output channels multiplier for the stem
+        init_node_ch: 16 # num of input/output channels for nodes in 1st cell
       model_post_op: 'pool_adaptive_avg2d'
       aux_tower_stride: 3 # stride that aux tower should use, 3 is good for 32x32 images, 2 for imagenet
-      stem_multiplier: 3 # output channels multiplier for the stem
       params: {}
 
       n_nodes: 4 # number of nodes in a cell
       n_reductions: 2 # number of reductions to be applied
 
-      init_node_ch: 16 # num of input/output channels for nodes in 1st cell
       n_cells: 8 # number of cells
       aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
     loader:

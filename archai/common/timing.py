@@ -84,7 +84,7 @@ def MeasureTime(f_py=None, no_print=True, disable_gc=False, name:Optional[str]=N
     return _decorator(f_py) if callable(f_py) else _decorator
 
 class MeasureBlockTime:
-    def __init__(self,name:str, no_print=True, disable_gc=False):
+    def __init__(self, name:str, no_print=True, disable_gc=False):
         self.name = name
         self.no_print = no_print
         self.disable_gc = disable_gc
