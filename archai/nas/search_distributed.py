@@ -297,7 +297,7 @@ class SearchDistributed:
         plt.scatter(xs, ys, label='pts')
         plt.scatter(hull_xs, hull_ys, c='black', marker='+', label='eps-hull')
         plt.xlabel('Multiply-Additions')
-        plt.ylabel('Top1 Accuracy')
+        plt.ylabel('Top1 Error')
         expdir = common.get_expdir()
         plt.savefig(os.path.join(expdir, 'convex_hull.png'),
             dpi=plt.gcf().dpi, bbox_inches='tight')
