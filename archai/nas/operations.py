@@ -371,14 +371,14 @@ class FactorizedReduce(Op):
         return out
 
 
-class ModelStemBase(Op):
+class StemBase(Op):
     """Abstract base class for model stems that enforces reduction property
     indicating amount of spatial map reductions performed by stem, i.e., reduction=2 for each stride=2"""
     def __init__(self, reduction:int) -> None:
         super().__init__()
         self.reduction = reduction
 
-class StemConv3x3(ModelStemBase):
+class StemConv3x3(StemBase):
     def __init__(self, op_desc:OpDesc, affine:bool)->None:
         super().__init__(1)
 
@@ -401,7 +401,7 @@ class StemConv3x3(ModelStemBase):
     def can_drop_path(self)->bool:
         return False
 
-class StemConv3x3S4(ModelStemBase):
+class StemConv3x3S4(StemBase):
     def __init__(self, op_desc, affine:bool)->None:
         super().__init__(4)
 
@@ -426,7 +426,7 @@ class StemConv3x3S4(ModelStemBase):
     def can_drop_path(self)->bool:
         return False
 
-class StemConv3x3S4S2(ModelStemBase):
+class StemConv3x3S4S2(StemBase):
     def __init__(self, op_desc, affine:bool)->None:
         super().__init__(8)
 
