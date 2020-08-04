@@ -123,8 +123,7 @@ def search_desc(model_desc_wrapped, search_iter, cell_builder, trainer_class, fi
     model_desc = model_desc_wrapped.model_desc
     assert model_desc_wrapped.is_init == True
 
-    # NOTE: if this is recreating the model from scratch
-    # This is warm starting because you are not calling clear_trainables() on the model_desc
+    # NOTE: this is warm starting because you are not calling clear_trainables() on the model_desc
     nas_utils.build_cell(model_desc, cell_builder, search_iter)
 
     model = nas_utils.model_from_desc(model_desc,
@@ -274,7 +273,7 @@ class SearchDistributed:
         xs = []
         ys = []
         for _, metrics_stats in self._parent_models:
-            xs.append(metrics_stats.model_stats.Flops)
+            xs.append(metrics_stats.model_stats.MAdd)
             # ys have to be error as we are computing lower convex hull
             ys.append(1.0 - metrics_stats.best_metrics().top1.avg)
 
@@ -293,6 +292,7 @@ class SearchDistributed:
         hull_ys = [ys[i] for i in eps_indices]
         bound_xs = [xs[i] for i in hull_indices]
         bound_ys = [ys[i] * (1+self._convex_hull_eps) for i in hull_indices]
+        plt.clf()
         plt.plot(bound_xs, bound_ys, c='red', label='eps-bound')
         plt.scatter(xs, ys, label='pts')
         plt.scatter(hull_xs, hull_ys, c='black', marker='+', label='eps-hull')
@@ -302,15 +302,15 @@ class SearchDistributed:
         plt.savefig(os.path.join(expdir, 'convex_hull.png'),
             dpi=plt.gcf().dpi, bbox_inches='tight')
 
-        # # go through sorted list of models near convex hull
-        # counter = 0
-        # while(counter < self._max_parent_samples):
-        #     counter += 1
-        #     for i, (_, _, num_sampled) in enumerate(x_y_num_sampled):
-        #         p = 1.0 / (num_sampled + 1.0)
-        #         should_select = np.random.binomial(1, p)
-        #         if should_select == 1:
-        #             return self._parent_models[i]
+        # go through sorted list of models near convex hull
+        counter = 0
+        while(counter < self._max_parent_samples):
+            counter += 1
+            for i, (_, _, num_sampled) in enumerate(x_y_num_sampled):
+                p = 1.0 / (num_sampled + 1.0)
+                should_select = np.random.binomial(1, p)
+                if should_select == 1:
+                    return self._parent_models[i]
 
         # if here, sampling was not successful
         logger.warn('sampling was not successful, returning a random parent')
@@ -350,12 +350,17 @@ class SearchDistributed:
         train_dl, val_dl = self.get_data(self.conf_loader)
         macro_combinations = list(self._macro_combinations())
         for reductions, cells, nodes in macro_combinations:
+            # if N R N R N R cannot be satisfied, ignore combination
+            if cells < reductions * 2 + 1:
+                continue
+
             model_desc = self._build_macro(reductions, cells, nodes)
 
             if self.cell_builder:
                 self.cell_builder.seed(model_desc)
             model_desc_wrapped = ModelDescWrapper(model_desc, False)
             this_child_id = train_desc.remote(model_desc_wrapped, self.conf_presearch_train, self.finalizers, train_dl, val_dl, common.get_state())
+            
             future_ids.append(this_child_id)
 
         # train the seed model
@@ -379,7 +384,7 @@ class SearchDistributed:
                 this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl, common.get_state())
                 future_ids.append(this_child_id)
             else:
-                logger.info('model child or seed model just finished training.')
+                logger.info('child/seed model just finished training.')
                 # a child job finished.
                 model_desc_wrapped.is_init = True
                 # increase the counter tracking number of times it has been sampled
@@ -387,7 +392,7 @@ class SearchDistributed:
                 metrics_stats.num_sampled += 1
                 # add it to the parent models pool
                 self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
-                logger.info(f'appended to parent a model with Flops {metrics_stats.model_stats.Flops}, num cells {len(model_desc_wrapped.model_desc.cell_descs())}, num nodes cell 1 {len(model_desc_wrapped.model_desc.cell_descs()[0].nodes())}')
+                logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(model_desc_wrapped.model_desc.cell_descs())}, num nodes in cell {len(model_desc_wrapped.model_desc.cell_descs()[0].nodes())}')
                 # sample a model from parent pool
                 model_desc, _ = self._sample_model_from_parent_pool()
                 model_desc_wrapped = ModelDescWrapper(model_desc, True)
@@ -467,7 +472,7 @@ class SearchDistributed:
         conf_model_desc['n_cells'] = cells
         # create model desc for search using model config
         # we will build model without call to cell_builder for pre-training
-        model_desc = nas_utils.create_macro_desc(self.conf_model_desc,
+        model_desc = nas_utils.create_macro_desc(conf_model_desc,
                                                  template_model_desc=None)
         return model_desc
 
