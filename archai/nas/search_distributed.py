@@ -351,6 +351,7 @@ class SearchDistributed:
         macro_combinations = list(self._macro_combinations())
         for reductions, cells, nodes in macro_combinations:
             model_desc = self._build_macro(reductions, cells, nodes)
+
             if self.cell_builder:
                 self.cell_builder.seed(model_desc)
             model_desc_wrapped = ModelDescWrapper(model_desc, False)
@@ -386,7 +387,7 @@ class SearchDistributed:
                 metrics_stats.num_sampled += 1
                 # add it to the parent models pool
                 self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
-                logger.info(f'appended to parent a model with Flops {metrics_stats.model_stats.Flops}')
+                logger.info(f'appended to parent a model with Flops {metrics_stats.model_stats.Flops}, num cells {len(model_desc_wrapped.model_desc.cell_descs())}, num nodes cell 1 {len(model_desc_wrapped.model_desc.cell_descs()[0].nodes())}')
                 # sample a model from parent pool
                 model_desc, _ = self._sample_model_from_parent_pool()
                 model_desc_wrapped = ModelDescWrapper(model_desc, True)
@@ -579,6 +580,7 @@ class SearchDistributed:
 
     @staticmethod
     def _create_metrics_stats(model: Model, train_metrics: Metrics, finalizers: Finalizers) -> MetricsStats:
+        # TODO: Dey verify that this is not an issue during petridish distributed training
         finalized = finalizers.finalize_model(model, restore_device=False)
         # model stats is doing some hooks so do it last
         model_stats = tw.ModelStats(model, [1, 3, 32, 32],  # TODO: remove this hard coding
