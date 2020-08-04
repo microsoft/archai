@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 from archai.common.trainer import Trainer
 from archai.common.config import Config
-from archai.common.common import logger
+from archai.common.common import get_expdir, logger
 from archai.datasets import data
 from archai.nas.model_desc import ModelDesc
 from archai.nas.cell_builder import CellBuilder
@@ -91,20 +91,35 @@ def helper_train_desc(model, conf_train, train_dl, test_dl, metric_filename, mod
     return ms
 
 
-def _plot_model_gallery(metric_stats_all: List[MetricsStats], model_plot_filename: str)->None:
+def _plot_model_gallery(metric_stats_all: List[MetricsStats])->None:
     assert(len(metric_stats_all) > 0)
 
-    xs = []
+    xs_madd = []
+    xs_flops = []
     ys = []
     for metrics_stats in metric_stats_all:
-        xs.append(metrics_stats.model_stats.MAdd)
+        xs_madd.append(metrics_stats.model_stats.MAdd)
+        xs_flops.append(metrics_stats.model_stats.Flops)
         ys.append(metrics_stats.best_metrics().top1.avg)
 
+
+    madds_plot_filename = os.path.join(get_expdir(), 'model_gallery_accuracy_madds.png')
+
     plt.clf()
-    plt.plot(xs, ys, label='models')
+    plt.plot(xs_madd, ys, label='models')
+    plt.scatter(xs_madd, ys)
     plt.xlabel('Multiply-Additions')
     plt.ylabel('Top1 Accuracy')
-    plt.savefig(model_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+    plt.savefig(madds_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    flops_plot_filename = os.path.join(get_expdir(), 'model_gallery_accuracy_flops.png')
+
+    plt.clf()
+    plt.plot(xs_flops, ys, label='models')
+    plt.scatter(xs_flops, ys)
+    plt.xlabel('Flops')
+    plt.ylabel('Top1 Accuracy')
+    plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
 
 def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
@@ -136,7 +151,6 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
         metric_filename = model_desc_filename.split('.')[0] + '_metrics.yaml'
         model_filename = model_desc_filename.split('.')[0] + '_model.pt'
         metrics_stats_filename = model_desc_filename.split('.')[0] + '_metrics_stats.yaml'
-        model_plot_filename = model_desc_filename.split('.')[0] + '_gallery.png'
         model = create_model(conf_eval, final_desc_filename=model_desc_filename, full_desc_filename=full_desc_filename)
 
         # get data
@@ -149,8 +163,9 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     # wait for all eval jobs to be finished
     ready_refs, remaining_refs = ray.wait(remote_ids, num_returns=len(remote_ids))
 
-    metric_stats_all = [ray.get(ready_ref[0]) for ready_ref in ready_refs]
-    _plot_model_gallery(metric_stats_all, model_plot_filename)
+    # plot pareto curve of gallery of models
+    metric_stats_all = [ray.get(ready_ref) for ready_ref in ready_refs]
+    _plot_model_gallery(metric_stats_all)
 
     logger.info('---------finished training all models on the pareto frontier-----------------')
 

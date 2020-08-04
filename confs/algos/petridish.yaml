@@ -23,7 +23,7 @@ nas:
       convex_hull_eps: 0.025 # tolerance 
       max_parent_samples: 10000000 # maximum number of trials in the parent pool sampler function before giving up and returning a random parent model
       max_madd: 200000000 # if any parent model reaches this many multiply-additions then the search is terminated or it it reaches maximum number of parent pool size
-      max_parent_models: 48 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
+      max_parent_models: 64 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
     search_iters: 4
     pareto:
       max_cells: 8
