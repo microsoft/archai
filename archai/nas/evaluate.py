@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional
+from typing import Optional, List
 import importlib
 import sys
 import string
@@ -12,6 +12,9 @@ import ray
 
 import torch
 from torch import nn
+import tensorwatch as tw
+import yaml
+import matplotlib.pyplot as plt
 
 from archai.common.trainer import Trainer
 from archai.common.config import Config
@@ -22,6 +25,7 @@ from archai.nas.cell_builder import CellBuilder
 from archai.nas import nas_utils
 from archai.common import common
 from archai.common import ml_utils, utils
+from archai.nas.search_distributed import MetricsStats
 
 
 def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
@@ -60,7 +64,7 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     logger.popd()
 
 @ray.remote(num_gpus=1)
-def helper_train_desc(model, conf_train, train_dl, test_dl, metric_filename, model_filename, common_state):
+def helper_train_desc(model, conf_train, train_dl, test_dl, metric_filename, model_filename, metrics_stats_filename, common_state):
     ''' Train given a model '''
     common.init_from(common_state)
     # TODO: checkpointing for distributed training
@@ -69,11 +73,38 @@ def helper_train_desc(model, conf_train, train_dl, test_dl, metric_filename, mod
     train_metrics = trainer.fit(train_dl, test_dl)
     train_metrics.save(metric_filename)
 
+    # get metrics_stats
+    model_stats = tw.ModelStats(model, [1, 3, 32, 32],  # TODO: remove this hard coding
+                                    clone_model=True)
+    ms = MetricsStats(model, train_metrics, model_stats)
+
+    # save metrics_stats
+    with open(metrics_stats_filename, 'w') as f:
+        yaml.dump(ms, f)
+
     # save model
     if model_filename:
         model_filename = utils.full_path(model_filename)
         ml_utils.save_model(model, model_filename)
         logger.info({'model_save_path': model_filename})
+
+    return ms
+
+
+def _plot_model_gallery(metric_stats_all: List[MetricsStats], model_plot_filename: str)->None:
+    assert(len(metric_stats_all) > 0)
+
+    xs = []
+    ys = []
+    for metrics_stats in metric_stats_all:
+        xs.append(metrics_stats.model_stats.MAdd)
+        ys.append(metrics_stats.best_metrics().top1.avg)
+
+    plt.clf()
+    plt.plot(xs, ys, label='models')
+    plt.xlabel('Multiply-Additions')
+    plt.ylabel('Top1 Accuracy')
+    plt.savefig(model_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
 
 def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
@@ -104,17 +135,23 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
         full_desc_filename = model_desc_filename.split('.')[0] + '_full.yaml'
         metric_filename = model_desc_filename.split('.')[0] + '_metrics.yaml'
         model_filename = model_desc_filename.split('.')[0] + '_model.pt'
+        metrics_stats_filename = model_desc_filename.split('.')[0] + '_metrics_stats.yaml'
+        model_plot_filename = model_desc_filename.split('.')[0] + '_gallery.png'
         model = create_model(conf_eval, final_desc_filename=model_desc_filename, full_desc_filename=full_desc_filename)
 
         # get data
         train_dl, _, test_dl = data.get_data(conf_loader)
         assert train_dl is not None and test_dl is not None
 
-        this_id = helper_train_desc.remote(model, conf_train, train_dl, test_dl, metric_filename, model_filename, common.get_state())
+        this_id = helper_train_desc.remote(model, conf_train, train_dl, test_dl, metric_filename, model_filename, metrics_stats_filename, common.get_state())
         remote_ids.append(this_id)
 
     # wait for all eval jobs to be finished
-    ray.wait(remote_ids, num_returns=len(remote_ids))
+    ready_refs, remaining_refs = ray.wait(remote_ids, num_returns=len(remote_ids))
+
+    metric_stats_all = [ray.get(ready_ref[0]) for ready_ref in ready_refs]
+    _plot_model_gallery(metric_stats_all, model_plot_filename)
+
     logger.info('---------finished training all models on the pareto frontier-----------------')
 
     logger.popd()
