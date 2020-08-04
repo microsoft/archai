@@ -274,7 +274,7 @@ class SearchDistributed:
         xs = []
         ys = []
         for _, metrics_stats in self._parent_models:
-            xs.append(metrics_stats.model_stats.MAdd)
+            xs.append(metrics_stats.model_stats.Flops)
             # ys have to be error as we are computing lower convex hull
             ys.append(1.0 - metrics_stats.best_metrics().top1.avg)
 
@@ -302,15 +302,15 @@ class SearchDistributed:
         plt.savefig(os.path.join(expdir, 'convex_hull.png'),
             dpi=plt.gcf().dpi, bbox_inches='tight')
 
-        # go through sorted list of models near convex hull
-        counter = 0
-        while(counter < self._max_parent_samples):
-            counter += 1
-            for i, (_, _, num_sampled) in enumerate(x_y_num_sampled):
-                p = 1.0 / (num_sampled + 1.0)
-                should_select = np.random.binomial(1, p)
-                if should_select == 1:
-                    return self._parent_models[i]
+        # # go through sorted list of models near convex hull
+        # counter = 0
+        # while(counter < self._max_parent_samples):
+        #     counter += 1
+        #     for i, (_, _, num_sampled) in enumerate(x_y_num_sampled):
+        #         p = 1.0 / (num_sampled + 1.0)
+        #         should_select = np.random.binomial(1, p)
+        #         if should_select == 1:
+        #             return self._parent_models[i]
 
         # if here, sampling was not successful
         logger.warn('sampling was not successful, returning a random parent')
@@ -386,6 +386,7 @@ class SearchDistributed:
                 metrics_stats.num_sampled += 1
                 # add it to the parent models pool
                 self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
+                logger.info(f'appended to parent a model with Flops {metrics_stats.model_stats.Flops}')
                 # sample a model from parent pool
                 model_desc, _ = self._sample_model_from_parent_pool()
                 model_desc_wrapped = ModelDescWrapper(model_desc, True)
