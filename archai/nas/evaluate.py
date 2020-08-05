@@ -15,6 +15,7 @@ from torch import nn
 import tensorwatch as tw
 import yaml
 import matplotlib.pyplot as plt
+import math as ma
 
 from archai.common.trainer import Trainer
 from archai.common.config import Config
@@ -169,8 +170,6 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
 
     logger.popd()
 
-    
-
 
 def _default_module_name(dataset_name:str, function_name:str)->str:
     module_name = ''
@@ -185,6 +184,7 @@ def _default_module_name(dataset_name:str, function_name:str)->str:
     if not module_name:
         raise NotImplementedError(f'Cannot get default module for {function_name} and dataset {dataset_name} because it is not supported yet')
     return module_name
+
 
 def create_model(conf_eval:Config, final_desc_filename=None, full_desc_filename=None)->nn.Module:
     # region conf vars
@@ -218,13 +218,16 @@ def create_model(conf_eval:Config, final_desc_filename=None, full_desc_filename=
         # load model desc file to get template model
         template_model_desc = ModelDesc.load(final_desc_filename)
 
-        model_desc = model_desc_builder.build(conf_model_desc,
-                                              template=template_model_desc)
+        # scale up the number of cells in the model
+        # if it has been provided in the config file
+        if 'n_cells_multiplier' in conf_model_desc:
+            n_cells_multiplier = conf_model_desc['n_cells_multiplier']
+            orig_cells_from_search = len(template_model_desc.cell_descs())
+            conf_model_desc['n_cells'] = int(ma.ceil(orig_cells_from_search * n_cells_multiplier))
 
-        # save model that we would eval for reference
-        model_desc.save(full_desc_filename)
-
-        model = Model(model_desc, droppath=True, affine=True)
+        model = nas_utils.model_from_conf(full_desc_filename,
+                                    conf_model_desc, affine=True, droppath=True,
+                                    template_model_desc=template_model_desc)
 
         logger.info({'model_factory':False,
                     'cells_len':len(model.desc.cell_descs()),
