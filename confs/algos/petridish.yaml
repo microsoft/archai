@@ -15,6 +15,7 @@ nas:
     final_desc_foldername: '$expdir/model_desc_gallery' # 
     model_desc:
       cell_post_op: 'proj_channels'
+      n_cells_multiplier: 1.0
     loader:
       train_batch: 64
   search:
