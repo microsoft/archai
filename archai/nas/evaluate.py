@@ -107,7 +107,6 @@ def _plot_model_gallery(metric_stats_all: List[MetricsStats])->None:
     madds_plot_filename = os.path.join(get_expdir(), 'model_gallery_accuracy_madds.png')
 
     plt.clf()
-    plt.plot(xs_madd, ys, label='models')
     plt.scatter(xs_madd, ys)
     plt.xlabel('Multiply-Additions')
     plt.ylabel('Top1 Accuracy')
@@ -116,7 +115,6 @@ def _plot_model_gallery(metric_stats_all: List[MetricsStats])->None:
     flops_plot_filename = os.path.join(get_expdir(), 'model_gallery_accuracy_flops.png')
 
     plt.clf()
-    plt.plot(xs_flops, ys, label='models')
     plt.scatter(xs_flops, ys)
     plt.xlabel('Flops')
     plt.ylabel('Top1 Accuracy')
@@ -153,6 +151,9 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
         model_filename = model_desc_filename.split('.')[0] + '_model.pt'
         metrics_stats_filename = model_desc_filename.split('.')[0] + '_metrics_stats.yaml'
         model = create_model(conf_eval, final_desc_filename=model_desc_filename, full_desc_filename=full_desc_filename)
+        # number of cells and number of reductions don't obey a rule then model creation will fail
+        if not model:
+            continue
 
         # get data
         train_dl, _, test_dl = data.get_data(conf_loader)
@@ -188,7 +189,7 @@ def _default_module_name(dataset_name:str, function_name:str)->str:
     return module_name
 
 
-def create_model(conf_eval:Config, final_desc_filename=None, full_desc_filename=None)->nn.Module:
+def create_model(conf_eval:Config, final_desc_filename=None, full_desc_filename=None)->Optional[nn.Module]:
     # region conf vars
     dataset_name = conf_eval['loader']['dataset']['name']
     # if explicitly passed in then don't get from conf
@@ -226,6 +227,8 @@ def create_model(conf_eval:Config, final_desc_filename=None, full_desc_filename=
             n_cells_multiplier = conf_model_desc['n_cells_multiplier']
             orig_cells_from_search = len(template_model_desc.cell_descs())
             conf_model_desc['n_cells'] = int(ma.ceil(orig_cells_from_search * n_cells_multiplier))
+            if not (conf_model_desc['n_cells'] >= conf_model_desc['n_reductions'] * 2 + 1):
+                return None
 
         model = nas_utils.model_from_conf(full_desc_filename,
                                     conf_model_desc, affine=True, droppath=True,

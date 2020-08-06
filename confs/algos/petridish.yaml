@@ -15,9 +15,17 @@ nas:
     final_desc_foldername: '$expdir/model_desc_gallery' # 
     model_desc:
       cell_post_op: 'proj_channels'
-      n_cells_multiplier: 1.0
+      n_cells_multiplier: 1.5
+      n_reductions_multiplier: 1.5
+      n_nodes: 4 # number of nodes in a cell
+      n_reductions: 2 # number of reductions to be applied
+      init_node_ch: 36 # num of input/output channels for nodes in 1st cell
+      n_cells: 20 # number of cells
+      aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch [DEY: What does this mean?]
     loader:
       train_batch: 64
+    trainer:
+      epochs: 600
   search:
     final_desc_foldername: '$expdir/model_desc_gallery' # the gallery of models that eval will train from scratch
     petridish:
