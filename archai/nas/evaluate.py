@@ -107,7 +107,6 @@ def _plot_model_gallery(metric_stats_all: List[MetricsStats])->None:
     madds_plot_filename = os.path.join(get_expdir(), 'model_gallery_accuracy_madds.png')
 
     plt.clf()
-    plt.plot(xs_madd, ys, label='models')
     plt.scatter(xs_madd, ys)
     plt.xlabel('Multiply-Additions')
     plt.ylabel('Top1 Accuracy')
@@ -116,7 +115,6 @@ def _plot_model_gallery(metric_stats_all: List[MetricsStats])->None:
     flops_plot_filename = os.path.join(get_expdir(), 'model_gallery_accuracy_flops.png')
 
     plt.clf()
-    plt.plot(xs_flops, ys, label='models')
     plt.scatter(xs_flops, ys)
     plt.xlabel('Flops')
     plt.ylabel('Top1 Accuracy')
