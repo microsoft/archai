@@ -16,6 +16,7 @@ nas:
     model_desc:
       cell_post_op: 'proj_channels'
       n_cells_multiplier: 1.5
+      n_reductions_multiplier: 1.5
     loader:
       train_batch: 64
   search:
