@@ -12,8 +12,13 @@ from archai.nas.model_desc import ModelDesc, OpDesc, CellType, NodeDesc, EdgeDes
 from archai.common.common import logger
 from archai.nas.operations import StemBase, Op
 
-# list of outputs for each module, each module has multiple tensors as output, each tensor shape is list
-TensorShapes=List[List[List[int]]]
+# Each tensor shape is list
+# A layer can output multiple tensors so its shapes are TensorShapes
+# list of all layer outputs is TensorShapesList]
+TensorShape=List[int]
+TensorShapes=List[TensorShape]
+TensorShapesList=List[TensorShapes]
+
 
 class ModelDescBuilder(EnforceOverrides):
     def __init__(self, conf_model_desc: Config,
@@ -39,6 +44,7 @@ class ModelDescBuilder(EnforceOverrides):
         # for each reduction, we create one indice
         # for cifar and imagenet, reductions=2 creating cuts at n//3, n*2//3
         self._reduction_indices = self._get_reduction_indices()
+        self.node_channels = self.get_node_channels()
 
         # if template model desc is specified thehn setup regular and reduction cell templates
         self._set_node_templates(template)
@@ -51,6 +57,17 @@ class ModelDescBuilder(EnforceOverrides):
         # for cifar and imagenet, reductions=2 creating cuts at n//3, n*2//3
         return set(self.n_cells*(i+1) // (self.n_reductions+1) \
                 for i in range(self.n_reductions))
+
+    def get_node_channels(self)->List[List[int]]:
+        cell_node_channels:List[List[int]] = []
+        node_channels = self.init_node_ch
+        for ci in range(self.n_cells):
+            if ci in self._reduction_indices:
+                node_channels *= node_channels
+            nodes_channels = [node_channels for ni in range(self.n_nodes)]
+            cell_node_channels.append(nodes_channels)
+        return cell_node_channels
+
 
     def _set_node_templates(self, template:Optional[ModelDesc])->None:
         self.template = template
@@ -67,54 +84,62 @@ class ModelDescBuilder(EnforceOverrides):
                         cell_desc.cell_type==CellType.Reduction:
                     self.reduction_template = cell_desc
 
-    def build_model_desc(self)->ModelDesc:
+    def build_model_desc(self, cell_conf:Config)->ModelDesc:
         # create model stems
         in_shapes = [[[self.ds_ch, -1, -1, -1]]]
         stem_out_shapes, model_stems = self.build_model_stems(in_shapes, self.conf_model_stems)
 
         # create cell descriptions
-        cell_descs, aux_tower_descs = self.build_cells(in_shapes, model_stems,
-           stem_reductions, self.max_final_edges)
+        cell_out_shapes, cell_descs, aux_tower_descs = self.build_cells(in_shapes, cell_conf)
 
-        # get last cell channels
-        if len(cell_descs):
-            last_ch_out = cell_descs[-1].cell_ch_out
-        else: # if no cells and only model stem
-            last_ch_out = model_stems[-1].params['conv'].ch_out
+        pool_out_shape, model_pool_op = self.build_model_pool(cell_out_shapes)
 
-        pool_op = self.get_pool_op(last_ch_out)
+        logits_op = self.build_logits_op(pool_out_shape)
 
-        logits_op = self.get_logits_op(last_ch_out)
-
-        return ModelDesc(model_stems, pool_op, self.ds_ch,
+        return ModelDesc(model_stems, model_pool_op, self.ds_ch,
                          self.n_classes, cell_descs, aux_tower_descs,
                          logits_op, self.model_desc_params.to_dict())
 
-    def get_pool_op(self, ch_in:int)->OpDesc:
-        return OpDesc(self.model_post_op,
-                         params={'conv': ConvMacroParams(ch_in, ch_in)},
+    def build_model_pool(self, out_shapes:TensorShapesList)\
+            ->Tuple[TensorShape, OpDesc]:
+        last_shape = out_shapes[-1][0]
+
+        return copy.deepcopy(last_shape), OpDesc(self.model_post_op,
+                         params={'conv': ConvMacroParams(last_shape[0], last_shape[0])},
                          in_len=1, trainables=None)
 
-    def get_logits_op(self, ch_in:int)->OpDesc:
+    def build_logits_op(self, out_shape:TensorShape)->OpDesc:
         return OpDesc('linear',
-                        params={'n_ch':ch_in,'n_classes': self.n_classes}, in_len=1,
+                        params={'n_ch':out_shape[0],'n_classes': self.n_classes}, in_len=1,
                         trainables=None)
 
-    def build_cell(self, in_shapes:TensorShapes, cell_conf:Config)\
-            ->Tuple[TensorShapes, CellDesc, AuxTowerDesc]:
+    def build_cell(self, in_shapes:TensorShapesList, cell_conf:Config, ci:int)\
+            ->Tuple[TensorShapes, CellDesc, Optional[AuxTowerDesc]]:
 
-        p_ch_out = in_shapes[-1][0[0]
-        pp_ch_out = in_shapes[-2][0][0] if len(in_shapes)>1 else p_ch_out
-        is_reduction = self.is_reduction(ci)
+        cell_type = self.get_cell_type(ci)
+        reduction = cell_type == CellType.Reduction
 
-        node_ch_out = 2*p_ch_out if is_reduction else p_ch_out
+        stem_shapes, stems = self.build_cell_stems(in_shapes, cell_conf,
+                                                   ci, reduction)
 
-        reduction_p = in_shapes[0][0] > in_shapes[0][1] # previous output had reduction
+        node_shapes, nodes = self.build_nodes(stem_shapes, cell_conf, ci, reduction)
 
+        post_op_shape, post_op_desc = self.build_cell_post_op(stem_shapes,
+            node_shapes, cell_conf, ci, reduction)
 
+        cell_desc = CellDesc(
+            cell_type=cell_type, id=ci,
+            nodes=nodes,
+            stems=stems,
+            post_op_desc=post_op_desc
+        )
 
-    def build_cells(self, in_shapes:TensorShapes, cell_conf:Config)\
-            ->Tuple[TensorShapes, List[CellDesc], List[Optional[AuxTowerDesc]]]:
+        aux_tower_desc = self.build_aux_tower(cell_desc, ci)
+
+        return [post_op_shape], cell_desc, aux_tower_desc
+
+    def build_cells(self, in_shapes:TensorShapesList, cell_conf:Config)\
+            ->Tuple[TensorShapesList, List[CellDesc], List[Optional[AuxTowerDesc]]]:
 
         # TODO: support multiple stems
         assert len(in_shapes) == 1 and len(in_shapes[0])==2, "we must have only two stems output to start with"
@@ -125,67 +150,14 @@ class ModelDescBuilder(EnforceOverrides):
         cell_descs, aux_tower_descs = [], []
 
         # make copy of input shapes so we can keep adding more shapes as we add cells
-        in_shapes = copy.deepcopy(in_shapes)
+        out_shapes = copy.deepcopy(in_shapes) # include model stem shapes in out shapes
         for ci in range(self.n_cells):
-            out_shapes, cell_desc, aux_desc = self.build_cell(in_shapes, ci, cell_conf)
-            in_shapes.append(out_shapes)
+            out_shape, cell_desc, aux_desc = self.build_cell(out_shapes, cell_conf, ci)
+            out_shapes.append(out_shape)
             cell_descs.append(cell_desc)
             aux_tower_descs.append(aux_desc)
 
-        # chennels of prev-prev whole cell, prev whole cell and current cell node
-        pp_ch_out, p_ch_out, node_ch_out = stem_ch_out, stem_ch_out, self.init_node_ch
-
-        # stores first cells of each time with whom arch params would be shared
-        first_normal, first_reduction = -1, -1
-
-        for ci in range(self.n_cells):
-            # find cell type and output channels for this cell
-            # also update if this is our first cell from which arch params will be shared
-            reduction = self.is_reduction(ci)
-            # if this is reduction cell then we will double the node channels in this cell
-            if reduction:
-                node_ch_out, cell_type = node_ch_out*2, CellType.Reduction
-                first_reduction = ci if first_reduction < 0 else first_reduction
-                template_cell = first_reduction
-            else:
-                cell_type = CellType.Regular
-                first_normal = ci if first_normal < 0 else first_normal
-                template_cell = first_normal
-
-            s0_op, s1_op = self.get_cell_stems(
-                node_ch_out, p_ch_out, pp_ch_out, reduction_p, ci)
-
-            # cell template for this cell contains nodes we can use as template
-            cell_template = self._cell_template(cell_type)
-
-            # if cell template was not supplied then we
-            # will take number of nodes from config
-            node_count = len(cell_template.nodes()) if cell_template \
-                                                    else self.n_nodes
-
-            # create nodes with empty edges
-            nodes:List[NodeDesc] =  [NodeDesc(edges=[])
-                                     for _ in range(node_count)]
-
-            cell_descs.append(CellDesc(
-                cell_type=cell_type, id=ci,
-                nodes=nodes,
-                s0_op=s0_op, s1_op=s1_op,
-                template_cell=template_cell,
-                max_final_edges=max_final_edges,
-                node_ch_out=node_ch_out,
-                post_op=self.cell_post_op
-            ))
-            # add nodes from the template to the just added cell
-            self._copy_template_nodes(cell_template, cell_descs[ci])
-            # add aux tower
-            aux_tower_descs.append(self.get_aux_tower(cell_descs[ci], ci))
-
-            # we concate all channels so next cell node gets channels from all nodes
-            pp_ch_out, p_ch_out = p_ch_out, cell_descs[ci].cell_ch_out
-            reduction_p = reduction
-
-        return cell_descs, aux_tower_descs
+        return out_shapes, cell_descs, aux_tower_descs
 
     def _cell_template(self, cell_type:CellType)->Optional[CellDesc]:
         if self.template is None:
@@ -213,15 +185,82 @@ class ModelDescBuilder(EnforceOverrides):
                             ) for e in node_t.edges]
             node.edges=edges_copy
 
-    def is_reduction(self, cell_index:int)->bool:
+    def get_cell_type(self, cell_index:int)->CellType:
         # For darts, n_cells=8 so we build [N N R N N R N N] structure
         # Notice that this will result in only 2 reduction cells no matter
         # total number of cells. Original resnet actually have 3 reduction cells.
         # Between two reduction cells we have regular cells.
-        return cell_index in self._reduction_indices
+        return CellType.Reduction if cell_index in self._reduction_indices \
+                                  else CellType.Regular
 
-    def get_cell_stems(self, node_ch_out: int, p_ch_out: int, pp_ch_out:int,
-                   reduction_p: bool, cell_index:int)->Tuple[OpDesc, OpDesc]:
+    def _post_op_ch(self, post_op_name:str, node_shapes:TensorShapes) \
+            ->Tuple[int, int, int]:
+
+        node_count = len(node_shapes)
+        node_ch_out = node_shapes[-1][0]
+
+        # we take all available node outputs as input to post op
+        # if no nodes exist then we will use cell stem outputs
+        # Note that for reduction cell stems wxh is larger than node wxh which
+        # means we cannot use cell stem outputs with node outputs because
+        # concate will fail
+        # TODO: remove hard coding of 2
+        out_states = node_count if node_count else 2
+
+        # number of input channels to the cell post op
+        op_ch_in = out_states * node_ch_out
+
+        # number of output channels for the cell post op
+        if post_op_name == 'concate_channels':
+            cell_ch_out = op_ch_in
+        elif post_op_name == 'proj_channels':
+            cell_ch_out = node_ch_out
+        else:
+            raise RuntimeError(f'Unsupported cell_post_op: {post_op_name}')
+        return op_ch_in, cell_ch_out, out_states
+
+    def build_cell_post_op(self, stem_shapes:TensorShapes,
+        node_shapes:TensorShapes, cell_conf:Config, cell_index:int,
+        reduction:bool) -> Tuple[TensorShape, OpDesc]:
+
+        post_op_name = self.cell_post_op
+        op_ch_in, cell_ch_out, out_states = self._post_op_ch(post_op_name,
+                                                             node_shapes)
+
+        post_op_desc = OpDesc(post_op_name,
+            {
+                'conv': ConvMacroParams(op_ch_in, cell_ch_out),
+                'out_states': out_states
+            },
+            in_len=1, trainables=None, children=None)
+
+        out_shape = copy.deepcopy(node_shapes[-1])
+        out_shape[0] = cell_ch_out
+
+        return out_shape, post_op_desc
+
+    def build_nodes(self, stem_shapes:TensorShapes, cell_conf:Config,
+                    cell_index:int, reduction:bool) \
+                        ->Tuple[TensorShapes, List[NodeDesc]]:
+
+        node_count = len(self.node_channels[cell_index])
+
+        # create nodes with empty edges
+        nodes:List[NodeDesc] =  [NodeDesc(edges=[])
+                                    for _ in range(node_count)]
+
+        out_shapes = [copy.deepcopy(stem_shapes[0]) for _  in range(node_count)]
+
+        return out_shapes, nodes
+
+    def build_cell_stems(self, in_shapes:TensorShapesList, cell_conf:Config,
+                   cell_index:int, reduction:bool)\
+                       ->Tuple[TensorShapes, List[OpDesc]]:
+
+        p_ch_out = in_shapes[-1][0][0]
+        pp_ch_out = in_shapes[-2][0][0] if len(in_shapes)>1 else p_ch_out
+        reduction_p = p_ch_out >= pp_ch_out*2
+        node_ch_out = self.node_channels[cell_index][0] # first node in cell
 
         # Cell stemps will take prev channels and out sameput channels as nodes would.
         # If prev cell was reduction then we need to increase channels of prev-prev
@@ -235,21 +274,26 @@ class ModelDescBuilder(EnforceOverrides):
                     params={
                         'conv': ConvMacroParams(p_ch_out, node_ch_out)
                     }, in_len=1, trainables=None)
-        return s0_op, s1_op
 
-    def get_aux_tower(self, cell_desc:CellDesc, cell_index:int)->Optional[AuxTowerDesc]:
+        out_shape0 = copy.deepcopy(in_shapes[-1][0])
+        out_shape0[0] = node_ch_out
+        out_shape1 = copy.deepcopy(out_shape0)
+
+        return [out_shape0, out_shape1], [s0_op, s1_op]
+
+    def build_aux_tower(self, cell_desc:CellDesc, cell_index:int)->Optional[AuxTowerDesc]:
         # TODO: shouldn't we be adding aux tower at *every* 1/3rd?
         if self.aux_weight and cell_index == 2*self.n_cells//3:
             return AuxTowerDesc(cell_desc.cell_ch_out, self.n_classes, self.aux_tower_stride)
         return None
 
-    def build_model_stems(self, in_shapes:TensorShapes,
+    def build_model_stems(self, in_shapes:TensorShapesList,
             conf_model_stems:Config)->Tuple[TensorShapes, List[OpDesc]]:
         # TODO: why do we need stem_multiplier?
         # TODO: in original paper stems are always affine
 
-        init_node_ch = conf_model_stems['init_node_ch']
-        stem_multiplier = conf_model_stems['stem_multiplier']
+        init_node_ch:int = conf_model_stems['init_node_ch']
+        stem_multiplier:int = conf_model_stems['stem_multiplier']
         ops = conf_model_stems['ops']
 
         conv_params = ConvMacroParams(in_shapes[-1][0][0], # channels of first input tensor
