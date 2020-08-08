@@ -16,7 +16,7 @@ class CheckPoint(UserDict):
     """Callback based checkpoint model.
 
     Start new checkpoint by calling new() and save it by calling commit().
-    This class is also dictionaty. Items that needs be saved can be done so
+    This class is also dictionary. Items that needs be saved can be done so
     by setting key, value pairs after new(). As any dictionary key is set,
     checkpoint becomes dirty. On commit(), dictionary is saved and emptied.
     Invariant: checkpoint remains dirty until commit() is called.
@@ -54,7 +54,7 @@ class CheckPoint(UserDict):
                 func(obj, self, *kargs, **kvargs)
             elif func is not None:
                 func(self, *kargs, **kvargs)
-            # else func is garbegde collected
+            # else func is garbage collected
 
     def commit(self)->None:
         assert self.filepath and not self.is_empty()
