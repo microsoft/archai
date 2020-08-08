@@ -222,10 +222,15 @@ class SearchDistributed:
         self._parito_filepath = utils.full_path(pareto_summary_filename)
         self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
 
+        # initialize the checkpoint dictionary
+        self._checkpoint.new()
+
+        # petridish distributed search related parameters
         self._convex_hull_eps = self.conf_petridish['convex_hull_eps']
         self._max_parent_samples = self.conf_petridish['max_parent_samples']
         self._max_madd = self.conf_petridish['max_madd']
         self._max_parent_models = self.conf_petridish['max_parent_models']
+        self._checkpoints_foldername = self.conf_petridish['checkpoints_foldername']
 
         logger.info({'pareto_enabled': self.pareto_enabled,
                      'base_reductions': self.base_reductions,
@@ -342,11 +347,22 @@ class SearchDistributed:
                         yield reductions, cells, nodes
 
 
+    def _restore_parent_pool(self)->bool:
+        return True
+
+
     def search_loop(self)->None:
         # the pool of ray job ids
         future_ids = []
 
-        # parallel version of seed model training
+        # # recover state of the parent pool if possible
+        # if self._resume and self._checkpoints_available():
+        #     self._restore_parent_pool()
+        
+
+
+        # seed the pool with many different seed models of different 
+        # macro parameters like number of cells, reductions etc
         train_dl, val_dl = self.get_data(self.conf_loader)
         macro_combinations = list(self._macro_combinations())
         for reductions, cells, nodes in macro_combinations:
@@ -392,6 +408,11 @@ class SearchDistributed:
                 metrics_stats.num_sampled += 1
                 # add it to the parent models pool
                 self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
+
+                # save to disk for restoring
+                filename = os.path.join(self._checkpoints_foldername, f'parent_desc_{len(self._parent_models)}.pth')
+                model_desc_wrapped.model_desc.save(filename, save_trainables=True)
+                self._record_checkpoint(filename, metrics_stats)
                 logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(model_desc_wrapped.model_desc.cell_descs())}, num nodes in cell {len(model_desc_wrapped.model_desc.cell_descs()[0].nodes())}')
                 # sample a model from parent pool
                 model_desc, _ = self._sample_model_from_parent_pool()
@@ -449,12 +470,12 @@ class SearchDistributed:
         return start_macro, best_result
 
 
-    def _record_checkpoint(self, macro_comb_i: int, best_result: SearchResult) -> None:
+    def _record_checkpoint(self, model_desc_filename:str, metrics_stats:MetricsStats):
         if self._checkpoint is not None:
-            state = {'start_macro': macro_comb_i,
-                     'best_result': yaml.dump(best_result)}
-            self._checkpoint.new()
-            self._checkpoint['search'] = state
+            parent_pool_entry = {'model_desc_filename': model_desc_filename,
+                                 'metrics_stats': yaml.dump(metrics_stats)}
+            this_key = f'parent_pool_entry_{len(self._parent_models)}'
+            self._checkpoint[this_key] = parent_pool_entry
             self._checkpoint.commit()
 
 
