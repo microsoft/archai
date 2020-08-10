@@ -1,6 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+
+
 from enum import Enum
 from typing import Mapping, Optional, List, Tuple, Union
 import pathlib
@@ -12,11 +14,19 @@ import yaml
 
 from archai.common import utils
 from archai.common.common import logger
+from archai.common.config import Config
 
 """
 Note: All classes in this file needs to be deepcopy compatible because
       descs are used as template to create copies by macro builder.
 """
+
+# Each tensor shape is list
+# A layer can output multiple tensors so its shapes are TensorShapes
+# list of all layer outputs is TensorShapesList]
+TensorShape=List[Union[int]]
+TensorShapes=List[TensorShape]
+TensorShapesList=List[TensorShapes]
 
 class ConvMacroParams:
     """Holds parameters that may be altered by macro architecture"""
@@ -137,21 +147,16 @@ class CellType(Enum):
     Reduction  = 'reduction'
 
 class CellDesc:
-    def __init__(self, cell_type:CellType, id:int, nodes:List[NodeDesc],
-            s0_op:OpDesc, s1_op:OpDesc, template_cell:int, max_final_edges:int,
-            node_ch_out:int, post_op:Union[str,OpDesc])->None:
-        assert s0_op.params['conv'].ch_out == s1_op.params['conv'].ch_out
-        assert s0_op.params['conv'].ch_out == node_ch_out
+    def __init__(self, id:int, cell_type:CellType,
+                 stems:List[OpDesc], stem_shapes:TensorShapes,
+                 nodes:List[NodeDesc], node_shapes: TensorShapes,
+            post_op:OpDesc, out_shape:TensorShape)->None:
 
         self.cell_type = cell_type
         self.id = id
-        self.s0_op, self.s1_op = s0_op, s1_op
-        self.template_cell = template_cell # cell id with which we share arch params
-        self.max_final_edges = max_final_edges
-
-        self.cell_ch_out = -1 # will be set later by reset_nodes
-        self.reset_nodes(nodes, node_ch_out, post_op)
-        assert self.cell_ch_out > 0
+        self.stems = stems
+        self.out_shape = out_shape
+        self.reset_nodes(nodes, node_shapes, post_op, out_shape)
 
     def clone(self, id:int)->'CellDesc':
         c = copy.deepcopy(self) # note that template_cell is also cloned
@@ -159,107 +164,45 @@ class CellDesc:
         return c
 
     def clear_trainables(self)->None:
-        for attr in ['s0_op', 's1_op', 'post_op']:
-            op_desc:OpDesc = getattr(self, attr)
-            op_desc.clear_trainables()
+        for stem in self.stems:
+            stem.clear_trainables()
         for node in self._nodes:
             node.clear_trainables()
-
-    def nodes_editable(self)->bool:
-        """Can we change node count without having to rebuild entire model desc?
-           This is possible if post op outputs same number of channels regardless
-           of node count.
-        """
-        _, cell_ch_out1, _ = CellDesc._post_op_ch(1, 1, self.post_op.name)
-        _, cell_ch_out2, _ = CellDesc._post_op_ch(2, 1, self.post_op.name)
-        return cell_ch_out1 == cell_ch_out2
+        self.post_op.clear_trainables()
 
     def state_dict(self)->dict:
         return  {
+                    'id': self.id,
+                    'cell_type': self.cell_type,
+                    'stems': [s.state_dict() for s in self.stems],
+                    'stem_shapes': self.stem_shapes,
                     'nodes': [n.state_dict() for n in self.nodes()],
-                    's0_op': self.s0_op.state_dict(),
-                    's1_op': self.s1_op.state_dict(),
-                    'post_op': self.post_op.state_dict()
+                    'node_shapes': self.node_shapes,
+                    'post_op': self.post_op.state_dict(),
+                    'out_shape': self.out_shape
                 }
 
     def load_state_dict(self, state_dict)->None:
+        assert self.id == state_dict['id']
+        assert self.cell_type == state_dict['cell_type']
+
+        for s, ss in utils.zip_eq(self.stems, state_dict['stems']):
+            s.load_state_dict(ss)
+        self.stem_shapes = state_dict['stem_shapes']
+
         for n, ns in utils.zip_eq(self.nodes(), state_dict['nodes']):
             n.load_state_dict(ns)
-        self.s0_op.load_state_dict(state_dict['s0_op'])
-        self.s1_op.load_state_dict(state_dict['s1_op'])
+        self.node_shapes = state_dict['node_shapes']
+
         self.post_op.load_state_dict(state_dict['post_op'])
+        self.out_shape = state_dict['out_shape']
 
-    @staticmethod
-    def _post_op_ch(node_count:int, node_ch_out:int,
-                    post_op_name:str)->Tuple[int, int, int]:
-
-        # we take all available node outputs as input to post op
-        # if no nodes exist then we will use cell stem outputs
-        # Note that for reduction cell stems wxh is larger than node wxh which
-        # means we cannot use cell stem outputs with node outputs because
-        # concate will fail
-        # TODO: remove hard coding of 2
-        out_states = node_count if node_count else 2
-
-        # number of input channels to the cell post op
-        op_ch_in = out_states * node_ch_out
-
-        # number of output channels for the cell post op
-        if post_op_name == 'concate_channels':
-            cell_ch_out = op_ch_in
-        elif post_op_name == 'proj_channels':
-            cell_ch_out = node_ch_out
-        else:
-            raise RuntimeError(f'Unsupported cell_post_op: {post_op_name}')
-        return op_ch_in, cell_ch_out, out_states
-
-    @staticmethod
-    def create_post_op(node_count:int, node_ch_out:int,
-                    post_op_name:str)->OpDesc:
-        op_ch_in, cell_ch_out, out_states = CellDesc._post_op_ch(node_count,
-                                                    node_ch_out, post_op_name)
-        return OpDesc(post_op_name,
-            {
-                'conv': ConvMacroParams(op_ch_in, cell_ch_out),
-                'out_states': out_states
-            },
-            in_len=1, trainables=None, children=None)
-
-    def reset_nodes(self, nodes:List[NodeDesc], node_ch_out:int,
-                    post_op:Union[str,OpDesc])->None:
-
+    def reset_nodes(self, nodes:List[NodeDesc], node_shapes:TensorShapes,
+                    post_op:OpDesc, out_shape:TensorShape)->None:
         self._nodes = nodes
-        self.node_ch_out = node_ch_out
-
-        # we need to accept str as well as obj because during init we have name
-        # but during finalize we have finalized post op object
-        if isinstance(post_op, str):
-            post_op = CellDesc.create_post_op(len(nodes), node_ch_out, post_op)
-
-        post_op_ch_in = post_op.params['conv'].ch_in
-        post_op_ch_out = post_op.params['conv'].ch_out
-        post_op_out_states = post_op.params['out_states']
-
-        # verify that the supplied op has channels as we expect
-        post_op_ch_in_, post_op_ch_out_, post_op_out_states_ = \
-            CellDesc._post_op_ch(len(nodes), node_ch_out, post_op.name)
-        assert post_op_ch_in == post_op_ch_in_ and \
-               post_op_ch_out == post_op_ch_out_ and \
-               post_op_out_states == post_op_out_states_
-
-        if self.cell_ch_out > -1 and self.cell_ch_out != post_op_ch_out:
-            raise RuntimeError('Output channel of a cell cannot be resetted'
-                               ' because this requires that all subsequent cells'
-                               ' change to and model should be reconstructed.'
-                               f' new cell_ch_out={post_op_ch_out},'
-                               f' self.cell_ch_out={self.cell_ch_out}')
-
+        self.node_shapes = node_shapes
         self.post_op = post_op
-        self.cell_ch_out = post_op_ch_out
-        # conv parameters for each node
-        self.conv_params = ConvMacroParams(node_ch_out, node_ch_out)
-        # make sure we have real channel count
-        assert self.cell_ch_out > -1
+        self.out_shape = out_shape
 
     def nodes(self)->List[NodeDesc]:
         return self._nodes
@@ -271,16 +214,17 @@ class CellDesc:
 
 
 class ModelDesc:
-    def __init__(self, model_stems:List[OpDesc], pool_op:OpDesc,
-                 ds_ch:int, n_classes:int, cell_descs:List[CellDesc],
-                 aux_tower_descs:List[Optional[AuxTowerDesc]],
-                 logits_op:OpDesc, params:dict)->None:
+    def __init__(self, conf_model_desc:Config, model_stems:List[OpDesc], pool_op:OpDesc,
+                 cell_descs:List[CellDesc], aux_tower_descs:List[Optional[AuxTowerDesc]],
+                 logits_op:OpDesc)->None:
+
+        conf_dataset = conf_model_desc['dataset']
+        self.ds_ch = conf_dataset['channels']
+        self.n_classes = conf_dataset['n_classes']
+        self.params = conf_model_desc['params'].to_dict()
+
         self.model_stems, self.pool_op = model_stems, pool_op
         self.logits_op = logits_op
-        self.params = params
-
-        self.ds_ch = ds_ch
-        self.n_classes = n_classes
 
         self.reset_cells(cell_descs, aux_tower_descs)
 
@@ -320,8 +264,6 @@ class ModelDesc:
     def all_full(self)->bool:
         return len(self._cell_descs)>0 and \
             all((c.all_full() for c in self._cell_descs))
-    def all_nodes_editable(self)->bool:
-        return all((c.nodes_editable() for c in self._cell_descs))
 
     def state_dict(self)->dict:
         return  {
@@ -332,7 +274,7 @@ class ModelDesc:
                 }
 
     def load_state_dict(self, state_dict)->None:
-        for c, cs in zip(self.cell_descs(), state_dict['cell_descs']):
+        for c, cs in utils.zip_eq(self.cell_descs(), state_dict['cell_descs']):
             c.load_state_dict(cs)
         for stem, state in utils.zip_eq(self.model_stems, state_dict['model_stems']):
             stem.load_state_dict(state)
