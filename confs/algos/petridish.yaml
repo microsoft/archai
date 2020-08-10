@@ -46,17 +46,17 @@ nas:
       cell_post_op: 'proj_channels'
     seed_train:
       trainer:
-        epochs: 80 # number of epochs model will be trained before search
+        epochs: 1 # number of epochs model will be trained before search
       loader:
         train_batch: 64
     post_train:
       trainer:
-        epochs: 80 # number of epochs model will be trained after search
+        epochs: 1 # number of epochs model will be trained after search
       loader:
         train_batch: 64
     trainer:
       l1_alphas:  0.001   # as per paper
-      epochs: 80 # number of epochs model will be trained during search
+      epochs: 1 # number of epochs model will be trained during search
     loader:
       train_batch: 64
       val_ratio: 0.2 #split portion for test set, 0 to 1
