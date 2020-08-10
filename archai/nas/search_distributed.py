@@ -192,7 +192,7 @@ class SearchDistributed:
                  trainer_class: TArchTrainer, finalizers: Finalizers) -> None:
         # region config vars
         conf_checkpoint = conf_search['checkpoint']
-        resume = conf_search['resume']
+        self._resume = conf_search['resume']
         self.conf_model_desc = conf_search['model_desc']
         self.conf_loader = conf_search['loader']
         self.conf_train = conf_search['trainer']
@@ -220,10 +220,10 @@ class SearchDistributed:
         self.finalizers = finalizers
         self._data_cache = {}
         self._parito_filepath = utils.full_path(pareto_summary_filename)
-        self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
+        self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, self._resume)
 
         # initialize the checkpoint dictionary
-        self._checkpoint.new()
+        # self._checkpoint.new()
 
         # petridish distributed search related parameters
         self._convex_hull_eps = self.conf_petridish['convex_hull_eps']
@@ -249,6 +249,9 @@ class SearchDistributed:
 
         # make folder to save gallery of models after search
         self.final_desc_path = utils.full_path(self.final_desc_foldername, create=True)
+
+        # make folder to save parent pool checkpoints to aid recovery
+        self._checkpoints_foldername = utils.full_path(self._checkpoints_foldername, create=True)
 
         # parent models list
         self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
@@ -347,43 +350,40 @@ class SearchDistributed:
                         yield reductions, cells, nodes
 
 
-    def _restore_parent_pool(self)->bool:
-        return True
-
-
     def search_loop(self)->None:
+        # TODO: I noticed that metrics_stats already includes model_desc. For saving and restoring
+        # do we need to save model_desc separately or just saving the metrics_stats is enough?
+        # Do we need to have model_desc separately in the parent pool? is metrics_stats enough?
+
         # the pool of ray job ids
         future_ids = []
 
-        # # recover state of the parent pool if possible
-        # if self._resume and self._checkpoints_available():
-        #     self._restore_parent_pool()
-        
-
+        # attempt to restore parent pool
+        parent_pool_restored = self._restore_parent_pool()
 
         # seed the pool with many different seed models of different 
-        # macro parameters like number of cells, reductions etc
-        train_dl, val_dl = self.get_data(self.conf_loader)
-        macro_combinations = list(self._macro_combinations())
-        for reductions, cells, nodes in macro_combinations:
-            # if N R N R N R cannot be satisfied, ignore combination
-            if cells < reductions * 2 + 1:
-                continue
+        # macro parameters like number of cells, reductions etc if parent pool
+        # could not be restored and/or this is the first time this job has been run.
+        if not parent_pool_restored:
+            train_dl, val_dl = self.get_data(self.conf_loader)
+            macro_combinations = list(self._macro_combinations())
+            for reductions, cells, nodes in macro_combinations:
+                # if N R N R N R cannot be satisfied, ignore combination
+                if cells < reductions * 2 + 1:
+                    continue
 
-            model_desc = self._build_macro(reductions, cells, nodes)
+                model_desc = self._build_macro(reductions, cells, nodes)
 
-            if self.cell_builder:
-                self.cell_builder.seed(model_desc)
-            model_desc_wrapped = ModelDescWrapper(model_desc, False)
-            this_child_id = train_desc.remote(model_desc_wrapped, self.conf_presearch_train, self.finalizers, train_dl, val_dl, common.get_state())
-            
-            future_ids.append(this_child_id)
+                if self.cell_builder:
+                    self.cell_builder.seed(model_desc)
+                model_desc_wrapped = ModelDescWrapper(model_desc, False)
+                this_child_id = train_desc.remote(model_desc_wrapped, self.conf_presearch_train, self.finalizers, train_dl, val_dl, common.get_state())
+                
+                future_ids.append(this_child_id)
 
         # train the seed model
-        search_iter = -1 # TODO: this is for legacy reasons only. remove in a bit
-        #train_dl, val_dl = self.get_data(self.conf_loader)
-        #future_ids.append(search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state()))
-
+        search_iter = -1 # TODO: this is for legacy reasons only. Remove.
+        
         # TODO: Need to add checkpointing to recover from pre-empted jobs
         while not self._should_terminate_search():
             logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
@@ -403,9 +403,11 @@ class SearchDistributed:
                 logger.info('child/seed model just finished training.')
                 # a child job finished.
                 model_desc_wrapped.is_init = True
+
                 # increase the counter tracking number of times it has been sampled
                 # REVIEW: ss: why not put num_sampled in ModelDescWrapper
                 metrics_stats.num_sampled += 1
+
                 # add it to the parent models pool
                 self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
 
@@ -414,6 +416,7 @@ class SearchDistributed:
                 model_desc_wrapped.model_desc.save(filename, save_trainables=True)
                 self._record_checkpoint(filename, metrics_stats)
                 logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(model_desc_wrapped.model_desc.cell_descs())}, num nodes in cell {len(model_desc_wrapped.model_desc.cell_descs()[0].nodes())}')
+
                 # sample a model from parent pool
                 model_desc, _ = self._sample_model_from_parent_pool()
                 model_desc_wrapped = ModelDescWrapper(model_desc, True)
@@ -442,34 +445,6 @@ class SearchDistributed:
             eps_model.save(savename)
 
 
-    def _restore_checkpoint(self, macro_combinations)\
-            -> Tuple[int, Optional[SearchResult]]:
-        checkpoint_avail = self._checkpoint is not None
-        resumed, state = False, None
-        start_macro, best_result = 0, None
-        if checkpoint_avail:
-            state = self._checkpoint.get('search', None)
-            if state is not None:
-                start_macro = state['start_macro']
-                assert start_macro >= 0 and start_macro < len(
-                    macro_combinations)
-                best_result = yaml.load(
-                    state['best_result'], Loader=yaml.Loader)
-
-                start_macro += 1  # resume after the last checkpoint
-                resumed = True
-
-        if not resumed:
-            # erase previous file left over from run
-            utils.zero_file(self._parito_filepath)
-
-        logger.warn({'resumed': resumed, 'checkpoint_avail': checkpoint_avail,
-                     'checkpoint_val': state is not None,
-                     'start_macro': start_macro,
-                     'total_macro_combinations': len(macro_combinations)})
-        return start_macro, best_result
-
-
     def _record_checkpoint(self, model_desc_filename:str, metrics_stats:MetricsStats):
         if self._checkpoint is not None:
             parent_pool_entry = {'model_desc_filename': model_desc_filename,
@@ -477,6 +452,33 @@ class SearchDistributed:
             this_key = f'parent_pool_entry_{len(self._parent_models)}'
             self._checkpoint[this_key] = parent_pool_entry
             self._checkpoint.commit()
+
+
+    def _restore_parent_pool(self)->bool:
+        # check that the folder exists
+        if not os.path.isdir(self._checkpoints_foldername):
+            logger.warn(f'checkpoints folder {self._checkpoints_foldername} does not exist. unable to restore parent pool.')
+            return False
+
+        # check that the checkpoint is valid
+        if nas_utils.checkpoint_empty(self._checkpoint):
+            logger.warn(f'checkpoint is empty. unable to restore parent pool.')
+            return False
+
+        # get list of all files in the folder
+        # onlyfiles = [f for f in os.listdir(self._checkpoints_foldername) if os.path.isfile(os.path.join(self._checkpoints_foldername, f))]
+
+        for key in self._checkpoint.keys():
+            state = self._checkpoint.get(key, None)
+            if state is not None:
+                model_desc_filename = state['model_desc_filename']
+                model_desc = ModelDesc.load(model_desc_filename, load_trainables=True)
+                metrics_stats = yaml.load(state['metrics_stats'], Loader=yaml.Loader)
+                self._parent_models.append((model_desc, metrics_stats))
+
+        return True
+
+
 
 
     def _seed_model(self, model_desc, reductions, cells, nodes) -> ModelDesc:
