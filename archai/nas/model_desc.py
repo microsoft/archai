@@ -68,6 +68,10 @@ class OpDesc:
         c, cs = self.children, state_dict['children']
         assert (c is None and cs is None) or \
                 (c is not None and cs is not None and len(c) == len(cs))
+        # TODO: when c and cs are both none, zip throws an error that the 
+        # first argument should be iterable
+        if (c is None and cs is None):
+            return 
         for cx, csx in zip(c, cs):
             if cx is not None and csx is not None:
                 cx.load_state_dict(csx)
