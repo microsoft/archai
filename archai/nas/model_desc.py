@@ -150,12 +150,13 @@ class CellDesc:
     def __init__(self, id:int, cell_type:CellType,
                  stems:List[OpDesc], stem_shapes:TensorShapes,
                  nodes:List[NodeDesc], node_shapes: TensorShapes,
-            post_op:OpDesc, out_shape:TensorShape)->None:
+            post_op:OpDesc, out_shape:TensorShape, trainables_from:int)->None:
 
         self.cell_type = cell_type
         self.id = id
         self.stems = stems
         self.out_shape = out_shape
+        self.trainables_from = trainables_from
         self.reset_nodes(nodes, node_shapes, post_op, out_shape)
 
     def clone(self, id:int)->'CellDesc':
