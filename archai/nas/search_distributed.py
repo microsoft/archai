@@ -222,6 +222,7 @@ class SearchDistributed:
         self._parito_filepath = utils.full_path(pareto_summary_filename)
         self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, self._resume)
 
+        # TODO: why is it still saving without the new() call?    
         # initialize the checkpoint dictionary
         # self._checkpoint.new()
 

@@ -65,11 +65,15 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     logger.popd()
 
 @ray.remote(num_gpus=1)
-def helper_train_desc(model, conf_train, train_dl, test_dl, metric_filename, model_filename, metrics_stats_filename, common_state):
+def helper_train_desc(model, conf_train, conf_checkpoint, resume, train_dl, test_dl, metric_filename, model_filename, metrics_stats_filename, common_state):
     ''' Train given a model '''
     common.init_from(common_state)
-    # TODO: checkpointing for distributed training
-    checkpoint = None   
+    if resume:
+        conf_checkpoint['filename'] = model_filename.split('.')[0] + '_checkpoint.pth'
+        checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
+    else:
+        checkpoint = None
+
     trainer = Trainer(conf_train, model, checkpoint)
     train_metrics = trainer.fit(train_dl, test_dl)
     train_metrics.save(metric_filename)
@@ -159,7 +163,7 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
         train_dl, _, test_dl = data.get_data(conf_loader)
         assert train_dl is not None and test_dl is not None
 
-        this_id = helper_train_desc.remote(model, conf_train, train_dl, test_dl, metric_filename, model_filename, metrics_stats_filename, common.get_state())
+        this_id = helper_train_desc.remote(model, conf_train, conf_checkpoint, resume, train_dl, test_dl, metric_filename, model_filename, metrics_stats_filename, common.get_state())
         remote_ids.append(this_id)
 
     # wait for all eval jobs to be finished
