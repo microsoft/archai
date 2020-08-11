@@ -381,48 +381,50 @@ class SearchDistributed:
                 
                 future_ids.append(this_child_id)
 
-        # train the seed model
+        # get data loaders TODO: verify that passing references to the same 
+        # data loader to multiple processes is okay.
         search_iter = -1 # TODO: this is for legacy reasons only. Remove.
+        train_dl, val_dl = self.get_data(self.conf_loader)
         
-        # TODO: Need to add checkpointing to recover from pre-empted jobs
         while not self._should_terminate_search():
             logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 
-            job_id_done, future_ids = ray.wait(future_ids)
-            model_desc_wrapped, metrics_stats = ray.get(job_id_done[0])
+            if future_ids:
+                job_id_done, future_ids = ray.wait(future_ids)
+                model_desc_wrapped, metrics_stats = ray.get(job_id_done[0])
 
-            # REVIEW: ss: I'm bit confused about role of is_init but lets talk about that on call
-            if model_desc_wrapped.is_init:
-                # a model just got initialized
-                # push a job to train it
-                logger.info('model just got initialized.')
-                model_desc_wrapped.is_init = False
-                this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl, common.get_state())
-                future_ids.append(this_child_id)
-            else:
-                logger.info('child/seed model just finished training.')
-                # a child job finished.
-                model_desc_wrapped.is_init = True
+                # REVIEW: ss: I'm bit confused about role of is_init but lets talk about that on call
+                if model_desc_wrapped.is_init:
+                    # a model just got initialized
+                    # push a job to train it
+                    logger.info('model just got initialized.')
+                    model_desc_wrapped.is_init = False
+                    this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, train_dl, val_dl, common.get_state())
+                    future_ids.append(this_child_id)
+                else:
+                    logger.info('child/seed model just finished training.')
+                    # a child job finished.
+                    model_desc_wrapped.is_init = True
 
-                # increase the counter tracking number of times it has been sampled
-                # REVIEW: ss: why not put num_sampled in ModelDescWrapper
-                metrics_stats.num_sampled += 1
+                    # increase the counter tracking number of times it has been sampled
+                    # REVIEW: ss: why not put num_sampled in ModelDescWrapper
+                    metrics_stats.num_sampled += 1
 
-                # add it to the parent models pool
-                self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
+                    # add it to the parent models pool
+                    self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
 
-                # save to disk for restoring
-                filename = os.path.join(self._checkpoints_foldername, f'parent_desc_{len(self._parent_models)}.pth')
-                model_desc_wrapped.model_desc.save(filename, save_trainables=True)
-                self._record_checkpoint(filename, metrics_stats)
-                logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(model_desc_wrapped.model_desc.cell_descs())}, num nodes in cell {len(model_desc_wrapped.model_desc.cell_descs()[0].nodes())}')
+                    # save to disk for restoring
+                    filename = os.path.join(self._checkpoints_foldername, f'parent_desc_{len(self._parent_models)}.yaml')
+                    model_desc_wrapped.model_desc.save(filename, save_trainables=True)
+                    self._record_checkpoint(filename, metrics_stats)
+                    logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(model_desc_wrapped.model_desc.cell_descs())}, num nodes in cell {len(model_desc_wrapped.model_desc.cell_descs()[0].nodes())}')
 
-                # sample a model from parent pool
-                model_desc, _ = self._sample_model_from_parent_pool()
-                model_desc_wrapped = ModelDescWrapper(model_desc, True)
-                this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
-                future_ids.append(this_search_id)
-                logger.info('just added a new model to processing pool')
+                    # sample a model from parent pool
+                    model_desc, _ = self._sample_model_from_parent_pool()
+                    model_desc_wrapped = ModelDescWrapper(model_desc, True)
+                    this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
+                    future_ids.append(this_search_id)
+                    logger.info('just added a new model to processing pool')
 
             # if we are not utilizing all gpus in the system lets sample more
             # models from the parent pool
