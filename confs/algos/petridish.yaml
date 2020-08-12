@@ -15,7 +15,7 @@ nas:
     final_desc_foldername: '$expdir/model_desc_gallery' # 
     model_desc:
       cell_post_op: 'proj_channels'
-      n_cells_multiplier: 2.5
+      n_cells_multiplier: 2.0
       n_nodes: 4 # number of nodes in a cell if template desc is not provided
       n_reductions: 2 # number of reductions to be applied
       init_node_ch: 36 # num of input/output channels for nodes in 1st cell
