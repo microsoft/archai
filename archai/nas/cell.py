@@ -28,7 +28,7 @@ class Cell(ArchModule, EnforceOverrides):
 
         self.dag =  Cell._create_dag(desc.nodes(),
             affine=affine, droppath=droppath,
-            template_cell=trainables_from)
+            trainables_from=trainables_from)
 
         self.post_op = Op.create(desc.post_op, affine=affine)
 

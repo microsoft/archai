@@ -42,7 +42,7 @@ class NasBench101CellBuilder(CellBuilder):
 
             op_desc = OpDesc('nasbench101_op',
                                 params={
-                                    'conv': cell_desc.conv_params,
+                                    'conv': node.conv_params,
                                     'stride': 1,
                                     'vertex_op': self._vertex_ops[i+1], # offset because of input node
                                     'first_proj': first_proj

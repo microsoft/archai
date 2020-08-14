@@ -26,6 +26,6 @@ class CellBuilder(ABC, EnforceOverrides):
             # new node requires reset because post op must recompute channels
             new_nodes = [n.clone() for n in cell_desc.nodes()]
             new_nodes.append(NodeDesc(edges=[]))
-            cell_desc.reset_nodes(new_nodes,
-                              cell_desc.node_ch_out, cell_desc.post_op.name)
+            cell_desc.reset_nodes(new_nodes, cell_desc.node_shapes,
+                              cell_desc.post_op, cell_desc.out_shape)
 

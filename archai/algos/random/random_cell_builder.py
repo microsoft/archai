@@ -71,7 +71,7 @@ class RandomCellBuilder(CellBuilder):
             for op_name, to_state in zip(op_names, to_states):
                 op_desc = OpDesc(op_name,
                                     params={
-                                        'conv': cell_desc.conv_params,
+                                        'conv': node.conv_params,
                                         'stride': 2 if reduction and to_state < 2 else 1
                                     }, in_len=1, trainables=None, children=None)
                 edge = EdgeDesc(op_desc, input_ids=[to_state])

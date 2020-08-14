@@ -88,15 +88,13 @@ class DivnasRankFinalizers(Finalizers):
         dcell.clear_collect_activations()
 
         finalized = CellDesc(
-            cell_type=cell.desc.cell_type,
-            id=cell.desc.id,
-            nodes=node_descs,
-            s0_op=cell.s0_op.finalize()[0],
-            s1_op=cell.s1_op.finalize()[0],
-            template_cell=cell.desc.template_cell,
-            max_final_edges=cell.desc.max_final_edges,
-            node_ch_out=cell.desc.node_ch_out,
-            post_op=cell.post_op.finalize()[0]
+            id = cell.desc.id, cell_type=cell.desc.cell_type,
+            stems=[cell.s0_op.finalize()[0], cell.s1_op.finalize()[0]],
+            stem_shapes=cell.desc.stem_shapes,
+            nodes = node_descs, node_shapes=cell.desc.node_shapes,
+            post_op=cell.post_op.finalize()[0],
+            out_shape=cell.desc.out_shape,
+            trainables_from = cell.desc.trainables_from
         )
         return finalized
 

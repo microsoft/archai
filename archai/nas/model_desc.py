@@ -115,14 +115,15 @@ class EdgeDesc:
         self.op_desc.load_state_dict(state_dict['op_desc'])
 
 class NodeDesc:
-    def __init__(self, edges:List[EdgeDesc]) -> None:
+    def __init__(self, edges:List[EdgeDesc], conv_params:ConvMacroParams) -> None:
         self.edges = edges
+        self.conv_params = conv_params
 
     def clone(self):
         # don't override conv_params or reset learned weights
         # node cloning is currently equivalent to deep copy
         return NodeDesc(edges=[e.clone(conv_params=None, clear_trainables=False)
-                               for e in self.edges])
+                               for e in self.edges], conv_params=self.conv_params)
 
     def clear_trainables(self)->None:
         for edge in self.edges:
@@ -159,7 +160,7 @@ class CellDesc:
         self.reset_nodes(nodes, node_shapes, post_op, out_shape)
 
     def clone(self, id:int)->'CellDesc':
-        c = copy.deepcopy(self) # note that template_cell is also cloned
+        c = copy.deepcopy(self) # note that trainables_from is also cloned
         c.id = id
         return c
 
@@ -218,6 +219,7 @@ class ModelDesc:
                  cell_descs:List[CellDesc], aux_tower_descs:List[Optional[AuxTowerDesc]],
                  logits_op:OpDesc)->None:
 
+        self.conf_model_desc = conf_model_desc
         conf_dataset = conf_model_desc['dataset']
         self.ds_ch = conf_dataset['channels']
         self.n_classes = conf_dataset['n_classes']
