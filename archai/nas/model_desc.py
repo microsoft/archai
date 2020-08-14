@@ -128,7 +128,6 @@ class NodeDesc:
         for edge in self.edges:
             edge.clear_trainables()
 
-
     def state_dict(self)->dict:
         return  { 'edges': [e.state_dict() for e in self.edges] }
 
