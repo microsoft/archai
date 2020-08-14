@@ -12,7 +12,7 @@
 #                        param_args=['--common.logdir', '',
 #                                    '--common.experiment_name', 'unit_test'])
 
-#     conf_data = conf['dataset']
+#     conf_dataset = conf['dataset']
 #     conf_search = conf['nas']['search']
 #     conf_model_desc = conf_search['model_desc']
 

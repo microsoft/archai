@@ -186,11 +186,11 @@ def _create_tb_writer(is_master=True)-> SummaryWriterAny:
 
 def _setup_dirs()->Optional[str]:
     conf_common = get_conf_common()
-    conf_data = get_conf_dataset()
+    conf_dataset = get_conf_dataset()
     experiment_name = get_experiment_name()
 
     # make sure dataroot exists
-    dataroot = utils.full_path(conf_data['dataroot'])
+    dataroot = utils.full_path(conf_dataset['dataroot'])
     os.makedirs(dataroot, exist_ok=True)
 
     # make sure logdir and expdir exists
@@ -209,7 +209,7 @@ def _setup_dirs()->Optional[str]:
     # update conf so everyone gets expanded full paths from here on
     # set environment variable so it can be referenced in paths used in config
     os.environ['logdir'] = conf_common['logdir'] = logdir
-    os.environ['dataroot'] = conf_data['dataroot'] = dataroot
+    os.environ['dataroot'] = conf_dataset['dataroot'] = dataroot
     os.environ['expdir'] = conf_common['expdir'] = expdir
     os.environ['distdir'] = conf_common['distdir'] = distdir
 
