@@ -52,10 +52,10 @@ class Model(ArchModule):
     def _build_cell(self, cell_desc:CellDesc,
                     aux_tower_desc:Optional[AuxTowerDesc],
                     droppath:bool, affine:bool)->None:
-        template_cell = None if cell_desc.template_cell==cell_desc.id  \
-                            else self.cells[cell_desc.template_cell]
+        trainables_from = None if cell_desc.trainables_from==cell_desc.id  \
+                            else self.cells[cell_desc.trainables_from]
         cell = Cell(cell_desc, affine=affine, droppath=droppath,
-                    template_cell=template_cell)
+                    trainables_from=trainables_from)
         self.cells.append(cell)
         self._aux_towers.append(AuxTower(aux_tower_desc) \
                                 if aux_tower_desc else None)

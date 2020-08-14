@@ -15,24 +15,27 @@ from archai.nas.arch_module import ArchModule
 class Cell(ArchModule, EnforceOverrides):
     def __init__(self, desc:CellDesc,
                  affine:bool, droppath:bool,
-                 template_cell:Optional['Cell']): # template cell, if any, to use for arch params
+                 trainables_from:Optional['Cell']): # template cell, if any, to use for arch params
         super().__init__()
 
         # some of these members are public as finalizer needs access
         self.desc = desc
-        self.s0_op = Op.create(desc.s0_op, affine=affine)
-        self.s1_op = Op.create(desc.s1_op, affine=affine)
+
+        # TODO: support any number of stems
+        assert len(desc.stems)==2, "Cell compiler currently only supports 2 stems"
+        self.s0_op = Op.create(desc.stems[0], affine=affine)
+        self.s1_op = Op.create(desc.stems[1], affine=affine)
 
         self.dag =  Cell._create_dag(desc.nodes(),
             affine=affine, droppath=droppath,
-            template_cell=template_cell)
+            template_cell=trainables_from)
 
         self.post_op = Op.create(desc.post_op, affine=affine)
 
     @staticmethod
     def _create_dag(nodes_desc:List[NodeDesc],
                     affine:bool, droppath:bool,
-                    template_cell:Optional['Cell'])->nn.ModuleList:
+                    trainables_from:Optional['Cell'])->nn.ModuleList:
         dag = nn.ModuleList()
         for i, node_desc in enumerate(nodes_desc):
             edges:nn.ModuleList = nn.ModuleList()
@@ -41,7 +44,7 @@ class Cell(ArchModule, EnforceOverrides):
             for j, edge_desc in enumerate(node_desc.edges):
                 edges.append(DagEdge(edge_desc,
                     affine=affine, droppath=droppath,
-                    template_edge=template_cell.dag[i][j] if template_cell else None))
+                    template_edge=trainables_from.dag[i][j] if trainables_from else None))
         return dag
 
     def ops(self)->Iterable[Op]:
