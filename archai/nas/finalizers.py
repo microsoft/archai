@@ -33,14 +33,12 @@ class Finalizers(EnforceOverrides):
         if restore_device:
             model.to(original, non_blocking=True)
 
-        return ModelDesc(model_stems=[op.finalize()[0] for op in model.model_stems],
+        return ModelDesc(conf_model_desc=model.desc.conf_model_desc,
+                         model_stems=[op.finalize()[0] for op in model.model_stems],
                          pool_op=model.pool_op.finalize()[0],
-                         ds_ch=model.desc.ds_ch,
-                         n_classes=model.desc.n_classes,
                          cell_descs=cell_descs,
                          aux_tower_descs=model.desc.aux_tower_descs,
-                         logits_op=model.logits_op.finalize()[0],
-                         params=model.desc.params)
+                         logits_op=model.logits_op.finalize()[0])
 
     def finalize_cells(self, model:Model)->List[CellDesc]:
         return [self.finalize_cell(cell) for cell in model.cells]
@@ -53,15 +51,13 @@ class Finalizers(EnforceOverrides):
             node_descs.append(node_desc)
 
         finalized = CellDesc(
-            cell_type=cell.desc.cell_type,
-            id = cell.desc.id,
-            nodes = node_descs,
-            s0_op=cell.s0_op.finalize()[0],
-            s1_op=cell.s1_op.finalize()[0],
-            template_cell = cell.desc.template_cell,
-            max_final_edges=cell.desc.max_final_edges,
-            node_ch_out=cell.desc.node_ch_out,
-            post_op=cell.post_op.finalize()[0]
+            id = cell.desc.id, cell_type=cell.desc.cell_type,
+            stems=[cell.s0_op.finalize()[0], cell.s1_op.finalize()[0]],
+            stem_shapes=cell.desc.stem_shapes,
+            nodes = node_descs, node_shapes=cell.desc.node_shapes,
+            post_op=cell.post_op.finalize()[0],
+            out_shape=cell.desc.out_shape,
+            trainables_from = cell.desc.trainables_from
         )
         return finalized
 

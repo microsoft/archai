@@ -34,7 +34,7 @@ class PetridishCellBuilder(CellBuilder):
             # if there are no edges for 1st node, add identity to s1
             if len(first_node.edges)==0:
                 op_desc = OpDesc('skip_connect',
-                    params={'conv': cell_desc.conv_params,
+                    params={'conv': first_node.conv_params,
                             'stride': 2 if cell_desc.cell_type == CellType.Reduction
                                         else 1},
                     in_len=1, trainables=None, children=None)
@@ -45,8 +45,8 @@ class PetridishCellBuilder(CellBuilder):
             new_nodes = [n.clone() for n in cell_desc.nodes()
                                    if len(n.edges)>0]
             if len(new_nodes) != len(cell_desc.nodes()):
-                cell_desc.reset_nodes(new_nodes, cell_desc.node_ch_out,
-                                      cell_desc.post_op.name)
+                cell_desc.reset_nodes(new_nodes, cell_desc.node_shapes,
+                                      cell_desc.post_op, cell_desc.out_shape)
 
             self._ensure_nonempty_nodes(cell_desc)
 
@@ -67,14 +67,16 @@ class PetridishCellBuilder(CellBuilder):
 
         # we operate on last node, inserting another node before it
         new_nodes = [n.clone() for n in cell_desc.nodes()]
-        petridish_node = NodeDesc(edges=[])
+        assert len(new_nodes) >= 1, "Petridish cell building requires at least 1 node to be present"
+        petridish_node = NodeDesc(edges=[],
+                                  conv_params=new_nodes[-1].conv_params)
         new_nodes.insert(len(new_nodes)-1, petridish_node)
 
         input_ids = list(range(len(new_nodes))) # 2 + len-2
         assert len(input_ids) >= 2
         op_desc = OpDesc('petridish_reduction_op' if reduction else 'petridish_normal_op',
                             params={
-                                'conv': cell_desc.conv_params,
+                                'conv': petridish_node.conv_params,
                                 # specify strides for each input, later we will
                                 # give this to each primitive
                                 '_strides':[2 if reduction and j < 2 else 1 \
@@ -85,5 +87,5 @@ class PetridishCellBuilder(CellBuilder):
 
         # note that post op will be recreated which means there is no
         # warm start for post op when number of nodes changes
-        cell_desc.reset_nodes(new_nodes,
-                              cell_desc.node_ch_out, cell_desc.post_op.name)
+        cell_desc.reset_nodes(new_nodes, cell_desc.node_shapes,
+                              cell_desc.post_op, cell_desc.out_shape)

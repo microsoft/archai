@@ -32,7 +32,7 @@ class XnasCellBuilder(CellBuilder):
             for j in range(i+2):
                 op_desc = OpDesc('xnas_op',
                                     params={
-                                        'conv': cell_desc.conv_params,
+                                        'conv': node.conv_params,
                                         'stride': 2 if reduction and j < 2 else 1
                                     }, in_len=1, trainables=None, children=None)
                 edge = EdgeDesc(op_desc, input_ids=[j])

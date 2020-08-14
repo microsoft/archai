@@ -220,7 +220,7 @@ class ModelDescBuilder(EnforceOverrides):
                             # TODO: check for compatibility?
                             clear_trainables=True
                             ) for e in n.edges]
-            nodes.append(NodeDesc(edges=edges_copy))
+            nodes.append(NodeDesc(edges=edges_copy, conv_params=n.conv_params))
 
         out_shapes = [copy.deepcopy(stem_shapes[0]) for _  in cell_template.nodes()]
 
@@ -231,10 +231,12 @@ class ModelDescBuilder(EnforceOverrides):
                         ->Tuple[TensorShapes, List[NodeDesc]]:
 
         node_count = len(self.node_channels[cell_index])
-
+        node_channels = stem_shapes[0][0]
         # create nodes with empty edges
-        nodes:List[NodeDesc] =  [NodeDesc(edges=[])
-                                    for _ in range(node_count)]
+        nodes:List[NodeDesc] =  [NodeDesc(edges=[],
+                                            conv_params=ConvMacroParams(
+                                                node_channels, node_channels))
+                                for _ in range(node_count)]
 
         out_shapes = [copy.deepcopy(stem_shapes[0]) for _  in range(node_count)]
 

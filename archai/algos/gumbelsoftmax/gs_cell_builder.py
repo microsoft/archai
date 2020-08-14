@@ -37,7 +37,7 @@ class GsCellBuilder(CellBuilder):
             for j in range(i+2):
                 op_desc = OpDesc('gs_op',
                                     params={
-                                        'conv': cell_desc.conv_params,
+                                        'conv': node.conv_params,
                                         'stride': 2 if reduction and j < 2 else 1,
                                         'gs_num_sample': self._gs_num_sample,
                                     }, in_len=1, trainables=None, children=None)
