@@ -33,8 +33,8 @@ def get_data(conf_loader:Config)\
 
     # region conf vars
     # dataset
-    conf_data = conf_loader['dataset']
-    max_batches = conf_data['max_batches']
+    conf_dataset = conf_loader['dataset']
+    max_batches = conf_dataset['max_batches']
 
     aug = conf_loader['aug']
     cutout = conf_loader['cutout']
@@ -49,7 +49,7 @@ def get_data(conf_loader:Config)\
     conf_apex  = conf_loader['apex']
     # endregion
 
-    ds_provider = create_dataset_provider(conf_data)
+    ds_provider = create_dataset_provider(conf_dataset)
 
     apex = apex_utils.ApexUtils(conf_apex, logger)
 
@@ -66,15 +66,15 @@ def get_data(conf_loader:Config)\
 
     return train_dl, val_dl, test_dl
 
-def create_dataset_provider(conf_data:Config)->DatasetProvider:
-    ds_name = conf_data['name']
-    dataroot = conf_data['dataroot']
-    storage_name = conf_data['storage_name']
+def create_dataset_provider(conf_dataset:Config)->DatasetProvider:
+    ds_name = conf_dataset['name']
+    dataroot = conf_dataset['dataroot']
+    storage_name = conf_dataset['storage_name']
 
     logger.info({'ds_name': ds_name, 'dataroot':dataroot, 'storage_name':storage_name})
 
     ds_provider_type = get_provider_type(ds_name)
-    return ds_provider_type(conf_data)
+    return ds_provider_type(conf_dataset)
 
 def get_dataloaders(ds_provider:DatasetProvider,
     load_train:bool, train_batch_size:int,

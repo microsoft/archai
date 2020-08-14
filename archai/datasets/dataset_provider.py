@@ -15,7 +15,7 @@ from ..common.config import Config
 TrainTestDatasets = Tuple[Optional[Dataset], Optional[Dataset]]
 
 class DatasetProvider(EnforceOverrides):
-    def __init__(self, conf_data:Config):
+    def __init__(self, conf_dataset:Config):
         super().__init__()
         pass
 

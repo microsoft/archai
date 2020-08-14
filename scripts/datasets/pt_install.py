@@ -32,14 +32,14 @@ def _create_ram_disk(req_ram:int, path:str)->bool:
     #     print('RAM disk is not created because not enough memory')
     #     return False
 
-def untar_dataset(conf_name:str, pt_data_dir:str, conf_data:Config, dataroot:str)->None:
-    if 'storage_name' not in conf_data or not conf_data['storage_name']:
+def untar_dataset(conf_name:str, pt_data_dir:str, conf_dataset:Config, dataroot:str)->None:
+    if 'storage_name' not in conf_dataset or not conf_dataset['storage_name']:
         print(f'data config {conf_name} ignored because storage_name key was not found or not set')
         return
-    
+
     print(f'Untaring for data config: {conf_name}')
-    
-    storage_name = conf_data['storage_name']
+
+    storage_name = conf_dataset['storage_name']
     tar_filepath = os.path.join(pt_data_dir, storage_name + '.tar')
     if not os.path.isfile(tar_filepath):
         raise RuntimeError(f'Tar file for dataset at {tar_filepath} was not found')
@@ -77,15 +77,15 @@ def main():
     conf = Config(config_filepath=conf_data_filepath)
     for dataset_key in ['dataset', 'dataset_search', 'dataset_eval']:
         if dataset_key in conf:
-            conf_data = conf[dataset_key]
-            untar_dataset(dataset_key, pt_data_dir, conf_data, args.dataroot)
+            conf_dataset = conf[dataset_key]
+            untar_dataset(dataset_key, pt_data_dir, conf_dataset, args.dataroot)
 
 
 if __name__ == '__main__':
-    
+
     # for testing comment below line and set destination path on line 62
     #os.environ['PT_DATA_DIR'] = r'H:\dataroot_cloud'
-    
+
     main()
 
 

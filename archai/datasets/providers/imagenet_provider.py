@@ -23,9 +23,9 @@ from archai.datasets.transforms.lighting import Lighting
 from .imagenet_folder import ImageNetFolder
 
 class ImagenetProvider(DatasetProvider):
-    def __init__(self, conf_data:Config):
-        super().__init__(conf_data)
-        self._dataroot = utils.full_path(conf_data['dataroot'])
+    def __init__(self, conf_dataset:Config):
+        super().__init__(conf_dataset)
+        self._dataroot = utils.full_path(conf_dataset['dataroot'])
 
     @overrides
     def get_datasets(self, load_train:bool, load_test:bool,

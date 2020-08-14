@@ -15,9 +15,9 @@ from archai.common.config import Config
 
 
 class Sport8Provider(DatasetProvider):
-    def __init__(self, conf_data:Config):
-        super().__init__(conf_data)
-        self._dataroot = conf_data['dataroot']
+    def __init__(self, conf_dataset:Config):
+        super().__init__(conf_dataset)
+        self._dataroot = conf_dataset['dataroot']
 
     @overrides
     def get_datasets(self, load_train:bool, load_test:bool,
@@ -35,11 +35,11 @@ class Sport8Provider(DatasetProvider):
 
     @overrides
     def get_transforms(self)->tuple:
-        # MEAN, STD computed for sport8 
+        # MEAN, STD computed for sport8
         MEAN = [0.4734, 0.4856, 0.4526]
-        STD = [0.2478, 0.2444, 0.2667] 
+        STD = [0.2478, 0.2444, 0.2667]
 
-        # transformations match that in 
+        # transformations match that in
         # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
         train_transf = [
             transforms.RandomResizedCrop(224),

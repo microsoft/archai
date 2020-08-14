@@ -9,9 +9,9 @@ from archai.common.ml_utils import channel_norm
 if __name__ == '__main__':
     conf = Config(config_filepath='confs/datasets/flower102.yaml')
 
-    conf_data = conf['dataset']
+    conf_dataset = conf['dataset']
 
-    ds_provider = data.create_dataset_provider(conf_data)
+    ds_provider = data.create_dataset_provider(conf_dataset)
 
     train_ds, _ = ds_provider.get_datasets(True, False,
         transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224), transforms.ToTensor()]),

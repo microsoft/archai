@@ -15,9 +15,9 @@ from archai.common.config import Config
 
 
 class Flower102Provider(DatasetProvider):
-    def __init__(self, conf_data:Config):
-        super().__init__(conf_data)
-        self._dataroot = conf_data['dataroot']
+    def __init__(self, conf_dataset:Config):
+        super().__init__(conf_dataset)
+        self._dataroot = conf_dataset['dataroot']
 
     @overrides
     def get_datasets(self, load_train:bool, load_test:bool,
@@ -35,11 +35,11 @@ class Flower102Provider(DatasetProvider):
 
     @overrides
     def get_transforms(self)->tuple:
-        # MEAN, STD computed for flower102 
+        # MEAN, STD computed for flower102
         MEAN = [0.5190, 0.4101, 0.3274]
         STD = [0.2972, 0.2488, 0.2847]
 
-        # transformations match that in 
+        # transformations match that in
         # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
         train_transf = [
             transforms.RandomResizedCrop(224),
