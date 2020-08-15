@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from archai.common.config import Config
 from typing import List, Tuple, Optional, Iterator
 from overrides import EnforceOverrides
 
@@ -41,13 +42,17 @@ class Finalizers(EnforceOverrides):
                          logits_op=model.logits_op.finalize()[0])
 
     def finalize_cells(self, model:Model)->List[CellDesc]:
-        return [self.finalize_cell(cell) for cell in model.cells]
+        return [self.finalize_cell(cell, i, model.desc) \
+                for i,cell in enumerate(model.cells)]
 
-    def finalize_cell(self, cell:Cell, *args, **kwargs)->CellDesc:
+    def finalize_cell(self, cell:Cell, cell_index:int,
+                      model_desc:ModelDesc, *args, **kwargs)->CellDesc:
         # first finalize each node, we will need to recreate node desc with final version
+        max_final_edges = model_desc.max_final_edges
+
         node_descs:List[NodeDesc] = []
-        for node in cell.dag:
-            node_desc = self.finalize_node(node,  cell.desc.max_final_edges)
+        for i,node in enumerate(cell.dag):
+            node_desc = self.finalize_node(node, i, cell.desc.nodes()[i],max_final_edges)
             node_descs.append(node_desc)
 
         finalized = CellDesc(
@@ -61,12 +66,14 @@ class Finalizers(EnforceOverrides):
         )
         return finalized
 
-    def finalize_node(self, node:nn.ModuleList, max_final_edges:int, *args, **kwargs)->NodeDesc:
+    def finalize_node(self, node:nn.ModuleList, node_index:int,
+                      node_desc:NodeDesc, max_final_edges:int,
+                      *args, **kwargs)->NodeDesc:
         # get edge ranks, if rank is None it is deemed as required
         pre_selected, edge_desc_ranks = self.get_edge_ranks(node)
         ranked_selected = self.select_edges(edge_desc_ranks, max_final_edges)
         selected_edges = pre_selected + ranked_selected
-        return NodeDesc(selected_edges)
+        return NodeDesc(selected_edges, node_desc.conv_params)
 
     def select_edges(self, edge_desc_ranks:List[Tuple[EdgeDesc, float]],
                            max_final_edges:int)->List[EdgeDesc]:
