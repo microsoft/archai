@@ -221,9 +221,10 @@ class ModelDesc:
 
         self.conf_model_desc = conf_model_desc
         conf_dataset = conf_model_desc['dataset']
-        self.ds_ch = conf_dataset['channels']
-        self.n_classes = conf_dataset['n_classes']
+        self.ds_ch:int = conf_dataset['channels']
+        self.n_classes:int = conf_dataset['n_classes']
         self.params = conf_model_desc['params'].to_dict()
+        self.max_final_edges:int = conf_model_desc['max_final_edges']
 
         self.model_stems, self.pool_op = model_stems, pool_op
         self.logits_op = logits_op

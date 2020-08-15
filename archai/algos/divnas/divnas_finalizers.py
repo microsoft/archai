@@ -67,14 +67,18 @@ class DivnasFinalizers(Finalizers):
 
 
     @overrides
-    def finalize_cell(self, cell:Cell, *args, **kwargs)->CellDesc:
+    def finalize_cell(self, cell:Cell, cell_index:int,
+                      model_desc:ModelDesc, *args, **kwargs)->CellDesc:
         # first finalize each node, we will need to recreate node desc with final version
+        max_final_edges = model_desc.max_final_edges
+
         node_descs:List[NodeDesc] = []
         dcell = self._divnas_cells[id(cell)]
         assert len(cell.dag) == len(list(dcell.node_covs.values()))
-        for node in cell.dag:
+        for i,node in enumerate(cell.dag):
             node_cov = dcell.node_covs[id(node)]
-            node_desc = self.finalize_node(node, cell.desc.max_final_edges, node_cov)
+            node_desc = self.finalize_node(node, i, cell.desc.nodes()[i],
+                                           max_final_edges, node_cov)
             node_descs.append(node_desc)
 
         # (optional) clear out all activation collection information
@@ -93,7 +97,9 @@ class DivnasFinalizers(Finalizers):
 
 
     @overrides
-    def finalize_node(self, node:nn.ModuleList, max_final_edges:int, cov:np.array,  *args, **kwargs)->NodeDesc:
+    def finalize_node(self, node:nn.ModuleList, node_index:int,
+                      node_desc:NodeDesc, max_final_edges:int,
+                      *args, **kwargs)->NodeDesc:
         # node is a list of edges
         assert len(node) >= max_final_edges
 
@@ -132,4 +138,4 @@ class DivnasFinalizers(Finalizers):
         # for edge in selected_edges:
         #     self.finalize_edge(edge)
 
-        return NodeDesc(selected_edges)
+        return NodeDesc(selected_edges, node_desc.conv_params)

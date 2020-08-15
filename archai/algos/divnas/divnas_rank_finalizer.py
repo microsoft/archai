@@ -71,17 +71,20 @@ class DivnasRankFinalizers(Finalizers):
         return super().finalize_model(model, to_cpu, restore_device)
 
     @overrides
-    def finalize_cell(self, cell: Cell, *args, **kwargs) -> CellDesc:
+    def finalize_cell(self, cell:Cell, cell_index:int,
+                      model_desc:ModelDesc, *args, **kwargs)->CellDesc:
         # first finalize each node, we will need to recreate node desc with final version
         logger.info(f'cell id {cell.desc.id}')
+
+        max_final_edges = model_desc.max_final_edges
+
         node_descs: List[NodeDesc] = []
         dcell = self._divnas_cells[cell]
         assert len(cell.dag) == len(list(dcell.node_covs.values()))
         for i, node in enumerate(cell.dag):
             node_cov = dcell.node_covs[id(node)]
             logger.info(f'node {i}')
-            node_desc = self.finalize_node(
-                node, cell.desc.max_final_edges, node_cov, cell, i)
+            node_desc = self.finalize_node(node, i, cell.desc.nodes()[i],max_final_edges)
             node_descs.append(node_desc)
 
         # (optional) clear out all activation collection information
@@ -99,9 +102,9 @@ class DivnasRankFinalizers(Finalizers):
         return finalized
 
     @overrides
-    def finalize_node(self,
-                      node: nn.ModuleList, max_final_edges: int, cov: np.array,
-                      cell: Cell, node_id: int, *args, **kwargs) -> NodeDesc:
+    def finalize_node(self, node:nn.ModuleList, node_index:int,
+                      node_desc:NodeDesc, max_final_edges:int,
+                      *args, **kwargs)->NodeDesc:
         # node is a list of edges
         assert len(node) >= max_final_edges
 
@@ -161,4 +164,4 @@ class DivnasRankFinalizers(Finalizers):
         plt.savefig(savename)
 
         logger.info('')
-        return NodeDesc(selected_edges)
+        return NodeDesc(selected_edges, node_desc.conv_params)
