@@ -15,7 +15,7 @@ import yaml
 from archai.common.common import logger
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
 from archai.nas.model_desc import CellType, ModelDesc
@@ -89,7 +89,7 @@ class SearchResult:
         return self.metrics_stats.model_desc
 
 class Search:
-    def __init__(self, conf_search:Config, cell_builder:Optional[CellBuilder],
+    def __init__(self, conf_search:Config, model_desc_builder:Optional[ModelDescBuilder],
                  trainer_class:TArchTrainer, finalizers:Finalizers) -> None:
         # region config vars
         conf_checkpoint = conf_search['checkpoint']
@@ -114,7 +114,7 @@ class Search:
         pareto_summary_filename = conf_pareto['summary_filename']
         # endregion
 
-        self.cell_builder = cell_builder
+        self.model_desc_builder = model_desc_builder
         self.trainer_class = trainer_class
         self.finalizers = finalizers
         self._data_cache = {}
@@ -214,8 +214,8 @@ class Search:
         return model_desc, best_result
 
     def _seed_model(self, model_desc, reductions, cells, nodes)->ModelDesc:
-        if self.cell_builder:
-            self.cell_builder.seed(model_desc)
+        if self.model_desc_builder:
+            self.model_desc_builder.seed(model_desc)
         metrics_stats = self._train_desc(model_desc, self.conf_presearch_train)
         self._save_trained(reductions, cells, nodes, -1, metrics_stats)
         return metrics_stats.model_desc
@@ -234,7 +234,7 @@ class Search:
         conf_model_desc['n_reductions'] = reductions
         conf_model_desc['n_cells'] = cells
         # create model desc for search using model config
-        # we will build model without call to cell_builder for pre-training
+        # we will build model without call to model_desc_builder for pre-training
         model_desc = nas_utils.create_macro_desc(self.conf_model_desc,
                                     template_model_desc=None)
         return model_desc
@@ -350,7 +350,7 @@ class Search:
     def _search_desc(self, model_desc:ModelDesc, search_iter:int)->ModelDesc:
         logger.pushd('arch_search')
 
-        nas_utils.build_cell(model_desc, self.cell_builder, search_iter)
+        nas_utils.build_cell(model_desc, self.model_desc_builder, search_iter)
 
         if self.trainer_class:
             model = nas_utils.model_from_desc(model_desc,

@@ -5,12 +5,12 @@ from overrides import overrides
 
 from archai.nas.model_desc import ModelDesc, CellDesc, NodeDesc, OpDesc, \
                               EdgeDesc, CellType
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import MultiOp, Op
 from .petridish_op import PetridishOp, TempIdentityOp
 
 
-class PetridishCellBuilder(CellBuilder):
+class PetridishModelBuilder(ModelDescBuilder):
     @overrides
     def register_ops(self) -> None:
         Op.register_op('petridish_normal_op',

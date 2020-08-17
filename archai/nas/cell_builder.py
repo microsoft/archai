@@ -7,7 +7,7 @@ from overrides import EnforceOverrides
 
 from .model_desc import ModelDesc, NodeDesc
 
-class CellBuilder(ABC, EnforceOverrides):
+class ModelDescBuilder(ABC, EnforceOverrides):
     """This is interface class for different NAS algorithms to implement"""
 
     def register_ops(self)->None:

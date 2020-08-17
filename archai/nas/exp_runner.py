@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from archai.nas.model_desc_builder import ModelDescBuilder
 from typing import Optional, Type, Tuple
 from abc import ABC, abstractmethod
 import shutil
@@ -8,7 +9,7 @@ import os
 
 from overrides import EnforceOverrides
 
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.common.common import common_init
 from archai.common import utils
@@ -33,11 +34,11 @@ class ExperimentRunner(ABC, EnforceOverrides):
         return conf
 
     def _run_search(self, conf_search:Config)->None:
-        cell_builder = self.cell_builder()
+        model_desc_builder = self.model_desc_builder()
         trainer_class = self.trainer_class()
         finalizers = self.finalizers()
 
-        search = Search(conf_search, cell_builder, trainer_class, finalizers)
+        search = Search(conf_search, model_desc_builder, trainer_class, finalizers)
         search.generate_pareto()
 
     def _init(self, suffix:str)->Config:
@@ -51,7 +52,7 @@ class ExperimentRunner(ABC, EnforceOverrides):
         return conf
 
     def _run_eval(self, conf_eval:Config)->None:
-        evaluate.eval_arch(conf_eval, cell_builder=self.cell_builder())
+        evaluate.eval_arch(conf_eval, model_desc_builder=self.model_desc_builder())
 
     def run_eval(self)->Config:
         conf = self._init('eval')
@@ -90,7 +91,7 @@ class ExperimentRunner(ABC, EnforceOverrides):
         return search_conf, eval_conf
 
     @abstractmethod
-    def cell_builder(self)->Optional[CellBuilder]:
+    def model_desc_builder(self)->Optional[ModelDescBuilder]:
         pass
 
     @abstractmethod

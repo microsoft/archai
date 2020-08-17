@@ -6,7 +6,7 @@ import random
 
 from overrides import overrides
 
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.model_desc import ModelDesc, CellDesc, CellType, \
                              ConvMacroParams, OpDesc, EdgeDesc
 
@@ -33,7 +33,7 @@ class RandOps:
             self.ops_and_ins.append((op_names, to_states))
 
 
-class RandomCellBuilder(CellBuilder):
+class RandomModelDescBuilder(ModelDescBuilder):
     @overrides
     def build(self, model_desc:ModelDesc, search_iter:int)->None:
         # create random op sets for two cell types

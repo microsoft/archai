@@ -7,14 +7,14 @@ from overrides import overrides
 
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import TArchTrainer
-from archai.algos.darts.darts_cell_builder import DartsCellBuilder
+from archai.algos.darts.darts_model_desc_builder import DartsModelDescBuilder
 from archai.algos.didarts.didarts_arch_trainer import DidartsArchTrainer
 
 
 class DiDartsExperimentRunner(ExperimentRunner):
     @overrides
-    def cell_builder(self)->DartsCellBuilder:
-        return DartsCellBuilder()
+    def model_desc_builder(self)->DartsModelDescBuilder:
+        return DartsModelDescBuilder()
 
     @overrides
     def trainer_class(self)->TArchTrainer:

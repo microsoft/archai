@@ -10,7 +10,7 @@ from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.algos.darts.bilevel_arch_trainer import BilevelArchTrainer
 from archai.algos.gumbelsoftmax.gs_arch_trainer import GsArchTrainer
-from .divnas_cell_builder import DivnasCellBuilder
+from .divnas_model_desc_builder import DivnasModelDescBuilder
 from .divnas_finalizers import DivnasFinalizers
 from .divnas_rank_finalizer import DivnasRankFinalizers
 from archai.nas.finalizers import Finalizers
@@ -18,14 +18,14 @@ from archai.nas.finalizers import Finalizers
 class DivnasExperimentRunner(ExperimentRunner):
 
     @overrides
-    def cell_builder(self)->DivnasCellBuilder:
-        return DivnasCellBuilder()
+    def model_desc_builder(self)->DivnasModelDescBuilder:
+        return DivnasModelDescBuilder()
 
     @overrides
     def trainer_class(self)->TArchTrainer:
         conf = get_conf()
         trainer = conf['nas']['search']['divnas']['archtrainer']
-        
+
         if trainer == 'bilevel':
             return BilevelArchTrainer
         elif trainer == 'noalpha':
@@ -40,11 +40,11 @@ class DivnasExperimentRunner(ExperimentRunner):
         finalizer = conf['nas']['search']['finalizer']
 
         if finalizer == 'mi':
-            return DivnasFinalizers() 
+            return DivnasFinalizers()
         elif finalizer == 'mi_ranked':
             return DivnasRankFinalizers()
         else:
             return super().finalizers()
 
 
-        
+

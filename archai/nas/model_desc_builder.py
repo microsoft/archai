@@ -391,3 +391,19 @@ class ModelDescBuilder(EnforceOverrides):
         ops = [Op.create(stem, affine=False) for stem in stems]
         assert all(isinstance(op, StemBase) for op in ops)
         return list(op.reduction for op in ops)
+
+    def register_ops(self)->None:
+        pass
+
+    def seed_cell(self, model_desc:ModelDesc)->None:
+        # prepare model as seed model before search iterations starts
+        pass
+
+    def append_empty_node(self, model_desc:ModelDesc)->None:
+        """Utility method to add empty node in each cell"""
+        for cell_desc in model_desc.cell_descs():
+            # new node requires reset because post op must recompute channels
+            new_nodes = [n.clone() for n in cell_desc.nodes()]
+            new_nodes.append(NodeDesc(edges=[]))
+            cell_desc.reset_nodes(new_nodes, cell_desc.node_shapes,
+                                cell_desc.post_op, cell_desc.out_shape)

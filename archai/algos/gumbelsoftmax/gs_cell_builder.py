@@ -4,12 +4,12 @@
 from overrides import overrides
 
 from archai.common.common import get_conf
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import Op, MultiOp
 from archai.nas.model_desc import ModelDesc, CellDesc, CellType, OpDesc, EdgeDesc
 from .gs_op import GsOp
 
-class GsCellBuilder(CellBuilder):
+class GsModelDescBuilder(ModelDescBuilder):
     @overrides
     def register_ops(self) -> None:
         Op.register_op('gs_op',

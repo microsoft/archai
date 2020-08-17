@@ -3,12 +3,12 @@
 
 from overrides import overrides
 
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import Op
 from archai.nas.model_desc import ModelDesc, CellDesc, CellType, OpDesc, EdgeDesc
 from .xnas_op import XnasOp
 
-class XnasCellBuilder(CellBuilder):
+class XnasModelDescBuilder(ModelDescBuilder):
     @overrides
     def register_ops(self) -> None:
         Op.register_op('xnas_op',

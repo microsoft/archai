@@ -10,13 +10,13 @@ from archai.common.config import Config
 from archai.nas import nas_utils
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 
 class ManualExperimentRunner(ExperimentRunner):
     """Runs manually designed models such as resnet"""
 
     @overrides
-    def cell_builder(self)->Optional[CellBuilder]:
+    def model_desc_builder(self)->Optional[ModelDescBuilder]:
         return None
 
     @overrides

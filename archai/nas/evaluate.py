@@ -13,11 +13,11 @@ from archai.common.config import Config
 from archai.common.common import logger
 from archai.datasets import data
 from archai.nas.model_desc import ModelDesc
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas import nas_utils
 from archai.common import ml_utils, utils
 
-def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
+def eval_arch(conf_eval:Config, model_desc_builder:Optional[ModelDescBuilder]):
     logger.pushd('eval_arch')
 
     # region conf vars
@@ -29,8 +29,8 @@ def eval_arch(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     conf_train = conf_eval['trainer']
     # endregion
 
-    if cell_builder:
-        cell_builder.register_ops()
+    if model_desc_builder:
+        model_desc_builder.register_ops()
 
     model = create_model(conf_eval)
 

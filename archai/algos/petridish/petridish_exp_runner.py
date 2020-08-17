@@ -7,12 +7,12 @@ from overrides import overrides
 
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
-from .petridish_cell_builder import PetridishCellBuilder
+from .petridish_model_desc_builder import PetridishModelBuilder
 
 class PetridishExperimentRunner(ExperimentRunner):
     @overrides
-    def cell_builder(self)->PetridishCellBuilder:
-        return PetridishCellBuilder()
+    def model_desc_builder(self)->PetridishModelBuilder:
+        return PetridishModelBuilder()
 
     @overrides
     def trainer_class(self)->TArchTrainer:
