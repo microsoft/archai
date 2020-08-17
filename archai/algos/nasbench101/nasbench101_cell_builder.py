@@ -5,13 +5,13 @@ from overrides import overrides
 
 from archai.nas.model_desc import ModelDesc, CellDesc, NodeDesc, OpDesc, \
                               EdgeDesc, CellType
-from archai.nas.cell_builder import CellBuilder
+from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import MultiOp, Op
 
 from . import model_matrix
 from .nasbench101_op import NasBench101Op
 
-class NasBench101CellBuilder(CellBuilder):
+class NasBench101CellBuilder(ModelDescBuilder):
     @overrides
     def register_ops(self) -> None:
         Op.register_op('nasbench101_op',

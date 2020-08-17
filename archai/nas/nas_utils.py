@@ -8,16 +8,16 @@ from torch.utils.data.dataloader import DataLoader
 
 from .model_desc import ModelDesc
 from .model_desc_builder import ModelDescBuilder
-from .cell_builder import CellBuilder
+from .model_desc_builder import ModelDescBuilder
 from ..common.config import Config
 from .model import Model
 from ..common.common import logger
 from ..common.checkpoint import CheckPoint
 
-def build_cell(model_desc, cell_builder:Optional[CellBuilder], search_iter:int)->None:
-    if cell_builder:
-        cell_builder.register_ops()
-        cell_builder.build(model_desc, search_iter)
+def build_cell(model_desc, model_desc_builder:Optional[ModelDescBuilder], search_iter:int)->None:
+    if model_desc_builder:
+        model_desc_builder.register_ops()
+        model_desc_builder.build(model_desc, search_iter)
 
 def create_macro_desc(conf_model_desc: Config,
                       template_model_desc:Optional[ModelDesc])->ModelDesc:
