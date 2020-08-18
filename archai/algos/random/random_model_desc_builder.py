@@ -1,14 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Sequence, Tuple, List, Set
+from typing import Iterable, Sequence, Tuple, List, Set, Optional
 import random
+import copy
 
 from overrides import overrides
 
 from archai.nas.model_desc_builder import ModelDescBuilder
-from archai.nas.model_desc import ModelDesc, CellDesc, CellType, \
-                             ConvMacroParams, OpDesc, EdgeDesc
+from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc
+from archai.common.config import Config
 
 
 class RandOps:
@@ -35,47 +37,50 @@ class RandOps:
 
 class RandomModelDescBuilder(ModelDescBuilder):
     @overrides
-    def build(self, model_desc:ModelDesc, search_iter:int)->None:
-        # create random op sets for two cell types
-        assert len(model_desc.cell_descs())
+    def build_cells(self, in_shapes:TensorShapesList, conf_model_desc:Config)\
+            ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
 
-        n_nodes = len(model_desc.cell_descs()[0].nodes())
         max_edges = 2
+        node_count = self.get_node_count(0)
+
         # create two sets of random ops, one for each cell type
-        normal_ops, reduction_ops = RandOps(n_nodes, max_edges), RandOps(n_nodes, max_edges)
+        self._normal_ops = RandOps(node_count, max_edges)
+        self._reduction_ops = RandOps(node_count, max_edges)
 
-        for cell_desc in model_desc.cell_descs():
-            # select rand_ops for cell type
-            if cell_desc.cell_type==CellType.Regular:
-                rand_ops = normal_ops
-            elif cell_desc.cell_type==CellType.Reduction:
-                rand_ops = reduction_ops
-            else:
-                raise NotImplementedError(f'CellType {cell_desc.cell_type} is not recognized')
+        return super().build_cells(in_shapes, conf_model_desc)
 
-            self._build_cell(cell_desc, rand_ops)
+    @overrides
+    def build_nodes(self, stem_shapes:TensorShapes, conf_cell:Config,
+                    cell_index:int, cell_type:CellType, node_count:int,
+                    in_shape:TensorShape, out_shape:TensorShape) \
+                        ->Tuple[TensorShapes, List[NodeDesc]]:
 
-    def _build_cell(self, cell_desc:CellDesc, rand_ops:RandOps)->None:
-        # sanity check: we have random ops for each node
-        assert len(cell_desc.nodes()) == len(rand_ops.ops_and_ins)
+        assert in_shape[0]==out_shape[0]
 
-        reduction = (cell_desc.cell_type==CellType.Reduction)
+        reduction = (cell_type==CellType.Reduction)
+        ops = self._reduction_ops if reduction else self._normal_ops
+        assert node_count == len(ops.ops_and_ins)
 
-        # Add random op for each edge
-        for node, (op_names, to_states) in zip(cell_desc.nodes(),
-                                               rand_ops.ops_and_ins):
-            # as we want cell to be completely random, remove previous edges
-            node.edges.clear()
+        nodes:List[NodeDesc] =  []
+        conv_params = ConvMacroParams(in_shape[0], out_shape[0])
 
+        for op_names, to_states in ops.ops_and_ins:
+            edges=[]
             # add random edges
             for op_name, to_state in zip(op_names, to_states):
                 op_desc = OpDesc(op_name,
                                     params={
-                                        'conv': node.conv_params,
+                                        'conv': conv_params,
                                         'stride': 2 if reduction and to_state < 2 else 1
                                     }, in_len=1, trainables=None, children=None)
                 edge = EdgeDesc(op_desc, input_ids=[to_state])
-                node.edges.append(edge)
+                edges.append(edge)
+            nodes.append(NodeDesc(edges=edges, conv_params=conv_params))
+
+        out_shapes = [copy.deepcopy(out_shape) for _  in range(node_count)]
+
+        return out_shapes, nodes
+
 
 
 

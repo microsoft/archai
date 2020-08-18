@@ -5,18 +5,19 @@ common:
   toy_mode:
     seed_train_epochs: 0
     post_train_epochs: 0
-  
+
 nas:
   eval:
     loader:
       train_batch: 96
 
   search:
-    gs:
-      num_sample: 1
     loader:
       val_ratio: 0.0 # don't need val during search in gs
     trainer:
       epochs: 1
     model_desc:
       max_final_edges: 1
+      cell:
+        gs:
+          num_sample: 1
