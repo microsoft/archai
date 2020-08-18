@@ -1,12 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import Tuple, List
+import copy
+
 from overrides import overrides
 
-from archai.nas.model_desc import ModelDesc, CellDesc, NodeDesc, OpDesc, \
-                              EdgeDesc, CellType
+from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import MultiOp, Op
+from archai.common.config import Config
+
 from .petridish_op import PetridishOp, TempIdentityOp
 
 
@@ -24,7 +29,7 @@ class PetridishModelBuilder(ModelDescBuilder):
                         TempIdentityOp(op_desc))
 
     @overrides
-    def seed(self, model_desc:ModelDesc)->None:
+    def seed_cell(self, model_desc:ModelDesc)->None:
         # for petridish we add one node with identity to s1
         # this will be our seed model
         for cell_desc in model_desc.cell_descs():
@@ -56,36 +61,38 @@ class PetridishModelBuilder(ModelDescBuilder):
             assert len(node.edges) > 0
 
     @overrides
-    def build(self, model_desc:ModelDesc, search_iter:int)->None:
-        for cell_desc in model_desc.cell_descs():
-            self._build_cell(cell_desc)
+    def build_nodes(self, stem_shapes:TensorShapes, conf_cell:Config,
+                    cell_index:int, cell_type:CellType, node_count:int,
+                    in_shape:TensorShape, out_shape:TensorShape) \
+                        ->Tuple[TensorShapes, List[NodeDesc]]:
 
-    def _build_cell(self, cell_desc:CellDesc)->None:
-        reduction = (cell_desc.cell_type==CellType.Reduction)
+        assert in_shape[0]==out_shape[0]
 
-        self._ensure_nonempty_nodes(cell_desc)
+        reduction = (cell_type==CellType.Reduction)
 
-        # we operate on last node, inserting another node before it
-        new_nodes = [n.clone() for n in cell_desc.nodes()]
-        assert len(new_nodes) >= 1, "Petridish cell building requires at least 1 node to be present"
-        petridish_node = NodeDesc(edges=[],
-                                  conv_params=new_nodes[-1].conv_params)
-        new_nodes.insert(len(new_nodes)-1, petridish_node)
+        cell_template = self.get_cell_template(cell_index)
+        assert cell_template is not None and len(cell_template.nodes())>0
+        assert all(len(n.edges)>0 for n in cell_template.nodes())
 
-        input_ids = list(range(len(new_nodes))) # 2 + len-2
+        nodes:List[NodeDesc] = [n.clone() for n in cell_template.nodes()]
+
+        conv_params = ConvMacroParams(in_shape[0], out_shape[0])
+
+        input_ids = list(range(len(nodes))) # 2 + len-2
         assert len(input_ids) >= 2
         op_desc = OpDesc('petridish_reduction_op' if reduction else 'petridish_normal_op',
                             params={
-                                'conv': petridish_node.conv_params,
+                                'conv': conv_params,
                                 # specify strides for each input, later we will
                                 # give this to each primitive
                                 '_strides':[2 if reduction and j < 2 else 1 \
                                            for j in input_ids],
                             }, in_len=len(input_ids), trainables=None, children=None)
         edge = EdgeDesc(op_desc, input_ids=input_ids)
-        petridish_node.edges.append(edge)
+        new_node = NodeDesc(edges=[edge], conv_params=conv_params)
+        nodes.insert(len(nodes)-1, new_node)
 
-        # note that post op will be recreated which means there is no
-        # warm start for post op when number of nodes changes
-        cell_desc.reset_nodes(new_nodes, cell_desc.node_shapes,
-                              cell_desc.post_op, cell_desc.out_shape)
+        out_shapes = [copy.deepcopy(out_shape) for _  in range(node_count)]
+
+        return out_shapes, nodes
+

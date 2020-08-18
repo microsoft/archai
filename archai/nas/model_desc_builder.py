@@ -22,7 +22,7 @@ class ModelDescBuilder(EnforceOverrides):
         self.template =template
 
         # if template model desc is specified thehn setup regular and reduction cell templates
-        self._set_node_templates(template)
+        self._cell_templates = self.create_cell_templates(template)
 
     def get_reduction_indices(self, conf_model_desc:Config)->List[int]:
         """ Returns cell indices which reduces HxW and doubles channels """
@@ -85,7 +85,7 @@ class ModelDescBuilder(EnforceOverrides):
         # for each reduction, we create one indice
         # for cifar and imagenet, reductions=2 creating cuts at n//3, n*2//3
         self._reduction_indices = self.get_reduction_indices(conf_model_desc)
-        self._normal_indices = [i for i in range(self.n_cells)\
+        self._normal_indices = [i for i in range(n_cells)\
                                 if i not in self._reduction_indices]
         self.node_channels = self.get_node_channels(conf_model_desc)
 
@@ -124,28 +124,35 @@ class ModelDescBuilder(EnforceOverrides):
 
         return cell_descs, aux_tower_descs
 
-    def build_cell(self, in_shapes:TensorShapesList, conf_cell:Config, ci:int)\
-            ->Tuple[CellDesc, Optional[AuxTowerDesc]]:
+    def get_node_count(self, cell_index:int)->int:
+        return len(self.node_channels[cell_index])
 
-        stem_shapes, stems = self.build_cell_stems(in_shapes, conf_cell, ci)
+    def build_cell(self, in_shapes:TensorShapesList, conf_cell:Config,
+                   cell_index:int) ->Tuple[CellDesc, Optional[AuxTowerDesc]]:
+
+        stem_shapes, stems = self.build_cell_stems(in_shapes, conf_cell, cell_index)
+        cell_type = self.get_cell_type(cell_index)
 
         if self.template is None:
-            node_shapes, nodes = self.build_nodes(stem_shapes, conf_cell, ci)
+            node_count = self.get_node_count(cell_index)
+            in_shape = out_shape = stem_shapes[0]
+            node_shapes, nodes = self.build_nodes(stem_shapes, conf_cell,
+                                                  cell_index, cell_type, node_count, in_shape, out_shape)
         else:
-            node_shapes, nodes = self.build_nodes_from_template(stem_shapes, conf_cell, ci)
+            node_shapes, nodes = self.build_nodes_from_template(stem_shapes, conf_cell, cell_index)
 
         post_op_shape, post_op_desc = self.build_cell_post_op(stem_shapes,
-            node_shapes, conf_cell, ci)
+            node_shapes, conf_cell, cell_index)
 
         cell_desc = CellDesc(
-            id=ci, cell_type=self.get_cell_type(ci),
+            id=cell_index, cell_type=self.get_cell_type(cell_index),
             stems=stems, stem_shapes=stem_shapes,
             nodes=nodes, node_shapes=node_shapes,
             post_op=post_op_desc, out_shape=post_op_shape,
-            trainables_from=self.get_trainables_from(ci)
+            trainables_from=self.get_trainables_from(cell_index)
         )
 
-        aux_tower_desc = self.build_aux_tower(post_op_shape, conf_cell, ci)
+        aux_tower_desc = self.build_aux_tower(post_op_shape, conf_cell, cell_index)
 
         # output same shape twice to indicate s0 and s1 inputs for next cell
         in_shapes.append([post_op_shape])
@@ -206,10 +213,11 @@ class ModelDescBuilder(EnforceOverrides):
                     cell_index:int) \
                         ->Tuple[TensorShapes, List[NodeDesc]]:
 
-        cell_type = self.get_cell_type(cell_index)
-        cell_template = self.get_cell_template(cell_type)
+        cell_template = self.get_cell_template(cell_index)
 
         assert cell_template is not None
+
+        cell_type = self.get_cell_type(cell_index)
         assert cell_template.cell_type==cell_type
 
         nodes:List[NodeDesc] = []
@@ -227,34 +235,35 @@ class ModelDescBuilder(EnforceOverrides):
         return out_shapes, nodes
 
     def build_nodes(self, stem_shapes:TensorShapes, conf_cell:Config,
-                    cell_index:int) \
+                    cell_index:int, cell_type:CellType, node_count:int,
+                    in_shape:TensorShape, out_shape:TensorShape) \
                         ->Tuple[TensorShapes, List[NodeDesc]]:
 
-        node_count = len(self.node_channels[cell_index])
-        node_channels = stem_shapes[0][0]
         # create nodes with empty edges
         nodes:List[NodeDesc] =  [NodeDesc(edges=[],
                                             conv_params=ConvMacroParams(
-                                                node_channels, node_channels))
+                                                in_shape[0], out_shape[0]))
                                 for _ in range(node_count)]
 
-        out_shapes = [copy.deepcopy(stem_shapes[0]) for _  in range(node_count)]
+        out_shapes = [copy.deepcopy(out_shape) for _  in range(node_count)]
 
         return out_shapes, nodes
 
-    def _set_node_templates(self, template:Optional[ModelDesc])->None:
-        self._normal_template,  self._reduction_template = None, None
+    def create_cell_templates(self, template:Optional[ModelDesc])\
+            ->List[Optional[CellDesc]]:
+        normal_template,  reduction_template = None, None
         if template is not None:
             # find first regular and reduction cells and set them as
             # the template that we will use. When we create new cells
             # we will fill them up with nodes from these templates
             for cell_desc in template.cell_descs():
-                if self._normal_template is None and \
+                if normal_template is None and \
                         cell_desc.cell_type==CellType.Regular:
-                  self._normal_template = cell_desc
-                if self._reduction_template is None and \
+                  normal_template = cell_desc
+                if reduction_template is None and \
                         cell_desc.cell_type==CellType.Reduction:
-                    self._reduction_template = cell_desc
+                    reduction_template = cell_desc
+        return [normal_template, reduction_template]
 
     def build_model_pool(self, in_shapes:TensorShapesList, conf_model_desc:Config)\
             ->OpDesc:
@@ -276,12 +285,13 @@ class ModelDescBuilder(EnforceOverrides):
                                 'n_classes': n_classes},
                         in_len=1, trainables=None)
 
-    def get_cell_template(self, cell_type:CellType)->Optional[CellDesc]:
-        # select cell template
-        if cell_type == CellType.Reduction:
-            return self._reduction_template
-        if cell_type == CellType.Regular:
-            return self._normal_template
+    def get_cell_template(self, cell_index:int)->Optional[CellDesc]:
+        cell_type = self.get_cell_type(cell_index)
+
+        if cell_type==CellType.Regular:
+            return self._cell_templates[0]
+        if cell_type==CellType.Reduction:
+            return self._cell_templates[1]
         raise RuntimeError(f'Cannot get cell template because cell_type "{cell_type}" is not recgnized')
 
     def get_cell_type(self, cell_index:int)->CellType:
