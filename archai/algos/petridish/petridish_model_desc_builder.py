@@ -17,7 +17,7 @@ from .petridish_op import PetridishOp, TempIdentityOp
 
 class PetridishModelBuilder(ModelDescBuilder):
     @overrides
-    def register_ops(self) -> None:
+    def pre_build(self, conf_model_desc:Config)->None:
         Op.register_op('petridish_normal_op',
                     lambda op_desc, arch_params, affine:
                         PetridishOp(op_desc, arch_params, False, affine))

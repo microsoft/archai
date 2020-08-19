@@ -17,7 +17,7 @@ from .nasbench101_op import NasBench101Op
 
 class NasBench101CellBuilder(ModelDescBuilder):
     @overrides
-    def register_ops(self) -> None:
+    def pre_build(self, conf_model_desc:Config)->None:
         Op.register_op('nasbench101_op',
                        lambda op_desc, arch_params, affine:
                            NasBench101Op(op_desc, arch_params, affine))

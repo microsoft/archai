@@ -6,11 +6,13 @@ from overrides import overrides
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import Op
 from archai.nas.model_desc import ModelDesc, CellDesc, CellType, OpDesc, EdgeDesc
+from archai.common.config import Config
+
 from .xnas_op import XnasOp
 
 class XnasModelDescBuilder(ModelDescBuilder):
     @overrides
-    def register_ops(self) -> None:
+    def pre_build(self, conf_model_desc:Config)->None:
         Op.register_op('xnas_op',
                        lambda op_desc, arch_params, affine:
                            XnasOp(op_desc, arch_params, affine))

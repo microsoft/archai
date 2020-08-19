@@ -16,7 +16,7 @@ from .gs_op import GsOp
 
 class GsModelDescBuilder(ModelDescBuilder):
     @overrides
-    def register_ops(self) -> None:
+    def pre_build(self, conf_model_desc:Config)->None:
         Op.register_op('gs_op',
                        lambda op_desc, arch_params, affine:
                            GsOp(op_desc, arch_params, affine))
