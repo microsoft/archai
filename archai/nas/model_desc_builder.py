@@ -15,19 +15,10 @@ from archai.nas.operations import StemBase, Op
 
 
 class ModelDescBuilder(EnforceOverrides):
-    def __init__(self, conf_model_desc: Config,
-                 template:Optional[ModelDesc]=None)->None:
-        self.conf_model_desc = conf_model_desc
-        self.conf_dataset = conf_model_desc['dataset']
-        self.template =template
-
-        # if template model desc is specified thehn setup regular and reduction cell templates
-        self._cell_templates = self.create_cell_templates(template)
-
     def get_reduction_indices(self, conf_model_desc:Config)->List[int]:
         """ Returns cell indices which reduces HxW and doubles channels """
 
-        conf_cell = self.get_cell_conf(conf_model_desc)
+        conf_cell = self.get_conf_cell(conf_model_desc)
 
         n_cells = conf_cell['n_cells']
         n_reductions = conf_cell['n_reductions']
@@ -45,8 +36,8 @@ class ModelDescBuilder(EnforceOverrides):
         """ Returns array of channels for each node in each cell. All nodes
             aere assumed to have same output channels as input channels. """
 
-        conf_model_stems = self.get_model_stems_conf(conf_model_desc)
-        conf_cell = self.get_cell_conf(conf_model_desc)
+        conf_model_stems = self.get_conf_model_stems(conf_model_desc)
+        conf_cell = self.get_conf_cell(conf_model_desc)
 
         init_node_ch:int = conf_model_stems['init_node_ch']
         n_cells = conf_cell['n_cells']
@@ -67,20 +58,24 @@ class ModelDescBuilder(EnforceOverrides):
                                       )
         return cell_node_channels
 
-    def get_cell_conf(self, conf_model_desc:Config)->Config:
+    def get_conf_cell(self, conf_model_desc:Config)->Config:
         return conf_model_desc['cell']
+    def get_conf_dataset(self, conf_model_desc:Config)->Config:
+        return conf_model_desc['dataset']
 
-    def get_model_stems_conf(self, conf_model_desc:Config)->Config:
+    def get_conf_model_stems(self, conf_model_desc:Config)->Config:
         return conf_model_desc['model_stems']
 
-    def build(self)->ModelDesc:
-        return self.build_model_desc(self.conf_model_desc)
+    def _init_build(self, conf_model_desc: Config,
+                 template:Optional[ModelDesc]=None)->None:
 
-    def build_model_desc(self, conf_model_desc:Config)->ModelDesc:
-        conf_cell = self.get_cell_conf(conf_model_desc)
+        self.conf_model_desc = conf_model_desc
+        self.template =template
+        # if template model desc is specified thehn setup regular and reduction cell templates
+        self._cell_templates = self.create_cell_templates(template)
 
+        conf_cell = self.get_conf_cell(conf_model_desc)
         n_cells = conf_cell['n_cells']
-        ds_ch = self.conf_dataset['channels']
 
         # for each reduction, we create one indice
         # for cifar and imagenet, reductions=2 creating cuts at n//3, n*2//3
@@ -89,8 +84,16 @@ class ModelDescBuilder(EnforceOverrides):
                                 if i not in self._reduction_indices]
         self.node_channels = self.get_node_channels(conf_model_desc)
 
+    def build(self, conf_model_desc: Config,
+                 template:Optional[ModelDesc]=None)->ModelDesc:
+
+        self._init_build(conf_model_desc, template)
+
+        self.pre_build(conf_model_desc)
+
         # input shape for the stem has same channels as channels in image
         # -1 indicates, actual dimentions is not known
+        ds_ch = self.get_conf_dataset(conf_model_desc)['channels']
         in_shapes = [[[ds_ch, -1, -1, -1]]]
 
         # create model stems
@@ -106,11 +109,10 @@ class ModelDescBuilder(EnforceOverrides):
         return ModelDesc(conf_model_desc, model_stems, model_pool_op, cell_descs,
                          aux_tower_descs, logits_op)
 
-
     def build_cells(self, in_shapes:TensorShapesList, conf_model_desc:Config)\
             ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
 
-        conf_cell = self.get_cell_conf(conf_model_desc)
+        conf_cell = self.get_conf_cell(conf_model_desc)
 
         n_cells = conf_cell['n_cells']
 
@@ -366,7 +368,7 @@ class ModelDescBuilder(EnforceOverrides):
         # TODO: why do we need stem_multiplier?
         # TODO: in original paper stems are always affine
 
-        conf_model_stems = self.get_model_stems_conf(conf_model_desc)
+        conf_model_stems = self.get_conf_model_stems(conf_model_desc)
 
         init_node_ch:int = conf_model_stems['init_node_ch']
         stem_multiplier:int = conf_model_stems['stem_multiplier']
@@ -402,18 +404,9 @@ class ModelDescBuilder(EnforceOverrides):
         assert all(isinstance(op, StemBase) for op in ops)
         return list(op.reduction for op in ops)
 
-    def register_ops(self)->None:
+    def pre_build(self, conf_model_desc:Config)->None:
         pass
 
     def seed_cell(self, model_desc:ModelDesc)->None:
         # prepare model as seed model before search iterations starts
         pass
-
-    def append_empty_node(self, model_desc:ModelDesc)->None:
-        """Utility method to add empty node in each cell"""
-        for cell_desc in model_desc.cell_descs():
-            # new node requires reset because post op must recompute channels
-            new_nodes = [n.clone() for n in cell_desc.nodes()]
-            new_nodes.append(NodeDesc(edges=[]))
-            cell_desc.reset_nodes(new_nodes, cell_desc.node_shapes,
-                                cell_desc.post_op, cell_desc.out_shape)
