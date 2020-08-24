@@ -1,11 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import Iterable, Sequence, Tuple, List, Set, Optional
+import copy
+
 from overrides import overrides
 
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import Op
-from archai.nas.model_desc import ModelDesc, CellDesc, CellType, OpDesc, EdgeDesc
+from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc
 from archai.common.config import Config
 
 from .xnas_op import XnasOp
@@ -18,23 +22,32 @@ class XnasModelDescBuilder(ModelDescBuilder):
                            XnasOp(op_desc, arch_params, affine))
 
     @overrides
-    def build(self, model_desc:ModelDesc, search_iter:int)->None:
-        for cell_desc in model_desc.cell_descs():
-            self._build_cell(cell_desc)
+    def build_nodes(self, stem_shapes:TensorShapes, conf_cell:Config,
+                    cell_index:int, cell_type:CellType, node_count:int,
+                    in_shape:TensorShape, out_shape:TensorShape) \
+                        ->Tuple[TensorShapes, List[NodeDesc]]:
 
-    def _build_cell(self, cell_desc:CellDesc)->None:
-        reduction = (cell_desc.cell_type==CellType.Reduction)
+        assert in_shape[0]==out_shape[0]
+
+        reduction = (cell_type==CellType.Reduction)
+        nodes:List[NodeDesc] =  []
+        conv_params = ConvMacroParams(in_shape[0], out_shape[0])
 
         # add xnas op for each edge
-        for i, node in enumerate(cell_desc.nodes()):
+        for i in range(node_count):
+            edges=[]
             for j in range(i+2):
                 op_desc = OpDesc('xnas_op',
                                     params={
-                                        'conv': node.conv_params,
+                                        'conv': conv_params,
                                         'stride': 2 if reduction and j < 2 else 1
                                     }, in_len=1, trainables=None, children=None)
                 edge = EdgeDesc(op_desc, input_ids=[j])
-                node.edges.append(edge)
+                edges.append(edge)
+            nodes.append(NodeDesc(edges=edges, conv_params=conv_params))
 
+        out_shapes = [copy.deepcopy(out_shape) for _  in range(node_count)]
+
+        return out_shapes, nodes
 
 
