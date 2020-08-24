@@ -91,8 +91,8 @@ class ExperimentRunner(ABC, EnforceOverrides):
         return search_conf, eval_conf
 
     @abstractmethod
-    def model_desc_builder(self)->Optional[ModelDescBuilder]:
-        pass
+    def model_desc_builder(self)->ModelDescBuilder:
+        return ModelDescBuilder() # default model desc builder puts nodes with no edges
 
     @abstractmethod
     def trainer_class(self)->TArchTrainer:

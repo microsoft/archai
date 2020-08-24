@@ -16,7 +16,7 @@ class ManualExperimentRunner(ExperimentRunner):
     """Runs manually designed models such as resnet"""
 
     @overrides
-    def model_desc_builder(self)->Optional[ModelDescBuilder]:
+    def model_desc_builder(self)->ModelDescBuilder:
         return None
 
     @overrides

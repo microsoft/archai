@@ -13,7 +13,7 @@ from archai.algos.darts.bilevel_arch_trainer import BilevelArchTrainer
 
 class DartsExperimentRunner(ExperimentRunner):
     @overrides
-    def model_desc_builder(self)->Optional[DartsModelDescBuilder]:
+    def model_desc_builder(self)->DartsModelDescBuilder:
         return DartsModelDescBuilder()
 
     @overrides
