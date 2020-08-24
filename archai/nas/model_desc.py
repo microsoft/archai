@@ -47,6 +47,7 @@ class OpDesc:
         self.name = name
         self.in_len = in_len
         self.params = params # parameters specific to op needed to construct it
+
         self.trainables = trainables # TODO: make this private due to clear_trainable
         # If op is keeping any child op then it should save it in children.
         # This way we can control state_dict of children.

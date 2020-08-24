@@ -49,7 +49,7 @@ class ModelDescBuilder(EnforceOverrides):
         for ci in range(n_cells):
             # if reduction cell than double the node channels
             if self.get_cell_type(ci)==CellType.Reduction:
-                node_channels *= node_channels
+                node_channels *= 2
             # all nodes in a cell have same channels
             nodes_channels = [node_channels for ni in range(n_nodes)]
             cell_node_channels.append(nodes_channels
