@@ -34,8 +34,8 @@ class ModelDescBuilder(EnforceOverrides):
         """ Returns array of channels for each node in each cell. All nodes
             aere assumed to have same output channels as input channels. """
 
-        conf_model_stems = self.get_conf_model_stems(conf_model_desc)
-        conf_cell = self.get_conf_cell(conf_model_desc)
+        conf_model_stems = self.get_conf_model_stems()
+        conf_cell = self.get_conf_cell()
 
         init_node_ch:int = conf_model_stems['init_node_ch']
         n_cells = conf_model_desc['n_cells']
@@ -56,13 +56,12 @@ class ModelDescBuilder(EnforceOverrides):
                                       )
         return cell_node_channels
 
-    def get_conf_cell(self, conf_model_desc:Config)->Config:
-        return conf_model_desc['cell']
-    def get_conf_dataset(self, conf_model_desc:Config)->Config:
-        return conf_model_desc['dataset']
-
-    def get_conf_model_stems(self, conf_model_desc:Config)->Config:
-        return conf_model_desc['model_stems']
+    def get_conf_cell(self)->Config:
+        return self.conf_model_desc['cell']
+    def get_conf_dataset(self)->Config:
+        return self.conf_model_desc['dataset']
+    def get_conf_model_stems(self)->Config:
+        return self.conf_model_desc['model_stems']
 
     def _init_build(self, conf_model_desc: Config,
                  template:Optional[ModelDesc]=None)->None:
@@ -90,7 +89,7 @@ class ModelDescBuilder(EnforceOverrides):
 
         # input shape for the stem has same channels as channels in image
         # -1 indicates, actual dimentions is not known
-        ds_ch = self.get_conf_dataset(conf_model_desc)['channels']
+        ds_ch = self.get_conf_dataset()['channels']
         in_shapes = [[[ds_ch, -1, -1, -1]]]
 
         # create model stems
@@ -109,7 +108,7 @@ class ModelDescBuilder(EnforceOverrides):
     def build_cells(self, in_shapes:TensorShapesList, conf_model_desc:Config)\
             ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
 
-        conf_cell = self.get_conf_cell(conf_model_desc)
+        conf_cell = self.get_conf_cell()
 
         n_cells = conf_model_desc['n_cells']
 
@@ -172,7 +171,7 @@ class ModelDescBuilder(EnforceOverrides):
 
         # expect two stems, both should have same channels
         # TODO: support multiple stems
-        assert len(in_shapes[-1]) >= 2, "we must have outputs from at least two previous modules"
+        assert len(in_shapes) >= 2, "we must have outputs from at least two previous modules"
 
         # Get channels for previous two layers.
         # At start we have only one layer, i.e., model stems.
@@ -277,7 +276,7 @@ class ModelDescBuilder(EnforceOverrides):
                          in_len=1, trainables=None)
 
     def build_logits_op(self, in_shapes:TensorShapesList, conf_model_desc:Config)->OpDesc:
-        n_classes = self.conf_dataset['n_classes']
+        n_classes = self.get_conf_dataset()['n_classes']
 
         return OpDesc('linear',
                         params={'n_ch':in_shapes[-1][0][0],
@@ -349,7 +348,7 @@ class ModelDescBuilder(EnforceOverrides):
 
     def build_aux_tower(self, out_shape:TensorShape, conf_model_desc:Config,
                         cell_index:int)->Optional[AuxTowerDesc]:
-        n_classes = self.conf_dataset['n_classes']
+        n_classes = self.get_conf_dataset()['n_classes']
         n_cells = conf_model_desc['n_cells']
         aux_tower_stride = conf_model_desc['aux_tower_stride']
         aux_weight = conf_model_desc['aux_weight']
@@ -364,7 +363,7 @@ class ModelDescBuilder(EnforceOverrides):
         # TODO: why do we need stem_multiplier?
         # TODO: in original paper stems are always affine
 
-        conf_model_stems = self.get_conf_model_stems(conf_model_desc)
+        conf_model_stems = self.get_conf_model_stems()
 
         init_node_ch:int = conf_model_stems['init_node_ch']
         stem_multiplier:int = conf_model_stems['stem_multiplier']

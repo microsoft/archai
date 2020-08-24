@@ -7,8 +7,6 @@ from torch import nn
 from torch.utils.data.dataloader import DataLoader
 
 from .model_desc import ModelDesc
-from .model_desc_builder import ModelDescBuilder
-from .model_desc_builder import ModelDescBuilder
 from ..common.config import Config
 from .model import Model
 from ..common.common import logger
