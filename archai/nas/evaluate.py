@@ -13,11 +13,12 @@ from archai.common.config import Config
 from archai.common.common import logger
 from archai.datasets import data
 from archai.nas.model_desc import ModelDesc
+from archai.nas.model import Model
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas import nas_utils
 from archai.common import ml_utils, utils
 
-def eval_arch(conf_eval:Config, model_desc_builder:Optional[ModelDescBuilder]):
+def eval_arch(conf_eval:Config, model_desc_builder:ModelDescBuilder):
     logger.pushd('eval_arch')
 
     # region conf vars
@@ -29,10 +30,7 @@ def eval_arch(conf_eval:Config, model_desc_builder:Optional[ModelDescBuilder]):
     conf_train = conf_eval['trainer']
     # endregion
 
-    if model_desc_builder:
-        model_desc_builder.register_ops()
-
-    model = create_model(conf_eval)
+    model = create_model(conf_eval, model_desc_builder)
 
     # get data
     train_dl, _, test_dl = data.get_data(conf_loader)
@@ -67,7 +65,7 @@ def _default_module_name(dataset_name:str, function_name:str)->str:
         raise NotImplementedError(f'Cannot get default module for {function_name} and dataset {dataset_name} because it is not supported yet')
     return module_name
 
-def create_model(conf_eval:Config)->nn.Module:
+def create_model(conf_eval:Config, model_desc_builder:ModelDescBuilder)->nn.Module:
     # region conf vars
     dataset_name = conf_eval['loader']['dataset']['name']
     final_desc_filename = conf_eval['final_desc_filename']
@@ -97,9 +95,13 @@ def create_model(conf_eval:Config)->nn.Module:
         # load model desc file to get template model
         template_model_desc = ModelDesc.load(final_desc_filename)
 
-        model = nas_utils.model_from_conf(full_desc_filename,
-                                    conf_model_desc, affine=True, droppath=True,
-                                    template_model_desc=template_model_desc)
+        model_desc = model_desc_builder.build(conf_model_desc,
+                                              template=template_model_desc)
+
+        # save model that we would eval for reference
+        model_desc.save(full_desc_filename)
+
+        model = Model(model_desc, droppath=True, affine=True)
 
         logger.info({'model_factory':False,
                     'cells_len':len(model.desc.cell_descs()),

@@ -18,10 +18,8 @@ class ModelDescBuilder(EnforceOverrides):
     def get_reduction_indices(self, conf_model_desc:Config)->List[int]:
         """ Returns cell indices which reduces HxW and doubles channels """
 
-        conf_cell = self.get_conf_cell(conf_model_desc)
-
-        n_cells = conf_cell['n_cells']
-        n_reductions = conf_cell['n_reductions']
+        n_cells = conf_model_desc['n_cells']
+        n_reductions = conf_model_desc['n_reductions']
 
         # this satisfies N R N R N pattern, this need not be enforced but
         # we are doing now for sanity
@@ -40,7 +38,7 @@ class ModelDescBuilder(EnforceOverrides):
         conf_cell = self.get_conf_cell(conf_model_desc)
 
         init_node_ch:int = conf_model_stems['init_node_ch']
-        n_cells = conf_cell['n_cells']
+        n_cells = conf_model_desc['n_cells']
         n_nodes = conf_cell['n_nodes']
 
         # same channels for all nodes in a cell
@@ -74,8 +72,7 @@ class ModelDescBuilder(EnforceOverrides):
         # if template model desc is specified thehn setup regular and reduction cell templates
         self._cell_templates = self.create_cell_templates(template)
 
-        conf_cell = self.get_conf_cell(conf_model_desc)
-        n_cells = conf_cell['n_cells']
+        n_cells = conf_model_desc['n_cells']
 
         # for each reduction, we create one indice
         # for cifar and imagenet, reductions=2 creating cuts at n//3, n*2//3
@@ -114,15 +111,17 @@ class ModelDescBuilder(EnforceOverrides):
 
         conf_cell = self.get_conf_cell(conf_model_desc)
 
-        n_cells = conf_cell['n_cells']
+        n_cells = conf_model_desc['n_cells']
 
         cell_descs, aux_tower_descs = [], []
 
         # create list of output shapes for cells that starts with model stem
         for ci in range(n_cells):
-            cell_desc, aux_desc = self.build_cell(in_shapes, conf_cell, ci)
+            cell_desc = self.build_cell(in_shapes, conf_cell, ci)
+            # get first tensor output of last cell
+            aux_tower_desc = self.build_aux_tower(in_shapes[-1][0], conf_model_desc, ci)
             cell_descs.append(cell_desc)
-            aux_tower_descs.append(aux_desc)
+            aux_tower_descs.append(aux_tower_desc)
 
         return cell_descs, aux_tower_descs
 
@@ -130,7 +129,7 @@ class ModelDescBuilder(EnforceOverrides):
         return len(self.node_channels[cell_index])
 
     def build_cell(self, in_shapes:TensorShapesList, conf_cell:Config,
-                   cell_index:int) ->Tuple[CellDesc, Optional[AuxTowerDesc]]:
+                   cell_index:int) ->CellDesc:
 
         stem_shapes, stems = self.build_cell_stems(in_shapes, conf_cell, cell_index)
         cell_type = self.get_cell_type(cell_index)
@@ -154,12 +153,10 @@ class ModelDescBuilder(EnforceOverrides):
             trainables_from=self.get_trainables_from(cell_index)
         )
 
-        aux_tower_desc = self.build_aux_tower(post_op_shape, conf_cell, cell_index)
-
         # output same shape twice to indicate s0 and s1 inputs for next cell
         in_shapes.append([post_op_shape])
 
-        return cell_desc, aux_tower_desc
+        return cell_desc
 
     def get_trainables_from(self, cell_index:int)->int:
         cell_type = self.get_cell_type(cell_index)
@@ -241,7 +238,7 @@ class ModelDescBuilder(EnforceOverrides):
                     in_shape:TensorShape, out_shape:TensorShape) \
                         ->Tuple[TensorShapes, List[NodeDesc]]:
 
-        # create nodes with empty edges
+        # default: create nodes with empty edges
         nodes:List[NodeDesc] =  [NodeDesc(edges=[],
                                             conv_params=ConvMacroParams(
                                                 in_shape[0], out_shape[0]))
@@ -350,13 +347,12 @@ class ModelDescBuilder(EnforceOverrides):
 
         return out_shape, post_op_desc
 
-    def build_aux_tower(self, out_shape:TensorShape, conf_cell:Config,
+    def build_aux_tower(self, out_shape:TensorShape, conf_model_desc:Config,
                         cell_index:int)->Optional[AuxTowerDesc]:
         n_classes = self.conf_dataset['n_classes']
-        n_cells = conf_cell['n_cells']
-        n_cells = conf_cell['n_cells']
-        aux_tower_stride = conf_cell['aux_tower_stride']
-        aux_weight = conf_cell['aux_weight']
+        n_cells = conf_model_desc['n_cells']
+        aux_tower_stride = conf_model_desc['aux_tower_stride']
+        aux_weight = conf_model_desc['aux_weight']
 
         # TODO: shouldn't we be adding aux tower at *every* 1/3rd?
         if aux_weight and cell_index == 2*n_cells//3:

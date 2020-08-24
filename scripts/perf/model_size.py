@@ -5,7 +5,6 @@ from archai.nas.model_desc import ModelDesc
 from archai.common.common import common_init
 from archai.nas.model import Model
 from archai.algos.petridish.petridish_model_desc_builder import PetridishModelBuilder
-from archai.nas.nas_utils import create_macro_desc
 
 from archai.common.model_summary import summary
 
@@ -17,7 +16,10 @@ conf_model_desc   = conf_eval['model_desc']
 
 conf_model_desc['n_cells'] = 14
 template_model_desc = ModelDesc.load('$expdir/final_model_desc.yaml')
-model_desc = create_macro_desc(conf_model_desc, template_model_desc)
+
+model_builder = PetridishModelBuilder()
+
+model_desc = model_builder.build(conf_model_desc, template=template_model_desc)
 
 mb = PetridishModelBuilder()
 model = Model(model_desc, droppath=False, affine=False)

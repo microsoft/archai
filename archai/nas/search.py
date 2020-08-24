@@ -141,7 +141,7 @@ class Search:
             model_desc = self._build_macro(reductions, cells, nodes)
 
             # prep seed model and train it
-            model_desc = self._seed_model(model_desc, reductions, cells, nodes)
+            #model_desc = self._seed_model(model_desc, reductions, cells, nodes)
 
             model_desc, best_result = self._search_iters(model_desc, best_result,
                                                          reductions, cells, nodes)
@@ -195,7 +195,7 @@ class Search:
     def _search_iters(self, model_desc:ModelDesc, best_result:Optional[SearchResult],
                       reductions:int, cells:int, nodes:int)->\
                           Tuple[ModelDesc, Optional[SearchResult]]:
-        for search_iter in range(self.search_iters):
+        for search_iter in range(1):
             logger.pushd(f'{search_iter}')
 
             # execute search iteration followed by training the model
@@ -230,13 +230,15 @@ class Search:
                         yield reductions, cells, nodes
 
     def _build_macro(self, reductions:int, cells:int, nodes:int)->ModelDesc:
+        # reset macro params in copy of config
         conf_model_desc = copy.deepcopy(self.conf_model_desc)
         conf_model_desc['n_reductions'] = reductions
         conf_model_desc['n_cells'] = cells
+
         # create model desc for search using model config
         # we will build model without call to model_desc_builder for pre-training
-        model_desc = nas_utils.create_macro_desc(self.conf_model_desc,
-                                    template_model_desc=None)
+        model_desc = self.model_desc_builder.build(self.conf_model_desc, template=None)
+
         return model_desc
 
     def _save_trained(self, reductions:int, cells:int, nodes:int,
@@ -323,9 +325,7 @@ class Search:
             # nothing to pretrain, save time
             metrics_stats = MetricsStats(model_desc, None, None)
         else:
-            model = nas_utils.model_from_desc(model_desc,
-                                              droppath=drop_path_prob>0.0,
-                                              affine=True)
+            model = Model(model_desc, droppath=drop_path_prob>0.0, affine=True)
 
             # get data
             train_dl, val_dl = self.get_data(conf_loader)
@@ -350,12 +350,8 @@ class Search:
     def _search_desc(self, model_desc:ModelDesc, search_iter:int)->ModelDesc:
         logger.pushd('arch_search')
 
-        nas_utils.build_cell(model_desc, self.model_desc_builder, search_iter)
-
         if self.trainer_class:
-            model = nas_utils.model_from_desc(model_desc,
-                                              droppath=False,
-                                              affine=False)
+            model = Model(model_desc, droppath=False, affine=False)
 
             # get data
             train_dl, val_dl = self.get_data(self.conf_loader)
