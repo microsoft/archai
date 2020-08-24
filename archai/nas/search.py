@@ -89,7 +89,7 @@ class SearchResult:
         return self.metrics_stats.model_desc
 
 class Search:
-    def __init__(self, conf_search:Config, model_desc_builder:Optional[ModelDescBuilder],
+    def __init__(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
                  trainer_class:TArchTrainer, finalizers:Finalizers) -> None:
         # region config vars
         conf_checkpoint = conf_search['checkpoint']
@@ -107,7 +107,7 @@ class Search:
         self.max_cells = conf_pareto['max_cells']
         self.base_reductions = self.conf_model_desc['n_reductions']
         self.max_reductions = conf_pareto['max_reductions']
-        self.base_nodes = self.conf_model_desc['n_nodes']
+        self.base_nodes = self.conf_model_desc['cell']['n_nodes']
         self.max_nodes = conf_pareto['max_nodes']
         self.search_iters = conf_search['search_iters']
         self.pareto_enabled = conf_pareto['enabled']
@@ -214,8 +214,7 @@ class Search:
         return model_desc, best_result
 
     def _seed_model(self, model_desc, reductions, cells, nodes)->ModelDesc:
-        if self.model_desc_builder:
-            self.model_desc_builder.seed(model_desc)
+        self.model_desc_builder.seed(model_desc)
         metrics_stats = self._train_desc(model_desc, self.conf_presearch_train)
         self._save_trained(reductions, cells, nodes, -1, metrics_stats)
         return metrics_stats.model_desc

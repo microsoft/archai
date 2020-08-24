@@ -155,6 +155,7 @@ class CellDesc:
         self.cell_type = cell_type
         self.id = id
         self.stems = stems
+        self.stem_shapes = stem_shapes
         self.out_shape = out_shape
         self.trainables_from = trainables_from
         self.reset_nodes(nodes, node_shapes, post_op, out_shape)
