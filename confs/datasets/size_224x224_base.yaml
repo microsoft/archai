@@ -10,6 +10,8 @@ common:
 nas:
   eval:
     model_desc:
+      n_cells: 14 # number of cells
+      aux_tower_stride: 2 # stride that aux tower should use, 3 is good for 32x32 images, 2 for imagenet
       dataset:
         _copy: '/dataset_eval'
       model_post_op: 'pool_avg2d7x7'
@@ -17,9 +19,7 @@ nas:
         ops: ['stem_conv3x3_s4', 'stem_conv3x3_s4s2']
         init_node_ch: 48 # num of input/output channels for nodes in 1st cell
         stem_multiplier: 1 # output channels multiplier for the stem
-      cell:
-        n_cells: 14 # number of cells
-        aux_tower_stride: 2 # stride that aux tower should use, 3 is good for 32x32 images, 2 for imagenet
+
 
     # darts setup
     # loader:
