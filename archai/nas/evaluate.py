@@ -74,7 +74,7 @@ def create_model(conf_eval:Config, model_desc_builder:ModelDescBuilder)->nn.Modu
     conf_model_desc   = conf_eval['model_desc']
     # endregion
 
-    if final_model_factory:
+    if final_model_factory: # TODO: doc this
         splitted = final_model_factory.rsplit('.', 1)
         function_name = splitted[-1]
 
