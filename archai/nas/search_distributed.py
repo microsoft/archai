@@ -25,7 +25,6 @@ from archai.common import common
 from archai.common.common import logger, CommonState
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
-from archai.nas.cell_builder import CellBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
 from archai.nas.model_desc import CellType, ModelDesc
@@ -122,7 +121,7 @@ def search_desc(model_desc_wrapped, cell_builder, trainer_class, finalizers, con
 
     model_desc = model_desc_wrapped.model_desc
     assert model_desc_wrapped.is_init == True
-    
+
     # get data
     train_dl, val_dl, _ = data.get_data(conf_loader)
     assert train_dl is not None
@@ -226,7 +225,7 @@ class SearchDistributed:
         self._parito_filepath = utils.full_path(pareto_summary_filename)
         self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, self._resume)
 
-        # TODO: why is it still saving without the new() call?    
+        # TODO: why is it still saving without the new() call?
         # initialize the checkpoint dictionary
         # self._checkpoint.new()
 
@@ -341,13 +340,13 @@ class SearchDistributed:
             return True
         else:
             return False
-        
+
 
     def _macro_combinations(self)->Iterator[Tuple[int, int, int]]:
         if not self.pareto_enabled:
             yield self.base_reductions, self.base_cells, self.base_nodes
         else:
-            # TODO: what happens when reductions is 3 but cells is 2? have to step 
+            # TODO: what happens when reductions is 3 but cells is 2? have to step
             # through code and check
             for reductions in range(self.base_reductions, self.max_reductions+1):
                 for cells in range(self.base_cells, self.max_cells+1):
@@ -366,7 +365,7 @@ class SearchDistributed:
         # attempt to restore parent pool
         parent_pool_restored = self._restore_parent_pool()
 
-        # seed the pool with many different seed models of different 
+        # seed the pool with many different seed models of different
         # macro parameters like number of cells, reductions etc if parent pool
         # could not be restored and/or this is the first time this job has been run.
         if not parent_pool_restored:
@@ -382,9 +381,9 @@ class SearchDistributed:
                     self.cell_builder.seed(model_desc)
                 model_desc_wrapped = ModelDescWrapper(model_desc, False)
                 this_child_id = train_desc.remote(model_desc_wrapped, self.conf_presearch_train, self.finalizers, common.get_state())
-                
+
                 future_ids.append(this_child_id)
-        
+
         while not self._should_terminate_search():
             logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 

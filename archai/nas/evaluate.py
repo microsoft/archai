@@ -127,7 +127,7 @@ def _plot_model_gallery(metric_stats_all: List[MetricsStats])->None:
     plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
 
-def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
+def eval_archs(conf_eval:Config, model_desc_builder:ModelDescBuilder):
     ''' Takes a folder of model descriptions output by search process and
     trains them in a distributed manner using ray with 1 gpu '''
     logger.pushd('eval_arch')
@@ -143,8 +143,6 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
     conf_train = conf_eval['trainer']
     # endregion
 
-    if cell_builder:
-        cell_builder.register_ops()
 
     # get list of model descs in the gallery folder
     files = [os.path.join(final_desc_folderpath, f) for f in os.listdir(final_desc_folderpath) if os.path.isfile(os.path.join(final_desc_folderpath, f))]
@@ -156,7 +154,7 @@ def eval_archs(conf_eval:Config, cell_builder:Optional[CellBuilder]):
         metric_filename = model_desc_filename.split('.')[0] + '_metrics.yaml'
         model_filename = model_desc_filename.split('.')[0] + '_model.pt'
         metrics_stats_filename = model_desc_filename.split('.')[0] + '_metrics_stats.yaml'
-        model = create_model(conf_eval, final_desc_filename=model_desc_filename, full_desc_filename=full_desc_filename)
+        model = create_model(conf_eval, model_desc_builder, final_desc_filename=model_desc_filename, full_desc_filename=full_desc_filename)
         # number of cells and number of reductions don't obey a rule then model creation will fail
         if not model:
             continue

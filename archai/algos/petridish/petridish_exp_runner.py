@@ -37,10 +37,6 @@ class PetridishExperimentRunner(ExperimentRunner):
         search.search_loop()
 
     @overrides
-    def _run_eval(self, conf_eval:Config)->None:
-        evaluate.eval_archs(conf_eval, cell_builder=self.cell_builder())
-
-    @overrides
     def _copy_final_desc(self, search_conf)->Tuple[Config, Config]:
         # get folder of model gallery that search has produced
         search_desc_foldername = search_conf['nas']['search']['final_desc_foldername']
