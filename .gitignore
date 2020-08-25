@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 /.gtm/
 .VSCodeCounter/
+.vscode/settings.json

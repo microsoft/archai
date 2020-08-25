@@ -77,6 +77,7 @@ def main():
     conf = Config(config_filepath=conf_data_filepath)
     for dataset_key in ['dataset', 'dataset_search', 'dataset_eval']:
         if dataset_key in conf:
+            print(f'dataset_key: {dataset_key}')
             conf_dataset = conf[dataset_key]
             untar_dataset(dataset_key, pt_data_dir, conf_dataset, args.dataroot)
 
