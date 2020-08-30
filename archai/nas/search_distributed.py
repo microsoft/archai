@@ -13,6 +13,8 @@ import string
 # only works on linux
 import ray
 
+from overrides import overrides
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -35,14 +37,8 @@ from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.algos.petridish.petridish_geometry import _convex_hull_from_points
-
-
-
-class ModelDescWrapper:
-    """ Holds a ModelDesc and a flag indicating whether it is an initialization or a child one """
-    def __init__(self, model_desc: ModelDesc, is_init: bool):
-        self.model_desc = model_desc
-        self.is_init = is_init
+from archai.nas.search import ModelMetrics, Search, SearchResult
+from archai.nas.model_desc_builder import ModelDescBuilder
 
 
 class MetricsStats:
@@ -93,67 +89,13 @@ class MetricsStats:
         return best_this.top1.avg >= best_other.top1.avg
 
 
-class SearchResult:
-    def __init__(self, metrics_stats: MetricsStats,
-                 macro_params: Tuple[int, int, int]) -> None:
-        self.metrics_stats = metrics_stats
-        # macro_params: reductions, cells, nodes
-        self.macro_params = macro_params
-
-    def state_dict(self) -> Mapping:
-        return {'metrics_stats': self.metrics_stats.state_dict(),
-                'macro_params': self.macro_params}
-
-    def load_state_dict(self, state_dict) -> None:
-        self.metrics_stats.load_state_dict(state_dict['metrics_stats'])
-        self.macro_params = state_dict['macro_params']
-
-    def model_desc(self) -> ModelDesc:
-        return self.metrics_stats.model_desc
-
-
-
 @ray.remote(num_gpus=1)
-def search_desc(model_desc_wrapped, cell_builder, trainer_class, finalizers, conf_train, conf_loader, common_state):
-    ''' Remote function which does petridish candidate initialization '''
+def train_desc(job_result, conf_train: Config, finalizers: Finalizers, common_state: CommonState) -> Tuple[ModelDesc, MetricsStats]:
+    """Train given model description"""
+
+    # as this runs in different process, initiaze globals
     common.init_from(common_state)
-    logger.pushd('arch_search')
 
-    model_desc = model_desc_wrapped.model_desc
-    assert model_desc_wrapped.is_init == True
-
-    # get data
-    train_dl, val_dl, _ = data.get_data(conf_loader)
-    assert train_dl is not None
-
-    # NOTE: this is warm starting because you are not calling clear_trainables() on the model_desc
-    search_iter = -1
-    nas_utils.build_cell(model_desc, cell_builder, search_iter)
-
-    model = nas_utils.model_from_desc(model_desc,
-                                        droppath=False,
-                                        affine=False)
-
-    # search arch
-    arch_trainer = trainer_class(conf_train, model, checkpoint=None)
-    train_metrics = arch_trainer.fit(train_dl, val_dl)
-
-    metrics_stats = SearchDistributed._create_metrics_stats(
-        model, train_metrics, finalizers)
-    found_desc = metrics_stats.model_desc
-
-    logger.popd()
-
-    # wrap again
-    found_desc_wrapped = ModelDescWrapper(found_desc, model_desc_wrapped.is_init)
-
-    return found_desc_wrapped, metrics_stats
-
-
-@ray.remote(num_gpus=1)
-def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, common_state: CommonState) -> Tuple[ModelDesc, MetricsStats]:
-    """Train given description"""
-    common.init_from(common_state)
     # region conf vars
     conf_trainer = conf_train['trainer']
     conf_loader = conf_train['loader']
@@ -166,8 +108,8 @@ def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, c
 
     train_dl, val_dl, _ = data.get_data(conf_loader)
 
-    model_desc = model_desc_wrapped.model_desc
-    assert model_desc_wrapped.is_init == False
+    model_desc = job_result.model_desc
+    assert job_result.is_init == False
 
     if epochs == 0:
         # nothing to pretrain, save time
@@ -187,12 +129,14 @@ def train_desc(model_desc_wrapped, conf_train: Config, finalizers: Finalizers, c
             model, train_metrics, finalizers)
 
     logger.popd()
-    return model_desc_wrapped, metrics_stats
+
+    return JobResult('train_desc', found_desc, metrics_stats)
 
 
-class SearchDistributed:
-    def __init__(self, conf_search: Config, cell_builder: Optional[CellBuilder],
-                 trainer_class: TArchTrainer, finalizers: Finalizers) -> None:
+class SearchDistributed(Search):
+    def _initialize(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
+                 trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
+
         # region config vars
         conf_checkpoint = conf_search['checkpoint']
         self._resume = conf_search['resume']
@@ -260,6 +204,23 @@ class SearchDistributed:
         # parent models list
         self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
 
+    @ray.remote(num_gpus=1)
+    def search_model_desc_dist(self, conf_search:Config, model_desc:ModelDesc,
+                          trainer_class:TArchTrainer, finalizers:Finalizers,
+                          common_state:CommonState)->Tuple[str, ModelDesc, Metrics]:
+
+        # as this runs in different process, initiaze globals
+        common.init_from(common_state)
+
+        model_desc, search_metrics = self.search_model_desc(conf_search,
+            model_desc, trainer_class, finalizers)
+
+        # return name of the job as first value
+        return 'search_model_desc', model_desc, search_metrics
+
+    @ray.remote(num_gpus=1)
+    def train_model_desc_dist(self, model_desc:ModelDesc, conf_train:Config)\
+            ->Optional[ModelMetrics]:
 
     def _get_seed_model_desc(self) -> Tuple[int, int, int]:
         return self.base_reductions, self.base_cells, self.base_nodes
@@ -353,12 +314,8 @@ class SearchDistributed:
                     for nodes in range(self.base_nodes, self.max_nodes+1):
                         yield reductions, cells, nodes
 
-
-    def search_loop(self)->None:
-        # TODO: I noticed that metrics_stats already includes model_desc. For saving and restoring
-        # do we need to save model_desc separately or just saving the metrics_stats is enough?
-        # Do we need to have model_desc separately in the parent pool? is metrics_stats enough?
-
+    def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
+                 trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
         # the pool of ray job ids
         future_ids = []
 
@@ -379,8 +336,8 @@ class SearchDistributed:
 
                 if self.cell_builder:
                     self.cell_builder.seed(model_desc)
-                model_desc_wrapped = ModelDescWrapper(model_desc, False)
-                this_child_id = train_desc.remote(model_desc_wrapped, self.conf_presearch_train, self.finalizers, common.get_state())
+                job_result = JobResult(model_desc, False)
+                this_child_id = train_desc.remote(job_result, self.conf_presearch_train, self.finalizers, common.get_state())
 
                 future_ids.append(this_child_id)
 
@@ -389,38 +346,38 @@ class SearchDistributed:
 
             if future_ids:
                 job_id_done, future_ids = ray.wait(future_ids)
-                model_desc_wrapped, metrics_stats = ray.get(job_id_done[0])
+                job_result, metrics_stats = ray.get(job_id_done[0])
 
                 # REVIEW: ss: I'm bit confused about role of is_init but lets talk about that on call
-                if model_desc_wrapped.is_init:
+                if job_result.is_init:
                     # a model just got initialized
                     # push a job to train it
                     logger.info('model just got initialized.')
-                    model_desc_wrapped.is_init = False
-                    this_child_id = train_desc.remote(model_desc_wrapped, self.conf_postsearch_train, self.finalizers, common.get_state())
+                    job_result.is_init = False
+                    this_child_id = train_desc.remote(job_result, self.conf_postsearch_train, self.finalizers, common.get_state())
                     future_ids.append(this_child_id)
                 else:
                     logger.info('child/seed model just finished training.')
                     # a child job finished.
-                    model_desc_wrapped.is_init = True
+                    job_result.is_init = True
 
                     # increase the counter tracking number of times it has been sampled
-                    # REVIEW: ss: why not put num_sampled in ModelDescWrapper
+                    # REVIEW: ss: why not put num_sampled in JobResult
                     metrics_stats.num_sampled += 1
 
                     # add it to the parent models pool
-                    self._parent_models.append((model_desc_wrapped.model_desc, metrics_stats))
+                    self._parent_models.append((job_result.model_desc, metrics_stats))
 
                     # save to disk for restoring
                     filename = os.path.join(self._checkpoints_foldername, f'parent_desc_{len(self._parent_models)}.yaml')
-                    model_desc_wrapped.model_desc.save(filename, save_trainables=True)
+                    job_result.model_desc.save(filename, save_trainables=True)
                     self._record_checkpoint(filename, metrics_stats)
-                    logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(model_desc_wrapped.model_desc.cell_descs())}, num nodes in cell {len(model_desc_wrapped.model_desc.cell_descs()[0].nodes())}')
+                    logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(job_result.model_desc.cell_descs())}, num nodes in cell {len(job_result.model_desc.cell_descs()[0].nodes())}')
 
                     # sample a model from parent pool
                     model_desc, _ = self._sample_model_from_parent_pool()
-                    model_desc_wrapped = ModelDescWrapper(model_desc, True)
-                    this_search_id = search_desc.remote(model_desc_wrapped, self.cell_builder, self.trainer_class, self.finalizers, self.conf_train, self.conf_loader, common.get_state())
+                    job_result = JobResult(model_desc, True)
+                    this_search_id = search_desc.remote(job_result, self.cell_builder, self.trainer_class, self.finalizers, self.conf_train, self.conf_loader, common.get_state())
                     future_ids.append(this_search_id)
                     logger.info('just added a new model to processing pool')
 
@@ -432,8 +389,8 @@ class SearchDistributed:
                 for _ in range(num_unused_gpus):
                     # sample a model from parent pool
                     model_desc, _ = self._sample_model_from_parent_pool()
-                    model_desc_wrapped = ModelDescWrapper(model_desc, True)
-                    this_search_id = search_desc.remote(model_desc_wrapped, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
+                    job_result = JobResult(model_desc, True)
+                    this_search_id = search_desc.remote(job_result, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
                     future_ids.append(this_search_id)
                     logger.info('just added a new model to processing pool')
 
@@ -478,17 +435,6 @@ class SearchDistributed:
 
         return True
 
-
-
-
-    # def _seed_model(self, model_desc, reductions, cells, nodes) -> ModelDesc:
-    #     if self.cell_builder:
-    #         self.cell_builder.seed(model_desc)
-    #     metrics_stats = self._train_desc(model_desc, self.conf_presearch_train)
-    #     self._save_trained(reductions, cells, nodes, -1, metrics_stats)
-    #     return metrics_stats.model_desc
-
-
     def _build_macro(self, reductions: int, cells: int, nodes: int) -> ModelDesc:
         conf_model_desc = copy.deepcopy(self.conf_model_desc)
         conf_model_desc['n_reductions'] = reductions
@@ -498,113 +444,6 @@ class SearchDistributed:
         model_desc = nas_utils.create_macro_desc(conf_model_desc,
                                                  template_model_desc=None)
         return model_desc
-
-
-    # def _train_desc(self, model_desc:ModelDesc, conf_train:Config)->MetricsStats:
-    #     """Train given description"""
-    #     # region conf vars
-    #     conf_trainer = conf_train['trainer']
-    #     conf_loader = conf_train['loader']
-    #     trainer_title = conf_trainer['title']
-    #     epochs = conf_trainer['epochs']
-    #     drop_path_prob = conf_trainer['drop_path_prob']
-    #     # endregion
-
-    #     logger.pushd(trainer_title)
-
-    #     if epochs == 0:
-    #         # nothing to pretrain, save time
-    #         metrics_stats = MetricsStats(model_desc, None, None)
-    #     else:
-    #         model = nas_utils.model_from_desc(model_desc,
-    #                                           droppath=drop_path_prob>0.0,
-    #                                           affine=True)
-
-    #         # get data
-    #         train_dl, val_dl = self.get_data(conf_loader)
-    #         assert train_dl is not None
-
-    #         trainer = Trainer(conf_trainer, model, checkpoint=None)
-    #         train_metrics = trainer.fit(train_dl, val_dl)
-
-    #         metrics_stats = SearchDistributed._create_metrics_stats(model, train_metrics, self.finalizers)
-
-    #     logger.popd()
-    #     return metrics_stats
-
-
-    # def _save_trained(self, reductions: int, cells: int, nodes: int,
-    #                   search_iter: int,
-    #                   metrics_stats: MetricsStats) -> None:
-    #     """Save the model and metric info into a log file"""
-
-    #     # construct path where we will save
-    #     subdir = utils.full_path(
-    #         self.metrics_dir.format(**vars()), create=True)
-
-    #     # save metric_infi
-    #     metrics_stats_filepath = os.path.join(subdir, 'metrics_stats.yaml')
-    #     if metrics_stats_filepath:
-    #         with open(metrics_stats_filepath, 'w') as f:
-    #             yaml.dump(metrics_stats, f)
-
-    #     # save just metrics separately
-    #     metrics_filepath = os.path.join(subdir, 'metrics.yaml')
-    #     if metrics_filepath:
-    #         with open(metrics_filepath, 'w') as f:
-    #             yaml.dump(metrics_stats.train_metrics, f)
-
-    #     logger.info({'metrics_stats_filepath': metrics_stats_filepath,
-    #                  'metrics_filepath': metrics_filepath})
-
-    #     # append key info in root pareto data
-    #     if self._parito_filepath:
-    #         train_top1 = val_top1 = train_epoch = val_epoch = math.nan
-    #         # extract metrics
-    #         if metrics_stats.train_metrics:
-    #             best_metrics = metrics_stats.train_metrics.run_metrics.best_epoch()
-    #             train_top1 = best_metrics[0].top1.avg
-    #             train_epoch = best_metrics[0].index
-    #             if best_metrics[1]:
-    #                 val_top1 = best_metrics[1].top1.avg if len(
-    #                     best_metrics) > 1 else math.nan
-    #                 val_epoch = best_metrics[1].index if len(
-    #                     best_metrics) > 1 else math.nan
-
-    #         # extract model stats
-    #         if metrics_stats.model_stats:
-    #             flops = metrics_stats.model_stats.Flops
-    #             parameters = metrics_stats.model_stats.parameters
-    #             inference_memory = metrics_stats.model_stats.inference_memory
-    #             inference_duration = metrics_stats.model_stats.duration
-    #         else:
-    #             flops = parameters = inference_memory = inference_duration = math.nan
-
-    #         utils.append_csv_file(self._parito_filepath, [
-    #             ('reductions', reductions),
-    #             ('cells', cells),
-    #             ('nodes', nodes),
-    #             ('search_iter', search_iter),
-    #             ('train_top1', train_top1),
-    #             ('train_epoch', train_epoch),
-    #             ('val_top1', val_top1),
-    #             ('val_epoch', val_epoch),
-    #             ('flops', flops),
-    #             ('params', parameters),
-    #             ('inference_memory', inference_memory),
-    #             ('inference_duration', inference_duration)
-    #         ])
-
-
-    # def get_data(self, conf_loader: Config) -> Tuple[Optional[DataLoader], Optional[DataLoader]]:
-    #     # first get from cache
-    #     train_ds, val_ds = self._data_cache.get(id(conf_loader), (None, None))
-    #     # if not found in cache then create
-    #     if train_ds is None:
-    #         train_ds, val_ds, _ = data.get_data(conf_loader)
-    #         self._data_cache[id(conf_loader)] = (train_ds, val_ds)
-    #     return train_ds, val_ds
-
 
     @staticmethod
     def _create_metrics_stats(model: Model, train_metrics: Metrics, finalizers: Finalizers) -> MetricsStats:

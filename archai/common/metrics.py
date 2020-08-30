@@ -231,6 +231,10 @@ class Metrics:
             return False
         return self._apex.is_dist()
 
+    def best_train_top1(self)->float:
+        return self.run_metrics.best_epoch()[0].top1.avg
+    def best_val_top1(self)->float:
+        return self.run_metrics.best_epoch()[1].top1.avg
 
 class Accumulator:
     # TODO: replace this with Metrics class
