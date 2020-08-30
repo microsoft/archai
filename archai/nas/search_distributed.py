@@ -88,51 +88,6 @@ class MetricsStats:
             return False
         return best_this.top1.avg >= best_other.top1.avg
 
-
-@ray.remote(num_gpus=1)
-def train_desc(job_result, conf_train: Config, finalizers: Finalizers, common_state: CommonState) -> Tuple[ModelDesc, MetricsStats]:
-    """Train given model description"""
-
-    # as this runs in different process, initiaze globals
-    common.init_from(common_state)
-
-    # region conf vars
-    conf_trainer = conf_train['trainer']
-    conf_loader = conf_train['loader']
-    trainer_title = conf_trainer['title']
-    epochs = conf_trainer['epochs']
-    drop_path_prob = conf_trainer['drop_path_prob']
-    # endregion
-
-    logger.pushd(trainer_title)
-
-    train_dl, val_dl, _ = data.get_data(conf_loader)
-
-    model_desc = job_result.model_desc
-    assert job_result.is_init == False
-
-    if epochs == 0:
-        # nothing to pretrain, save time
-        metrics_stats = MetricsStats(model_desc, None, None)
-    else:
-        model = nas_utils.model_from_desc(model_desc,
-                                            droppath=drop_path_prob > 0.0,
-                                            affine=True)
-
-        # get data
-        assert train_dl is not None
-
-        trainer = Trainer(conf_trainer, model, checkpoint=None)
-        train_metrics = trainer.fit(train_dl, val_dl)
-
-        metrics_stats = SearchDistributed._create_metrics_stats(
-            model, train_metrics, finalizers)
-
-    logger.popd()
-
-    return JobResult('train_desc', found_desc, metrics_stats)
-
-
 class SearchDistributed(Search):
     def _initialize(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
                  trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
@@ -219,12 +174,18 @@ class SearchDistributed(Search):
         return 'search_model_desc', model_desc, search_metrics
 
     @ray.remote(num_gpus=1)
-    def train_model_desc_dist(self, model_desc:ModelDesc, conf_train:Config)\
-            ->Optional[ModelMetrics]:
+    def train_model_desc_dist(self, conf_train:Config, model_desc:ModelDesc, common_state:CommonState)\
+            ->Tuple[str, ModelDesc, Metrics]:
+        # as this runs in different process, initiaze globals
+        common.init_from(common_state)
+
+        model_metrics = self.train_model_desc(model_desc, conf_train)
+
+        # return name of the job as first value
+        return 'train_model_desc', model_desc, model_metrics.metrics
 
     def _get_seed_model_desc(self) -> Tuple[int, int, int]:
         return self.base_reductions, self.base_cells, self.base_nodes
-
 
     def _get_models_near_convex_hull(self):
         assert(len(self._parent_models) > 0)
@@ -332,45 +293,39 @@ class SearchDistributed(Search):
                 if cells < reductions * 2 + 1:
                     continue
 
+                # create seed model
                 model_desc = self._build_macro(reductions, cells, nodes)
 
-                if self.cell_builder:
-                    self.cell_builder.seed(model_desc)
-                job_result = JobResult(model_desc, False)
-                this_child_id = train_desc.remote(job_result, self.conf_presearch_train, self.finalizers, common.get_state())
+                # pre-train the seed model
+                future_id = self.train_model_desc_dist.remote(self.conf_presearch_train, model_desc, common.get_state())
 
-                future_ids.append(this_child_id)
+                future_ids.append(future_id)
 
         while not self._should_terminate_search():
             logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 
             if future_ids:
                 job_id_done, future_ids = ray.wait(future_ids)
-                job_result, metrics_stats = ray.get(job_id_done[0])
+                job_name, *job_return = ray.get(job_id_done[0])
 
-                # REVIEW: ss: I'm bit confused about role of is_init but lets talk about that on call
-                if job_result.is_init:
-                    # a model just got initialized
-                    # push a job to train it
-                    logger.info('model just got initialized.')
-                    job_result.is_init = False
-                    this_child_id = train_desc.remote(job_result, self.conf_postsearch_train, self.finalizers, common.get_state())
+                logger.info(f'"{job_name}" completed')
+
+                if job_name=='search_model_desc':
+                    # decompose job result
+                    model_desc, search_metrics = job_return
+
+                    # create the job to train the searched model
+                    this_child_id = self.train_model_desc_dist.remote(self.conf_postsearch_train, model_desc, common.get_state())
                     future_ids.append(this_child_id)
-                else:
-                    logger.info('child/seed model just finished training.')
-                    # a child job finished.
-                    job_result.is_init = True
-
-                    # increase the counter tracking number of times it has been sampled
-                    # REVIEW: ss: why not put num_sampled in JobResult
-                    metrics_stats.num_sampled += 1
+                elif job_name=='train_model_desc':
+                    model_desc, train_metrics = job_return
 
                     # add it to the parent models pool
-                    self._parent_models.append((job_result.model_desc, metrics_stats))
+                    self._parent_models.append((model_desc, train_metrics))
 
                     # save to disk for restoring
                     filename = os.path.join(self._checkpoints_foldername, f'parent_desc_{len(self._parent_models)}.yaml')
-                    job_result.model_desc.save(filename, save_trainables=True)
+                    model_desc.save(filename, save_trainables=True)
                     self._record_checkpoint(filename, metrics_stats)
                     logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(job_result.model_desc.cell_descs())}, num nodes in cell {len(job_result.model_desc.cell_descs()[0].nodes())}')
 
