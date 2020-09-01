@@ -9,8 +9,9 @@ import os
 from queue import Queue
 import secrets
 import string
+from enum import Enum
 
-# only works on linux
+# latest verion of ray works on Windows as well
 import ray
 
 from overrides import overrides
@@ -88,6 +89,30 @@ class MetricsStats:
             return False
         return best_this.top1.avg >= best_other.top1.avg
 
+class JobStage(Enum):
+    SEED = 1
+    SEARCH = 2
+    TRAIN = 3
+
+class ConvexHullPoint:
+    def __init__(self, job_stage:JobStage,
+                 seed_model_desc:ModelDesc,
+                 searched_mode_desc:Optional[ModelDesc],
+                 sampling_count:int,
+                 seed_metrics:Optional[Metrics]=None,
+                 search_metrics:Optional[Metrics]=None,
+                 train_metrics:Optional[Metrics]=None,
+                 model_stats:Optional[tw.ModelStats]=None) -> None:
+        self.job_stage = job_stage
+        self.seed_model_desc = seed_model_desc
+        self.searched_mode_desc = searched_mode_desc
+        self.sampling_count = sampling_count
+        self.seed_metrics = seed_metrics
+        self.search_metrics = search_metrics
+        self.train_metrics = train_metrics
+        self.model_stats = model_stats
+
+
 class SearchDistributed(Search):
     def _initialize(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
                  trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
@@ -117,7 +142,7 @@ class SearchDistributed(Search):
         self.conf_petridish = conf_search['petridish']
         # endregion
 
-        self.cell_builder = cell_builder
+        self.model_desc_builder = model_desc_builder
         self.trainer_class = trainer_class
         self.finalizers = finalizers
         self._data_cache = {}
@@ -157,12 +182,12 @@ class SearchDistributed(Search):
         self._checkpoints_foldername = utils.full_path(self._checkpoints_foldername, create=True)
 
         # parent models list
-        self._parent_models: List[Tuple[ModelDesc, Optional[MetricsStats]]] = []
+        self._convex_hull_points: List[ConvexHullPoint] = []
 
     @ray.remote(num_gpus=1)
     def search_model_desc_dist(self, conf_search:Config, model_desc:ModelDesc,
                           trainer_class:TArchTrainer, finalizers:Finalizers,
-                          common_state:CommonState)->Tuple[str, ModelDesc, Metrics]:
+                          common_state:CommonState)->Tuple[JobStage, ModelDesc, Metrics]:
 
         # as this runs in different process, initiaze globals
         common.init_from(common_state)
@@ -171,53 +196,54 @@ class SearchDistributed(Search):
             model_desc, trainer_class, finalizers)
 
         # return name of the job as first value
-        return 'search_model_desc', model_desc, search_metrics
+        return JobStage.SEARCH, model_desc, search_metrics
 
     @ray.remote(num_gpus=1)
-    def train_model_desc_dist(self, conf_train:Config, model_desc:ModelDesc, common_state:CommonState)\
-            ->Tuple[str, ModelDesc, Metrics]:
+    def train_model_desc_dist(self, job_stage:JobStage, conf_train:Config, model_desc:ModelDesc,
+                              common_state:CommonState)\
+            ->Tuple[JobStage, ModelDesc, Metrics]:
         # as this runs in different process, initiaze globals
         common.init_from(common_state)
 
         model_metrics = self.train_model_desc(model_desc, conf_train)
 
         # return name of the job as first value
-        return 'train_model_desc', model_desc, model_metrics.metrics
+        return job_stage, model_desc, model_metrics.metrics
 
     def _get_seed_model_desc(self) -> Tuple[int, int, int]:
         return self.base_reductions, self.base_cells, self.base_nodes
 
     def _get_models_near_convex_hull(self):
-        assert(len(self._parent_models) > 0)
+        assert(len(self._convex_hull_points) > 0)
 
         xs = []
         ys = []
-        for _, metrics_stats in self._parent_models:
+        for _, metrics_stats in self._convex_hull_points:
             xs.append(metrics_stats.model_stats.MAdd) # REVIEW: ss: why MAdd?
             ys.append(metrics_stats.best_metrics().top1.avg)
 
         _, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
-        eps_models = [self._parent_models[i][0] for i in eps_indices]
+        eps_models = [self._convex_hull_points[i][0] for i in eps_indices]
         return eps_models
 
 
     def _sample_model_from_parent_pool(self):
-        assert(len(self._parent_models) > 0)
+        assert(len(self._convex_hull_points) > 0)
 
         xs = []
         ys = []
-        for _, metrics_stats in self._parent_models:
+        for _, metrics_stats in self._convex_hull_points:
             xs.append(metrics_stats.model_stats.MAdd)
             # ys have to be error as we are computing lower convex hull
             ys.append(1.0 - metrics_stats.best_metrics().top1.avg)
 
         hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
 
-        logger.info(f'num models in parent pool: {len(self._parent_models)}')
+        logger.info(f'num models in parent pool: {len(self._convex_hull_points)}')
         logger.info(f'num models near pareto: {len(eps_indices)}')
 
         # reverse sort by performance
-        x_y_num_sampled = [(xs[i], ys[i], self._parent_models[i][1].num_sampled) for i in eps_indices]
+        x_y_num_sampled = [(xs[i], ys[i], self._convex_hull_points[i][1].num_sampled) for i in eps_indices]
         x_y_num_sampled.sort(reverse=True, key=lambda x:x[1])
 
         # save a plot of the convex hull to aid debugging
@@ -244,21 +270,21 @@ class SearchDistributed(Search):
                 p = 1.0 / (num_sampled + 1.0)
                 should_select = np.random.binomial(1, p)
                 if should_select == 1:
-                    return self._parent_models[i]
+                    return self._convex_hull_points[i]
 
         # if here, sampling was not successful
         logger.warn('sampling was not successful, returning a random parent')
-        ind = random.randint(0, len(self._parent_models)-1)
-        return self._parent_models[ind]
+        ind = random.randint(0, len(self._convex_hull_points)-1)
+        return self._convex_hull_points[ind]
 
 
     def _should_terminate_search(self)->bool:
         ''' Looks at the parent pool and decides whether to terminate search '''
-        if not self._parent_models:
+        if not self._convex_hull_points:
             return False
 
-        max_madd_parent = max(self._parent_models, key=lambda x: x[1].model_stats.MAdd)
-        if max_madd_parent[1].model_stats.MAdd > self._max_madd or len(self._parent_models) > self._max_parent_models:
+        max_madd_parent = max(self._convex_hull_points, key=lambda x: x[1].model_stats.MAdd)
+        if max_madd_parent[1].model_stats.MAdd > self._max_madd or len(self._convex_hull_points) > self._max_parent_models:
             return True
         else:
             return False
@@ -275,56 +301,52 @@ class SearchDistributed(Search):
                     for nodes in range(self.base_nodes, self.max_nodes+1):
                         yield reductions, cells, nodes
 
-    def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
-                 trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
+    def _create_seed_jobs(self)->list:
         # the pool of ray job ids
         future_ids = []
+        macro_combinations = list(self._macro_combinations())
+        for reductions, cells, nodes in macro_combinations:
+            # if N R N R N R cannot be satisfied, ignore combination
+            if cells < reductions * 2 + 1:
+                continue
 
+            # create seed model
+            model_desc = self._build_macro(reductions, cells, nodes)
+
+            # pre-train the seed model
+            future_id = self.train_model_desc_dist.remote(JobStage.SEED, self.conf_presearch_train, model_desc, common.get_state())
+
+            future_ids.append(future_id)
+
+        return future_ids
+
+    def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
+                 trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
         # attempt to restore parent pool
         parent_pool_restored = self._restore_parent_pool()
 
         # seed the pool with many different seed models of different
         # macro parameters like number of cells, reductions etc if parent pool
         # could not be restored and/or this is the first time this job has been run.
-        if not parent_pool_restored:
-            macro_combinations = list(self._macro_combinations())
-            for reductions, cells, nodes in macro_combinations:
-                # if N R N R N R cannot be satisfied, ignore combination
-                if cells < reductions * 2 + 1:
-                    continue
-
-                # create seed model
-                model_desc = self._build_macro(reductions, cells, nodes)
-
-                # pre-train the seed model
-                future_id = self.train_model_desc_dist.remote(self.conf_presearch_train, model_desc, common.get_state())
-
-                future_ids.append(future_id)
+        future_ids = [] if parent_pool_restored else  self._create_seed_jobs()
 
         while not self._should_terminate_search():
             logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
 
             if future_ids:
                 job_id_done, future_ids = ray.wait(future_ids)
-                job_name, *job_return = ray.get(job_id_done[0])
+                job_stage, *job_return = ray.get(job_id_done[0])
 
-                logger.info(f'"{job_name}" completed')
+                logger.info(f'"{job_stage}" completed')
 
-                if job_name=='search_model_desc':
-                    # decompose job result
-                    model_desc, search_metrics = job_return
-
-                    # create the job to train the searched model
-                    this_child_id = self.train_model_desc_dist.remote(self.conf_postsearch_train, model_desc, common.get_state())
-                    future_ids.append(this_child_id)
-                elif job_name=='train_model_desc':
+                if job_stage==JobStage.SEED:
                     model_desc, train_metrics = job_return
 
                     # add it to the parent models pool
-                    self._parent_models.append((model_desc, train_metrics))
+                    self._convex_hull_points.append((model_desc, train_metrics))
 
                     # save to disk for restoring
-                    filename = os.path.join(self._checkpoints_foldername, f'parent_desc_{len(self._parent_models)}.yaml')
+                    filename = os.path.join(self._checkpoints_foldername, f'parent_desc_{len(self._convex_hull_points)}.yaml')
                     model_desc.save(filename, save_trainables=True)
                     self._record_checkpoint(filename, metrics_stats)
                     logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(job_result.model_desc.cell_descs())}, num nodes in cell {len(job_result.model_desc.cell_descs()[0].nodes())}')
@@ -332,20 +354,32 @@ class SearchDistributed(Search):
                     # sample a model from parent pool
                     model_desc, _ = self._sample_model_from_parent_pool()
                     job_result = JobResult(model_desc, True)
-                    this_search_id = search_desc.remote(job_result, self.cell_builder, self.trainer_class, self.finalizers, self.conf_train, self.conf_loader, common.get_state())
+                    this_search_id = search_desc.remote(job_result, self.model_desc_builder, self.trainer_class, self.finalizers, self.conf_train, self.conf_loader, common.get_state())
                     future_ids.append(this_search_id)
                     logger.info('just added a new model to processing pool')
+                elif job_stage==JobStage.SEARCH:
+                    # unpack job result
+                    model_desc, search_metrics = job_return
+
+                    # create the job to train the searched model
+                    this_child_id = self.train_model_desc_dist.remote(JobStage.TRAIN, self.conf_postsearch_train,
+                                                                      model_desc, common.get_state())
+                    future_ids.append(this_child_id)
+                elif job_stage==JobStage.TRAIN:
+                    pass # no more processing for this job
+                else:
+                    raise RuntimeError(f'Job stage "{job_stage}" is not recognized')
 
             # if we are not utilizing all gpus in the system lets sample more
             # models from the parent pool
             num_current_jobs = len(future_ids)
             num_unused_gpus = int(self.num_gpus - num_current_jobs)
-            if num_unused_gpus > 0 and len(self._parent_models) > 0:
+            if num_unused_gpus > 0 and len(self._convex_hull_points) > 0:
                 for _ in range(num_unused_gpus):
                     # sample a model from parent pool
                     model_desc, _ = self._sample_model_from_parent_pool()
                     job_result = JobResult(model_desc, True)
-                    this_search_id = search_desc.remote(job_result, search_iter, self.cell_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
+                    this_search_id = search_desc.remote(job_result, search_iter, self.model_desc_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
                     future_ids.append(this_search_id)
                     logger.info('just added a new model to processing pool')
 
@@ -361,7 +395,7 @@ class SearchDistributed(Search):
         if self._checkpoint is not None:
             parent_pool_entry = {'model_desc_filename': model_desc_filename,
                                  'metrics_stats': yaml.dump(metrics_stats)}
-            this_key = f'parent_pool_entry_{len(self._parent_models)}'
+            this_key = f'parent_pool_entry_{len(self._convex_hull_points)}'
             self._checkpoint[this_key] = parent_pool_entry
             self._checkpoint.commit()
 
@@ -386,7 +420,7 @@ class SearchDistributed(Search):
                 model_desc_filename = state['model_desc_filename']
                 model_desc = ModelDesc.load(model_desc_filename, load_trainables=True)
                 metrics_stats = yaml.load(state['metrics_stats'], Loader=yaml.Loader)
-                self._parent_models.append((model_desc, metrics_stats))
+                self._convex_hull_points.append((model_desc, metrics_stats))
 
         return True
 
@@ -395,7 +429,6 @@ class SearchDistributed(Search):
         conf_model_desc['n_reductions'] = reductions
         conf_model_desc['n_cells'] = cells
         # create model desc for search using model config
-        # we will build model without call to cell_builder for pre-training
         model_desc = nas_utils.create_macro_desc(conf_model_desc,
                                                  template_model_desc=None)
         return model_desc
