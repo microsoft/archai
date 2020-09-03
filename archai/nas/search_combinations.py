@@ -35,41 +35,17 @@ class SearchCombinations(Search):
 
         # region config vars
         conf_model_desc = conf_search['model_desc']
-        final_desc_filename = conf_search['final_desc_filename']
-        conf_postsearch_train = conf_search['post_train']
-
-        conf_pareto = conf_search['pareto']
-        pareto_enabled = conf_pareto['enabled']
-        pareto_summary_filename = conf_pareto['summary_filename']
-
-        min_cells = conf_model_desc['n_cells']
-        min_reductions = conf_model_desc['n_reductions']
-        min_nodes = conf_model_desc['cell']['n_nodes']
-        max_cells = conf_pareto['max_cells']
-        max_reductions = conf_pareto['max_reductions']
-        max_nodes = conf_pareto['max_nodes']
+        conf_post_train = conf_search['post_train']
 
         conf_checkpoint = conf_search['checkpoint']
         resume = conf_search['resume']
-
-        self._metrics_dir = conf_search['metrics_dir']
         # endregion
 
-
-        self._summary_filepath = utils.full_path(pareto_summary_filename)
         self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
 
-        logger.info({'pareto_enabled': pareto_enabled,
-                     'min_reductions': min_reductions,
-                     'min_cells': min_cells,
-                     'min_nodes': min_nodes,
-                     'max_reductions': max_reductions,
-                     'max_cells': max_cells,
-                     'max_nodes': max_nodes
-                     })
-
-        macro_combinations = list(self.get_combinations())
-        start_macro_i, best_search_result = self.restore_checkpoint(macro_combinations)
+        macro_combinations = list(self.get_combinations(conf_search))
+        start_macro_i, best_search_result = self.restore_checkpoint(conf_search,
+                                                                     macro_combinations)
         best_macro_comb = -1,-1,-1 # reductions, cells, nodes
 
         for macro_comb_i in range(start_macro_i, len(macro_combinations)):
@@ -86,12 +62,12 @@ class SearchCombinations(Search):
 
             # train searched model for few epochs to get some perf metrics
             model_metrics = self.train_model_desc(model_desc,
-                                                  conf_postsearch_train)
+                                                  conf_post_train)
 
             assert model_metrics is not None, "'post_train' section in yaml should have non-zero epochs if running combinations search"
 
             # save result
-            self.save_trained(reductions, cells, nodes, model_metrics)
+            self.save_trained(conf_search, reductions, cells, nodes, model_metrics)
 
             # update the best result so far
             if self.is_better_metrics(best_search_result.search_metrics,
@@ -106,7 +82,7 @@ class SearchCombinations(Search):
             logger.popd() # reductions, cells, nodes
 
         assert best_search_result is not None
-        self.clean_log_result(best_search_result, final_desc_filename)
+        self.clean_log_result(conf_search, best_search_result)
         logger.info({'best_macro_comb':best_macro_comb})
 
         return best_search_result
@@ -117,8 +93,14 @@ class SearchCombinations(Search):
             return True
         return metrics2.best_val_top1() >= metrics1.best_val_top1()
 
-    def restore_checkpoint(self, macro_combinations)\
+    def restore_checkpoint(self, conf_search:Config, macro_combinations)\
             ->Tuple[int, Optional[SearchResult]]:
+
+        conf_pareto = conf_search['pareto']
+        pareto_summary_filename = conf_pareto['summary_filename']
+
+        summary_filepath = utils.full_path(pareto_summary_filename)
+
         # if checkpoint is available then restart from last combination we were running
         checkpoint_avail = self._checkpoint is not None
         resumed, state = False, None
@@ -136,7 +118,7 @@ class SearchCombinations(Search):
 
         if not resumed:
             # erase previous file left over from run
-            utils.zero_file(self._summary_filepath)
+            utils.zero_file(summary_filepath)
 
         logger.warn({'resumed': resumed, 'checkpoint_avail': checkpoint_avail,
                      'checkpoint_val': state is not None,
@@ -152,23 +134,40 @@ class SearchCombinations(Search):
             self._checkpoint['search'] = state
             self._checkpoint.commit()
 
-    def get_combinations(self)->Iterator[Tuple[int, int, int]]:
-        if not self.pareto_enabled:
-            yield self.min_reductions, self.min_cells, self.min_nodes
-        else:
-            # TODO: what happens when reductions is 3 but cells is 2? have to step
-            # through code and check
-            for reductions in range(self.min_reductions, self.max_reductions+1):
-                for cells in range(self.min_cells, self.max_cells+1):
-                    for nodes in range(self.min_nodes, self.max_nodes+1):
-                        yield reductions, cells, nodes
+    def get_combinations(self, conf_search:Config)->Iterator[Tuple[int, int, int]]:
+        conf_pareto = conf_search['pareto']
+        conf_model_desc = conf_search['model_desc']
 
-    def save_trained(self, reductions:int, cells:int, nodes:int,
+        min_cells = conf_model_desc['n_cells']
+        min_reductions = conf_model_desc['n_reductions']
+        min_nodes = conf_model_desc['cell']['n_nodes']
+        max_cells = conf_pareto['max_cells']
+        max_reductions = conf_pareto['max_reductions']
+        max_nodes = conf_pareto['max_nodes']
+
+        logger.info({'min_reductions': min_reductions,
+                     'min_cells': min_cells,
+                     'min_nodes': min_nodes,
+                     'max_reductions': max_reductions,
+                     'max_cells': max_cells,
+                     'max_nodes': max_nodes
+                     })
+
+        # TODO: what happens when reductions is 3 but cells is 2? have to step
+        # through code and check
+        for reductions in range(min_reductions, max_reductions+1):
+            for cells in range(min_cells, max_cells+1):
+                for nodes in range(min_nodes, max_nodes+1):
+                    yield reductions, cells, nodes
+
+    def save_trained(self, conf_search:Config, reductions:int, cells:int, nodes:int,
                       model_metrics:ModelMetrics)->None:
         """Save the model and metric info into a log file"""
 
+        metrics_dir = conf_search['metrics_dir']
+
         # construct path where we will save
-        subdir = utils.full_path(self._metrics_dir.format(**vars()), create=True)
+        subdir = utils.full_path(metrics_dir.format(**vars()), create=True)
 
         model_stats = self.get_model_stats(model_metrics.model)
 
