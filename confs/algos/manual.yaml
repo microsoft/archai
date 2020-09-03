@@ -3,7 +3,7 @@ __include__: 'darts.yaml' # just use darts defaults
 
 nas:
   eval:
-    final_model_factory: 'resnet18'
+    model_factory_spec: 'resnet18'
 
     #darts loader/trainer
     loader:

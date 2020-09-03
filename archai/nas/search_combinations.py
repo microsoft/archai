@@ -26,7 +26,7 @@ from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.nas.searcher import ModelMetrics, Searcher, SearchResult
-
+from archai.nas import nas_utils
 
 
 class SearchCombinations(Searcher):
@@ -169,7 +169,7 @@ class SearchCombinations(Searcher):
         # construct path where we will save
         subdir = utils.full_path(metrics_dir.format(**vars()), create=True)
 
-        model_stats = self.get_model_stats(model_metrics.model)
+        model_stats = nas_utils.get_model_stats(model_metrics.model)
 
         # save model_stats in its own file
         model_stats_filepath = os.path.join(subdir, 'model_stats.yaml')

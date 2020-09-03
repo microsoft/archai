@@ -35,11 +35,11 @@ from archai.nas.model_desc import CellType, ModelDesc
 from archai.common.trainer import Trainer
 from archai.datasets import data
 from archai.nas.model import Model
-from archai.common.metrics import EpochMetrics, Metrics
+from archai.common.metrics import Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.algos.petridish.petridish_geometry import _convex_hull_from_points
-from archai.nas.search import ModelMetrics, SearchResult
+from archai.nas.searcher import SearchResult
 from archai.nas.search_combinations import SearchCombinations
 from archai.nas.model_desc_builder import ModelDescBuilder
 
@@ -95,7 +95,6 @@ class SearchDistributed(SearchCombinations):
         resume = conf_search['resume']
 
         conf_post_train = conf_search['post_train']
-        final_desc_filename = conf_search['final_desc_filename']
         final_desc_foldername = conf_search['final_desc_foldername']
 
         conf_petridish = conf_search['petridish']
@@ -187,7 +186,7 @@ class SearchDistributed(SearchCombinations):
         common.init_from(common_state)
 
         model_metrics = self.train_model_desc(hull_point.model_desc, conf_train)
-        model_stats = self.get_model_stats(model_metrics.model)
+        model_stats = nas_utils.get_model_stats(model_metrics.model)
 
         assert not hull_point.is_trained_stage()
         new_point = ConvexHullPoint(hull_point.next_stage(), hull_point.id, hull_point.

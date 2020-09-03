@@ -52,7 +52,7 @@ nas:
     # If below is specified then final_desc_filename is ignored and model is created through factory function instead.
     # This is useful for running eval for manually designed models such as resnet-50.
     # The value is string of form 'some.namespace.module.function'. The function returns nn.Module and no required args.
-    final_model_factory: ''
+    model_factory_spec: ''
 
     metric_filename: '$expdir/eval_train_metrics.yaml'
     model_filename: '$expdir/model.pt' # file to which trained model will be saved
