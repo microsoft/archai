@@ -31,7 +31,7 @@ from archai.common import common
 from archai.common import ml_utils, utils
 from archai.nas.search_distributed import MetricsStats
 
-class Evaluate(EnforceOverrides):
+class Evaluater(EnforceOverrides):
     def evaluate(self, conf_eval:Config, model_desc_builder:ModelDescBuilder):
         logger.pushd('eval_arch')
 

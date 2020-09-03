@@ -10,7 +10,7 @@ from overrides import overrides
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.nas.search_distributed import SearchDistributed
-from archai.nas import evaluate
+from archai.nas import evaluater
 from archai.common.config import Config
 from archai.common import utils
 from .petridish_cell_builder import PetridishCellBuilder
