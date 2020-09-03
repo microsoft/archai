@@ -6,6 +6,8 @@ import importlib
 import sys
 import string
 import os
+import copy
+import math
 
 # only works on linux
 import ray
@@ -19,13 +21,12 @@ from torch import nn
 import tensorwatch as tw
 import yaml
 import matplotlib.pyplot as plt
-import math as ma
 
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import get_expdir, logger
 from archai.datasets import data
-from archai.nas.model_desc import ModelDesc
+from archai.nas.model_desc import CellType, ModelDesc
 from archai.nas.model import Model
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas import nas_utils
@@ -45,7 +46,7 @@ class EvaluaterPetridish(Evaluater):
         conf_checkpoint = conf_eval['checkpoint']
         resume = conf_eval['resume']
 
-        final_desc_foldername = conf_eval['final_desc_foldername']
+        final_desc_foldername:str = conf_eval['final_desc_foldername']
         final_desc_folderpath = utils.full_path(final_desc_foldername)
         # endregion
 
@@ -83,6 +84,10 @@ class EvaluaterPetridish(Evaluater):
         resume = conf_eval['resume']
         conf_checkpoint = conf_eval['checkpoint']
         conf_model_desc   = conf_eval['model_desc']
+        max_cells = conf_model_desc['n_cells']
+
+        conf_petridish = conf_eval['petridish']
+        cell_count_scale = conf_petridish['cell_count_scale']
 
         filename_withot_ext = model_desc_filename.split('.')[0]
         model_filename = filename_withot_ext + '_model.pt'
@@ -99,7 +104,18 @@ class EvaluaterPetridish(Evaluater):
         else:
             checkpoint = None
 
+        # template model is what we used during the search
         template_model_desc = ModelDesc.load(model_desc_filename)
+
+        # we first scale this model by number of cells, keeping reductions same as in search
+        n_cells = math.ceil(len(template_model_desc.cell_descs())*cell_count_scale)
+        n_cells = max(n_cells, max_cells)
+
+        conf_model_desc = copy.deepcopy(conf_model_desc)
+        conf_model_desc['n_cells'] = n_cells
+        conf_model_desc['n_reductions'] = template_model_desc.cell_type_count
+        (CellType.Reduction)
+
         model_desc = model_desc_builder.build(conf_model_desc,
                                               template=template_model_desc)
         # save desc for reference

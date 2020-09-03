@@ -14,9 +14,8 @@ nas:
   eval:
     final_desc_foldername: '$expdir/model_desc_gallery' #
     model_desc:
-      n_cells_multiplier: 2.0
       n_reductions: 2 # number of reductions to be applied
-      n_cells: 20 # number of cells
+      n_cells: 20 # number of max cells, for pareto frontier, we use cell_count_scale to multiply cells and limit by n_cells
       aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch [DEY: What does this mean?]
       model_stems:
         init_node_ch: 36 # num of input/output channels for nodes in 1st cell
@@ -27,6 +26,8 @@ nas:
       train_batch: 64
     trainer:
       epochs: 600
+    petridish:
+      cell_count_scale: 2.0 # for eval first multiply number of cells used in search by this factor, limit to n_cells
   search:
     final_desc_foldername: '$expdir/model_desc_gallery' # the gallery of models that eval will train from scratch
     petridish:
