@@ -12,7 +12,7 @@ from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
 from .petridish_model_desc_builder import PetridishModelBuilder
 
 from archai.nas.search_distributed import SearchDistributed
-from archai.nas import evaluate
+from archai.nas import evaluater
 from archai.common.config import Config
 from archai.common import utils
 

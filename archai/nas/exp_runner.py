@@ -14,7 +14,7 @@ from archai.nas.arch_trainer import TArchTrainer
 from archai.common.common import common_init
 from archai.common import utils
 from archai.common.config import Config
-from archai.nas.evaluate import Evaluate
+from archai.nas.evaluater import Evaluater
 from archai.nas.searcher import Searcher
 from archai.nas.finalizers import Finalizers
 from archai.common.common import get_conf
@@ -38,7 +38,7 @@ class ExperimentRunner(ABC, EnforceOverrides):
         trainer_class = self.trainer_class()
         finalizers = self.finalizers()
 
-        search = self.create_search()
+        search = self.searcher()
         search.search(conf_search, model_desc_builder, trainer_class, finalizers)
 
     def _init(self, suffix:str)->Config:
@@ -52,7 +52,7 @@ class ExperimentRunner(ABC, EnforceOverrides):
         return conf
 
     def _run_eval(self, conf_eval:Config)->None:
-        evaler = self.create_eval()
+        evaler = self.evaluater()
         evaler.eval_arch(conf_eval, model_desc_builder=self.model_desc_builder())
 
     def run_eval(self)->Config:
@@ -94,11 +94,11 @@ class ExperimentRunner(ABC, EnforceOverrides):
     def model_desc_builder(self)->ModelDescBuilder:
         return ModelDescBuilder() # default model desc builder puts nodes with no edges
 
-    def create_search(self)->Searcher:
+    def searcher(self)->Searcher:
         return Searcher()
 
-    def create_eval(self)->Evaluate:
-        return Evaluate()
+    def evaluater(self)->Evaluater:
+        return Evaluater()
 
     @abstractmethod
     def trainer_class(self)->TArchTrainer:
