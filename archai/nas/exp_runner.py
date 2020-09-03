@@ -36,28 +36,28 @@ class ExperimentRunner(ABC, EnforceOverrides):
         return search.search(conf_search, model_desc_builder, trainer_class, finalizers)
 
     def run_eval(self, conf_eval:Config):
-        conf = self._init_conf('eval')
-        conf_eval = conf['nas']['eval']
-
         evaler = self.evaluater()
         evaler.eval_arch(conf_eval, model_desc_builder=self.model_desc_builder())
 
     def run(self, search=True, eval=True) \
             ->Tuple[Optional[SearchResult], Optional[EvalResult]]:
 
-        search_conf, conf_eval = self.get_conf_search(), self.get_conf_eval()
+        conf_search, conf_eval = self.get_conf_search(), self.get_conf_eval()
 
         search_result, eval_result = None, None
 
         if search: # run search
-            search_result = self.run_search(search_conf)
+            search_result = self.run_search(conf_search)
 
         if eval:
             if search:
-                self._copy_final_desc(search_conf)
+                self.copy_search_to_eval(conf_search, conf_eval)
             eval_result = self.run_eval(conf_eval)
 
         return search_result, eval_result
+
+    def copy_search_to_eval(self, conf_search:Config, conf_eval:Config)->None:
+        self._copy_final_desc(conf_search)
 
     def model_desc_builder(self)->ModelDescBuilder:
         return ModelDescBuilder() # default model desc builder puts nodes with no edges
@@ -103,17 +103,17 @@ class ExperimentRunner(ABC, EnforceOverrides):
                         ])
         return conf
 
-    def _copy_final_desc(self, search_conf)->Tuple[Config, Config]:
+    def _copy_final_desc(self, conf_search)->Tuple[Config, Config]:
         # get desc file path that search has produced
-        search_desc_filename = search_conf['nas']['search']['final_desc_filename']
+        search_desc_filename = conf_search['nas']['search']['final_desc_filename']
         search_desc_filepath = utils.full_path(search_desc_filename)
         assert search_desc_filepath and os.path.exists(search_desc_filepath)
 
         # get file path that eval would need
-        eval_conf = self._init_conf('eval')
-        eval_desc_filename = eval_conf['nas']['eval']['final_desc_filename']
+        conf_eval = self._init_conf('eval')
+        eval_desc_filename = conf_eval['nas']['eval']['final_desc_filename']
         eval_desc_filepath = utils.full_path(eval_desc_filename)
         assert eval_desc_filepath
         shutil.copy2(search_desc_filepath, eval_desc_filepath)
 
-        return search_conf, eval_conf
+        return conf_search, conf_eval
