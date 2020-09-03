@@ -15,7 +15,7 @@ from archai.common.common import common_init
 from archai.common import utils
 from archai.common.config import Config
 from archai.nas.evaluate import Evaluate
-from archai.nas.search import Searcher
+from archai.nas.searcher import Searcher
 from archai.nas.finalizers import Finalizers
 from archai.common.common import get_conf
 from archai.nas.random_finalizers import RandomFinalizers

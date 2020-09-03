@@ -25,7 +25,7 @@ from archai.nas.model import Model
 from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
-from archai.nas.search import ModelMetrics, Searcher, SearchResult
+from archai.nas.searcher import ModelMetrics, Searcher, SearchResult
 
 
 
