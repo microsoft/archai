@@ -146,6 +146,7 @@ class ModelDescBuilder(EnforceOverrides):
 
         cell_desc = CellDesc(
             id=cell_index, cell_type=self.get_cell_type(cell_index),
+            conf_cell=conf_cell,
             stems=stems, stem_shapes=stem_shapes,
             nodes=nodes, node_shapes=node_shapes,
             post_op=post_op_desc, out_shape=post_op_shape,

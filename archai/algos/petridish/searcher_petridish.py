@@ -31,7 +31,8 @@ from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
-from archai.nas.model_desc import CellType, ModelDesc
+from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.common.trainer import Trainer
 from archai.datasets import data
 from archai.nas.model import Model
@@ -137,7 +138,7 @@ class SearcherPetridish(SearchCombinations):
                     sampled_point = self._sample_from_hull()
 
                     future_id = self.search_model_desc_dist.remote(
-                        conf_search, sampled_point, trainer_class,
+                        conf_search, sampled_point, model_desc_builder, trainer_class,
                         finalizers, common.get_state())
                     future_ids.append(future_id)
                     logger.info(f'Added sampled point {sampled_point.id} for search')
@@ -162,16 +163,22 @@ class SearcherPetridish(SearchCombinations):
 
     @ray.remote(num_gpus=1)
     def search_model_desc_dist(self, conf_search:Config,
-        hull_point:ConvexHullPoint, trainer_class:TArchTrainer,
-        finalizers:Finalizers, common_state:CommonState)->ConvexHullPoint:
+        hull_point:ConvexHullPoint, model_desc_builder:ModelDescBuilder,
+        trainer_class:TArchTrainer, finalizers:Finalizers, common_state:CommonState)\
+            ->ConvexHullPoint:
 
         # as this runs in different process, initiaze globals
         common.init_from(common_state)
 
-        assert hull_point.job_stage==JobStage.SEED_TRAINED
+        assert hull_point.is_trained_stage()
+
+        # cloning is strickly not needed but just in case if we run this
+        # function in same process, it would be good to avoid surprise
+        model_desc = hull_point.model_desc.clone()
+        self._add_node(model_desc, model_desc_builder)
 
         model_desc, search_metrics = self.search_model_desc(conf_search,
-            hull_point.model_desc, trainer_class, finalizers)
+            model_desc, trainer_class, finalizers)
 
         new_point = ConvexHullPoint(JobStage.SEARCH, hull_point.id,
                                     hull_point.sampling_count,
@@ -193,6 +200,46 @@ class SearcherPetridish(SearchCombinations):
                                     sampling_count, hull_point.model_desc, model_metrics.metrics, model_stats)
 
         return new_point
+
+    def _add_node(self, model_desc:ModelDesc, model_desc_builder:ModelDescBuilder)->None:
+        for ci, cell_desc in enumerate(model_desc.cell_descs()):
+            reduction = (cell_desc.cell_type==CellType.Reduction)
+
+            nodes = cell_desc.nodes()
+
+            # petridish must seed with one node
+            assert len(nodes) > 0
+            # input/output channels for all nodes are same
+            conv_params = nodes[0].conv_params
+
+            # assign input IDs to nodes, s0 and s1 have IDs 0 and 1
+            # however as we will be inserting new node before last one
+            # ids are shifted by 2 so previous node IDs are (2+len -2)
+            input_ids = list(range(len(nodes)))
+            assert len(input_ids) >= 2 # 2 stem inputs + 1 existing node
+            op_desc = OpDesc('petridish_reduction_op' if reduction else 'petridish_normal_op',
+                                params={
+                                    'conv': conv_params,
+                                    # specify strides for each input, later we will
+                                    # give this to each primitive
+                                    '_strides':[2 if reduction and j < 2 else 1 \
+                                            for j in input_ids],
+                                }, in_len=len(input_ids), trainables=None, children=None)
+            edge = EdgeDesc(op_desc, input_ids=input_ids)
+            new_node = NodeDesc(edges=[edge], conv_params=conv_params)
+            nodes.insert(len(nodes)-1, new_node)
+
+            # output shape of all nodes are same
+            node_shapes = cell_desc.node_shapes
+            new_node_shape = copy.deepcopy(node_shapes[-1])
+            node_shapes.insert(len(node_shapes)-1, new_node_shape)
+
+            # post op needs rebuilding because number of inputs to it has changed so input/output channels may be different
+            post_op_shape, post_op_desc = model_desc_builder.build_cell_post_op(cell_desc.stem_shapes,
+            node_shapes, cell_desc.conf_cell, ci)
+            cell_desc.reset_nodes(nodes, node_shapes,
+                                  post_op_desc, post_op_shape)
+
 
     def _model_descs_on_front(self, lower_hull:bool=False)\
             ->Tuple[List[ConvexHullPoint], List[ConvexHullPoint], List[float], List[float]]:
