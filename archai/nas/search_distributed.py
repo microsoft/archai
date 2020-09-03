@@ -10,6 +10,7 @@ from queue import Queue
 import secrets
 import string
 from enum import Enum
+import copy
 
 # latest verion of ray works on Windows as well
 import ray
@@ -38,136 +39,46 @@ from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.algos.petridish.petridish_geometry import _convex_hull_from_points
-from archai.nas.search import ModelMetrics, Search, SearchResult
+from archai.nas.search import ModelMetrics, SearchResult
+from archai.nas.search_combinations import SearchCombinations
 from archai.nas.model_desc_builder import ModelDescBuilder
 
 
-class MetricsStats:
-    """Holds model statistics and training metrics for given description"""
-
-    def __init__(self, model_desc: ModelDesc,
-                 train_metrics: Optional[Metrics],
-                 model_stats: Optional[tw.ModelStats]) -> None:
-        self.model_desc = model_desc
-        self.train_metrics = train_metrics
-        self.model_stats = model_stats
-        self.num_sampled = 0 # REVIEW: ss: what is the use of this variable?
-
-    def __str__(self) -> str:
-        best = self.best_metrics()
-        if best is not None:
-            return f'top1={best.top1.avg}'
-        return 'None'
-
-    def state_dict(self) -> Mapping:
-        return {
-            'model_desc': self.model_desc.state_dict(),
-            'train_metrics': self.train_metrics.state_dict(),
-            'model_stats': utils.state_dict(self.model_stats)
-        }
-
-    def load_state_dict(self, state_dict: Mapping) -> None:
-        self.model_desc.load_state_dict(state_dict['model_desc'])
-        self.train_metrics.load_state_dict(state_dict['train_metrics'])
-        utils.load_state_dict(self.model_stats, state_dict['model_stats'])
-
-    def best_metrics(self) -> Optional[EpochMetrics]:
-        if self.train_metrics is None:
-            return None
-        best_train, best_val = self.train_metrics.run_metrics.best_epoch()
-        return best_train if best_val is None else best_val
-
-    def is_better(self, other: Optional['MetricsStats']) -> bool:
-        # if both same or other None, this one is better
-        if other is None:
-            return True
-        best_other = other.best_metrics()
-        if best_other is None:
-            return True
-        best_this = self.best_metrics()
-        if best_this is None:
-            return False
-        return best_this.top1.avg >= best_other.top1.avg
 
 class JobStage(Enum):
+    # below values must be assigned in sequence so getting next job stage enum is easy
     SEED = 1
-    SEARCH = 2
-    TRAIN = 3
+    SEED_TRAINED = 2
+    SEARCH = 3
+    SEARCH_TRAINED = 4
 
 class ConvexHullPoint:
-    def __init__(self, job_stage:JobStage,
-                 seed_model_desc:ModelDesc,
-                 searched_mode_desc:Optional[ModelDesc],
+    _id = 0
+    def __init__(self, job_stage:JobStage, parent_id:int,
                  sampling_count:int,
-                 seed_metrics:Optional[Metrics]=None,
-                 search_metrics:Optional[Metrics]=None,
-                 train_metrics:Optional[Metrics]=None,
+                 model_desc:ModelDesc,
+                 metrics:Optional[Metrics]=None,
                  model_stats:Optional[tw.ModelStats]=None) -> None:
+        # we only record points after training
         self.job_stage = job_stage
-        self.seed_model_desc = seed_model_desc
-        self.searched_mode_desc = searched_mode_desc
+        self.parent_id = parent_id
         self.sampling_count = sampling_count
-        self.seed_metrics = seed_metrics
-        self.search_metrics = search_metrics
-        self.train_metrics = train_metrics
+        self.model_desc = model_desc
+        self.metrics = metrics
         self.model_stats = model_stats
 
+        ConvexHullPoint._id += 1
+        self.id = ConvexHullPoint._id
 
-class SearchDistributed(Search):
-    def _initialize(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
-                 trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
+    def is_trained_stage(self)->bool:
+        return self.job_stage==JobStage.SEARCH_TRAINED or self.job_stage==JobStage.SEED_TRAINED
 
-        # region config vars
-        conf_checkpoint = conf_search['checkpoint']
-        self._resume = conf_search['resume']
-        self.conf_model_desc = conf_search['model_desc']
-        self.conf_loader = conf_search['loader']
-        self.conf_train = conf_search['trainer']
-        self.final_desc_filename = conf_search['final_desc_filename']
-        self.full_desc_filename = conf_search['full_desc_filename']
-        self.final_desc_foldername = conf_search['final_desc_foldername']
-        self.metrics_dir = conf_search['metrics_dir']
-        self.conf_presearch_train = conf_search['seed_train']
-        self.conf_postsearch_train = conf_search['post_train']
-        conf_pareto = conf_search['pareto']
-        self.base_cells = self.conf_model_desc['n_cells']
-        self.max_cells = conf_pareto['max_cells']
-        self.base_reductions = self.conf_model_desc['n_reductions']
-        self.max_reductions = conf_pareto['max_reductions']
-        self.base_nodes = self.conf_model_desc['n_nodes']
-        self.max_nodes = conf_pareto['max_nodes']
-        self.search_iters = conf_search['search_iters']
-        self.pareto_enabled = conf_pareto['enabled']
-        pareto_summary_filename = conf_pareto['summary_filename']
-        self.conf_petridish = conf_search['petridish']
-        # endregion
+    def next_stage(self)->JobStage:
+        return JobStage(self.job_stage.value+1)
 
-        self.model_desc_builder = model_desc_builder
-        self.trainer_class = trainer_class
-        self.finalizers = finalizers
-        self._data_cache = {}
-        self._parito_filepath = utils.full_path(pareto_summary_filename)
-        self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, self._resume)
-
-        # TODO: why is it still saving without the new() call?
-        # initialize the checkpoint dictionary
-        # self._checkpoint.new()
-
-        # petridish distributed search related parameters
-        self._convex_hull_eps = self.conf_petridish['convex_hull_eps']
-        self._max_parent_samples = self.conf_petridish['max_parent_samples']
-        self._max_madd = self.conf_petridish['max_madd']
-        self._max_parent_models = self.conf_petridish['max_parent_models']
-        self._checkpoints_foldername = self.conf_petridish['checkpoints_foldername']
-
-        logger.info({'pareto_enabled': self.pareto_enabled,
-                     'base_reductions': self.base_reductions,
-                     'base_cells': self.base_cells,
-                     'base_nodes': self.base_nodes,
-                     'max_reductions': self.max_reductions,
-                     'max_cells': self.max_cells,
-                     'max_nodes': self.max_nodes
-                     })
+class SearchDistributed(SearchCombinations):
+    def __init__(self):
+        super().__init__()
 
         # initialize ray for distributed training
         ray.init()
@@ -175,83 +86,140 @@ class SearchDistributed(Search):
         self.num_gpus = ray.nodes()[0]['Resources']['GPU']
         logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
 
-        # make folder to save gallery of models after search
-        self.final_desc_path = utils.full_path(self.final_desc_foldername, create=True)
+    def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
+                 trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
 
-        # make folder to save parent pool checkpoints to aid recovery
-        self._checkpoints_foldername = utils.full_path(self._checkpoints_foldername, create=True)
+        # region config vars
+        self.conf_search = conf_search
+        conf_checkpoint = conf_search['checkpoint']
+        resume = conf_search['resume']
+
+        conf_post_train = conf_search['post_train']
+        final_desc_filename = conf_search['final_desc_filename']
+        final_desc_foldername = conf_search['final_desc_foldername']
+
+        conf_petridish = conf_search['petridish']
+        # petridish distributed search related parameters
+        self._convex_hull_eps = conf_petridish['convex_hull_eps']
+        self._sampling_max_try = conf_petridish['sampling_max_try']
+        self._max_madd = conf_petridish['max_madd']
+        self._max_hull_points = conf_petridish['max_hull_points']
+        self._checkpoints_foldername = conf_petridish['checkpoints_foldername']
+        # endregion
+
+        self._checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
 
         # parent models list
-        self._convex_hull_points: List[ConvexHullPoint] = []
+        self._hull_points: List[ConvexHullPoint] = []
+
+        # checkpoint will restore the hull we had
+        is_restored = self._restore_checkpoint()
+
+        # seed the pool with many different seed models of different
+        # macro parameters like number of cells, reductions etc if parent pool
+        # could not be restored and/or this is the first time this job has been run.
+        future_ids = [] if is_restored else  self._create_seed_jobs(conf_search,
+                                                                    model_desc_builder)
+
+        while not self._is_search_done():
+            logger.info(f'Ray jobs running: {len(future_ids)}')
+
+            if future_ids:
+                # get first completed job
+                job_id_done, future_ids = ray.wait(future_ids)
+                hull_point = ray.get(job_id_done[0])
+
+                logger.info(f'Hull point id {hull_point.id} with stage {hull_point.job_stage.name} completed')
+
+                if hull_point.is_trained_stage():
+                    self._update_convex_hull(hull_point)
+
+                    # initiate search on this point
+                    sampled_point = self._sample_from_hull()
+
+                    future_id = self.search_model_desc_dist.remote(
+                        conf_search, sampled_point, trainer_class,
+                        finalizers, common.get_state())
+                    future_ids.append(future_id)
+                    logger.info(f'Added sampled point {sampled_point.id} for search')
+                elif hull_point.job_stage==JobStage.SEARCH:
+                    # create the job to train the searched model
+                    future_id = self.train_model_desc_dist.remote(
+                        conf_post_train, hull_point, common.get_state())
+                    future_ids.append(future_id)
+                    logger.info(f'Added sampled point {hull_point.id} for post-search training')
+                else:
+                    raise RuntimeError(f'Job stage "{hull_point.job_stage}" is not expected in search loop')
+
+        self._plot_frontier()
+        best_point = self._save_frontier(final_desc_foldername)
+
+        # return best point as search result
+        search_result = SearchResult(best_point.model_desc, search_metrics=None,
+                                     train_metrics=best_point.metrics)
+        self.clean_log_result(conf_search, search_result)
+
+        return search_result
 
     @ray.remote(num_gpus=1)
-    def search_model_desc_dist(self, conf_search:Config, model_desc:ModelDesc,
-                          trainer_class:TArchTrainer, finalizers:Finalizers,
-                          common_state:CommonState)->Tuple[JobStage, ModelDesc, Metrics]:
+    def search_model_desc_dist(self, conf_search:Config,
+        hull_point:ConvexHullPoint, trainer_class:TArchTrainer,
+        finalizers:Finalizers, common_state:CommonState)->ConvexHullPoint:
 
         # as this runs in different process, initiaze globals
         common.init_from(common_state)
+
+        assert hull_point.job_stage==JobStage.SEED_TRAINED
 
         model_desc, search_metrics = self.search_model_desc(conf_search,
-            model_desc, trainer_class, finalizers)
+            hull_point.model_desc, trainer_class, finalizers)
 
-        # return name of the job as first value
-        return JobStage.SEARCH, model_desc, search_metrics
+        new_point = ConvexHullPoint(JobStage.SEARCH, hull_point.id,
+                                    hull_point.sampling_count,
+                                    model_desc, metrics=search_metrics)
+        return new_point
 
     @ray.remote(num_gpus=1)
-    def train_model_desc_dist(self, job_stage:JobStage, conf_train:Config, model_desc:ModelDesc,
-                              common_state:CommonState)\
-            ->Tuple[JobStage, ModelDesc, Metrics]:
+    def train_model_desc_dist(self, conf_train:Config,
+                              hull_point:ConvexHullPoint, common_state:CommonState)\
+            ->ConvexHullPoint:
         # as this runs in different process, initiaze globals
         common.init_from(common_state)
 
-        model_metrics = self.train_model_desc(model_desc, conf_train)
+        model_metrics = self.train_model_desc(hull_point.model_desc, conf_train)
+        model_stats = self.get_model_stats(model_metrics.model)
 
-        # return name of the job as first value
-        return job_stage, model_desc, model_metrics.metrics
+        assert not hull_point.is_trained_stage()
+        new_point = ConvexHullPoint(hull_point.next_stage(), hull_point.id, hull_point.
+                                    sampling_count, hull_point.model_desc, model_metrics.metrics, model_stats)
 
-    def _get_seed_model_desc(self) -> Tuple[int, int, int]:
-        return self.base_reductions, self.base_cells, self.base_nodes
+        return new_point
 
-    def _get_models_near_convex_hull(self):
-        assert(len(self._convex_hull_points) > 0)
+    def _model_descs_on_front(self, lower_hull:bool=False)\
+            ->Tuple[List[ConvexHullPoint], List[ConvexHullPoint], List[float], List[float]]:
+        assert(len(self._hull_points) > 0)
 
-        xs = []
-        ys = []
-        for _, metrics_stats in self._convex_hull_points:
-            xs.append(metrics_stats.model_stats.MAdd) # REVIEW: ss: why MAdd?
-            ys.append(metrics_stats.best_metrics().top1.avg)
-
-        _, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
-        eps_models = [self._convex_hull_points[i][0] for i in eps_indices]
-        return eps_models
-
-
-    def _sample_model_from_parent_pool(self):
-        assert(len(self._convex_hull_points) > 0)
-
-        xs = []
-        ys = []
-        for _, metrics_stats in self._convex_hull_points:
-            xs.append(metrics_stats.model_stats.MAdd)
-            # ys have to be error as we are computing lower convex hull
-            ys.append(1.0 - metrics_stats.best_metrics().top1.avg)
+        xs = [point.model_stats.MAdd for point in self._hull_points]
+        ys = [1.0-point.metrics.best_val_top1() if lower_hull else point.metrics.best_val_top1()
+              for point in self._hull_points]
 
         hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
+        eps_points = [self._hull_points[i] for i in eps_indices]
+        front_points = [self._hull_points[i] for i in hull_indices]
 
-        logger.info(f'num models in parent pool: {len(self._convex_hull_points)}')
-        logger.info(f'num models near pareto: {len(eps_indices)}')
+        return front_points, eps_points, xs, ys
 
-        # reverse sort by performance
-        x_y_num_sampled = [(xs[i], ys[i], self._convex_hull_points[i][1].num_sampled) for i in eps_indices]
-        x_y_num_sampled.sort(reverse=True, key=lambda x:x[1])
+    def _plot_frontier(self)->None:
+        front_points, eps_points, xs, ys = self._model_descs_on_front(lower_hull=True)
 
         # save a plot of the convex hull to aid debugging
 
-        hull_xs = [xs[i] for i in eps_indices]
-        hull_ys = [ys[i] for i in eps_indices]
-        bound_xs = [xs[i] for i in hull_indices]
-        bound_ys = [ys[i] * (1+self._convex_hull_eps) for i in hull_indices]
+        hull_xs = [p.model_stats.MAdd for p in eps_points]
+        hull_ys = [1.0-p.metrics.best_val_top1() for p in eps_points]
+        bound_xs = [p.model_stats.MAdd for p in front_points]
+        bound_ys = [(1.0-p.metrics.best_val_top1()) * (1+self._convex_hull_eps) \
+                    for p in front_points]
+
         plt.clf()
         plt.plot(bound_xs, bound_ys, c='red', label='eps-bound')
         plt.scatter(xs, ys, label='pts')
@@ -259,185 +227,115 @@ class SearchDistributed(Search):
         plt.xlabel('Multiply-Additions')
         plt.ylabel('Top1 Error')
         expdir = common.get_expdir()
+        assert expdir
         plt.savefig(os.path.join(expdir, 'convex_hull.png'),
             dpi=plt.gcf().dpi, bbox_inches='tight')
 
+    def _save_frontier(self, final_desc_foldername:str)->ConvexHullPoint:
+        # make folder to save gallery of models after search
+        final_desc_path = utils.full_path(final_desc_foldername, create=True)
+
+        # save the entire gallery of models on the convex hull for evaluation
+        front_points, eps_points, xs, ys = self._model_descs_on_front()
+        for i, eps_point in enumerate(eps_points):
+            savename = os.path.join(self.final_desc_path, f'petridish_{i}.yaml')
+            eps_point.model_desc.save(savename)
+
+        # return last model as best performing
+        return eps_points[-1]
+
+    def _sample_from_hull(self)->ConvexHullPoint:
+        front_points, eps_points, xs, ys = self._model_descs_on_front(lower_hull=True)
+
+        logger.info(f'num models in pool: {len(self._hull_points)}')
+        logger.info(f'num models on front: {len(front_points)}')
+        logger.info(f'num models on front with eps: {len(eps_points)}')
+
+        # reverse sort by metrics performance
+        eps_points.sort(reverse=True, key=lambda p:p.metrics.best_val_top1())
+
+        # default choice
+        sampled_point = random.choice(self._hull_points)
         # go through sorted list of models near convex hull
-        counter = 0
-        while(counter < self._max_parent_samples):
-            counter += 1
-            for i, (_, _, num_sampled) in enumerate(x_y_num_sampled):
-                p = 1.0 / (num_sampled + 1.0)
+        for _ in range(self._sampling_max_try):
+            for point in eps_points:
+                p = 1.0 / (point.sampling_count + 1.0)
                 should_select = np.random.binomial(1, p)
                 if should_select == 1:
-                    return self._convex_hull_points[i]
+                    sampled_point = point
 
         # if here, sampling was not successful
         logger.warn('sampling was not successful, returning a random parent')
-        ind = random.randint(0, len(self._convex_hull_points)-1)
-        return self._convex_hull_points[ind]
 
+        sampled_point.sampling_count += 1
 
-    def _should_terminate_search(self)->bool:
-        ''' Looks at the parent pool and decides whether to terminate search '''
-        if not self._convex_hull_points:
+        return sampled_point
+
+    def _is_search_done(self)->bool:
+        '''Terminate search if max MAdd or number of points exceeded'''
+        if not self._hull_points:
             return False
 
-        max_madd_parent = max(self._convex_hull_points, key=lambda x: x[1].model_stats.MAdd)
-        if max_madd_parent[1].model_stats.MAdd > self._max_madd or len(self._convex_hull_points) > self._max_parent_models:
-            return True
-        else:
-            return False
+        max_madd_parent = max(self._hull_points, key=lambda p:p.model_stats.MAdd)
+        return max_madd_parent.model_stats.MAdd > self._max_madd or \
+                len(self._hull_points) > self._max_hull_points
 
+    def _create_seed_jobs(self, conf_search:Config, model_desc_builder:ModelDescBuilder)->list:
+        conf_model_desc = conf_search['model_desc']
+        conf_seed_train = conf_search['seed_train']
 
-    def _macro_combinations(self)->Iterator[Tuple[int, int, int]]:
-        if not self.pareto_enabled:
-            yield self.base_reductions, self.base_cells, self.base_nodes
-        else:
-            # TODO: what happens when reductions is 3 but cells is 2? have to step
-            # through code and check
-            for reductions in range(self.base_reductions, self.max_reductions+1):
-                for cells in range(self.base_cells, self.max_cells+1):
-                    for nodes in range(self.base_nodes, self.max_nodes+1):
-                        yield reductions, cells, nodes
-
-    def _create_seed_jobs(self)->list:
-        # the pool of ray job ids
-        future_ids = []
-        macro_combinations = list(self._macro_combinations())
+        future_ids = [] # ray job IDs
+        macro_combinations = list(self.get_combinations(conf_search))
         for reductions, cells, nodes in macro_combinations:
             # if N R N R N R cannot be satisfied, ignore combination
             if cells < reductions * 2 + 1:
                 continue
 
             # create seed model
-            model_desc = self._build_macro(reductions, cells, nodes)
+            model_desc = self.build_model_desc(model_desc_builder,
+                                               conf_model_desc,
+                                               reductions, cells, nodes)
 
             # pre-train the seed model
-            future_id = self.train_model_desc_dist.remote(JobStage.SEED, self.conf_presearch_train, model_desc, common.get_state())
+            future_id = self.train_model_desc_dist.remote(JobStage.SEED,
+                conf_seed_train, model_desc, common.get_state())
 
             future_ids.append(future_id)
 
         return future_ids
 
-    def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
-                 trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
-        # attempt to restore parent pool
-        parent_pool_restored = self._restore_parent_pool()
+    def _update_convex_hull(self, new_point:ConvexHullPoint)->None:
+        assert new_point.is_trained_stage() # only add models for which we have metrics and stats
+        self._hull_points.append(new_point)
 
-        # seed the pool with many different seed models of different
-        # macro parameters like number of cells, reductions etc if parent pool
-        # could not be restored and/or this is the first time this job has been run.
-        future_ids = [] if parent_pool_restored else  self._create_seed_jobs()
-
-        while not self._should_terminate_search():
-            logger.info(f'num jobs currently in pool (waiting or being processed) {len(future_ids)}')
-
-            if future_ids:
-                job_id_done, future_ids = ray.wait(future_ids)
-                job_stage, *job_return = ray.get(job_id_done[0])
-
-                logger.info(f'"{job_stage}" completed')
-
-                if job_stage==JobStage.SEED:
-                    model_desc, train_metrics = job_return
-
-                    # add it to the parent models pool
-                    self._convex_hull_points.append((model_desc, train_metrics))
-
-                    # save to disk for restoring
-                    filename = os.path.join(self._checkpoints_foldername, f'parent_desc_{len(self._convex_hull_points)}.yaml')
-                    model_desc.save(filename, save_trainables=True)
-                    self._record_checkpoint(filename, metrics_stats)
-                    logger.info(f'appended to parent a model with MAdd {metrics_stats.model_stats.MAdd}, num cells {len(job_result.model_desc.cell_descs())}, num nodes in cell {len(job_result.model_desc.cell_descs()[0].nodes())}')
-
-                    # sample a model from parent pool
-                    model_desc, _ = self._sample_model_from_parent_pool()
-                    job_result = JobResult(model_desc, True)
-                    this_search_id = search_desc.remote(job_result, self.model_desc_builder, self.trainer_class, self.finalizers, self.conf_train, self.conf_loader, common.get_state())
-                    future_ids.append(this_search_id)
-                    logger.info('just added a new model to processing pool')
-                elif job_stage==JobStage.SEARCH:
-                    # unpack job result
-                    model_desc, search_metrics = job_return
-
-                    # create the job to train the searched model
-                    this_child_id = self.train_model_desc_dist.remote(JobStage.TRAIN, self.conf_postsearch_train,
-                                                                      model_desc, common.get_state())
-                    future_ids.append(this_child_id)
-                elif job_stage==JobStage.TRAIN:
-                    pass # no more processing for this job
-                else:
-                    raise RuntimeError(f'Job stage "{job_stage}" is not recognized')
-
-            # if we are not utilizing all gpus in the system lets sample more
-            # models from the parent pool
-            num_current_jobs = len(future_ids)
-            num_unused_gpus = int(self.num_gpus - num_current_jobs)
-            if num_unused_gpus > 0 and len(self._convex_hull_points) > 0:
-                for _ in range(num_unused_gpus):
-                    # sample a model from parent pool
-                    model_desc, _ = self._sample_model_from_parent_pool()
-                    job_result = JobResult(model_desc, True)
-                    this_search_id = search_desc.remote(job_result, search_iter, self.model_desc_builder, self.trainer_class, self.finalizers, train_dl, val_dl, self.conf_train, common.get_state())
-                    future_ids.append(this_search_id)
-                    logger.info('just added a new model to processing pool')
-
-
-        # save the entire gallery of models on the convex hull for evaluation
-        eps_models = self._get_models_near_convex_hull()
-        for i, eps_model in enumerate(eps_models):
-            savename = os.path.join(self.final_desc_path, f'petridish_{i}.yaml')
-            eps_model.save(savename)
-
-
-    def _record_checkpoint(self, model_desc_filename:str, metrics_stats:MetricsStats):
         if self._checkpoint is not None:
-            parent_pool_entry = {'model_desc_filename': model_desc_filename,
-                                 'metrics_stats': yaml.dump(metrics_stats)}
-            this_key = f'parent_pool_entry_{len(self._convex_hull_points)}'
-            self._checkpoint[this_key] = parent_pool_entry
+            self._checkpoint.new()
+            self._checkpoint['convex_hull_points'] = self._hull_points
             self._checkpoint.commit()
 
+        logger.info(f'Added to convex hull points: MAdd {new_point.model_stats.MAdd}, '
+                    f'num cells {len(new_point.model_desc.cell_descs())}, '
+                    f'num nodes in cell {len(new_point.model_desc.cell_descs()[0].nodes())}')
 
-    def _restore_parent_pool(self)->bool:
-        # check that the folder exists
-        if not os.path.isdir(self._checkpoints_foldername):
-            logger.warn(f'checkpoints folder {self._checkpoints_foldername} does not exist. unable to restore parent pool.')
-            return False
+    def _restore_checkpoint(self)->bool:
+        can_restore = self._checkpoint is not None \
+                        and 'convex_hull_points' in self._checkpoint
+        if can_restore:
+            self._hull_points = self._checkpoint['convex_hull_points']
+            logger.warn({'Hull restored': True})
 
-        # check that the checkpoint is valid
-        if nas_utils.checkpoint_empty(self._checkpoint):
-            logger.warn(f'checkpoint is empty. unable to restore parent pool.')
-            return False
+        return can_restore
 
-        # get list of all files in the folder
-        # onlyfiles = [f for f in os.listdir(self._checkpoints_foldername) if os.path.isfile(os.path.join(self._checkpoints_foldername, f))]
-
-        for key in self._checkpoint.keys():
-            state = self._checkpoint.get(key, None)
-            if state is not None:
-                model_desc_filename = state['model_desc_filename']
-                model_desc = ModelDesc.load(model_desc_filename, load_trainables=True)
-                metrics_stats = yaml.load(state['metrics_stats'], Loader=yaml.Loader)
-                self._convex_hull_points.append((model_desc, metrics_stats))
-
-        return True
-
-    def _build_macro(self, reductions: int, cells: int, nodes: int) -> ModelDesc:
-        conf_model_desc = copy.deepcopy(self.conf_model_desc)
+    def build_model_desc(self, model_desc_builder:ModelDescBuilder,
+                         conf_model_desc:Config,
+                         reductions:int, cells:int, nodes:int)->ModelDesc:
+        # reset macro params in copy of config
+        conf_model_desc = copy.deepcopy(conf_model_desc)
         conf_model_desc['n_reductions'] = reductions
         conf_model_desc['n_cells'] = cells
-        # create model desc for search using model config
-        model_desc = nas_utils.create_macro_desc(conf_model_desc,
-                                                 template_model_desc=None)
-        return model_desc
 
-    @staticmethod
-    def _create_metrics_stats(model: Model, train_metrics: Metrics, finalizers: Finalizers) -> MetricsStats:
-        # TODO: Dey verify that this is not an issue during petridish distributed training
-        finalized = finalizers.finalize_model(model, restore_device=False)
-        # model stats is doing some hooks so do it last
-        model_stats = tw.ModelStats(model, [1, 3, 32, 32],  # TODO: remove this hard coding
-                                    clone_model=True)
-        return MetricsStats(finalized, train_metrics, model_stats)
+        # create model desc for search using model config
+        # we will build model without call to model_desc_builder for pre-training
+        model_desc = model_desc_builder.build(conf_model_desc, template=None)
+
+        return model_desc

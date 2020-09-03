@@ -34,7 +34,7 @@ class ModelMetrics:
         self.metrics = metrics
 
 class SearchResult:
-    def __init__(self, model_desc:ModelDesc, search_metrics:Metrics,
+    def __init__(self, model_desc:ModelDesc, search_metrics:Optional[Metrics],
                        train_metrics:Optional[Metrics]) -> None:
         self.model_desc = model_desc
         self.search_metrics = search_metrics
@@ -46,8 +46,7 @@ class Search(EnforceOverrides):
 
         # region config vars
         conf_model_desc = conf_search['model_desc']
-        conf_postsearch_train = conf_search['post_train']
-        final_desc_filename = conf_search['final_desc_filename']
+        conf_post_train = conf_search['post_train']
 
         cells = conf_model_desc['n_cells']
         reductions = conf_model_desc['n_reductions']
@@ -63,22 +62,24 @@ class Search(EnforceOverrides):
                                                      trainer_class, finalizers)
 
         # train searched model for few epochs to get some perf metrics
-        model_metrics = self.train_model_desc(model_desc, conf_postsearch_train)
+        model_metrics = self.train_model_desc(model_desc, conf_post_train)
 
         search_result = SearchResult(model_desc, search_metrics, model_metrics.metrics)
-        self.clean_log_result(search_result, final_desc_filename)
+        self.clean_log_result(conf_search, search_result)
 
         return search_result
 
-    def clean_log_result(self, search_result:SearchResult,
-                         final_desc_filename:Optional[str])->None:
+    def clean_log_result(self, conf_search:Config, search_result:SearchResult)->None:
+        final_desc_filename = conf_search['final_desc_filename']
+
         # remove weights info deom model_desc so its more readable
         search_result.model_desc.clear_trainables()
         # if file name was specified then save the model desc
         if final_desc_filename:
             search_result.model_desc.save(final_desc_filename)
-        logger.info({'search_top1_val':
-            search_result.search_metrics.best_val_top1()})
+        if search_result.search_metrics is not None:
+            logger.info({'search_top1_val':
+                search_result.search_metrics.best_val_top1()})
         if search_result.train_metrics is not None:
             logger.info({'train_top1_val':
                 search_result.train_metrics.best_val_top1()})
