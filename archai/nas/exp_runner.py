@@ -14,8 +14,8 @@ from archai.nas.arch_trainer import TArchTrainer
 from archai.common.common import common_init
 from archai.common import utils
 from archai.common.config import Config
-from archai.nas.evaluater import Evaluater
-from archai.nas.searcher import Searcher
+from archai.nas.evaluater import Evaluater, EvalResult
+from archai.nas.searcher import Searcher, SearchResult
 from archai.nas.finalizers import Finalizers
 from archai.common.common import get_conf
 from archai.nas.random_finalizers import RandomFinalizers
@@ -27,69 +27,37 @@ class ExperimentRunner(ABC, EnforceOverrides):
         self.config_filename = config_filename
         self.base_name = base_name
 
-    def run_search(self)->Config:
-        conf = self._init('search')
-        conf_search = conf['nas']['search']
-        self._run_search(conf_search)
-        return conf
-
-    def _run_search(self, conf_search:Config)->None:
+    def run_search(self, conf_search:Config)->SearchResult:
         model_desc_builder = self.model_desc_builder()
         trainer_class = self.trainer_class()
         finalizers = self.finalizers()
 
         search = self.searcher()
-        search.search(conf_search, model_desc_builder, trainer_class, finalizers)
+        return search.search(conf_search, model_desc_builder, trainer_class, finalizers)
 
-    def _init(self, suffix:str)->Config:
-        config_filename = self.config_filename
-        if self.toy_config_filename:
-            config_filename += ';' + self.toy_config_filename
+    def run_eval(self, conf_eval:Config):
+        conf = self._init_conf('eval')
+        conf_eval = conf['nas']['eval']
 
-        conf = common_init(config_filepath=config_filename,
-            param_args=['--common.experiment_name', self.base_name + f'_{suffix}',
-                        ])
-        return conf
-
-    def _run_eval(self, conf_eval:Config)->None:
         evaler = self.evaluater()
         evaler.eval_arch(conf_eval, model_desc_builder=self.model_desc_builder())
 
-    def run_eval(self)->Config:
-        conf = self._init('eval')
-        conf_eval = conf['nas']['eval']
-        self._run_eval(conf_eval)
-        return conf
+    def run(self, search=True, eval=True) \
+            ->Tuple[Optional[SearchResult], Optional[EvalResult]]:
 
-    def _copy_final_desc(self, search_conf)->Tuple[Config, Config]:
-        # get desc file path that search has produced
-        search_desc_filename = search_conf['nas']['search']['final_desc_filename']
-        search_desc_filepath = utils.full_path(search_desc_filename)
-        assert search_desc_filepath and os.path.exists(search_desc_filepath)
+        search_conf, conf_eval = self.get_conf_search(), self.get_conf_eval()
 
-        # get file path that eval would need
-        eval_conf = self._init('eval')
-        eval_desc_filename = eval_conf['nas']['eval']['final_desc_filename']
-        eval_desc_filepath = utils.full_path(eval_desc_filename)
-        assert eval_desc_filepath
-        shutil.copy2(search_desc_filepath, eval_desc_filepath)
-
-        return search_conf, eval_conf
-
-    def run(self, search=True, eval=True)->Tuple[Optional[Config], Optional[Config]]:
-        search_conf, eval_conf = None, None
+        search_result, eval_result = None, None
 
         if search: # run search
-            search_conf = self.run_search()
+            search_result = self.run_search(search_conf)
 
-        if search and eval: # copy final desc from search and then run eval
-            search_conf, eval_conf = self._copy_final_desc(search_conf)
-            conf_eval = eval_conf['nas']['eval']
-            self._run_eval(conf_eval)
-        elif eval: # run eval
-            eval_conf = self.run_eval()
+        if eval:
+            if search:
+                self._copy_final_desc(search_conf)
+            eval_result = self.run_eval(conf_eval)
 
-        return search_conf, eval_conf
+        return search_result, eval_result
 
     def model_desc_builder(self)->ModelDescBuilder:
         return ModelDescBuilder() # default model desc builder puts nodes with no edges
@@ -114,3 +82,38 @@ class ExperimentRunner(ABC, EnforceOverrides):
             return RandomFinalizers()
         else:
             raise NotImplementedError
+
+    def get_conf_search(self)->Config:
+        conf = self._init_conf('search')
+        conf_search = conf['nas']['search']
+        return conf_search
+
+    def get_conf_eval(self)->Config:
+        conf = self._init_conf('eval')
+        conf_eval = conf['nas']['eval']
+        return conf_eval
+
+    def _init_conf(self, exp_name_suffix:str)->Config:
+        config_filename = self.config_filename
+        if self.toy_config_filename:
+            config_filename += ';' + self.toy_config_filename
+
+        conf = common_init(config_filepath=config_filename,
+            param_args=['--common.experiment_name', self.base_name + f'_{exp_name_suffix}',
+                        ])
+        return conf
+
+    def _copy_final_desc(self, search_conf)->Tuple[Config, Config]:
+        # get desc file path that search has produced
+        search_desc_filename = search_conf['nas']['search']['final_desc_filename']
+        search_desc_filepath = utils.full_path(search_desc_filename)
+        assert search_desc_filepath and os.path.exists(search_desc_filepath)
+
+        # get file path that eval would need
+        eval_conf = self._init_conf('eval')
+        eval_desc_filename = eval_conf['nas']['eval']['final_desc_filename']
+        eval_desc_filepath = utils.full_path(eval_desc_filename)
+        assert eval_desc_filepath
+        shutil.copy2(search_desc_filepath, eval_desc_filepath)
+
+        return search_conf, eval_conf
