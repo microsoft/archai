@@ -11,8 +11,8 @@ from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
 from .petridish_model_desc_builder import PetridishModelBuilder
 
-from archai.nas.search_distributed import SearchDistributed
-from archai.nas import evaluater
+from .searcher_petridish import SearcherPetridish
+from .evaluater_petridish import EvaluaterPetridish
 from archai.common.config import Config
 from archai.common import utils
 
@@ -27,25 +27,22 @@ class PetridishExperimentRunner(ExperimentRunner):
         return ArchTrainer
 
     @overrides
-    def _run_search(self, conf_search: Config) -> None:
-        ''' Using special search class designed for petridish '''
-        cell_builder = self.cell_builder()
-        trainer_class = self.trainer_class()
-        finalizers = self.finalizers()
-
-        search = SearchDistributed(conf_search, cell_builder, trainer_class, finalizers)
-        search.search_loop()
+    def searcher(self)->SearcherPetridish:
+        return SearcherPetridish()
 
     @overrides
-    def _copy_final_desc(self, search_conf)->Tuple[Config, Config]:
+    def evaluater(self)->EvaluaterPetridish:
+        return EvaluaterPetridish()
+
+    @overrides
+    def copy_search_to_eval(self, conf_search:Config, conf_eval:Config)->None:
         # get folder of model gallery that search has produced
-        search_desc_foldername = search_conf['nas']['search']['final_desc_foldername']
+        search_desc_foldername = conf_search['nas']['search']['final_desc_foldername']
         search_desc_folderpath = utils.full_path(search_desc_foldername)
         assert search_desc_foldername and os.path.exists(search_desc_folderpath)
 
         # get folder path that eval would need
-        eval_conf = self._init('eval')
-        eval_desc_foldername = eval_conf['nas']['eval']['final_desc_foldername']
+        eval_desc_foldername = conf_eval['nas']['eval']['final_desc_foldername']
         eval_desc_folderpath = utils.full_path(eval_desc_foldername)
         assert eval_desc_folderpath
         # only later version of shutil copytree has dirs_exists_ok option
@@ -54,6 +51,6 @@ class PetridishExperimentRunner(ExperimentRunner):
             shutil.rmtree(eval_desc_folderpath)
         shutil.copytree(search_desc_folderpath, eval_desc_folderpath)
 
-        return search_conf, eval_conf
+
 
 

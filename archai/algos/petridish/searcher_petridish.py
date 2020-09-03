@@ -76,7 +76,7 @@ class ConvexHullPoint:
     def next_stage(self)->JobStage:
         return JobStage(self.job_stage.value+1)
 
-class SearchDistributed(SearchCombinations):
+class SearcherPetridish(SearchCombinations):
     def __init__(self):
         super().__init__()
 
