@@ -9,10 +9,7 @@ import os
 
 from overrides import EnforceOverrides
 
-import tensorwatch as tw
 from torch.utils.data.dataloader import DataLoader
-
-from tensorwatch import ModelStats
 
 from archai.common.common import logger
 
@@ -173,10 +170,3 @@ class Searcher(EnforceOverrides):
         logger.popd()
 
         return ModelMetrics(model, train_metrics)
-
-    def get_model_stats(self, model:Model)->ModelStats:
-        # model stats is doing some hooks so do it last
-        model_stats = tw.ModelStats(model, [1,3,32,32],# TODO: remove this hard coding
-                                    clone_model=True)
-
-        return model_stats
