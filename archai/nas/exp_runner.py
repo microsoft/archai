@@ -15,7 +15,7 @@ from archai.common.common import common_init
 from archai.common import utils
 from archai.common.config import Config
 from archai.nas.evaluate import Evaluate
-from archai.nas.search import Search
+from archai.nas.search import Searcher
 from archai.nas.finalizers import Finalizers
 from archai.common.common import get_conf
 from archai.nas.random_finalizers import RandomFinalizers
@@ -94,8 +94,8 @@ class ExperimentRunner(ABC, EnforceOverrides):
     def model_desc_builder(self)->ModelDescBuilder:
         return ModelDescBuilder() # default model desc builder puts nodes with no edges
 
-    def create_search(self)->Search:
-        return Search()
+    def create_search(self)->Searcher:
+        return Searcher()
 
     def create_eval(self)->Evaluate:
         return Evaluate()

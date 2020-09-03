@@ -25,11 +25,11 @@ from archai.nas.model import Model
 from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
-from archai.nas.search import ModelMetrics, Search, SearchResult
+from archai.nas.search import ModelMetrics, Searcher, SearchResult
 
 
 
-class SearchCombinations(Search):
+class SearchCombinations(Searcher):
     def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
                trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
 
