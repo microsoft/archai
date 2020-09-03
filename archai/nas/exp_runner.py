@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.nas.model_desc_builder import ModelDescBuilder
 from typing import Optional, Type, Tuple
 from abc import ABC, abstractmethod
 import shutil
@@ -19,6 +18,7 @@ from archai.nas.searcher import Searcher, SearchResult
 from archai.nas.finalizers import Finalizers
 from archai.common.common import get_conf
 from archai.nas.random_finalizers import RandomFinalizers
+from archai.nas.model_desc_builder import ModelDescBuilder
 
 
 class ExperimentRunner(ABC, EnforceOverrides):
@@ -35,9 +35,10 @@ class ExperimentRunner(ABC, EnforceOverrides):
         search = self.searcher()
         return search.search(conf_search, model_desc_builder, trainer_class, finalizers)
 
-    def run_eval(self, conf_eval:Config):
+    def run_eval(self, conf_eval:Config)->EvalResult:
         evaler = self.evaluater()
-        evaler.eval_arch(conf_eval, model_desc_builder=self.model_desc_builder())
+        return evaler.evaluate(conf_eval,
+                               model_desc_builder=self.model_desc_builder())
 
     def run(self, search=True, eval=True) \
             ->Tuple[Optional[SearchResult], Optional[EvalResult]]:

@@ -25,8 +25,12 @@ from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
 
 
+class EvalResult:
+    def __init__(self, train_metrics:Metrics) -> None:
+        self.train_metrics = train_metrics
+
 class Evaluater(EnforceOverrides):
-    def evaluate(self, conf_eval:Config, model_desc_builder:ModelDescBuilder)->Metrics:
+    def evaluate(self, conf_eval:Config, model_desc_builder:ModelDescBuilder)->EvalResult:
         logger.pushd('eval_arch')
 
         # region conf vars
@@ -52,7 +56,7 @@ class Evaluater(EnforceOverrides):
 
         logger.popd()
 
-        return train_metrics
+        return EvalResult(train_metrics)
 
     def train_model(self, conf_train:Config, model:nn.Module,
                     checkpoint:Optional[CheckPoint])->Metrics:

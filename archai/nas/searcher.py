@@ -31,8 +31,9 @@ class ModelMetrics:
         self.metrics = metrics
 
 class SearchResult:
-    def __init__(self, model_desc:ModelDesc, search_metrics:Optional[Metrics],
-                       train_metrics:Optional[Metrics]) -> None:
+    def __init__(self, model_desc:Optional[ModelDesc],
+                 search_metrics:Optional[Metrics],
+                 train_metrics:Optional[Metrics]) -> None:
         self.model_desc = model_desc
         self.search_metrics = search_metrics
         self.train_metrics = train_metrics

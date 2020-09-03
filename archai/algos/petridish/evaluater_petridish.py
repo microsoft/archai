@@ -33,10 +33,10 @@ from archai.nas import nas_utils
 from archai.common import common
 from archai.common import ml_utils, utils
 from archai.common.metrics import Metrics
-from archai.nas.evaluater import Evaluater
+from archai.nas.evaluater import Evaluater, EvalResult
 
 class EvaluaterPetridish(Evaluater):
-    def evaluate(self, conf_eval:Config, model_desc_builder:ModelDescBuilder)->Metrics:
+    def evaluate(self, conf_eval:Config, model_desc_builder:ModelDescBuilder)->EvalResult:
         """Takes a folder of model descriptions output by search process and
         trains them in a distributed manner using ray with 1 gpu"""
 
@@ -71,7 +71,7 @@ class EvaluaterPetridish(Evaluater):
 
         logger.popd()
 
-        return best_metric_stats[0]
+        return EvalResult(best_metric_stats[0])
 
 
     @ray.remote(num_gpus=1)

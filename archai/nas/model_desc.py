@@ -38,8 +38,8 @@ class ConvMacroParams:
         return copy.deepcopy(self)
 
 class OpDesc:
-    """Op description that is in each edge
-    """
+    """Op description that is in each edge"""
+
     def __init__(self, name:str, params:dict, in_len:int,
                  trainables:Optional[Mapping],
                  children:Optional[List['OpDesc']]=None,
