@@ -40,7 +40,7 @@ class SearchResult:
         self.search_metrics = search_metrics
         self.train_metrics = train_metrics
 
-class Search(EnforceOverrides):
+class Searcher(EnforceOverrides):
     def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
                  trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
 
