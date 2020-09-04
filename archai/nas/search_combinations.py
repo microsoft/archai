@@ -12,6 +12,8 @@ import tensorwatch as tw
 from torch.utils.data.dataloader import DataLoader
 import yaml
 
+from overrides import overrides
+
 from archai.common.common import logger
 from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
@@ -30,6 +32,7 @@ from archai.nas import nas_utils
 
 
 class SearchCombinations(Searcher):
+    @overrides
     def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
                trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
 

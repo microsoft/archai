@@ -12,7 +12,7 @@ import math
 # only works on linux
 import ray
 
-from overrides import overrides, EnforceOverrides
+from overrides import overrides
 
 import tensorwatch as tw
 
@@ -36,6 +36,7 @@ from archai.common.metrics import Metrics
 from archai.nas.evaluater import Evaluater, EvalResult
 
 class EvaluaterPetridish(Evaluater):
+    @overrides
     def evaluate(self, conf_eval:Config, model_desc_builder:ModelDescBuilder)->EvalResult:
         """Takes a folder of model descriptions output by search process and
         trains them in a distributed manner using ray with 1 gpu"""

@@ -35,14 +35,16 @@ class PetridishExperimentRunner(ExperimentRunner):
         return EvaluaterPetridish()
 
     @overrides
-    def copy_search_to_eval(self, conf_search:Config, conf_eval:Config)->None:
+    def copy_search_to_eval(self)->None:
         # get folder of model gallery that search has produced
-        search_desc_foldername = conf_search['nas']['search']['final_desc_foldername']
+        conf_search = self.get_conf_search()
+        search_desc_foldername = conf_search['final_desc_foldername']
         search_desc_folderpath = utils.full_path(search_desc_foldername)
         assert search_desc_foldername and os.path.exists(search_desc_folderpath)
 
         # get folder path that eval would need
-        eval_desc_foldername = conf_eval['nas']['eval']['final_desc_foldername']
+        conf_eval = self.get_conf_eval()
+        eval_desc_foldername = conf_eval['final_desc_foldername']
         eval_desc_folderpath = utils.full_path(eval_desc_foldername)
         assert eval_desc_folderpath
         # only later version of shutil copytree has dirs_exists_ok option
