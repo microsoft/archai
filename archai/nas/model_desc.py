@@ -38,8 +38,8 @@ class ConvMacroParams:
         return copy.deepcopy(self)
 
 class OpDesc:
-    """Op description that is in each edge
-    """
+    """Op description that is in each edge"""
+
     def __init__(self, name:str, params:dict, in_len:int,
                  trainables:Optional[Mapping],
                  children:Optional[List['OpDesc']]=None,
@@ -153,13 +153,14 @@ class CellType(Enum):
     Reduction  = 'reduction'
 
 class CellDesc:
-    def __init__(self, id:int, cell_type:CellType,
+    def __init__(self, id:int, cell_type:CellType, conf_cell:Config,
                  stems:List[OpDesc], stem_shapes:TensorShapes,
                  nodes:List[NodeDesc], node_shapes: TensorShapes,
             post_op:OpDesc, out_shape:TensorShape, trainables_from:int)->None:
 
         self.cell_type = cell_type
         self.id = id
+        self.conf_cell = conf_cell
         self.stems = stems
         self.stem_shapes = stem_shapes
         self.out_shape = out_shape

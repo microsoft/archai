@@ -55,14 +55,15 @@ class Finalizers(EnforceOverrides):
             node_desc = self.finalize_node(node, i, cell.desc.nodes()[i],max_final_edges)
             node_descs.append(node_desc)
 
+        desc = cell.desc
         finalized = CellDesc(
-            id = cell.desc.id, cell_type=cell.desc.cell_type,
+            id = desc.id, cell_type=desc.cell_type, conf_cell=desc.conf_cell,
             stems=[cell.s0_op.finalize()[0], cell.s1_op.finalize()[0]],
-            stem_shapes=cell.desc.stem_shapes,
-            nodes = node_descs, node_shapes=cell.desc.node_shapes,
+            stem_shapes=desc.stem_shapes,
+            nodes = node_descs, node_shapes=desc.node_shapes,
             post_op=cell.post_op.finalize()[0],
-            out_shape=cell.desc.out_shape,
-            trainables_from = cell.desc.trainables_from
+            out_shape=desc.out_shape,
+            trainables_from = desc.trainables_from
         )
         return finalized
 
