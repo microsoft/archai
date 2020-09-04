@@ -57,7 +57,7 @@ class EvaluaterPetridish(Evaluater):
 
         future_ids = []
         for model_desc_filename in files:
-            future_id = self._train_dist.remote(conf_eval, model_desc_builder,
+            future_id = EvaluaterPetridish._train_dist.remote(self, conf_eval, model_desc_builder,
                                               model_desc_filename, common.get_state())
             future_ids.append(future_id)
 
@@ -74,13 +74,16 @@ class EvaluaterPetridish(Evaluater):
 
         return EvalResult(best_metric_stats[0])
 
-
+    @staticmethod
     @ray.remote(num_gpus=1)
-    def _train_dist(self, conf_eval:Config, model_desc_builder:ModelDescBuilder,
+    def _train_dist(evaluater:Evaluater, conf_eval:Config, model_desc_builder:ModelDescBuilder,
                     model_desc_filename:str, common_state)->Tuple[Metrics, tw.ModelStats]:
         """Train given a model"""
 
         common.init_from(common_state)
+        #register ops as we are in different process now
+        conf_model_desc = conf_eval['model_desc']
+        model_desc_builder.pre_build(conf_model_desc)
 
         resume = conf_eval['resume']
         conf_checkpoint = conf_eval['checkpoint']
@@ -122,9 +125,9 @@ class EvaluaterPetridish(Evaluater):
         # save desc for reference
         model_desc.save(full_desc_filename)
 
-        model = self.model_from_desc(model_desc)
+        model = evaluater.model_from_desc(model_desc)
 
-        train_metrics = self.train_model(conf_eval, model, checkpoint)
+        train_metrics = evaluater.train_model(conf_eval, model, checkpoint)
         train_metrics.save(metrics_filename)
 
         # get metrics_stats
