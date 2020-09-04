@@ -61,8 +61,8 @@ def train_test_dist():
               f'time={time.time()-start}')
 
 if __name__ == '__main__':
-    ray.init(num_gpus=2)
-
+    ray.init(num_gpus=1)
+    print('ray init done')
     common.common_init(config_filepath='confs/algos/darts.yaml',
                        param_args=['--common.experiment_name', 'resnet_test'])
 
