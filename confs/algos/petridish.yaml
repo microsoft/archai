@@ -5,8 +5,8 @@ common:
   log_prefix: ''
   toy_mode:
     max_batches: 21
-    train_batch: 128
-    test_batch: 128
+    train_batch: 32
+    test_batch: 32
     seed_train_epochs: 2
     post_train_epochs: 2
 

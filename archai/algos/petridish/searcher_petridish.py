@@ -138,14 +138,14 @@ class SearcherPetridish(SearchCombinations):
                     # initiate search on this point
                     sampled_point = self._sample_from_hull()
 
-                    future_id = self.search_model_desc_dist.remote(
+                    future_id = SearcherPetridish.search_model_desc_dist.remote(self,
                         conf_search, sampled_point, model_desc_builder, trainer_class,
                         finalizers, common.get_state())
                     future_ids.append(future_id)
                     logger.info(f'Added sampled point {sampled_point.id} for search')
                 elif hull_point.job_stage==JobStage.SEARCH:
                     # create the job to train the searched model
-                    future_id = self.train_model_desc_dist.remote(
+                    future_id = SearcherPetridish.train_model_desc_dist.remote(self,
                         conf_post_train, hull_point, common.get_state())
                     future_ids.append(future_id)
                     logger.info(f'Added sampled point {hull_point.id} for post-search training')
@@ -162,23 +162,27 @@ class SearcherPetridish(SearchCombinations):
 
         return search_result
 
+    @staticmethod
     @ray.remote(num_gpus=1)
-    def search_model_desc_dist(self, conf_search:Config,
+    def search_model_desc_dist(searcher:'SearcherPetridish', conf_search:Config,
         hull_point:ConvexHullPoint, model_desc_builder:ModelDescBuilder,
         trainer_class:TArchTrainer, finalizers:Finalizers, common_state:CommonState)\
             ->ConvexHullPoint:
 
         # as this runs in different process, initiaze globals
         common.init_from(common_state)
+        #register ops as we are in different process now
+        conf_model_desc = conf_search['model_desc']
+        model_desc_builder.pre_build(conf_model_desc)
 
         assert hull_point.is_trained_stage()
 
         # cloning is strickly not needed but just in case if we run this
         # function in same process, it would be good to avoid surprise
         model_desc = hull_point.model_desc.clone()
-        self._add_node(model_desc, model_desc_builder)
+        searcher._add_node(model_desc, model_desc_builder)
 
-        model_desc, search_metrics = self.search_model_desc(conf_search,
+        model_desc, search_metrics = searcher.search_model_desc(conf_search,
             model_desc, trainer_class, finalizers)
 
         new_point = ConvexHullPoint(JobStage.SEARCH, hull_point.id,
@@ -186,14 +190,15 @@ class SearcherPetridish(SearchCombinations):
                                     model_desc, metrics=search_metrics)
         return new_point
 
+    @staticmethod
     @ray.remote(num_gpus=1)
-    def train_model_desc_dist(self, conf_train:Config,
+    def train_model_desc_dist(searcher:'SearcherPetridish', conf_train:Config,
                               hull_point:ConvexHullPoint, common_state:CommonState)\
             ->ConvexHullPoint:
         # as this runs in different process, initiaze globals
         common.init_from(common_state)
 
-        model_metrics = self.train_model_desc(hull_point.model_desc, conf_train)
+        model_metrics = searcher.train_model_desc(hull_point.model_desc, conf_train)
         model_stats = nas_utils.get_model_stats(model_metrics.model)
 
         assert not hull_point.is_trained_stage()
@@ -215,9 +220,8 @@ class SearcherPetridish(SearchCombinations):
 
             # assign input IDs to nodes, s0 and s1 have IDs 0 and 1
             # however as we will be inserting new node before last one
-            # ids are shifted by 2 so previous node IDs are (2+len -2)
-            input_ids = list(range(len(nodes)))
-            assert len(input_ids) >= 2 # 2 stem inputs + 1 existing node
+            input_ids = list(range(len(nodes) + 1))
+            assert len(input_ids) >= 2 # 2 stem inputs
             op_desc = OpDesc('petridish_reduction_op' if reduction else 'petridish_normal_op',
                                 params={
                                     'conv': conv_params,
@@ -343,9 +347,11 @@ class SearcherPetridish(SearchCombinations):
                                                conf_model_desc,
                                                reductions, cells, nodes)
 
+            hull_point = ConvexHullPoint(JobStage.SEED, 0, 1, model_desc)
+
             # pre-train the seed model
-            future_id = self.train_model_desc_dist.remote(JobStage.SEED,
-                conf_seed_train, model_desc, common.get_state())
+            future_id = SearcherPetridish.train_model_desc_dist.remote(self,
+                conf_seed_train, hull_point, common.get_state())
 
             future_ids.append(future_id)
 
