@@ -32,7 +32,7 @@ class ModelDescBuilder(EnforceOverrides):
 
     def get_node_channels(self, conf_model_desc:Config)->List[List[int]]:
         """ Returns array of channels for each node in each cell. All nodes
-            aere assumed to have same output channels as input channels. """
+            are assumed to have same output channels as input channels. """
 
         conf_model_stems = self.get_conf_model_stems()
         conf_cell = self.get_conf_cell()
@@ -58,8 +58,10 @@ class ModelDescBuilder(EnforceOverrides):
 
     def get_conf_cell(self)->Config:
         return self.conf_model_desc['cell']
+
     def get_conf_dataset(self)->Config:
         return self.conf_model_desc['dataset']
+
     def get_conf_model_stems(self)->Config:
         return self.conf_model_desc['model_stems']
 
@@ -67,8 +69,8 @@ class ModelDescBuilder(EnforceOverrides):
                  template:Optional[ModelDesc]=None)->None:
 
         self.conf_model_desc = conf_model_desc
-        self.template =template
-        # if template model desc is specified thehn setup regular and reduction cell templates
+        self.template = template
+        # if template model desc is specified then setup regular and reduction cell templates
         self._cell_templates = self.create_cell_templates(template)
 
         n_cells = conf_model_desc['n_cells']
@@ -88,7 +90,7 @@ class ModelDescBuilder(EnforceOverrides):
         self.pre_build(conf_model_desc)
 
         # input shape for the stem has same channels as channels in image
-        # -1 indicates, actual dimentions is not known
+        # -1 indicates, actual dimensions are not known
         ds_ch = self.get_conf_dataset()['channels']
         in_shapes = [[[ds_ch, -1, -1, -1]]]
 
@@ -394,7 +396,7 @@ class ModelDescBuilder(EnforceOverrides):
 
     @staticmethod
     def _stem_reductions(stems:List[OpDesc])->List[int]:
-        #create stem ops to find out reduction factors
+        # create stem ops to find out reduction factors
         ops = [Op.create(stem, affine=False) for stem in stems]
         assert all(isinstance(op, StemBase) for op in ops)
         return list(op.reduction for op in ops)
