@@ -48,7 +48,7 @@ class Searcher(EnforceOverrides):
 
         cells = conf_model_desc['n_cells']
         reductions = conf_model_desc['n_reductions']
-        nodes = conf_model_desc['n_nodes']
+        nodes = conf_model_desc['cell']['n_nodes']
         # endregion
 
         # build model description that we will search on
@@ -117,12 +117,16 @@ class Searcher(EnforceOverrides):
 
     def search_model_desc(self, conf_search:Config, model_desc:ModelDesc,
                           trainer_class:TArchTrainer, finalizers:Finalizers)\
-                              ->Tuple[ModelDesc, Metrics]:
+                              ->Tuple[ModelDesc, Optional[Metrics]]:
 
         logger.pushd('arch_search')
 
-        conf_train = conf_search['trainer']
-        conf_loader = conf_train['loader']
+        # if trainer is not specified for algos like random search we return same desc
+        if trainer_class is None:
+            return model_desc, None
+
+        conf_trainer = conf_search['trainer']
+        conf_loader = conf_search['loader']
 
         model = Model(model_desc, droppath=False, affine=False)
 
@@ -131,7 +135,7 @@ class Searcher(EnforceOverrides):
         assert train_dl is not None
 
         # search arch
-        arch_trainer = trainer_class(conf_train, model, checkpoint=None)
+        arch_trainer = trainer_class(conf_trainer, model, checkpoint=None)
         search_metrics = arch_trainer.fit(train_dl, val_dl)
 
         # finalize
