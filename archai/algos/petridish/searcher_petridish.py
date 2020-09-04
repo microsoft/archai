@@ -87,6 +87,7 @@ class SearcherPetridish(SearchCombinations):
         self.num_gpus = ray.nodes()[0]['Resources']['GPU']
         logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
 
+    @overrides
     def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
                  trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
 
@@ -372,6 +373,7 @@ class SearcherPetridish(SearchCombinations):
 
         return can_restore
 
+    @overrides
     def build_model_desc(self, model_desc_builder:ModelDescBuilder,
                          conf_model_desc:Config,
                          reductions:int, cells:int, nodes:int)->ModelDesc:

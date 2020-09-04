@@ -112,7 +112,8 @@ def init_from(state:CommonState)->None:
 # TODO: rename this simply as init
 # initializes random number gen, debugging etc
 def common_init(config_filepath: Optional[str]=None,
-                param_args: list = [], log_level=logging.INFO, use_args=True)->Config:
+                param_args: list = [], log_level=logging.INFO,
+                use_args=True, backup_existing_log_file=True)->Config:
 
     # get cloud dirs if any
     pt_data_dir, pt_output_dir, param_overrides = _setup_pt(param_args)
@@ -137,7 +138,7 @@ def common_init(config_filepath: Optional[str]=None,
     apex = ApexUtils(conf_apex, None)
 
     # create global logger
-    _setup_logger(apex)
+    _setup_logger(apex, backup_existing_log_file)
     # create info file for current system
     _create_sysinfo(conf)
 
@@ -214,7 +215,7 @@ def _setup_dirs()->Optional[str]:
     os.environ['distdir'] = conf_common['distdir'] = distdir
 
 
-def _setup_logger(apex:ApexUtils):
+def _setup_logger(apex:ApexUtils, backup_existing_log_file:bool):
     global logger
     logger.close()  # close any previous instances
 
@@ -247,7 +248,8 @@ def _setup_logger(apex:ApexUtils):
             'log_prefix not specified, logs will be stdout only')
 
     # reset to new file path
-    logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log)
+    logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log,
+                 backup_existing_file=backup_existing_log_file)
     logger.info({'command_line': ' '.join(sys.argv[1:])})
     logger.info({
         'datetime:': datetime.datetime.now(),
