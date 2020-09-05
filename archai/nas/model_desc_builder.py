@@ -353,11 +353,12 @@ class ModelDescBuilder(EnforceOverrides):
                         cell_index:int)->Optional[AuxTowerDesc]:
         n_classes = self.get_conf_dataset()['n_classes']
         n_cells = conf_model_desc['n_cells']
+        n_reductions = conf_model_desc['n_reductions']
         aux_tower_stride = conf_model_desc['aux_tower_stride']
         aux_weight = conf_model_desc['aux_weight']
 
         # TODO: shouldn't we be adding aux tower at *every* 1/3rd?
-        if aux_weight and cell_index == 2*n_cells//3:
+        if aux_weight and n_reductions > 1 and cell_index == 2*n_cells//3:
             return AuxTowerDesc(out_shape[0], n_classes, aux_tower_stride)
         return None
 
