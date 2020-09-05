@@ -139,14 +139,14 @@ class PetridishOp(Op):
         return self._sf(s)
 
     def _flatten_ops_alphas(self):
-            # Create list of (alpha, input_id, op_desc), sort them, select top k.
-            # Here op should be nn.Sequence of sg followed by primitive.
-            # First for loop gets edge and associated alphas.
-            # Second for loop gets op and associated alpha.
-            return ((a, i, op[1])       # op is nn.Sequence of stop grad and primitive op                                       \
-                for edge_alphas, i, edge in                                 \
-                    zip_eq(self._alphas[0], range(self.desc.in_len), self._edges)       \
-                for a, op in zip_eq(edge_alphas, edge))
+        # Create list of (alpha, input_id, op_desc), sort them, select top k.
+        # Here op should be nn.Sequence of sg followed by primitive.
+        # First for loop gets edge and associated alphas.
+        # Second for loop gets op and associated alpha.
+        return ((a, i, op[1])       # op is nn.Sequence of stop grad and primitive op    \
+            for edge_alphas, i, edge in                                 \
+                zip_eq(self._alphas[0], range(self.desc.in_len), self._edges)       \
+            for a, op in zip_eq(edge_alphas, edge))
 
     @overrides
     def finalize(self) -> Tuple[OpDesc, Optional[float]]:

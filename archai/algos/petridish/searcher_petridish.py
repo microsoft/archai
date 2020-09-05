@@ -44,8 +44,6 @@ from archai.nas.searcher import SearchResult
 from archai.nas.search_combinations import SearchCombinations
 from archai.nas.model_desc_builder import ModelDescBuilder
 
-
-
 class JobStage(Enum):
     # below values must be assigned in sequence so getting next job stage enum is easy
     SEED = 1
@@ -100,6 +98,7 @@ class SearcherPetridish(SearchCombinations):
         final_desc_foldername = conf_search['final_desc_foldername']
 
         conf_petridish = conf_search['petridish']
+
         # petridish distributed search related parameters
         self._convex_hull_eps = conf_petridish['convex_hull_eps']
         self._sampling_max_try = conf_petridish['sampling_max_try']
@@ -152,6 +151,9 @@ class SearcherPetridish(SearchCombinations):
                 else:
                     raise RuntimeError(f'Job stage "{hull_point.job_stage}" is not expected in search loop')
 
+        # cancel any remaining jobs to free up gpus for the eval phase
+        [ray.cancel(job_id) for job_id in future_ids]
+
         self._plot_frontier()
         best_point = self._save_frontier(final_desc_foldername)
 
@@ -171,13 +173,14 @@ class SearcherPetridish(SearchCombinations):
 
         # as this runs in different process, initiaze globals
         common.init_from(common_state)
+
         #register ops as we are in different process now
         conf_model_desc = conf_search['model_desc']
         model_desc_builder.pre_build(conf_model_desc)
 
         assert hull_point.is_trained_stage()
 
-        # cloning is strickly not needed but just in case if we run this
+        # cloning is strictly not needed but just in case if we run this
         # function in same process, it would be good to avoid surprise
         model_desc = hull_point.model_desc.clone()
         searcher._add_node(model_desc, model_desc_builder)
@@ -195,13 +198,14 @@ class SearcherPetridish(SearchCombinations):
     def train_model_desc_dist(searcher:'SearcherPetridish', conf_train:Config,
                               hull_point:ConvexHullPoint, common_state:CommonState)\
             ->ConvexHullPoint:
-        # as this runs in different process, initiaze globals
+        # as this runs in different process, initialize globals
         common.init_from(common_state)
+        
+        assert not hull_point.is_trained_stage()
 
         model_metrics = searcher.train_model_desc(hull_point.model_desc, conf_train)
         model_stats = nas_utils.get_model_stats(model_metrics.model)
 
-        assert not hull_point.is_trained_stage()
         new_point = ConvexHullPoint(hull_point.next_stage(), hull_point.id, hull_point.
                                     sampling_count, hull_point.model_desc, model_metrics.metrics, model_stats)
 
@@ -289,7 +293,7 @@ class SearcherPetridish(SearchCombinations):
         # save the entire gallery of models on the convex hull for evaluation
         front_points, eps_points, xs, ys = self._model_descs_on_front()
         for i, eps_point in enumerate(eps_points):
-            savename = os.path.join(self.final_desc_path, f'petridish_{i}.yaml')
+            savename = os.path.join(final_desc_path, f'petridish_{i}.yaml')
             eps_point.model_desc.save(savename)
 
         # return last model as best performing
