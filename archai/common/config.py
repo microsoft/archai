@@ -38,8 +38,9 @@ class Config(UserDict):
 
         Config is simply a dictionary of key, value map. The value can itself be
         a dictionary so config can be hierarchical. This class allows to load
-        config from yaml. A special key '__include__' can specify another yaml relative
-        file path which will be loaded first and the key-value pairs in the main file
+        config from yaml. A special key '__include__' can specify another yaml
+        relative file path (or list of file paths) which will be loaded first
+        and the key-value pairs in the main file
         will override the ones in include file. You can think of included file as
         defaults provider. This allows to create one base config and then several
         environment/experiment specific configs. On the top of that you can use
@@ -90,13 +91,20 @@ class Config(UserDict):
             filepath = os.path.abspath(filepath)
             with open(filepath, 'r') as f:
                 config_yaml = yaml.load(f, Loader=yaml.Loader)
-            if '__include__' in config_yaml:
-                include_filepath = os.path.join(
-                    os.path.dirname(filepath),
-                    config_yaml['__include__'])
-                self._load_from_file(include_filepath)
+            self._process_includes(config_yaml, filepath)
             deep_update(self, config_yaml, lambda: Config(resolve_redirects=False))
             print('config loaded from: ', filepath)
+
+    def _process_includes(self, config_yaml, filepath:str):
+        if '__include__' in config_yaml:
+            # include could be file name or array of file names to apply in sequence
+            includes = config_yaml['__include__']
+            if isinstance(includes, str):
+                includes = [includes]
+            assert isinstance(includes, List), "'__include__' value must be string or list"
+            for include in includes:
+                include_filepath = os.path.join(os.path.dirname(filepath), include)
+                self._load_from_file(include_filepath)
 
     def _update_from_args(self, args:Sequence, resolved_section:'Config')->None:
         i = 0

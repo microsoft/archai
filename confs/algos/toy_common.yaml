@@ -16,30 +16,33 @@ nas:
       enabled: False
     seed_train:
       trainer:
-        epochs: '_copy: /common/toy_mode/seed_train_epochs' # number of epochs model will be trained before search
+        epochs: 1 # number of epochs model will be trained before search
       loader:
-        train_batch: '_copy: /common/toy_mode/train_batch'
-        test_batch: '_copy: /common/toy_mode/test_batch'
+        train_batch: 32
+        test_batch: 32
+        val_ratio: 0.5 #for toy mode batch is small so  use higher val ratio otherwise batch size will be lower than num classes
         dataset:
-          max_batches: '_copy: /common/toy_mode/max_batches'
+          max_batches: 2
     post_train:
       trainer:
-        epochs: '_copy: /common/toy_mode/post_train_epochs'
+        epochs: 1
       loader:
-        train_batch: '_copy: /common/toy_mode/train_batch'
-        test_batch: '_copy: /common/toy_mode/test_batch'
+        train_batch: 32
+        test_batch: 32
+        val_ratio: 0.5 #for toy mode batch is small so  use higher val ratio otherwise batch size will be lower than num classes
         dataset:
-          max_batches: '_copy: /common/toy_mode/max_batches'
+          max_batches: 2
     model_desc:
       n_reductions: 1 # number of reductions to be applied
       n_cells: 3 # number of cells
       cell:
         n_nodes: 2 # number of nodes in a cell
     loader:
-      train_batch: '_copy: /common/toy_mode/train_batch'
-      test_batch: '_copy: /common/toy_mode/test_batch'
+      train_batch: 32
+      test_batch: 32
+      val_ratio: 0.5 #for toy mode batch is small so  use higher val ratio otherwise batch size will be lower than num classes
       dataset:
-        max_batches: '_copy: /common/toy_mode/max_batches'
+        max_batches: 2
     trainer:
       epochs: 1
       logger_freq: 1
@@ -55,10 +58,11 @@ nas:
       cell:
         n_nodes: 4 # number of nodes in a cell
     loader:
-      train_batch: '_copy: /common/toy_mode/train_batch'
-      test_batch: '_copy: /common/toy_mode/test_batch'
+      train_batch: 32
+      test_batch: 32
+      val_ratio: 0.5 #for toy mode batch is small so  use higher val ratio otherwise batch size will be lower than num classes
       dataset:
-        max_batches: '_copy: /common/toy_mode/max_batches'
+        max_batches: 2
     trainer:
       epochs: 1
       logger_freq: 1

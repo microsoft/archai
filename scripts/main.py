@@ -4,6 +4,7 @@
 import argparse
 from typing import Dict, Type
 
+from archai.common import utils
 from archai.nas.exp_runner import ExperimentRunner
 from archai.algos.darts.darts_exp_runner import DartsExperimentRunner
 from archai.algos.petridish.petridish_exp_runner import PetridishExperimentRunner
@@ -28,7 +29,7 @@ def main():
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
-    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts,petridish', #,gs,manual,divnas
+    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts', #,petridish,gs,manual,divnas
                         help='NAS algos to run, seperated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
                         help='datasets to use, separated by comma')
@@ -53,9 +54,15 @@ def main():
             algo = algo.strip()
             print('Running (algo, dataset): ', (algo, dataset))
             runner_type:Type[ExperimentRunner] = runner_types[algo]
-            runner = runner_type(f'confs/algos/{algo}.yaml;confs/datasets/{dataset}.yaml',
-                                base_name=f'{algo}_{dataset}_{args.exp_prefix}',
-                                toy=not args.full)
+
+            # get the conf files for algo and dataset
+            algo_conf_filepath = f'confs/algos/{algo}.yaml' if args.full \
+                                               else f'confs/algos/{algo}_toy.yaml'
+            dataset_conf_filepath = f'confs/datasets/{dataset}.yaml'
+            conf_filepaths = ';'.join((algo_conf_filepath, dataset_conf_filepath))
+
+            runner = runner_type(conf_filepaths,
+                                base_name=f'{algo}_{dataset}_{args.exp_prefix}')
 
             runner.run(search=not args.no_search, eval=not args.no_eval)
 
