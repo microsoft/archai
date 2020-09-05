@@ -41,7 +41,7 @@ class EvaluaterPetridish(Evaluater):
 
         # initialize ray for distributed training
         if not ray.is_initialized():
-            ray.init(local_mode=True)
+            ray.init()
             self.num_cpus = ray.nodes()[0]['Resources']['CPU']
             self.num_gpus = ray.nodes()[0]['Resources']['GPU']
             logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
