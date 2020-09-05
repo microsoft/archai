@@ -272,6 +272,7 @@ class ModelDesc:
     def all_empty(self)->bool:
         return len(self._cell_descs)==0 or \
              all((c.all_empty() for c in self._cell_descs))
+             
     def all_full(self)->bool:
         return len(self._cell_descs)>0 and \
             all((c.all_full() for c in self._cell_descs))
