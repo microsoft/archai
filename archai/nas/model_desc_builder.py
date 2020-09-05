@@ -18,8 +18,8 @@ class ModelDescBuilder(EnforceOverrides):
     def get_reduction_indices(self, conf_model_desc:Config)->List[int]:
         """ Returns cell indices which reduces HxW and doubles channels """
 
-        n_cells = conf_model_desc['n_cells']
-        n_reductions = conf_model_desc['n_reductions']
+        n_cells:int = conf_model_desc['n_cells']
+        n_reductions:int = conf_model_desc['n_reductions']
 
         # this satisfies N R N R N pattern, this need not be enforced but
         # we are doing now for sanity

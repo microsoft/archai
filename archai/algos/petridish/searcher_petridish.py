@@ -80,10 +80,11 @@ class SearcherPetridish(SearchCombinations):
         super().__init__()
 
         # initialize ray for distributed training
-        ray.init()
-        self.num_cpus = ray.nodes()[0]['Resources']['CPU']
-        self.num_gpus = ray.nodes()[0]['Resources']['GPU']
-        logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
+        if not ray.is_initialized():
+            ray.init(local_mode=True)
+            self.num_cpus = ray.nodes()[0]['Resources']['CPU']
+            self.num_gpus = ray.nodes()[0]['Resources']['GPU']
+            logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
 
     @overrides
     def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
@@ -152,7 +153,8 @@ class SearcherPetridish(SearchCombinations):
                     raise RuntimeError(f'Job stage "{hull_point.job_stage}" is not expected in search loop')
 
         # cancel any remaining jobs to free up gpus for the eval phase
-        [ray.cancel(job_id) for job_id in future_ids]
+        for job_id in future_ids:
+            ray.cancel(job_id)
 
         self._plot_frontier()
         best_point = self._save_frontier(final_desc_foldername)
@@ -200,7 +202,7 @@ class SearcherPetridish(SearchCombinations):
             ->ConvexHullPoint:
         # as this runs in different process, initialize globals
         common.init_from(common_state)
-        
+
         assert not hull_point.is_trained_stage()
 
         model_metrics = searcher.train_model_desc(hull_point.model_desc, conf_train)
