@@ -244,3 +244,30 @@ def zip_eq(*iterables):
 
 def dir_downloads()->str:
     return full_path(str(os.path.join(pathlib.Path.home(), "Downloads")))
+
+def filepath_without_ext(filepath:str)->str:
+    """Returns '/a/b/c/d.e' for '/a/b/c/d.e.f' """
+    return str(pathlib.Path(filepath).with_suffix(''))
+
+def filepath_ext(filepath:str)->str:
+    """Returns '.f' for '/a/b/c/d.e.f' """
+    return pathlib.Path(filepath).suffix
+
+def filepath_name_only(filepath:str)->str:
+    """Returns 'd.e' for '/a/b/c/d.e.f' """
+    return pathlib.Path(filepath).stem
+
+def change_filepath_ext(filepath:str, new_ext:str)->str:
+    """Returns '/a/b/c/d.e.g' for filepath='/a/b/c/d.e.f', new_ext='.g' """
+    return str(pathlib.Path(filepath).with_suffix(new_ext))
+
+def change_filepath_name(filepath:str, new_name:str, new_ext:Optional[str]=None)->str:
+    """Returns '/a/b/c/h.f' for filepath='/a/b/c/d.e.f', new_name='h' """
+    ext = new_ext or filepath_ext(filepath)
+    return str(pathlib.Path(filepath).with_name(new_name).with_suffix(ext))
+
+def append_to_filename(filepath:str, name_suffix:str, new_ext:Optional[str]=None)->str:
+    """Returns '/a/b/c/h.f' for filepath='/a/b/c/d.e.f', new_name='h' """
+    ext = new_ext or filepath_ext(filepath)
+    name = filepath_name_only(filepath)
+    return str(pathlib.Path(filepath).with_name(name+name_suffix).with_suffix(ext))

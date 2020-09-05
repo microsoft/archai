@@ -1,11 +1,5 @@
 __include__: "darts.yaml" # just use darts defaults
 
-
-common:
-  toy_mode:
-    seed_train_epochs: 0
-    post_train_epochs: 0
-
 nas:
   eval:
     loader:

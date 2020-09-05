@@ -3,12 +3,6 @@ __include__: 'darts.yaml' # defaults are loaded from this file
 common:
   yaml_log: False
   log_prefix: ''
-  toy_mode:
-    max_batches: 3
-    train_batch: 32
-    test_batch: 32
-    seed_train_epochs: 2
-    post_train_epochs: 2
 
 nas:
   eval:

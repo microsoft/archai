@@ -22,8 +22,7 @@ from archai.nas.model_desc_builder import ModelDescBuilder
 
 
 class ExperimentRunner(ABC, EnforceOverrides):
-    def __init__(self, config_filename:str, base_name:str, toy:bool) -> None:
-        self.toy_config_filename = 'confs/toy.yaml' if toy else None
+    def __init__(self, config_filename:str, base_name:str) -> None:
         self.config_filename = config_filename
         self.base_name = base_name
 
@@ -108,8 +107,6 @@ class ExperimentRunner(ABC, EnforceOverrides):
 
     def _init_conf(self, exp_name_suffix:str)->Config:
         config_filename = self.config_filename
-        if self.toy_config_filename:
-            config_filename += ';' + self.toy_config_filename
 
         conf = common_init(config_filepath=config_filename,
             param_args=['--common.experiment_name', self.base_name + f'_{exp_name_suffix}',
