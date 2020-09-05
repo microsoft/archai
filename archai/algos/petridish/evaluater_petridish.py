@@ -36,6 +36,16 @@ from archai.common.metrics import Metrics
 from archai.nas.evaluater import Evaluater, EvalResult
 
 class EvaluaterPetridish(Evaluater):
+    def __init__(self):
+        super().__init__()
+
+        # initialize ray for distributed training
+        if not ray.is_initialized():
+            ray.init(local_mode=True)
+            self.num_cpus = ray.nodes()[0]['Resources']['CPU']
+            self.num_gpus = ray.nodes()[0]['Resources']['GPU']
+            logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
+
     @overrides
     def evaluate(self, conf_eval:Config, model_desc_builder:ModelDescBuilder)->EvalResult:
         """Takes a folder of model descriptions output by search process and
@@ -43,15 +53,10 @@ class EvaluaterPetridish(Evaluater):
 
         logger.pushd('eval_arch')
 
-        # region conf vars
-        conf_checkpoint = conf_eval['checkpoint']
-        resume = conf_eval['resume']
-
         final_desc_foldername:str = conf_eval['final_desc_foldername']
-        final_desc_folderpath = utils.full_path(final_desc_foldername)
-        # endregion
 
         # get list of model descs in the gallery folder
+        final_desc_folderpath = utils.full_path(final_desc_foldername)
         files = [os.path.join(final_desc_folderpath, f) for f in os.listdir(final_desc_folderpath) if os.path.isfile(os.path.join(final_desc_folderpath, f))]
         logger.info({'models to train':len(files)})
 
@@ -81,32 +86,37 @@ class EvaluaterPetridish(Evaluater):
         """Train given a model"""
 
         common.init_from(common_state)
-        #register ops as we are in different process now
-        conf_model_desc = conf_eval['model_desc']
-        model_desc_builder.pre_build(conf_model_desc)
 
-        resume = conf_eval['resume']
-        conf_checkpoint = conf_eval['checkpoint']
-        conf_model_desc   = conf_eval['model_desc']
+        # region config vars
+        conf_model_desc = conf_eval['model_desc']
         max_cells = conf_model_desc['n_cells']
+
+        conf_checkpoint = conf_eval['checkpoint']
+        resume = conf_eval['resume']
 
         conf_petridish = conf_eval['petridish']
         cell_count_scale = conf_petridish['cell_count_scale']
+        #endregion
 
-        filename_withot_ext = model_desc_filename.split('.')[0]
-        model_filename = filename_withot_ext + '_model.pt'
-        full_desc_filename = filename_withot_ext + '_full.yaml'
-        metrics_filename = filename_withot_ext + '_metrics.yaml'
-        model_stats_filename = filename_withot_ext + '_model_stats.yaml'
+        #register ops as we are in different process now
+        model_desc_builder.pre_build(conf_model_desc)
 
-        conf_checkpoint['filename'] = model_filename.split('.')[0] + '_checkpoint.pth'
-        checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
-        if checkpoint and resume:
-            if 'metrics_stats' in checkpoint:
-                train_metrics, model_stats = checkpoint['metrics_stats']
-                return train_metrics, model_stats
-        else:
-            checkpoint = None
+        model_filename = utils.append_to_filename(model_desc_filename, '_model', '.pt')
+        full_desc_filename = utils.append_to_filename(model_desc_filename, '_full', '.yaml')
+        metrics_filename = utils.append_to_filename(model_desc_filename, '_metrics', '.yaml')
+        model_stats_filename = utils.append_to_filename(model_desc_filename, '_model_stats', '.yaml')
+
+        # create checkpoint for this specific model desc by changing the config
+        checkpoint = None
+        if conf_checkpoint is not None:
+            conf_checkpoint['filename'] = model_filename.split('.')[0] + '_checkpoint.pth'
+            checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
+
+            if checkpoint is not None and resume:
+                if 'metrics_stats' in checkpoint:
+                    # return the output we had recorded in the checkpoint
+                    train_metrics, model_stats = checkpoint['metrics_stats']
+                    return train_metrics, model_stats
 
         # template model is what we used during the search
         template_model_desc = ModelDesc.load(model_desc_filename)
@@ -117,8 +127,7 @@ class EvaluaterPetridish(Evaluater):
 
         conf_model_desc = copy.deepcopy(conf_model_desc)
         conf_model_desc['n_cells'] = n_cells
-        conf_model_desc['n_reductions'] = template_model_desc.cell_type_count
-        (CellType.Reduction)
+        conf_model_desc['n_reductions'] = template_model_desc.cell_type_count(CellType.Reduction)
 
         model_desc = model_desc_builder.build(conf_model_desc,
                                               template=template_model_desc)
@@ -142,7 +151,7 @@ class EvaluaterPetridish(Evaluater):
             ml_utils.save_model(model, model_filename)
             logger.info({'model_save_path': model_filename})
 
-        if checkpoint is not None:
+        if checkpoint:
             checkpoint.new()
             checkpoint['metrics_stats'] = train_metrics, model_stats
             checkpoint.commit()

@@ -26,9 +26,9 @@ nas:
     final_desc_foldername: '$expdir/model_desc_gallery' # the gallery of models that eval will train from scratch
     petridish:
       convex_hull_eps: 0.025 # tolerance
-      sampling_max_try: 10000000 # maximum number of trials in the parent pool sampler function before giving up and returning a random parent model
+      sampling_max_try: 100 # maximum number of trials in the parent pool sampler function before giving up and returning a random parent model
       max_madd: 200000000 # if any parent model reaches this many multiply-additions then the search is terminated or it reaches maximum number of parent pool size
-      max_hull_points: 2 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
+      max_hull_points: 50 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
       checkpoints_foldername: '$expdir/petridish_search_checkpoints'
     search_iters: 4 # TODO: What does this mean here?
     pareto:
