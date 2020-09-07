@@ -105,8 +105,14 @@ def deep_comp(o1:Any, o2:Any)->bool:
     # mismatched object types or both are scalers, or one or both None
     return o1 == o2
 
+# We setup env variable if debugging mode is detected for vs_code_debugging.
+# The reason for this is that when Python multiprocessing is used, the new process
+# spawned do not inherit 'pydevd' so those process do not get detected as in debugging mode
+# even though they are. So we set env var which does get inherited by sub processes.
+if 'pydevd' in sys.modules:
+    os.environ['vs_code_debugging'] = 'True'
 def is_debugging()->bool:
-    return 'pydevd' in sys.modules # works for vscode
+    return 'vs_code_debugging' in os.environ and os.environ['vs_code_debugging']=='True'
 
 def full_path(path:str, create=False)->str:
     assert path
