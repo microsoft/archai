@@ -71,7 +71,7 @@ class ExperimentRunner(ABC, EnforceOverrides):
         assert eval_desc_filepath
         shutil.copy2(search_desc_filepath, eval_desc_filepath)
 
-    def model_desc_builder(self)->ModelDescBuilder:
+    def model_desc_builder(self)->Optional[ModelDescBuilder]:
         return ModelDescBuilder() # default model desc builder puts nodes with no edges
 
     def searcher(self)->Searcher:

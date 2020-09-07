@@ -88,56 +88,33 @@ class Evaluater(EnforceOverrides):
 
     def create_model(self, conf_eval:Config, model_desc_builder:ModelDescBuilder,
                       final_desc_filename=None, full_desc_filename=None)->nn.Module:
-        # region conf vars
-        dataset_name = conf_eval['loader']['dataset']['name']
 
+        assert model_desc_builder is not None, 'Default evaluater requires model_desc_builder'
+
+        # region conf vars
         # if explicitly passed in then don't get from conf
         if not final_desc_filename:
             final_desc_filename = conf_eval['final_desc_filename']
             full_desc_filename = conf_eval['full_desc_filename']
-        model_factory_spec = conf_eval['model_factory_spec']
         conf_model_desc   = conf_eval['model_desc']
         # endregion
 
-        if model_factory_spec: # use pre-built model for evaluation
-            return self.model_from_factory(model_factory_spec, dataset_name)
-        else:
-            # load model desc file to get template model
-            template_model_desc = ModelDesc.load(final_desc_filename)
-            model_desc = model_desc_builder.build(conf_model_desc,
-                                                template=template_model_desc)
+        # load model desc file to get template model
+        template_model_desc = ModelDesc.load(final_desc_filename)
+        model_desc = model_desc_builder.build(conf_model_desc,
+                                            template=template_model_desc)
 
-            # save desc for reference
-            model_desc.save(full_desc_filename)
+        # save desc for reference
+        model_desc.save(full_desc_filename)
 
-            model = self.model_from_desc(model_desc)
+        model = self.model_from_desc(model_desc)
 
-            logger.info({'model_factory':False,
-                        'cells_len':len(model.desc.cell_descs()),
-                        'init_node_ch': conf_model_desc['model_stems']['init_node_ch'],
-                        'n_cells': conf_model_desc['n_cells'],
-                        'n_reductions': conf_model_desc['n_reductions'],
-                        'n_nodes': conf_model_desc['cell']['n_nodes']})
-
-        return model
-
-    def model_from_factory(self, model_factory_spec:str, dataset_name:str)->Model:
-        splitted = model_factory_spec.rsplit('.', 1)
-        function_name = splitted[-1]
-
-        if len(splitted) > 1:
-            module_name = splitted[0]
-        else:
-            module_name = self._default_module_name(dataset_name, function_name)
-
-        module = importlib.import_module(module_name) if module_name else sys.modules[__name__]
-        function = getattr(module, function_name)
-        model = function()
-
-        logger.info({'model_factory':True,
-                    'module_name': module_name,
-                    'function_name': function_name,
-                    'params': ml_utils.param_size(model)})
+        logger.info({'model_factory':False,
+                    'cells_len':len(model.desc.cell_descs()),
+                    'init_node_ch': conf_model_desc['model_stems']['init_node_ch'],
+                    'n_cells': conf_model_desc['n_cells'],
+                    'n_reductions': conf_model_desc['n_reductions'],
+                    'n_nodes': conf_model_desc['cell']['n_nodes']})
 
         return model
 
