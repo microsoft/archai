@@ -62,7 +62,8 @@ class Searcher(EnforceOverrides):
         # train searched model for few epochs to get some perf metrics
         model_metrics = self.train_model_desc(model_desc, conf_post_train)
 
-        search_result = SearchResult(model_desc, search_metrics, model_metrics.metrics)
+        search_result = SearchResult(model_desc, search_metrics,
+            model_metrics.metrics if model_metrics is not None else None)
         self.clean_log_result(conf_search, search_result)
 
         return search_result
