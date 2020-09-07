@@ -36,15 +36,6 @@ from archai.common.metrics import Metrics
 from archai.nas.evaluater import Evaluater, EvalResult
 
 class EvaluaterPetridish(Evaluater):
-    def __init__(self):
-        super().__init__()
-
-        # initialize ray for distributed training
-        if not ray.is_initialized():
-            ray.init()
-            self.num_cpus = ray.nodes()[0]['Resources']['CPU']
-            self.num_gpus = ray.nodes()[0]['Resources']['GPU']
-            logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
 
     @overrides
     def evaluate(self, conf_eval:Config, model_desc_builder:ModelDescBuilder)->EvalResult:

@@ -3,6 +3,10 @@ __include__: 'darts.yaml' # defaults are loaded from this file
 common:
   yaml_log: False
   log_prefix: ''
+  apex:
+    ray:
+      enabled: True # initialize ray. Note: ray cannot be used if apex distributed is enabled
+      local_mode: False # if True then ray runs in serial mode
 
 nas:
   eval:

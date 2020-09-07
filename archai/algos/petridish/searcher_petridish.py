@@ -76,15 +76,6 @@ class ConvexHullPoint:
         return JobStage(self.job_stage.value+1)
 
 class SearcherPetridish(SearchCombinations):
-    def __init__(self):
-        super().__init__()
-
-        # initialize ray for distributed training
-        if not ray.is_initialized():
-            ray.init()
-            self.num_cpus = ray.nodes()[0]['Resources']['CPU']
-            self.num_gpus = ray.nodes()[0]['Resources']['GPU']
-            logger.info(f'ray detected {self.num_cpus} cpus and {self.num_gpus} gpus')
 
     @overrides
     def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
@@ -128,6 +119,7 @@ class SearcherPetridish(SearchCombinations):
             if future_ids:
                 # get first completed job
                 job_id_done, future_ids = ray.wait(future_ids)
+
                 hull_point = ray.get(job_id_done[0])
 
                 logger.info(f'Hull point id {hull_point.id} with stage {hull_point.job_stage.name} completed')
