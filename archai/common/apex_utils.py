@@ -11,6 +11,8 @@ from torch import Tensor, nn
 from torch.backends import cudnn
 import torch.distributed as dist
 
+import ray
+
 import psutil
 
 from archai.common.config import Config
@@ -33,6 +35,10 @@ class ApexUtils:
         seed = apex_config['seed']
         detect_anomaly = apex_config['detect_anomaly']
         conf_gpu_ids = apex_config['gpus']
+
+        conf_ray = apex_config['ray']
+        self.ray_enabled = conf_ray['enabled']
+        self.ray_local_mode = conf_ray['local_mode']
         # endregion
 
         # to avoid circular references= with common, logger is passed from outside
@@ -64,6 +70,8 @@ class ApexUtils:
 
         # enable distributed processing
         if self.is_dist():
+            assert not self.is_ray(), "Ray is not yet enabled for Apex distributed mode"
+
             from apex import parallel
             self._ddp = parallel
 
@@ -74,6 +82,17 @@ class ApexUtils:
                 assert dist.is_initialized()
             assert dist.get_world_size() == self.world_size
             assert dist.get_rank() == self.global_rank
+
+        if self.is_ray():
+            assert not self.is_dist(), "Ray is not yet enabled for Apex distributed mode"
+
+            import ray
+
+            if not ray.is_initialized():
+                ray.init(local_mode=self.ray_local_mode)
+                ray_cpus = ray.nodes()[0]['Resources']['CPU']
+                ray_gpus = ray.nodes()[0]['Resources']['GPU']
+                self._log_info({'ray_cpus': ray_cpus, 'ray_gpus':ray_gpus})
 
         assert self.world_size >= 1
         assert not self._min_world_size or self.world_size >= self._min_world_size
@@ -160,6 +179,8 @@ class ApexUtils:
         return self._enabled and self._distributed_enabled
     def is_master(self)->bool:
         return self.global_rank == 0
+    def is_ray(self)->bool:
+        return self.ray_enabled
 
     def _log_info(self, d:dict)->None:
         if self.logger is not None:

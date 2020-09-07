@@ -30,6 +30,9 @@ common:
     min_world_size: 0 # allows to confirm we are indeed in distributed setting
     detect_anomaly: False # if True, PyTorch code will run 6X slower
     seed: '_copy: /common/seed'
+    ray:
+      enabled: False # initialize ray. Note: ray cannot be used if apex distributed is enabled
+      local_mode: False # if True then ray runs in serial mode
 
   smoke_test: False
   only_eval: False
