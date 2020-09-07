@@ -31,30 +31,26 @@ class GsModelDescBuilder(ModelDescBuilder):
 
         reduction = (cell_type==CellType.Reduction)
 
-        cell_template = self.get_cell_template(cell_index)
-        assert cell_template is not None and len(cell_template.nodes())>0
-        assert all(len(n.edges)>0 for n in cell_template.nodes())
-
-        nodes:List[NodeDesc] = [n.clone() for n in cell_template.nodes()]
-
+        nodes:List[NodeDesc] =  []
         conv_params = ConvMacroParams(in_shape[0], out_shape[0])
 
         gs_num_sample = conf_cell['gs']['num_sample']
 
         # add gs op for each edge
         for i in range(node_count):
-            edges = []
+            edges=[]
             for j in range(i+2):
                 op_desc = OpDesc('gs_op',
                                     params={
                                         'conv': conv_params,
                                         'stride': 2 if reduction and j < 2 else 1,
-                                        'gs_num_sample': gs_num_sample,
+                                        'gs_num_sample': gs_num_sample
                                     }, in_len=1, trainables=None, children=None)
                 edge = EdgeDesc(op_desc, input_ids=[j])
                 edges.append(edge)
             nodes.append(NodeDesc(edges=edges, conv_params=conv_params))
 
         out_shapes = [copy.deepcopy(out_shape) for _  in range(node_count)]
+
         return out_shapes, nodes
 

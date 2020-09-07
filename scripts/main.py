@@ -29,7 +29,7 @@ def main():
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
-    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts,petridish', #,gs,manual,divnas
+    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts,petridish,gs', #,gs,manual,divnas
                         help='NAS algos to run, seperated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
                         help='datasets to use, separated by comma')

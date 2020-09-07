@@ -23,25 +23,28 @@ from archai.common.common import logger, get_conf
 from archai.algos.gumbelsoftmax.gs_op import GsOp
 
 class GsArchTrainer(ArchTrainer):
+    def __init__(self, conf_train: Config, model: nn.Module, checkpoint: Optional[CheckPoint]) -> None:
+        super().__init__(conf_train, model, checkpoint)
+
+        conf = get_conf()
+        self._gs_num_sample = conf['nas']['search']['model_desc']['cell']['gs']['num_sample']
+
     @overrides
     def create_optimizer(self, conf_optim:Config, params) -> Optimizer:
         # in this case we don't need to differentiate between arch_params and weights
         # as the same optimizer will update both
         arch_params = list(self.model.all_owned().param_by_kind('alphas'))
         nonarch_params = list(self.model.nonarch_params(recurse=True))
-        # TODO: do we need different param groups? Check in paper if they are using different optimizers for alphas or not. 
+        # TODO: do we need different param groups? Check in paper if they are using different optimizers for alphas or not.
         param_groups = [{'params': nonarch_params}, {'params': arch_params}]
         return ml_utils.create_optimizer(conf_optim, param_groups)
 
 
     @overrides
-    def pre_step(self, x:Tensor, y:Tensor)->None:        
+    def pre_step(self, x:Tensor, y:Tensor)->None:
         super().pre_step(x, y)
 
         # TODO: is it a good idea to ensure model is in training mode here?
-
-        conf = get_conf()
-        gs_num_sample = conf['nas']['search']['gs']['num_sample']
 
         # for each node in a cell, get the alphas of each incoming edge
         # concatenate them all together, sample from them via GS
@@ -53,16 +56,16 @@ class GsArchTrainer(ArchTrainer):
                 # collect all alphas for all edges in to node
                 node_alphas = []
                 for edge in node:
-                    if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == GsOp:                        
+                    if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == GsOp:
                         node_alphas.extend(alpha for op, alpha in edge._op.ops())
-                    
+
                 # TODO: will creating a tensor from a list of tensors preserve the graph?
                 node_alphas = torch.Tensor(node_alphas)
-                                
+
                 if node_alphas.nelement() > 0:
                     # sample ops via gumbel softmax
                     sample_storage = []
-                    for _ in range(gs_num_sample):
+                    for _ in range(self._gs_num_sample):
                         sampled = F.gumbel_softmax(node_alphas, tau=1, hard=False, eps=1e-10, dim=-1)
                         sample_storage.append(sampled)
 
@@ -74,7 +77,7 @@ class GsArchTrainer(ArchTrainer):
 
                     # send the sampled op weights to their respective edges
                     # to be used in forward
-                    counter = 0    
+                    counter = 0
                     for _, edge in enumerate(node):
                         if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == GsOp:
                             this_edge_sampled_weights = samples[counter:counter+len(edge._op.PRIMITIVES)]

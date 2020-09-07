@@ -27,7 +27,7 @@ class GsFinalizers(Finalizers):
                       node_desc:NodeDesc, max_final_edges:int,
                       *args, **kwargs)->NodeDesc:
         conf = get_conf()
-        gs_num_sample = conf['nas']['search']['gs']['num_sample']
+        gs_num_sample = conf['nas']['search']['model_desc']['cell']['gs']['num_sample']
 
         # gather the alphas of all edges in this node
         node_alphas = []
