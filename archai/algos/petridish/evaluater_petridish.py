@@ -42,7 +42,7 @@ class EvaluaterPetridish(Evaluater):
         """Takes a folder of model descriptions output by search process and
         trains them in a distributed manner using ray with 1 gpu"""
 
-        logger.pushd('eval_arch')
+        logger.pushd('evaluate')
 
         final_desc_foldername:str = conf_eval['final_desc_foldername']
 
@@ -65,6 +65,8 @@ class EvaluaterPetridish(Evaluater):
         self._plot_model_gallery(metric_stats_all)
 
         best_metric_stats = max(metric_stats_all, key=lambda ms:ms[0].best_val_top1())
+        logger.info({'best_top1_val':best_metric_stats[0].best_val_top1(),
+                     'best_MAdd': best_metric_stats[1].MAdd})
 
         logger.popd()
 

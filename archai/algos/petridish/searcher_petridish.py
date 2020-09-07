@@ -81,6 +81,8 @@ class SearcherPetridish(SearchCombinations):
     def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
                  trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
 
+        logger.pushd('search')
+
         # region config vars
         self.conf_search = conf_search
         conf_checkpoint = conf_search['checkpoint']
@@ -145,8 +147,9 @@ class SearcherPetridish(SearchCombinations):
                     raise RuntimeError(f'Job stage "{hull_point.job_stage}" is not expected in search loop')
 
         # cancel any remaining jobs to free up gpus for the eval phase
-        for job_id in future_ids:
-            ray.cancel(job_id)
+        for future_id in future_ids:
+            ray.cancel(future_id, force=True) # without force, main process stops
+            ray.wait([future_id])
 
         self._plot_frontier()
         best_point = self._save_frontier(final_desc_foldername)
@@ -156,7 +159,10 @@ class SearcherPetridish(SearchCombinations):
                                      train_metrics=best_point.metrics)
         self.clean_log_result(conf_search, search_result)
 
+        logger.popd()
+
         return search_result
+
 
     @staticmethod
     @ray.remote(num_gpus=1)
