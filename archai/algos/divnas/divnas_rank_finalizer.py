@@ -84,7 +84,7 @@ class DivnasRankFinalizers(Finalizers):
         for i, node in enumerate(cell.dag):
             node_cov = dcell.node_covs[id(node)]
             logger.info(f'node {i}')
-            node_desc = self.finalize_node(node, i, cell.desc.nodes()[i],max_final_edges)
+            node_desc = self.finalize_node(node, i, cell.desc.nodes()[i],max_final_edges, node_cov, cell, i)
             node_descs.append(node_desc)
 
         # (optional) clear out all activation collection information
@@ -105,6 +105,7 @@ class DivnasRankFinalizers(Finalizers):
     @overrides
     def finalize_node(self, node:nn.ModuleList, node_index:int,
                       node_desc:NodeDesc, max_final_edges:int,
+                      cov:np.array, cell: Cell, node_id: int,
                       *args, **kwargs)->NodeDesc:
         # node is a list of edges
         assert len(node) >= max_final_edges

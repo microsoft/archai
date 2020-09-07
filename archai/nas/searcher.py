@@ -39,7 +39,7 @@ class SearchResult:
         self.train_metrics = train_metrics
 
 class Searcher(EnforceOverrides):
-    def search(self, conf_search:Config, model_desc_builder:ModelDescBuilder,
+    def search(self, conf_search:Config, model_desc_builder:Optional[ModelDescBuilder],
                  trainer_class:TArchTrainer, finalizers:Finalizers)->SearchResult:
 
         # region config vars
@@ -50,6 +50,8 @@ class Searcher(EnforceOverrides):
         reductions = conf_model_desc['n_reductions']
         nodes = conf_model_desc['cell']['n_nodes']
         # endregion
+
+        assert model_desc_builder is not None, 'Default search implementation requires model_desc_builder'
 
         # build model description that we will search on
         model_desc = self.build_model_desc(model_desc_builder, conf_model_desc,
