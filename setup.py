@@ -13,11 +13,8 @@ install_requires=[
     'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib', 'psutil',
     'requests', 'seaborn', 'h5py', 'rarfile',
     'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt',
-    'pyunpack', 'patool'
+    'pyunpack', 'patool', 'ray'
 ]
-
-if platform.system()!='Windows':
-    install_requires.append('ray')
 
 setuptools.setup(
     name="archai",
