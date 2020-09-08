@@ -49,8 +49,11 @@ class ExperimentRunner(ABC, EnforceOverrides):
 
         if eval:
             if search:
+                # below is only done to remove existing expdir
+                _ = self.get_conf_eval(clean_expdir=True)
                 self.copy_search_to_eval()
-            eval_result = self.run_eval(self.get_conf_eval(clean_expdir=True))
+
+            eval_result = self.run_eval(self.get_conf_eval())
 
         return search_result, eval_result
 
