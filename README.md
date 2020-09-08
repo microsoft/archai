@@ -7,6 +7,23 @@ and making them accessible to non-experts so that anyone can leverage this resea
 
 ## How to Get It
 
+### Create conda environment
+```
+conda create --name archai python=3.7
+conda activate archai
+```
+
+### Install PyTorch
+Follow instructions [here](https://pytorch.org/) to install pytorch for your OS and cuda version. We have tested it with version 1.3+. 
+
+###  Microsoft Visual C++ 14.0 (On Windows only)
+
+Microsoft Visual C++ 14.0 is required for pickle5 package. Get it with [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/)
+
+### Graphviz (On Windows only)
+
+For network visualization, you may need to separately install [graphviz](https://graphviz.gitlab.io/download/). We recommend [TODO]
+
 ### Install as package
 
 ```
@@ -24,8 +41,9 @@ pip install -e .
 ```
 
 
-Archai requires Python 3.6+ and is tested with PyTorch 1.3+. For network visualization, you may need to separately install [graphviz](https://graphviz.gitlab.io/download/). We recommand
 
+
+Archai requires Python 3.6+ and is tested with PyTorch 1.3+. 
 
 ## Test installation
 
