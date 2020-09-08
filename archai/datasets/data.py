@@ -198,13 +198,10 @@ class SubsetSampler(Sampler):
 def _get_datasets(ds_provider:DatasetProvider, load_train:bool, load_test:bool,
         transform_train, transform_test)\
             ->Tuple[DatasetLike, DatasetLike]:
-    lockfilename = os.path.join(common.get_expdir(), '_dataset_lockfile.txt')
 
-    with FileLock(lockfilename):
-        trainset, testset = ds_provider.get_datasets(load_train, load_test,
-                                                 transform_train, transform_test)
-
-        return  trainset, testset
+    trainset, testset = ds_provider.get_datasets(load_train, load_test,
+                                                transform_train, transform_test)
+    return  trainset, testset
 
 # target_lb allows to filter dataset for a specific class, not used
 def _get_sampler(dataset:Dataset, val_ratio:Optional[float], shuffle:bool,

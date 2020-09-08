@@ -89,7 +89,7 @@ class ApexUtils:
             import ray
 
             if not ray.is_initialized():
-                ray.init(local_mode=self.ray_local_mode)
+                ray.init(local_mode=self.ray_local_mode, include_dashboard=False)
                 ray_cpus = ray.nodes()[0]['Resources']['CPU']
                 ray_gpus = ray.nodes()[0]['Resources']['GPU']
                 self._log_info({'ray_cpus': ray_cpus, 'ray_gpus':ray_gpus})

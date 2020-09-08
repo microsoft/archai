@@ -51,6 +51,8 @@ class EvaluaterPetridish(Evaluater):
         files = [os.path.join(final_desc_folderpath, f) for f in os.listdir(final_desc_folderpath) if os.path.isfile(os.path.join(final_desc_folderpath, f))]
         logger.info({'models to train':len(files)})
 
+        self._ensure_dataset_download(conf_eval)
+
         future_ids = []
         for model_desc_filename in files:
             future_id = EvaluaterPetridish._train_dist.remote(self, conf_eval, model_desc_builder,
@@ -181,6 +183,8 @@ class EvaluaterPetridish(Evaluater):
         plt.ylabel('Top1 Accuracy')
         plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
-
+    def _ensure_dataset_download(self, conf_search:Config)->None:
+        conf_loader = conf_search['loader']
+        self.get_data(conf_loader)
 
 

@@ -33,3 +33,7 @@ class ManualExperimentRunner(ExperimentRunner):
     @overrides
     def evaluater(self)->ManualEvaluater:
         return ManualEvaluater()
+
+    @overrides
+    def copy_search_to_eval(self)->None:
+        pass
