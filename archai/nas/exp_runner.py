@@ -45,12 +45,12 @@ class ExperimentRunner(ABC, EnforceOverrides):
         search_result, eval_result = None, None
 
         if search: # run search
-            search_result = self.run_search(self.get_conf_search())
+            search_result = self.run_search(self.get_conf_search(clean_expdir=True))
 
         if eval:
             if search:
                 self.copy_search_to_eval()
-            eval_result = self.run_eval(self.get_conf_eval())
+            eval_result = self.run_eval(self.get_conf_eval(clean_expdir=True))
 
         return search_result, eval_result
 
@@ -95,21 +95,21 @@ class ExperimentRunner(ABC, EnforceOverrides):
         else:
             raise NotImplementedError
 
-    def get_conf_search(self)->Config:
-        conf = self._init_conf('search')
+    def get_conf_search(self, clean_expdir=False)->Config:
+        conf = self._init_conf('search', clean_expdir)
         conf_search = conf['nas']['search']
         return conf_search
 
-    def get_conf_eval(self)->Config:
-        conf = self._init_conf('eval')
+    def get_conf_eval(self, clean_expdir=False)->Config:
+        conf = self._init_conf('eval', clean_expdir)
         conf_eval = conf['nas']['eval']
         return conf_eval
 
-    def _init_conf(self, exp_name_suffix:str)->Config:
+    def _init_conf(self, exp_name_suffix:str, clean_expdir:bool)->Config:
         config_filename = self.config_filename
 
         conf = common_init(config_filepath=config_filename,
             param_args=['--common.experiment_name', self.base_name + f'_{exp_name_suffix}',
-                        ], backup_existing_log_file=False)
+                        ], backup_existing_log_file=False, clean_expdir=clean_expdir)
         return conf
 

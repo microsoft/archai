@@ -20,6 +20,7 @@ from .config import Config
 from . import utils
 from .ordereddict_logger import OrderedDictLogger
 from .apex_utils import ApexUtils
+from send2trash import send2trash
 
 class SummaryWriterDummy:
     def __init__(self, log_dir):
@@ -113,7 +114,8 @@ def init_from(state:CommonState)->None:
 # initializes random number gen, debugging etc
 def common_init(config_filepath: Optional[str]=None,
                 param_args: list = [], log_level=logging.INFO,
-                use_args=True, backup_existing_log_file=True)->Config:
+                use_args=True, backup_existing_log_file=True,
+                clean_expdir=False)->Config:
 
     # get cloud dirs if any
     pt_data_dir, pt_output_dir, param_overrides = _setup_pt(param_args)
@@ -125,7 +127,7 @@ def common_init(config_filepath: Optional[str]=None,
     Config.set_inst(conf)
 
     # create experiment dir
-    _setup_dirs()
+    _setup_dirs(clean_expdir)
 
     # validate and log dirs
     expdir = get_expdir()
@@ -185,7 +187,7 @@ def _create_tb_writer(is_master=True)-> SummaryWriterAny:
 
     return WriterClass(log_dir=tb_dir)
 
-def _setup_dirs()->Optional[str]:
+def _setup_dirs(clean_expdir:bool)->Optional[str]:
     conf_common = get_conf_common()
     conf_dataset = get_conf_dataset()
     experiment_name = get_experiment_name()
@@ -199,6 +201,9 @@ def _setup_dirs()->Optional[str]:
     if logdir:
         logdir = utils.full_path(logdir)
         expdir = os.path.join(logdir, experiment_name)
+
+        if clean_expdir and os.path.exists(expdir):
+            send2trash(expdir)
         os.makedirs(expdir, exist_ok=True)
 
         # directory for non-master replica logs
