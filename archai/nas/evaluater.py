@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional
+from typing import Optional, Tuple
 import importlib
 import sys
 import string
@@ -9,6 +9,7 @@ import os
 
 import torch
 from torch import nn
+from torch.utils.data.dataloader import DataLoader
 
 from overrides import overrides, EnforceOverrides
 
@@ -64,12 +65,29 @@ class Evaluater(EnforceOverrides):
         conf_train = conf_train['trainer']
 
         # get data
-        train_dl, _, test_dl = data.get_data(conf_loader)
-        assert train_dl is not None and test_dl is not None
+        train_dl, test_dl = self.get_data(conf_loader)
 
         trainer = Trainer(conf_train, model, checkpoint)
         train_metrics = trainer.fit(train_dl, test_dl)
         return train_metrics
+
+    def get_data(self, conf_loader:Config)->Tuple[DataLoader, DataLoader]:
+
+        # this dict caches the dataset objects per dataset config so we don't have to reload
+        # the reason we do dynamic attribute is so that any dependent methods
+        # can do ray.remote
+        if not hasattr(self, '_data_cache'):
+            self._data_cache = {}
+
+        # first get from cache
+        train_dl, test_dl = self._data_cache.get(id(conf_loader), (None, None))
+        # if not found in cache then create
+        if train_dl is None:
+            train_dl, _, test_dl = data.get_data(conf_loader)
+            self._data_cache[id(conf_loader)] = (train_dl, test_dl)
+
+        assert train_dl is not None and test_dl is not None
+        return train_dl, test_dl
 
     def _default_module_name(self, dataset_name:str, function_name:str)->str:
         """Select PyTorch pre-defined network to support manual mode"""
