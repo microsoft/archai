@@ -173,7 +173,7 @@
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "gs"]
-        },        
+        },
         {
             "name": "Random-Full",
             "type": "python",
@@ -213,6 +213,14 @@
             "program": "${cwd}/tools/azure/aml_launch_main.py",
             "console": "integratedTerminal",
             "args": ["--aml_secrets_filepath", "/home/dedey/aml_secrets/aml_secrets_msrlabspvc1.yaml", "--algo", "darts", "--full"]
+        },
+        {
+            "name": "Manual-E2E-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "manual"]
         },
         {
             "name": "TrainAug resnet50 cocob cifar10",
