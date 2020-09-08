@@ -106,6 +106,8 @@ class SearcherPetridish(SearchCombinations):
         # parent models list
         self._hull_points: List[ConvexHullPoint] = []
 
+        self._ensure_dataset_download(conf_search)
+
         # checkpoint will restore the hull we had
         is_restored = self._restore_checkpoint()
 
@@ -325,6 +327,10 @@ class SearcherPetridish(SearchCombinations):
         sampled_point.sampling_count += 1
 
         return sampled_point
+
+    def _ensure_dataset_download(self, conf_search:Config)->None:
+        conf_loader = conf_search['loader']
+        self.get_data(conf_loader)
 
     def _is_search_done(self)->bool:
         '''Terminate search if max MAdd or number of points exceeded'''
