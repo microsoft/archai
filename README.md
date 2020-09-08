@@ -14,20 +14,13 @@ conda activate archai
 ```
 
 ### Install PyTorch
-Follow instructions [here](https://pytorch.org/) to install pytorch for your OS and cuda version. We have tested it with version 1.3+. 
+Follow instructions [here](https://pytorch.org/) to install pytorch for your OS and cuda version. We have tested it with Pytorch 1.3+ and Python 3.6+on Windows 10 and Ubuntu 18.04.
 
-###  Microsoft Visual C++ 14.0 (On Windows only)
-
-Microsoft Visual C++ 14.0 is required for pickle5 package. Get it with [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/)
-
-### Graphviz (On Windows only)
-
-For network visualization, you may need to separately install [graphviz](https://graphviz.gitlab.io/download/). We recommend [TODO]
-
-### Install as package
+### Windows Installation
 
 ```
-pip install archai
+cd archai
+install.bat
 ```
 
 ### Install from source code
@@ -37,10 +30,10 @@ We recommend installing from the source code:
 ```
 git clone https://github.com/microsoft/archai.git
 cd archai
-pip install -e .
 ```
 
-
+On Windows `install.bat`
+On Linux `install.sh`
 
 
 Archai requires Python 3.6+ and is tested with PyTorch 1.3+. 
