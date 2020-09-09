@@ -14,7 +14,7 @@ conda activate archai
 ```
 
 ### Install PyTorch
-Follow instructions [here](https://pytorch.org/) to install pytorch for your OS and cuda version. We have tested it with Pytorch 1.3+ and Python 3.6+on Windows 10 and Ubuntu 18.04.
+Follow instructions [here](https://pytorch.org/) to install pytorch for your OS and cuda version. We have tested it with Pytorch 1.3+ and Python 3.6+ on Windows 10 and Ubuntu 18.04.
 
 ### Windows Installation
 
@@ -35,8 +35,6 @@ cd archai
 On Windows `install.bat`
 On Linux `install.sh`
 
-
-Archai requires Python 3.6+ and is tested with PyTorch 1.3+. 
 
 ## Test installation
 
