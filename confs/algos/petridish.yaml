@@ -18,7 +18,7 @@ nas:
       model_stems:
         init_node_ch: 36 # num of input/output channels for nodes in 1st cell
       cell:
-        n_nodes: 4 # number of nodes in a cell if template desc is not provided
+        n_nodes: 5 # for petridish, we start with 1 node and increase nodes upto n_nodes
         cell_post_op: 'proj_channels'
     petridish:
       cell_count_scale: 2.0 # for eval first multiply number of cells used in search by this factor, limit to n_cells
@@ -57,4 +57,4 @@ nas:
       epochs: 80 # number of epochs model will be trained during search
     loader:
       train_batch: 64
-      val_ratio: 0.2 #split portion for test set, 0 to 1
+      val_ratio: 0.2 # split portion for test set, 0 to 1

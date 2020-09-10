@@ -180,7 +180,7 @@ def get_dataloaders(ds_provider:DatasetProvider,
 
 
 class SubsetSampler(Sampler):
-    r"""Samples elements from a given list of indices, without replacement.
+    """Samples elements from a given list of indices, without replacement.
 
     Arguments:
         indices (sequence): a sequence of indices
