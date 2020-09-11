@@ -72,7 +72,7 @@ class ExperimentRunner(ABC, EnforceOverrides):
         eval_desc_filename = conf_eval['final_desc_filename']
         eval_desc_filepath = utils.full_path(eval_desc_filename)
         assert eval_desc_filepath
-        shutil.copy2(search_desc_filepath, eval_desc_filepath)
+        utils.copy_file(search_desc_filepath, eval_desc_filepath)
 
     def model_desc_builder(self)->Optional[ModelDescBuilder]:
         return ModelDescBuilder() # default model desc builder puts nodes with no edges

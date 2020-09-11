@@ -140,7 +140,7 @@ def common_init(config_filepath: Optional[str]=None,
     apex = ApexUtils(conf_apex, None)
 
     # create global logger
-    _setup_logger(apex, backup_existing_log_file)
+    _setup_logger(apex, backup_existing_log_file, log_level=log_level)
     # create info file for current system
     _create_sysinfo(conf)
 
@@ -220,7 +220,7 @@ def _setup_dirs(clean_expdir:bool)->Optional[str]:
     os.environ['distdir'] = conf_common['distdir'] = distdir
 
 
-def _setup_logger(apex:ApexUtils, backup_existing_log_file:bool):
+def _setup_logger(apex:ApexUtils, backup_existing_log_file:bool, log_level=logging.INFO):
     global logger
     logger.close()  # close any previous instances
 
@@ -246,7 +246,7 @@ def _setup_logger(apex:ApexUtils, backup_existing_log_file:bool):
     print(f'log_global_rank={global_rank}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}')
 
     sys_logger = utils.create_logger(filepath=sys_log_filepath,
-                                     name=experiment_name,
+                                     name=experiment_name, level=log_level,
                                      enable_stdout=enable_stdout)
     if not sys_log_filepath:
         sys_logger.warn(

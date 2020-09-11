@@ -111,7 +111,7 @@ def copy_data_helper(data: Dict[str, List[str]], imagesroot: str, foldername: st
             source = os.path.join(imagesroot, key, im)
             target = os.path.join(foldername, key, im)
             if not os.path.isfile(target):
-                shutil.copy2(source, target)
+                utils.copy_file(source, target)
 
 
 def prepare_data(sport8:str, meta:str):
