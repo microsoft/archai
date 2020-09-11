@@ -21,6 +21,8 @@ import shutil
 from collections import defaultdict
 import pathlib
 
+from archai.common import utils
+
 
 def check_flower102(dataroot: str) -> bool:
     flower102 = os.path.join(dataroot, 'flower102')
@@ -59,7 +61,7 @@ def download(dataroot: str):
 
 
 def load_test_csv_data(filename: str) -> Dict[str, List[str]]:
-    ''' Loads the data in csv files into a dictionary with 
+    ''' Loads the data in csv files into a dictionary with
     class names as keys and list of image names as values. Works only for test data csv'''
     data_dict = defaultdict(list)
     with open(filename, 'r') as f:
@@ -74,7 +76,7 @@ def load_test_csv_data(filename: str) -> Dict[str, List[str]]:
 
 
 def load_train_csv_data(filename: str) -> Dict[str, List[str]]:
-    ''' Loads the data in csv files into a dictionary with 
+    ''' Loads the data in csv files into a dictionary with
     class names as keys and list of image names as values. Works only for train data csv '''
     data_dict = defaultdict(list)
     with open(filename, 'r') as f:
@@ -98,7 +100,7 @@ def copy_data_helper(data: Dict[str, List[str]], imagesroot: str, foldername: st
             source = os.path.join(imagesroot, im)
             target = os.path.join(foldername, key, im)
             if not os.path.isfile(target):
-                shutil.copy2(source, target)
+                utils.copy_file(source, target)
 
 
 def prepare_data(flower102_root: str):
@@ -108,7 +110,7 @@ def prepare_data(flower102_root: str):
     # train data is split into 2 files for some reason
     train1_file = os.path.join(flower102_root, 'meta', 'flowers102_train1.csv')
     train2_file = os.path.join(flower102_root, 'meta', 'flowers102_train2.csv')
-    
+
     train_files = [train1_file, train2_file]
     train_data = defaultdict(list)
     for tf in train_files:

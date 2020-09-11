@@ -11,6 +11,7 @@ import  os
 import pathlib
 import random
 from itertools import zip_longest
+import shutil
 
 import  torch
 import torch.backends.cudnn as cudnn
@@ -277,3 +278,9 @@ def append_to_filename(filepath:str, name_suffix:str, new_ext:Optional[str]=None
     ext = new_ext or filepath_ext(filepath)
     name = filepath_name_only(filepath)
     return str(pathlib.Path(filepath).with_name(name+name_suffix).with_suffix(ext))
+
+def copy_file(src_file:str, dest_dir_or_file:str, preserve_metadata=False)->str:
+    # note that copy2 might fail on some Azure blobs if filesyste does not support OS level copystats
+    # so use preserve_metadata=True only if absolutely needed for maximum compatibility
+    copy_fn = shutil.copy2 if preserve_metadata else shutil.copy
+    return copy_fn(src_file, dest_dir_or_file)

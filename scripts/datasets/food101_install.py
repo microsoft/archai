@@ -26,6 +26,9 @@ import shutil
 from collections import defaultdict
 import pathlib
 
+from archai.common import utils
+
+
 
 def copy_file_list(file_list, src_dir, dest_dir):
     with tqdm(total=len(file_list)) as pbar:
@@ -36,7 +39,7 @@ def copy_file_list(file_list, src_dir, dest_dir):
                 filename_parts = (filename + '.jpg').split('/')
                 target = os.path.join(dest_dir, *filename_parts)
                 if not os.path.isfile(target):
-                    shutil.copy2(os.path.join(src_dir, *filename_parts), target)
+                    utils.copy_file(os.path.join(src_dir, *filename_parts), target)
             pbar.update(1)
 
 def prepare_data(dataroot:str)->None:
