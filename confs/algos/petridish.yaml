@@ -1,7 +1,7 @@
 __include__: 'darts.yaml' # defaults are loaded from this file
 
 common:
-  yaml_log: False
+  # yaml_log: False
   log_prefix: ''
   apex:
     ray:

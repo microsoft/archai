@@ -104,17 +104,22 @@ def _setup_pt(param_args: list)->Tuple[str,str, list]:
 def get_state()->CommonState:
     return CommonState()
 
-def init_from(state:CommonState)->None:
+def init_from(state:CommonState, recreate_logger=True)->None:
     global logger, _tb_writer
-    logger = state.logger
-    _tb_writer = state.tb_writer
+
     Config.set_inst(state.conf)
+
+    if recreate_logger:
+        _setup_logger()
+    else:
+        logger = state.logger
+    _tb_writer = state.tb_writer
+
 
 # TODO: rename this simply as init
 # initializes random number gen, debugging etc
 def common_init(config_filepath: Optional[str]=None,
-                param_args: list = [], log_level=logging.INFO,
-                use_args=True, backup_existing_log_file=True,
+                param_args: list = [], use_args=True,
                 clean_expdir=False)->Config:
 
     # get cloud dirs if any
@@ -135,14 +140,14 @@ def common_init(config_filepath: Optional[str]=None,
     logger.info({'expdir': expdir,
                  'PT_DATA_DIR': pt_data_dir, 'PT_OUTPUT_DIR': pt_output_dir})
 
-    # create a[ex to know distributed processing paramters
-    conf_apex = get_conf_common()['apex']
-    apex = ApexUtils(conf_apex, None)
-
     # create global logger
-    _setup_logger(apex, backup_existing_log_file, log_level=log_level)
+    _setup_logger()
     # create info file for current system
     _create_sysinfo(conf)
+
+    # create a[ex to know distributed processing paramters
+    conf_apex = get_conf_common()['apex']
+    apex = ApexUtils(conf_apex, logger=logger)
 
     # setup tensorboard
     global _tb_writer
@@ -220,7 +225,7 @@ def _setup_dirs(clean_expdir:bool)->Optional[str]:
     os.environ['distdir'] = conf_common['distdir'] = distdir
 
 
-def _setup_logger(apex:ApexUtils, backup_existing_log_file:bool, log_level=logging.INFO):
+def _setup_logger():
     global logger
     logger.close()  # close any previous instances
 
@@ -229,37 +234,37 @@ def _setup_logger(apex:ApexUtils, backup_existing_log_file:bool, log_level=loggi
     distdir = conf_common['distdir']
     log_prefix = conf_common['log_prefix']
     yaml_log = conf_common['yaml_log']
+    log_level = conf_common['log_level']
 
-    global_rank = apex.global_rank
+    if utils.is_main_process():
+        logdir, log_suffix = expdir, ''
+    else:
+        logdir, log_suffix = distdir, '_' + str(os.getpid())
+
+    # ensure folders
+    os.makedirs(logdir, exist_ok=True)
 
     # file where logger would log messages
-    if apex.is_master():
-        sys_log_filepath = utils.full_path(os.path.join(expdir, f'{log_prefix}.log')) if log_prefix else None
-        logs_yaml_filepath = utils.full_path(os.path.join(expdir, f'{log_prefix}.yaml')) if log_prefix else None
-        experiment_name = get_experiment_name()
-        enable_stdout = True
-    else:
-        sys_log_filepath = utils.full_path(os.path.join(distdir, f'{log_prefix}_{global_rank}.log'))
-        logs_yaml_filepath = utils.full_path(os.path.join(distdir, f'{log_prefix}_{global_rank}.yaml'))
-        experiment_name = get_experiment_name() + '_' + str(global_rank)
-        enable_stdout = False
-    print(f'log_global_rank={global_rank}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}')
+    sys_log_filepath = utils.full_path(os.path.join(logdir, f'{log_prefix}{log_suffix}.log'))
+    logs_yaml_filepath = utils.full_path(os.path.join(logdir, f'{log_prefix}{log_suffix}.yaml'))
+    experiment_name = get_experiment_name() + log_suffix
+    #print(f'experiment_name={experiment_name}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}')
 
     sys_logger = utils.create_logger(filepath=sys_log_filepath,
                                      name=experiment_name, level=log_level,
-                                     enable_stdout=enable_stdout)
+                                     enable_stdout=True)
     if not sys_log_filepath:
         sys_logger.warn(
             'log_prefix not specified, logs will be stdout only')
 
     # reset to new file path
     logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log,
-                 backup_existing_file=backup_existing_log_file)
-    logger.info({'command_line': ' '.join(sys.argv[1:])})
+                 backup_existing_file=False)
+    logger.info({'command_line': ' '.join(sys.argv) if utils.is_main_process() else f'Child process: {utils.process_name()}-{os.getpid()}'})
     logger.info({
         'datetime:': datetime.datetime.now(),
-        'logger_global_rank': global_rank,
-        'logger_enable_stdout': enable_stdout,
+        'experiment_name': experiment_name,
+        'logs_yaml_filepath': logs_yaml_filepath,
         'sys_log_filepath': sys_log_filepath
     })
 

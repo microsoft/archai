@@ -12,6 +12,7 @@ import pathlib
 import random
 from itertools import zip_longest
 import shutil
+import multiprocessing
 
 import  torch
 import torch.backends.cudnn as cudnn
@@ -132,7 +133,7 @@ def create_logger(filepath:Optional[str]=None,
                   name:Optional[str]=None,
                   level=logging.INFO,
                   enable_stdout=True)->logging.Logger:
-    logger = logging.getLogger()
+    logger = logging.getLogger(name=name)
 
     # close current handlers
     for handler in logger.handlers[:]:
@@ -284,3 +285,9 @@ def copy_file(src_file:str, dest_dir_or_file:str, preserve_metadata=False)->str:
     # so use preserve_metadata=True only if absolutely needed for maximum compatibility
     copy_fn = shutil.copy2 if preserve_metadata else shutil.copy
     return copy_fn(src_file, dest_dir_or_file)
+
+def is_main_process()->bool:
+    """Returns True if this process was started as main process instead of child process during multiprocessing"""
+    return multiprocessing.current_process().name == 'MainProcess'
+def process_name()->str:
+    return multiprocessing.current_process().name
