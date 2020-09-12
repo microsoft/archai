@@ -49,9 +49,8 @@ class ApexUtils:
         self._set_ranks(conf_gpu_ids)
 
         #_log_info({'apex_config': apex_config.to_dict()})
-        self._log_info({'ray.enabled':  self.is_ray(),
-                        'torch.distributed.is_available': dist.is_available(),
-                        'apex.enabled': self._enabled,
+        self._log_info({'ray.enabled':  self.is_ray(), 'apex.enabled': self._enabled})
+        self._log_info({'torch.distributed.is_available': dist.is_available(),
                         'apex.distributed_enabled': self._distributed_enabled,
                         'apex.mixed_prec_enabled': self._mixed_prec_enabled})
 
