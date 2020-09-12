@@ -5,6 +5,8 @@ common:
   experiment_desc: 'throwaway'
   logdir: '~/logdir'
   log_prefix: 'log' # prefix for log files that will becreated (log.log and log.yaml), no log files if ''
+  log_level: 20 # logging.INFO
+  backup_existing_log_file: False # should we overwrite existing log file without making a copy?
   yaml_log: True # if True, structured logs as yaml are also generated
   seed: 2.0
   tb_enable: False # if True then TensorBoard logging is enabled (may impact perf)
