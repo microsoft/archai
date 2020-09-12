@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from archai.common.utils import process_name
 import logging
 import numpy as np
 import os
@@ -113,6 +114,9 @@ def init_from(state:CommonState, recreate_logger=True)->None:
         _setup_logger()
     else:
         logger = state.logger
+
+    logger.info({'common_init_from_state': True, 'process_name': utils.process_name(), 'pid': os.getpid(), 'ppid': os.getppid()})
+
     _tb_writer = state.tb_writer
 
 
@@ -261,12 +265,8 @@ def _setup_logger():
     logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log,
                  backup_existing_file=False)
     logger.info({'command_line': ' '.join(sys.argv) if utils.is_main_process() else f'Child process: {utils.process_name()}-{os.getpid()}'})
-    logger.info({
-        'datetime:': datetime.datetime.now(),
-        'experiment_name': experiment_name,
-        'logs_yaml_filepath': logs_yaml_filepath,
-        'sys_log_filepath': sys_log_filepath
-    })
+    logger.info({'experiment_name': experiment_name, 'datetime:': datetime.datetime.now()})
+    logger.info({'logs_yaml_filepath': logs_yaml_filepath, 'sys_log_filepath': sys_log_filepath})
 
 
 
