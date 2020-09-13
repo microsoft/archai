@@ -113,6 +113,6 @@ class ExperimentRunner(ABC, EnforceOverrides):
 
         conf = common_init(config_filepath=config_filename,
             param_args=['--common.experiment_name', self.base_name + f'_{exp_name_suffix}',
-                        ], backup_existing_log_file=False, clean_expdir=clean_expdir)
+                        ], clean_expdir=clean_expdir)
         return conf
 
