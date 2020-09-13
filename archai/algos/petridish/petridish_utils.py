@@ -418,11 +418,17 @@ def plot_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
     bound_ys = [(1.0-p.metrics.best_val_top1()) * (1+convex_hull_eps) \
                 for p in front_points]
 
+    # for easier interpretation report everything in million increments
+    xs_m = [x/1e6 for x in xs]
+    hull_xs_m = [x/1e6 for x in hull_xs]
+    bound_xs_m = [x/1e6 for x in bound_xs]
+
+
     plt.clf()
-    plt.plot(bound_xs, bound_ys, c='red', label='eps-bound')
-    plt.scatter(xs, ys, label='pts')
-    plt.scatter(hull_xs, hull_ys, c='black', marker='+', label='eps-hull')
-    plt.xlabel('Multiply-Additions')
+    plt.plot(bound_xs_m, bound_ys, c='red', label='eps-bound')
+    plt.scatter(xs_m, ys, label='pts')
+    plt.scatter(hull_xs_m, hull_ys, c='black', marker='+', label='eps-hull')
+    plt.xlabel('Multiply-Additions (Millions)')
     plt.ylabel('Top1 Error')
     plt.savefig(os.path.join(expdir, 'convex_hull.png'),
         dpi=plt.gcf().dpi, bbox_inches='tight')
@@ -440,17 +446,21 @@ def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
 
     madds_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_madds.png')
 
+    # for easier interpretation report everything in million increments
+    xs_madd_m = [x/1e6 for x in xs_madd]
+    xs_flops_m = [x/1e6 for x in xs_flops]
+
     plt.clf()
-    plt.scatter(xs_madd, ys)
-    plt.xlabel('Multiply-Additions')
+    plt.scatter(xs_madd_m, ys)
+    plt.xlabel('Multiply-Additions (Millions)')
     plt.ylabel('Top1 Accuracy')
     plt.savefig(madds_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
     flops_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_flops.png')
 
     plt.clf()
-    plt.scatter(xs_flops, ys)
-    plt.xlabel('Flops')
+    plt.scatter(xs_flops_m, ys)
+    plt.xlabel('Flops (Millions)')
     plt.ylabel('Top1 Accuracy')
     plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
