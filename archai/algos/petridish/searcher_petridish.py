@@ -102,7 +102,7 @@ class SearcherPetridish(SearchCombinations):
                 if hull_point.is_trained_stage():
                     self._update_convex_hull(hull_point)
 
-                    # initiate search on this point
+                    # sample a point and search
                     sampled_point = sample_from_hull(self._hull_points,
                         self._convex_hull_eps, self._sampling_max_try)
 
