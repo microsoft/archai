@@ -21,6 +21,7 @@ from torch import nn
 import tensorwatch as tw
 import yaml
 import matplotlib.pyplot as plt
+import glob
 
 from archai.common.trainer import Trainer
 from archai.common.config import Config
@@ -48,9 +49,12 @@ class EvaluaterPetridish(Evaluater):
 
         # get list of model descs in the gallery folder
         final_desc_folderpath = utils.full_path(final_desc_foldername)
-        files = [os.path.join(final_desc_folderpath, f) for f in os.listdir(final_desc_folderpath) if os.path.isfile(os.path.join(final_desc_folderpath, f))]
-        logger.info({'models to train':len(files)})
+        files = [os.path.join(final_desc_folderpath, f) \
+                for f in glob.glob(os.path.join(final_desc_folderpath, 'model_desc_*.yaml')) \
+                    if os.path.isfile(os.path.join(final_desc_folderpath, f))]
+        logger.info({'model_desc_files':len(files)})
 
+        # to avoid all workers download datasets individually, let's do it before hand
         self._ensure_dataset_download(conf_eval)
 
         future_ids = []
