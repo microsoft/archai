@@ -43,7 +43,7 @@ from archai.nas.searcher import SearchResult
 from archai.nas.search_combinations import SearchCombinations
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
-    sample_from_hull, plot_frontier, save_hull
+    sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool
 
 
 class SearcherPetridish(SearchCombinations):
@@ -125,9 +125,14 @@ class SearcherPetridish(SearchCombinations):
             ray.cancel(future_id, force=True) # without force, main process stops
             ray.wait([future_id])
 
-        plot_frontier(self._hull_points, self._convex_hull_eps, common.get_expdir())
-        best_point = save_hull(self._hull_points, self._convex_hull_eps,
-                               final_desc_foldername, common.get_expdir())
+        # plot and save the hull
+        expdir = common.get_expdir()
+        assert expdir
+        plot_frontier(self._hull_points, self._convex_hull_eps, expdir)
+        best_point = save_hull_frontier(self._hull_points, self._convex_hull_eps,
+                               final_desc_foldername, expdir)
+        save_hull(self._hull_points, expdir)
+        plot_pool(self._hull_points,expdir )
 
         # return best point as search result
         search_result = SearchResult(best_point.model_desc, search_metrics=None,

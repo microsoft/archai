@@ -35,6 +35,8 @@ from archai.common import common
 from archai.common import ml_utils, utils
 from archai.common.metrics import Metrics
 from archai.nas.evaluater import Evaluater, EvalResult
+from archai.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
+    save_hull, plot_pool
 
 class EvaluaterPetridish(Evaluater):
 
@@ -59,29 +61,29 @@ class EvaluaterPetridish(Evaluater):
 
         future_ids = []
         for model_desc_filename in files:
-            future_id = EvaluaterPetridish._train_dist.remote(self, conf_eval, model_desc_builder,
-                                              model_desc_filename, common.get_state())
+            future_id = EvaluaterPetridish._train_dist.remote(self, conf_eval, model_desc_builder, model_desc_filename, common.get_state())
             future_ids.append(future_id)
 
         # wait for all eval jobs to be finished
         ready_refs, remaining_refs = ray.wait(future_ids, num_returns=len(future_ids))
 
         # plot pareto curve of gallery of models
-        metric_stats_all = [ray.get(ready_ref) for ready_ref in ready_refs]
-        self._plot_model_gallery(metric_stats_all)
+        hull_points = [ray.get(ready_ref) for ready_ref in ready_refs]
+        save_hull(hull_points, common.get_expdir())
+        plot_pool(hull_points, common.get_expdir())
 
-        best_metric_stats = max(metric_stats_all, key=lambda ms:ms[0].best_val_top1())
-        logger.info({'best_top1_val':best_metric_stats[0].best_val_top1(),
-                     'best_MAdd': best_metric_stats[1].MAdd})
+        best_point = max(hull_points, key=lambda p:p.metrics.best_val_top1())
+        logger.info({'best_val_top1':best_point.metrics.best_val_top1(),
+                     'best_MAdd': best_point.model_stats.MAdd})
 
         logger.popd()
 
-        return EvalResult(best_metric_stats[0])
+        return EvalResult(best_point.metrics)
 
     @staticmethod
     @ray.remote(num_gpus=1)
     def _train_dist(evaluater:Evaluater, conf_eval:Config, model_desc_builder:ModelDescBuilder,
-                    model_desc_filename:str, common_state)->Tuple[Metrics, tw.ModelStats]:
+                    model_desc_filename:str, common_state)->ConvexHullPoint:
         """Train given a model"""
 
         common.init_from(common_state)
@@ -117,8 +119,8 @@ class EvaluaterPetridish(Evaluater):
             if checkpoint is not None and resume:
                 if 'metrics_stats' in checkpoint:
                     # return the output we had recorded in the checkpoint
-                    train_metrics, model_stats = checkpoint['metrics_stats']
-                    return train_metrics, model_stats
+                    convex_hull_point = checkpoint['metrics_stats']
+                    return convex_hull_point
 
         # template model is what we used during the search
         template_model_desc = ModelDesc.load(model_desc_filename)
@@ -132,7 +134,7 @@ class EvaluaterPetridish(Evaluater):
 
         conf_model_desc = copy.deepcopy(conf_model_desc)
         conf_model_desc['n_cells'] = n_cells
-        conf_model_desc['n_reductions'] = template_model_desc.cell_type_count(CellType.Reduction)
+        conf_model_desc['n_reductions'] = n_reductions = template_model_desc.cell_type_count(CellType.Reduction)
 
         model_desc = model_desc_builder.build(conf_model_desc,
                                               template=template_model_desc)
@@ -156,42 +158,16 @@ class EvaluaterPetridish(Evaluater):
             ml_utils.save_model(model, model_filename)
             logger.info({'model_save_path': model_filename})
 
+        hull_point = ConvexHullPoint(JobStage.EVAL_TRAINED, 0, 0, model_desc,
+                        (n_cells, n_reductions, len(model_desc.cell_descs()[0].nodes())),
+                        metrics=train_metrics, model_stats=model_stats)
+
         if checkpoint:
             checkpoint.new()
-            checkpoint['metrics_stats'] = train_metrics, model_stats
+            checkpoint['metrics_stats'] = hull_point
             checkpoint.commit()
 
-        return train_metrics, model_stats
-
-
-    def _plot_model_gallery(self, metric_stats_all: List[Tuple[Metrics, tw.ModelStats]])->None:
-        assert(len(metric_stats_all) > 0)
-
-        xs_madd = []
-        xs_flops = []
-        ys = []
-        for metrics, model_stats in metric_stats_all:
-            xs_madd.append(model_stats.MAdd)
-            xs_flops.append(model_stats.Flops)
-            ys.append(metrics.best_val_top1())
-
-        expdir = get_expdir()
-        assert expdir
-        madds_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_madds.png')
-
-        plt.clf()
-        plt.scatter(xs_madd, ys)
-        plt.xlabel('Multiply-Additions')
-        plt.ylabel('Top1 Accuracy')
-        plt.savefig(madds_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
-
-        flops_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_flops.png')
-
-        plt.clf()
-        plt.scatter(xs_flops, ys)
-        plt.xlabel('Flops')
-        plt.ylabel('Top1 Accuracy')
-        plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+        return hull_point
 
     def _ensure_dataset_download(self, conf_search:Config)->None:
         conf_loader = conf_search['loader']
