@@ -101,6 +101,9 @@ class EvaluaterPetridish(Evaluater):
         metrics_filename = utils.append_to_filename(model_desc_filename, '_metrics', '.yaml')
         model_stats_filename = utils.append_to_filename(model_desc_filename, '_model_stats', '.yaml')
 
+        # DEBUG
+        print(f'received {model_desc_filename}')
+
         # create checkpoint for this specific model desc by changing the config
         checkpoint = None
         if conf_checkpoint is not None:
@@ -118,7 +121,10 @@ class EvaluaterPetridish(Evaluater):
 
         # we first scale this model by number of cells, keeping reductions same as in search
         n_cells = math.ceil(len(template_model_desc.cell_descs())*cell_count_scale)
-        n_cells = max(n_cells, max_cells)
+        n_cells = min(n_cells, max_cells)
+
+        # DEBUG
+        print(f'{model_desc_filename} has {len(template_model_desc.cell_descs())} cells, scaling to {n_cells} cells via {cell_count_scale} factor')
 
         conf_model_desc = copy.deepcopy(conf_model_desc)
         conf_model_desc['n_cells'] = n_cells
