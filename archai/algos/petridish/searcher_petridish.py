@@ -18,7 +18,6 @@ import ray
 from overrides import overrides
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 import torch
 import tensorwatch as tw
@@ -39,41 +38,13 @@ from archai.nas.model import Model
 from archai.common.metrics import Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
-from archai.algos.petridish.petridish_geometry import _convex_hull_from_points
+from archai.algos.petridish.petridish_utils import _convex_hull_from_points
 from archai.nas.searcher import SearchResult
 from archai.nas.search_combinations import SearchCombinations
 from archai.nas.model_desc_builder import ModelDescBuilder
+from archai.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
+    sample_from_hull, plot_frontier, save_hull
 
-class JobStage(Enum):
-    # below values must be assigned in sequence so getting next job stage enum is easy
-    SEED = 1
-    SEED_TRAINED = 2
-    SEARCH = 3
-    SEARCH_TRAINED = 4
-
-class ConvexHullPoint:
-    _id = 0
-    def __init__(self, job_stage:JobStage, parent_id:int,
-                 sampling_count:int,
-                 model_desc:ModelDesc,
-                 metrics:Optional[Metrics]=None,
-                 model_stats:Optional[tw.ModelStats]=None) -> None:
-        # we only record points after training
-        self.job_stage = job_stage
-        self.parent_id = parent_id
-        self.sampling_count = sampling_count
-        self.model_desc = model_desc
-        self.metrics = metrics
-        self.model_stats = model_stats
-
-        ConvexHullPoint._id += 1
-        self.id = ConvexHullPoint._id
-
-    def is_trained_stage(self)->bool:
-        return self.job_stage==JobStage.SEARCH_TRAINED or self.job_stage==JobStage.SEED_TRAINED
-
-    def next_stage(self)->JobStage:
-        return JobStage(self.job_stage.value+1)
 
 class SearcherPetridish(SearchCombinations):
 
@@ -132,7 +103,8 @@ class SearcherPetridish(SearchCombinations):
                     self._update_convex_hull(hull_point)
 
                     # initiate search on this point
-                    sampled_point = self._sample_from_hull()
+                    sampled_point = sample_from_hull(self._hull_points,
+                        self._convex_hull_eps, self._sampling_max_try)
 
                     future_id = SearcherPetridish.search_model_desc_dist.remote(self,
                         conf_search, sampled_point, model_desc_builder, trainer_class,
@@ -153,8 +125,9 @@ class SearcherPetridish(SearchCombinations):
             ray.cancel(future_id, force=True) # without force, main process stops
             ray.wait([future_id])
 
-        self._plot_frontier()
-        best_point = self._save_frontier(final_desc_foldername)
+        plot_frontier(self._hull_points, self._convex_hull_eps, common.get_expdir())
+        best_point = save_hull(self._hull_points, self._convex_hull_eps,
+                               final_desc_foldername, common.get_expdir())
 
         # return best point as search result
         search_result = SearchResult(best_point.model_desc, search_metrics=None,
@@ -190,9 +163,11 @@ class SearcherPetridish(SearchCombinations):
         model_desc, search_metrics = searcher.search_model_desc(conf_search,
             model_desc, trainer_class, finalizers)
 
+        cells, reductions, nodes = hull_point.cells_reductions_nodes
         new_point = ConvexHullPoint(JobStage.SEARCH, hull_point.id,
-                                    hull_point.sampling_count,
-                                    model_desc, metrics=search_metrics)
+                                    hull_point.sampling_count, model_desc,
+                                    (cells, reductions, nodes+1), # we added a node
+                                    metrics=search_metrics)
         return new_point
 
     @staticmethod
@@ -209,7 +184,10 @@ class SearcherPetridish(SearchCombinations):
         model_stats = nas_utils.get_model_stats(model_metrics.model)
 
         new_point = ConvexHullPoint(hull_point.next_stage(), hull_point.id, hull_point.
-                                    sampling_count, hull_point.model_desc, model_metrics.metrics, model_stats)
+                                    sampling_count, hull_point.model_desc,
+                                    hull_point.cells_reductions_nodes,
+                                    model_metrics.metrics,
+                                    model_stats)
 
         return new_point
 
@@ -251,89 +229,6 @@ class SearcherPetridish(SearchCombinations):
             cell_desc.reset_nodes(nodes, node_shapes,
                                   post_op_desc, post_op_shape)
 
-
-    def _model_descs_on_front(self, lower_hull:bool=False)\
-            ->Tuple[List[ConvexHullPoint], List[ConvexHullPoint], List[float], List[float]]:
-        assert(len(self._hull_points) > 0)
-
-        xs = [point.model_stats.MAdd for point in self._hull_points]
-        ys = [1.0-point.metrics.best_val_top1() if lower_hull else point.metrics.best_val_top1()
-              for point in self._hull_points]
-
-        hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=self._convex_hull_eps)
-        eps_points = [self._hull_points[i] for i in eps_indices]
-        front_points = [self._hull_points[i] for i in hull_indices]
-
-        return front_points, eps_points, xs, ys
-
-    def _plot_frontier(self)->None:
-        front_points, eps_points, xs, ys = self._model_descs_on_front(lower_hull=True)
-
-        # save a plot of the convex hull to aid debugging
-
-        hull_xs = [p.model_stats.MAdd for p in eps_points]
-        hull_ys = [1.0-p.metrics.best_val_top1() for p in eps_points]
-        bound_xs = [p.model_stats.MAdd for p in front_points]
-        bound_ys = [(1.0-p.metrics.best_val_top1()) * (1+self._convex_hull_eps) \
-                    for p in front_points]
-
-        plt.clf()
-        plt.plot(bound_xs, bound_ys, c='red', label='eps-bound')
-        plt.scatter(xs, ys, label='pts')
-        plt.scatter(hull_xs, hull_ys, c='black', marker='+', label='eps-hull')
-        plt.xlabel('Multiply-Additions')
-        plt.ylabel('Top1 Error')
-        expdir = common.get_expdir()
-        assert expdir
-        plt.savefig(os.path.join(expdir, 'convex_hull.png'),
-            dpi=plt.gcf().dpi, bbox_inches='tight')
-
-    def _save_frontier(self, final_desc_foldername:str)->ConvexHullPoint:
-        # make folder to save gallery of models after search
-        final_desc_path = utils.full_path(final_desc_foldername, create=True)
-
-        # save the entire gallery of models on the convex hull for evaluation
-        front_points, eps_points, xs, ys = self._model_descs_on_front()
-        for i, eps_point in enumerate(eps_points):
-            savename = os.path.join(final_desc_path, f'petridish_{i}.yaml')
-            eps_point.model_desc.save(savename)
-
-            # print some info 
-            num_cells = len(eps_point.model_desc.cell_descs())
-            num_nodes = len(eps_point.model_desc.cell_descs()[0].nodes())
-            logger.info(f'{savename} has {num_cells} cells, {num_nodes} nodes per cell')
-            
-
-        # return last model as best performing
-        return eps_points[-1]
-
-    def _sample_from_hull(self)->ConvexHullPoint:
-        front_points, eps_points, xs, ys = self._model_descs_on_front(lower_hull=True)
-
-        logger.info(f'num models in pool: {len(self._hull_points)}')
-        logger.info(f'num models on front: {len(front_points)}')
-        logger.info(f'num models on front with eps: {len(eps_points)}')
-
-        # reverse sort by metrics performance
-        eps_points.sort(reverse=True, key=lambda p:p.metrics.best_val_top1())
-
-        # default choice
-        sampled_point = random.choice(self._hull_points)
-        # go through sorted list of models near convex hull
-        for _ in range(self._sampling_max_try):
-            for point in eps_points:
-                p = 1.0 / (point.sampling_count + 1.0)
-                should_select = np.random.binomial(1, p)
-                if should_select == 1:
-                    sampled_point = point
-
-        # if here, sampling was not successful
-        logger.warn('sampling was not successful, returning a random parent')
-
-        sampled_point.sampling_count += 1
-
-        return sampled_point
-
     def _ensure_dataset_download(self, conf_search:Config)->None:
         conf_loader = conf_search['loader']
         self.get_data(conf_loader)
@@ -363,7 +258,8 @@ class SearcherPetridish(SearchCombinations):
                                                conf_model_desc,
                                                reductions, cells, nodes)
 
-            hull_point = ConvexHullPoint(JobStage.SEED, 0, 1, model_desc)
+            hull_point = ConvexHullPoint(JobStage.SEED, 0, 1, model_desc,
+                                         (cells, reductions, nodes))
 
             # pre-train the seed model
             future_id = SearcherPetridish.train_model_desc_dist.remote(self,

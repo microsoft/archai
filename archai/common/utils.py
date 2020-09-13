@@ -130,6 +130,11 @@ def zero_file(filepath)->None:
     """Creates or truncates existing file"""
     open(filepath, 'w').close()
 
+def write_string(filepath:str, content:str)->None:
+    pathlib.Path(filepath).write_text(content)
+def read_string(filepath:str)->str:
+    return pathlib.Path(filepath).read_text()
+
 def create_logger(filepath:Optional[str]=None,
                   name:Optional[str]=None,
                   level=logging.INFO,
