@@ -25,6 +25,8 @@ class JobStage(Enum):
     SEED_TRAINED = 2
     SEARCH = 3
     SEARCH_TRAINED = 4
+    EVAL = 5
+    EVAL_TRAINED = 6
 
 class ConvexHullPoint:
     _id = 0
@@ -425,7 +427,34 @@ def plot_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
     plt.savefig(os.path.join(expdir, 'convex_hull.png'),
         dpi=plt.gcf().dpi, bbox_inches='tight')
 
-def save_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
+def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
+    assert(len(hull_points) > 0)
+
+    xs_madd = []
+    xs_flops = []
+    ys = []
+    for p in hull_points:
+        xs_madd.append(p.model_stats.MAdd)
+        xs_flops.append(p.model_stats.Flops)
+        ys.append(p.metrics.best_val_top1())
+
+    madds_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_madds.png')
+
+    plt.clf()
+    plt.scatter(xs_madd, ys)
+    plt.xlabel('Multiply-Additions')
+    plt.ylabel('Top1 Accuracy')
+    plt.savefig(madds_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    flops_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_flops.png')
+
+    plt.clf()
+    plt.scatter(xs_flops, ys)
+    plt.xlabel('Flops')
+    plt.ylabel('Top1 Accuracy')
+    plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+def save_hull_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
                final_desc_foldername:str, expdir:str)->ConvexHullPoint:
     # make folder to save gallery of models after search
     final_desc_dir = utils.full_path(final_desc_foldername, create=True)
@@ -449,9 +478,9 @@ def save_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
     xy_filepath = os.path.join(expdir, 'pareto_xy.tsv')
     utils.write_string(xy_filepath, '\n'.join([str(x)+'\t'+str(y) \
                                                 for x,y in utils.zip_eq(xs, ys)]))
-
-    full_pool_filepath = os.path.join(expdir, 'full_pool.tsv')
-    utils.write_string(full_pool_filepath, hull_points2tsv(hull_points))
-
     # return last model as best performing
     return eps_points[-1]
+
+def save_hull(hull_points:List[ConvexHullPoint], expdir:str)->None:
+    full_pool_filepath = os.path.join(expdir, 'full_pool.tsv')
+    utils.write_string(full_pool_filepath, hull_points2tsv(hull_points))
