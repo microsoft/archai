@@ -22,13 +22,15 @@ nas:
         cell_post_op: 'proj_channels'
     petridish:
       cell_count_scale: 2.0 # for eval first multiply number of cells used in search by this factor, limit to n_cells
+    trainer:
+      epochs: 100
   search:
     final_desc_foldername: '$expdir/model_desc_gallery' # the gallery of models that eval will train from scratch
     petridish:
       convex_hull_eps: 0.025 # tolerance
       sampling_max_try: 100 # maximum number of trials in the parent pool sampler function before giving up and returning a random parent model
       max_madd: 200000000 # if any parent model reaches this many multiply-additions then the search is terminated or it reaches maximum number of parent pool size
-      max_hull_points: 20 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
+      max_hull_points: 8 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
       checkpoints_foldername: '$expdir/petridish_search_checkpoints'
     search_iters: 4 # TODO: What does this mean here?
     pareto:
@@ -44,17 +46,17 @@ nas:
         cell_post_op: 'proj_channels'
     seed_train:
       trainer:
-        epochs: 80 # number of epochs model will be trained before search
+        epochs: 1 # number of epochs model will be trained before search
       loader:
         train_batch: 128
     post_train:
       trainer:
-        epochs: 80 # number of epochs model will be trained after search
+        epochs: 1 # number of epochs model will be trained after search
       loader:
         train_batch: 96
     trainer:
       l1_alphas:  0.001   # as per paper
-      epochs: 80 # number of epochs model will be trained during search
+      epochs: 1 # number of epochs model will be trained during search
     loader:
       train_batch: 64
       val_ratio: 0.2 # split portion for test set, 0 to 1

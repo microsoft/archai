@@ -298,6 +298,12 @@ class SearcherPetridish(SearchCombinations):
             savename = os.path.join(final_desc_path, f'petridish_{i}.yaml')
             eps_point.model_desc.save(savename)
 
+            # print some info 
+            num_cells = len(eps_point.model_desc.cell_descs())
+            num_nodes = len(eps_point.model_desc.cell_descs()[0].nodes())
+            logger.info(f'{savename} has {num_cells} cells, {num_nodes} nodes per cell')
+            
+
         # return last model as best performing
         return eps_points[-1]
 
