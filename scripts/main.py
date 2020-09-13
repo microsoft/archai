@@ -62,7 +62,9 @@ def main():
             conf_filepaths = ';'.join((algo_conf_filepath, dataset_conf_filepath))
 
             runner = runner_type(conf_filepaths,
-                                base_name=f'{algo}_{dataset}_{args.exp_prefix}')
+                                base_name=f'{algo}_{dataset}_{args.exp_prefix}',
+                                # for toy runs, clean exp dirs
+                                clean_expdir=not args.full)
 
             runner.run(search=not args.no_search, eval=not args.no_eval)
 

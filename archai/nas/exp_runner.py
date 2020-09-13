@@ -22,9 +22,10 @@ from archai.nas.model_desc_builder import ModelDescBuilder
 
 
 class ExperimentRunner(ABC, EnforceOverrides):
-    def __init__(self, config_filename:str, base_name:str) -> None:
+    def __init__(self, config_filename:str, base_name:str, clean_expdir=False) -> None:
         self.config_filename = config_filename
         self.base_name = base_name
+        self.clean_expdir = clean_expdir
 
     def run_search(self, conf_search:Config)->SearchResult:
         model_desc_builder = self.model_desc_builder()
@@ -45,12 +46,12 @@ class ExperimentRunner(ABC, EnforceOverrides):
         search_result, eval_result = None, None
 
         if search: # run search
-            search_result = self.run_search(self.get_conf_search(clean_expdir=True))
+            search_result = self.run_search(self.get_conf_search(clean_expdir=self.clean_expdir))
 
         if eval:
             if search:
                 # below is only done to remove existing expdir
-                _ = self.get_conf_eval(clean_expdir=True)
+                _ = self.get_conf_eval(clean_expdir=self.clean_expdir)
                 self.copy_search_to_eval()
 
             eval_result = self.run_eval(self.get_conf_eval())
@@ -113,6 +114,6 @@ class ExperimentRunner(ABC, EnforceOverrides):
 
         conf = common_init(config_filepath=config_filename,
             param_args=['--common.experiment_name', self.base_name + f'_{exp_name_suffix}',
-                        ], backup_existing_log_file=False, clean_expdir=clean_expdir)
+                        ], clean_expdir=clean_expdir)
         return conf
 

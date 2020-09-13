@@ -272,7 +272,7 @@ class ModelDesc:
     def all_empty(self)->bool:
         return len(self._cell_descs)==0 or \
              all((c.all_empty() for c in self._cell_descs))
-             
+
     def all_full(self)->bool:
         return len(self._cell_descs)>0 and \
             all((c.all_full() for c in self._cell_descs))
@@ -305,7 +305,7 @@ class ModelDesc:
             # save yaml
             cloned = self.clone()
             cloned.clear_trainables()
-            pathlib.Path(filename).write_text(yaml.dump(cloned))
+            utils.write_string(filename, yaml.dump(cloned))
 
         return filename
 

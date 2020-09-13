@@ -1,9 +1,58 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import numpy as np
+from typing import Iterator, Mapping, Type, Optional, Tuple, List
+from enum import Enum
 import os
+import math
+import random
+
 import bisect
+import numpy as np
+
+import tensorwatch as tw
+import yaml
+import matplotlib.pyplot as plt
+
+from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
+from archai.common.metrics import Metrics
+from archai.common.common import logger, utils
+
+class JobStage(Enum):
+    # below values must be assigned in sequence so getting next job stage enum is easy
+    SEED = 1
+    SEED_TRAINED = 2
+    SEARCH = 3
+    SEARCH_TRAINED = 4
+    EVAL = 5
+    EVAL_TRAINED = 6
+
+class ConvexHullPoint:
+    _id = 0
+    def __init__(self, job_stage:JobStage, parent_id:int,
+                 sampling_count:int,
+                 model_desc:ModelDesc,
+                 cells_reductions_nodes:Tuple[int, int, int],
+                 metrics:Optional[Metrics]=None,
+                 model_stats:Optional[tw.ModelStats]=None) -> None:
+        # we only record points after training
+        self.job_stage = job_stage
+        self.parent_id = parent_id
+        self.sampling_count = sampling_count
+        self.model_desc = model_desc
+        self.cells_reductions_nodes = cells_reductions_nodes
+        self.metrics = metrics
+        self.model_stats = model_stats
+
+        ConvexHullPoint._id += 1
+        self.id = ConvexHullPoint._id
+
+    def is_trained_stage(self)->bool:
+        return self.job_stage==JobStage.SEARCH_TRAINED or self.job_stage==JobStage.SEED_TRAINED
+
+    def next_stage(self)->JobStage:
+        return JobStage(self.job_stage.value+1)
 
 def _is_on_ray_left(x1, y1, x2, y2, x3, y3, inclusive=False, epsilon=0):
     """
@@ -271,6 +320,177 @@ def _test_convex_hull_insert():
     plt.savefig(os.path.join('./temp', 'debug', 'convex_hull_insert.png'),
         dpi=plt.gcf().dpi, bbox_inches='tight')
 
+def model_descs_on_front(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
+                         lower_hull:bool=False)\
+        ->Tuple[List[ConvexHullPoint], List[ConvexHullPoint], List[float], List[float]]:
+    assert(len(hull_points) > 0)
 
-if __name__ == '__main__':
-    _test_convex_hull()
+    xs = [point.model_stats.MAdd for point in hull_points]
+    ys = [1.0-point.metrics.best_val_top1() if lower_hull else point.metrics.best_val_top1()
+            for point in hull_points]
+
+    hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=convex_hull_eps)
+    eps_points = [hull_points[i] for i in eps_indices]
+    front_points = [hull_points[i] for i in hull_indices]
+
+    return front_points, eps_points, xs, ys
+
+def hull_points2tsv(points:List[ConvexHullPoint])->str:
+    lines = ['\t'.join(['id', 'job_stage',
+                        'cells', 'reductions', 'nodes',
+                        'MAdd', 'flops', 'duration',
+                        'mread', 'mwrite',
+                        'inference_memory', 'parameters',
+                        'train_best_epoch', 'train_best_top1',
+                        'test_best_epoch', 'test_best_top1',
+                        'paent_id', 'sampling_count'])]
+
+    for p in points:
+        cells, reductions, nodes = p.cells_reductions_nodes
+        mstats, metrics = p.model_stats, p.metrics
+
+        vals = []
+        vals.extend([p.id, JobStage(p.job_stage).name])
+
+        # add macro
+        vals.extend([cells, reductions, nodes])
+
+        # add model stats
+        vals.extend([mstats.MAdd, mstats.Flops, mstats.duration])
+        vals.extend([mstats.mread, mstats.mwrite])
+        vals.extend([mstats.inference_memory, mstats.parameters])
+
+        # add metrics
+        train_metrics, val_metrics = metrics.run_metrics.best_epoch()
+        vals.extend([train_metrics.index, train_metrics.top1.avg])
+        if val_metrics:
+            vals.extend([val_metrics.index, val_metrics.top1.avg])
+        else:
+            vals.extend([math.nan, math.nan])
+
+        # other attributes
+        vals.extend([p.parent_id, p.sampling_count])
+
+        line = '\t'.join([str(v) for v in vals])
+        lines.append(line)
+
+    return '\n'.join(lines)
+
+def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
+                      sampling_max_try:int)->ConvexHullPoint:
+    front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
+        convex_hull_eps, lower_hull=True)
+
+    logger.info(f'num models in pool: {len(hull_points)}')
+    logger.info(f'num models on front: {len(front_points)}')
+    logger.info(f'num models on front with eps: {len(eps_points)}')
+
+    # reverse sort by metrics performance
+    eps_points.sort(reverse=True, key=lambda p:p.metrics.best_val_top1())
+
+    # default choice
+    sampled_point = random.choice(hull_points)
+    # go through sorted list of models near convex hull
+    for _ in range(sampling_max_try):
+        for point in eps_points:
+            p = 1.0 / (point.sampling_count + 1.0)
+            should_select = np.random.binomial(1, p)
+            if should_select == 1:
+                sampled_point = point
+
+    # if here, sampling was not successful
+    logger.warn('sampling was not successful, returning a random parent')
+
+    sampled_point.sampling_count += 1
+
+    return sampled_point
+
+def plot_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
+                   expdir:str)->None:
+    front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
+        convex_hull_eps, lower_hull=True)
+
+    # save a plot of the convex hull to aid debugging
+
+    hull_xs = [p.model_stats.MAdd for p in eps_points]
+    hull_ys = [1.0-p.metrics.best_val_top1() for p in eps_points]
+    bound_xs = [p.model_stats.MAdd for p in front_points]
+    bound_ys = [(1.0-p.metrics.best_val_top1()) * (1+convex_hull_eps) \
+                for p in front_points]
+
+    # for easier interpretation report everything in million increments
+    xs_m = [x/1e6 for x in xs]
+    hull_xs_m = [x/1e6 for x in hull_xs]
+    bound_xs_m = [x/1e6 for x in bound_xs]
+
+
+    plt.clf()
+    plt.plot(bound_xs_m, bound_ys, c='red', label='eps-bound')
+    plt.scatter(xs_m, ys, label='pts')
+    plt.scatter(hull_xs_m, hull_ys, c='black', marker='+', label='eps-hull')
+    plt.xlabel('Multiply-Additions (Millions)')
+    plt.ylabel('Top1 Error')
+    plt.savefig(os.path.join(expdir, 'convex_hull.png'),
+        dpi=plt.gcf().dpi, bbox_inches='tight')
+
+def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
+    assert(len(hull_points) > 0)
+
+    xs_madd = []
+    xs_flops = []
+    ys = []
+    for p in hull_points:
+        xs_madd.append(p.model_stats.MAdd)
+        xs_flops.append(p.model_stats.Flops)
+        ys.append(p.metrics.best_val_top1())
+
+    madds_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_madds.png')
+
+    # for easier interpretation report everything in million increments
+    xs_madd_m = [x/1e6 for x in xs_madd]
+    xs_flops_m = [x/1e6 for x in xs_flops]
+
+    plt.clf()
+    plt.scatter(xs_madd_m, ys)
+    plt.xlabel('Multiply-Additions (Millions)')
+    plt.ylabel('Top1 Accuracy')
+    plt.savefig(madds_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    flops_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_flops.png')
+
+    plt.clf()
+    plt.scatter(xs_flops_m, ys)
+    plt.xlabel('Flops (Millions)')
+    plt.ylabel('Top1 Accuracy')
+    plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+def save_hull_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
+               final_desc_foldername:str, expdir:str)->ConvexHullPoint:
+    # make folder to save gallery of models after search
+    final_desc_dir = utils.full_path(final_desc_foldername, create=True)
+
+    # save the front on hull
+    front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
+                                                            convex_hull_eps)
+    for i, eps_point in enumerate(eps_points):
+        # save readable model desc yaml
+        eps_point.model_desc.save(os.path.join(final_desc_dir, f'model_desc_{i}.yaml'))
+        # save hull point
+        eps_point.model_desc.clear_trainables() # make file lightweight
+        utils.write_string(os.path.join(final_desc_dir, f'hull_{i}.yaml'), yaml.dump(eps_point))
+
+    front_summary_filepath = os.path.join(expdir, 'pareto_front_summary.tsv')
+    utils.write_string(front_summary_filepath, hull_points2tsv(front_points))
+
+    eps_summary_filepath = os.path.join(expdir, 'pareto_eps_summary.tsv')
+    utils.write_string(eps_summary_filepath, hull_points2tsv(eps_points))
+
+    xy_filepath = os.path.join(expdir, 'pareto_xy.tsv')
+    utils.write_string(xy_filepath, '\n'.join([str(x)+'\t'+str(y) \
+                                                for x,y in utils.zip_eq(xs, ys)]))
+    # return last model as best performing
+    return eps_points[-1]
+
+def save_hull(hull_points:List[ConvexHullPoint], expdir:str)->None:
+    full_pool_filepath = os.path.join(expdir, 'full_pool.tsv')
+    utils.write_string(full_pool_filepath, hull_points2tsv(hull_points))

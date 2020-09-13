@@ -51,7 +51,7 @@ class PetridishExperimentRunner(ExperimentRunner):
         # so being robust to pre-existing directory
         if os.path.exists(eval_desc_folderpath):
             shutil.rmtree(eval_desc_folderpath)
-        shutil.copytree(search_desc_folderpath, eval_desc_folderpath)
+        utils.copy_dir(search_desc_folderpath, eval_desc_folderpath)
 
 
 
