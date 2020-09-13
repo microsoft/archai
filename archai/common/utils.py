@@ -13,6 +13,7 @@ import random
 from itertools import zip_longest
 import shutil
 import multiprocessing
+from distutils import dir_util
 
 import  torch
 import torch.backends.cudnn as cudnn
@@ -258,6 +259,10 @@ def filepath_without_ext(filepath:str)->str:
     return str(pathlib.Path(filepath).with_suffix(''))
 
 def filepath_ext(filepath:str)->str:
+    """Returns 'd.e.f' for '/a/b/c/d.e.f' """
+    return pathlib.Path(filepath).name
+
+def filepath_name_ext(filepath:str)->str:
     """Returns '.f' for '/a/b/c/d.e.f' """
     return pathlib.Path(filepath).suffix
 
@@ -283,8 +288,26 @@ def append_to_filename(filepath:str, name_suffix:str, new_ext:Optional[str]=None
 def copy_file(src_file:str, dest_dir_or_file:str, preserve_metadata=False)->str:
     # note that copy2 might fail on some Azure blobs if filesyste does not support OS level copystats
     # so use preserve_metadata=True only if absolutely needed for maximum compatibility
-    copy_fn = shutil.copy2 if preserve_metadata else shutil.copy
-    return copy_fn(src_file, dest_dir_or_file)
+    try:
+        copy_fn = shutil.copy2 if preserve_metadata else shutil.copy
+        return copy_fn(src_file, dest_dir_or_file)
+    except OSError as ex:
+        if preserve_metadata or ex.errno != 38: # OSError: [Errno 38] Function not implemented
+            raise
+        # try basic python functions
+        # first if dest is dir, get dest file name
+        if os.path.isdir(dest_dir_or_file):
+            dest_dir_or_file = os.path.join(dest_dir_or_file, filepath_name_ext(src_file))
+        with open(src_file, 'rb') as src, open(dest_dir_or_file, 'wb') as dst:
+            dst.write(src.read())
+        return dest_dir_or_file
+
+def copy_dir(src_dir:str, dest_dir:str, use_shutil:bool=True)->None:
+    if use_shutil:
+        shutil.copytree(src_dir, dest_dir)
+    else:
+        dir_util.copy_tree(src_dir, dest_dir)
+
 
 def is_main_process()->bool:
     """Returns True if this process was started as main process instead of child process during multiprocessing"""
