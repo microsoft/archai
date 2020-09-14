@@ -290,7 +290,11 @@ def append_to_filename(filepath:str, name_suffix:str, new_ext:Optional[str]=None
     name = filepath_name_only(filepath)
     return str(pathlib.Path(filepath).with_name(name+name_suffix).with_suffix(ext))
 
-def copy_file(src_file:str, dest_dir_or_file:str, preserve_metadata=False)->str:
+def copy_file(src_file:str, dest_dir_or_file:str, preserve_metadata=False, use_shutil:bool=True)->str:
+    if not use_shutil:
+        assert not preserve_metadata
+        return copy_file_basic(src_file, dest_dir_or_file)
+
     # note that copy2 might fail on some Azure blobs if filesyste does not support OS level copystats
     # so use preserve_metadata=True only if absolutely needed for maximum compatibility
     try:
@@ -299,20 +303,30 @@ def copy_file(src_file:str, dest_dir_or_file:str, preserve_metadata=False)->str:
     except OSError as ex:
         if preserve_metadata or ex.errno != 38: # OSError: [Errno 38] Function not implemented
             raise
-        # try basic python functions
-        # first if dest is dir, get dest file name
-        if os.path.isdir(dest_dir_or_file):
-            dest_dir_or_file = os.path.join(dest_dir_or_file, filepath_name_ext(src_file))
-        with open(src_file, 'rb') as src, open(dest_dir_or_file, 'wb') as dst:
-            dst.write(src.read())
-        return dest_dir_or_file
+        return copy_file_basic(src_file, dest_dir_or_file)
+
+def copy_file_basic(src_file:str, dest_dir_or_file:str)->str:
+    # try basic python functions
+    # first if dest is dir, get dest file name
+    if os.path.isdir(dest_dir_or_file):
+        dest_dir_or_file = os.path.join(dest_dir_or_file, filepath_name_ext(src_file))
+    with open(src_file, 'rb') as src, open(dest_dir_or_file, 'wb') as dst:
+        dst.write(src.read())
+    return dest_dir_or_file
 
 def copy_dir(src_dir:str, dest_dir:str, use_shutil:bool=True)->None:
-    if use_shutil:
-        shutil.copytree(src_dir, dest_dir)
+    if os.path.isdir(src_dir):
+        if use_shutil:
+            shutil.copytree(src_dir, dest_dir)
+        else:
+            if not os.path.isdir(dest_dir):
+                os.makedirs(dest_dir)
+            files = os.listdir(src_dir)
+            for f in files:
+                copy_dir(os.path.join(src_dir, f),
+                        os.path.join(dest_dir, f), use_shutil=use_shutil)
     else:
-        dir_util.copy_tree(src_dir, dest_dir)
-
+        copy_file(src_dir, dest_dir, use_shutil=use_shutil)
 
 def is_main_process()->bool:
     """Returns True if this process was started as main process instead of child process during multiprocessing"""
