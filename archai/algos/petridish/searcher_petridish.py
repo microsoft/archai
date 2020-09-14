@@ -82,7 +82,7 @@ class SearcherPetridish(SearchCombinations):
         # checkpoint will restore the hull we had
         is_restored = self._restore_checkpoint()
 
-        # seed the pool with many different seed models of different
+        # seed the pool with many seed models of different
         # macro parameters like number of cells, reductions etc if parent pool
         # could not be restored and/or this is the first time this job has been run.
         future_ids = [] if is_restored else  self._create_seed_jobs(conf_search,
@@ -102,7 +102,7 @@ class SearcherPetridish(SearchCombinations):
                 if hull_point.is_trained_stage():
                     self._update_convex_hull(hull_point)
 
-                    # initiate search on this point
+                    # sample a point and search
                     sampled_point = sample_from_hull(self._hull_points,
                         self._convex_hull_eps, self._sampling_max_try)
 
