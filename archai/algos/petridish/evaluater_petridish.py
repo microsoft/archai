@@ -156,7 +156,7 @@ class EvaluaterPetridish(Evaluater):
         if model_filename:
             model_filename = utils.full_path(model_filename)
             ml_utils.save_model(model, model_filename)
-            logger.info({'model_save_path': model_filename})
+            #logger.info({'model_save_path': model_filename})
 
         hull_point = ConvexHullPoint(JobStage.EVAL_TRAINED, 0, 0, model_desc,
                         (n_cells, n_reductions, len(model_desc.cell_descs()[0].nodes())),

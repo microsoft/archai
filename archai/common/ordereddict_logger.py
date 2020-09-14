@@ -122,7 +122,7 @@ class OrderedDictLogger:
             return
 
         if not exists_ok and key in self._cur():
-            raise KeyError(f'Key "{key}" already exists in log at path {self.path()}')
+            raise KeyError(f'Key "{key}" already exists in log at path "{self.path()}". Log is being saved at "{self._filepath}".')
 
         node = node if node is not None else self._cur()
         for p in path:
