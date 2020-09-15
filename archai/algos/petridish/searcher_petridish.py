@@ -66,7 +66,6 @@ class SearcherPetridish(SearchCombinations):
 
         # petridish distributed search related parameters
         self._convex_hull_eps = conf_petridish['convex_hull_eps']
-        self._sampling_max_try = conf_petridish['sampling_max_try']
         self._max_madd = conf_petridish['max_madd']
         self._max_hull_points = conf_petridish['max_hull_points']
         self._checkpoints_foldername = conf_petridish['checkpoints_foldername']
@@ -104,7 +103,7 @@ class SearcherPetridish(SearchCombinations):
 
                     # sample a point and search
                     sampled_point = sample_from_hull(self._hull_points,
-                        self._convex_hull_eps, self._sampling_max_try)
+                        self._convex_hull_eps)
 
                     future_id = SearcherPetridish.search_model_desc_dist.remote(self,
                         conf_search, sampled_point, model_desc_builder, trainer_class,

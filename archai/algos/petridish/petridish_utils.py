@@ -376,8 +376,7 @@ def hull_points2tsv(points:List[ConvexHullPoint])->str:
 
     return '\n'.join(lines)
 
-def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
-                      sampling_max_try:int)->ConvexHullPoint:
+def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float)->ConvexHullPoint:
     front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
         convex_hull_eps, lower_hull=True)
 
@@ -385,21 +384,37 @@ def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
     logger.info(f'num models on front: {len(front_points)}')
     logger.info(f'num models on front with eps: {len(eps_points)}')
 
-    # reverse sort by metrics performance
-    eps_points.sort(reverse=True, key=lambda p:p.metrics.best_val_top1())
+    # form scores to non-maxima supress models already sampled
+    counts = [point.sampling_count for point in eps_points]
+    counts_max = max(counts)
+    counts_min = min(counts)
+    if counts_max == counts_min:
+        counts_range = counts_max
+    else:
+        counts_range = counts_max - counts_min
+    # scale between [0,1] to avoid numerical issues
+    scaled_counts = [(count - counts_min)/counts_range for count in counts]
+    count_scores = [1.0/(scaled_count + 1) for scaled_count in scaled_counts]
+    
+    # form scores to sample inversely proportional to madds
+    # since it takes less compute to train a smaller model
+    # this allows us to evaluate each point equal number of times 
+    # with any compute budget
+    eps_madds = [point.model_stats.MAdd for point in eps_points]
+    madd_max = max(eps_madds)
+    madd_min = min(eps_madds)
+    if madd_max == madd_min:
+        madd_range = madd_max
+    else:
+        madd_range = madd_max - madd_min
+    # scale between [0,1] to avoid numerical issues
+    scaled_madds = [(madd - madd_min)/madd_range for madd in eps_madds]
+    madd_scores = [1.0/(scaled_madd + 1) for scaled_madd in scaled_madds]
 
-    # default choice
-    sampled_point = random.choice(hull_points)
-    # go through sorted list of models near convex hull
-    for _ in range(sampling_max_try):
-        for point in eps_points:
-            p = 1.0 / (point.sampling_count + 1.0)
-            should_select = np.random.binomial(1, p)
-            if should_select == 1:
-                sampled_point = point
+    overall_scores = np.array(count_scores) + np.array(madd_scores)
+    overall_scores = overall_scores / np.sum(overall_scores)
 
-    # if here, sampling was not successful
-    logger.warn('sampling was not successful, returning a random parent')
+    sampled_point  = np.random.choice(eps_points, p=overall_scores)
 
     sampled_point.sampling_count += 1
 
