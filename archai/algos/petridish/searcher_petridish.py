@@ -263,7 +263,7 @@ class SearcherPetridish(SearchCombinations):
                                                conf_model_desc,
                                                reductions, cells, nodes)
 
-            hull_point = ConvexHullPoint(JobStage.SEED, 0, 1, model_desc,
+            hull_point = ConvexHullPoint(JobStage.SEED, 0, 0, model_desc,
                                          (cells, reductions, nodes))
 
             # pre-train the seed model
