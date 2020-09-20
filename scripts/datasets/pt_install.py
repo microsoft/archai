@@ -13,6 +13,9 @@ import psutil
 from archai.common.config import Config
 from archai.common import utils
 
+# To upload dataset on Azure, tar the folder and use command like
+# azcopy copy "H:\dataroot_cloud\ImageNet.tar" "https://archai.blob.core.windows.net/phillytools/dataroot/ImageNet.tar"
+
 def _create_ram_disk(req_ram:int, path:str)->bool:
     os.makedirs(path, exist_ok=True)
     return True

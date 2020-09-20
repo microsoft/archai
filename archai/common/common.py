@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.common.utils import process_name
 import logging
 import numpy as np
 import os
@@ -265,6 +264,7 @@ def _setup_logger():
     logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log,
                  backup_existing_file=False)
     logger.info({'command_line': ' '.join(sys.argv) if utils.is_main_process() else f'Child process: {utils.process_name()}-{os.getpid()}'})
+    logger.info({'process_name': utils.process_name(), 'is_main_process': utils.is_main_process(), 'is_debugging': utils.is_debugging()})
     logger.info({'experiment_name': experiment_name, 'datetime:': datetime.datetime.now()})
     logger.info({'logs_yaml_filepath': logs_yaml_filepath, 'sys_log_filepath': sys_log_filepath})
 
