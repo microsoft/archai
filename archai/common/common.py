@@ -74,6 +74,7 @@ class CommonState:
         self.conf = get_conf()
 
 def on_app_exit():
+    print('Process exit:', os.getpid(), flush=True)
     writer = get_tb_writer()
     writer.flush()
     if isinstance(logger, OrderedDictLogger):
@@ -114,7 +115,7 @@ def init_from(state:CommonState, recreate_logger=True)->None:
     else:
         logger = state.logger
 
-    logger.info({'common_init_from_state': True, 'process_name': utils.process_name(), 'pid': os.getpid(), 'ppid': os.getppid()})
+    logger.info({'common_init_from_state': True})
 
     _tb_writer = state.tb_writer
 
@@ -124,6 +125,9 @@ def init_from(state:CommonState, recreate_logger=True)->None:
 def common_init(config_filepath: Optional[str]=None,
                 param_args: list = [], use_args=True,
                 clean_expdir=False)->Config:
+
+    if not utils.is_main_process():
+        raise RuntimeError('common_init should not be called from child process. Please use Common.init_from()')
 
     # get cloud dirs if any
     pt_data_dir, pt_output_dir, param_overrides = _setup_pt(param_args)
@@ -264,7 +268,8 @@ def _setup_logger():
     logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log,
                  backup_existing_file=False)
     logger.info({'command_line': ' '.join(sys.argv) if utils.is_main_process() else f'Child process: {utils.process_name()}-{os.getpid()}'})
-    logger.info({'process_name': utils.process_name(), 'is_main_process': utils.is_main_process(), 'is_debugging': utils.is_debugging()})
+    logger.info({'process_name': utils.process_name(), 'is_main_process': utils.is_main_process(),
+                 'main_process_pid':utils.main_process_pid(), 'pid':os.getpid(), 'ppid':os.getppid(), 'is_debugging': utils.is_debugging()})
     logger.info({'experiment_name': experiment_name, 'datetime:': datetime.datetime.now()})
     logger.info({'logs_yaml_filepath': logs_yaml_filepath, 'sys_log_filepath': sys_log_filepath})
 
