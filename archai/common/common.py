@@ -144,12 +144,12 @@ def common_init(config_filepath: Optional[str]=None,
     # validate and log dirs
     expdir = get_expdir()
     assert not pt_output_dir or not expdir.startswith(utils.full_path('~/logdir'))
-    logger.info({'expdir': expdir,
-                 'PT_DATA_DIR': pt_data_dir, 'PT_OUTPUT_DIR': pt_output_dir})
 
     # create global logger
     _setup_logger()
-    # create info file for current system
+    logger.info({'expdir': expdir,
+                 'PT_DATA_DIR': pt_data_dir, 'PT_OUTPUT_DIR': pt_output_dir})    # create info file for current system
+
     _create_sysinfo(conf)
 
     # create a[ex to know distributed processing paramters
