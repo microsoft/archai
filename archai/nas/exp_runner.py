@@ -10,13 +10,12 @@ from overrides import EnforceOverrides
 
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.arch_trainer import TArchTrainer
-from archai.common.common import common_init
+from archai.common import common
 from archai.common import utils
 from archai.common.config import Config
 from archai.nas.evaluater import Evaluater, EvalResult
 from archai.nas.searcher import Searcher, SearchResult
 from archai.nas.finalizers import Finalizers
-from archai.common.common import get_conf
 from archai.nas.random_finalizers import RandomFinalizers
 from archai.nas.model_desc_builder import ModelDescBuilder
 
@@ -46,15 +45,19 @@ class ExperimentRunner(ABC, EnforceOverrides):
         search_result, eval_result = None, None
 
         if search: # run search
-            search_result = self.run_search(self.get_conf_search(clean_expdir=self.clean_expdir))
+            conf = self._init_conf('search', clean_expdir=self.clean_expdir)
+            search_result = self.run_search(conf['nas']['search'])
 
         if eval:
+            if self.clean_expdir:
+                conf = self.get_conf(False)
+                common.clean_ensure_expdir(conf, ensure_dir=True)
             if search:
-                # below is only done to remove existing expdir
-                _ = self.get_conf_eval(clean_expdir=self.clean_expdir)
+                # first copy search result to eval, otherwise we expect eval config to point to results
                 self.copy_search_to_eval()
 
-            eval_result = self.run_eval(self.get_conf_eval())
+            conf = self._init_conf('eval', clean_expdir=False)
+            eval_result = self.run_eval(conf['nas']['eval'])
 
         return search_result, eval_result
 
@@ -63,13 +66,13 @@ class ExperimentRunner(ABC, EnforceOverrides):
         # needs env var expansion.
 
         # get desc file path that search has produced
-        conf_search = self.get_conf_search()
+        conf_search = self.get_conf(True)['nas']['search']
         search_desc_filename = conf_search['final_desc_filename']
         search_desc_filepath = utils.full_path(search_desc_filename)
         assert search_desc_filepath and os.path.exists(search_desc_filepath)
 
         # get file path that eval would need
-        conf_eval = self.get_conf_eval()
+        conf_eval = self.get_conf(False)['nas']['eval']
         eval_desc_filename = conf_eval['final_desc_filename']
         eval_desc_filepath = utils.full_path(eval_desc_filename)
         assert eval_desc_filepath
@@ -89,7 +92,7 @@ class ExperimentRunner(ABC, EnforceOverrides):
         pass
 
     def finalizers(self)->Finalizers:
-        conf = get_conf()
+        conf = common.get_conf()
         finalizer = conf['nas']['search']['finalizer']
 
         if not finalizer or finalizer == 'default':
@@ -99,21 +102,20 @@ class ExperimentRunner(ABC, EnforceOverrides):
         else:
             raise NotImplementedError
 
-    def get_conf_search(self, clean_expdir=False)->Config:
-        conf = self._init_conf('search', clean_expdir)
-        conf_search = conf['nas']['search']
-        return conf_search
+    def get_expname(self, is_search_or_eval:bool)->str:
+        return self.base_name + ('_search' if is_search_or_eval else '_eval')
 
-    def get_conf_eval(self, clean_expdir=False)->Config:
-        conf = self._init_conf('eval', clean_expdir)
-        conf_eval = conf['nas']['eval']
-        return conf_eval
+    def get_conf(self, is_search_or_eval:bool)->Config:
+        conf = common.create_conf(config_filepath=self.config_filename,
+            param_args=['--common.experiment_name', self.get_expname(is_search_or_eval)])
+        common.update_envvars(conf) # config paths might include env vars
+        return conf
 
-    def _init_conf(self, exp_name_suffix:str, clean_expdir:bool)->Config:
+    def _init_conf(self, is_search_or_eval:bool, clean_expdir:bool)->Config:
         config_filename = self.config_filename
 
-        conf = common_init(config_filepath=config_filename,
-            param_args=['--common.experiment_name', self.base_name + f'_{exp_name_suffix}',
+        conf = common.common_init(config_filepath=config_filename,
+            param_args=['--common.experiment_name', self.get_expname(is_search_or_eval),
                         ], clean_expdir=clean_expdir)
         return conf
 

@@ -137,7 +137,6 @@ def group_multi_runs(logs:Dict[str, OrderedDict])->Dict[str, List[OrderedDict]]:
             result[seed_less_key] = [log]
     return result
 
-
 def collect_epoch_nodes(grouped_logs:Dict[str, List[OrderedDict]])->Dict[str, Dict[str, List[OrderedDict]]]:
     """Make list of epoch nodes in same path in each of the logs if collate=True else
        its just list of epoch nodes with jobdir and path as the key."""
