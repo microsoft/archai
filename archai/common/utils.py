@@ -328,8 +328,12 @@ def copy_dir(src_dir:str, dest_dir:str, use_shutil:bool=True)->None:
     else:
         copy_file(src_dir, dest_dir, use_shutil=use_shutil)
 
+if 'main_process_pid' not in os.environ:
+    os.environ['main_process_pid'] = str(os.getpid())
 def is_main_process()->bool:
     """Returns True if this process was started as main process instead of child process during multiprocessing"""
-    return multiprocessing.current_process().name == 'MainProcess'
+    return multiprocessing.current_process().name == 'MainProcess' and os.environ['main_process_pid'] == str(os.getpid())
+def main_process_pid()->int:
+    return int(os.environ['main_process_pid'])
 def process_name()->str:
     return multiprocessing.current_process().name

@@ -29,7 +29,6 @@ class JobStage(Enum):
     EVAL_TRAINED = 6
 
 class ConvexHullPoint:
-    _id = 0
     def __init__(self, job_stage:JobStage, parent_id:int,
                  sampling_count:int,
                  model_desc:ModelDesc,
@@ -45,7 +44,10 @@ class ConvexHullPoint:
         self.metrics = metrics
         self.model_stats = model_stats
 
-        ConvexHullPoint._id += 1
+        # TODO: we use random IDs because with ray multiprocessing, its harder to have global
+        # id generation. Ideally we should use UUID or global store but for now we just
+        # use large enough random range
+        ConvexHullPoint._id = random.randint(0, 2147483648)
         self.id = ConvexHullPoint._id
 
     def is_trained_stage(self)->bool:

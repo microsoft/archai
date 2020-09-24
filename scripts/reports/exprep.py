@@ -31,7 +31,7 @@ def main():
     parser = argparse.ArgumentParser(description='Report creator')
     parser.add_argument('--results-dir', '-d', type=str,
                         #default=r'D:\GitHubSrc\archaiphilly\phillytools\darts_baseline_20200411',
-                        default=r'D:\GitHubSrc\archaiphilly\phillytools\didarts_0.25xlr_eu2',
+                        default=r'~/logdir/report_test',
                         help='folder with experiment results from pt')
     parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
                         help='folder to output reports')
@@ -136,7 +136,6 @@ def group_multi_runs(logs:Dict[str, OrderedDict])->Dict[str, List[OrderedDict]]:
         else:
             result[seed_less_key] = [log]
     return result
-
 
 def collect_epoch_nodes(grouped_logs:Dict[str, List[OrderedDict]])->Dict[str, Dict[str, List[OrderedDict]]]:
     """Make list of epoch nodes in same path in each of the logs if collate=True else
@@ -354,8 +353,10 @@ def write_report(template_filename:str, **kwargs)->None:
     script_dir = os.path.dirname(os.path.abspath(source_file))
     template = pathlib.Path(os.path.join(script_dir, template_filename)).read_text()
     report = template.format(**kwargs)
-    with open(os.path.join(kwargs['out_dir'], template_filename), 'w', encoding='utf-8') as f:
+    outfilepath = os.path.join(kwargs['out_dir'], template_filename)
+    with open(outfilepath, 'w', encoding='utf-8') as f:
         f.write(report)
+    print(f'report written to: {outfilepath}')
 
 if __name__ == '__main__':
     main()

@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.common.utils import process_name
 import logging
 import numpy as np
 import os
@@ -39,23 +38,25 @@ _tb_writer: SummaryWriterAny = None
 _atexit_reg = False # is hook for atexit registered?
 
 
-def get_conf()->Config:
+def get_conf(conf:Optional[Config]=None)->Config:
+    if conf is not None:
+        return conf
     return Config.get_inst()
 
-def get_conf_common()->Config:
-    return get_conf()['common']
+def get_conf_common(conf:Optional[Config]=None)->Config:
+    return get_conf(conf)['common']
 
-def get_conf_dataset()->Config:
-    return get_conf()['dataset']
+def get_conf_dataset(conf:Optional[Config]=None)->Config:
+    return get_conf(conf)['dataset']
 
-def get_experiment_name()->str:
-    return get_conf_common()['experiment_name']
+def get_experiment_name(conf:Optional[Config]=None)->str:
+    return get_conf_common(conf)['experiment_name']
 
-def get_expdir()->Optional[str]:
-    return get_conf_common()['expdir']
+def get_expdir(conf:Optional[Config]=None)->Optional[str]:
+    return get_conf_common(conf)['expdir']
 
-def get_datadir()->Optional[str]:
-    return get_conf()['dataset']['dataroot']
+def get_datadir(conf:Optional[Config]=None)->Optional[str]:
+    return get_conf(conf)['dataset']['dataroot']
 
 def get_logger() -> OrderedDictLogger:
     global logger
@@ -75,15 +76,16 @@ class CommonState:
         self.conf = get_conf()
 
 def on_app_exit():
+    print('Process exit:', os.getpid(), flush=True)
     writer = get_tb_writer()
     writer.flush()
     if isinstance(logger, OrderedDictLogger):
         logger.close()
 
-def _setup_pt(param_args: list)->Tuple[str,str, list]:
-    # support for pt infrastructure
-    pt_data_dir = os.environ.get('PT_DATA_DIR', '')
+def _pt_dirs()->Tuple[str, str]:
+    # dirs for pt infrastructure are supplied in env vars
 
+    pt_data_dir = os.environ.get('PT_DATA_DIR', '')
     # currently yaml should be copying dataset folder to local dir
     # so below is not needed. The hope is that less reads from cloud
     # storage will reduce overall latency.
@@ -96,11 +98,17 @@ def _setup_pt(param_args: list)->Tuple[str,str, list]:
     #                   '--autoaug.loader.dataset.dataroot', pt_data_dir] + param_args
 
     pt_output_dir = os.environ.get('PT_OUTPUT_DIR', '')
+
+    return pt_data_dir, pt_output_dir
+
+def _pt_params(param_args: list)->list:
+    pt_data_dir, pt_output_dir = _pt_dirs()
+
     if pt_output_dir:
         # prepend so if supplied from outside it takes back seat
         param_args = ['--common.logdir', pt_output_dir] + param_args
 
-    return pt_data_dir, pt_output_dir, param_args
+    return param_args
 
 def get_state()->CommonState:
     return CommonState()
@@ -111,13 +119,28 @@ def init_from(state:CommonState, recreate_logger=True)->None:
     Config.set_inst(state.conf)
 
     if recreate_logger:
-        _setup_logger()
+        create_logger(state.conf)
     else:
         logger = state.logger
 
-    logger.info({'common_init_from_state': True, 'process_name': utils.process_name(), 'pid': os.getpid(), 'ppid': os.getppid()})
+    logger.info({'common_init_from_state': True})
 
     _tb_writer = state.tb_writer
+
+
+def create_conf(config_filepath: Optional[str]=None,
+                param_args: list = [], use_args=True)->Config:
+
+    # modify passed args for pt infrastructure
+    # if pt infrastructure doesn't exit then param_overrides == param_args
+    param_overrides = _pt_params(param_args)
+
+    conf = Config(config_filepath=config_filepath,
+                  param_args=param_overrides,
+                  use_args=use_args)
+    _update_conf(conf)
+
+    return conf
 
 
 # TODO: rename this simply as init
@@ -126,36 +149,32 @@ def common_init(config_filepath: Optional[str]=None,
                 param_args: list = [], use_args=True,
                 clean_expdir=False)->Config:
 
-    # get cloud dirs if any
-    pt_data_dir, pt_output_dir, param_overrides = _setup_pt(param_args)
+    if not utils.is_main_process():
+        raise RuntimeError('common_init should not be called from child process. Please use Common.init_from()')
 
-    # init config
-    conf = Config(config_filepath=config_filepath,
-                  param_args=param_overrides,
-                  use_args=use_args)
+    conf = create_conf(config_filepath, param_args, use_args)
+
+    # setup global instance
     Config.set_inst(conf)
 
     # create experiment dir
-    _setup_dirs(clean_expdir)
+    create_dirs(conf, clean_expdir)
 
-    # validate and log dirs
-    expdir = get_expdir()
-    assert not pt_output_dir or not expdir.startswith(utils.full_path('~/logdir'))
-    logger.info({'expdir': expdir,
-                 'PT_DATA_DIR': pt_data_dir, 'PT_OUTPUT_DIR': pt_output_dir})
+    # setup env vars which might be used in paths
+    update_envvars(conf)
 
     # create global logger
-    _setup_logger()
-    # create info file for current system
+    create_logger(conf)
+
     _create_sysinfo(conf)
 
     # create a[ex to know distributed processing paramters
-    conf_apex = get_conf_common()['apex']
+    conf_apex = get_conf_common(conf)['apex']
     apex = ApexUtils(conf_apex, logger=logger)
 
     # setup tensorboard
     global _tb_writer
-    _tb_writer = _create_tb_writer(apex.is_master())
+    _tb_writer = create_tb_writer(conf, apex.is_master())
 
     # create hooks to execute code when script exits
     global _atexit_reg
@@ -166,7 +185,7 @@ def common_init(config_filepath: Optional[str]=None,
     return conf
 
 def _create_sysinfo(conf:Config)->None:
-    expdir = get_expdir()
+    expdir = get_expdir(conf)
 
     if expdir and not utils.is_debugging():
         # copy net config to experiment folder for reference
@@ -182,8 +201,8 @@ def expdir_abspath(path:str, create=False)->str:
     """Returns full path for given relative path within experiment directory."""
     return utils.full_path(os.path.join('$expdir',path), create=create)
 
-def _create_tb_writer(is_master=True)-> SummaryWriterAny:
-    conf_common = get_conf_common()
+def create_tb_writer(conf:Config, is_master=True)-> SummaryWriterAny:
+    conf_common = get_conf_common(conf)
 
     tb_dir, conf_enable_tb = utils.full_path(conf_common['tb_dir']), conf_common['tb_enable']
     tb_enable = conf_enable_tb and is_master and tb_dir is not None and len(tb_dir) > 0
@@ -196,14 +215,13 @@ def _create_tb_writer(is_master=True)-> SummaryWriterAny:
 
     return WriterClass(log_dir=tb_dir)
 
-def _setup_dirs(clean_expdir:bool)->Optional[str]:
-    conf_common = get_conf_common()
-    conf_dataset = get_conf_dataset()
-    experiment_name = get_experiment_name()
+def _update_conf(conf:Config)->None:
+    conf_common = get_conf_common(conf)
+    conf_dataset = get_conf_dataset(conf)
+    experiment_name = conf_common['experiment_name']
 
     # make sure dataroot exists
     dataroot = utils.full_path(conf_dataset['dataroot'])
-    os.makedirs(dataroot, exist_ok=True)
 
     # make sure logdir and expdir exists
     logdir = conf_common['logdir']
@@ -211,29 +229,76 @@ def _setup_dirs(clean_expdir:bool)->Optional[str]:
         logdir = utils.full_path(logdir)
         expdir = os.path.join(logdir, experiment_name)
 
-        if clean_expdir and os.path.exists(expdir):
-            send2trash(expdir)
-        os.makedirs(expdir, exist_ok=True)
-
         # directory for non-master replica logs
         distdir = os.path.join(expdir, 'dist')
+    else:
+        expdir = distdir = logdir
+
+    # update conf so everyone gets expanded full paths from here on
+    # set environment variable so it can be referenced in paths used in config
+    conf_common['logdir'] = logdir
+    conf_dataset['dataroot'] = dataroot
+    conf_common['expdir'] = expdir
+    conf_common['distdir'] = distdir
+
+def update_envvars(conf)->None:
+    conf_common = get_conf_common(conf)
+    logdir = conf_common['logdir']
+    expdir = conf_common['expdir']
+    distdir = conf_common['distdir']
+
+    conf_dataset = get_conf_dataset(conf)
+    dataroot = conf_dataset['dataroot']
+
+    # update conf so everyone gets expanded full paths from here on
+    # set environment variable so it can be referenced in paths used in config
+    os.environ['logdir'] = logdir
+    os.environ['dataroot'] = dataroot
+    os.environ['expdir'] = expdir
+    os.environ['distdir'] = distdir
+
+def clean_ensure_expdir(conf:Optional[Config]=None, ensure_dir=False)->None:
+    expdir = get_expdir(conf)
+    if os.path.exists(expdir):
+        send2trash(expdir)
+    if ensure_dir:
+        os.makedirs(expdir, exist_ok=True)
+
+def create_dirs(conf:Config, clean_expdir:bool)->Optional[str]:
+    conf_common = get_conf_common(conf)
+    logdir = conf_common['logdir']
+    expdir = conf_common['expdir']
+    distdir = conf_common['distdir']
+
+    conf_dataset = get_conf_dataset(conf)
+    dataroot = conf_dataset['dataroot']
+
+    # make sure dataroot exists
+    os.makedirs(dataroot, exist_ok=True)
+
+    # make sure logdir and expdir exists
+    if logdir:
+        if clean_expdir:
+            clean_ensure_expdir(conf, ensure_dir=True)
         os.makedirs(distdir, exist_ok=True)
     else:
         raise RuntimeError('The logdir setting must be specified for the output directory in yaml')
 
-    # update conf so everyone gets expanded full paths from here on
-    # set environment variable so it can be referenced in paths used in config
-    os.environ['logdir'] = conf_common['logdir'] = logdir
-    os.environ['dataroot'] = conf_dataset['dataroot'] = dataroot
-    os.environ['expdir'] = conf_common['expdir'] = expdir
-    os.environ['distdir'] = conf_common['distdir'] = distdir
+    # get cloud dirs if any
+    pt_data_dir, pt_output_dir = _pt_dirs()
 
+    # validate dirs
+    assert not pt_output_dir or not expdir.startswith(utils.full_path('~/logdir'))
 
-def _setup_logger():
+    logger.info({'expdir': expdir,
+                 # create info file for current system
+                 'PT_DATA_DIR': pt_data_dir, 'PT_OUTPUT_DIR': pt_output_dir})
+
+def create_logger(conf:Config):
     global logger
     logger.close()  # close any previous instances
 
-    conf_common = get_conf_common()
+    conf_common = get_conf_common(conf)
     expdir = conf_common['expdir']
     distdir = conf_common['distdir']
     log_prefix = conf_common['log_prefix']
@@ -251,7 +316,7 @@ def _setup_logger():
     # file where logger would log messages
     sys_log_filepath = utils.full_path(os.path.join(logdir, f'{log_prefix}{log_suffix}.log'))
     logs_yaml_filepath = utils.full_path(os.path.join(logdir, f'{log_prefix}{log_suffix}.yaml'))
-    experiment_name = get_experiment_name() + log_suffix
+    experiment_name = get_experiment_name(conf) + log_suffix
     #print(f'experiment_name={experiment_name}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}')
 
     sys_logger = utils.create_logger(filepath=sys_log_filepath,
@@ -265,6 +330,8 @@ def _setup_logger():
     logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log,
                  backup_existing_file=False)
     logger.info({'command_line': ' '.join(sys.argv) if utils.is_main_process() else f'Child process: {utils.process_name()}-{os.getpid()}'})
+    logger.info({'process_name': utils.process_name(), 'is_main_process': utils.is_main_process(),
+                 'main_process_pid':utils.main_process_pid(), 'pid':os.getpid(), 'ppid':os.getppid(), 'is_debugging': utils.is_debugging()})
     logger.info({'experiment_name': experiment_name, 'datetime:': datetime.datetime.now()})
     logger.info({'logs_yaml_filepath': logs_yaml_filepath, 'sys_log_filepath': sys_log_filepath})
 
