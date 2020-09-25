@@ -122,11 +122,11 @@ class Searcher(EnforceOverrides):
                           trainer_class:TArchTrainer, finalizers:Finalizers)\
                               ->Tuple[ModelDesc, Optional[Metrics]]:
 
-        logger.pushd('arch_search')
-
         # if trainer is not specified for algos like random search we return same desc
         if trainer_class is None:
             return model_desc, None
+
+        logger.pushd('arch_search')
 
         conf_trainer = conf_search['trainer']
         conf_loader = conf_search['loader']
