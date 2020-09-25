@@ -45,18 +45,17 @@ class ExperimentRunner(ABC, EnforceOverrides):
         search_result, eval_result = None, None
 
         if search: # run search
-            conf = self._init_conf('search', clean_expdir=self.clean_expdir)
+            conf = self._init_conf(True, clean_expdir=self.clean_expdir)
             search_result = self.run_search(conf['nas']['search'])
 
         if eval:
-            if self.clean_expdir:
-                conf = self.get_conf(False)
-                common.clean_ensure_expdir(conf, ensure_dir=True)
+            conf = self.get_conf(False)
+            common.clean_ensure_expdir(conf, clean_dir=self.clean_expdir, ensure_dir=True)
             if search:
                 # first copy search result to eval, otherwise we expect eval config to point to results
                 self.copy_search_to_eval()
 
-            conf = self._init_conf('eval', clean_expdir=False)
+            conf = self._init_conf(False, clean_expdir=False)
             eval_result = self.run_eval(conf['nas']['eval'])
 
         return search_result, eval_result

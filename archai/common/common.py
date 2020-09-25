@@ -157,11 +157,11 @@ def common_init(config_filepath: Optional[str]=None,
     # setup global instance
     Config.set_inst(conf)
 
-    # create experiment dir
-    create_dirs(conf, clean_expdir)
-
     # setup env vars which might be used in paths
     update_envvars(conf)
+
+    # create experiment dir
+    create_dirs(conf, clean_expdir)
 
     # create global logger
     create_logger(conf)
@@ -257,9 +257,9 @@ def update_envvars(conf)->None:
     os.environ['expdir'] = expdir
     os.environ['distdir'] = distdir
 
-def clean_ensure_expdir(conf:Optional[Config]=None, ensure_dir=False)->None:
+def clean_ensure_expdir(conf:Optional[Config], clean_dir:bool, ensure_dir:bool)->None:
     expdir = get_expdir(conf)
-    if os.path.exists(expdir):
+    if clean_dir and os.path.exists(expdir):
         send2trash(expdir)
     if ensure_dir:
         os.makedirs(expdir, exist_ok=True)
@@ -278,8 +278,7 @@ def create_dirs(conf:Config, clean_expdir:bool)->Optional[str]:
 
     # make sure logdir and expdir exists
     if logdir:
-        if clean_expdir:
-            clean_ensure_expdir(conf, ensure_dir=True)
+        clean_ensure_expdir(conf, clean_dir=clean_expdir, ensure_dir=True)
         os.makedirs(distdir, exist_ok=True)
     else:
         raise RuntimeError('The logdir setting must be specified for the output directory in yaml')
