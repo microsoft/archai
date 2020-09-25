@@ -394,6 +394,9 @@ def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float)->
         counts_range = counts_max
     else:
         counts_range = counts_max - counts_min
+    # to prevent division by 0
+    if counts_range == 0:
+        counts_range = 1
     # scale between [0,1] to avoid numerical issues
     scaled_counts = [(count - counts_min)/counts_range for count in counts]
     count_scores = [1.0/(scaled_count + 1) for scaled_count in scaled_counts]
@@ -409,6 +412,9 @@ def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float)->
         madd_range = madd_max
     else:
         madd_range = madd_max - madd_min
+    # to prevent division by 0
+    if madd_range == 0:
+        madd_range = 1
     # scale between [0,1] to avoid numerical issues
     scaled_madds = [(madd - madd_min)/madd_range for madd in eps_madds]
     madd_scores = [1.0/(scaled_madd + 1) for scaled_madd in scaled_madds]
