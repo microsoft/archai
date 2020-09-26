@@ -11,6 +11,7 @@ import bisect
 import numpy as np
 
 import tensorwatch as tw
+from tensorwatch import ModelStats
 import yaml
 import matplotlib.pyplot as plt
 
@@ -486,6 +487,19 @@ def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
     plt.xlabel('Flops (Millions)')
     plt.ylabel('Top1 Accuracy')
     plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+
+def plot_seed_model_stats(seed_model_stats:List[ModelStats], expdir:str)->None:
+    xs_madd = [p.MAdd for p in seed_model_stats]
+    xs_madd_m = [x/1e6 for x in xs_madd]
+    ys_zero = [0 for x in xs_madd]
+
+    madds_plot_filename = os.path.join(expdir, 'seed_models_madds.png')
+    plt.clf()
+    plt.scatter(xs_madd_m, ys_zero)
+    plt.xlabel('Multiply-Additions (Millions)')
+    plt.savefig(madds_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
 
 def save_hull_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
                final_desc_foldername:str, expdir:str)->ConvexHullPoint:
