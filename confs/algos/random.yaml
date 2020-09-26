@@ -1,1 +1,11 @@
 __include__: 'darts.yaml' # just use darts defaults
+
+
+nas:
+  search:
+    model_desc:
+      num_edges_to_sample: 2 # number of edges each node will take input from
+
+  eval:
+    model_desc:
+      num_edges_to_sample: 2

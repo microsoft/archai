@@ -43,7 +43,7 @@ from archai.nas.searcher import SearchResult
 from archai.nas.search_combinations import SearchCombinations
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
-    sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool
+    sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool, plot_seed_model_stats
 
 
 class SearcherPetridish(SearchCombinations):
@@ -251,6 +251,7 @@ class SearcherPetridish(SearchCombinations):
         conf_seed_train = conf_search['seed_train']
 
         future_ids = [] # ray job IDs
+        seed_model_stats = [] # seed model stats for visualization and debugging 
         macro_combinations = list(self.get_combinations(conf_search))
         for reductions, cells, nodes in macro_combinations:
             # if N R N R N R cannot be satisfied, ignore combination
@@ -270,6 +271,16 @@ class SearcherPetridish(SearchCombinations):
                 conf_seed_train, hull_point, common.get_state())
 
             future_ids.append(future_id)
+
+            # build a model so we can get its model stats
+            temp_model = Model(model_desc, droppath=True, affine=True)
+            seed_model_stats.append(nas_utils.get_model_stats(temp_model))
+        
+        # save the model stats in a plot and tsv file so we can
+        # visualize the spread on the x-axis
+        expdir = common.get_expdir()
+        assert expdir
+        plot_seed_model_stats(seed_model_stats, expdir)
 
         return future_ids
 
@@ -303,6 +314,7 @@ class SearcherPetridish(SearchCombinations):
         conf_model_desc = copy.deepcopy(conf_model_desc)
         conf_model_desc['n_reductions'] = reductions
         conf_model_desc['n_cells'] = cells
+        conf_model_desc['cell']['n_nodes'] = nodes
 
         # create model desc for search using model config
         # we will build model without call to model_desc_builder for pre-training
