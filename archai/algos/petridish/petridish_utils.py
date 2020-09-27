@@ -462,17 +462,20 @@ def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
 
     xs_madd = []
     xs_flops = []
+    xs_params = []
     ys = []
     for p in hull_points:
         xs_madd.append(p.model_stats.MAdd)
         xs_flops.append(p.model_stats.Flops)
+        xs_params.append(p.model_stats.parameters)
         ys.append(p.metrics.best_val_top1())
-
-    madds_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_madds.png')
 
     # for easier interpretation report everything in million increments
     xs_madd_m = [x/1e6 for x in xs_madd]
     xs_flops_m = [x/1e6 for x in xs_flops]
+    xs_params_m = [x/1e6 for x in xs_params]
+
+    madds_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_madds.png')
 
     plt.clf()
     plt.scatter(xs_madd_m, ys)
@@ -487,6 +490,15 @@ def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
     plt.xlabel('Flops (Millions)')
     plt.ylabel('Top1 Accuracy')
     plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    params_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_params.png')
+
+    plt.clf()
+    plt.scatter(xs_params_m, ys)
+    plt.xlabel('Params (Millions)')
+    plt.ylabel('Top1 Accuracy')
+    plt.savefig(params_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
 
 
 def plot_seed_model_stats(seed_model_stats:List[ModelStats], expdir:str)->None:

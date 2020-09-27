@@ -150,7 +150,7 @@ class SearcherPetridish(SearchCombinations):
         trainer_class:TArchTrainer, finalizers:Finalizers, common_state:CommonState)\
             ->ConvexHullPoint:
 
-        # as this runs in different process, initiaze globals
+        # as this runs in different process, initialize globals
         common.init_from(common_state)
 
         #register ops as we are in different process now
