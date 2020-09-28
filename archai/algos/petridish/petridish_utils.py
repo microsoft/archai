@@ -29,7 +29,6 @@ class JobStage(Enum):
     EVAL_TRAINED = 6
 
 class ConvexHullPoint:
-    _id = 0
     def __init__(self, job_stage:JobStage, parent_id:int,
                  sampling_count:int,
                  model_desc:ModelDesc,
@@ -45,7 +44,10 @@ class ConvexHullPoint:
         self.metrics = metrics
         self.model_stats = model_stats
 
-        ConvexHullPoint._id += 1
+        # TODO: we use random IDs because with ray multiprocessing, its harder to have global
+        # id generation. Ideally we should use UUID or global store but for now we just
+        # use large enough random range
+        ConvexHullPoint._id = random.randint(0, 2147483648)
         self.id = ConvexHullPoint._id
 
     def is_trained_stage(self)->bool:
@@ -321,7 +323,7 @@ def _test_convex_hull_insert():
         dpi=plt.gcf().dpi, bbox_inches='tight')
 
 def model_descs_on_front(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
-                         lower_hull:bool=False)\
+                         lower_hull:bool=True)\
         ->Tuple[List[ConvexHullPoint], List[ConvexHullPoint], List[float], List[float]]:
     assert(len(hull_points) > 0)
 
@@ -379,7 +381,7 @@ def hull_points2tsv(points:List[ConvexHullPoint])->str:
 def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
                       sampling_max_try:int)->ConvexHullPoint:
     front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
-        convex_hull_eps, lower_hull=True)
+        convex_hull_eps)
 
     logger.info(f'num models in pool: {len(hull_points)}')
     logger.info(f'num models on front: {len(front_points)}')
@@ -408,7 +410,7 @@ def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
 def plot_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
                    expdir:str)->None:
     front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
-        convex_hull_eps, lower_hull=True)
+        convex_hull_eps)
 
     # save a plot of the convex hull to aid debugging
 

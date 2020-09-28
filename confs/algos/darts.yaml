@@ -78,7 +78,7 @@ nas:
     loader:
       apex:
         _copy: '../../trainer/apex'
-      aug: '' # additional augmentations to use
+      aug: '' # additional augmentations to use, for ex, fa_reduced_cifar10, arsaug, autoaug_cifar10, autoaug_extend
       cutout: 16 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
       train_batch: 96 # 96 is too aggressive for 1080Ti, better set it to 68

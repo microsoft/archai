@@ -37,13 +37,13 @@ class PetridishExperimentRunner(ExperimentRunner):
     @overrides
     def copy_search_to_eval(self)->None:
         # get folder of model gallery that search has produced
-        conf_search = self.get_conf_search()
+        conf_search = self.get_conf(True)['nas']['search']
         search_desc_foldername = conf_search['final_desc_foldername']
         search_desc_folderpath = utils.full_path(search_desc_foldername)
         assert search_desc_foldername and os.path.exists(search_desc_folderpath)
 
         # get folder path that eval would need
-        conf_eval = self.get_conf_eval()
+        conf_eval = self.get_conf(False)['nas']['eval']
         eval_desc_foldername = conf_eval['final_desc_foldername']
         eval_desc_folderpath = utils.full_path(eval_desc_foldername)
         assert eval_desc_folderpath
@@ -51,7 +51,7 @@ class PetridishExperimentRunner(ExperimentRunner):
         # so being robust to pre-existing directory
         if os.path.exists(eval_desc_folderpath):
             shutil.rmtree(eval_desc_folderpath)
-        utils.copy_dir(search_desc_folderpath, eval_desc_folderpath, use_shutil=False)
+        utils.copy_dir(search_desc_folderpath, eval_desc_folderpath, use_shutil=True)
 
 
 

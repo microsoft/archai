@@ -1,81 +1,48 @@
 # Welcome to Archai
 
-Archai is a platform for Neural Network Search (NAS) with a goal to unify several recent advancements in research
-and making them accessible to non-experts so that anyone can leverage this research to generate efficient deep networks for their own applications. Archai hopes to accelerate NAS research by easily allowing to mix and match different techniques rapidly while still ensuring reproducibility, documented hyper-parameters and fair comparison across the spectrum of these techniques. Archai is extensible and modular to accommodate new algorithms easily (often with only a few new lines of code) offering clean and robust codebase.
+Archai is a platform for Neural Network Search (NAS) with a goal to unify several recent advancements in research and making them accessible to non-experts so that anyone can leverage this research to generate efficient deep networks for their own applications. Archai hopes to accelerate NAS research by easily allowing to mix and match different techniques rapidly while still ensuring reproducibility, documented hyper-parameters and fair comparison across the spectrum of these techniques. Archai is extensible and modular to accommodate new algorithms easily and aspired to offer clean and robust codebase.
 
 [Extensive feature list](docs/features.md)
 
 ## How to Get It
 
-### Create conda environment
-```
-conda create --name archai python=3.7
-conda activate archai
-```
+### Prerequisites
 
-### Install PyTorch
-Follow instructions [here](https://pytorch.org/) to install pytorch for your OS and cuda version. We have tested it with Pytorch 1.3+ and Python 3.6+ on Windows 10 and Ubuntu 18.04.
-
-### Windows Installation
-
-```
-cd archai
-install.bat
-```
+Archai requires Python 3.6+ and [PyTorch](https://pytorch.org/get-started/locally/) 1.2+. To install Python we highly recommend [Anaconda](https://www.anaconda.com/products/individual#Downloads). Archai works both on Linux as well as Windows.
 
 ### Install from source code
 
 We recommend installing from the source code:
 
-```
+```bash
 git clone https://github.com/microsoft/archai.git
 cd archai
+install.sh # on Windows, use install.bat
 ```
 
-On Windows `install.bat`
-On Linux `install.sh`
-
-
-## Test installation
-
-* `cd archai`
-* The below command will run every algorithm through a few batches of cifar10
-  and for both search and final training
-* `python scripts/main.py`. If all went well, you have a working installation! Yay! 
-* Note one can also build and use the cuda 10.1 or 9.2 compatible dockers
-  provided in the [dockers](dockers) folder. These dockers are useful
-  for large scale experimentation on compute clusters.
+For more information, please [Install Guide](docs/install.md)
 
 ## How to Use It
 
-### Quick start
+### Quick Start
 
-[`scripts/main.py`](archai/scripts/main.py) is the main point of entry.
+To run specific NAS algorithm, specify it by `--algos` switch:
 
-#### Run all algorithms in toy mode
+```bash
+python scripts/main.py --algos darts --full
+```
 
-`python scripts/main.py` runs all implemented search algorithms and final training
-with a few minibatches of data from cifar10. This is designed to exercise all
-code paths and make sure that everything is properly.
+For more information on available switches, algorithms etc please see [running algorithms](docs/running_algos.md).
 
-#### To run specific algorithms
+#### Tutorial
 
-`python scripts/main.py --darts` will run darts search and evaluation (final model training) using only a few minibatches of data from cifar10.
-`python scripts/main.py --darts --full` will run the full search.
+Please see our detailed 30 minutes tutorial that walks you through how to implement Darts algorithm.
 
-Other algorithms can be run by specifying different algorithm names like `petridish`, `xnas`, `random` etc.
+#### Visual Studio Code
 
-#### List of algorithms
+We highly recommend [Visual Studio Code](https://code.visualstudio.com/) to take advantage of predefined run configurations and interactive debugging.
 
-Current the following algorithms are implemented:
-
-* [Petridish](https://papers.nips.cc/paper/9202-efficient-forward-architecture-search.pdf)
-* [DARTS](https://deepmind.com/research/publications/darts-differentiable-architecture-search)
-* [Random search baseline]
-* [XNAS](http://papers.nips.cc/paper/8472-xnas-neural-architecture-search-with-expert-advice.pdf) (this is currently experimental and has not been fully reproduced yet as authors have not released source code at the time of writing.)
-* [DATA](https://papers.nips.cc/paper/8374-data-differentiable-architecture-approximation.pdf) (this is currently experimental and has not been fully reproduced yet as authors have not released source code at the time of writing.)
-
-See [Roadmap](#roadmap) for details on new algorithms coming soon.
+From archai directory, launch Visual Studio Code. Select the Run button (Ctrl+Shift+D), chose the run configuration you want and click on Play icon.
 
 ### Tutorials
 
@@ -98,9 +65,9 @@ We would love your contributions, feedback, questions, algorithm implementations
 Join the Archai group on [Facebook](https://www.facebook.com/groups/1133660130366735/) to stay up to date or ask any questions.
 
 ## Team
-Archai has been created and maintained by [Shital Shah](https://shitalshah.com) and [Debadeepta Dey](www.debadeepta.com) in the [Reinforcement Learning Group](https://www.microsoft.com/en-us/research/group/reinforcement-learning-redmond/) at Microsoft Research AI, Redmond, USA. Archai has benefited immensely from discussions with [John Langford](https://www.microsoft.com/en-us/research/people/jcl/), [Rich Caruana](https://www.microsoft.com/en-us/research/people/rcaruana/), and [Eric Horvitz](https://www.microsoft.com/en-us/research/people/horvitz/)
+Archai has been created and maintained by [Shital Shah](https://shitalshah.com) and [Debadeepta Dey](www.debadeepta.com) in the [Reinforcement Learning Group](https://www.microsoft.com/en-us/research/group/reinforcement-learning-redmond/) at Microsoft Research AI, Redmond, USA. Archai has benefited immensely from discussions with [John Langford](https://www.microsoft.com/en-us/research/people/jcl/), [Rich Caruana](https://www.microsoft.com/en-us/research/people/rcaruana/), [Eric Horvitz](https://www.microsoft.com/en-us/research/people/horvitz/) and [Alekh Agarwal](https://www.microsoft.com/en-us/research/people/alekha/).
 
-They look forward to Archai becoming more community driven and including major contributors here. 
+We look forward to Archai becoming more community driven and including major contributors here.
 
 ## Credits
 
