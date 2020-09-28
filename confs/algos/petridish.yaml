@@ -23,7 +23,7 @@ nas:
     petridish:
       cell_count_scale: 1.0 # for eval first multiply number of cells used in search by this factor, limit to n_cells
     trainer:
-      epochs: 1500
+      epochs: 600
   search:
     final_desc_foldername: '$expdir/model_desc_gallery' # the gallery of models that eval will train from scratch
     petridish:
