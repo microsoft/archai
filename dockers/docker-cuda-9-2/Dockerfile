@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.1-devel
+FROM nvidia/cuda:9.2-devel
 
 # Labels for the docker
 LABEL description="This docker has the environment for running petridish experiments in pytorch" \
