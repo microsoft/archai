@@ -193,7 +193,7 @@ def _create_sysinfo(conf:Config)->None:
             yaml.dump(conf.to_dict(), f)
         if not utils.is_debugging():
             sysinfo_filepath = expdir_abspath('sysinfo.txt')
-            subprocess.Popen([f'./sysinfo.sh "{expdir}" > "{sysinfo_filepath}"'],
+            subprocess.Popen([f'./scripts/sysinfo.sh "{expdir}" > "{sysinfo_filepath}"'],
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             shell=True)
 
