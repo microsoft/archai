@@ -20,8 +20,4 @@ You can also use dockers in the [dockers](https://github.com/microsoft/archai/tr
 
 ## Notes
 
-Vast majority of Archai code base works by simply by installing the package by running the command `pip install -e .` in archai source directory. However, this won't install pydot and graphviz to visualize the generated architectures. Also, due to problems with pickle5 older versions, you might get some errors which can be resolved by installing pickle5 using conda. This is what [install script](https://github.com/microsoft/archai/blob/master/install.sh) does.
-
-
-
-
+Vast majority of Archai code base works by simply by installing the package by running the command `pip install -e .` in archai source directory. However, this won't install pydot and graphviz to visualize the generated architectures. Also, if you have older pickle5 versions, you might get some errors which can be resolved by installing pickle5 using conda. This is what [install script](https://github.com/microsoft/archai/blob/master/install.sh) does.
