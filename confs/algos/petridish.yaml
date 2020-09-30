@@ -13,33 +13,34 @@ nas:
     model_desc:
       n_reductions: 2 # number of reductions to be applied
       n_cells: 20 # number of max cells, for pareto frontier, we use cell_count_scale to multiply cells and limit by n_cells
-      aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch [DEY: What does this mean?]
+      aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
+      num_edges_to_sample: 2 # number of edges each node will take inputs from
       model_stems:
         init_node_ch: 36 # num of input/output channels for nodes in 1st cell
       cell:
         n_nodes: 5 # number of nodes in a cell if template desc is not provided
         cell_post_op: 'proj_channels'
     petridish:
-      cell_count_scale: 2.0 # for eval first multiply number of cells used in search by this factor, limit to n_cells
+      cell_count_scale: 1.0 # for eval first multiply number of cells used in search by this factor, limit to n_cells
     trainer:
       epochs: 600
   search:
     final_desc_foldername: '$expdir/model_desc_gallery' # the gallery of models that eval will train from scratch
     petridish:
       convex_hull_eps: 0.025 # tolerance
-      sampling_max_try: 100 # maximum number of trials in the parent pool sampler function before giving up and returning a random parent model
       max_madd: 200000000 # if any parent model reaches this many multiply-additions then the search is terminated or it reaches maximum number of parent pool size
-      max_hull_points: 30 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
+      max_hull_points: 100 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
       checkpoints_foldername: '$expdir/petridish_search_checkpoints'
     search_iters: 4 # TODO: What does this mean here?
     pareto:
       max_cells: 8
       max_reductions: 3
-      max_nodes: 1
+      max_nodes: 3
       enabled: True # if false then there will only be one seed model. if true a number of seed models with different number of cells, reductions and nodes will be used to initialize the search. this provides more coverage of the frontier.
     model_desc:
       n_cells: 3
       n_reductions: 1
+      num_edges_to_sample: 2 # number of edges each node will take inputs from
       cell:
         n_nodes: 1
         cell_post_op: 'proj_channels'

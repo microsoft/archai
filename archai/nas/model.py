@@ -47,7 +47,7 @@ class Model(ArchModule):
 
         # for i,cell in enumerate(self.cells):
         #     print(i, ml_utils.param_size(cell))
-        logger.info({'model_summary': self.summary()})
+        #logger.info({'model_summary': self.summary()})
 
     def _build_cell(self, cell_desc:CellDesc,
                     aux_tower_desc:Optional[AuxTowerDesc],

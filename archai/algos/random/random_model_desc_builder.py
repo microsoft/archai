@@ -40,7 +40,7 @@ class RandomModelDescBuilder(ModelDescBuilder):
     def build_cells(self, in_shapes:TensorShapesList, conf_model_desc:Config)\
             ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
 
-        max_edges = 2
+        max_edges = conf_model_desc['num_edges_to_sample']
         node_count = self.get_node_count(0)
 
         # create two sets of random ops, one for each cell type

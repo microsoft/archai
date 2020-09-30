@@ -11,6 +11,7 @@ import bisect
 import numpy as np
 
 import tensorwatch as tw
+from tensorwatch import ModelStats
 import yaml
 import matplotlib.pyplot as plt
 
@@ -378,8 +379,7 @@ def hull_points2tsv(points:List[ConvexHullPoint])->str:
 
     return '\n'.join(lines)
 
-def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
-                      sampling_max_try:int)->ConvexHullPoint:
+def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float)->ConvexHullPoint:
     front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
         convex_hull_eps)
 
@@ -387,21 +387,43 @@ def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
     logger.info(f'num models on front: {len(front_points)}')
     logger.info(f'num models on front with eps: {len(eps_points)}')
 
-    # reverse sort by metrics performance
-    eps_points.sort(reverse=True, key=lambda p:p.metrics.best_val_top1())
+    # form scores to non-maxima supress models already sampled
+    counts = [point.sampling_count for point in eps_points]
+    counts_max = max(counts)
+    counts_min = min(counts)
+    if counts_max == counts_min:
+        counts_range = counts_max
+    else:
+        counts_range = counts_max - counts_min
+    # to prevent division by 0
+    if counts_range == 0:
+        counts_range = 1
+    # scale between [0,1] to avoid numerical issues
+    scaled_counts = [(count - counts_min)/counts_range for count in counts]
+    count_scores = [1.0/(scaled_count + 1) for scaled_count in scaled_counts]
+    
+    # form scores to sample inversely proportional to madds
+    # since it takes less compute to train a smaller model
+    # this allows us to evaluate each point equal number of times 
+    # with any compute budget
+    eps_madds = [point.model_stats.MAdd for point in eps_points]
+    madd_max = max(eps_madds)
+    madd_min = min(eps_madds)
+    if madd_max == madd_min:
+        madd_range = madd_max
+    else:
+        madd_range = madd_max - madd_min
+    # to prevent division by 0
+    if madd_range == 0:
+        madd_range = 1
+    # scale between [0,1] to avoid numerical issues
+    scaled_madds = [(madd - madd_min)/madd_range for madd in eps_madds]
+    madd_scores = [1.0/(scaled_madd + 1) for scaled_madd in scaled_madds]
 
-    # default choice
-    sampled_point = random.choice(hull_points)
-    # go through sorted list of models near convex hull
-    for _ in range(sampling_max_try):
-        for point in eps_points:
-            p = 1.0 / (point.sampling_count + 1.0)
-            should_select = np.random.binomial(1, p)
-            if should_select == 1:
-                sampled_point = point
+    overall_scores = np.array(count_scores) + np.array(madd_scores)
+    overall_scores = overall_scores / np.sum(overall_scores)
 
-    # if here, sampling was not successful
-    logger.warn('sampling was not successful, returning a random parent')
+    sampled_point  = np.random.choice(eps_points, p=overall_scores)
 
     sampled_point.sampling_count += 1
 
@@ -440,17 +462,20 @@ def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
 
     xs_madd = []
     xs_flops = []
+    xs_params = []
     ys = []
     for p in hull_points:
         xs_madd.append(p.model_stats.MAdd)
         xs_flops.append(p.model_stats.Flops)
+        xs_params.append(p.model_stats.parameters)
         ys.append(p.metrics.best_val_top1())
-
-    madds_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_madds.png')
 
     # for easier interpretation report everything in million increments
     xs_madd_m = [x/1e6 for x in xs_madd]
     xs_flops_m = [x/1e6 for x in xs_flops]
+    xs_params_m = [x/1e6 for x in xs_params]
+
+    madds_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_madds.png')
 
     plt.clf()
     plt.scatter(xs_madd_m, ys)
@@ -465,6 +490,28 @@ def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
     plt.xlabel('Flops (Millions)')
     plt.ylabel('Top1 Accuracy')
     plt.savefig(flops_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    params_plot_filename = os.path.join(expdir, 'model_gallery_accuracy_params.png')
+
+    plt.clf()
+    plt.scatter(xs_params_m, ys)
+    plt.xlabel('Params (Millions)')
+    plt.ylabel('Top1 Accuracy')
+    plt.savefig(params_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+
+
+def plot_seed_model_stats(seed_model_stats:List[ModelStats], expdir:str)->None:
+    xs_madd = [p.MAdd for p in seed_model_stats]
+    xs_madd_m = [x/1e6 for x in xs_madd]
+    ys_zero = [0 for x in xs_madd]
+
+    madds_plot_filename = os.path.join(expdir, 'seed_models_madds.png')
+    plt.clf()
+    plt.scatter(xs_madd_m, ys_zero)
+    plt.xlabel('Multiply-Additions (Millions)')
+    plt.savefig(madds_plot_filename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
 
 def save_hull_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
                final_desc_foldername:str, expdir:str)->ConvexHullPoint:
