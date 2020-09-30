@@ -137,7 +137,8 @@ class ModelDescBuilder(EnforceOverrides):
 
         if self.template is None:
             node_count = self.get_node_count(cell_index)
-            in_shape = out_shape = stem_shapes[0]
+            in_shape = stem_shapes[0] # input shape to noded is same as cell stem
+            out_shape = stem_shapes[0] # we ask nodes to keep the output shape same
             node_shapes, nodes = self.build_nodes(stem_shapes, conf_cell,
                                                   cell_index, cell_type, node_count, in_shape, out_shape)
         else:
