@@ -20,7 +20,7 @@ cd archai
 install.sh # on Windows, use install.bat
 ```
 
-For more information, please [Install Guide](docs/install.md)
+For more information, please [Install guide](docs/install.md)
 
 ## How to Use It
 
