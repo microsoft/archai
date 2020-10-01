@@ -14,6 +14,8 @@
     <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="APIs" href="api/modules.html" />
+    <link rel="prev" title="Roadmap" href="roadmap.html" />
          
         <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
         
@@ -39,7 +41,6 @@
 │   ├── petridish
 │   ├── random
 │   └── xnas
-├── archived
 ├── confs
 ├── dockers
 ├── docs
@@ -50,15 +51,11 @@
     ├── azure
 </pre></div>
 </div>
-<p>Most of the functionality resides in the <a class="reference external" href="archai/"><code class="docutils literal notranslate"><span class="pre">archai</span></code></a> folder.
-<a class="reference external" href="archai/nas"><code class="docutils literal notranslate"><span class="pre">nas</span></code></a> contains algorithm-agnostic infrastructure
-that is commonly used in NAS algorithms. <a class="reference external" href="archai/common"><code class="docutils literal notranslate"><span class="pre">common</span></code></a> contains
-common infrastructure code that has no nas-specific code but is infrastructre
-code that gets widely used.
-Algorithm-specific code resides in appropriately named folder like <a class="reference external" href="archai/nas/darts"><code class="docutils literal notranslate"><span class="pre">darts</span></code></a>,
-<a class="reference external" href="archai/nas/petridish"><code class="docutils literal notranslate"><span class="pre">petridish</span></code></a>, <a class="reference external" href="archai/nas/random"><code class="docutils literal notranslate"><span class="pre">random</span></code></a>,
-<a class="reference external" href="archai/nas/xnas"><code class="docutils literal notranslate"><span class="pre">xnas</span></code></a></p>
-<p><a class="reference external" href="archai/scripts"><code class="docutils literal notranslate"><span class="pre">scripts</span></code></a> contains entry-point scripts to running all algorithms.</p>
+<p>Archai core library resides in the <a class="reference external" href="https://github.com/microsoft/archai/tree/master/archai"><code class="docutils literal notranslate"><span class="pre">archai</span></code></a> folder.</p>
+<p><a class="reference external" href="https://github.com/microsoft/archai/tree/master/archai/nas"><code class="docutils literal notranslate"><span class="pre">nas</span></code></a> contains algorithm-agnostic infrastructure that is shared among NAS algorithms.</p>
+<p><a class="reference external" href="archai/common"><code class="docutils literal notranslate"><span class="pre">common</span></code></a> contains common non-NAS infrastructure code that can be used in other projects as well.</p>
+<p>Algorithm-specific code resides in appropriately named folder like <a class="reference external" href="https://github.com/microsoft/archai/tree/master/archai/algos/darts"><code class="docutils literal notranslate"><span class="pre">darts</span></code></a>, <a class="reference external" href="https://github.com/microsoft/archai/tree/master/archai/algos/petridish"><code class="docutils literal notranslate"><span class="pre">petridish</span></code></a>, <a class="reference external" href="https://github.com/microsoft/archai/tree/master/archai/algos/random"><code class="docutils literal notranslate"><span class="pre">random</span></code></a>, <a class="reference external" href="https://github.com/microsoft/archai/tree/master/archai/algos/xnas"><code class="docutils literal notranslate"><span class="pre">xnas</span></code></a>.</p>
+<p><a class="reference external" href="https://github.com/microsoft/archai/tree/master/scripts"><code class="docutils literal notranslate"><span class="pre">scripts</span></code></a> contains entry-point script <code class="docutils literal notranslate"><span class="pre">main.py</span></code> as well as several other useful scripts.</p>
 </div>
 
 
@@ -72,10 +69,15 @@ Algorithm-specific code resides in appropriately named folder like <a class="ref
             
             
             <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Archai Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blitz.html">Archai - A 30 Minute Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="petridish.html">Petridish - Code Walkthrough</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/modules.html">archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">APIs</a></li>
 </ul>
 
 

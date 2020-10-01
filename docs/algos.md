@@ -8,4 +8,4 @@ Current the following algorithms are implemented:
 * [XNAS](http://papers.nips.cc/paper/8472-xnas-neural-architecture-search-with-expert-advice.pdf) (this is currently experimental and has not been fully reproduced yet as authors have not released source code at the time of writing.)
 * [DATA](https://papers.nips.cc/paper/8374-data-differentiable-architecture-approximation.pdf) (this is currently experimental and has not been fully reproduced yet as authors have not released source code at the time of writing.)
 
-See [Roadmap](#roadmap) for details on new algorithms coming soon.
+See [Roadmap](roadmap.md) for details on new algorithms coming soon.

@@ -17,12 +17,6 @@ Welcome to Archai Documentation!
    running_algos.md
    faq.md
    roadmap.md
+   dir_struct.md
    api/modules
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
