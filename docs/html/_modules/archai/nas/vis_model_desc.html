@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.nas.vis_model_desc &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.nas.vis_model_desc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="sd">&quot;&quot;&quot; Network architecture visualizer using graphviz &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">graphviz</span> <span class="kn">import</span> <span class="n">Digraph</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">.model_desc</span> <span class="kn">import</span> <span class="n">CellDesc</span><span class="p">,</span> <span class="n">CellType</span><span class="p">,</span> <span class="n">ModelDesc</span>
+<span class="kn">from</span> <span class="nn">..common.utils</span> <span class="kn">import</span> <span class="n">first_or_default</span>
+<span class="kn">from</span> <span class="nn">..common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<div class="viewcode-block" id="draw_model_desc"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.vis_model_desc.draw_model_desc">[docs]</a><span class="k">def</span> <span class="nf">draw_model_desc</span><span class="p">(</span><span class="n">model_desc</span><span class="p">:</span><span class="n">ModelDesc</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">caption</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>\
+        <span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">Digraph</span><span class="p">],</span><span class="n">Optional</span><span class="p">[</span><span class="n">Digraph</span><span class="p">]]:</span>
+
+    <span class="n">normal_cell_desc</span> <span class="o">=</span> <span class="n">first_or_default</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">model_desc</span><span class="o">.</span><span class="n">cell_descs</span><span class="p">()</span> \
+                                        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">cell_type</span> <span class="o">==</span> <span class="n">CellType</span><span class="o">.</span><span class="n">Regular</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">reduced_cell_desc</span> <span class="o">=</span> <span class="n">first_or_default</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">model_desc</span><span class="o">.</span><span class="n">cell_descs</span><span class="p">()</span> \
+                                        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">cell_type</span> <span class="o">==</span> <span class="n">CellType</span><span class="o">.</span><span class="n">Reduction</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">g_normal</span> <span class="o">=</span> <span class="n">draw_cell_desc</span><span class="p">(</span><span class="n">normal_cell_desc</span><span class="p">,</span>
+        <span class="n">filepath</span><span class="o">+</span><span class="s1">&#39;-normal&#39;</span> <span class="k">if</span> <span class="n">filepath</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">caption</span><span class="p">)</span> <span class="k">if</span> <span class="n">normal_cell_desc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">g_reduct</span> <span class="o">=</span> <span class="n">draw_cell_desc</span><span class="p">(</span><span class="n">reduced_cell_desc</span><span class="p">,</span>
+        <span class="n">filepath</span><span class="o">+</span><span class="s1">&#39;-reduced&#39;</span> <span class="k">if</span> <span class="n">filepath</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">caption</span><span class="p">)</span> <span class="k">if</span> <span class="n">reduced_cell_desc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">g_normal</span><span class="p">,</span> <span class="n">g_reduct</span></div>
+
+<div class="viewcode-block" id="draw_cell_desc"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.vis_model_desc.draw_cell_desc">[docs]</a><span class="k">def</span> <span class="nf">draw_cell_desc</span><span class="p">(</span><span class="n">cell_desc</span><span class="p">:</span><span class="n">CellDesc</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">caption</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span>
+                   <span class="p">)</span><span class="o">-&gt;</span><span class="n">Digraph</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; make DAG plot and optionally save to filepath as .png &quot;&quot;&quot;</span>
+
+    <span class="n">edge_attr</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;fontsize&#39;</span><span class="p">:</span> <span class="s1">&#39;20&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fontname&#39;</span><span class="p">:</span> <span class="s1">&#39;times&#39;</span>
+    <span class="p">}</span>
+    <span class="n">node_attr</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="s1">&#39;filled&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;shape&#39;</span><span class="p">:</span> <span class="s1">&#39;rect&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;align&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fontsize&#39;</span><span class="p">:</span> <span class="s1">&#39;20&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;0.5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;0.5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;penwidth&#39;</span><span class="p">:</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fontname&#39;</span><span class="p">:</span> <span class="s1">&#39;times&#39;</span>
+    <span class="p">}</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">Digraph</span><span class="p">(</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;png&#39;</span><span class="p">,</span>
+        <span class="n">edge_attr</span><span class="o">=</span><span class="n">edge_attr</span><span class="p">,</span>
+        <span class="n">node_attr</span><span class="o">=</span><span class="n">node_attr</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;dot&#39;</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s1">&#39;rankdir=LR&#39;</span><span class="p">])</span>
+
+    <span class="c1"># input nodes</span>
+    <span class="c1"># TODO: remove only two input node as assumption</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;c_{k-2}&quot;</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s1">&#39;darkseagreen2&#39;</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;c_{k-1}&quot;</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s1">&#39;darkseagreen2&#39;</span><span class="p">)</span>
+
+    <span class="c1"># intermediate nodes</span>
+    <span class="n">n_nodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_desc</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_nodes</span><span class="p">):</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s1">&#39;lightblue&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cell_desc</span><span class="o">.</span><span class="n">nodes</span><span class="p">()):</span>
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+            <span class="n">op</span><span class="p">,</span> <span class="n">js</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">op_desc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">input_ids</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">js</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">u</span> <span class="o">=</span> <span class="s2">&quot;c_{k-2}&quot;</span>
+                <span class="k">elif</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">u</span> <span class="o">=</span> <span class="s2">&quot;c_{k-1}&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">u</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+                <span class="n">v</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">op</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+
+    <span class="c1"># output node</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">node</span><span class="p">(</span><span class="s2">&quot;c_</span><span class="si">{k}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s1">&#39;palegoldenrod&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_nodes</span><span class="p">):</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">edge</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s2">&quot;c_</span><span class="si">{k}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+
+    <span class="c1"># add image caption</span>
+    <span class="k">if</span> <span class="n">caption</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">attr</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">caption</span><span class="p">,</span> <span class="n">overlap</span><span class="o">=</span><span class="s1">&#39;false&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;20&#39;</span><span class="p">,</span> <span class="n">fontname</span><span class="o">=</span><span class="s1">&#39;times&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filepath</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;plot_filename: </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">g</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../index.html" id="logo" title=Archai><img class="logo" src="../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

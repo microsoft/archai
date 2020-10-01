@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.algos.petridish.petridish_exp_runner &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.algos.petridish.petridish_exp_runner</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">from</span> <span class="nn">archai.nas.exp_runner</span> <span class="kn">import</span> <span class="n">ExperimentRunner</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_trainer</span> <span class="kn">import</span> <span class="n">ArchTrainer</span><span class="p">,</span> <span class="n">TArchTrainer</span>
+<span class="kn">from</span> <span class="nn">.petridish_model_desc_builder</span> <span class="kn">import</span> <span class="n">PetridishModelBuilder</span>
+
+<span class="kn">from</span> <span class="nn">.searcher_petridish</span> <span class="kn">import</span> <span class="n">SearcherPetridish</span>
+<span class="kn">from</span> <span class="nn">.evaluater_petridish</span> <span class="kn">import</span> <span class="n">EvaluaterPetridish</span>
+<span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<div class="viewcode-block" id="PetridishExperimentRunner"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_exp_runner.PetridishExperimentRunner">[docs]</a><span class="k">class</span> <span class="nc">PetridishExperimentRunner</span><span class="p">(</span><span class="n">ExperimentRunner</span><span class="p">):</span>
+<div class="viewcode-block" id="PetridishExperimentRunner.model_desc_builder"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_exp_runner.PetridishExperimentRunner.model_desc_builder">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">model_desc_builder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">PetridishModelBuilder</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PetridishModelBuilder</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PetridishExperimentRunner.trainer_class"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_exp_runner.PetridishExperimentRunner.trainer_class">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">trainer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">TArchTrainer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ArchTrainer</span></div>
+
+<div class="viewcode-block" id="PetridishExperimentRunner.searcher"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_exp_runner.PetridishExperimentRunner.searcher">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">searcher</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SearcherPetridish</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SearcherPetridish</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PetridishExperimentRunner.evaluater"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_exp_runner.PetridishExperimentRunner.evaluater">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">evaluater</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">EvaluaterPetridish</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">EvaluaterPetridish</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PetridishExperimentRunner.copy_search_to_eval"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_exp_runner.PetridishExperimentRunner.copy_search_to_eval">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">copy_search_to_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># get folder of model gallery that search has produced</span>
+        <span class="n">conf_search</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_conf</span><span class="p">(</span><span class="kc">True</span><span class="p">)[</span><span class="s1">&#39;nas&#39;</span><span class="p">][</span><span class="s1">&#39;search&#39;</span><span class="p">]</span>
+        <span class="n">search_desc_foldername</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;final_desc_foldername&#39;</span><span class="p">]</span>
+        <span class="n">search_desc_folderpath</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">search_desc_foldername</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">search_desc_foldername</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">search_desc_folderpath</span><span class="p">)</span>
+
+        <span class="c1"># get folder path that eval would need</span>
+        <span class="n">conf_eval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_conf</span><span class="p">(</span><span class="kc">False</span><span class="p">)[</span><span class="s1">&#39;nas&#39;</span><span class="p">][</span><span class="s1">&#39;eval&#39;</span><span class="p">]</span>
+        <span class="n">eval_desc_foldername</span> <span class="o">=</span> <span class="n">conf_eval</span><span class="p">[</span><span class="s1">&#39;final_desc_foldername&#39;</span><span class="p">]</span>
+        <span class="n">eval_desc_folderpath</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">eval_desc_foldername</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">eval_desc_folderpath</span>
+        <span class="c1"># only later version of shutil copytree has dirs_exists_ok option</span>
+        <span class="c1"># so being robust to pre-existing directory</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">eval_desc_folderpath</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">eval_desc_folderpath</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">copy_dir</span><span class="p">(</span><span class="n">search_desc_folderpath</span><span class="p">,</span> <span class="n">eval_desc_folderpath</span><span class="p">,</span> <span class="n">use_shutil</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../../index.html" id="logo" title=Archai><img class="logo" src="../../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

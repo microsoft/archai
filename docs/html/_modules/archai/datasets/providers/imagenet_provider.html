@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.datasets.providers.imagenet_provider &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.datasets.providers.imagenet_provider</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">import</span> <span class="nn">torchvision</span>
+<span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">from</span> <span class="nn">torchvision.datasets.utils</span> <span class="kn">import</span> <span class="n">check_integrity</span><span class="p">,</span> <span class="n">download_url</span>
+
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span><span class="p">,</span> <span class="n">EnforceOverrides</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">archai.datasets.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">register_dataset_provider</span><span class="p">,</span> <span class="n">TrainTestDatasets</span>
+<span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">archai.datasets.transforms.lighting</span> <span class="kn">import</span> <span class="n">Lighting</span>
+<span class="kn">from</span> <span class="nn">.imagenet_folder</span> <span class="kn">import</span> <span class="n">ImageNetFolder</span>
+
+<div class="viewcode-block" id="ImagenetProvider"><a class="viewcode-back" href="../../../../api/archai.datasets.providers.html#archai.datasets.providers.imagenet_provider.ImagenetProvider">[docs]</a><span class="k">class</span> <span class="nc">ImagenetProvider</span><span class="p">(</span><span class="n">DatasetProvider</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_dataset</span><span class="p">:</span><span class="n">Config</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conf_dataset</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataroot</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;dataroot&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="ImagenetProvider.get_datasets"><a class="viewcode-back" href="../../../../api/archai.datasets.providers.html#archai.datasets.providers.imagenet_provider.ImagenetProvider.get_datasets">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_train</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">load_test</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+                    <span class="n">transform_train</span><span class="p">,</span> <span class="n">transform_test</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">TrainTestDatasets</span><span class="p">:</span>
+        <span class="n">trainset</span><span class="p">,</span> <span class="n">testset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">load_train</span><span class="p">:</span>
+            <span class="n">trainset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataroot</span><span class="p">,</span> <span class="s1">&#39;ImageNet&#39;</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">),</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">transform_train</span><span class="p">)</span>
+            <span class="c1"># compatibility with older PyTorch</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">trainset</span><span class="p">,</span> <span class="s1">&#39;targets&#39;</span><span class="p">):</span>
+                <span class="n">trainset</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">lb</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">lb</span> <span class="ow">in</span> <span class="n">trainset</span><span class="o">.</span><span class="n">samples</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">load_test</span><span class="p">:</span>
+            <span class="n">testset</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">ImageFolder</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataroot</span><span class="p">,</span> <span class="s1">&#39;ImageNet&#39;</span><span class="p">,</span> <span class="s1">&#39;val&#39;</span><span class="p">),</span>
+                <span class="n">transform</span><span class="o">=</span><span class="n">transform_test</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">trainset</span><span class="p">,</span> <span class="n">testset</span></div>
+
+<div class="viewcode-block" id="ImagenetProvider.get_transforms"><a class="viewcode-back" href="../../../../api/archai.datasets.providers.html#archai.datasets.providers.imagenet_provider.ImagenetProvider.get_transforms">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_transforms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">tuple</span><span class="p">:</span>
+        <span class="n">MEAN</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">]</span>
+        <span class="n">STD</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]</span>
+
+        <span class="n">_IMAGENET_PCA</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;eigval&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2175</span><span class="p">,</span> <span class="mf">0.0188</span><span class="p">,</span> <span class="mf">0.0045</span><span class="p">],</span>
+            <span class="s1">&#39;eigvec&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">[</span><span class="o">-</span><span class="mf">0.5675</span><span class="p">,</span>  <span class="mf">0.7192</span><span class="p">,</span>  <span class="mf">0.4009</span><span class="p">],</span>
+                <span class="p">[</span><span class="o">-</span><span class="mf">0.5808</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0045</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.8140</span><span class="p">],</span>
+                <span class="p">[</span><span class="o">-</span><span class="mf">0.5836</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.6948</span><span class="p">,</span>  <span class="mf">0.4203</span><span class="p">],</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="n">transform_train</span><span class="p">,</span> <span class="n">transform_test</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">transform_train</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span>
+                <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="c1"># TODO: these two params are normally not specified</span>
+                <span class="n">interpolation</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">BICUBIC</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ColorJitter</span><span class="p">(</span>
+                <span class="n">brightness</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                <span class="n">contrast</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                <span class="n">saturation</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                <span class="n">hue</span><span class="o">=</span><span class="mf">0.2</span>
+            <span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="c1"># TODO: Lighting is not used in original darts paper</span>
+            <span class="c1"># Lighting(0.1, _IMAGENET_PCA[&#39;eigval&#39;], _IMAGENET_PCA[&#39;eigvec&#39;]),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">MEAN</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">STD</span><span class="p">)</span>
+        <span class="p">])</span>
+
+        <span class="n">transform_test</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">MEAN</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">STD</span><span class="p">)</span>
+        <span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">transform_train</span><span class="p">,</span> <span class="n">transform_test</span></div></div>
+
+<span class="n">register_dataset_provider</span><span class="p">(</span><span class="s1">&#39;imagenet&#39;</span><span class="p">,</span> <span class="n">ImagenetProvider</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../../index.html" id="logo" title=Archai><img class="logo" src="../../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

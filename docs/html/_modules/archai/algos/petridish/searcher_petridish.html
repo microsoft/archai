@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.algos.petridish.searcher_petridish &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.algos.petridish.searcher_petridish</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Queue</span>
+<span class="kn">import</span> <span class="nn">secrets</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="c1"># latest verion of ray works on Windows as well</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">tensorwatch</span> <span class="k">as</span> <span class="nn">tw</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data.dataloader</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">common</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">logger</span><span class="p">,</span> <span class="n">CommonState</span>
+<span class="kn">from</span> <span class="nn">archai.common.checkpoint</span> <span class="kn">import</span> <span class="n">CheckPoint</span>
+<span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_trainer</span> <span class="kn">import</span> <span class="n">TArchTrainer</span>
+<span class="kn">from</span> <span class="nn">archai.nas</span> <span class="kn">import</span> <span class="n">nas_utils</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">ConvMacroParams</span><span class="p">,</span> <span class="n">CellDesc</span><span class="p">,</span> <span class="n">CellType</span><span class="p">,</span> <span class="n">OpDesc</span><span class="p">,</span> \
+                                  <span class="n">EdgeDesc</span><span class="p">,</span> <span class="n">TensorShape</span><span class="p">,</span> <span class="n">TensorShapes</span><span class="p">,</span> <span class="n">NodeDesc</span><span class="p">,</span> <span class="n">ModelDesc</span>
+<span class="kn">from</span> <span class="nn">archai.common.trainer</span> <span class="kn">import</span> <span class="n">Trainer</span>
+<span class="kn">from</span> <span class="nn">archai.datasets</span> <span class="kn">import</span> <span class="n">data</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">archai.common.metrics</span> <span class="kn">import</span> <span class="n">Metrics</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">archai.nas.finalizers</span> <span class="kn">import</span> <span class="n">Finalizers</span>
+<span class="kn">from</span> <span class="nn">archai.algos.petridish.petridish_utils</span> <span class="kn">import</span> <span class="n">_convex_hull_from_points</span>
+<span class="kn">from</span> <span class="nn">archai.nas.searcher</span> <span class="kn">import</span> <span class="n">SearchResult</span>
+<span class="kn">from</span> <span class="nn">archai.nas.search_combinations</span> <span class="kn">import</span> <span class="n">SearchCombinations</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc_builder</span> <span class="kn">import</span> <span class="n">ModelDescBuilder</span>
+<span class="kn">from</span> <span class="nn">archai.algos.petridish.petridish_utils</span> <span class="kn">import</span> <span class="n">ConvexHullPoint</span><span class="p">,</span> <span class="n">JobStage</span><span class="p">,</span> \
+    <span class="n">sample_from_hull</span><span class="p">,</span> <span class="n">plot_frontier</span><span class="p">,</span> <span class="n">save_hull_frontier</span><span class="p">,</span> <span class="n">save_hull</span><span class="p">,</span> <span class="n">plot_pool</span><span class="p">,</span> <span class="n">plot_seed_model_stats</span>
+
+
+<div class="viewcode-block" id="SearcherPetridish"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.searcher_petridish.SearcherPetridish">[docs]</a><span class="k">class</span> <span class="nc">SearcherPetridish</span><span class="p">(</span><span class="n">SearchCombinations</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SearcherPetridish.search"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.searcher_petridish.SearcherPetridish.search">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_search</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">:</span><span class="n">ModelDescBuilder</span><span class="p">,</span>
+                 <span class="n">trainer_class</span><span class="p">:</span><span class="n">TArchTrainer</span><span class="p">,</span> <span class="n">finalizers</span><span class="p">:</span><span class="n">Finalizers</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SearchResult</span><span class="p">:</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">pushd</span><span class="p">(</span><span class="s1">&#39;search&#39;</span><span class="p">)</span>
+
+        <span class="c1"># region config vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf_search</span> <span class="o">=</span> <span class="n">conf_search</span>
+        <span class="n">conf_checkpoint</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;checkpoint&#39;</span><span class="p">]</span>
+        <span class="n">resume</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;resume&#39;</span><span class="p">]</span>
+
+        <span class="n">conf_post_train</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;post_train&#39;</span><span class="p">]</span>
+        <span class="n">final_desc_foldername</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;final_desc_foldername&#39;</span><span class="p">]</span>
+
+        <span class="n">conf_petridish</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;petridish&#39;</span><span class="p">]</span>
+
+        <span class="c1"># petridish distributed search related parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_convex_hull_eps</span> <span class="o">=</span> <span class="n">conf_petridish</span><span class="p">[</span><span class="s1">&#39;convex_hull_eps&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_madd</span> <span class="o">=</span> <span class="n">conf_petridish</span><span class="p">[</span><span class="s1">&#39;max_madd&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_hull_points</span> <span class="o">=</span> <span class="n">conf_petridish</span><span class="p">[</span><span class="s1">&#39;max_hull_points&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoints_foldername</span> <span class="o">=</span> <span class="n">conf_petridish</span><span class="p">[</span><span class="s1">&#39;checkpoints_foldername&#39;</span><span class="p">]</span>
+        <span class="c1"># endregion</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span> <span class="o">=</span> <span class="n">nas_utils</span><span class="o">.</span><span class="n">create_checkpoint</span><span class="p">(</span><span class="n">conf_checkpoint</span><span class="p">,</span> <span class="n">resume</span><span class="p">)</span>
+
+        <span class="c1"># parent models list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ConvexHullPoint</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_dataset_download</span><span class="p">(</span><span class="n">conf_search</span><span class="p">)</span>
+
+        <span class="c1"># checkpoint will restore the hull we had</span>
+        <span class="n">is_restored</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restore_checkpoint</span><span class="p">()</span>
+
+        <span class="c1"># seed the pool with many models of different</span>
+        <span class="c1"># macro parameters like number of cells, reductions etc if parent pool</span>
+        <span class="c1"># could not be restored and/or this is the first time this job has been run.</span>
+        <span class="n">future_ids</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">is_restored</span> <span class="k">else</span>  <span class="bp">self</span><span class="o">.</span><span class="n">_create_seed_jobs</span><span class="p">(</span><span class="n">conf_search</span><span class="p">,</span>
+                                                                    <span class="n">model_desc_builder</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_search_done</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Ray jobs running: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">future_ids</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">future_ids</span><span class="p">:</span>
+                <span class="c1"># get first completed job</span>
+                <span class="n">job_id_done</span><span class="p">,</span> <span class="n">future_ids</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">future_ids</span><span class="p">)</span>
+
+                <span class="n">hull_point</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">job_id_done</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hull point id </span><span class="si">{</span><span class="n">hull_point</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1"> with stage </span><span class="si">{</span><span class="n">hull_point</span><span class="o">.</span><span class="n">job_stage</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> completed&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">is_trained_stage</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_convex_hull</span><span class="p">(</span><span class="n">hull_point</span><span class="p">)</span>
+
+                    <span class="c1"># sample a point and search</span>
+                    <span class="n">sampled_point</span> <span class="o">=</span> <span class="n">sample_from_hull</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_convex_hull_eps</span><span class="p">)</span>
+
+                    <span class="n">future_id</span> <span class="o">=</span> <span class="n">SearcherPetridish</span><span class="o">.</span><span class="n">search_model_desc_dist</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">conf_search</span><span class="p">,</span> <span class="n">sampled_point</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">,</span> <span class="n">trainer_class</span><span class="p">,</span>
+                        <span class="n">finalizers</span><span class="p">,</span> <span class="n">common</span><span class="o">.</span><span class="n">get_state</span><span class="p">())</span>
+                    <span class="n">future_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future_id</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Added sampled point </span><span class="si">{</span><span class="n">sampled_point</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1"> for search&#39;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">job_stage</span><span class="o">==</span><span class="n">JobStage</span><span class="o">.</span><span class="n">SEARCH</span><span class="p">:</span>
+                    <span class="c1"># create the job to train the searched model</span>
+                    <span class="n">future_id</span> <span class="o">=</span> <span class="n">SearcherPetridish</span><span class="o">.</span><span class="n">train_model_desc_dist</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">conf_post_train</span><span class="p">,</span> <span class="n">hull_point</span><span class="p">,</span> <span class="n">common</span><span class="o">.</span><span class="n">get_state</span><span class="p">())</span>
+                    <span class="n">future_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future_id</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Added sampled point </span><span class="si">{</span><span class="n">hull_point</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1"> for post-search training&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Job stage &quot;</span><span class="si">{</span><span class="n">hull_point</span><span class="o">.</span><span class="n">job_stage</span><span class="si">}</span><span class="s1">&quot; is not expected in search loop&#39;</span><span class="p">)</span>
+
+        <span class="c1"># cancel any remaining jobs to free up gpus for the eval phase</span>
+        <span class="k">for</span> <span class="n">future_id</span> <span class="ow">in</span> <span class="n">future_ids</span><span class="p">:</span>
+            <span class="n">ray</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">future_id</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># without force, main process stops</span>
+            <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">([</span><span class="n">future_id</span><span class="p">])</span>
+
+        <span class="c1"># plot and save the hull</span>
+        <span class="n">expdir</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">get_expdir</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">expdir</span>
+        <span class="n">plot_frontier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convex_hull_eps</span><span class="p">,</span> <span class="n">expdir</span><span class="p">)</span>
+        <span class="n">best_point</span> <span class="o">=</span> <span class="n">save_hull_frontier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convex_hull_eps</span><span class="p">,</span>
+                               <span class="n">final_desc_foldername</span><span class="p">,</span> <span class="n">expdir</span><span class="p">)</span>
+        <span class="n">save_hull</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">,</span> <span class="n">expdir</span><span class="p">)</span>
+        <span class="n">plot_pool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">,</span><span class="n">expdir</span> <span class="p">)</span>
+
+        <span class="c1"># return best point as search result</span>
+        <span class="n">search_result</span> <span class="o">=</span> <span class="n">SearchResult</span><span class="p">(</span><span class="n">best_point</span><span class="o">.</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">search_metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                     <span class="n">train_metrics</span><span class="o">=</span><span class="n">best_point</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_log_result</span><span class="p">(</span><span class="n">conf_search</span><span class="p">,</span> <span class="n">search_result</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">popd</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">search_result</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">search_model_desc_dist</span><span class="p">(</span><span class="n">searcher</span><span class="p">:</span><span class="s1">&#39;SearcherPetridish&#39;</span><span class="p">,</span> <span class="n">conf_search</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span>
+        <span class="n">hull_point</span><span class="p">:</span><span class="n">ConvexHullPoint</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">:</span><span class="n">ModelDescBuilder</span><span class="p">,</span>
+        <span class="n">trainer_class</span><span class="p">:</span><span class="n">TArchTrainer</span><span class="p">,</span> <span class="n">finalizers</span><span class="p">:</span><span class="n">Finalizers</span><span class="p">,</span> <span class="n">common_state</span><span class="p">:</span><span class="n">CommonState</span><span class="p">)</span>\
+            <span class="o">-&gt;</span><span class="n">ConvexHullPoint</span><span class="p">:</span>
+
+        <span class="c1"># as this runs in different process, initialize globals</span>
+        <span class="n">common</span><span class="o">.</span><span class="n">init_from</span><span class="p">(</span><span class="n">common_state</span><span class="p">)</span>
+
+        <span class="c1">#register ops as we are in different process now</span>
+        <span class="n">conf_model_desc</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;model_desc&#39;</span><span class="p">]</span>
+        <span class="n">model_desc_builder</span><span class="o">.</span><span class="n">pre_build</span><span class="p">(</span><span class="n">conf_model_desc</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">is_trained_stage</span><span class="p">()</span>
+
+        <span class="c1"># cloning is strictly not needed but just in case if we run this</span>
+        <span class="c1"># function in same process, it would be good to avoid surprise</span>
+        <span class="n">model_desc</span> <span class="o">=</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">model_desc</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="n">searcher</span><span class="o">.</span><span class="n">_add_node</span><span class="p">(</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">)</span>
+
+        <span class="n">model_desc</span><span class="p">,</span> <span class="n">search_metrics</span> <span class="o">=</span> <span class="n">searcher</span><span class="o">.</span><span class="n">search_model_desc</span><span class="p">(</span><span class="n">conf_search</span><span class="p">,</span>
+            <span class="n">model_desc</span><span class="p">,</span> <span class="n">trainer_class</span><span class="p">,</span> <span class="n">finalizers</span><span class="p">)</span>
+
+        <span class="n">cells</span><span class="p">,</span> <span class="n">reductions</span><span class="p">,</span> <span class="n">nodes</span> <span class="o">=</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">cells_reductions_nodes</span>
+        <span class="n">new_point</span> <span class="o">=</span> <span class="n">ConvexHullPoint</span><span class="p">(</span><span class="n">JobStage</span><span class="o">.</span><span class="n">SEARCH</span><span class="p">,</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                                    <span class="n">hull_point</span><span class="o">.</span><span class="n">sampling_count</span><span class="p">,</span> <span class="n">model_desc</span><span class="p">,</span>
+                                    <span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">reductions</span><span class="p">,</span> <span class="n">nodes</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="c1"># we added a node</span>
+                                    <span class="n">metrics</span><span class="o">=</span><span class="n">search_metrics</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_point</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">train_model_desc_dist</span><span class="p">(</span><span class="n">searcher</span><span class="p">:</span><span class="s1">&#39;SearcherPetridish&#39;</span><span class="p">,</span> <span class="n">conf_train</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span>
+                              <span class="n">hull_point</span><span class="p">:</span><span class="n">ConvexHullPoint</span><span class="p">,</span> <span class="n">common_state</span><span class="p">:</span><span class="n">CommonState</span><span class="p">)</span>\
+            <span class="o">-&gt;</span><span class="n">ConvexHullPoint</span><span class="p">:</span>
+        <span class="c1"># as this runs in different process, initialize globals</span>
+        <span class="n">common</span><span class="o">.</span><span class="n">init_from</span><span class="p">(</span><span class="n">common_state</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">is_trained_stage</span><span class="p">()</span>
+
+        <span class="n">model_metrics</span> <span class="o">=</span> <span class="n">searcher</span><span class="o">.</span><span class="n">train_model_desc</span><span class="p">(</span><span class="n">hull_point</span><span class="o">.</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">conf_train</span><span class="p">)</span>
+        <span class="n">model_stats</span> <span class="o">=</span> <span class="n">nas_utils</span><span class="o">.</span><span class="n">get_model_stats</span><span class="p">(</span><span class="n">model_metrics</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="n">new_point</span> <span class="o">=</span> <span class="n">ConvexHullPoint</span><span class="p">(</span><span class="n">hull_point</span><span class="o">.</span><span class="n">next_stage</span><span class="p">(),</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">hull_point</span><span class="o">.</span>
+                                    <span class="n">sampling_count</span><span class="p">,</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">model_desc</span><span class="p">,</span>
+                                    <span class="n">hull_point</span><span class="o">.</span><span class="n">cells_reductions_nodes</span><span class="p">,</span>
+                                    <span class="n">model_metrics</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span>
+                                    <span class="n">model_stats</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_point</span>
+
+    <span class="k">def</span> <span class="nf">_add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_desc</span><span class="p">:</span><span class="n">ModelDesc</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">:</span><span class="n">ModelDescBuilder</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ci</span><span class="p">,</span> <span class="n">cell_desc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model_desc</span><span class="o">.</span><span class="n">cell_descs</span><span class="p">()):</span>
+            <span class="n">reduction</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell_desc</span><span class="o">.</span><span class="n">cell_type</span><span class="o">==</span><span class="n">CellType</span><span class="o">.</span><span class="n">Reduction</span><span class="p">)</span>
+
+            <span class="n">nodes</span> <span class="o">=</span> <span class="n">cell_desc</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
+
+            <span class="c1"># petridish must seed with one node</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="c1"># input/output channels for all nodes are same</span>
+            <span class="n">conv_params</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">conv_params</span>
+
+            <span class="c1"># assign input IDs to nodes, s0 and s1 have IDs 0 and 1</span>
+            <span class="c1"># however as we will be inserting new node before last one</span>
+            <span class="n">input_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="c1"># 2 stem inputs</span>
+            <span class="n">op_desc</span> <span class="o">=</span> <span class="n">OpDesc</span><span class="p">(</span><span class="s1">&#39;petridish_reduction_op&#39;</span> <span class="k">if</span> <span class="n">reduction</span> <span class="k">else</span> <span class="s1">&#39;petridish_normal_op&#39;</span><span class="p">,</span>
+                                <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                                    <span class="s1">&#39;conv&#39;</span><span class="p">:</span> <span class="n">conv_params</span><span class="p">,</span>
+                                    <span class="c1"># specify strides for each input, later we will</span>
+                                    <span class="c1"># give this to each primitive</span>
+                                    <span class="s1">&#39;_strides&#39;</span><span class="p">:[</span><span class="mi">2</span> <span class="k">if</span> <span class="n">reduction</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mi">1</span> \
+                                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">input_ids</span><span class="p">],</span>
+                                <span class="p">},</span> <span class="n">in_len</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">input_ids</span><span class="p">),</span> <span class="n">trainables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">children</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">EdgeDesc</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">input_ids</span><span class="o">=</span><span class="n">input_ids</span><span class="p">)</span>
+            <span class="n">new_node</span> <span class="o">=</span> <span class="n">NodeDesc</span><span class="p">(</span><span class="n">edges</span><span class="o">=</span><span class="p">[</span><span class="n">edge</span><span class="p">],</span> <span class="n">conv_params</span><span class="o">=</span><span class="n">conv_params</span><span class="p">)</span>
+            <span class="n">nodes</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">new_node</span><span class="p">)</span>
+
+            <span class="c1"># output shape of all nodes are same</span>
+            <span class="n">node_shapes</span> <span class="o">=</span> <span class="n">cell_desc</span><span class="o">.</span><span class="n">node_shapes</span>
+            <span class="n">new_node_shape</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">node_shapes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">node_shapes</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node_shapes</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">new_node_shape</span><span class="p">)</span>
+
+            <span class="c1"># post op needs rebuilding because number of inputs to it has changed so input/output channels may be different</span>
+            <span class="n">post_op_shape</span><span class="p">,</span> <span class="n">post_op_desc</span> <span class="o">=</span> <span class="n">model_desc_builder</span><span class="o">.</span><span class="n">build_cell_post_op</span><span class="p">(</span><span class="n">cell_desc</span><span class="o">.</span><span class="n">stem_shapes</span><span class="p">,</span>
+            <span class="n">node_shapes</span><span class="p">,</span> <span class="n">cell_desc</span><span class="o">.</span><span class="n">conf_cell</span><span class="p">,</span> <span class="n">ci</span><span class="p">)</span>
+            <span class="n">cell_desc</span><span class="o">.</span><span class="n">reset_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">node_shapes</span><span class="p">,</span>
+                                  <span class="n">post_op_desc</span><span class="p">,</span> <span class="n">post_op_shape</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ensure_dataset_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_search</span><span class="p">:</span><span class="n">Config</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">conf_loader</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;loader&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">conf_loader</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_is_search_done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;Terminate search if max MAdd or number of points exceeded&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">max_madd_parent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">model_stats</span><span class="o">.</span><span class="n">MAdd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">max_madd_parent</span><span class="o">.</span><span class="n">model_stats</span><span class="o">.</span><span class="n">MAdd</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_madd</span> <span class="ow">or</span> \
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_hull_points</span>
+
+    <span class="k">def</span> <span class="nf">_create_seed_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_search</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">:</span><span class="n">ModelDescBuilder</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+        <span class="n">conf_model_desc</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;model_desc&#39;</span><span class="p">]</span>
+        <span class="n">conf_seed_train</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;seed_train&#39;</span><span class="p">]</span>
+
+        <span class="n">future_ids</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># ray job IDs</span>
+        <span class="n">seed_model_stats</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># seed model stats for visualization and debugging </span>
+        <span class="n">macro_combinations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_combinations</span><span class="p">(</span><span class="n">conf_search</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">reductions</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">nodes</span> <span class="ow">in</span> <span class="n">macro_combinations</span><span class="p">:</span>
+            <span class="c1"># if N R N R N R cannot be satisfied, ignore combination</span>
+            <span class="k">if</span> <span class="n">cells</span> <span class="o">&lt;</span> <span class="n">reductions</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># create seed model</span>
+            <span class="n">model_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model_desc</span><span class="p">(</span><span class="n">model_desc_builder</span><span class="p">,</span>
+                                               <span class="n">conf_model_desc</span><span class="p">,</span>
+                                               <span class="n">reductions</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+
+            <span class="n">hull_point</span> <span class="o">=</span> <span class="n">ConvexHullPoint</span><span class="p">(</span><span class="n">JobStage</span><span class="o">.</span><span class="n">SEED</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">model_desc</span><span class="p">,</span>
+                                         <span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">reductions</span><span class="p">,</span> <span class="n">nodes</span><span class="p">))</span>
+
+            <span class="c1"># pre-train the seed model</span>
+            <span class="n">future_id</span> <span class="o">=</span> <span class="n">SearcherPetridish</span><span class="o">.</span><span class="n">train_model_desc_dist</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">conf_seed_train</span><span class="p">,</span> <span class="n">hull_point</span><span class="p">,</span> <span class="n">common</span><span class="o">.</span><span class="n">get_state</span><span class="p">())</span>
+
+            <span class="n">future_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future_id</span><span class="p">)</span>
+
+            <span class="c1"># build a model so we can get its model stats</span>
+            <span class="n">temp_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">droppath</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">seed_model_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nas_utils</span><span class="o">.</span><span class="n">get_model_stats</span><span class="p">(</span><span class="n">temp_model</span><span class="p">))</span>
+        
+        <span class="c1"># save the model stats in a plot and tsv file so we can</span>
+        <span class="c1"># visualize the spread on the x-axis</span>
+        <span class="n">expdir</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">get_expdir</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">expdir</span>
+        <span class="n">plot_seed_model_stats</span><span class="p">(</span><span class="n">seed_model_stats</span><span class="p">,</span> <span class="n">expdir</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">future_ids</span>
+
+    <span class="k">def</span> <span class="nf">_update_convex_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_point</span><span class="p">:</span><span class="n">ConvexHullPoint</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">new_point</span><span class="o">.</span><span class="n">is_trained_stage</span><span class="p">()</span> <span class="c1"># only add models for which we have metrics and stats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_point</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span><span class="p">[</span><span class="s1">&#39;convex_hull_points&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Added to convex hull points: MAdd </span><span class="si">{</span><span class="n">new_point</span><span class="o">.</span><span class="n">model_stats</span><span class="o">.</span><span class="n">MAdd</span><span class="si">}</span><span class="s1">, &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;num cells </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_point</span><span class="o">.</span><span class="n">model_desc</span><span class="o">.</span><span class="n">cell_descs</span><span class="p">())</span><span class="si">}</span><span class="s1">, &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;num nodes in cell </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_point</span><span class="o">.</span><span class="n">model_desc</span><span class="o">.</span><span class="n">cell_descs</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_restore_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="n">can_restore</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+                        <span class="ow">and</span> <span class="s1">&#39;convex_hull_points&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span>
+        <span class="k">if</span> <span class="n">can_restore</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint</span><span class="p">[</span><span class="s1">&#39;convex_hull_points&#39;</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">({</span><span class="s1">&#39;Hull restored&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">can_restore</span>
+
+<div class="viewcode-block" id="SearcherPetridish.build_model_desc"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.searcher_petridish.SearcherPetridish.build_model_desc">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">build_model_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">:</span><span class="n">ModelDescBuilder</span><span class="p">,</span>
+                         <span class="n">conf_model_desc</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span>
+                         <span class="n">reductions</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">cells</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ModelDesc</span><span class="p">:</span>
+        <span class="c1"># reset macro params in copy of config</span>
+        <span class="n">conf_model_desc</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">conf_model_desc</span><span class="p">)</span>
+        <span class="n">conf_model_desc</span><span class="p">[</span><span class="s1">&#39;n_reductions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reductions</span>
+        <span class="n">conf_model_desc</span><span class="p">[</span><span class="s1">&#39;n_cells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cells</span>
+        <span class="n">conf_model_desc</span><span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">][</span><span class="s1">&#39;n_nodes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodes</span>
+
+        <span class="c1"># create model desc for search using model config</span>
+        <span class="c1"># we will build model without call to model_desc_builder for pre-training</span>
+        <span class="n">model_desc</span> <span class="o">=</span> <span class="n">model_desc_builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">conf_model_desc</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">model_desc</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../../index.html" id="logo" title=Archai><img class="logo" src="../../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.algos.divnas package &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="archai.algos.gumbelsoftmax package" href="archai.algos.gumbelsoftmax.html" />
+    <link rel="prev" title="archai.algos.darts package" href="archai.algos.darts.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="archai-algos-divnas-package">
+<h1>archai.algos.divnas package<a class="headerlink" href="#archai-algos-divnas-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-archai.algos.divnas.analyse_activations">
+<span id="archai-algos-divnas-analyse-activations-module"></span><h2>archai.algos.divnas.analyse_activations module<a class="headerlink" href="#module-archai.algos.divnas.analyse_activations" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.collect_features">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">collect_features</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rootfolder</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">subsampling_factor</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>List<span class="p">[</span>numpy.array<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#collect_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.collect_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Walks the rootfolder for h5py files and loads them into the format
+required for analysis.</p>
+<p>Inputs:</p>
+<p>rootfolder: full path to folder containing h5 files which have activations
+subsampling_factor: every nth minibatch will be loaded to keep memory manageable</p>
+<p>Outputs:</p>
+<p>dictionary with edge name strings as keys and values are lists of np.array [num_samples, feature_dim]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.compute_brute_force_sol">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">compute_brute_force_sol</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cov_kernel</span><span class="p">:</span> <span class="n">numpy.array</span></em>, <em class="sig-param"><span class="n">budget</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>Tuple<span class="p">[</span>Any<span class="p">]</span><span class="p">, </span>float<span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#compute_brute_force_sol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.compute_brute_force_sol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.compute_correlation">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">compute_correlation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">covariance</span><span class="p">:</span> <span class="n">numpy.array</span></em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#compute_correlation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.compute_correlation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.compute_covariance_offline">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">compute_covariance_offline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature_list</span><span class="p">:</span> <span class="n">List<span class="p">[</span>numpy.array<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#compute_covariance_offline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.compute_covariance_offline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute covariance matrix for high-dimensional features.
+feature_shape: (num_samples, feature_dim)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.compute_euclidean_dist_quantiles">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">compute_euclidean_dist_quantiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature_list</span><span class="p">:</span> <span class="n">List<span class="p">[</span>numpy.array<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">subsamplefactor</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#compute_euclidean_dist_quantiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.compute_euclidean_dist_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute quantile distances between feature pairs 
+feature_list: List of features each of shape: (num_samples, feature_dim)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.compute_marginal_gain">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">compute_marginal_gain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">A</span><span class="p">:</span> <span class="n">Set<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">S</span><span class="p">:</span> <span class="n">Set<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">covariance</span><span class="p">:</span> <span class="n">numpy.array</span></em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#compute_marginal_gain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.compute_marginal_gain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.compute_rbf_kernel_covariance">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">compute_rbf_kernel_covariance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature_list</span><span class="p">:</span> <span class="n">List<span class="p">[</span>numpy.array<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#compute_rbf_kernel_covariance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.compute_rbf_kernel_covariance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute rbf kernel covariance for high dimensional features. 
+feature_list: List of features each of shape: (num_samples, feature_dim)
+sigma: sigma of the rbf kernel</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.create_submod_f">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">create_submod_f</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">covariance</span><span class="p">:</span> <span class="n">numpy.array</span></em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#create_submod_f"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.create_submod_f" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.get_batch">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">get_batch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature_list</span></em>, <em class="sig-param"><span class="n">batch_size</span></em>, <em class="sig-param"><span class="n">i</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#get_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.get_batch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.greedy_op_selection">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">greedy_op_selection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">covariance</span><span class="p">:</span> <span class="n">numpy.array</span></em>, <em class="sig-param"><span class="n">k</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>int<span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#greedy_op_selection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.greedy_op_selection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.main">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.plot_all_covs">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">plot_all_covs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">covs_kernel</span></em>, <em class="sig-param"><span class="n">corr</span></em>, <em class="sig-param"><span class="n">primitives</span></em>, <em class="sig-param"><span class="n">axs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#plot_all_covs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.plot_all_covs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.analyse_activations.rbf">
+<code class="sig-prename descclassname">archai.algos.divnas.analyse_activations.</code><code class="sig-name descname">rbf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">numpy.array</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">numpy.array</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span> &#x2192; numpy.array<a class="reference internal" href="_modules/archai/algos/divnas/analyse_activations.html#rbf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.analyse_activations.rbf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the rbf kernel between two input vectors</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas.divnas_cell">
+<span id="archai-algos-divnas-divnas-cell-module"></span><h2>archai.algos.divnas.divnas_cell module<a class="headerlink" href="#module-archai.algos.divnas.divnas_cell" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.divnas.divnas_cell.Divnas_Cell">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.divnas.divnas_cell.</code><code class="sig-name descname">Divnas_Cell</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.cell.Cell" title="archai.nas.cell.Cell">archai.nas.cell.Cell</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/divnas_cell.html#Divnas_Cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_cell.Divnas_Cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper cell class for divnas specific modifications</p>
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_cell.Divnas_Cell.clear_collect_activations">
+<code class="sig-name descname">clear_collect_activations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/divnas_cell.html#Divnas_Cell.clear_collect_activations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_cell.Divnas_Cell.clear_collect_activations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_cell.Divnas_Cell.collect_activations">
+<code class="sig-name descname">collect_activations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edgeoptype</span></em>, <em class="sig-param"><span class="n">sigma</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/archai/algos/divnas/divnas_cell.html#Divnas_Cell.collect_activations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_cell.Divnas_Cell.collect_activations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_cell.Divnas_Cell.update_covs">
+<code class="sig-name descname">update_covs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/divnas_cell.html#Divnas_Cell.update_covs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_cell.Divnas_Cell.update_covs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="archai.algos.divnas.divnas_cell.tensor">
+<code class="sig-prename descclassname">archai.algos.divnas.divnas_cell.</code><code class="sig-name descname">tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">dtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">requires_grad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">pin_memory</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; Tensor<a class="headerlink" href="#archai.algos.divnas.divnas_cell.tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a tensor with <code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.tensor()</span></code> always copies <code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code>. If you have a Tensor
+<code class="docutils literal notranslate"><span class="pre">data</span></code> and want to avoid a copy, use <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.Tensor.requires_grad_()</span></code>
+or <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.Tensor.detach()</span></code>.
+If you have a NumPy <code class="docutils literal notranslate"><span class="pre">ndarray</span></code> and want to avoid a copy, use
+<code class="xref py py-func docutils literal notranslate"><span class="pre">torch.as_tensor()</span></code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When data is a tensor <cite>x</cite>, <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.tensor()</span></code> reads out ‘the data’ from whatever it is passed,
+and constructs a leaf variable. Therefore <code class="docutils literal notranslate"><span class="pre">torch.tensor(x)</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">x.clone().detach()</span></code>
+and <code class="docutils literal notranslate"><span class="pre">torch.tensor(x,</span> <span class="pre">requires_grad=True)</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">x.clone().detach().requires_grad_(True)</span></code>.
+The equivalents using <code class="docutils literal notranslate"><span class="pre">clone()</span></code> and <code class="docutils literal notranslate"><span class="pre">detach()</span></code> are recommended.</p>
+</div>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>data (array_like): Initial data for the tensor. Can be a list, tuple,</dt><dd><p>NumPy <code class="docutils literal notranslate"><span class="pre">ndarray</span></code>, scalar, and other types.</p>
+</dd>
+<dt>dtype (<code class="xref py py-class docutils literal notranslate"><span class="pre">torch.dtype</span></code>, optional): the desired data type of returned tensor.</dt><dd><p>Default: if <code class="docutils literal notranslate"><span class="pre">None</span></code>, infers data type from <code class="xref py py-attr docutils literal notranslate"><span class="pre">data</span></code>.</p>
+</dd>
+<dt>device (<code class="xref py py-class docutils literal notranslate"><span class="pre">torch.device</span></code>, optional): the desired device of returned tensor.</dt><dd><p>Default: if <code class="docutils literal notranslate"><span class="pre">None</span></code>, uses the current device for the default tensor type
+(see <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.set_default_tensor_type()</span></code>). <code class="xref py py-attr docutils literal notranslate"><span class="pre">device</span></code> will be the CPU
+for CPU tensor types and the current CUDA device for CUDA tensor types.</p>
+</dd>
+<dt>requires_grad (bool, optional): If autograd should record operations on the</dt><dd><p>returned tensor. Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt>pin_memory (bool, optional): If set, returned tensor would be allocated in</dt><dd><p>the pinned memory. Works only for CPU tensors. Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">3.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">4.9</span><span class="p">,</span> <span class="mf">5.2</span><span class="p">]])</span>
+<span class="go">tensor([[ 0.1000,  1.2000],</span>
+<span class="go">        [ 2.2000,  3.1000],</span>
+<span class="go">        [ 4.9000,  5.2000]])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>  <span class="c1"># Type inference on data</span>
+<span class="go">tensor([ 0,  1])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.11111</span><span class="p">,</span> <span class="mf">0.222222</span><span class="p">,</span> <span class="mf">0.3333333</span><span class="p">]],</span>
+<span class="go">                 dtype=torch.float64,</span>
+<span class="go">                 device=torch.device(&#39;cuda:0&#39;))  # creates a torch.cuda.DoubleTensor</span>
+<span class="go">tensor([[ 0.1111,  0.2222,  0.3333]], dtype=torch.float64, device=&#39;cuda:0&#39;)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">3.14159</span><span class="p">)</span>  <span class="c1"># Create a scalar (zero-dimensional tensor)</span>
+<span class="go">tensor(3.1416)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([])</span>  <span class="c1"># Create an empty tensor (of size (0,))</span>
+<span class="go">tensor([])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas.divnas_exp_runner">
+<span id="archai-algos-divnas-divnas-exp-runner-module"></span><h2>archai.algos.divnas.divnas_exp_runner module<a class="headerlink" href="#module-archai.algos.divnas.divnas_exp_runner" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.divnas.divnas_exp_runner.DivnasExperimentRunner">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.divnas.divnas_exp_runner.</code><code class="sig-name descname">DivnasExperimentRunner</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_filename</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">base_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">clean_expdir</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/divnas_exp_runner.html#DivnasExperimentRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_exp_runner.DivnasExperimentRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.exp_runner.ExperimentRunner" title="archai.nas.exp_runner.ExperimentRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.exp_runner.ExperimentRunner</span></code></a></p>
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_exp_runner.DivnasExperimentRunner.finalizers">
+<code class="sig-name descname">finalizers</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="archai.nas.html#archai.nas.finalizers.Finalizers" title="archai.nas.finalizers.Finalizers">archai.nas.finalizers.Finalizers</a><a class="reference internal" href="_modules/archai/algos/divnas/divnas_exp_runner.html#DivnasExperimentRunner.finalizers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_exp_runner.DivnasExperimentRunner.finalizers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_exp_runner.DivnasExperimentRunner.model_desc_builder">
+<code class="sig-name descname">model_desc_builder</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder" title="archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder">archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder</a><a class="reference internal" href="_modules/archai/algos/divnas/divnas_exp_runner.html#DivnasExperimentRunner.model_desc_builder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_exp_runner.DivnasExperimentRunner.model_desc_builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_exp_runner.DivnasExperimentRunner.trainer_class">
+<code class="sig-name descname">trainer_class</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>Type<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.arch_trainer.ArchTrainer" title="archai.nas.arch_trainer.ArchTrainer">archai.nas.arch_trainer.ArchTrainer</a><span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/divnas_exp_runner.html#DivnasExperimentRunner.trainer_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_exp_runner.DivnasExperimentRunner.trainer_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas.divnas_finalizers">
+<span id="archai-algos-divnas-divnas-finalizers-module"></span><h2>archai.algos.divnas.divnas_finalizers module<a class="headerlink" href="#module-archai.algos.divnas.divnas_finalizers" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.divnas.divnas_finalizers.DivnasFinalizers">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.divnas.divnas_finalizers.</code><code class="sig-name descname">DivnasFinalizers</code><a class="reference internal" href="_modules/archai/algos/divnas/divnas_finalizers.html#DivnasFinalizers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_finalizers.DivnasFinalizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.finalizers.Finalizers" title="archai.nas.finalizers.Finalizers"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.finalizers.Finalizers</span></code></a></p>
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_finalizers.DivnasFinalizers.finalize_cell">
+<code class="sig-name descname">finalize_cell</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.cell.Cell" title="archai.nas.cell.Cell">archai.nas.cell.Cell</a></span></em>, <em class="sig-param"><span class="n">cell_index</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">model_desc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.ModelDesc" title="archai.nas.model_desc.ModelDesc">archai.nas.model_desc.ModelDesc</a></span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="archai.nas.html#archai.nas.model_desc.CellDesc" title="archai.nas.model_desc.CellDesc">archai.nas.model_desc.CellDesc</a><a class="reference internal" href="_modules/archai/algos/divnas/divnas_finalizers.html#DivnasFinalizers.finalize_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_finalizers.DivnasFinalizers.finalize_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_finalizers.DivnasFinalizers.finalize_model">
+<code class="sig-name descname">finalize_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model.Model" title="archai.nas.model.Model">archai.nas.model.Model</a></span></em>, <em class="sig-param"><span class="n">to_cpu</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">restore_device</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="archai.nas.html#archai.nas.model_desc.ModelDesc" title="archai.nas.model_desc.ModelDesc">archai.nas.model_desc.ModelDesc</a><a class="reference internal" href="_modules/archai/algos/divnas/divnas_finalizers.html#DivnasFinalizers.finalize_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_finalizers.DivnasFinalizers.finalize_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_finalizers.DivnasFinalizers.finalize_node">
+<code class="sig-name descname">finalize_node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">torch.nn.modules.container.ModuleList</span></em>, <em class="sig-param"><span class="n">node_index</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">node_desc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.NodeDesc" title="archai.nas.model_desc.NodeDesc">archai.nas.model_desc.NodeDesc</a></span></em>, <em class="sig-param"><span class="n">max_final_edges</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="archai.nas.html#archai.nas.model_desc.NodeDesc" title="archai.nas.model_desc.NodeDesc">archai.nas.model_desc.NodeDesc</a><a class="reference internal" href="_modules/archai/algos/divnas/divnas_finalizers.html#DivnasFinalizers.finalize_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_finalizers.DivnasFinalizers.finalize_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas.divnas_model_desc_builder">
+<span id="archai-algos-divnas-divnas-model-desc-builder-module"></span><h2>archai.algos.divnas.divnas_model_desc_builder module<a class="headerlink" href="#module-archai.algos.divnas.divnas_model_desc_builder" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.divnas.divnas_model_desc_builder.</code><code class="sig-name descname">DivnasModelDescBuilder</code><a class="reference internal" href="_modules/archai/algos/divnas/divnas_model_desc_builder.html#DivnasModelDescBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.model_desc_builder.ModelDescBuilder" title="archai.nas.model_desc_builder.ModelDescBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.model_desc_builder.ModelDescBuilder</span></code></a></p>
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder.build_nodes">
+<code class="sig-name descname">build_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stem_shapes</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>int<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">conf_cell</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em>, <em class="sig-param"><span class="n">cell_index</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">cell_type</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.CellType" title="archai.nas.model_desc.CellType">archai.nas.model_desc.CellType</a></span></em>, <em class="sig-param"><span class="n">node_count</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">in_shape</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">out_shape</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.NodeDesc" title="archai.nas.model_desc.NodeDesc">archai.nas.model_desc.NodeDesc</a><span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/divnas_model_desc_builder.html#DivnasModelDescBuilder.build_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder.build_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder.pre_build">
+<code class="sig-name descname">pre_build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf_model_desc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/archai/algos/divnas/divnas_model_desc_builder.html#DivnasModelDescBuilder.pre_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_model_desc_builder.DivnasModelDescBuilder.pre_build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas.divnas_rank_finalizer">
+<span id="archai-algos-divnas-divnas-rank-finalizer-module"></span><h2>archai.algos.divnas.divnas_rank_finalizer module<a class="headerlink" href="#module-archai.algos.divnas.divnas_rank_finalizer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.divnas.divnas_rank_finalizer.</code><code class="sig-name descname">DivnasRankFinalizers</code><a class="reference internal" href="_modules/archai/algos/divnas/divnas_rank_finalizer.html#DivnasRankFinalizers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.finalizers.Finalizers" title="archai.nas.finalizers.Finalizers"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.finalizers.Finalizers</span></code></a></p>
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_cell">
+<code class="sig-name descname">finalize_cell</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.cell.Cell" title="archai.nas.cell.Cell">archai.nas.cell.Cell</a></span></em>, <em class="sig-param"><span class="n">cell_index</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">model_desc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.ModelDesc" title="archai.nas.model_desc.ModelDesc">archai.nas.model_desc.ModelDesc</a></span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="archai.nas.html#archai.nas.model_desc.CellDesc" title="archai.nas.model_desc.CellDesc">archai.nas.model_desc.CellDesc</a><a class="reference internal" href="_modules/archai/algos/divnas/divnas_rank_finalizer.html#DivnasRankFinalizers.finalize_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_model">
+<code class="sig-name descname">finalize_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model.Model" title="archai.nas.model.Model">archai.nas.model.Model</a></span></em>, <em class="sig-param"><span class="n">to_cpu</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">restore_device</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="archai.nas.html#archai.nas.model_desc.ModelDesc" title="archai.nas.model_desc.ModelDesc">archai.nas.model_desc.ModelDesc</a><a class="reference internal" href="_modules/archai/algos/divnas/divnas_rank_finalizer.html#DivnasRankFinalizers.finalize_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_node">
+<code class="sig-name descname">finalize_node</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">torch.nn.modules.container.ModuleList</span></em>, <em class="sig-param"><span class="n">node_index</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">node_desc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.NodeDesc" title="archai.nas.model_desc.NodeDesc">archai.nas.model_desc.NodeDesc</a></span></em>, <em class="sig-param"><span class="n">max_final_edges</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">cov</span><span class="p">:</span> <span class="n">numpy.array</span></em>, <em class="sig-param"><span class="n">cell</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.cell.Cell" title="archai.nas.cell.Cell">archai.nas.cell.Cell</a></span></em>, <em class="sig-param"><span class="n">node_id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="archai.nas.html#archai.nas.model_desc.NodeDesc" title="archai.nas.model_desc.NodeDesc">archai.nas.model_desc.NodeDesc</a><a class="reference internal" href="_modules/archai/algos/divnas/divnas_rank_finalizer.html#DivnasRankFinalizers.finalize_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas.divop">
+<span id="archai-algos-divnas-divop-module"></span><h2>archai.algos.divnas.divop module<a class="headerlink" href="#module-archai.algos.divnas.divop" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.divnas.divop.DivOp">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.divnas.divop.</code><code class="sig-name descname">DivOp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">op_desc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.OpDesc" title="archai.nas.model_desc.OpDesc">archai.nas.model_desc.OpDesc</a></span></em>, <em class="sig-param"><span class="n">arch_params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.arch_params.ArchParams" title="archai.nas.arch_params.ArchParams">archai.nas.arch_params.ArchParams</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">affine</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/divop.html#DivOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divop.DivOp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.operations.Op" title="archai.nas.operations.Op"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.operations.Op</span></code></a></p>
+<p>The output of DivOp is weighted output of all allowed primitives.</p>
+<dl class="py attribute">
+<dt id="archai.algos.divnas.divop.DivOp.PRIMITIVES">
+<code class="sig-name descname">PRIMITIVES</code><em class="property"> = ['max_pool_3x3', 'avg_pool_3x3', 'skip_connect', 'sep_conv_3x3', 'sep_conv_5x5', 'dil_conv_3x3', 'dil_conv_5x5', 'none']</em><a class="headerlink" href="#archai.algos.divnas.divop.DivOp.PRIMITIVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divop.DivOp.activations">
+<em class="property">property </em><code class="sig-name descname">activations</code><a class="headerlink" href="#archai.algos.divnas.divop.DivOp.activations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divop.DivOp.can_drop_path">
+<code class="sig-name descname">can_drop_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/archai/algos/divnas/divop.html#DivOp.can_drop_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divop.DivOp.can_drop_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divop.DivOp.collect_activations">
+<em class="property">property </em><code class="sig-name descname">collect_activations</code><a class="headerlink" href="#archai.algos.divnas.divop.DivOp.collect_activations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divop.DivOp.finalize">
+<code class="sig-name descname">finalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.OpDesc" title="archai.nas.model_desc.OpDesc">archai.nas.model_desc.OpDesc</a><span class="p">, </span>Optional<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/divop.html#DivOp.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divop.DivOp.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Divnas with default finalizer option needs this override else 
+the finalizer in base class returns the whole divop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divop.DivOp.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/divop.html#DivOp.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divop.DivOp.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divop.DivOp.num_primitive_ops">
+<em class="property">property </em><code class="sig-name descname">num_primitive_ops</code><a class="headerlink" href="#archai.algos.divnas.divop.DivOp.num_primitive_ops" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.divop.DivOp.ops">
+<code class="sig-name descname">ops</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span>Tuple<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.operations.Op" title="archai.nas.operations.Op">archai.nas.operations.Op</a><span class="p">, </span>float<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/divop.html#DivOp.ops"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.divop.DivOp.ops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return contituent ops, if this op is primitive just return self</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas.seqopt">
+<span id="archai-algos-divnas-seqopt-module"></span><h2>archai.algos.divnas.seqopt module<a class="headerlink" href="#module-archai.algos.divnas.seqopt" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.divnas.seqopt.SeqOpt">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.divnas.seqopt.</code><code class="sig-name descname">SeqOpt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_items</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">eps</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/seqopt.html#SeqOpt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.seqopt.SeqOpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implements SeqOpt 
+TODO: Later on we might want to refactor this class 
+to be able to handle bandit feedback</p>
+<dl class="py method">
+<dt id="archai.algos.divnas.seqopt.SeqOpt.sample_sequence">
+<code class="sig-name descname">sample_sequence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">with_replacement</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>int<span class="p">]</span><a class="reference internal" href="_modules/archai/algos/divnas/seqopt.html#SeqOpt.sample_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.seqopt.SeqOpt.sample_sequence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.seqopt.SeqOpt.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sel_list</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">compute_marginal_gain_func</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/archai/algos/divnas/seqopt.html#SeqOpt.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.seqopt.SeqOpt.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>In the full information case we will update 
+all expert copies according to the marginal benefits</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas.wmr">
+<span id="archai-algos-divnas-wmr-module"></span><h2>archai.algos.divnas.wmr module<a class="headerlink" href="#module-archai.algos.divnas.wmr" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.divnas.wmr.Wmr">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.divnas.wmr.</code><code class="sig-name descname">Wmr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_items</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">eta</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/algos/divnas/wmr.html#Wmr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.wmr.Wmr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implements the Randomized Weighted Majority algorithm by Littlestone and Warmuth
+We use the version in Fig 1 in The Multiplicative Weight Update with the gain version</p>
+<dl class="py method">
+<dt id="archai.algos.divnas.wmr.Wmr.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/archai/algos/divnas/wmr.html#Wmr.sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.wmr.Wmr.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.wmr.Wmr.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rewards</span><span class="p">:</span> <span class="n">numpy.array</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/archai/algos/divnas/wmr.html#Wmr.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.divnas.wmr.Wmr.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.divnas.wmr.Wmr.weights">
+<em class="property">property </em><code class="sig-name descname">weights</code><a class="headerlink" href="#archai.algos.divnas.wmr.Wmr.weights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.divnas">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-archai.algos.divnas" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="index.html" id="logo" title=Archai><img class="logo" src="_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">archai</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="archai.html">archai package</a></li>
+</ul>
+</li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

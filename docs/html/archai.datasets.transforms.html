@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.datasets.transforms package &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="archai.nas package" href="archai.nas.html" />
+    <link rel="prev" title="archai.datasets.providers package" href="archai.datasets.providers.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="archai-datasets-transforms-package">
+<h1>archai.datasets.transforms package<a class="headerlink" href="#archai-datasets-transforms-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-archai.datasets.transforms.brightness">
+<span id="archai-datasets-transforms-brightness-module"></span><h2>archai.datasets.transforms.brightness module<a class="headerlink" href="#module-archai.datasets.transforms.brightness" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.datasets.transforms.brightness.Brightness">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.transforms.brightness.</code><code class="sig-name descname">Brightness</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/transforms/brightness.html#Brightness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.transforms.brightness.Brightness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="archai.datasets.transforms.brightness.RandomBrightness">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.transforms.brightness.</code><code class="sig-name descname">RandomBrightness</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_val</span></em>, <em class="sig-param"><span class="n">max_val</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/transforms/brightness.html#RandomBrightness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.transforms.brightness.RandomBrightness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets.transforms.cutout_custom">
+<span id="archai-datasets-transforms-cutout-custom-module"></span><h2>archai.datasets.transforms.cutout_custom module<a class="headerlink" href="#module-archai.datasets.transforms.cutout_custom" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.datasets.transforms.cutout_custom.CutoutCustom">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.transforms.cutout_custom.</code><code class="sig-name descname">CutoutCustom</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/transforms/cutout_custom.html#CutoutCustom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.transforms.cutout_custom.CutoutCustom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Reference : <a class="reference external" href="https://github.com/quark0/darts/blob/master/cnn/utils.py">https://github.com/quark0/darts/blob/master/cnn/utils.py</a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets.transforms.lighting">
+<span id="archai-datasets-transforms-lighting-module"></span><h2>archai.datasets.transforms.lighting module<a class="headerlink" href="#module-archai.datasets.transforms.lighting" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.datasets.transforms.lighting.Lighting">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.transforms.lighting.</code><code class="sig-name descname">Lighting</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">alphastd</span></em>, <em class="sig-param"><span class="n">eigval</span><span class="p">:</span> <span class="n">List<span class="p">[</span>float<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">eigvec</span><span class="p">:</span> <span class="n">List<span class="p">[</span>float<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/transforms/lighting.html#Lighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.transforms.lighting.Lighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Lighting noise(AlexNet - style PCA - based noise)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets.transforms">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-archai.datasets.transforms" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="index.html" id="logo" title=Archai><img class="logo" src="_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">archai</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="archai.html">archai package</a></li>
+</ul>
+</li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

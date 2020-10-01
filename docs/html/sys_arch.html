@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>System Architecture &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="system-architecture">
+<h1>System Architecture<a class="headerlink" href="#system-architecture" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="todo">
+<h2>TODO<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Fix yaml indent: https://github.com/Microsoft/vscode/issues/42771</p></li>
+<li><p>yaml anchors tests</p></li>
+<li><p>remove cutout from utils</p></li>
+<li><p>remove .weights()-  doesn’t include stems, projection ops etc</p></li>
+<li><p>implement reduced datasets using previous code</p></li>
+<li><p>log batch size</p></li>
+<li><p>Toy pareto, test philly job</p></li>
+<li><p>detect multi instances of the script</p></li>
+<li><p>dump command line in a file</p></li>
+<li><p>darts non-pareto ref run</p></li>
+<li><p>node num pareto as array in yaml</p></li>
+<li><p>accept filepath for found model instead of assuming in expdir</p></li>
+<li><p>eval trains all models in search dir</p></li>
+<li><p>distributed search run, aggregation script, generate distributed eval run yaml</p></li>
+<li><p>convex hull code</p></li>
+<li><p>test darts and random search pareto</p></li>
+<li><p>debug slow model forward and backward</p></li>
+<li><p>checkpoint</p></li>
+<li><p>measure multiple run variances</p></li>
+<li><p>construct dawnnet</p></li>
+<li><p>construct better search space for fast forward and backward</p></li>
+<li><p>imagenet transfer measurement</p></li>
+<li><p>GPU utilization is too low</p></li>
+</ul>
+</div>
+<div class="section" id="model-compiler-options">
+<h2>Model Compiler Options<a class="headerlink" href="#model-compiler-options" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Macro builder will add auxtowers in eval</p></li>
+<li><p>DagEdge will apply droppath in eval</p></li>
+<li><p>BatchNorms will be affine in eval</p></li>
+<li><p>0 cell models are valid</p></li>
+<li><p>if cell is present, it must have at lease out_states</p></li>
+<li><p>Nodes may not have any edge</p></li>
+</ul>
+</div>
+<div class="section" id="search">
+<h2>Search<a class="headerlink" href="#search" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="algorithm">
+<h3>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
+<p>For Darts and Random search:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span><span class="p">:</span> <span class="n">conf_macro</span><span class="p">,</span> <span class="n">cell_builder</span>
+<span class="n">output</span><span class="p">:</span> <span class="n">final_desc</span>
+
+<span class="n">macro_desc</span> <span class="o">=</span> <span class="n">build_macro</span><span class="p">(</span><span class="n">conf_macro</span><span class="p">)</span>
+<span class="n">model_desc</span> <span class="o">=</span> <span class="n">build_desc</span><span class="p">(</span><span class="n">macro_desc</span><span class="p">,</span> <span class="n">cell_builder</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="n">model_desc</span><span class="p">)</span>
+<span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">final_desc</span> <span class="o">=</span> <span class="n">finalize</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For PetriDish, we need to add n iteration</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">input</span><span class="p">:</span> <span class="n">conf_macro</span><span class="p">,</span> <span class="n">cell_builder</span><span class="p">,</span> <span class="n">n_search_iter</span>
+<span class="n">output</span><span class="p">:</span> <span class="n">final_desc</span>
+
+<span class="n">macro_desc</span> <span class="o">=</span> <span class="n">build_macro</span><span class="p">(</span><span class="n">conf_macro</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">to</span> <span class="n">n_search_iter</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">pre_train_epochs</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">all</span> <span class="n">nodes</span> <span class="n">non</span><span class="o">-</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">restore_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">train</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">pre_train_epochsl</span><span class="p">)</span>
+            <span class="n">macro_desc</span> <span class="o">=</span> <span class="n">finalize</span><span class="p">(</span><span class="n">model</span><span class="o">.</span> <span class="n">include_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">all</span> <span class="n">nodes</span> <span class="n">empty</span><span class="p">:</span>
+            <span class="k">pass</span> <span class="n">because</span> <span class="n">no</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">training</span> <span class="n">empty</span> <span class="n">model</span>
+        <span class="k">else</span>
+            <span class="k">raise</span> <span class="n">exception</span>
+
+    <span class="c1"># we have P cells, Q nodes each with 0 edges on i=1 at this point</span>
+    <span class="c1"># for i &gt; 1, we have P cells, i-1 nodes at this point</span>
+    <span class="c1"># Petridish micro builder removes 0 edges nodes after i</span>
+    <span class="c1"># if number of nodes &lt; i, Petridish macro adds nodes</span>
+    <span class="c1"># assert 0 edges for all nodes for i-1</span>
+    <span class="c1"># Petridish micro builder adds Petridish op at i</span>
+    <span class="n">model_desc</span> <span class="o">=</span> <span class="n">build_desc</span><span class="p">(</span><span class="n">macro_desc</span><span class="p">,</span> <span class="n">cell_builder</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="c1"># we have P cells, i node(s) each</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">restore_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">arch_train</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">macro_desc</span> <span class="o">=</span> <span class="n">final_desc</span> <span class="o">=</span> <span class="n">finalize</span><span class="p">(</span><span class="n">model</span><span class="o">.</span> <span class="n">include_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># make sure FinalPetridishOp can+will run in search mode</span>
+    <span class="c1"># we end with i nodes in each cell for Petridish at this point</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="checkpointing-search">
+<h3>Checkpointing search<a class="headerlink" href="#checkpointing-search" title="Permalink to this headline">¶</a></h3>
+<p>Loop1: search iterations
+Loop2: pre-training
+Loop3: arch-training</p>
+<p>Each loop has state and current index.</p>
+<p>Cases:
+termination before Loop1
+termination before Loop2
+termination during Loop2
+termination after Loop2
+termination before Loop3
+termination during Loop3
+termination after Loop3
+termination after Loop1</p>
+<p>Idea:
+Each node maintains its unique key in checkpoint
+Each node updates+saves checkpoint <em>just after</em> its iteration
+Checkpoint can be saved any time
+When node gets checkpoint, if it finds own key
+it restores state, iteration and continues that iteration</p>
+</div>
+</div>
+<div class="section" id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<p>We want logs to be machine readable. To that end we can think of log as dictionary. One can insert new key, value pair in this dictionary but we should allow to overwrite existing values unless value themselves are container type in which case, the log value is appended in that container. Entire log is container itself of type dictionary. ANothe container is array.</p>
+<p>log is class derived from ordered dict. Insert values as usual. key can be option in which case internal counter may be used. It has one additional method child(key) which returns log object inserted at the key.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">severity</span><span class="o">=</span><span class="n">info</span><span class="p">)</span>
+
+<span class="n">path</span> <span class="ow">is</span> <span class="n">string</span> <span class="ow">or</span> <span class="nb">tuple</span><span class="o">.</span> <span class="n">If</span> <span class="nb">tuple</span> <span class="n">then</span> <span class="n">it</span> <span class="n">should</span> <span class="n">consist</span> <span class="n">of</span> <span class="n">ordered</span> <span class="n">dictionary</span> <span class="n">keys</span><span class="o">.</span>
+
+<span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;cuda_devices&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">({</span><span class="s1">&#39;cuda_devices&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;cuda_ver&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">})</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="s1">&#39;epochs&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">{</span><span class="n">acc</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">4.5</span><span class="p">})</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="s1">&#39;epochs&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">{</span><span class="n">acc</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">4.5</span><span class="p">})</span>
+
+<span class="n">logger</span><span class="o">.</span><span class="n">begin_sec</span><span class="p">(</span><span class="s1">&#39;epochs&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">begin</span><span class="o">.</span><span class="n">sec</span><span class="p">(</span><span class="n">epoch_i</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key1</span><span class="p">,</span> <span class="n">val1</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">add</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
+
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">end_Sec</span><span class="p">()</span>
+<span class="n">longer</span><span class="o">.</span><span class="n">end_sec</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="cells-and-nodes">
+<h2>Cells and Nodes<a class="headerlink" href="#cells-and-nodes" title="Permalink to this headline">¶</a></h2>
+<p>Darts Model
+ConvBN
+Cell
+ReLUSepConv/2BN if reduction else ReLUSepConvBN
+sum for each node
+concate channels for all nodes
+AdaptiveAvgPool
+Linear</p>
+</div>
+<div class="section" id="petridish">
+<h2>Petridish<a class="headerlink" href="#petridish" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cell-search">
+<h3>Cell Search<a class="headerlink" href="#cell-search" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="constraints">
+<h4>Constraints<a class="headerlink" href="#constraints" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Every cell of same type must have same number of nodes and ops</p></li>
+<li><p>Channels for each cell output remain same iteration over iteration</p>
+<ul>
+<li><p>Otherwise, if cell A has different channels then next cells must be
+rebuilt from scratch (i.e. cannot warm start from previous iteration)</p></li>
+<li><p>This implies we must use concate nodes + proj at cell o/p as well</p>
+<ul>
+<li><p>this is because we will change number of nodes</p></li>
+<li><p>other option is to use sum of all node outputs</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>We can insert new regular cell within each cut but we cannot insert
+new reduction cell because that would change the number of channels</p></li>
+<li><p>model starts and ends with regular cells</p></li>
+</ul>
+</div>
+<div class="section" id="algo">
+<h4>Algo<a class="headerlink" href="#algo" title="Permalink to this headline">¶</a></h4>
+<p>reduction_cells = 2 or 3
+max_reg_cells = k st k &gt;= 1</p>
+<p>For given model:
+- Fork 1: add new regular cell in each cur with same number of nodes
+- Fork 2: add new node in all regular cells
+- Fork 3: add new node in all reduction cells</p>
+<p>ParitoWorker(TrainerWorker, SearchWorker):
+graph: [(id, model, is_trained, val_acc, flops, parent_id)]
+Take k1 promising trained model
+add a cell
+put back in graph
+Take k2 promising untrained model
+train, put back in graph
+Take k3 promising trained models
+search, put back in graph</p>
+</div>
+</div>
+</div>
+<div class="section" id="pareto-eval-strategy">
+<h2>Pareto eval strategy<a class="headerlink" href="#pareto-eval-strategy" title="Permalink to this headline">¶</a></h2>
+<p>In new scheme of things, we generate pareto by,</p>
+<p>for reductions=r1 to r2
+Generate macro without any warm start
+for depth=d1 to d2
+modify macro to increase depth as needed
+seed model
+for iter=0 to n-1
+call microbuilder</p>
+<p>Microbuilder typically only changes cell desc. The seeding process may update
+nodes, for ex, add new node+edges or delete some. After seeding process, we train
+model and then we call
+macrobuilder n times. Each time it may update nodes in any way it likes.
+We perform arch search on this, train model again on finalized desc and record its
+accuracy.</p>
+<p>This process creates many finalized model descs. Current eval howeevr can consume
+only one finalized model so we keep last one for current eval.</p>
+</div>
+<div class="section" id="perf-observations">
+<h2>Perf observations<a class="headerlink" href="#perf-observations" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>train epoch on cifar10 is 16.8s on Titan Xp, batch=128, resnet34 (21M params).
+This translates to 41ms/step. Out of this, 12.4ms is consumed in forward pass and same in backward pass.
+Test pass takes 2s.
+Same numbers were found on multiple simultaneous jobs on p-infra with 1080ti
+except that forward and backward passes were reported to be 5ms consistently instead of 12ms
+even though overall numbers remain almost exactly the same.</p></li>
+<li><p>For darts default search run (batch=64, 8 cells, 4 nodes) in archai on P100
+search:
+epoch time  step_time   run_time
+1647s        4.0s         22.88h
+eval:
+epoch time  step_time   run_time
+255s        0.48s         42.56h</p></li>
+<li><p>For darts default search run (batch=64, 8 cells, 4 nodes) in archai on Titan Xp
+search:
+epoch time  step_time   run_time
+1527s       3.4s         21.47h
+eval:
+epoch time  step_time   run_time
+255-2675-?s        0.5s         ?</p></li>
+</ul>
+<p>, one epoch costs 1623s for train and val each. step_time for train was 3.9s.
+Same thing on P100, 1626-1655s/epoch for train as well as val, step_time=4s.</p>
+<ul class="simple">
+<li><p>On 1080Ti, we get 1527-1564s/epoch for training for train and val, step_time=3.2-3.8s.</p></li>
+<li><p>For darts default eval run in archai on 1080Ti: 254-281s/epoch initially, step_time=0.5s.
+This grows to 903s/epoch &#64; epoch 149 2675s/epoch &#64; epoch 384 while train step_time remains 0.5s.
+Search started at 2020-03-04T07:55, search ended: 2020-03-05T05:23.
+Eval started at 2020-03-05T05:23, eval ended: 2020-03-10T23:10 &#64; epoch 384.</p></li>
+</ul>
+</div>
+<div class="section" id="accuracy-observations">
+<h2>Accuracy observations<a class="headerlink" href="#accuracy-observations" title="Permalink to this headline">¶</a></h2>
+<p>For darts.</p>
+<ul class="simple">
+<li><p>search best val = 0.8812 &#64; epoch 42</p></li>
+</ul>
+</div>
+<div class="section" id="checkpointing">
+<h2>Checkpointing<a class="headerlink" href="#checkpointing" title="Permalink to this headline">¶</a></h2>
+<p>We use following generic model of a program: A program maintains a global state G.
+A subset of G is seeded with initial values I. The program performs some computation
+and modifies G. If program is stochastic, final G will be stochastic for same I.
+The program may consist of child programs cp_i, each of which obtains a subset of G
+to operate on.</p>
+<p>To enable checkpointing we first must make i in cp_i make part of G as G.cp_i which would
+be initialized with 0. Note that this means program must be able to jump to G.cp_i
+child program at the start. This means that each child program must have interface
+that takes exactly one input G that is mutable. Thus, instead of series of statements
+child programs may be represented as list.</p>
+<p>We also need to make I as immutable part of G as G.I. The checkpoint
+will be referred to as C and it must contain entire G as C.G.
+When program is run it is now supplied with I and C. The C may be empty
+if its first run or it was interrupted before and contains G at that point in C.G.
+At start, the program will continue as normal if C is empty. If C is not empty
+then the program must first assert that I supplied to it is same as C.G.I. If it is not
+then the program should exit with error other wise program should set its G from C.G,
+read G.cp_i and jump to that child program.</p>
+<p>What happens when we have hierarchy of child programs? What if level 3 child gets
+interrupted? Can we restore to that point? Who should be saving the checkpoint and
+at what time is it allowed to save the checkpoint?</p>
+<p>First, lets assume that each child i reserves subset of G, G_i = G.cp[i] as its own state
+space. Within G_i, child may maintain G_i.I which is its own immutable input and
+G_i.cp_i which is its pointer to its own child. The child may modify any non-mutable
+part of G as its output.</p>
+<p>To enable hierarchical checkpointing, each child must also decompose itself into
+its own child just like parent and maintain protocol that its own child consumes
+exactly one parameter G.</p>
+<p>In this design, checkpoint can be saved only after checkpointable child has been
+executed. The parent should increment cp_i and save it.</p>
+<p>What if child c_i is not checkpointable but child c_i+1 is checkpointable?
+In this case, c_i will do recomputation and make changes to G that could be
+stochastically different for same I. If any next checkpointable child access
+this G and compare with its checkpoint to find it different and error out.
+In other words, this condition produce significant silent or non-silent errors
+and confusing behavior. To circumwent this we must ensure if c_i+1 is checkpointable
+then every c_i is also. To do this, we need to make cp as tree. At any time,
+we should be able to tell where we are in this tree. When a checkpoint is saved,
+we check if previous nodes in tree were also saved. If not then we raise error.</p>
+<p>As can be seen, hierarchical checkpointing is complex. Also, we need to save G for
+all children which may become very large and save of checkpoint can become expensive.
+To simplify things, we may
+simply prohibit hierarchical checkpoint. In other words, we only have top level
+parent and only that parent is aware of checkpointing and saving of checkpoints.
+In this model, parent need to save only its own G that it maintains between child to
+child calls. The big downside of this is that if any of the child is long running
+than any other then we can’t checkpoint within that specific child.</p>
+</div>
+<div class="section" id="yaml-design">
+<h2>Yaml design<a class="headerlink" href="#yaml-design" title="Permalink to this headline">¶</a></h2>
+<p>Copy node value using ‘_copy :/path/to/node’.
+- target will always be scaler
+- source could be dict or scaler
+- recursive replacements
+- this will replace above string path with target value
+Insert node childs using _copy: /path/to/node
+- content of source node is copied
+- rest of the child overrides</p>
+</div>
+<div class="section" id="pytorch-parameter-naming-convention">
+<h2>Pytorch parameter naming convention<a class="headerlink" href="#pytorch-parameter-naming-convention" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Parameter object is same as Tensor</p></li>
+<li><p>Within each module, parameter gets named by variable name it is assigned to</p></li>
+<li><p>Parameter is only added in .parameters() or .named_parameters() if its instance wasn’t already added</p></li>
+<li><p>Optimizer is supplied with parameters iterator or name,parameter tuple iterator so shared params doesn’t get operated more than once</p></li>
+<li><p>If parameter is stored in ParameterList then the parameter name will be variable_name.index</p></li>
+<li><p>name of the parameter depends on at which level .named_parameters gets called</p></li>
+<li><p>Pytorch ignores underscore in variable names and it doesn’t mean they will not be in parameters collection.</p></li>
+</ul>
+</div>
+<div class="section" id="arch-params">
+<h2>Arch params<a class="headerlink" href="#arch-params" title="Permalink to this headline">¶</a></h2>
+<p>Imagine we have N arch parameters of K kinds, each kind having count N_k. Each parameter is one tensor. Some of the parameters may reside in
+ops, some may be at cell or model level. Their names are determined by where they reside. For example, cell level arch param might get named at model level as cells.0.arch_param1. Some of these parameters may get shared in different parts of the model.</p>
+<p>So we need ways to retrieve parameters by:</p>
+<ul class="simple">
+<li><p>their kind</p></li>
+<li><p>by owner</p></li>
+<li><p>Are they shared or owned</p></li>
+</ul>
+<p>This can be achieved by naming convention for variables where such parameters will be stored. Let’s define this convention as kind_arch_param. This way any parameter with name ending in _arch_param is considered as architecture parameter. Their full name in the form module1.module2.kind1_arch_param defines where they reside. The part after last “.” and without _arch_param suffix defines the kind of the parameter. While Pytorch automatically avoids double listing for shared parameters, a module can have following convention to keep things clean: Module keeps arch parameters in dictionary where key is same as what their variable names would have been. This way Pytorch doesn’t register them automatically. If module does own these parameters, it will create variables with same name so they get registered. Module then can provide following methods: get_owned_params, get_shared_params, is_owned_param(p). For parameter sharing, module may receive dictionary of parameters owned by someone else and given module can decide to share some or all of those.</p>
+<p>So, we stipulate that each instance of nn.Module type have same number and type of arch params. So Cell may have one set of arch params, Op have another, Model have another and so on. Question is (1) is it possible to share only subset of one’s parameters among instances? (2) how Cell1 can share its arch parameters with Cell2 and Cell3 and Cell4 can with Cell5, Cell6. I think supporting this level of infinite flexibility can potentially make things complex. So let’s see how we can do subset of these functionalities. We will have ModelDescBuilder decide which module shares arch params with which one. This can be done with base *Desc object having  member specifying identity of object it will receive parameters from. If no arch parameter is received then object shall create its own. If it did, it may take whole or portion of it and create rest of its own. One can access arch_params method to access params for that module directly and pass parameter recursive=True to get arch params of entire module hierarchy. The return value is ArchParams object.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="index.html" id="logo" title=Archai><img class="logo" src="_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">archai</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.common.cocob &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.common.cocob</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The code below is </span>
+<span class="sd">directly from https://raw.githubusercontent.com/IssamLaradji/sls/master/others/cocob.py</span>
+<span class="sd">Two coin betting optimization algorithms are implemented here :</span>
+<span class="sd">Cocob Backprop: https://arxiv.org/pdf/1705.07795.pdf</span>
+<span class="sd">Cocob through Ons: https://arxiv.org/pdf/1705.07795.pdf</span>
+<span class="sd">both of which do not require any learning rates and yet</span>
+<span class="sd">have optimal convergence gauarantees for non-smooth</span>
+<span class="sd">convex functions.</span>
+
+<span class="sd">Cocob-Ons is an experimental variation from paper.</span>
+<span class="sd">Please don&#39;t use it yet.</span>
+
+<span class="sd">Please check http://francesco.orabona.com/papers/slides_cocob.pdf for</span>
+<span class="sd">simple explanation for going from coin betting game to convex optimization.</span>
+<span class="sd">Both algorithms are similar except the coin betting strategy used.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">optim</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<div class="viewcode-block" id="CocobBackprop"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.cocob.CocobBackprop">[docs]</a><span class="k">class</span> <span class="nc">CocobBackprop</span><span class="p">(</span><span class="n">optim</span><span class="o">.</span><span class="n">Optimizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implements Cocob-Backprop .</span>
+
+<span class="sd">    It has been proposed in `Training Deep Networks without Learning Rates</span>
+<span class="sd">    Through Coin Betting`__.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        params (iterable): iterable of parameters to optimize or dicts defining</span>
+<span class="sd">            parameter groups</span>
+<span class="sd">        alpha (float, optional): positive number to adjust betting fraction.</span>
+<span class="sd">            Theoretical convergence gauarantee does not depend on choice of</span>
+<span class="sd">            alpha (default: 100.0)</span>
+
+<span class="sd">    __ https://arxiv.org/pdf/1705.07795.pdf</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CocobBackprop</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CocobBackprop.step"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.cocob.CocobBackprop.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">closure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">closure</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_groups</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">grad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">grad</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+                <span class="n">param_shape</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">shape</span>
+
+                <span class="c1"># Better bets for -ve gradient</span>
+                <span class="n">neg_grad</span> <span class="o">=</span> <span class="o">-</span> <span class="n">grad</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># Happens only once at the begining of optimization start</span>
+                    <span class="c1"># Set initial parameter weights and zero reward</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;initial_weight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">data</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;reward&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">new_zeros</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+
+                    <span class="c1"># Don&#39;t bet anything for first round</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">new_zeros</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+
+                    <span class="c1"># Initialize internal states useful for computing betting fraction</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;neg_grads_sum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">new_zeros</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;grads_abs_sum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">new_zeros</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;max_observed_scale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">*</span> <span class="n">param</span><span class="o">.</span><span class="n">new_ones</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+
+                <span class="c1"># load states in variables</span>
+                <span class="n">initial_weight</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;initial_weight&#39;</span><span class="p">]</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;reward&#39;</span><span class="p">]</span>
+                <span class="n">bet</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet&#39;</span><span class="p">]</span>
+                <span class="n">neg_grads_sum</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;neg_grads_sum&#39;</span><span class="p">]</span>
+                <span class="n">grads_abs_sum</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;grads_abs_sum&#39;</span><span class="p">]</span>
+                <span class="n">max_observed_scale</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;max_observed_scale&#39;</span><span class="p">]</span>
+
+                <span class="c1"># Update internal states useful for computing betting fraction</span>
+                <span class="n">max_observed_scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">max_observed_scale</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">grad</span><span class="p">))</span>
+                <span class="n">grads_abs_sum</span> <span class="o">+=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+                <span class="n">neg_grads_sum</span> <span class="o">+=</span> <span class="n">neg_grad</span>
+
+                <span class="c1"># Based on how much the Better bets on -ve gradient prediction,</span>
+                <span class="c1"># check how much the Better won (-ve if lost)</span>
+                <span class="n">win_amount</span> <span class="o">=</span> <span class="n">bet</span> <span class="o">*</span> <span class="n">neg_grad</span>
+
+                <span class="c1"># Update better&#39;s reward. Negative reward is not allowed.</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">reward</span> <span class="o">+</span> <span class="n">win_amount</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">reward</span><span class="p">))</span>
+
+                <span class="c1"># Better decides the bet fraction based on so-far observations</span>
+                <span class="n">bet_fraction</span> <span class="o">=</span> <span class="n">neg_grads_sum</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_observed_scale</span> <span class="o">*</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">grads_abs_sum</span> <span class="o">+</span> <span class="n">max_observed_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="n">max_observed_scale</span><span class="p">)))</span>
+
+                <span class="c1"># Better makes the bet according to decided betting fraction.</span>
+                <span class="n">bet</span> <span class="o">=</span> <span class="n">bet_fraction</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_observed_scale</span> <span class="o">+</span> <span class="n">reward</span><span class="p">)</span>
+
+                <span class="c1"># Set parameter weights</span>
+                <span class="n">param</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">initial_weight</span> <span class="o">+</span> <span class="n">bet</span>
+
+                <span class="c1"># save state back in memory</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;neg_grads_sum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">neg_grads_sum</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;grads_abs_sum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">grads_abs_sum</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;max_observed_scale&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_observed_scale</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;reward&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bet</span>
+                <span class="c1"># For Cocob-Backprop bet_fraction need not be maintained in state. Only kept for visualization.</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet_fraction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bet_fraction</span>
+
+        <span class="k">return</span> <span class="n">loss</span></div></div>
+
+
+<div class="viewcode-block" id="CocobOns"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.cocob.CocobOns">[docs]</a><span class="k">class</span> <span class="nc">CocobOns</span><span class="p">(</span><span class="n">optim</span><span class="o">.</span><span class="n">Optimizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implements Coin-Betting through ONS .</span>
+
+<span class="sd">    It has been proposed in `Black-Box Reductions for Parameter-free</span>
+<span class="sd">    Online Learning in Banach Spaces`__.</span>
+
+<span class="sd">    Cocob-Ons is an experimental variation from the paper.</span>
+<span class="sd">    Do not use it yet.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        params (iterable): iterable of parameters to optimize or dicts defining</span>
+<span class="sd">            parameter groups</span>
+<span class="sd">        eps (float, optional): positive initial wealth for betting algorithm.</span>
+<span class="sd">            Theoretical convergence gauarantee does not depend on choice of</span>
+<span class="sd">            eps (default: 1e-8)</span>
+
+<span class="sd">    __ https://arxiv.org/pdf/1705.07795.pdf</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CocobOns</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CocobOns.step"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.cocob.CocobOns.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closure</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">closure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">closure</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_groups</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">grad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">grad</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+                <span class="n">param_shape</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+
+                <span class="c1"># Clip gradients to be in (-1, 1)</span>
+                <span class="n">grad</span><span class="o">.</span><span class="n">clamp_</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+                <span class="c1"># Better bets for -ve gradient</span>
+                <span class="n">neg_grad</span> <span class="o">=</span> <span class="o">-</span> <span class="n">grad</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># Happens only once at the begining of optimization start</span>
+                    <span class="c1"># Set initial parameter weights and zero reward</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;initial_weight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">data</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;wealth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">*</span> <span class="n">param</span><span class="o">.</span><span class="n">new_ones</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+
+                    <span class="c1"># Don&#39;t bet anything for first round</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet_fraction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">new_zeros</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">new_zeros</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+
+                    <span class="c1"># Initialize internal states useful for computing betting fraction</span>
+                    <span class="n">state</span><span class="p">[</span><span class="s1">&#39;z_square_sum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">new_zeros</span><span class="p">(</span><span class="n">param_shape</span><span class="p">)</span>
+
+                <span class="c1"># load states in memory</span>
+                <span class="n">wealth</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;wealth&#39;</span><span class="p">]</span>
+                <span class="n">bet_fraction</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet_fraction&#39;</span><span class="p">]</span>
+                <span class="n">z_square_sum</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;z_square_sum&#39;</span><span class="p">]</span>
+                <span class="n">initial_weight</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;initial_weight&#39;</span><span class="p">]</span>
+                <span class="n">bet</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet&#39;</span><span class="p">]</span>
+
+                <span class="c1"># Based on how much the Better bets on -ve gradient prediction,</span>
+                <span class="c1"># check how much the Better won (-ve if lost)</span>
+                <span class="n">win_amount</span> <span class="o">=</span> <span class="n">bet</span> <span class="o">*</span> <span class="n">neg_grad</span>
+
+                <span class="c1"># Update better&#39;s wealth based on what he won / lost.</span>
+                <span class="n">wealth</span> <span class="o">=</span> <span class="n">wealth</span> <span class="o">+</span> <span class="n">win_amount</span>
+
+                <span class="c1"># Better decides the bet fraction based on so-far observations</span>
+                <span class="c1"># z, A variable notations from Algo 1 in paper)</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">grad</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">bet_fraction</span><span class="o">*</span><span class="n">grad</span><span class="p">))</span>
+                <span class="n">z_square_sum</span> <span class="o">=</span> <span class="n">z_square_sum</span> <span class="o">+</span> <span class="p">(</span><span class="n">z</span><span class="o">*</span><span class="n">z</span><span class="p">)</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">z_square_sum</span>
+
+                <span class="n">bet_fraction</span> <span class="o">=</span> <span class="p">(</span><span class="n">bet_fraction</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span><span class="o">*</span><span class="p">(</span><span class="n">z</span> <span class="o">/</span> <span class="n">A</span><span class="p">))</span>
+                <span class="n">bet_fraction</span><span class="o">.</span><span class="n">clamp_</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+
+                <span class="c1"># Better makes the bet according to decided betting fraction.</span>
+                <span class="n">bet</span> <span class="o">=</span> <span class="n">bet_fraction</span> <span class="o">*</span> <span class="n">wealth</span>
+
+                <span class="c1"># Set parameter weights</span>
+                <span class="n">param</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">initial_weight</span> <span class="o">+</span> <span class="n">bet</span>
+
+                <span class="c1"># save state back in memory</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet_fraction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bet_fraction</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;wealth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wealth</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;z_square_sum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_square_sum</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;bet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bet</span>
+
+        <span class="k">return</span> <span class="n">loss</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../index.html" id="logo" title=Archai><img class="logo" src="../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

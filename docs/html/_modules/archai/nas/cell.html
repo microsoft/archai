@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.nas.cell &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.nas.cell</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">tensor</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span><span class="p">,</span> <span class="n">EnforceOverrides</span>
+
+<span class="kn">from</span> <span class="nn">..common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">archai.nas.dag_edge</span> <span class="kn">import</span> <span class="n">DagEdge</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">ConvMacroParams</span><span class="p">,</span> <span class="n">CellDesc</span><span class="p">,</span> <span class="n">OpDesc</span><span class="p">,</span> <span class="n">NodeDesc</span>
+<span class="kn">from</span> <span class="nn">archai.nas.operations</span> <span class="kn">import</span> <span class="n">Op</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_module</span> <span class="kn">import</span> <span class="n">ArchModule</span>
+
+<div class="viewcode-block" id="Cell"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.cell.Cell">[docs]</a><span class="k">class</span> <span class="nc">Cell</span><span class="p">(</span><span class="n">ArchModule</span><span class="p">,</span> <span class="n">EnforceOverrides</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">desc</span><span class="p">:</span><span class="n">CellDesc</span><span class="p">,</span>
+                 <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">droppath</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+                 <span class="n">trainables_from</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Cell&#39;</span><span class="p">]):</span> <span class="c1"># template cell, if any, to use for arch params</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># some of these members are public as finalizer needs access</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="n">desc</span>
+
+        <span class="c1"># TODO: support any number of stems</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">stems</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Cell compiler currently only supports 2 stems&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s0_op</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">stems</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s1_op</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">stems</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dag</span> <span class="o">=</span>  <span class="n">Cell</span><span class="o">.</span><span class="n">_create_dag</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">nodes</span><span class="p">(),</span>
+            <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">,</span> <span class="n">droppath</span><span class="o">=</span><span class="n">droppath</span><span class="p">,</span>
+            <span class="n">trainables_from</span><span class="o">=</span><span class="n">trainables_from</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_op</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">post_op</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_create_dag</span><span class="p">(</span><span class="n">nodes_desc</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">NodeDesc</span><span class="p">],</span>
+                    <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">droppath</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+                    <span class="n">trainables_from</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Cell&#39;</span><span class="p">])</span><span class="o">-&gt;</span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">:</span>
+        <span class="n">dag</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_desc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes_desc</span><span class="p">):</span>
+            <span class="n">edges</span><span class="p">:</span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+            <span class="n">dag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+            <span class="c1"># assert len(node_desc.edges) &gt; 0</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">edge_desc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node_desc</span><span class="o">.</span><span class="n">edges</span><span class="p">):</span>
+                <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DagEdge</span><span class="p">(</span><span class="n">edge_desc</span><span class="p">,</span>
+                    <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">,</span> <span class="n">droppath</span><span class="o">=</span><span class="n">droppath</span><span class="p">,</span>
+                    <span class="n">template_edge</span><span class="o">=</span><span class="n">trainables_from</span><span class="o">.</span><span class="n">dag</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">if</span> <span class="n">trainables_from</span> <span class="k">else</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">dag</span>
+
+<div class="viewcode-block" id="Cell.ops"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.cell.Cell.ops">[docs]</a>    <span class="k">def</span> <span class="nf">ops</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Op</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dag</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">node</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">edge</span><span class="o">.</span><span class="n">op</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Cell.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.cell.Cell.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="p">):</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s0_op</span><span class="p">(</span><span class="n">s0</span><span class="p">)</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s1_op</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span>
+
+        <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dag</span><span class="p">:</span>
+            <span class="c1"># TODO: we should probably do average here otherwise output will</span>
+            <span class="c1">#   blow up as number of primitives grows</span>
+            <span class="c1"># TODO: Current assumption is that each edge has k channel</span>
+            <span class="c1">#   output so node output is k channel as well</span>
+            <span class="c1">#   This won&#39;t allow for arbitrary edges.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">edge</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">node</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># support zero edges node by assuming zero op from last state</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.0</span>
+            <span class="n">states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
+        <span class="c1"># TODO: Below assumes same shape except for channels but this won&#39;t</span>
+        <span class="c1">#   happen for max pool etc shapes? Also, remove hard coded 2.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_op</span><span class="p">(</span><span class="n">states</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../index.html" id="logo" title=Archai><img class="logo" src="../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

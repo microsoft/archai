@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Transofrms &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="transofrms">
+<h1>Transofrms<a class="headerlink" href="#transofrms" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="variation-1">
+<h2>Variation 1<a class="headerlink" href="#variation-1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">train_transforms</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">RandomRotation</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span>
+                                       <span class="n">transforms</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+                                       <span class="n">transforms</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span><span class="n">ImageNetPolicy</span><span class="p">(),</span>
+                                       <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+                                       <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span>
+                                                            <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])])</span>
+
+    <span class="n">test_transforms</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+                                      <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+                                      <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+                                      <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span>
+                                                           <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="variation-2">
+<h2>Variation 2<a class="headerlink" href="#variation-2" title="Permalink to this headline">¶</a></h2>
+<p>From: https://nbviewer.jupyter.org/github/shubhajitml/food-101/blob/master/food-101-pytorch.ipynb</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">train_tfms</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imgenet_mean</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgenet_std</span><span class="p">)])</span>
+
+        <span class="n">valid_tfms</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imgenet_mean</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgenet_std</span><span class="p">)])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="variation-3">
+<h2>Variation 3<a class="headerlink" href="#variation-3" title="Permalink to this headline">¶</a></h2>
+<p>From: https://github.com/dashimaki360/food101/blob/master/src/train.py</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">data_transforms</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="n">input_size</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+        <span class="p">]),</span>
+        <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="n">input_size</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="n">input_size</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+        <span class="p">]),</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="sota">
+<h1>SOTA<a class="headerlink" href="#sota" title="Permalink to this headline">¶</a></h1>
+<p>| Method 	| Top - 1  	| Top - 5  	| Publication  	|
+|—	|—	|—	|—	|
+| HoG    	|8.85   	| - | ECCV2014  	|
+|   SURF BoW-1024 	|  33.47  	|   -	| ECCV2014  	|
+|   SURF IFV-64 	|  44.79   	|   -	|   ECCV2014 	|
+|    SURF IFV-64 + Color Bow-64	|  49.40 	|   -	|   ECCV2014   	|
+|   IFV	| 38.88   	| -  	|  ECCV2014  	|
+|  RF	|   37.72 	| -  	|   ECCV2014  	|
+|   RCF	|   28.46 	| -  	|    ECCV2014	|
+|   MLDS 	|    42.63  	| -  	|  ECCV2014	|
+|  RFDC	|   50.76   	|  - 	|   ECCV2014 	|
+|  SELC 	|     55.89 	|   -	|  CVIU2016 	|
+|   AlexNet-CNN 	|  56.40  	|   -	|    ECCV2014	|
+|  DCNN-FOOD  	|  70.41  	|   - 	|   ICME2015	|
+|   DeepFood 	|   77.4   	|   93.7	|  COST2016 	|
+| Inception V3  	|  88.28  	|   96.88 	|   ECCVW2016 	|
+|   ResNet-200	|   88.38 	|   	97.85 |    CVPR2016	|
+|   WRN 	|   88.72 	|   	 97.92|   BMVC2016	|
+|ResNext-101| 85.4|96.5| <strong>Proposed</strong>
+|   WISeR 	|   90.27 	|   98.71	|   UNIUD2016 	|
+|   <strong>DenseNet - 161</strong>	|  <strong>93.26</strong> 	|   <strong>99.01</strong>	|  <strong>Proposed</strong> 	|</p>
+<div class="section" id="model-training-and-sota-results">
+<h2>Model training and SoTA results<a class="headerlink" href="#model-training-and-sota-results" title="Permalink to this headline">¶</a></h2>
+<p>From: https://github.com/pyligent/food101-image-classification</p>
+<ul class="simple">
+<li><p>Deep Convolution Neural Network model have achieved remarkable results in image classification problems. For food 101 data the current SoTA results are:</p>
+<ul>
+<li><p><strong>InceptionV3</strong> : 88.28% / 96.88% (Top 1/Top 5)</p></li>
+<li><p><strong>ResNet200</strong> : 90.14% (Top 1)</p></li>
+<li><p><strong>WISeR</strong> :  90.27% / 98.71%  (Top 1/Top 5)</p></li>
+</ul>
+</li>
+<li><p><strong>My Results</strong>: By using the pre-trained ResNet50 model, started by training the network with an image size of 224x224 for 16 epochs , training on image size of 512x512 for additional 16 epochs.
+<code class="docutils literal notranslate"><span class="pre">top_1_accuracy:</span></code>  <strong>89.63%</strong>
+<code class="docutils literal notranslate"><span class="pre">top_5_accuracy:</span></code>  <strong>98.04%</strong></p></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="index.html" id="logo" title=Archai><img class="logo" src="_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">archai</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>
