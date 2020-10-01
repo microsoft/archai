@@ -1,6 +1,6 @@
 # Welcome to Archai
 
-Archai is a platform for Neural Network Search (NAS) with a goal to unify several recent advancements in research and making them accessible to non-experts so that anyone can leverage this research to generate efficient deep networks for their own applications. Archai hopes to accelerate NAS research by easily allowing to mix and match different techniques rapidly while still ensuring reproducibility, documented hyper-parameters and fair comparison across the spectrum of these techniques. Archai is extensible and modular to accommodate new algorithms easily and aspired to offer clean and robust codebase.
+Archai is a platform for Neural Network Search (NAS) that allow you to generate efficient deep networks for your applications. Archai aspires to accelerate NAS research by enabling easy mix and match between different techniques while ensuring reproducibility, self-documented hyper-parameters and fair comparison. To achieve this, Archai uses common code base that unifies several algorithms. Archai is extensible and modular to allow rapid experimentation of new research ideas and develop new NAS algorithms. Archai also hopes to make NAS research more accessible to non-experts by providing powerful configuration system and easy to use tools.
 
 [Extensive feature list](docs/features.md)
 
@@ -20,7 +20,7 @@ cd archai
 install.sh # on Windows, use install.bat
 ```
 
-For more information, please [Install guide](docs/install.md)
+For more information, please [Install guide](docs/blitz.md#running-existing-algorithms)
 
 ## How to Use It
 

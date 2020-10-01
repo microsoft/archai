@@ -10,6 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+
+import recommonmark
+from recommonmark.transform import AutoStructify
+
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../archai'))
@@ -29,7 +33,7 @@ author = ''
 # ones.
 extensions = [
     'rinoh.frontend.sphinx', 'sphinx.ext.autodoc', 'sphinx.ext.todo',
-    'sphinx.ext.viewcode', 'recommonmark' #, 'm2r2'
+    'sphinx.ext.viewcode', 'recommonmark', 'sphinx_rtd_theme' #, 'sphinx.ext.autosectionlabel' #, 'm2r2'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -52,22 +56,22 @@ exclude_patterns = [
     # 'tools/',
 ]
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import klink
-html_theme = 'klink' #'bizstyle' #'alabaster'
-html_theme_path = [klink.get_html_theme_path()]
-html_theme_options = {
-    'github': 'microsoft/archai',
-    #'analytics_id': 'UA-your-number-here',
-    'logo': 'logo.png'
-}
+import sphinx_rtd_theme
+html_theme = 'sphinx_rtd_theme' # 'klink' #'bizstyle' #'alabaster'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+def setup(app):
+    app.add_config_value('recommonmark_config', {
+            'url_resolver': lambda url: github_doc_root + url,
+            'auto_toc_tree_section': 'Contents',
+            }, True)
+    app.add_transform(AutoStructify)

@@ -14,7 +14,6 @@ Welcome to Archai Documentation!
    features.md
    blitz.md
    petridish.md
-   running_algos.md
    faq.md
    roadmap.md
    dir_struct.md
