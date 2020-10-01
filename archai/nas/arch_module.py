@@ -12,6 +12,10 @@ from archai.nas.arch_params import ArchParams, NNTypes
 from archai.common import utils
 
 class ArchModule(nn.Module, ABC, EnforceOverrides):
+    """ArchModule enahnces nn.Module by making a clear separation between regular
+    weights and the architecture weights. The architecture parameters can be added
+    using  `create_arch_params()` method and then accessed using `arch_params()` method."""
+
     def __init__(self) -> None:
         super().__init__()
 
