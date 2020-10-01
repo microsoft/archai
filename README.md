@@ -4,7 +4,7 @@ Archai is a platform for Neural Network Search (NAS) that allow you to generate 
 
 [Extensive feature list](docs/features.md)
 
-## How to Get It
+## Installation
 
 ### Prerequisites
 
@@ -20,11 +20,11 @@ cd archai
 install.sh # on Windows, use install.bat
 ```
 
-For more information, please [Install guide](docs/blitz.md#running-existing-algorithms)
+For more information, please see [Install guide](docs/install.md)
 
-## How to Use It
+## Quick Start
 
-### Quick Start
+### Running Algorithms
 
 To run specific NAS algorithm, specify it by `--algos` switch:
 
@@ -32,33 +32,31 @@ To run specific NAS algorithm, specify it by `--algos` switch:
 python scripts/main.py --algos darts --full
 ```
 
-For more information on available switches, algorithms etc please see [running algorithms](docs/running_algos.md).
+For more information on available switches and algorithms, please see [running algorithms](docs/blitz.md#running-existing-algorithms).
 
-#### Tutorial
+### Tutorials
 
-Please see our detailed 30 minutes tutorial that walks you through how to implement Darts algorithm.
+The best way to familiarize yourself with Archai is to take a quick tour through our [30 Minute tutorial](docs/blitz.md).
 
-#### Visual Studio Code
+We also have [tutorial for Petridish](docs/petridish.md) algorithm that was developed at Microsoft Research and now available through Archai.
+
+### Visual Studio Code
 
 We highly recommend [Visual Studio Code](https://code.visualstudio.com/) to take advantage of predefined run configurations and interactive debugging.
 
 From archai directory, launch Visual Studio Code. Select the Run button (Ctrl+Shift+D), chose the run configuration you want and click on Play icon.
 
-### Tutorials
-
 ### Running experiments on Azure AML
 
-See detailed [instructions](tools/azure/README.md).
+To run NAS experiments at scale, you can use [Archai on Azure](tools/azure/README.md).
 
-### Other References
+### Documentation
 
-* [Directory Structure](docs/dir_struct.md)
-* [FAQ](docs/faq.md)
-* [Roadmap](docs/roadmap.md)
+[Docs and API reference](https://microsoft.github.io/archai) is available for browsing and searching.
 
 ## Contribute
 
-We would love your contributions, feedback, questions, algorithm implementations and feature requests! Please [file a Github issue](https://github.com/microsoft/archai/issues/new) or send us a pull request. Please review the [Microsoft Code of Conduct](https://opensource.microsoft.com/codeofconduct/) and [learn more](https://github.com/microsoft/archai/blob/master/CONTRIBUTING.md).
+We would love community contributions, feedback, questions, algorithm implementations and feature requests! Please [file a Github issue](https://github.com/microsoft/archai/issues/new) or send us a pull request. Please review the [Microsoft Code of Conduct](https://opensource.microsoft.com/codeofconduct/) and [learn more](https://github.com/microsoft/archai/blob/master/CONTRIBUTING.md).
 
 ## Contact
 
