@@ -103,8 +103,6 @@ Above we see the Accuracy vs. multiply-additions gallery. For example the model 
 ## Putting It All Together
 Just as detailed in the [blitz](blitz.md) tutorial, we end up with our own `PetridishModelBuilder` and `EvaluaterPetridish` which we communicate to Archai via the `PetridishExperimentRunner` class and run the algorithm via `main.py`. 
 
+Note that Petridish is not constrained to searching pareto-frontiers of error-vs-multiply-additions only. One can easily change the x-axis to other quantities like flops, memory, number of parameters, intensity etc. By changing the search termination criteria and the models used to seed the search process, one can control the part of the x-axis that one wants to focus compute on. 
 
-
-
-
-
+We are looking forward to getting feedback, user stories and real-world scenarios that can be helped via Petridish.
