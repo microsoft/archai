@@ -43,7 +43,7 @@ from archai.nas.searcher import SearchResult
 from archai.nas.search_combinations import SearchCombinations
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
-    sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool
+    sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool, plot_seed_model_stats
 
 
 class SearcherPetridish(SearchCombinations):
@@ -66,7 +66,6 @@ class SearcherPetridish(SearchCombinations):
 
         # petridish distributed search related parameters
         self._convex_hull_eps = conf_petridish['convex_hull_eps']
-        self._sampling_max_try = conf_petridish['sampling_max_try']
         self._max_madd = conf_petridish['max_madd']
         self._max_hull_points = conf_petridish['max_hull_points']
         self._checkpoints_foldername = conf_petridish['checkpoints_foldername']
@@ -82,7 +81,7 @@ class SearcherPetridish(SearchCombinations):
         # checkpoint will restore the hull we had
         is_restored = self._restore_checkpoint()
 
-        # seed the pool with many seed models of different
+        # seed the pool with many models of different
         # macro parameters like number of cells, reductions etc if parent pool
         # could not be restored and/or this is the first time this job has been run.
         future_ids = [] if is_restored else  self._create_seed_jobs(conf_search,
@@ -104,7 +103,7 @@ class SearcherPetridish(SearchCombinations):
 
                     # sample a point and search
                     sampled_point = sample_from_hull(self._hull_points,
-                        self._convex_hull_eps, self._sampling_max_try)
+                        self._convex_hull_eps)
 
                     future_id = SearcherPetridish.search_model_desc_dist.remote(self,
                         conf_search, sampled_point, model_desc_builder, trainer_class,
@@ -151,7 +150,7 @@ class SearcherPetridish(SearchCombinations):
         trainer_class:TArchTrainer, finalizers:Finalizers, common_state:CommonState)\
             ->ConvexHullPoint:
 
-        # as this runs in different process, initiaze globals
+        # as this runs in different process, initialize globals
         common.init_from(common_state)
 
         #register ops as we are in different process now
@@ -252,6 +251,7 @@ class SearcherPetridish(SearchCombinations):
         conf_seed_train = conf_search['seed_train']
 
         future_ids = [] # ray job IDs
+        seed_model_stats = [] # seed model stats for visualization and debugging 
         macro_combinations = list(self.get_combinations(conf_search))
         for reductions, cells, nodes in macro_combinations:
             # if N R N R N R cannot be satisfied, ignore combination
@@ -271,6 +271,16 @@ class SearcherPetridish(SearchCombinations):
                 conf_seed_train, hull_point, common.get_state())
 
             future_ids.append(future_id)
+
+            # build a model so we can get its model stats
+            temp_model = Model(model_desc, droppath=True, affine=True)
+            seed_model_stats.append(nas_utils.get_model_stats(temp_model))
+        
+        # save the model stats in a plot and tsv file so we can
+        # visualize the spread on the x-axis
+        expdir = common.get_expdir()
+        assert expdir
+        plot_seed_model_stats(seed_model_stats, expdir)
 
         return future_ids
 
@@ -304,6 +314,7 @@ class SearcherPetridish(SearchCombinations):
         conf_model_desc = copy.deepcopy(conf_model_desc)
         conf_model_desc['n_reductions'] = reductions
         conf_model_desc['n_cells'] = cells
+        conf_model_desc['cell']['n_nodes'] = nodes
 
         # create model desc for search using model config
         # we will build model without call to model_desc_builder for pre-training
