@@ -1,5 +1,7 @@
 
-## Transofrms
+# Food-101 Dataset Notes
+
+## Transforms
 
 ### Variation 1
 

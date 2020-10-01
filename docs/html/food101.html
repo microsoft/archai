@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Transofrms &#8212; Archai  documentation</title>
+    <title>Food-101 Dataset Notes &#8212; Archai  documentation</title>
     <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -27,10 +27,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="transofrms">
-<h1>Transofrms<a class="headerlink" href="#transofrms" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="food-101-dataset-notes">
+<h1>Food-101 Dataset Notes<a class="headerlink" href="#food-101-dataset-notes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="transforms">
+<h2>Transforms<a class="headerlink" href="#transforms" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="variation-1">
-<h2>Variation 1<a class="headerlink" href="#variation-1" title="Permalink to this headline">¶</a></h2>
+<h3>Variation 1<a class="headerlink" href="#variation-1" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">train_transforms</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">RandomRotation</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span>
                                        <span class="n">transforms</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
                                        <span class="n">transforms</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span><span class="n">ImageNetPolicy</span><span class="p">(),</span>
@@ -47,7 +49,7 @@
 </div>
 </div>
 <div class="section" id="variation-2">
-<h2>Variation 2<a class="headerlink" href="#variation-2" title="Permalink to this headline">¶</a></h2>
+<h3>Variation 2<a class="headerlink" href="#variation-2" title="Permalink to this headline">¶</a></h3>
 <p>From: https://nbviewer.jupyter.org/github/shubhajitml/food-101/blob/master/food-101-pytorch.ipynb</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">train_tfms</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
             <span class="n">transforms</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
@@ -63,7 +65,7 @@
 </div>
 </div>
 <div class="section" id="variation-3">
-<h2>Variation 3<a class="headerlink" href="#variation-3" title="Permalink to this headline">¶</a></h2>
+<h3>Variation 3<a class="headerlink" href="#variation-3" title="Permalink to this headline">¶</a></h3>
 <p>From: https://github.com/dashimaki360/food101/blob/master/src/train.py</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">data_transforms</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
@@ -84,7 +86,7 @@
 </div>
 </div>
 <div class="section" id="sota">
-<h1>SOTA<a class="headerlink" href="#sota" title="Permalink to this headline">¶</a></h1>
+<h2>SOTA<a class="headerlink" href="#sota" title="Permalink to this headline">¶</a></h2>
 <p>| Method 	| Top - 1  	| Top - 5  	| Publication  	|
 |—	|—	|—	|—	|
 | HoG    	|8.85   	| - | ECCV2014  	|
@@ -107,7 +109,7 @@
 |   WISeR 	|   90.27 	|   98.71	|   UNIUD2016 	|
 |   <strong>DenseNet - 161</strong>	|  <strong>93.26</strong> 	|   <strong>99.01</strong>	|  <strong>Proposed</strong> 	|</p>
 <div class="section" id="model-training-and-sota-results">
-<h2>Model training and SoTA results<a class="headerlink" href="#model-training-and-sota-results" title="Permalink to this headline">¶</a></h2>
+<h3>Model training and SoTA results<a class="headerlink" href="#model-training-and-sota-results" title="Permalink to this headline">¶</a></h3>
 <p>From: https://github.com/pyligent/food101-image-classification</p>
 <ul class="simple">
 <li><p>Deep Convolution Neural Network model have achieved remarkable results in image classification problems. For food 101 data the current SoTA results are:</p>
@@ -123,6 +125,7 @@
 </ul>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -136,9 +139,14 @@
             
             <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Archai Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blitz.html">Archai - A 30 Minute Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="petridish.html">Petridish - Code Walkthrough</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/modules.html">archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">APIs</a></li>
 </ul>
 
 

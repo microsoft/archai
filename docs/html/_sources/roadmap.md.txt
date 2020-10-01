@@ -11,4 +11,4 @@ Here is our current deck:
 * [DATA](http://papers.nips.cc/paper/8374-data-differentiable-architecture-approximation.pdf)
 * [RandNAS](https://liamcli.com/assets/pdf/randnas_arxiv.pdf)
 
-Please file in the issues algorithms you would like to see implemented in Archai. We will try our best to accomodate.
+Please file in the issues algorithms you would like to see implemented in Archai. We will try our best to accommodate.
