@@ -31,7 +31,7 @@ nas:
       max_madd: 200000000 # if any parent model reaches this many multiply-additions then the search is terminated or it reaches maximum number of parent pool size
       max_hull_points: 100 # if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds
       checkpoints_foldername: '$expdir/petridish_search_checkpoints'
-    search_iters: 4 # TODO: What does this mean here?
+    search_iters: 4 
     pareto:
       max_cells: 8
       max_reductions: 3

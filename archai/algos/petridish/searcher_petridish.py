@@ -81,7 +81,7 @@ class SearcherPetridish(SearchCombinations):
         # checkpoint will restore the hull we had
         is_restored = self._restore_checkpoint()
 
-        # seed the pool with many seed models of different
+        # seed the pool with many models of different
         # macro parameters like number of cells, reductions etc if parent pool
         # could not be restored and/or this is the first time this job has been run.
         future_ids = [] if is_restored else  self._create_seed_jobs(conf_search,
