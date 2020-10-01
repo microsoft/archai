@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.common.ml_losses &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.common.ml_losses</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span>  <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.backends.cudnn</span> <span class="k">as</span> <span class="nn">cudnn</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">lr_scheduler</span><span class="p">,</span> <span class="n">SGD</span><span class="p">,</span> <span class="n">Adam</span>
+<span class="kn">from</span> <span class="nn">torch.nn.modules.loss</span> <span class="kn">import</span> <span class="n">_WeightedLoss</span><span class="p">,</span> <span class="n">_Loss</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+
+
+<span class="c1"># TODO: replace this with SmoothCrossEntropyLoss class</span>
+<span class="c1"># def cross_entropy_smooth(input: torch.Tensor, target, size_average=True, label_smoothing=0.1):</span>
+<span class="c1">#     y = torch.eye(10).to(input.device)</span>
+<span class="c1">#     lb_oh = y[target]</span>
+
+<span class="c1">#     target = lb_oh * (1 - label_smoothing) + 0.5 * label_smoothing</span>
+
+<span class="c1">#     logsoftmax = nn.LogSoftmax()</span>
+<span class="c1">#     if size_average:</span>
+<span class="c1">#         return torch.mean(torch.sum(-target * logsoftmax(input), dim=1))</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         return torch.sum(torch.sum(-target * logsoftmax(input), dim=1))</span>
+<div class="viewcode-block" id="SmoothCrossEntropyLoss"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ml_losses.SmoothCrossEntropyLoss">[docs]</a><span class="k">class</span> <span class="nc">SmoothCrossEntropyLoss</span><span class="p">(</span><span class="n">_WeightedLoss</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="o">=</span> <span class="n">smoothing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="n">reduction</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_smooth_one_hot</span><span class="p">(</span><span class="n">targets</span><span class="p">:</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">smoothing</span> <span class="o">&lt;</span> <span class="mi">1</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="c1"># For label smoothing, we replace 1-hot vector with 0.9-hot vector instead.</span>
+            <span class="c1"># Create empty vector of same size as targets, fill them up with smoothing/(n-1)</span>
+            <span class="c1"># then replace element where 1 supposed to go and put there 1-smoothing instead</span>
+            <span class="n">targets</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">targets</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">n_classes</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">targets</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> \
+                <span class="o">.</span><span class="n">fill_</span><span class="p">(</span><span class="n">smoothing</span> <span class="o">/</span><span class="p">(</span><span class="n">n_classes</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> \
+                <span class="o">.</span><span class="n">scatter_</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">targets</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mf">1.</span><span class="o">-</span><span class="n">smoothing</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">targets</span>
+
+<div class="viewcode-block" id="SmoothCrossEntropyLoss.forward"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ml_losses.SmoothCrossEntropyLoss.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">SmoothCrossEntropyLoss</span><span class="o">.</span><span class="n">_smooth_one_hot</span><span class="p">(</span><span class="n">targets</span><span class="p">,</span> <span class="n">inputs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span><span class="p">)</span>
+        <span class="n">lsm</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># to support weighted targets</span>
+            <span class="n">lsm</span> <span class="o">=</span> <span class="n">lsm</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">targets</span> <span class="o">*</span> <span class="n">lsm</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span>  <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">==</span> <span class="s1">&#39;sum&#39;</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">elif</span>  <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">loss</span></div></div>
+
+<span class="c1"># Credits: https://github.com/NVIDIA/DeepLearningExamples/blob/342d2e7649b9a478f35ea45a069a4c7e6b1497b8/PyTorch/Classification/ConvNets/main.py#L350</span>
+<div class="viewcode-block" id="NLLMultiLabelSmooth"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ml_losses.NLLMultiLabelSmooth">[docs]</a><span class="k">class</span> <span class="nc">NLLMultiLabelSmooth</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;According to NVidia code, this should be used with mixup?&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoothing</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NLLMultiLabelSmooth</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">smoothing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="o">=</span> <span class="n">smoothing</span>
+
+<div class="viewcode-block" id="NLLMultiLabelSmooth.forward"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ml_losses.NLLMultiLabelSmooth.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+            <span class="n">logprobs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">nll_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">logprobs</span> <span class="o">*</span> <span class="n">target</span>
+            <span class="n">nll_loss</span> <span class="o">=</span> <span class="n">nll_loss</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">smooth_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">logprobs</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence</span> <span class="o">*</span> <span class="n">nll_loss</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="o">*</span> <span class="n">smooth_loss</span>
+
+            <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="LabelSmoothing"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ml_losses.LabelSmoothing">[docs]</a><span class="k">class</span> <span class="nc">LabelSmoothing</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    NLL loss with label smoothing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the LabelSmoothing module.</span>
+
+<span class="sd">        :param smoothing: label smoothing factor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LabelSmoothing</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">smoothing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="o">=</span> <span class="n">smoothing</span>
+
+<div class="viewcode-block" id="LabelSmoothing.forward"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ml_losses.LabelSmoothing.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="n">logprobs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">nll_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">logprobs</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">nll_loss</span> <span class="o">=</span> <span class="n">nll_loss</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">smooth_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">logprobs</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence</span> <span class="o">*</span> <span class="n">nll_loss</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing</span> <span class="o">*</span> <span class="n">smooth_loss</span>
+        <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../index.html" id="logo" title=Archai><img class="logo" src="../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

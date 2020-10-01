@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.algos.gumbelsoftmax.gs_finalizers &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.algos.gumbelsoftmax.gs_finalizers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">get_conf</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">get_expdir</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">archai.datasets.data</span> <span class="kn">import</span> <span class="n">get_data</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">archai.nas.cell</span> <span class="kn">import</span> <span class="n">Cell</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">CellDesc</span><span class="p">,</span> <span class="n">ModelDesc</span><span class="p">,</span> <span class="n">NodeDesc</span><span class="p">,</span> <span class="n">EdgeDesc</span>
+<span class="kn">from</span> <span class="nn">archai.nas.finalizers</span> <span class="kn">import</span> <span class="n">Finalizers</span>
+<span class="kn">from</span> <span class="nn">archai.algos.gumbelsoftmax.gs_op</span> <span class="kn">import</span> <span class="n">GsOp</span>
+
+
+<div class="viewcode-block" id="GsFinalizers"><a class="viewcode-back" href="../../../../api/archai.algos.gumbelsoftmax.html#archai.algos.gumbelsoftmax.gs_finalizers.GsFinalizers">[docs]</a><span class="k">class</span> <span class="nc">GsFinalizers</span><span class="p">(</span><span class="n">Finalizers</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GsFinalizers.finalize_node"><a class="viewcode-back" href="../../../../api/archai.algos.gumbelsoftmax.html#archai.algos.gumbelsoftmax.gs_finalizers.GsFinalizers.finalize_node">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">finalize_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">,</span> <span class="n">node_index</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                      <span class="n">node_desc</span><span class="p">:</span><span class="n">NodeDesc</span><span class="p">,</span> <span class="n">max_final_edges</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                      <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">NodeDesc</span><span class="p">:</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">get_conf</span><span class="p">()</span>
+        <span class="n">gs_num_sample</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s1">&#39;nas&#39;</span><span class="p">][</span><span class="s1">&#39;search&#39;</span><span class="p">][</span><span class="s1">&#39;model_desc&#39;</span><span class="p">][</span><span class="s1">&#39;cell&#39;</span><span class="p">][</span><span class="s1">&#39;gs&#39;</span><span class="p">][</span><span class="s1">&#39;num_sample&#39;</span><span class="p">]</span>
+
+        <span class="c1"># gather the alphas of all edges in this node</span>
+        <span class="n">node_alphas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">node</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="p">,</span> <span class="s1">&#39;PRIMITIVES&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span> <span class="o">==</span> <span class="n">GsOp</span><span class="p">:</span>
+                <span class="n">alphas</span> <span class="o">=</span> <span class="p">[</span><span class="n">alpha</span> <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="o">.</span><span class="n">ops</span><span class="p">()]</span>
+                <span class="n">node_alphas</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">alphas</span><span class="p">)</span>
+
+        <span class="c1"># TODO: will creating a tensor from a list of tensors preserve the graph?</span>
+        <span class="n">node_alphas</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">node_alphas</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">node_alphas</span><span class="o">.</span><span class="n">nelement</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="c1"># sample ops via gumbel softmax</span>
+        <span class="n">sample_storage</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gs_num_sample</span><span class="p">):</span>
+            <span class="n">sampled</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">gumbel_softmax</span><span class="p">(</span><span class="n">node_alphas</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">hard</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">sample_storage</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sampled</span><span class="p">)</span>
+
+        <span class="n">samples_summed</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">sample_storage</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># send the sampled op weights to their</span>
+        <span class="c1"># respective edges to be used for edge level finalize</span>
+        <span class="n">selected_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="p">,</span> <span class="s1">&#39;PRIMITIVES&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span> <span class="o">==</span> <span class="n">GsOp</span><span class="p">:</span>
+                <span class="n">this_edge_sampled_weights</span> <span class="o">=</span> <span class="n">samples_summed</span><span class="p">[</span><span class="n">counter</span><span class="p">:</span><span class="n">counter</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="o">.</span><span class="n">PRIMITIVES</span><span class="p">)]</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="o">.</span><span class="n">PRIMITIVES</span><span class="p">)</span>
+                <span class="c1"># finalize the edge</span>
+                <span class="k">if</span> <span class="n">this_edge_sampled_weights</span><span class="o">.</span><span class="n">bool</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="n">op_desc</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span><span class="n">this_edge_sampled_weights</span><span class="p">)</span>
+                    <span class="n">new_edge</span> <span class="o">=</span> <span class="n">EdgeDesc</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">input_ids</span><span class="p">)</span>
+                    <span class="n">selected_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_edge</span><span class="p">)</span>
+
+        <span class="c1"># delete excess edges</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_edges</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_final_edges</span><span class="p">:</span>
+            <span class="c1"># since these are sample edges there is no ordering</span>
+            <span class="c1"># amongst them so we just arbitrarily select a few</span>
+            <span class="n">selected_edges</span> <span class="o">=</span> <span class="n">selected_edges</span><span class="p">[:</span><span class="n">max_final_edges</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">NodeDesc</span><span class="p">(</span><span class="n">selected_edges</span><span class="p">,</span> <span class="n">node_desc</span><span class="o">.</span><span class="n">conv_params</span><span class="p">)</span></div></div>
+
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../../index.html" id="logo" title=Archai><img class="logo" src="../../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

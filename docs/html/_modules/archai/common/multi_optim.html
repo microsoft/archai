@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.common.multi_optim &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.common.multi_optim</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserList</span>
+
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">torch.optim.optimizer</span> <span class="kn">import</span> <span class="n">Optimizer</span>
+<span class="kn">from</span> <span class="nn">torch.optim.lr_scheduler</span> <span class="kn">import</span> <span class="n">_LRScheduler</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.utils</span> <span class="kn">import</span> <span class="n">zip_eq</span>
+
+
+<div class="viewcode-block" id="OptimSched"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.OptimSched">[docs]</a><span class="k">class</span> <span class="nc">OptimSched</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Holds the optimizer and scheduler&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optim</span><span class="p">:</span><span class="n">Optimizer</span><span class="p">,</span> <span class="n">sched</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">_LRScheduler</span><span class="p">],</span>
+                 <span class="n">sched_on_epoch</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">])</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim</span> <span class="o">=</span> <span class="n">optim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched</span> <span class="o">=</span> <span class="n">sched</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched_on_epoch</span> <span class="o">=</span> <span class="n">sched_on_epoch</span></div>
+
+<div class="viewcode-block" id="MultiOptim"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.MultiOptim">[docs]</a><span class="k">class</span> <span class="nc">MultiOptim</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">OptimSched</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="MultiOptim.append"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.MultiOptim.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optim_sched</span><span class="p">:</span><span class="n">OptimSched</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">optim_sched</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MultiOptim.zero_grad"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.MultiOptim.zero_grad">[docs]</a>    <span class="k">def</span> <span class="nf">zero_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">optim_sched</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="p">:</span>
+            <span class="n">optim_sched</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MultiOptim.step"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.MultiOptim.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">optim_sched</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="p">:</span>
+            <span class="n">optim_sched</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched_on_epoch</span><span class="p">:</span>
+                <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MultiOptim.epoch"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.MultiOptim.epoch">[docs]</a>    <span class="k">def</span> <span class="nf">epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">optim_sched</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched</span> <span class="ow">and</span> <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched_on_epoch</span><span class="p">:</span>
+                <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MultiOptim.get_lr"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.MultiOptim.get_lr">[docs]</a>    <span class="k">def</span> <span class="nf">get_lr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optim_index</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">param_index</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="p">[</span><span class="n">optim_index</span><span class="p">]</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">param_groups</span><span class="p">[</span><span class="n">param_index</span><span class="p">][</span><span class="s1">&#39;lr&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MultiOptim.state_dict"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.MultiOptim.state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">dict</span><span class="p">:</span>
+        <span class="n">optim_states</span> <span class="o">=</span> <span class="p">[</span><span class="n">optim_sched</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">optim_sched</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
+        <span class="n">sched_states</span> <span class="o">=</span> <span class="p">[</span><span class="n">optim_sched</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched</span> <span class="k">else</span> <span class="kc">None</span> \
+                        <span class="k">for</span> <span class="n">optim_sched</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;optim_states&#39;</span><span class="p">:</span> <span class="n">optim_states</span><span class="p">,</span> <span class="s1">&#39;sched_states&#39;</span><span class="p">:</span><span class="n">sched_states</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="MultiOptim.load_state_dict"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.multi_optim.MultiOptim.load_state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">load_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">:</span><span class="nb">dict</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">optim_states</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">&#39;optim_states&#39;</span><span class="p">]</span>
+        <span class="n">sched_states</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">&#39;sched_states&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">optim_sched</span><span class="p">,</span> <span class="n">optim_state</span><span class="p">,</span> <span class="n">sched_state</span> <span class="ow">in</span> <span class="n">zip_eq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optim_states</span><span class="p">,</span> <span class="n">sched_states</span><span class="p">):</span>
+            <span class="n">optim_sched</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">optim_state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">sched_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">optim_sched</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">sched_state</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">sched_state</span> <span class="ow">is</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">OptimSched</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Iterator</span><span class="p">[</span><span class="n">OptimSched</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_optim_scheds</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../index.html" id="logo" title=Archai><img class="logo" src="../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.nas.model &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.nas.model</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">from</span> <span class="nn">archai.nas.arch_params</span> <span class="kn">import</span> <span class="n">ArchParams</span>
+<span class="kn">from</span> <span class="nn">archai.nas.cell</span> <span class="kn">import</span> <span class="n">Cell</span>
+<span class="kn">from</span> <span class="nn">archai.nas.operations</span> <span class="kn">import</span> <span class="n">Op</span><span class="p">,</span> <span class="n">DropPath_</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">ModelDesc</span><span class="p">,</span> <span class="n">AuxTowerDesc</span><span class="p">,</span> <span class="n">CellDesc</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">ml_utils</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_module</span> <span class="kn">import</span> <span class="n">ArchModule</span>
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">ArchModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_desc</span><span class="p">:</span><span class="n">ModelDesc</span><span class="p">,</span> <span class="n">droppath</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># some of these fields are public as finalizer needs access to them</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="n">model_desc</span>
+
+        <span class="c1"># TODO: support any number of stems</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">model_desc</span><span class="o">.</span><span class="n">model_stems</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Model compiler currently only supports 2 stems&quot;</span>
+        <span class="n">stem0_op</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model_desc</span><span class="o">.</span><span class="n">model_stems</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="n">stem1_op</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model_desc</span><span class="o">.</span><span class="n">model_stems</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_stems</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">((</span><span class="n">stem0_op</span><span class="p">,</span> <span class="n">stem1_op</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aux_towers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">cell_desc</span><span class="p">,</span> <span class="n">aux_tower_desc</span><span class="p">)</span> <span class="ow">in</span> \
+                <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">model_desc</span><span class="o">.</span><span class="n">cell_descs</span><span class="p">(),</span> <span class="n">model_desc</span><span class="o">.</span><span class="n">aux_tower_descs</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_build_cell</span><span class="p">(</span><span class="n">cell_desc</span><span class="p">,</span> <span class="n">aux_tower_desc</span><span class="p">,</span> <span class="n">droppath</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+
+        <span class="c1"># adaptive pooling output size to 1x1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool_op</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model_desc</span><span class="o">.</span><span class="n">pool_op</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="c1"># since ch_p records last cell&#39;s output channels</span>
+        <span class="c1"># it indicates the input channel number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logits_op</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model_desc</span><span class="o">.</span><span class="n">logits_op</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+
+        <span class="c1"># for i,cell in enumerate(self.cells):</span>
+        <span class="c1">#     print(i, ml_utils.param_size(cell))</span>
+        <span class="c1">#logger.info({&#39;model_summary&#39;: self.summary()})</span>
+
+    <span class="k">def</span> <span class="nf">_build_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_desc</span><span class="p">:</span><span class="n">CellDesc</span><span class="p">,</span>
+                    <span class="n">aux_tower_desc</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">AuxTowerDesc</span><span class="p">],</span>
+                    <span class="n">droppath</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">trainables_from</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">cell_desc</span><span class="o">.</span><span class="n">trainables_from</span><span class="o">==</span><span class="n">cell_desc</span><span class="o">.</span><span class="n">id</span>  \
+                            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">cell_desc</span><span class="o">.</span><span class="n">trainables_from</span><span class="p">]</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">(</span><span class="n">cell_desc</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">,</span> <span class="n">droppath</span><span class="o">=</span><span class="n">droppath</span><span class="p">,</span>
+                    <span class="n">trainables_from</span><span class="o">=</span><span class="n">trainables_from</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_aux_towers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AuxTower</span><span class="p">(</span><span class="n">aux_tower_desc</span><span class="p">)</span> \
+                                <span class="k">if</span> <span class="n">aux_tower_desc</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Model.summary"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.model.Model.summary">[docs]</a>    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">dict</span><span class="p">:</span>
+        <span class="n">all_arch_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_owned</span><span class="p">()</span>
+                               <span class="o">.</span><span class="n">param_by_kind</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;cell_count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">),</span>
+            <span class="c1">#&#39;cell_params&#39;: [ml_utils.param_size(c) for c in self.cells]</span>
+            <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="n">ml_utils</span><span class="o">.</span><span class="n">param_size</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="s1">&#39;arch_params_len&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_arch_params</span><span class="p">),</span>
+            <span class="s1">&#39;arch_params_numel&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_arch_params</span><span class="p">),</span>
+            <span class="s1">&#39;ops&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">cell_descs</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">nodes</span><span class="p">()),</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="Model.ops"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.model.Model.ops">[docs]</a>    <span class="k">def</span> <span class="nf">ops</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Op</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">cell</span><span class="o">.</span><span class="n">ops</span><span class="p">():</span>
+                <span class="k">yield</span> <span class="n">op</span></div>
+
+<div class="viewcode-block" id="Model.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.model.Model.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]]:</span>
+        <span class="c1">#print(torch.cuda.memory_allocated()/1.0e6)</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_stems</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1">#print(torch.cuda.memory_allocated()/1.0e6)</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_stems</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1">#print(-1, s0.shape, s1.shape, torch.cuda.memory_allocated()/1.0e6)</span>
+
+        <span class="n">logits_aux</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">ci</span><span class="p">,</span> <span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">aux_tower</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aux_towers</span><span class="p">)):</span>
+            <span class="c1">#print(s0.shape, s1.shape, end=&#39;&#39;)</span>
+            <span class="n">s0</span><span class="p">,</span> <span class="n">s1</span> <span class="o">=</span> <span class="n">s1</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="p">)</span>
+            <span class="c1">#print(ci, s0.shape, s1.shape, torch.cuda.memory_allocated()/1.0e6)</span>
+
+            <span class="c1"># TODO: this mimics darts but won&#39;t work for multiple aux towers</span>
+            <span class="k">if</span> <span class="n">aux_tower</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">:</span>
+                <span class="n">logits_aux</span> <span class="o">=</span> <span class="n">aux_tower</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span>
+                <span class="c1">#print(ci, &#39;aux&#39;, logits_aux.shape)</span>
+
+        <span class="c1"># s1 is now the last cell&#39;s output</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool_op</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logits_op</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="c1"># flatten</span>
+
+        <span class="c1">#print(-1, &#39;out&#39;, out.shape)</span>
+        <span class="c1">#print(-1, &#39;logits&#39;, logits.shape)</span>
+
+        <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">logits_aux</span></div>
+
+<div class="viewcode-block" id="Model.device_type"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.model.Model.device_type">[docs]</a>    <span class="k">def</span> <span class="nf">device_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span></div>
+
+<div class="viewcode-block" id="Model.drop_path_prob"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.model.Model.drop_path_prob">[docs]</a>    <span class="k">def</span> <span class="nf">drop_path_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span><span class="nb">float</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set drop path probability</span>
+<span class="sd">        This will be called externally so any DropPath_ modules get</span>
+<span class="sd">        new probability. Typically, every epoch we will reduce this probability.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">DropPath_</span><span class="p">):</span>
+                <span class="n">module</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span></div></div>
+
+
+<div class="viewcode-block" id="AuxTower"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.model.AuxTower">[docs]</a><span class="k">class</span> <span class="nc">AuxTower</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aux_tower_desc</span><span class="p">:</span><span class="n">AuxTowerDesc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;assuming input size 14x14&quot;&quot;&quot;</span>
+        <span class="c1"># TODO: assert input size?</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">AvgPool2d</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="n">aux_tower_desc</span><span class="o">.</span><span class="n">stride</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count_include_pad</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">aux_tower_desc</span><span class="o">.</span><span class="n">ch_in</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">768</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="c1"># TODO: This batchnorm was omitted in orginal implementation due to a typo.</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="mi">768</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logits_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">768</span><span class="p">,</span> <span class="n">aux_tower_desc</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AuxTower.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.model.AuxTower.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logits_op</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../index.html" id="logo" title=Archai><img class="logo" src="../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

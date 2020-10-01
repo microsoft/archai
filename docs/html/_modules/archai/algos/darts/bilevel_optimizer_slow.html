@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.algos.darts.bilevel_optimizer_slow &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for archai.algos.darts.bilevel_optimizer_slow</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterator</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="n">autograd</span>
+<span class="kn">from</span> <span class="nn">torch.nn.modules.loss</span> <span class="kn">import</span> <span class="n">_Loss</span>
+<span class="kn">from</span> <span class="nn">torch.optim.optimizer</span> <span class="kn">import</span> <span class="n">Optimizer</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">ml_utils</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">archai.common.utils</span> <span class="kn">import</span> <span class="n">zip_eq</span>
+
+<span class="k">def</span> <span class="nf">_flatten_concate</span><span class="p">(</span><span class="n">xs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    flatten all tensor from [d1,d2,...dn] to [d]</span>
+<span class="sd">    and then concat all [d_1] to [d_1+d_2+d_3+...]</span>
+<span class="sd">    :param xs:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">_get_alphas</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="n">Model</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Iterator</span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">all_owned</span><span class="p">()</span><span class="o">.</span><span class="n">param_by_kind</span><span class="p">(</span><span class="s1">&#39;alphas&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_get_loss</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="n">Model</span><span class="p">,</span> <span class="n">lossfn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">logits</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># might also return aux tower logits</span>
+    <span class="k">return</span> <span class="n">lossfn</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BilevelOptimizer"><a class="viewcode-back" href="../../../../api/archai.algos.darts.html#archai.algos.darts.bilevel_optimizer_slow.BilevelOptimizer">[docs]</a><span class="k">class</span> <span class="nc">BilevelOptimizer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_alpha_optim</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">w_momentum</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">w_decay</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                 <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">lossfn</span><span class="p">:</span> <span class="n">_Loss</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_w_momentum</span> <span class="o">=</span> <span class="n">w_momentum</span>  <span class="c1"># momentum for w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_w_weight_decay</span> <span class="o">=</span> <span class="n">w_decay</span>  <span class="c1"># weight decay for w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lossfn</span> <span class="o">=</span> <span class="n">lossfn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>  <span class="c1"># main model with respect to w and alpha</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_get_alphas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">))</span>
+
+        <span class="c1"># this is the optimizer to optimize alphas parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alpha_optim</span> <span class="o">=</span> <span class="n">ml_utils</span><span class="o">.</span><span class="n">create_optimizer</span><span class="p">(</span><span class="n">conf_alpha_optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BilevelOptimizer.state_dict"><a class="viewcode-back" href="../../../../api/archai.algos.darts.html#archai.algos.darts.bilevel_optimizer_slow.BilevelOptimizer.state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;alpha_optim&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alpha_optim</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="BilevelOptimizer.load_state_dict"><a class="viewcode-back" href="../../../../api/archai.algos.darts.html#archai.algos.darts.bilevel_optimizer_slow.BilevelOptimizer.load_state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">load_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alpha_optim</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">[</span><span class="s1">&#39;alpha_optim&#39;</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="nf">_unrolled_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">main_optim</span><span class="p">:</span> <span class="n">Optimizer</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Model</span><span class="p">:</span>
+        <span class="c1"># TODO: should this loss be stored for later use?</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">_get_loss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lossfn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">_flatten_concate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">moment</span> <span class="o">=</span> <span class="n">_flatten_concate</span><span class="p">(</span><span class="n">main_optim</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;momentum_buffer&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span>
+            <span class="n">moment</span><span class="o">.</span><span class="n">mul_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_w_momentum</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">moment</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="c1"># flatten all gradients</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="n">_flatten_concate</span><span class="p">(</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()))</span><span class="o">.</span><span class="n">data</span>
+        <span class="c1"># indeed, here we implement a simple SGD with momentum and weight decay</span>
+        <span class="c1"># theta = theta - eta * (moment + weight decay + dtheta)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">moment</span> <span class="o">+</span> <span class="n">grads</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_w_weight_decay</span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
+        <span class="c1"># construct a new model</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params2model</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_params2model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Model</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        construct a new model with initialized weight from params</span>
+<span class="sd">        it use .state_dict() and load_state_dict() instead of</span>
+<span class="sd">        .parameters() + fill_()</span>
+<span class="sd">        :params: flatten weights, need to reshape to original shape</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">params_d</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="p">{},</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+            <span class="n">v_length</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+            <span class="c1"># restore params[] value to original shape</span>
+            <span class="n">params_d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">v_length</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+            <span class="n">offset</span> <span class="o">+=</span> <span class="n">v_length</span>
+
+        <span class="k">assert</span> <span class="n">offset</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="n">model_new</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span>
+        <span class="n">model_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+        <span class="n">model_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params_d</span><span class="p">)</span>
+        <span class="n">model_new</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">model_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">model_new</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+<div class="viewcode-block" id="BilevelOptimizer.step"><a class="viewcode-back" href="../../../../api/archai.algos.darts.html#archai.algos.darts.bilevel_optimizer_slow.BilevelOptimizer.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_train</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">y_train</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">x_valid</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">y_valid</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+             <span class="n">main_optim</span><span class="p">:</span> <span class="n">Optimizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># TODO: unlike darts paper, we get lr from optimizer insead of scheduler</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="n">main_optim</span><span class="o">.</span><span class="n">param_groups</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;lr&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alpha_optim</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+        <span class="c1"># compute the gradient and write it into tensor.grad</span>
+        <span class="c1"># instead of generated by loss.backward()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backward_bilevel</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">x_valid</span><span class="p">,</span> <span class="n">y_valid</span><span class="p">,</span>
+                               <span class="n">lr</span><span class="p">,</span> <span class="n">main_optim</span><span class="p">)</span>
+
+        <span class="c1"># at this point we should have model with updated gradients for w and alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alpha_optim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_backward_bilevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">x_valid</span><span class="p">,</span> <span class="n">y_valid</span><span class="p">,</span> <span class="n">lr</span><span class="p">,</span> <span class="n">main_optim</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Compute unrolled loss and backward its gradients &quot;&quot;&quot;</span>
+
+        <span class="c1"># update vmodel with w&#39;, but leave alphas as-is</span>
+        <span class="c1"># w&#39; = w - lr * grad</span>
+        <span class="n">unrolled_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unrolled_model</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">lr</span><span class="p">,</span> <span class="n">main_optim</span><span class="p">)</span>
+
+        <span class="c1"># compute loss on validation set for model with w&#39;</span>
+        <span class="c1"># wrt alphas. The autograd.grad is used instead of backward()</span>
+        <span class="c1"># to avoid having to loop through params</span>
+        <span class="n">vloss</span> <span class="o">=</span> <span class="n">_get_loss</span><span class="p">(</span><span class="n">unrolled_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lossfn</span><span class="p">,</span> <span class="n">x_valid</span><span class="p">,</span> <span class="n">y_valid</span><span class="p">)</span>
+        <span class="n">vloss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">dalpha</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">grad</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_get_alphas</span><span class="p">(</span><span class="n">unrolled_model</span><span class="p">)]</span>
+        <span class="n">dparams</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">unrolled_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()]</span>
+
+        <span class="n">hessian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hessian_vector_product</span><span class="p">(</span><span class="n">dparams</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+        <span class="c1"># dalpha we have is from the unrolled model so we need to</span>
+        <span class="c1"># transfer those grades back to our main model</span>
+        <span class="c1"># update final gradient = dalpha - xi*hessian</span>
+        <span class="c1"># TODO: currently alphas lr is same as w lr</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">da</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">zip_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">,</span> <span class="n">dalpha</span><span class="p">,</span> <span class="n">hessian</span><span class="p">):</span>
+                <span class="n">alpha</span><span class="o">.</span><span class="n">grad</span> <span class="o">=</span> <span class="n">da</span> <span class="o">-</span> <span class="n">lr</span><span class="o">*</span><span class="n">h</span>
+        <span class="c1"># now that model has both w and alpha grads,</span>
+        <span class="c1"># we can run main_optim.step() to update the param values</span>
+
+    <span class="k">def</span> <span class="nf">_hessian_vector_product</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dw</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">epsilon_unit</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implements equation 8</span>
+
+<span class="sd">        dw = dw` {L_val(w`, alpha)}</span>
+<span class="sd">        w+ = w + eps * dw</span>
+<span class="sd">        w- = w - eps * dw</span>
+<span class="sd">        hessian = (dalpha {L_trn(w+, alpha)} -dalpha {L_trn(w-, alpha)})/(2*eps)</span>
+<span class="sd">        eps = 0.01 / ||dw||</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="sd">&quot;&quot;&quot;scale epsilon with grad magnitude. The dw</span>
+<span class="sd">        is a multiplier on RHS of eq 8. So this scalling is essential</span>
+<span class="sd">        in making sure that finite differences approximation is not way off</span>
+<span class="sd">        Below, we flatten each w, concate all and then take norm&quot;&quot;&quot;</span>
+        <span class="c1"># TODO: is cat along dim 0 correct?</span>
+        <span class="n">dw_norm</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">dw</span><span class="p">])</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="n">epsilon_unit</span> <span class="o">/</span> <span class="n">dw_norm</span>
+
+        <span class="c1"># w+ = w + epsilon * grad(w&#39;)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">zip_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">dw</span><span class="p">):</span>
+                <span class="n">p</span> <span class="o">+=</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">v</span>
+
+        <span class="c1"># Now that we have model with w+, we need to compute grads wrt alphas</span>
+        <span class="c1"># This loss needs to be on train set, not validation set</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">_get_loss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lossfn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">dalpha_plus</span> <span class="o">=</span> <span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
+            <span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">)</span>  <span class="c1"># dalpha{L_trn(w+)}</span>
+
+        <span class="c1"># get model with w- and then compute grads wrt alphas</span>
+        <span class="c1"># w- = w - eps*dw`</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">zip_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">dw</span><span class="p">):</span>
+                <span class="c1"># we had already added dw above so sutracting twice gives w-</span>
+                <span class="n">p</span> <span class="o">-=</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">v</span>
+
+        <span class="c1"># similarly get dalpha_minus</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">_get_loss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lossfn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">dalpha_minus</span> <span class="o">=</span> <span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">)</span>
+
+        <span class="c1"># reset back params to original values by adding dw</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">zip_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">dw</span><span class="p">):</span>
+                <span class="n">p</span> <span class="o">+=</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">v</span>
+
+        <span class="c1"># apply eq 8, final difference to compute hessian</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">epsilon</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">zip_eq</span><span class="p">(</span><span class="n">dalpha_plus</span><span class="p">,</span> <span class="n">dalpha_minus</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">h</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="../../../../index.html" id="logo" title=Archai><img class="logo" src="../../../../_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">APIs</a></li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>
