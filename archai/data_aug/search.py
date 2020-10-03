@@ -340,7 +340,7 @@ def _eval_tta(conf, augment, reporter):
     loaders = []
     for _ in range(augment['num_policy']):
         tl, validloader, tl2 = get_dataloaders(augment['dataroot'], ds_name,
-            , aug, cutout,
+            aug, cutout,
             load_train=True, load_test=True,
             val_ratio=val_ratio, val_fold=val_fold, n_workers=n_workers)
         loaders.append(iter(validloader))
