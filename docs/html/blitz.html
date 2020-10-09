@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Archai - A 30 Minute Tutorial &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Petridish - Code Walkthrough" href="petridish.html" />
+    <link rel="prev" title="Archai Features" href="features.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Archai Features</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Archai - A 30 Minute Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#network-architecture-search-nas">Network Architecture Search (NAS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-existing-algorithms">Running Existing Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-system">Config System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture-overview">Architecture Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#archai-core-classes">Archai Core Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#implementing-darts">Implementing DARTS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#implementing-mixedop">Implementing MixedOp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementing-the-modeldescbuilder">Implementing the ModelDescBuilder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementing-the-trainer">Implementing the Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#putting-it-all-togather">Putting It All Togather</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Archai - A 30 Minute Tutorial</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/blitz.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="archai-a-30-minute-tutorial">
+<h1>Archai - A 30 Minute Tutorial<a class="headerlink" href="#archai-a-30-minute-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>If you would like to follow through this tutorial, please make sure you have <a class="reference internal" href="install.html"><span class="doc">installed</span></a> Archai.</p>
+<div class="section" id="network-architecture-search-nas">
+<h2>Network Architecture Search (NAS)<a class="headerlink" href="#network-architecture-search-nas" title="Permalink to this headline">¶</a></h2>
+<p>Network architecture search is the process of finding best performing neural network architectures for a given problem. Usually, we have a dataset such as <a class="reference external" href="http://www.image-net.org/">ImageNet</a> and we want to figure out how to arrange operations such as convolutions and pooling to create a neural network that has the best classification accuracy. Many practical situations also require that the architecture must fit into device memory or should use only certain number of flops. NAS shines in such problems because finding optimal/near-optimal architecture requires a lot of guess work and human effort.</p>
+<p>So how do we automatically find a good neural architecture? There are a number of algorithms proposed by the NAS research community in the past few years. In this tutorial we will learn how to use existing algorithms in Archai. We will also get the overview of how Archai works and finally we will implement a popular NAS algorithm called DARTS to show how you can implement your own algorithm (often only with a few lines of code). If you are not familiar with DARTS, we recommend <a class="reference external" href="https://arxiv.org/abs/1806.09055">reading the paper</a> or <a class="reference external" href="https://towardsdatascience.com/intuitive-explanation-of-differentiable-architecture-search-darts-692bdadcc69c">basic overview</a> first and then coming back here.</p>
+</div>
+<div class="section" id="running-existing-algorithms">
+<h2>Running Existing Algorithms<a class="headerlink" href="#running-existing-algorithms" title="Permalink to this headline">¶</a></h2>
+<p>Running NAS algorithms built into Archai is easy. You can use either command line or Visual Studio Code. Using command line, run the main script specifying the <code class="docutils literal notranslate"><span class="pre">--algos</span></code> switch:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/main.py --algos darts
+</pre></div>
+</div>
+<p>Notice that the run completes within a minute or so. This is because we are using reduced dataset and epochs just to quickly see if everything is fine. We call this <em>toy mode</em>. Doing a full run can take couple of days on single V100 GPU. To do a full run, just add the <code class="docutils literal notranslate"><span class="pre">--full</span></code> switch:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/main.py --algos darts --full
+</pre></div>
+</div>
+<p>When you run these algorithms, Archai used cifar10 dataset as default. Later we will see how you can use other <a class="reference internal" href="datasets.html"><span class="doc">datasets</span></a> or even bring our own custom dataset easily.</p>
+<p>By default, Archai produces output in <code class="docutils literal notranslate"><span class="pre">~/logdir</span></code> directory. You should see two directories: One for search and other for evaluation often refered colloqually in docs as <code class="docutils literal notranslate"><span class="pre">eval</span></code>. Evaluation in NAS means taking architecture/s that were found during the search phase and training them from scratch on the full dataset for longer and often with lots of enhancements added on. The search folder should have <code class="docutils literal notranslate"><span class="pre">final_model_desc.yaml</span></code> which contains the description of network that was found by DARTS. You will find <code class="docutils literal notranslate"><span class="pre">model.pt</span></code> which is trained PyTorch model generated after scaling the architecture found by search process and training it for longer. You should also see <code class="docutils literal notranslate"><span class="pre">log.log</span></code> which captures the human readable logs and <code class="docutils literal notranslate"><span class="pre">log.yaml</span></code> that is machine readable version of logs.</p>
+<p>You can also use other algorithms <a class="reference internal" href="algos.html"><span class="doc">available</span></a> in Archai instead of DARTS. You can also run multiple algorithms by specifying them in comma separated list.</p>
+<p>We will use <a class="reference external" href="https://code.visualstudio.com/">Visual Studio Code</a> in this tutorial however you can also use any other editor. Archai comes with preconfigured run configurations for VS Code. You can run DARTS in debug mode by opening the archai folder and then choosing the Run button (Ctrl+Shift+D):</p>
+<p><img alt="Run DARTS in VSCode" src="_images/vscode_run_darts.png" /></p>
+</div>
+<div class="section" id="config-system">
+<h2>Config System<a class="headerlink" href="#config-system" title="Permalink to this headline">¶</a></h2>
+<p>Archai uses a sophisticated YAML based configuration system. As an example, you can <a class="reference external" href="https://github.com/microsoft/archai/blob/master/confs/algos/darts.yaml">view configuration</a> for running DARTS algorithm. At first it may be a bit overwhelming, but this ensures that all config parameters are isolated from the code and can be freely changed. The config for search phase is located in <code class="docutils literal notranslate"><span class="pre">nas/search</span></code> section while for evaluation phase is located in <code class="docutils literal notranslate"><span class="pre">nas/eval</span></code> section. You will observe settings for data loading in <code class="docutils literal notranslate"><span class="pre">loader</span></code> section and training in <code class="docutils literal notranslate"><span class="pre">trainer</span></code> section. You can easily change the number of epochs, batch size etc.</p>
+<p>One great thing about Archai config system is that you can override any setting specified in YAML through command line as well. For instance, if you want to run evaluation only for 200 epochs instead of default 600, specify the path of the value in YAML separated by <code class="docutils literal notranslate"><span class="pre">.</span></code> like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python scripts/main.py --algos darts --nas.eval.trainer.epochs <span class="m">200</span>
+</pre></div>
+</div>
+<p>You can read in more detail about features available in Archai <a class="reference internal" href="conf.html"><span class="doc">config system</span></a> later.</p>
+</div>
+<div class="section" id="architecture-overview">
+<h2>Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permalink to this headline">¶</a></h2>
+<p>Now that we are familiar with how to run NAS algorithms, use command line switches and configuration system, let’s briefly review how Archai works.</p>
+<p>Some of the most popular NAS methods like DARTS use what is known as a <em>proxy dataset</em>. So if you want to find network that works on ImageNet, you may use smaller dataset such as CIFAR10 (or a subset of ImageNet) for search. After you have found the network for CIFAR10, you scale it up, change model stems and train for longer epochs. This final network now can be used for ImageNet. So these type of NAS methods works in two phases: search and evaluation.</p>
+<p>Archai uses YAML based model description that can be “compiled” to PyTorch model at anytime. The advantage of using such description is that model description can easily be generated, modified, scaled and visualized. Before the search starts, Archai creates the model description that represents the super network that algorithms like DARTS can use for differentiable search. The output of the search process is again model description for the best model that was found. This output model description is than used by evaluation phase to scale it up and generate the final trained PyTorch model weights. This process is depicted in below diagram:</p>
+<p><img alt="Run DARTS in VSCode" src="_images/archai_workflow.png" /></p>
+<p>We will now see how this workflow can be implemented in Archai.</p>
+</div>
+<div class="section" id="archai-core-classes">
+<h2>Archai Core Classes<a class="headerlink" href="#archai-core-classes" title="Permalink to this headline">¶</a></h2>
+<p>At the heart of Archai are the following classes:</p>
+<ul class="simple">
+<li><p><strong>ExperimentRunner</strong>: This class is the entry point for running the algorithm through its <code class="docutils literal notranslate"><span class="pre">run</span></code> method. It has methods to specify what to use for search and evaluation that algorithm implementer can override.</p></li>
+<li><p><strong>Searcher</strong>: This class allows to perform search by simply calling its <code class="docutils literal notranslate"><span class="pre">search</span></code> method. Algorithm implementer should inherit from this class and override methods as needed.</p></li>
+<li><p><strong>Evaluater</strong>: This class allows to perform evaluation of given model by simply calling its <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> method. Algorithm implementer should inherit from this class and override methods as needed.</p></li>
+<li><p><strong>Model</strong>: This class is derived from PyTorch ``nn.Module` and adds additional functionality to represent architecture parameters.</p></li>
+<li><p><strong>ModelDesc</strong>: This is model description that describes the architecture of the model. It can be converted to PyTorch model using the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class anytime. It can be saved to YAML and loaded back. The purpose of model description is to simply allow machine readable data structure so we can easily edit this model programmatically and scale it during the evaluation process.</p></li>
+<li><p><strong>ModelDescBuilder</strong>: This class builds the <code class="docutils literal notranslate"><span class="pre">ModelDesc</span></code> that can be used by <code class="docutils literal notranslate"><span class="pre">Searcher</span></code> or evaluated by <code class="docutils literal notranslate"><span class="pre">Evaluater</span></code>. Typically, algorithm implementer will inherit from this class to produce the model that can be used by the <code class="docutils literal notranslate"><span class="pre">Searcher</span></code>.</p></li>
+<li><p><strong>ArchTrainer</strong>: This class takes in the instance of <code class="docutils literal notranslate"><span class="pre">Model</span></code> and trains it using the specified configuration.</p></li>
+<li><p><strong>Finalizers</strong>: This class takes a super network with learned architecture weights and uses strategy to select edges to produce the final model.</p></li>
+<li><p><strong>Op</strong>: This class is derived from <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> but has additional functionality to represent deep learning operations such as max pool or convolutions with <em>architecture weights</em>. It also can implement finalization strategy if NAS method is using super networks for searching.</p></li>
+</ul>
+</div>
+<div class="section" id="implementing-darts">
+<h2>Implementing DARTS<a class="headerlink" href="#implementing-darts" title="Permalink to this headline">¶</a></h2>
+<p>We will now do quick walkthrough on how we can implement DARTS in Archai as an example. Note that this algorithm is already implemented so you can see the <a class="reference external" href="https://github.com/microsoft/archai/tree/master/archai/algos/darts">final code</a>.</p>
+<p>At high level, we will first create the the op that combines all ops along with their architecture weights. We will call this <code class="docutils literal notranslate"><span class="pre">MixedOp</span></code>. We will then use the <code class="docutils literal notranslate"><span class="pre">MixedOp</span></code> to create super network with all possible edges. To train this super network, we will override <code class="docutils literal notranslate"><span class="pre">ArchTrainer</span></code> and use bi-level optimizer. After the model is trained, we will use <code class="docutils literal notranslate"><span class="pre">Finalizers</span></code> class to generate the final model description. Finally, we will just use default <code class="docutils literal notranslate"><span class="pre">Evaluater</span></code> to evaluate the model.</p>
+<div class="section" id="implementing-mixedop">
+<h3>Implementing MixedOp<a class="headerlink" href="#implementing-mixedop" title="Permalink to this headline">¶</a></h3>
+<p>The main idea is to simply create all 7 primitives DARTS needs and override the <code class="docutils literal notranslate"><span class="pre">forward</span></code> method as usual to sum the output of primitives weighted by architecture parameters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MixedOp</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">asm</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">op</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">asm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Notice that we create one architecture parameter for each primitive and they stay encapsulated within that instance of <code class="docutils literal notranslate"><span class="pre">Op</span></code> class. The <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> only has <code class="docutils literal notranslate"><span class="pre">parameters()</span></code> method to retrieve learned weights and does not differentiate between architecture weights vs. the regular weights. The <code class="docutils literal notranslate"><span class="pre">Op</span></code> class however allows us to separate these two types of parameters.</p>
+<p>Another method to focus on is <code class="docutils literal notranslate"><span class="pre">finalize</span></code> which chooses top primitives by architecture weight and returns  it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MixedOp</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="c1"># return finalized op description and its weight</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="c1"># select except &#39;none&#39; op</span>
+            <span class="n">val</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">desc</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">desc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://github.com/microsoft/archai/blob/master/archai/algos/darts/mixed_op.py">View full code</a></p>
+</div>
+<div class="section" id="implementing-the-modeldescbuilder">
+<h3>Implementing the ModelDescBuilder<a class="headerlink" href="#implementing-the-modeldescbuilder" title="Permalink to this headline">¶</a></h3>
+<p>The job of <code class="docutils literal notranslate"><span class="pre">ModelDescBuilder</span></code> is to build the super network that searcher can use. The <code class="docutils literal notranslate"><span class="pre">ModelDescBuilder</span></code> builds the model description in parts: first model stems, then each cell and finally pooling and logits layers. Within each cell we first build cell stems, then nodes and their edges and finally a layer we will call “post op” that produces the output. Each of these steps are implemented in their own methods so you can override any portion of model building and customize according to your needs.</p>
+<p>For DARTS, we just need to build nodes with <code class="docutils literal notranslate"><span class="pre">MixedOp</span></code> as edges. For this we override the <code class="docutils literal notranslate"><span class="pre">build_nodes</span></code> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DartsModelDescBuilder</span><span class="p">(</span><span class="n">ModelDescBuilder</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">build_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stem_shapes</span><span class="p">:</span><span class="n">TensorShapes</span><span class="p">,</span>
+                    <span class="n">conf_cell</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span>
+                    <span class="n">cell_index</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">cell_type</span><span class="p">:</span><span class="n">CellType</span><span class="p">,</span>
+                    <span class="n">node_count</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                    <span class="n">in_shape</span><span class="p">:</span><span class="n">TensorShape</span><span class="p">,</span> <span class="n">out_shape</span><span class="p">:</span><span class="n">TensorShape</span><span class="p">)</span> \
+                        <span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TensorShapes</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeDesc</span><span class="p">]]:</span>
+
+        <span class="c1"># is this cell reduction</span>
+        <span class="n">reduction</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell_type</span><span class="o">==</span><span class="n">CellType</span><span class="o">.</span><span class="n">Reduction</span><span class="p">)</span>
+
+        <span class="c1"># create nodes list</span>
+        <span class="n">nodes</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">NodeDesc</span><span class="p">]</span> <span class="o">=</span>  <span class="p">[]</span>
+
+        <span class="c1"># input and output channels for each node</span>
+        <span class="n">conv_params</span> <span class="o">=</span> <span class="n">ConvMacroParams</span><span class="p">(</span><span class="n">in_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">out_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c1"># for each noce we will create NodeDesc object</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">node_count</span><span class="p">):</span>
+            <span class="c1"># for each node we have incoming edges</span>
+            <span class="n">edges</span><span class="o">=</span><span class="p">[]</span>
+            <span class="c1"># each node connects back to all previous nodes and s0 and s1 states</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">):</span>
+                <span class="c1"># create MixedOp for each edge</span>
+                <span class="n">op_desc</span> <span class="o">=</span> <span class="n">OpDesc</span><span class="p">(</span><span class="s1">&#39;mixed_op&#39;</span><span class="p">,</span>
+                                    <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                                        <span class="c1"># in/out channels for the edhe</span>
+                                        <span class="s1">&#39;conv&#39;</span><span class="p">:</span> <span class="n">conv_params</span><span class="p">,</span>
+                                        <span class="c1"># if reduction cell than use stride=2</span>
+                                        <span class="c1"># for the stems</span>
+                                        <span class="s1">&#39;stride&#39;</span><span class="p">:</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">reduction</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mi">1</span>
+                                    <span class="p">},</span>
+                                    <span class="c1"># MixedOp only takes one input</span>
+                                    <span class="n">in_len</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># Edge description specifies op and where its input(s) comes from</span>
+                <span class="n">edge</span> <span class="o">=</span> <span class="n">EdgeDesc</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">input_ids</span><span class="o">=</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+            <span class="c1"># add the node in our collection</span>
+            <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">NodeDesc</span><span class="p">(</span><span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">conv_params</span><span class="o">=</span><span class="n">conv_params</span><span class="p">))</span>
+
+        <span class="c1"># we need to return output shapes for each node which is same as input</span>
+        <span class="n">out_shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">out_shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span>  <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">node_count</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">out_shapes</span><span class="p">,</span> <span class="n">nodes</span>
+</pre></div>
+</div>
+<p>Notice that the parameters of this method tell us the expected input and output shape for each node, the cell type indicating whether it’s a regular or reduction cell and so on. The core of the method simply creates the <code class="docutils literal notranslate"><span class="pre">NodeDesc</span></code> instances to represent each node.</p>
+<p><a class="reference external" href="https://github.com/microsoft/archai/blob/master/archai/algos/darts/darts_model_desc_builder.py">View full code</a></p>
+</div>
+<div class="section" id="implementing-the-trainer">
+<h3>Implementing the Trainer<a class="headerlink" href="#implementing-the-trainer" title="Permalink to this headline">¶</a></h3>
+<p>To perform a search, DARTS uses bi-level optimization algorithm. To implement this, we need to separate regular weights from architecture weights. We then train the architecture weights using the bi-level optimizer. This can be done easily by taking advantage of <em>hooks</em> that the trainer provides. These include <code class="docutils literal notranslate"><span class="pre">pre_fit</span></code> and <code class="docutils literal notranslate"><span class="pre">post_fit</span></code> hooks that get executed before and after the code for the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method. So, in <code class="docutils literal notranslate"><span class="pre">pre_fit</span></code> we can initialize our <code class="docutils literal notranslate"><span class="pre">BilevelOptimizer</span></code> class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BilevelArchTrainer</span><span class="p">(</span><span class="n">ArchTrainer</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">pre_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_dl</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">])</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pre_fit</span><span class="p">(</span><span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">)</span>
+
+        <span class="c1"># get config params for bi-level optimizer</span>
+        <span class="n">w_momentum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf_w_optim</span><span class="p">[</span><span class="s1">&#39;momentum&#39;</span><span class="p">]</span>
+        <span class="n">w_decay</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf_w_optim</span><span class="p">[</span><span class="s1">&#39;decay&#39;</span><span class="p">]</span>
+        <span class="n">lossfn</span> <span class="o">=</span> <span class="n">ml_utils</span><span class="o">.</span><span class="n">get_lossfn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_conf_w_lossfn</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">())</span>
+
+        <span class="c1"># create bi-level optimizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bilevel_optim</span> <span class="o">=</span> <span class="n">BilevelOptimizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_conf_alpha_optim</span><span class="p">,</span>
+                                                <span class="n">w_momentum</span><span class="p">,</span>
+                                                <span class="n">w_decay</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">lossfn</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then we use <code class="docutils literal notranslate"><span class="pre">pre_step</span></code> hook to run a step on <code class="docutils literal notranslate"><span class="pre">BilevelOptimizer</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BilevelArchTrainer</span><span class="p">(</span><span class="n">ArchTrainer</span><span class="p">):</span>
+   <span class="o">...</span>
+   <span class="k">def</span> <span class="nf">pre_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+       <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pre_step</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+       <span class="c1"># get the validation dataset for bi-level optimizer</span>
+       <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_valid_iter</span><span class="p">)</span>
+
+       <span class="c1"># get regular optimizer</span>
+       <span class="n">optimizer</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_optimizer</span><span class="p">()</span>
+
+       <span class="c1"># update alphas</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_bilevel_optim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://github.com/microsoft/archai/blob/master/archai/algos/darts/bilevel_arch_trainer.py">View full code</a></p>
+</div>
+<div class="section" id="putting-it-all-togather">
+<h3>Putting It All Togather<a class="headerlink" href="#putting-it-all-togather" title="Permalink to this headline">¶</a></h3>
+<p>Now that we have our own <code class="docutils literal notranslate"><span class="pre">Trainer</span></code> and <code class="docutils literal notranslate"><span class="pre">ModelDescBuilder</span></code> for DARTS, we need to tell Archai about them. This is done through a class derived from <code class="docutils literal notranslate"><span class="pre">ExperimentRunner</span></code>. We override <code class="docutils literal notranslate"><span class="pre">model_desc_builder()</span></code> and <code class="docutils literal notranslate"><span class="pre">trainer_class()</span></code> to specify our custom classes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DartsExperimentRunner</span><span class="p">(</span><span class="n">ExperimentRunner</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">model_desc_builder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">DartsModelDescBuilder</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DartsModelDescBuilder</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">trainer_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">TArchTrainer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BilevelArchTrainer</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://github.com/microsoft/archai/blob/master/archai/algos/darts/darts_exp_runner.py">View full code</a></p>
+<p>Finally, add our algorithm name and <code class="docutils literal notranslate"><span class="pre">DartsExperimentRunner</span></code> in <code class="docutils literal notranslate"><span class="pre">main.py</span></code> so it gets used when <code class="docutils literal notranslate"><span class="pre">darts</span></code> is specified in <code class="docutils literal notranslate"><span class="pre">--algos</span></code> switch.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="o">...</span>
+    <span class="n">runner_types</span><span class="p">:</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">ExperimentRunner</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;darts&#39;</span><span class="p">:</span> <span class="n">DartsExperimentRunner</span><span class="p">,</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://github.com/microsoft/archai/blob/master/scripts/main.py">View full code</a></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="petridish.html" class="btn btn-neutral float-right" title="Petridish - Code Walkthrough" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="features.html" class="btn btn-neutral float-left" title="Archai Features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.algos.divnas.divnas_rank_finalizer &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.algos.divnas.divnas_rank_finalizer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.algos.divnas.divnas_rank_finalizer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">get_conf</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">get_expdir</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">archai.datasets.data</span> <span class="kn">import</span> <span class="n">get_data</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">archai.nas.cell</span> <span class="kn">import</span> <span class="n">Cell</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">CellDesc</span><span class="p">,</span> <span class="n">ModelDesc</span><span class="p">,</span> <span class="n">NodeDesc</span><span class="p">,</span> <span class="n">EdgeDesc</span>
+<span class="kn">from</span> <span class="nn">archai.nas.finalizers</span> <span class="kn">import</span> <span class="n">Finalizers</span>
+<span class="kn">from</span> <span class="nn">archai.algos.divnas.analyse_activations</span> <span class="kn">import</span> <span class="n">compute_brute_force_sol</span>
+<span class="kn">from</span> <span class="nn">archai.algos.divnas.divop</span> <span class="kn">import</span> <span class="n">DivOp</span>
+<span class="kn">from</span> <span class="nn">archai.nas.operations</span> <span class="kn">import</span> <span class="n">Zero</span>
+
+<span class="kn">from</span> <span class="nn">.divnas_cell</span> <span class="kn">import</span> <span class="n">Divnas_Cell</span>
+
+
+<div class="viewcode-block" id="DivnasRankFinalizers"><a class="viewcode-back" href="../../../../api/archai.algos.divnas.html#archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers">[docs]</a><span class="k">class</span> <span class="nc">DivnasRankFinalizers</span><span class="p">(</span><span class="n">Finalizers</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DivnasRankFinalizers.finalize_model"><a class="viewcode-back" href="../../../../api/archai.algos.divnas.html#archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_model">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">finalize_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">to_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">restore_device</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelDesc</span><span class="p">:</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">pushd</span><span class="p">(</span><span class="s1">&#39;finalize&#39;</span><span class="p">)</span>
+
+        <span class="c1"># get config and train data loader</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">get_conf</span><span class="p">()</span>
+        <span class="n">conf_loader</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s1">&#39;nas&#39;</span><span class="p">][</span><span class="s1">&#39;search&#39;</span><span class="p">][</span><span class="s1">&#39;loader&#39;</span><span class="p">]</span>
+        <span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">,</span> <span class="n">test_dl</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">conf_loader</span><span class="p">)</span>
+
+        <span class="c1"># wrap all cells in the model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_divnas_cells</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Cell</span><span class="p">,</span> <span class="n">Divnas_Cell</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">cell</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">cells</span><span class="p">):</span>
+            <span class="n">divnas_cell</span> <span class="o">=</span> <span class="n">Divnas_Cell</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_divnas_cells</span><span class="p">[</span><span class="n">cell</span><span class="p">]</span> <span class="o">=</span> <span class="n">divnas_cell</span>
+
+        <span class="c1"># go through all edges in the DAG and if they are of divop</span>
+        <span class="c1"># type then set them to collect activations</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s1">&#39;nas&#39;</span><span class="p">][</span><span class="s1">&#39;search&#39;</span><span class="p">][</span><span class="s1">&#39;divnas&#39;</span><span class="p">][</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">dcell</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_divnas_cells</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="n">dcell</span><span class="o">.</span><span class="n">collect_activations</span><span class="p">(</span><span class="n">DivOp</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+
+        <span class="c1"># now we need to run one evaluation epoch to collect activations</span>
+        <span class="c1"># we do it on cpu otherwise we might run into memory issues</span>
+        <span class="c1"># later we can redo the whole logic in pytorch itself</span>
+        <span class="c1"># at the end of this each node in a cell will have the covariance</span>
+        <span class="c1"># matrix of all incoming edges&#39; ops</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dl</span><span class="p">):</span>
+                    <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="kc">None</span>
+                    <span class="c1"># update the node covariances in all cells</span>
+                    <span class="k">for</span> <span class="n">dcell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_divnas_cells</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                        <span class="n">dcell</span><span class="o">.</span><span class="n">update_covs</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">popd</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">finalize_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">to_cpu</span><span class="p">,</span> <span class="n">restore_device</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DivnasRankFinalizers.finalize_cell"><a class="viewcode-back" href="../../../../api/archai.algos.divnas.html#archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_cell">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">finalize_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">:</span><span class="n">Cell</span><span class="p">,</span> <span class="n">cell_index</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                      <span class="n">model_desc</span><span class="p">:</span><span class="n">ModelDesc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">CellDesc</span><span class="p">:</span>
+        <span class="c1"># first finalize each node, we will need to recreate node desc with final version</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cell id </span><span class="si">{</span><span class="n">cell</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">max_final_edges</span> <span class="o">=</span> <span class="n">model_desc</span><span class="o">.</span><span class="n">max_final_edges</span>
+
+        <span class="n">node_descs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeDesc</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dcell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_divnas_cells</span><span class="p">[</span><span class="n">cell</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">dag</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dcell</span><span class="o">.</span><span class="n">node_covs</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">dag</span><span class="p">):</span>
+            <span class="n">node_cov</span> <span class="o">=</span> <span class="n">dcell</span><span class="o">.</span><span class="n">node_covs</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">node</span><span class="p">)]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;node </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">node_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalize_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">nodes</span><span class="p">()[</span><span class="n">i</span><span class="p">],</span><span class="n">max_final_edges</span><span class="p">,</span> <span class="n">node_cov</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="n">node_descs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_desc</span><span class="p">)</span>
+
+        <span class="c1"># (optional) clear out all activation collection information</span>
+        <span class="n">dcell</span><span class="o">.</span><span class="n">clear_collect_activations</span><span class="p">()</span>
+
+        <span class="n">desc</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">desc</span>
+        <span class="n">finalized</span> <span class="o">=</span> <span class="n">CellDesc</span><span class="p">(</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">cell_type</span><span class="o">=</span><span class="n">desc</span><span class="o">.</span><span class="n">cell_type</span><span class="p">,</span> <span class="n">conf_cell</span><span class="o">=</span><span class="n">desc</span><span class="o">.</span><span class="n">conf_cell</span><span class="p">,</span>
+            <span class="n">stems</span><span class="o">=</span><span class="p">[</span><span class="n">cell</span><span class="o">.</span><span class="n">s0_op</span><span class="o">.</span><span class="n">finalize</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cell</span><span class="o">.</span><span class="n">s1_op</span><span class="o">.</span><span class="n">finalize</span><span class="p">()[</span><span class="mi">0</span><span class="p">]],</span>
+            <span class="n">stem_shapes</span><span class="o">=</span><span class="n">desc</span><span class="o">.</span><span class="n">stem_shapes</span><span class="p">,</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="n">node_descs</span><span class="p">,</span> <span class="n">node_shapes</span><span class="o">=</span><span class="n">desc</span><span class="o">.</span><span class="n">node_shapes</span><span class="p">,</span>
+            <span class="n">post_op</span><span class="o">=</span><span class="n">cell</span><span class="o">.</span><span class="n">post_op</span><span class="o">.</span><span class="n">finalize</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">out_shape</span><span class="o">=</span><span class="n">desc</span><span class="o">.</span><span class="n">out_shape</span><span class="p">,</span>
+            <span class="n">trainables_from</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">trainables_from</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">finalized</span></div>
+
+<div class="viewcode-block" id="DivnasRankFinalizers.finalize_node"><a class="viewcode-back" href="../../../../api/archai.algos.divnas.html#archai.algos.divnas.divnas_rank_finalizer.DivnasRankFinalizers.finalize_node">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">finalize_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">,</span> <span class="n">node_index</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                      <span class="n">node_desc</span><span class="p">:</span><span class="n">NodeDesc</span><span class="p">,</span> <span class="n">max_final_edges</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                      <span class="n">cov</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">cell</span><span class="p">:</span> <span class="n">Cell</span><span class="p">,</span> <span class="n">node_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                      <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">NodeDesc</span><span class="p">:</span>
+        <span class="c1"># node is a list of edges</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_final_edges</span>
+
+        <span class="c1"># covariance matrix shape must be square 2-D</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="k">assert</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># the number of primitive operators has to be greater</span>
+        <span class="c1"># than equal to the maximum number of final edges</span>
+        <span class="c1"># allowed</span>
+        <span class="k">assert</span> <span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">max_final_edges</span>
+
+        <span class="c1"># get the order and alpha of all ops other than &#39;none&#39;</span>
+        <span class="n">in_ops</span> <span class="o">=</span> <span class="p">[(</span><span class="n">edge</span><span class="p">,</span><span class="n">op</span><span class="p">,</span><span class="n">alpha</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> \
+                            <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">_op</span><span class="o">.</span><span class="n">ops</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">Zero</span><span class="p">)]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_ops</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_final_edges</span>
+
+        <span class="c1"># order all the ops by alpha</span>
+        <span class="n">in_ops_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">in_ops</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">in_op</span><span class="p">:</span><span class="n">in_op</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># keep under consideration top half of the ops</span>
+        <span class="n">num_to_keep</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_final_edges</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_ops_sorted</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">top_ops</span> <span class="o">=</span> <span class="n">in_ops_sorted</span><span class="p">[:</span><span class="n">num_to_keep</span><span class="p">]</span>
+
+        <span class="c1"># get the covariance submatrix of the top ops only</span>
+        <span class="n">cov_inds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">edge</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">edge_num</span> <span class="ow">in</span> <span class="n">top_ops</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_divnas_cells</span><span class="p">[</span><span class="n">cell</span><span class="p">]</span><span class="o">.</span><span class="n">node_num_to_node_op_to_cov_ind</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="n">op</span><span class="p">]</span>
+            <span class="n">cov_inds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+
+        <span class="n">cov_top_ops</span> <span class="o">=</span> <span class="n">cov</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">cov_inds</span><span class="p">,</span> <span class="n">cov_inds</span><span class="p">)]</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cov_inds</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_ops</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">top_ops</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">max_final_edges</span>
+        <span class="k">assert</span> <span class="n">cov_top_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">cov_top_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cov_top_ops</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
+        <span class="c1"># run brute force set selection algorithm</span>
+        <span class="c1"># only on the top ops</span>
+        <span class="n">max_subset</span><span class="p">,</span> <span class="n">max_mi</span> <span class="o">=</span> <span class="n">compute_brute_force_sol</span><span class="p">(</span><span class="n">cov_top_ops</span><span class="p">,</span> <span class="n">max_final_edges</span><span class="p">)</span>
+
+        <span class="c1"># note that elements of max_subset are indices into top_ops only</span>
+        <span class="n">selected_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">max_subset</span><span class="p">:</span>
+            <span class="n">edge</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">edge_num</span> <span class="o">=</span> <span class="n">top_ops</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+            <span class="n">op_desc</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+            <span class="n">new_edge</span> <span class="o">=</span> <span class="n">EdgeDesc</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">input_ids</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;selected edge: </span><span class="si">{</span><span class="n">edge_num</span><span class="si">}</span><span class="s1">, op: </span><span class="si">{</span><span class="n">op_desc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">selected_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_edge</span><span class="p">)</span>
+
+        <span class="c1"># save diagnostic information to disk</span>
+        <span class="n">expdir</span> <span class="o">=</span> <span class="n">get_expdir</span><span class="p">()</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">cov_top_ops</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;.1g&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">)</span>
+        <span class="n">savename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">expdir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;cell_</span><span class="si">{</span><span class="n">cell</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">_node_</span><span class="si">{</span><span class="n">node_id</span><span class="si">}</span><span class="s1">_cov.png&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">savename</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">NodeDesc</span><span class="p">(</span><span class="n">selected_edges</span><span class="p">,</span> <span class="n">node_desc</span><span class="o">.</span><span class="n">conv_params</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

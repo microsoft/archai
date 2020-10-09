@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ray.remote_function &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>ray.remote_function</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ray.remote_function</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">cloudpickle</span> <span class="k">as</span> <span class="n">pickle</span>
+<span class="kn">from</span> <span class="nn">ray._raylet</span> <span class="kn">import</span> <span class="n">PythonFunctionDescriptor</span>
+<span class="kn">from</span> <span class="nn">ray</span> <span class="kn">import</span> <span class="n">cross_language</span><span class="p">,</span> <span class="n">Language</span>
+<span class="kn">import</span> <span class="nn">ray.signature</span>
+
+<span class="c1"># Default parameters for remote functions.</span>
+<span class="n">DEFAULT_REMOTE_FUNCTION_CPUS</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">DEFAULT_REMOTE_FUNCTION_NUM_RETURN_VALS</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">DEFAULT_REMOTE_FUNCTION_MAX_CALLS</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># Normal tasks may be retried on failure this many times.</span>
+<span class="c1"># TODO(swang): Allow this to be set globally for an application.</span>
+<span class="n">DEFAULT_REMOTE_FUNCTION_NUM_TASK_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">RemoteFunction</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A remote function.</span>
+
+<span class="sd">    This is a decorated function. It can be used to spawn tasks.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _language: The target language.</span>
+<span class="sd">        _function: The original function.</span>
+<span class="sd">        _function_descriptor: The function descriptor. This is not defined</span>
+<span class="sd">            until the remote function is first invoked because that is when the</span>
+<span class="sd">            function is pickled, and the pickled function is used to compute</span>
+<span class="sd">            the function descriptor.</span>
+<span class="sd">        _function_name: The module and function name.</span>
+<span class="sd">        _num_cpus: The default number of CPUs to use for invocations of this</span>
+<span class="sd">            remote function.</span>
+<span class="sd">        _num_gpus: The default number of GPUs to use for invocations of this</span>
+<span class="sd">            remote function.</span>
+<span class="sd">        _memory: The heap memory request for this task.</span>
+<span class="sd">        _object_store_memory: The object store memory request for this task.</span>
+<span class="sd">        _resources: The default custom resource requirements for invocations of</span>
+<span class="sd">            this remote function.</span>
+<span class="sd">        _num_return_vals: The default number of return values for invocations</span>
+<span class="sd">            of this remote function.</span>
+<span class="sd">        _max_calls: The number of times a worker can execute this function</span>
+<span class="sd">            before exiting.</span>
+<span class="sd">        _decorator: An optional decorator that should be applied to the remote</span>
+<span class="sd">            function invocation (as opposed to the function execution) before</span>
+<span class="sd">            invoking the function. The decorator must return a function that</span>
+<span class="sd">            takes in two arguments (&quot;args&quot; and &quot;kwargs&quot;). In most cases, it</span>
+<span class="sd">            should call the function that was passed into the decorator and</span>
+<span class="sd">            return the resulting ObjectRefs. For an example, see</span>
+<span class="sd">            &quot;test_decorated_function&quot; in &quot;python/ray/tests/test_basic.py&quot;.</span>
+<span class="sd">        _function_signature: The function signature.</span>
+<span class="sd">        _last_export_session_and_job: A pair of the last exported session</span>
+<span class="sd">            and job to help us to know whether this function was exported.</span>
+<span class="sd">            This is an imperfect mechanism used to determine if we need to</span>
+<span class="sd">            export the remote function again. It is imperfect in the sense that</span>
+<span class="sd">            the actor class definition could be exported multiple times by</span>
+<span class="sd">            different workers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">function_descriptor</span><span class="p">,</span> <span class="n">num_cpus</span><span class="p">,</span>
+                 <span class="n">num_gpus</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">object_store_memory</span><span class="p">,</span> <span class="n">resources</span><span class="p">,</span>
+                 <span class="n">num_return_vals</span><span class="p">,</span> <span class="n">max_calls</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_language</span> <span class="o">=</span> <span class="n">language</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function_descriptor</span> <span class="o">=</span> <span class="n">function_descriptor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_cross_language</span> <span class="o">=</span> <span class="n">language</span> <span class="o">!=</span> <span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_cpus</span> <span class="o">=</span> <span class="p">(</span><span class="n">DEFAULT_REMOTE_FUNCTION_CPUS</span>
+                          <span class="k">if</span> <span class="n">num_cpus</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">num_cpus</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_gpus</span> <span class="o">=</span> <span class="n">num_gpus</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span> <span class="o">=</span> <span class="n">memory</span>
+        <span class="k">if</span> <span class="n">object_store_memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;setting object_store_memory is not implemented for tasks&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_object_store_memory</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span> <span class="o">=</span> <span class="n">resources</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_return_vals</span> <span class="o">=</span> <span class="p">(</span><span class="n">DEFAULT_REMOTE_FUNCTION_NUM_RETURN_VALS</span> <span class="k">if</span>
+                                 <span class="n">num_return_vals</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">num_return_vals</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_calls</span> <span class="o">=</span> <span class="p">(</span><span class="n">DEFAULT_REMOTE_FUNCTION_MAX_CALLS</span>
+                           <span class="k">if</span> <span class="n">max_calls</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">max_calls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_retries</span> <span class="o">=</span> <span class="p">(</span><span class="n">DEFAULT_REMOTE_FUNCTION_NUM_TASK_RETRIES</span>
+                             <span class="k">if</span> <span class="n">max_retries</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">max_retries</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="s2">&quot;__ray_invocation_decorator__&quot;</span><span class="p">,</span>
+                                  <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function_signature</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">signature</span><span class="o">.</span><span class="n">extract_signature</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_export_session_and_job</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Override task.remote&#39;s signature and docstring</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">_remote_proxy</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remote</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">remote</span> <span class="o">=</span> <span class="n">_remote_proxy</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Remote functions cannot be called directly. Instead &quot;</span>
+                        <span class="s2">&quot;of running &#39;</span><span class="si">{}</span><span class="s2">()&#39;, try &#39;</span><span class="si">{}</span><span class="s2">.remote()&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_function_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_submit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">num_return_vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">num_cpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">num_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">resources</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;WARNING: _submit() is being deprecated. Please use _remote().&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remote</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">num_return_vals</span><span class="o">=</span><span class="n">num_return_vals</span><span class="p">,</span>
+            <span class="n">num_cpus</span><span class="o">=</span><span class="n">num_cpus</span><span class="p">,</span>
+            <span class="n">num_gpus</span><span class="o">=</span><span class="n">num_gpus</span><span class="p">,</span>
+            <span class="n">resources</span><span class="o">=</span><span class="n">resources</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convenience method for executing a task with options.</span>
+
+<span class="sd">        Same arguments as func._remote(), but returns a wrapped function</span>
+<span class="sd">        that a non-underscore .remote() can be called on.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            # The following two calls are equivalent.</span>
+<span class="sd">            &gt;&gt;&gt; func._remote(num_cpus=4, args=[x, y])</span>
+<span class="sd">            &gt;&gt;&gt; func.options(num_cpus=4).remote(x, y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">func_cls</span> <span class="o">=</span> <span class="bp">self</span>
+
+        <span class="k">class</span> <span class="nc">FuncWrapper</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">func_cls</span><span class="o">.</span><span class="n">_remote</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FuncWrapper</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">num_return_vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">is_direct_call</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">num_cpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">num_gpus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">object_store_memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">resources</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">max_retries</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Submit the remote function for execution.&quot;&quot;&quot;</span>
+        <span class="n">worker</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">global_worker</span>
+        <span class="n">worker</span><span class="o">.</span><span class="n">check_connected</span><span class="p">()</span>
+
+        <span class="c1"># If this function was not exported in this session and job, we need to</span>
+        <span class="c1"># export this function again, because the current GCS doesn&#39;t have it.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_cross_language</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_export_session_and_job</span> <span class="o">!=</span> \
+                <span class="n">worker</span><span class="o">.</span><span class="n">current_session_and_job</span><span class="p">:</span>
+            <span class="c1"># There is an interesting question here. If the remote function is</span>
+            <span class="c1"># used by a subsequent driver (in the same script), should the</span>
+            <span class="c1"># second driver pickle the function again? If yes, then the remote</span>
+            <span class="c1"># function definition can differ in the second driver (e.g., if</span>
+            <span class="c1"># variables in its closure have changed). We probably want the</span>
+            <span class="c1"># behavior of the remote function in the second driver to be</span>
+            <span class="c1"># independent of whether or not the function was invoked by the</span>
+            <span class="c1"># first driver. This is an argument for repickling the function,</span>
+            <span class="c1"># which we do here.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pickled_function</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_function_descriptor</span> <span class="o">=</span> <span class="n">PythonFunctionDescriptor</span><span class="o">.</span><span class="n">from_function</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pickled_function</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_export_session_and_job</span> <span class="o">=</span> <span class="n">worker</span><span class="o">.</span><span class="n">current_session_and_job</span>
+            <span class="n">worker</span><span class="o">.</span><span class="n">function_actor_manager</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">kwargs</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">args</span>
+
+        <span class="k">if</span> <span class="n">num_return_vals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_return_vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_return_vals</span>
+        <span class="k">if</span> <span class="n">is_direct_call</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_direct_call</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Non-direct call tasks are no longer supported.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_retries</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">max_retries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_retries</span>
+
+        <span class="n">resources</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">resources_from_resource_arguments</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_num_cpus</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_gpus</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_object_store_memory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span><span class="p">,</span> <span class="n">num_cpus</span><span class="p">,</span> <span class="n">num_gpus</span><span class="p">,</span>
+            <span class="n">memory</span><span class="p">,</span> <span class="n">object_store_memory</span><span class="p">,</span> <span class="n">resources</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">invocation</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_cross_language</span><span class="p">:</span>
+                <span class="n">list_args</span> <span class="o">=</span> <span class="n">cross_language</span><span class="o">.</span><span class="n">format_args</span><span class="p">(</span><span class="n">worker</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">args</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_signature</span><span class="p">:</span>
+                <span class="n">list_args</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">list_args</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">signature</span><span class="o">.</span><span class="n">flatten_args</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_function_signature</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">worker</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">ray</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">LOCAL_MODE</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_cross_language</span><span class="p">,</span> \
+                    <span class="s2">&quot;Cross language remote function &quot;</span> \
+                    <span class="s2">&quot;cannot be executed locally.&quot;</span>
+            <span class="n">object_refs</span> <span class="o">=</span> <span class="n">worker</span><span class="o">.</span><span class="n">core_worker</span><span class="o">.</span><span class="n">submit_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_language</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function_descriptor</span><span class="p">,</span> <span class="n">list_args</span><span class="p">,</span>
+                <span class="n">num_return_vals</span><span class="p">,</span> <span class="n">resources</span><span class="p">,</span> <span class="n">max_retries</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">object_refs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">object_refs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">object_refs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">object_refs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">invocation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decorator</span><span class="p">(</span><span class="n">invocation</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">invocation</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

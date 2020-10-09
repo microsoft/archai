@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.common.common &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.common.common</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.common.common</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.tensorboard</span> <span class="kn">import</span> <span class="n">SummaryWriter</span>
+<span class="kn">import</span> <span class="nn">torch.backends.cudnn</span> <span class="k">as</span> <span class="nn">cudnn</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
+
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">.ordereddict_logger</span> <span class="kn">import</span> <span class="n">OrderedDictLogger</span>
+<span class="kn">from</span> <span class="nn">.apex_utils</span> <span class="kn">import</span> <span class="n">ApexUtils</span>
+<span class="kn">from</span> <span class="nn">send2trash</span> <span class="kn">import</span> <span class="n">send2trash</span>
+
+<div class="viewcode-block" id="SummaryWriterDummy"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.SummaryWriterDummy">[docs]</a><span class="k">class</span> <span class="nc">SummaryWriterDummy</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="SummaryWriterDummy.add_scalar"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.SummaryWriterDummy.add_scalar">[docs]</a>    <span class="k">def</span> <span class="nf">add_scalar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+<div class="viewcode-block" id="SummaryWriterDummy.flush"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.SummaryWriterDummy.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+
+<span class="n">SummaryWriterAny</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">SummaryWriterDummy</span><span class="p">,</span> <span class="n">SummaryWriter</span><span class="p">]</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">OrderedDictLogger</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">yaml_log</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">_tb_writer</span><span class="p">:</span> <span class="n">SummaryWriterAny</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_atexit_reg</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># is hook for atexit registered?</span>
+
+
+<div class="viewcode-block" id="get_conf"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_conf">[docs]</a><span class="k">def</span> <span class="nf">get_conf</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Config</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">conf</span>
+    <span class="k">return</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_inst</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="get_conf_common"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_conf_common">[docs]</a><span class="k">def</span> <span class="nf">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Config</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">get_conf</span><span class="p">(</span><span class="n">conf</span><span class="p">)[</span><span class="s1">&#39;common&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="get_conf_dataset"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_conf_dataset">[docs]</a><span class="k">def</span> <span class="nf">get_conf_dataset</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Config</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">get_conf</span><span class="p">(</span><span class="n">conf</span><span class="p">)[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="get_experiment_name"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_experiment_name">[docs]</a><span class="k">def</span> <span class="nf">get_experiment_name</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">)[</span><span class="s1">&#39;experiment_name&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="get_expdir"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_expdir">[docs]</a><span class="k">def</span> <span class="nf">get_expdir</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">)[</span><span class="s1">&#39;expdir&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="get_datadir"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_datadir">[docs]</a><span class="k">def</span> <span class="nf">get_datadir</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">get_conf</span><span class="p">(</span><span class="n">conf</span><span class="p">)[</span><span class="s1">&#39;dataset&#39;</span><span class="p">][</span><span class="s1">&#39;dataroot&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="get_logger"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_logger">[docs]</a><span class="k">def</span> <span class="nf">get_logger</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">OrderedDictLogger</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">logger</span>
+    <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;get_logger call made before logger was setup!&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logger</span></div>
+
+<div class="viewcode-block" id="get_tb_writer"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_tb_writer">[docs]</a><span class="k">def</span> <span class="nf">get_tb_writer</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">SummaryWriterAny</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">_tb_writer</span>
+    <span class="k">return</span> <span class="n">_tb_writer</span></div>
+
+<div class="viewcode-block" id="CommonState"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.CommonState">[docs]</a><span class="k">class</span> <span class="nc">CommonState</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">global</span> <span class="n">logger</span><span class="p">,</span> <span class="n">_tb_writer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tb_writer</span> <span class="o">=</span> <span class="n">_tb_writer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span> <span class="o">=</span> <span class="n">get_conf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="on_app_exit"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.on_app_exit">[docs]</a><span class="k">def</span> <span class="nf">on_app_exit</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Process exit:&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">(),</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">get_tb_writer</span><span class="p">()</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">OrderedDictLogger</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<span class="k">def</span> <span class="nf">_pt_dirs</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="c1"># dirs for pt infrastructure are supplied in env vars</span>
+
+    <span class="n">pt_data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PT_DATA_DIR&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="c1"># currently yaml should be copying dataset folder to local dir</span>
+    <span class="c1"># so below is not needed. The hope is that less reads from cloud</span>
+    <span class="c1"># storage will reduce overall latency.</span>
+
+    <span class="c1"># if pt_data_dir:</span>
+    <span class="c1">#     param_args = [&#39;--nas.eval.loader.dataset.dataroot&#39;, pt_data_dir,</span>
+    <span class="c1">#                   &#39;--nas.search.loader.dataset.dataroot&#39;, pt_data_dir,</span>
+    <span class="c1">#                   &#39;--nas.search.seed_train.loader.dataset.dataroot&#39;, pt_data_dir,</span>
+    <span class="c1">#                   &#39;--nas.search.post_train.loader.dataset.dataroot&#39;, pt_data_dir,</span>
+    <span class="c1">#                   &#39;--autoaug.loader.dataset.dataroot&#39;, pt_data_dir] + param_args</span>
+
+    <span class="n">pt_output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PT_OUTPUT_DIR&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pt_data_dir</span><span class="p">,</span> <span class="n">pt_output_dir</span>
+
+<span class="k">def</span> <span class="nf">_pt_params</span><span class="p">(</span><span class="n">param_args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">list</span><span class="p">:</span>
+    <span class="n">pt_data_dir</span><span class="p">,</span> <span class="n">pt_output_dir</span> <span class="o">=</span> <span class="n">_pt_dirs</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">pt_output_dir</span><span class="p">:</span>
+        <span class="c1"># prepend so if supplied from outside it takes back seat</span>
+        <span class="n">param_args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;--common.logdir&#39;</span><span class="p">,</span> <span class="n">pt_output_dir</span><span class="p">]</span> <span class="o">+</span> <span class="n">param_args</span>
+
+    <span class="k">return</span> <span class="n">param_args</span>
+
+<div class="viewcode-block" id="get_state"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.get_state">[docs]</a><span class="k">def</span> <span class="nf">get_state</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">CommonState</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">CommonState</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="init_from"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.init_from">[docs]</a><span class="k">def</span> <span class="nf">init_from</span><span class="p">(</span><span class="n">state</span><span class="p">:</span><span class="n">CommonState</span><span class="p">,</span> <span class="n">recreate_logger</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">logger</span><span class="p">,</span> <span class="n">_tb_writer</span>
+
+    <span class="n">Config</span><span class="o">.</span><span class="n">set_inst</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">recreate_logger</span><span class="p">:</span>
+        <span class="n">create_logger</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">logger</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;common_init_from_state&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+    <span class="n">_tb_writer</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">tb_writer</span></div>
+
+
+<div class="viewcode-block" id="create_conf"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.create_conf">[docs]</a><span class="k">def</span> <span class="nf">create_conf</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">param_args</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">use_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Config</span><span class="p">:</span>
+
+    <span class="c1"># modify passed args for pt infrastructure</span>
+    <span class="c1"># if pt infrastructure doesn&#39;t exit then param_overrides == param_args</span>
+    <span class="n">param_overrides</span> <span class="o">=</span> <span class="n">_pt_params</span><span class="p">(</span><span class="n">param_args</span><span class="p">)</span>
+
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">config_filepath</span><span class="o">=</span><span class="n">config_filepath</span><span class="p">,</span>
+                  <span class="n">param_args</span><span class="o">=</span><span class="n">param_overrides</span><span class="p">,</span>
+                  <span class="n">use_args</span><span class="o">=</span><span class="n">use_args</span><span class="p">)</span>
+    <span class="n">_update_conf</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">conf</span></div>
+
+
+<span class="c1"># TODO: rename this simply as init</span>
+<span class="c1"># initializes random number gen, debugging etc</span>
+<div class="viewcode-block" id="common_init"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.common_init">[docs]</a><span class="k">def</span> <span class="nf">common_init</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">param_args</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">use_args</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">clean_expdir</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Config</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_main_process</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;common_init should not be called from child process. Please use Common.init_from()&#39;</span><span class="p">)</span>
+
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">create_conf</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">,</span> <span class="n">param_args</span><span class="p">,</span> <span class="n">use_args</span><span class="p">)</span>
+
+    <span class="c1"># setup global instance</span>
+    <span class="n">Config</span><span class="o">.</span><span class="n">set_inst</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="c1"># setup env vars which might be used in paths</span>
+    <span class="n">update_envvars</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="c1"># create experiment dir</span>
+    <span class="n">create_dirs</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">clean_expdir</span><span class="p">)</span>
+
+    <span class="c1"># create global logger</span>
+    <span class="n">create_logger</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="n">_create_sysinfo</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="c1"># create a[ex to know distributed processing paramters</span>
+    <span class="n">conf_apex</span> <span class="o">=</span> <span class="n">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">)[</span><span class="s1">&#39;apex&#39;</span><span class="p">]</span>
+    <span class="n">apex</span> <span class="o">=</span> <span class="n">ApexUtils</span><span class="p">(</span><span class="n">conf_apex</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+
+    <span class="c1"># setup tensorboard</span>
+    <span class="k">global</span> <span class="n">_tb_writer</span>
+    <span class="n">_tb_writer</span> <span class="o">=</span> <span class="n">create_tb_writer</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">apex</span><span class="o">.</span><span class="n">is_master</span><span class="p">())</span>
+
+    <span class="c1"># create hooks to execute code when script exits</span>
+    <span class="k">global</span> <span class="n">_atexit_reg</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_atexit_reg</span><span class="p">:</span>
+        <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">on_app_exit</span><span class="p">)</span>
+        <span class="n">_atexit_reg</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">conf</span></div>
+
+<span class="k">def</span> <span class="nf">_create_sysinfo</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Config</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="n">expdir</span> <span class="o">=</span> <span class="n">get_expdir</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">expdir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_debugging</span><span class="p">():</span>
+        <span class="c1"># copy net config to experiment folder for reference</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">expdir_abspath</span><span class="p">(</span><span class="s1">&#39;config_used.yaml&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">conf</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_debugging</span><span class="p">():</span>
+            <span class="n">sysinfo_filepath</span> <span class="o">=</span> <span class="n">expdir_abspath</span><span class="p">(</span><span class="s1">&#39;sysinfo.txt&#39;</span><span class="p">)</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;./scripts/sysinfo.sh &quot;</span><span class="si">{</span><span class="n">expdir</span><span class="si">}</span><span class="s1">&quot; &gt; &quot;</span><span class="si">{</span><span class="n">sysinfo_filepath</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">],</span>
+                            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                            <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="expdir_abspath"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.expdir_abspath">[docs]</a><span class="k">def</span> <span class="nf">expdir_abspath</span><span class="p">(</span><span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns full path for given relative path within experiment directory.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;$expdir&#39;</span><span class="p">,</span><span class="n">path</span><span class="p">),</span> <span class="n">create</span><span class="o">=</span><span class="n">create</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="create_tb_writer"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.create_tb_writer">[docs]</a><span class="k">def</span> <span class="nf">create_tb_writer</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">is_master</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">-&gt;</span> <span class="n">SummaryWriterAny</span><span class="p">:</span>
+    <span class="n">conf_common</span> <span class="o">=</span> <span class="n">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="n">tb_dir</span><span class="p">,</span> <span class="n">conf_enable_tb</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;tb_dir&#39;</span><span class="p">]),</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;tb_enable&#39;</span><span class="p">]</span>
+    <span class="n">tb_enable</span> <span class="o">=</span> <span class="n">conf_enable_tb</span> <span class="ow">and</span> <span class="n">is_master</span> <span class="ow">and</span> <span class="n">tb_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">tb_dir</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;conf_enable_tb&#39;</span><span class="p">:</span> <span class="n">conf_enable_tb</span><span class="p">,</span>
+                 <span class="s1">&#39;tb_enable&#39;</span><span class="p">:</span> <span class="n">tb_enable</span><span class="p">,</span>
+                 <span class="s1">&#39;tb_dir&#39;</span><span class="p">:</span> <span class="n">tb_dir</span><span class="p">})</span>
+
+    <span class="n">WriterClass</span> <span class="o">=</span> <span class="n">SummaryWriter</span> <span class="k">if</span> <span class="n">tb_enable</span> <span class="k">else</span> <span class="n">SummaryWriterDummy</span>
+
+    <span class="k">return</span> <span class="n">WriterClass</span><span class="p">(</span><span class="n">log_dir</span><span class="o">=</span><span class="n">tb_dir</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_update_conf</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Config</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="n">conf_common</span> <span class="o">=</span> <span class="n">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">conf_dataset</span> <span class="o">=</span> <span class="n">get_conf_dataset</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">experiment_name</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;experiment_name&#39;</span><span class="p">]</span>
+
+    <span class="c1"># make sure dataroot exists</span>
+    <span class="n">dataroot</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;dataroot&#39;</span><span class="p">])</span>
+
+    <span class="c1"># make sure logdir and expdir exists</span>
+    <span class="n">logdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;logdir&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">logdir</span><span class="p">:</span>
+        <span class="n">logdir</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">logdir</span><span class="p">)</span>
+        <span class="n">expdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logdir</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+
+        <span class="c1"># directory for non-master replica logs</span>
+        <span class="n">distdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">expdir</span><span class="p">,</span> <span class="s1">&#39;dist&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">expdir</span> <span class="o">=</span> <span class="n">distdir</span> <span class="o">=</span> <span class="n">logdir</span>
+
+    <span class="c1"># update conf so everyone gets expanded full paths from here on</span>
+    <span class="c1"># set environment variable so it can be referenced in paths used in config</span>
+    <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;logdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">logdir</span>
+    <span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;dataroot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataroot</span>
+    <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;expdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">expdir</span>
+    <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;distdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">distdir</span>
+
+<div class="viewcode-block" id="update_envvars"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.update_envvars">[docs]</a><span class="k">def</span> <span class="nf">update_envvars</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="n">conf_common</span> <span class="o">=</span> <span class="n">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">logdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;logdir&#39;</span><span class="p">]</span>
+    <span class="n">expdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;expdir&#39;</span><span class="p">]</span>
+    <span class="n">distdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;distdir&#39;</span><span class="p">]</span>
+
+    <span class="n">conf_dataset</span> <span class="o">=</span> <span class="n">get_conf_dataset</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">dataroot</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;dataroot&#39;</span><span class="p">]</span>
+
+    <span class="c1"># update conf so everyone gets expanded full paths from here on</span>
+    <span class="c1"># set environment variable so it can be referenced in paths used in config</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;logdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">logdir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;dataroot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataroot</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;expdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">expdir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;distdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">distdir</span></div>
+
+<div class="viewcode-block" id="clean_ensure_expdir"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.clean_ensure_expdir">[docs]</a><span class="k">def</span> <span class="nf">clean_ensure_expdir</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">],</span> <span class="n">clean_dir</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">ensure_dir</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="n">expdir</span> <span class="o">=</span> <span class="n">get_expdir</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clean_dir</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">expdir</span><span class="p">):</span>
+        <span class="n">send2trash</span><span class="p">(</span><span class="n">expdir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ensure_dir</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">expdir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="create_dirs"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.create_dirs">[docs]</a><span class="k">def</span> <span class="nf">create_dirs</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">clean_expdir</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">conf_common</span> <span class="o">=</span> <span class="n">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">logdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;logdir&#39;</span><span class="p">]</span>
+    <span class="n">expdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;expdir&#39;</span><span class="p">]</span>
+    <span class="n">distdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;distdir&#39;</span><span class="p">]</span>
+
+    <span class="n">conf_dataset</span> <span class="o">=</span> <span class="n">get_conf_dataset</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">dataroot</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;dataroot&#39;</span><span class="p">]</span>
+
+    <span class="c1"># make sure dataroot exists</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dataroot</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># make sure logdir and expdir exists</span>
+    <span class="k">if</span> <span class="n">logdir</span><span class="p">:</span>
+        <span class="n">clean_ensure_expdir</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">clean_dir</span><span class="o">=</span><span class="n">clean_expdir</span><span class="p">,</span> <span class="n">ensure_dir</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">distdir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;The logdir setting must be specified for the output directory in yaml&#39;</span><span class="p">)</span>
+
+    <span class="c1"># get cloud dirs if any</span>
+    <span class="n">pt_data_dir</span><span class="p">,</span> <span class="n">pt_output_dir</span> <span class="o">=</span> <span class="n">_pt_dirs</span><span class="p">()</span>
+
+    <span class="c1"># validate dirs</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">pt_output_dir</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">expdir</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="s1">&#39;~/logdir&#39;</span><span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;expdir&#39;</span><span class="p">:</span> <span class="n">expdir</span><span class="p">,</span>
+                 <span class="c1"># create info file for current system</span>
+                 <span class="s1">&#39;PT_DATA_DIR&#39;</span><span class="p">:</span> <span class="n">pt_data_dir</span><span class="p">,</span> <span class="s1">&#39;PT_OUTPUT_DIR&#39;</span><span class="p">:</span> <span class="n">pt_output_dir</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="create_logger"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.common.create_logger">[docs]</a><span class="k">def</span> <span class="nf">create_logger</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Config</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">logger</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># close any previous instances</span>
+
+    <span class="n">conf_common</span> <span class="o">=</span> <span class="n">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">expdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;expdir&#39;</span><span class="p">]</span>
+    <span class="n">distdir</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;distdir&#39;</span><span class="p">]</span>
+    <span class="n">log_prefix</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;log_prefix&#39;</span><span class="p">]</span>
+    <span class="n">yaml_log</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;yaml_log&#39;</span><span class="p">]</span>
+    <span class="n">log_level</span> <span class="o">=</span> <span class="n">conf_common</span><span class="p">[</span><span class="s1">&#39;log_level&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_main_process</span><span class="p">():</span>
+        <span class="n">logdir</span><span class="p">,</span> <span class="n">log_suffix</span> <span class="o">=</span> <span class="n">expdir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logdir</span><span class="p">,</span> <span class="n">log_suffix</span> <span class="o">=</span> <span class="n">distdir</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+
+    <span class="c1"># ensure folders</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">logdir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># file where logger would log messages</span>
+    <span class="n">sys_log_filepath</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logdir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">log_prefix</span><span class="si">}{</span><span class="n">log_suffix</span><span class="si">}</span><span class="s1">.log&#39;</span><span class="p">))</span>
+    <span class="n">logs_yaml_filepath</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logdir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">log_prefix</span><span class="si">}{</span><span class="n">log_suffix</span><span class="si">}</span><span class="s1">.yaml&#39;</span><span class="p">))</span>
+    <span class="n">experiment_name</span> <span class="o">=</span> <span class="n">get_experiment_name</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span> <span class="o">+</span> <span class="n">log_suffix</span>
+    <span class="c1">#print(f&#39;experiment_name={experiment_name}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}&#39;)</span>
+
+    <span class="n">sys_logger</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">create_logger</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">sys_log_filepath</span><span class="p">,</span>
+                                     <span class="n">name</span><span class="o">=</span><span class="n">experiment_name</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+                                     <span class="n">enable_stdout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sys_log_filepath</span><span class="p">:</span>
+        <span class="n">sys_logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s1">&#39;log_prefix not specified, logs will be stdout only&#39;</span><span class="p">)</span>
+
+    <span class="c1"># reset to new file path</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">logs_yaml_filepath</span><span class="p">,</span> <span class="n">sys_logger</span><span class="p">,</span> <span class="n">yaml_log</span><span class="o">=</span><span class="n">yaml_log</span><span class="p">,</span>
+                 <span class="n">backup_existing_file</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;command_line&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_main_process</span><span class="p">()</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;Child process: </span><span class="si">{</span><span class="n">utils</span><span class="o">.</span><span class="n">process_name</span><span class="p">()</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">})</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;process_name&#39;</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">process_name</span><span class="p">(),</span> <span class="s1">&#39;is_main_process&#39;</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_main_process</span><span class="p">(),</span>
+                 <span class="s1">&#39;main_process_pid&#39;</span><span class="p">:</span><span class="n">utils</span><span class="o">.</span><span class="n">main_process_pid</span><span class="p">(),</span> <span class="s1">&#39;pid&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">(),</span> <span class="s1">&#39;ppid&#39;</span><span class="p">:</span><span class="n">os</span><span class="o">.</span><span class="n">getppid</span><span class="p">(),</span> <span class="s1">&#39;is_debugging&#39;</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_debugging</span><span class="p">()})</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;experiment_name&#39;</span><span class="p">:</span> <span class="n">experiment_name</span><span class="p">,</span> <span class="s1">&#39;datetime:&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()})</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;logs_yaml_filepath&#39;</span><span class="p">:</span> <span class="n">logs_yaml_filepath</span><span class="p">,</span> <span class="s1">&#39;sys_log_filepath&#39;</span><span class="p">:</span> <span class="n">sys_log_filepath</span><span class="p">})</span></div>
+
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

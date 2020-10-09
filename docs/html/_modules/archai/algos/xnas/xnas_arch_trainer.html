@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.algos.xnas.xnas_arch_trainer &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.algos.xnas.xnas_arch_trainer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.algos.xnas.xnas_arch_trainer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">ma</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="n">autograd</span>
+<span class="kn">from</span> <span class="nn">torch.nn.modules.loss</span> <span class="kn">import</span> <span class="n">_Loss</span>
+<span class="kn">from</span> <span class="nn">torch.optim.optimizer</span> <span class="kn">import</span> <span class="n">Optimizer</span>
+<span class="kn">from</span> <span class="nn">torch.optim.lr_scheduler</span> <span class="kn">import</span> <span class="n">_LRScheduler</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_trainer</span> <span class="kn">import</span> <span class="n">ArchTrainer</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">ml_utils</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">CellType</span>
+<span class="kn">from</span> <span class="nn">archai.common.checkpoint</span> <span class="kn">import</span> <span class="n">CheckPoint</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">archai.common.utils</span> <span class="kn">import</span> <span class="n">zip_eq</span>
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">get_conf</span>
+<span class="kn">from</span> <span class="nn">.xnas_op</span> <span class="kn">import</span> <span class="n">XnasOp</span>
+
+
+<div class="viewcode-block" id="XnasArchTrainer"><a class="viewcode-back" href="../../../../api/archai.algos.xnas.html#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer">[docs]</a><span class="k">class</span> <span class="nc">XnasArchTrainer</span><span class="p">(</span><span class="n">ArchTrainer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_train</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+                 <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckPoint</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conf_train</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conf_w_lossfn</span> <span class="o">=</span> <span class="n">conf_train</span><span class="p">[</span><span class="s1">&#39;lossfn&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="XnasArchTrainer.create_optimizer"><a class="viewcode-back" href="../../../../api/archai.algos.xnas.html#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.create_optimizer">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">create_optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_optim</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optimizer</span><span class="p">:</span>
+        <span class="c1"># return optim that only operates on w, not alphas</span>
+        <span class="k">return</span> <span class="n">ml_utils</span><span class="o">.</span><span class="n">create_optimizer</span><span class="p">(</span><span class="n">conf_optim</span><span class="p">,</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">nonarch_params</span><span class="p">(</span><span class="n">recurse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="XnasArchTrainer.pre_fit"><a class="viewcode-back" href="../../../../api/archai.algos.xnas.html#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_fit">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">pre_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_dl</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pre_fit</span><span class="p">(</span><span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">)</span>
+
+        <span class="c1"># optimizers, schedulers needs to be recreated for each fit call</span>
+        <span class="c1"># as they have state</span>
+        <span class="k">assert</span> <span class="n">val_dl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">get_conf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_batch</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s1">&#39;nas&#39;</span><span class="p">][</span><span class="s1">&#39;search&#39;</span><span class="p">][</span><span class="s1">&#39;loader&#39;</span><span class="p">][</span><span class="s1">&#39;train_batch&#39;</span><span class="p">]</span>
+        <span class="n">num_val_examples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_dl</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_batch</span>
+        <span class="n">num_cells</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s1">&#39;nas&#39;</span><span class="p">][</span><span class="s1">&#39;search&#39;</span><span class="p">][</span><span class="s1">&#39;model_desc&#39;</span><span class="p">][</span><span class="s1">&#39;n_cells&#39;</span><span class="p">]</span>
+        <span class="n">num_reduction_cells</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s1">&#39;nas&#39;</span><span class="p">][</span><span class="s1">&#39;search&#39;</span><span class="p">][</span><span class="s1">&#39;model_desc&#39;</span><span class="p">][</span><span class="s1">&#39;n_reductions&#39;</span><span class="p">]</span>
+        <span class="n">num_normal_cells</span> <span class="o">=</span> <span class="n">num_cells</span> <span class="o">-</span> <span class="n">num_reduction_cells</span>
+        <span class="n">num_primitives</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">XnasOp</span><span class="o">.</span><span class="n">PRIMITIVES</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">num_cells</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">num_reduction_cells</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">num_normal_cells</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">num_primitives</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normal_cell_effective_t</span> <span class="o">=</span> <span class="n">num_val_examples</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_epochs</span> <span class="o">*</span> <span class="n">num_normal_cells</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reduction_cell_effective_t</span> <span class="o">=</span> <span class="n">num_val_examples</span> <span class="o">*</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_epochs</span> <span class="o">*</span> <span class="n">num_reduction_cells</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normal_cell_lr</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ma</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">num_primitives</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_normal_cell_effective_t</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reduction_cell_lr</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ma</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">num_primitives</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reduction_cell_effective_t</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xnas_optim</span> <span class="o">=</span> <span class="n">_XnasOptimizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_normal_cell_lr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduction_cell_lr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normal_cell_effective_t</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">_reduction_cell_effective_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span><span class="p">,</span> 
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">_multi_optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="XnasArchTrainer.post_fit"><a class="viewcode-back" href="../../../../api/archai.algos.xnas.html#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.post_fit">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">post_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_dl</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># delete state we created in pre_fit</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xnas_optim</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">post_fit</span><span class="p">(</span><span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="XnasArchTrainer.pre_epoch"><a class="viewcode-back" href="../../../../api/archai.algos.xnas.html#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_epoch">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">pre_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_dl</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pre_epoch</span><span class="p">(</span><span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">)</span>
+
+        <span class="c1"># prep val set to train alphas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valid_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">val_dl</span><span class="p">)</span>  <span class="c1"># type: ignore</span></div>
+
+<div class="viewcode-block" id="XnasArchTrainer.post_epoch"><a class="viewcode-back" href="../../../../api/archai.algos.xnas.html#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.post_epoch">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">post_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_dl</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_iter</span>  <span class="c1"># clean up</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">post_epoch</span><span class="p">(</span><span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="XnasArchTrainer.pre_step"><a class="viewcode-back" href="../../../../api/archai.algos.xnas.html#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_step">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">pre_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pre_step</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="c1"># reset val loader if we exhausted it</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_valid_iter</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="c1"># reinit iterator</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_valid_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_val_dl</span><span class="p">)</span>
+            <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_valid_iter</span><span class="p">)</span>
+
+        <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">x_val</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">()),</span> <span class="n">y_val</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">(),</span> <span class="n">non_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># update alphas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_xnas_optim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="XnasArchTrainer.update_checkpoint"><a class="viewcode-back" href="../../../../api/archai.algos.xnas.html#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.update_checkpoint">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">update_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">:</span> <span class="n">CheckPoint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update_checkpoint</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">_XnasOptimizer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ncell_lr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rcell_lr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                 <span class="n">ncell_effective_t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rcell_effective_t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">train_batch</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">grad_clip</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">apex</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ncell_lr</span> <span class="o">=</span> <span class="n">ncell_lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rcell_lr</span> <span class="o">=</span> <span class="n">rcell_lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ncell_effective_t</span> <span class="o">=</span> <span class="n">ncell_effective_t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rcell_effective_t</span> <span class="o">=</span> <span class="n">rcell_effective_t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_batch</span> <span class="o">=</span> <span class="n">train_batch</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span> <span class="o">=</span> <span class="n">grad_clip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_optim</span> <span class="o">=</span> <span class="n">optim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apex</span> <span class="o">=</span> <span class="n">apex</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lossfn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+        <span class="c1"># to keep track of where we are in effective updates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t_rcell</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t_ncell</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>  <span class="c1"># main model with respect to w and alpha</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">lossfn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">logits</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># might also return aux tower logits</span>
+        <span class="k">return</span> <span class="n">lossfn</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_train</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">y_train</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">x_valid</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">y_valid</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># put model in train mode just to be safe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+        <span class="c1"># XNAS authors told Liam Li et al that </span>
+        <span class="c1"># the updates are made per data point instead</span>
+        <span class="c1"># of at a batch level. While nn.CrossEntropyLoss</span>
+        <span class="c1"># can give back per data point losses by using reduction=&#39;none&#39; option, </span>
+        <span class="c1"># loss.backward() can only deal with scalar losses. So for now trying </span>
+        <span class="c1"># to do this one data point at a time to see if that </span>
+        <span class="c1"># runs reasonably fast. If not the next thing to try is </span>
+        <span class="c1"># to get the per data point loss all at once and then </span>
+        <span class="c1"># try to do loss[i].backward() and update alphas</span>
+        
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">x_valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">x_valid</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">y_valid</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># zero out gradients for safety</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_optim</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+            <span class="c1"># put model through val data</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_loss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lossfn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+            <span class="c1"># compute gradients</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+            <span class="c1"># do grad clip</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_apex</span><span class="o">.</span><span class="n">clip_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optim</span><span class="p">)</span>
+
+            <span class="c1"># for each op in the model update alphas</span>
+            <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">cells</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">cell</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">cell_type</span> <span class="o">==</span> <span class="n">CellType</span><span class="o">.</span><span class="n">Reduction</span><span class="p">:</span>
+                    <span class="n">lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcell_lr</span>
+                    <span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rcell_effective_t</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_t_rcell</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t_rcell</span>
+                <span class="k">elif</span> <span class="n">cell</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">cell_type</span> <span class="o">==</span> <span class="n">CellType</span><span class="o">.</span><span class="n">Regular</span><span class="p">:</span>
+                    <span class="n">lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncell_lr</span>
+                    <span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncell_effective_t</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_t_ncell</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t_ncell</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+                <span class="c1"># BUG: t need to be corrected        </span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">cell</span><span class="o">.</span><span class="n">ops</span><span class="p">():</span>
+                    <span class="n">op</span><span class="o">.</span><span class="n">update_alphas</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

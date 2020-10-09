@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.datasets.data &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.datasets.data</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.datasets.data</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torchvision</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> \
+    <span class="n">SubsetRandomSampler</span><span class="p">,</span> <span class="n">Sampler</span><span class="p">,</span> <span class="n">Subset</span><span class="p">,</span> <span class="n">ConcatDataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">random_split</span><span class="p">,</span>\
+    <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">StratifiedShuffleSplit</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data.distributed</span> <span class="kn">import</span> <span class="n">DistributedSampler</span>
+
+<span class="kn">from</span> <span class="nn">filelock</span> <span class="kn">import</span> <span class="n">FileLock</span>
+
+<span class="kn">from</span> <span class="nn">.augmentation</span> <span class="kn">import</span> <span class="n">add_named_augs</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">common</span>
+<span class="kn">from</span> <span class="nn">..common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">..common</span> <span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">apex_utils</span>
+<span class="kn">from</span> <span class="nn">archai.datasets.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">get_provider_type</span>
+<span class="kn">from</span> <span class="nn">..common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">.limit_dataset</span> <span class="kn">import</span> <span class="n">LimitDataset</span><span class="p">,</span> <span class="n">DatasetLike</span>
+<span class="kn">from</span> <span class="nn">.distributed_stratified_sampler</span> <span class="kn">import</span> <span class="n">DistributedStratifiedSampler</span>
+
+<div class="viewcode-block" id="get_data"><a class="viewcode-back" href="../../../api/archai.datasets.html#archai.datasets.data.get_data">[docs]</a><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">conf_loader</span><span class="p">:</span><span class="n">Config</span><span class="p">)</span>\
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">]]:</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">pushd</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+
+    <span class="c1"># region conf vars</span>
+    <span class="c1"># dataset</span>
+    <span class="n">conf_dataset</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span>
+    <span class="n">max_batches</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;max_batches&#39;</span><span class="p">]</span>
+
+    <span class="n">aug</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;aug&#39;</span><span class="p">]</span>
+    <span class="n">cutout</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;cutout&#39;</span><span class="p">]</span>
+    <span class="n">val_ratio</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;val_ratio&#39;</span><span class="p">]</span>
+    <span class="n">val_fold</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;val_fold&#39;</span><span class="p">]</span>
+    <span class="n">load_train</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;load_train&#39;</span><span class="p">]</span>
+    <span class="n">train_batch</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;train_batch&#39;</span><span class="p">]</span>
+    <span class="n">train_workers</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;train_workers&#39;</span><span class="p">]</span>
+    <span class="n">load_test</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;load_test&#39;</span><span class="p">]</span>
+    <span class="n">test_batch</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;test_batch&#39;</span><span class="p">]</span>
+    <span class="n">test_workers</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;test_workers&#39;</span><span class="p">]</span>
+    <span class="n">conf_apex</span>  <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s1">&#39;apex&#39;</span><span class="p">]</span>
+    <span class="c1"># endregion</span>
+
+    <span class="n">ds_provider</span> <span class="o">=</span> <span class="n">create_dataset_provider</span><span class="p">(</span><span class="n">conf_dataset</span><span class="p">)</span>
+
+    <span class="n">apex</span> <span class="o">=</span> <span class="n">apex_utils</span><span class="o">.</span><span class="n">ApexUtils</span><span class="p">(</span><span class="n">conf_apex</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">,</span> <span class="n">test_dl</span> <span class="o">=</span> <span class="n">get_dataloaders</span><span class="p">(</span><span class="n">ds_provider</span><span class="p">,</span>
+        <span class="n">load_train</span><span class="o">=</span><span class="n">load_train</span><span class="p">,</span> <span class="n">train_batch_size</span><span class="o">=</span><span class="n">train_batch</span><span class="p">,</span>
+        <span class="n">load_test</span><span class="o">=</span><span class="n">load_test</span><span class="p">,</span> <span class="n">test_batch_size</span><span class="o">=</span><span class="n">test_batch</span><span class="p">,</span>
+        <span class="n">aug</span><span class="o">=</span><span class="n">aug</span><span class="p">,</span> <span class="n">cutout</span><span class="o">=</span><span class="n">cutout</span><span class="p">,</span>  <span class="n">val_ratio</span><span class="o">=</span><span class="n">val_ratio</span><span class="p">,</span> <span class="n">val_fold</span><span class="o">=</span><span class="n">val_fold</span><span class="p">,</span>
+        <span class="n">train_workers</span><span class="o">=</span><span class="n">train_workers</span><span class="p">,</span> <span class="n">test_workers</span><span class="o">=</span><span class="n">test_workers</span><span class="p">,</span>
+        <span class="n">max_batches</span><span class="o">=</span><span class="n">max_batches</span><span class="p">,</span> <span class="n">apex</span><span class="o">=</span><span class="n">apex</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">train_dl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">popd</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">,</span> <span class="n">test_dl</span></div>
+
+<div class="viewcode-block" id="create_dataset_provider"><a class="viewcode-back" href="../../../api/archai.datasets.html#archai.datasets.data.create_dataset_provider">[docs]</a><span class="k">def</span> <span class="nf">create_dataset_provider</span><span class="p">(</span><span class="n">conf_dataset</span><span class="p">:</span><span class="n">Config</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">DatasetProvider</span><span class="p">:</span>
+    <span class="n">ds_name</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+    <span class="n">dataroot</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;dataroot&#39;</span><span class="p">]</span>
+    <span class="n">storage_name</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s1">&#39;storage_name&#39;</span><span class="p">]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;ds_name&#39;</span><span class="p">:</span> <span class="n">ds_name</span><span class="p">,</span> <span class="s1">&#39;dataroot&#39;</span><span class="p">:</span><span class="n">dataroot</span><span class="p">,</span> <span class="s1">&#39;storage_name&#39;</span><span class="p">:</span><span class="n">storage_name</span><span class="p">})</span>
+
+    <span class="n">ds_provider_type</span> <span class="o">=</span> <span class="n">get_provider_type</span><span class="p">(</span><span class="n">ds_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds_provider_type</span><span class="p">(</span><span class="n">conf_dataset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_dataloaders"><a class="viewcode-back" href="../../../api/archai.datasets.html#archai.datasets.data.get_dataloaders">[docs]</a><span class="k">def</span> <span class="nf">get_dataloaders</span><span class="p">(</span><span class="n">ds_provider</span><span class="p">:</span><span class="n">DatasetProvider</span><span class="p">,</span>
+    <span class="n">load_train</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">train_batch_size</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">load_test</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">test_batch_size</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">aug</span><span class="p">,</span> <span class="n">cutout</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">val_ratio</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span> <span class="n">apex</span><span class="p">:</span><span class="n">apex_utils</span><span class="o">.</span><span class="n">ApexUtils</span><span class="p">,</span>
+    <span class="n">val_fold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">train_workers</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_workers</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">target_lb</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_batches</span><span class="p">:</span><span class="nb">int</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">]]:</span>
+
+    <span class="c1"># if debugging in vscode, workers &gt; 0 gets termination</span>
+    <span class="n">default_workers</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_debugging</span><span class="p">():</span>
+        <span class="n">train_workers</span> <span class="o">=</span> <span class="n">test_workers</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">({</span><span class="s1">&#39;debugger&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">train_workers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">train_workers</span> <span class="o">=</span> <span class="n">default_workers</span> <span class="c1"># following NVidia DeepLearningExamples</span>
+    <span class="k">if</span> <span class="n">test_workers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">test_workers</span> <span class="o">=</span> <span class="n">default_workers</span>
+
+    <span class="n">train_workers</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">val_ratio</span><span class="p">)</span><span class="o">*</span><span class="n">train_workers</span><span class="p">)</span>
+    <span class="n">val_workers</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">val_ratio</span><span class="o">*</span><span class="n">train_workers</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;train_workers&#39;</span><span class="p">:</span> <span class="n">train_workers</span><span class="p">,</span> <span class="s1">&#39;val_workers&#39;</span><span class="p">:</span> <span class="n">val_workers</span><span class="p">,</span>
+                 <span class="s1">&#39;test_workers&#39;</span><span class="p">:</span><span class="n">test_workers</span><span class="p">})</span>
+
+    <span class="n">transform_train</span><span class="p">,</span> <span class="n">transform_test</span> <span class="o">=</span> <span class="n">ds_provider</span><span class="o">.</span><span class="n">get_transforms</span><span class="p">()</span>
+    <span class="n">add_named_augs</span><span class="p">(</span><span class="n">transform_train</span><span class="p">,</span> <span class="n">aug</span><span class="p">,</span> <span class="n">cutout</span><span class="p">)</span>
+
+    <span class="n">trainset</span><span class="p">,</span> <span class="n">testset</span> <span class="o">=</span> <span class="n">_get_datasets</span><span class="p">(</span><span class="n">ds_provider</span><span class="p">,</span>
+        <span class="n">load_train</span><span class="p">,</span> <span class="n">load_test</span><span class="p">,</span> <span class="n">transform_train</span><span class="p">,</span> <span class="n">transform_test</span><span class="p">)</span>
+
+    <span class="c1"># TODO: below will never get executed, set_preaug does not exist in PyTorch</span>
+    <span class="c1"># if total_aug is not None and augs is not None:</span>
+    <span class="c1">#     trainset.set_preaug(augs, total_aug)</span>
+    <span class="c1">#     logger.info(&#39;set_preaug-&#39;)</span>
+
+    <span class="n">trainloader</span><span class="p">,</span> <span class="n">validloader</span><span class="p">,</span> <span class="n">testloader</span><span class="p">,</span> <span class="n">train_sampler</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">trainset</span><span class="p">:</span>
+        <span class="n">max_train_fold</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">trainset</span><span class="p">),</span> <span class="n">max_batches</span><span class="o">*</span><span class="n">train_batch_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">max_batches</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;val_ratio&#39;</span><span class="p">:</span> <span class="n">val_ratio</span><span class="p">,</span> <span class="s1">&#39;max_train_batches&#39;</span><span class="p">:</span> <span class="n">max_batches</span><span class="p">,</span>
+                    <span class="s1">&#39;max_train_fold&#39;</span><span class="p">:</span> <span class="n">max_train_fold</span><span class="p">})</span>
+
+        <span class="c1"># sample validation set from trainset if cv_ratio &gt; 0</span>
+        <span class="n">train_sampler</span><span class="p">,</span> <span class="n">valid_sampler</span> <span class="o">=</span> <span class="n">_get_sampler</span><span class="p">(</span><span class="n">trainset</span><span class="p">,</span> <span class="n">val_ratio</span><span class="o">=</span><span class="n">val_ratio</span><span class="p">,</span>
+                                                    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">apex</span><span class="o">=</span><span class="n">apex</span><span class="p">,</span>
+                                                    <span class="n">max_items</span><span class="o">=</span><span class="n">max_train_fold</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;train_sampler_world_size&#39;</span><span class="p">:</span><span class="n">train_sampler</span><span class="o">.</span><span class="n">world_size</span><span class="p">,</span>
+                    <span class="s1">&#39;train_sampler_rank&#39;</span><span class="p">:</span><span class="n">train_sampler</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span>
+                    <span class="s1">&#39;train_sampler_len&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_sampler</span><span class="p">)})</span>
+        <span class="k">if</span> <span class="n">valid_sampler</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;valid_sampler_world_size&#39;</span><span class="p">:</span><span class="n">valid_sampler</span><span class="o">.</span><span class="n">world_size</span><span class="p">,</span>
+                        <span class="s1">&#39;valid_sampler_rank&#39;</span><span class="p">:</span><span class="n">valid_sampler</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span>
+                        <span class="s1">&#39;valid_sampler_len&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_sampler</span><span class="p">)</span>
+                        <span class="p">})</span>
+
+        <span class="c1"># shuffle is performed by sampler at each epoch</span>
+        <span class="n">trainloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">trainset</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">train_batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">train_workers</span><span class="p">,</span>
+            <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sampler</span><span class="o">=</span><span class="n">train_sampler</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># TODO: original paper has this True</span>
+
+        <span class="k">if</span> <span class="n">val_ratio</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">validloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">trainset</span><span class="p">,</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="n">train_batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">num_workers</span><span class="o">=</span><span class="n">val_workers</span><span class="p">,</span>
+                <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">sampler</span><span class="o">=</span><span class="n">valid_sampler</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># else validloader is left as None</span>
+    <span class="k">if</span> <span class="n">testset</span><span class="p">:</span>
+        <span class="n">max_test_fold</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">testset</span><span class="p">),</span> <span class="n">max_batches</span><span class="o">*</span><span class="n">test_batch_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">max_batches</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;max_test_batches&#39;</span><span class="p">:</span> <span class="n">max_batches</span><span class="p">,</span>
+                    <span class="s1">&#39;max_test_fold&#39;</span><span class="p">:</span> <span class="n">max_test_fold</span><span class="p">})</span>
+
+        <span class="n">test_sampler</span><span class="p">,</span> <span class="n">test_val_sampler</span> <span class="o">=</span> <span class="n">_get_sampler</span><span class="p">(</span><span class="n">testset</span><span class="p">,</span> <span class="n">val_ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                       <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">apex</span><span class="o">=</span><span class="n">apex</span><span class="p">,</span>
+                                       <span class="n">max_items</span><span class="o">=</span><span class="n">max_test_fold</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;test_sampler_world_size&#39;</span><span class="p">:</span><span class="n">test_sampler</span><span class="o">.</span><span class="n">world_size</span><span class="p">,</span>
+                    <span class="s1">&#39;test_sampler_rank&#39;</span><span class="p">:</span><span class="n">test_sampler</span><span class="o">.</span><span class="n">rank</span><span class="p">,</span>
+                    <span class="s1">&#39;test_sampler_len&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_sampler</span><span class="p">)})</span>
+        <span class="k">assert</span> <span class="n">test_val_sampler</span> <span class="ow">is</span> <span class="kc">None</span>
+
+        <span class="n">testloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">testset</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">test_batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">test_workers</span><span class="p">,</span>
+            <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sampler</span><span class="o">=</span><span class="n">test_sampler</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">val_ratio</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">validloader</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span>
+        <span class="s1">&#39;train_batch_size&#39;</span><span class="p">:</span> <span class="n">train_batch_size</span><span class="p">,</span> <span class="s1">&#39;test_batch_size&#39;</span><span class="p">:</span> <span class="n">test_batch_size</span><span class="p">,</span>
+        <span class="s1">&#39;train_batches&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">trainloader</span><span class="p">)</span> <span class="k">if</span> <span class="n">trainloader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;val_batches&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">validloader</span><span class="p">)</span> <span class="k">if</span> <span class="n">validloader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;test_batches&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">testloader</span><span class="p">)</span> <span class="k">if</span> <span class="n">testloader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">trainloader</span><span class="p">,</span> <span class="n">validloader</span><span class="p">,</span> <span class="n">testloader</span></div>
+
+
+<div class="viewcode-block" id="SubsetSampler"><a class="viewcode-back" href="../../../api/archai.datasets.html#archai.datasets.data.SubsetSampler">[docs]</a><span class="k">class</span> <span class="nc">SubsetSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Samples elements from a given list of indices, without replacement.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        indices (sequence): a sequence of indices</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_get_datasets</span><span class="p">(</span><span class="n">ds_provider</span><span class="p">:</span><span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">load_train</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">load_test</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+        <span class="n">transform_train</span><span class="p">,</span> <span class="n">transform_test</span><span class="p">)</span>\
+            <span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">DatasetLike</span><span class="p">,</span> <span class="n">DatasetLike</span><span class="p">]:</span>
+
+    <span class="n">trainset</span><span class="p">,</span> <span class="n">testset</span> <span class="o">=</span> <span class="n">ds_provider</span><span class="o">.</span><span class="n">get_datasets</span><span class="p">(</span><span class="n">load_train</span><span class="p">,</span> <span class="n">load_test</span><span class="p">,</span>
+                                                <span class="n">transform_train</span><span class="p">,</span> <span class="n">transform_test</span><span class="p">)</span>
+    <span class="k">return</span>  <span class="n">trainset</span><span class="p">,</span> <span class="n">testset</span>
+
+<span class="c1"># target_lb allows to filter dataset for a specific class, not used</span>
+<span class="k">def</span> <span class="nf">_get_sampler</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">val_ratio</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">shuffle</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span>
+                 <span class="n">max_items</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">apex</span><span class="p">:</span><span class="n">apex_utils</span><span class="o">.</span><span class="n">ApexUtils</span><span class="p">)</span>\
+        <span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">DistributedStratifiedSampler</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DistributedStratifiedSampler</span><span class="p">]]:</span>
+
+    <span class="n">world_size</span><span class="p">,</span> <span class="n">global_rank</span> <span class="o">=</span> <span class="n">apex</span><span class="o">.</span><span class="n">world_size</span><span class="p">,</span> <span class="n">apex</span><span class="o">.</span><span class="n">global_rank</span>
+
+    <span class="c1"># we cannot not shuffle just for train or just val because of in distributed mode both must come from same shrad</span>
+    <span class="n">train_sampler</span> <span class="o">=</span> <span class="n">DistributedStratifiedSampler</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
+                        <span class="n">val_ratio</span><span class="o">=</span><span class="n">val_ratio</span><span class="p">,</span> <span class="n">is_val</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
+                        <span class="n">max_items</span><span class="o">=</span><span class="n">max_items</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="n">world_size</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">global_rank</span><span class="p">)</span>
+
+    <span class="n">valid_sampler</span> <span class="o">=</span> <span class="n">DistributedStratifiedSampler</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
+                        <span class="n">val_ratio</span><span class="o">=</span><span class="n">val_ratio</span><span class="p">,</span> <span class="n">is_val</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
+                        <span class="n">max_items</span><span class="o">=</span><span class="n">max_items</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="n">world_size</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">global_rank</span><span class="p">)</span> \
+                    <span class="k">if</span> <span class="n">val_ratio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">train_sampler</span><span class="p">,</span> <span class="n">valid_sampler</span>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

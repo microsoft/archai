@@ -1,0 +1,395 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>archai.datasets package &#8212; Archai  documentation</title>
+    <link rel="stylesheet" href="_static/css/klink.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="archai.datasets.providers package" href="archai.datasets.providers.html" />
+    <link rel="prev" title="archai.common package" href="archai.common.html" />
+         
+        <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+        
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono:400,500,700' rel='stylesheet' type='text/css'>
+    
+  </head><body>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="archai-datasets-package">
+<h1>archai.datasets package<a class="headerlink" href="#archai-datasets-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="archai.datasets.providers.html">archai.datasets.providers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.cifar100_provider">archai.datasets.providers.cifar100_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.cifar10_provider">archai.datasets.providers.cifar10_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.fashion_mnist_provider">archai.datasets.providers.fashion_mnist_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.flower102_provider">archai.datasets.providers.flower102_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.food101_provider">archai.datasets.providers.food101_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.imagenet_folder">archai.datasets.providers.imagenet_folder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.imagenet_provider">archai.datasets.providers.imagenet_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.mit67_provider">archai.datasets.providers.mit67_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.mnist_provider">archai.datasets.providers.mnist_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.sport8_provider">archai.datasets.providers.sport8_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers.svhn_provider">archai.datasets.providers.svhn_provider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.providers.html#module-archai.datasets.providers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="archai.datasets.transforms.html">archai.datasets.transforms package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.transforms.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.transforms.html#module-archai.datasets.transforms.brightness">archai.datasets.transforms.brightness module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.transforms.html#module-archai.datasets.transforms.cutout_custom">archai.datasets.transforms.cutout_custom module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.transforms.html#module-archai.datasets.transforms.lighting">archai.datasets.transforms.lighting module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.datasets.transforms.html#module-archai.datasets.transforms">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-archai.datasets.aug_policies">
+<span id="archai-datasets-aug-policies-module"></span><h2>archai.datasets.aug_policies module<a class="headerlink" href="#module-archai.datasets.aug_policies" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="archai.datasets.aug_policies.fa_reduced_cifar10">
+<code class="sig-prename descclassname">archai.datasets.aug_policies.</code><code class="sig-name descname">fa_reduced_cifar10</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/aug_policies.html#fa_reduced_cifar10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.aug_policies.fa_reduced_cifar10" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.aug_policies.fa_reduced_svhn">
+<code class="sig-prename descclassname">archai.datasets.aug_policies.</code><code class="sig-name descname">fa_reduced_svhn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/aug_policies.html#fa_reduced_svhn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.aug_policies.fa_reduced_svhn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.aug_policies.fa_resnet50_rimagenet">
+<code class="sig-prename descclassname">archai.datasets.aug_policies.</code><code class="sig-name descname">fa_resnet50_rimagenet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/aug_policies.html#fa_resnet50_rimagenet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.aug_policies.fa_resnet50_rimagenet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets.augmentation">
+<span id="archai-datasets-augmentation-module"></span><h2>archai.datasets.augmentation module<a class="headerlink" href="#module-archai.datasets.augmentation" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.datasets.augmentation.Augmentation">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Augmentation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">policies</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Augmentation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Augmentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.AutoContrast">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">AutoContrast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">_</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#AutoContrast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.AutoContrast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Brightness">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Brightness</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Brightness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Brightness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Color">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Color</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Color" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Contrast">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Contrast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Contrast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Contrast" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Cutout">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Cutout</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Cutout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Cutout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.CutoutAbs">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">CutoutAbs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#CutoutAbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.CutoutAbs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Equalize">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Equalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">_</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Equalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Equalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Flip">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Flip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">_</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Flip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Flip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Invert">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Invert</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">_</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Invert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Invert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Posterize">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Posterize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Posterize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Posterize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Posterize2">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Posterize2</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Posterize2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Posterize2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Rotate">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Rotate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Rotate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.SamplePairing">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">SamplePairing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imgs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#SamplePairing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.SamplePairing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Sharpness">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Sharpness</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Sharpness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Sharpness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.ShearX">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">ShearX</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#ShearX"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.ShearX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.ShearY">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">ShearY</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#ShearY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.ShearY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.Solarize">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">Solarize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#Solarize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.Solarize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.TranslateX">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">TranslateX</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#TranslateX"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.TranslateX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.TranslateXAbs">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">TranslateXAbs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#TranslateXAbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.TranslateXAbs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.TranslateY">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">TranslateY</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#TranslateY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.TranslateY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.TranslateYAbs">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">TranslateYAbs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#TranslateYAbs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.TranslateYAbs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.add_named_augs">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">add_named_augs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">transform_train</span></em>, <em class="sig-param"><span class="n">aug</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">, </span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">cutout</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#add_named_augs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.add_named_augs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.apply_augment">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">apply_augment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">level</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#apply_augment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.apply_augment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.arsaug_policy">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">arsaug_policy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#arsaug_policy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.arsaug_policy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.augment_list">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">augment_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">for_autoaug</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#augment_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.augment_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.autoaug2arsaug">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">autoaug2arsaug</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#autoaug2arsaug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.autoaug2arsaug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.autoaug_paper_cifar10">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">autoaug_paper_cifar10</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#autoaug_paper_cifar10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.autoaug_paper_cifar10" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.autoaug_policy">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">autoaug_policy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#autoaug_policy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.autoaug_policy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.float_parameter">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">float_parameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">maxval</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#float_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.float_parameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.get_augment">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">get_augment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#get_augment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.get_augment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.int_parameter">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">int_parameter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">maxval</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#int_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.int_parameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.no_duplicates">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">no_duplicates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#no_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.no_duplicates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.policy_decoder">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">policy_decoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">augment</span></em>, <em class="sig-param"><span class="n">num_policy</span></em>, <em class="sig-param"><span class="n">num_op</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#policy_decoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.policy_decoder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.augmentation.remove_deplicates">
+<code class="sig-prename descclassname">archai.datasets.augmentation.</code><code class="sig-name descname">remove_deplicates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">policies</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/augmentation.html#remove_deplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.augmentation.remove_deplicates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets.data">
+<span id="archai-datasets-data-module"></span><h2>archai.datasets.data module<a class="headerlink" href="#module-archai.datasets.data" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.datasets.data.SubsetSampler">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.data.</code><code class="sig-name descname">SubsetSampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indices</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/data.html#SubsetSampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.data.SubsetSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.sampler.Sampler</span></code></p>
+<p>Samples elements from a given list of indices, without replacement.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>indices (sequence): a sequence of indices</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.data.create_dataset_provider">
+<code class="sig-prename descclassname">archai.datasets.data.</code><code class="sig-name descname">create_dataset_provider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf_dataset</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#archai.datasets.dataset_provider.DatasetProvider" title="archai.datasets.dataset_provider.DatasetProvider">archai.datasets.dataset_provider.DatasetProvider</a><a class="reference internal" href="_modules/archai/datasets/data.html#create_dataset_provider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.data.create_dataset_provider" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.data.get_data">
+<code class="sig-prename descclassname">archai.datasets.data.</code><code class="sig-name descname">get_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf_loader</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span><span class="p">, </span>Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span><span class="p">, </span>Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/datasets/data.html#get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.data.get_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.data.get_dataloaders">
+<code class="sig-prename descclassname">archai.datasets.data.</code><code class="sig-name descname">get_dataloaders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ds_provider</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#archai.datasets.dataset_provider.DatasetProvider" title="archai.datasets.dataset_provider.DatasetProvider">archai.datasets.dataset_provider.DatasetProvider</a></span></em>, <em class="sig-param"><span class="n">load_train</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">train_batch_size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">load_test</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">test_batch_size</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">aug</span></em>, <em class="sig-param"><span class="n">cutout</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">val_ratio</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">apex</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.apex_utils.ApexUtils" title="archai.common.apex_utils.ApexUtils">archai.common.apex_utils.ApexUtils</a></span></em>, <em class="sig-param"><span class="n">val_fold</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">train_workers</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">test_workers</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">target_lb</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">max_batches</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">- 1</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span><span class="p">, </span>Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span><span class="p">, </span>Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/datasets/data.html#get_dataloaders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.data.get_dataloaders" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets.dataset_provider">
+<span id="archai-datasets-dataset-provider-module"></span><h2>archai.datasets.dataset_provider module<a class="headerlink" href="#module-archai.datasets.dataset_provider" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.datasets.dataset_provider.DatasetProvider">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.dataset_provider.</code><code class="sig-name descname">DatasetProvider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf_dataset</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/dataset_provider.html#DatasetProvider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.dataset_provider.DatasetProvider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">overrides.enforce.EnforceOverrides</span></code></p>
+<dl class="py method">
+<dt id="archai.datasets.dataset_provider.DatasetProvider.get_datasets">
+<em class="property">abstract </em><code class="sig-name descname">get_datasets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">load_train</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">load_test</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">transform_train</span></em>, <em class="sig-param"><span class="n">transform_test</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>Optional<span class="p">[</span>torch.utils.data.dataset.Dataset<span class="p">]</span><span class="p">, </span>Optional<span class="p">[</span>torch.utils.data.dataset.Dataset<span class="p">]</span><span class="p">]</span><a class="reference internal" href="_modules/archai/datasets/dataset_provider.html#DatasetProvider.get_datasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.dataset_provider.DatasetProvider.get_datasets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.datasets.dataset_provider.DatasetProvider.get_transforms">
+<em class="property">abstract </em><code class="sig-name descname">get_transforms</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; tuple<a class="reference internal" href="_modules/archai/datasets/dataset_provider.html#DatasetProvider.get_transforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.dataset_provider.DatasetProvider.get_transforms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.dataset_provider.get_provider_type">
+<code class="sig-prename descclassname">archai.datasets.dataset_provider.</code><code class="sig-name descname">get_provider_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; overrides.enforce.EnforceOverridesMeta<a class="reference internal" href="_modules/archai/datasets/dataset_provider.html#get_provider_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.dataset_provider.get_provider_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="archai.datasets.dataset_provider.register_dataset_provider">
+<code class="sig-prename descclassname">archai.datasets.dataset_provider.</code><code class="sig-name descname">register_dataset_provider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">class_type</span><span class="p">:</span> <span class="n">overrides.enforce.EnforceOverridesMeta</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/archai/datasets/dataset_provider.html#register_dataset_provider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.dataset_provider.register_dataset_provider" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets.distributed_stratified_sampler">
+<span id="archai-datasets-distributed-stratified-sampler-module"></span><h2>archai.datasets.distributed_stratified_sampler module<a class="headerlink" href="#module-archai.datasets.distributed_stratified_sampler" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.datasets.distributed_stratified_sampler.DistributedStratifiedSampler">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.distributed_stratified_sampler.</code><code class="sig-name descname">DistributedStratifiedSampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span><span class="p">:</span> <span class="n">torch.utils.data.dataset.Dataset</span></em>, <em class="sig-param"><span class="n">world_size</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rank</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shuffle</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">val_ratio</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">is_val</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">max_items</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/distributed_stratified_sampler.html#DistributedStratifiedSampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.distributed_stratified_sampler.DistributedStratifiedSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.sampler.Sampler</span></code></p>
+<dl class="py method">
+<dt id="archai.datasets.distributed_stratified_sampler.DistributedStratifiedSampler.set_epoch">
+<code class="sig-name descname">set_epoch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epoch</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/distributed_stratified_sampler.html#DistributedStratifiedSampler.set_epoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.distributed_stratified_sampler.DistributedStratifiedSampler.set_epoch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets.limit_dataset">
+<span id="archai-datasets-limit-dataset-module"></span><h2>archai.datasets.limit_dataset module<a class="headerlink" href="#module-archai.datasets.limit_dataset" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.datasets.limit_dataset.LimitDataset">
+<em class="property">class </em><code class="sig-prename descclassname">archai.datasets.limit_dataset.</code><code class="sig-name descname">LimitDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em>, <em class="sig-param"><span class="n">n</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/archai/datasets/limit_dataset.html#LimitDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.datasets.limit_dataset.LimitDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.dataset.Dataset</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.datasets">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-archai.datasets" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        <aside>
+
+            
+            <a href="index.html" id="logo" title=Archai><img class="logo" src="_static/logo.png" width="150px" height="150px" title=Archai /></a>
+            
+            
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">archai</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="archai.html">archai package</a></li>
+</ul>
+</li>
+</ul>
+
+
+            
+            <ul>
+                <li><a href="https://github.com/microsoft/archai">Github</a></li>
+            </ul>
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </aside>
+    
+      <div class="clearer"></div>
+    </div>
+        <div class="footer">
+            2020, Microsoft
+        </div>
+
+        
+  </body>
+</html>

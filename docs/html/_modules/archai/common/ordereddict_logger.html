@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.common.ordereddict_logger &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.common.ordereddict_logger</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.common.ordereddict_logger</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Iterator</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="n">TItems</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+<span class="c1"># do not reference common or otherwise we will have circular deps</span>
+
+<span class="k">def</span> <span class="nf">_fmt</span><span class="p">(</span><span class="n">val</span><span class="p">:</span><span class="n">Any</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OrderedDictLogger"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger">[docs]</a><span class="k">class</span> <span class="nc">OrderedDictLogger</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;The purpose of the structured logging is to store logs as key value pair. However, when you have loop and sub routine calls, what you need is hierarchical dictionaries where the value for a key could be a dictionary. The idea is that you set one of the nodes in tree as current node and start logging your values. You can then use pushd to create and go to child node and popd to come back to parent. To implement this mechanism we use two main variables: _stack allows us to push each node on stack when pushd is called. The node is OrderedDictionary. As a convinience, we let specify child path in pushd in which case child hierarchy is created and current node will be set to the last node in specified path. When popd is called, we go back to original parent instead of parent of current node. To implement this we use _paths variable which stores subpath when each pushd call was made.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">],</span>
+                 <span class="n">save_delay</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">yaml_log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">save_delay</span><span class="p">,</span> <span class="n">yaml_log</span><span class="o">=</span><span class="n">yaml_log</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OrderedDictLogger.reset"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">],</span>
+                 <span class="n">save_delay</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
+                 <span class="n">load_existing_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">backup_existing_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">yaml_log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_log</span> <span class="o">=</span> <span class="n">yaml_log</span>
+        <span class="c1"># stack stores dict for each path</span>
+        <span class="c1"># path stores each path created via pushd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paths</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;&#39;</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_delay</span> <span class="o">=</span> <span class="n">save_delay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_call_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_save</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span> <span class="o">=</span> <span class="n">filepath</span>
+
+        <span class="c1"># backup file if already exist</span>
+        <span class="n">root_od</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_log</span> <span class="ow">and</span> <span class="n">filepath</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">load_existing_file</span><span class="p">:</span>
+                <span class="n">root_od</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">backup_existing_file</span><span class="p">:</span>
+                <span class="n">cur_p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+                <span class="n">new_p</span> <span class="o">=</span> <span class="n">cur_p</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">cur_p</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+                                        <span class="o">+</span> <span class="n">cur_p</span><span class="o">.</span><span class="n">suffix</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">new_p</span><span class="p">)):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot backup file </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1"> because new name </span><span class="si">{</span><span class="n">new_p</span><span class="si">}</span><span class="s1"> already exist&#39;</span><span class="p">)</span>
+                <span class="n">cur_p</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">new_p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">OrderedDict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">root_od</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="OrderedDictLogger.debug"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.debug">[docs]</a>    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">:</span><span class="n">TItems</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">exists_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">exists_ok</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OrderedDictLogger.warn"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.warn">[docs]</a>    <span class="k">def</span> <span class="nf">warn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">:</span><span class="n">TItems</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">,</span> <span class="n">exists_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">exists_ok</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OrderedDictLogger.info"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.info">[docs]</a>    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">:</span><span class="n">TItems</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="n">exists_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_call_count</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># provides default key when key is not specified</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span> <span class="c1"># if logging dict then just update current section</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">exists_ok</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">_fmt</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="nb">dict</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;_warnings&#39;</span> <span class="k">if</span> <span class="n">level</span><span class="o">==</span><span class="n">logging</span><span class="o">.</span><span class="n">WARN</span> <span class="k">else</span> <span class="s1">&#39;_messages&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_count</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">(),</span> <span class="n">path</span><span class="o">=</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_delay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> \
+                <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_save</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_delay</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_save</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_root</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">OrderedDict</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">r</span>
+
+    <span class="k">def</span> <span class="nf">_cur</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">OrderedDict</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_paths</span><span class="p">()</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">c</span>
+
+<div class="viewcode-block" id="OrderedDictLogger.save"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span>
+        <span class="k">if</span> <span class="n">filepath</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">(),</span> <span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OrderedDictLogger.load"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">od</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span> <span class="o">=</span> <span class="p">[</span><span class="n">od</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="OrderedDictLogger.close"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
+                <span class="n">h</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">:</span><span class="n">Mapping</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">exists_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">:</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">exists_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_key</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">exists_ok</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_update_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span><span class="n">Any</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span><span class="n">Any</span><span class="p">,</span> <span class="n">exists_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">node</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">OrderedDict</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_log</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exists_ok</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cur</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Key &quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot; already exists in log at path &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">()</span><span class="si">}</span><span class="s1">&quot; and cannot be updated with value </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1"> because it already has value &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_cur</span><span class="p">()[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s1">&quot;. Log is being saved at &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="si">}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span>
+
+        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span> <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cur</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">node</span><span class="p">:</span>
+                <span class="n">node</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+        <span class="n">node</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="nf">_ensure_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_log</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">last_od</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">od</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_paths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">od</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># if corresponding dict is being delayed created</span>
+                <span class="n">od</span> <span class="o">=</span> <span class="n">last_od</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">od</span><span class="p">:</span>
+                        <span class="n">od</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">od</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">OrderedDict</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The key &quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot; is being used to store scaler value as well as in popd&#39;</span><span class="p">)</span>
+                    <span class="n">od</span> <span class="o">=</span> <span class="n">od</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">od</span>
+            <span class="n">last_od</span> <span class="o">=</span> <span class="n">od</span>
+
+<div class="viewcode-block" id="OrderedDictLogger.pushd"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.pushd">[docs]</a>    <span class="k">def</span> <span class="nf">pushd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">:</span><span class="n">Any</span><span class="p">)</span><span class="o">-&gt;</span><span class="s1">&#39;OrderedDictLogger&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_log</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="sd">&quot;&quot;&quot;Creates new path as specified by the sequence of the keys&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paths</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># delay create</span>
+
+        <span class="k">return</span> <span class="bp">self</span> <span class="c1"># this allows calling __enter__</span></div>
+
+<div class="viewcode-block" id="OrderedDictLogger.popd"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.popd">[docs]</a>    <span class="k">def</span> <span class="nf">popd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_log</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;There is no child logger, popd() call is invalid&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paths</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OrderedDictLogger.path"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.ordereddict_logger.OrderedDictLogger.path">[docs]</a>    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yaml_log</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;/&#39;</span>
+
+        <span class="c1"># flatten array of array</span>
+        <span class="k">return</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_paths</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span></div>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="s1">&#39;OrderedDictLogger&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">popd</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span><span class="n">Any</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cur</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cur</span><span class="p">())</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

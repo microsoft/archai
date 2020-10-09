@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.datasets.distributed_stratified_sampler &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.datasets.distributed_stratified_sampler</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.datasets.distributed_stratified_sampler</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Sampler</span>
+<span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="nn">dist</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">StratifiedKFold</span><span class="p">,</span> <span class="n">StratifiedShuffleSplit</span>
+
+<div class="viewcode-block" id="DistributedStratifiedSampler"><a class="viewcode-back" href="../../../api/archai.datasets.html#archai.datasets.distributed_stratified_sampler.DistributedStratifiedSampler">[docs]</a><span class="k">class</span> <span class="nc">DistributedStratifiedSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">world_size</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">rank</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">val_ratio</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">is_val</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">max_items</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs stratified sampling of dataset for each replica in the distributed as well as non-distributed setting. If validation split is needed then yet another stratified sampling within replica&#39;s split is performed to further obtain the train/validation splits.</span>
+
+<span class="sd">        This sampler works in distributed as well as non-distributed setting with no panelty in either mode and is replacement for built-in torch.util.data.DistributedSampler. In distributed setting, many instances of the same code runs as process known as replicas. Each replica has sequential number assigned by the launcher, starting from 0 to uniquely identify it. This is known as global rank or simply rank. The number of replicas is known as the world size. For non-distributed setting, world_size=1 and rank=0.</span>
+
+<span class="sd">        To perform stratified sampling we need labels. This sampler assumes that labels for each datapoint is available in dataset.targets property which should be array like containing as many values as length of the dataset. This is availalble already for many popular datasets such as cifar and, with newer PyTorch versions, ImageFolder as well as DatasetFolder. If you are using custom dataset, you can usually create this property with one line of code such as `dataset.targets = [yi for _, yi in dataset]`.</span>
+
+<span class="sd">        Generally, to do distributed sampling, each replica must shuffle with same seed as all other replicas with every epoch and then chose some subset of dataset for itself. Traditionally, we use epoch number as seed for shuffling for each replica. However, this then requires that training code calls sampler.set_epoch(epoch) to set seed at every epoch.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            dataset -- PyTorch dataset like object</span>
+
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            world_size -- Total number of replicas running in distributed setting, if None then auto-detect, 1 for non distributed setting (default: {None})</span>
+<span class="sd">            rank -- Global rank of this replica, if None then auto-detect, 0 for non distributed setting (default: {None})</span>
+<span class="sd">            shuffle {bool} -- If True then suffle at every epoch (default: {True})</span>
+<span class="sd">            val_ratio {float} -- If you want to create validation split then set to &gt; 0 (default: {0.0})</span>
+<span class="sd">            is_val {bool} -- If True then validation split is returned set to val_ratio otherwise main split is returned (default: {False})</span>
+<span class="sd">            max_items -- if &gt;= 0 then dataset will be trimmed to these many items for each replica (useful to test on smaller dataset)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c1"># cifar10 amd DatasetFolder has this attribute, for others it may be easy to add from outside</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;targets&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;dataset needs to have targets attribute to work with this sampler&#39;</span>
+
+        <span class="k">if</span> <span class="n">world_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">():</span>
+                <span class="n">world_size</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">world_size</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">():</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rank</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">val_ratio</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val_ratio</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">assert</span> <span class="n">world_size</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="n">rank</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="n">world_size</span>
+        <span class="k">assert</span> <span class="n">val_ratio</span> <span class="o">&lt;</span> <span class="mf">1.0</span> <span class="ow">and</span> <span class="n">val_ratio</span> <span class="o">&gt;=</span> <span class="mf">0.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">=</span> <span class="n">world_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="n">rank</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># this will be used as seed so cannot be &lt; 0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="o">=</span> <span class="n">shuffle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_items</span> <span class="o">=</span> <span class="n">max_items</span> <span class="k">if</span> <span class="n">max_items</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">max_items</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_len</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_ratio</span> <span class="o">=</span> <span class="n">val_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_val</span> <span class="o">=</span> <span class="n">is_val</span>
+
+        <span class="c1"># computing duplications we needs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replica_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replica_len_full</span> <span class="o">=</span>  <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_len</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">world_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replica_len_full</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_size</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_len</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_items</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">replica_len</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replica_len_full</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_items</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_split_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replica_len</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">val_ratio</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_split_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replica_len</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_split_len</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_split_len</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_val</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">main_split_len</span>
+
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># get shuffled indices, dataset is extended if needed to divide equally</span>
+        <span class="c1"># between replicas</span>
+        <span class="n">indices</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">()</span>
+
+        <span class="c1"># get the fold which we will assign to current replica</span>
+        <span class="n">indices</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replica_fold</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span>
+
+        <span class="n">indices</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_items</span><span class="p">)</span>
+
+        <span class="c1"># split current replica&#39;s fold between train and val</span>
+        <span class="c1"># return indices depending on if we are val or train split</span>
+        <span class="n">indices</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_split_len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_val</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_len</span>
+
+        <span class="c1"># when val fold is needed and shuffle is on, for epoch &gt; 0 we can</span>
+        <span class="c1"># shuffle only val fold. The seed for other epochs is 0 so that we don&#39;t</span>
+        <span class="c1"># mix val with other folds</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_ratio</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_replica_fold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>\
+            <span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">replica_fold_idxs</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># we don&#39;t need shuffling here as it has already been done in _indices()</span>
+            <span class="n">rfolder</span> <span class="o">=</span> <span class="n">StratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">world_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">folds</span> <span class="o">=</span> <span class="n">rfolder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span>
+            <span class="c1"># walk to the split for our rank</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">other_fold_idxs</span><span class="p">,</span> <span class="n">replica_fold_idxs</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">folds</span><span class="p">)</span>
+
+            <span class="k">assert</span> <span class="n">replica_fold_idxs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> \
+                    <span class="nb">len</span><span class="p">(</span><span class="n">replica_fold_idxs</span><span class="p">)</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">replica_len_full</span>
+
+            <span class="k">return</span> <span class="n">indices</span><span class="p">[</span><span class="n">replica_fold_idxs</span><span class="p">],</span> <span class="n">targets</span><span class="p">[</span><span class="n">replica_fold_idxs</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">targets</span>
+
+
+    <span class="k">def</span> <span class="nf">_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shuffle</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">()</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_seed</span><span class="p">())</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_len</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_len</span><span class="p">)</span>
+
+        <span class="c1"># add extra samples to make it evenly divisible</span>
+        <span class="c1"># this is neccesory because we have __len__ which must return same</span>
+        <span class="c1"># number consistently</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_size</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_len</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">indices</span><span class="p">[:(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_len</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_len</span><span class="p">,</span> <span class="s1">&#39;total_size cannot be less than dataset size!&#39;</span>
+
+        <span class="n">targets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">targets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_size</span>
+
+        <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">targets</span>
+
+    <span class="k">def</span> <span class="nf">_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">max_items</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span>\
+            <span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="c1"># this will limit the items to specified max value</span>
+        <span class="k">if</span> <span class="n">max_items</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span><span class="o">-</span><span class="n">max_items</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">targets</span>
+
+    <span class="k">def</span> <span class="nf">_get_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+        <span class="c1"># if val fold is needed then only do the first shuffle</span>
+        <span class="c1"># otherwise deterministically shuffle on every epoch</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_ratio</span><span class="o">==</span><span class="mf">0.0</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">test_size</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+               <span class="n">return_test_split</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">test_size</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="c1"># othewise next call assumes ratio instead of count</span>
+            <span class="n">vfolder</span> <span class="o">=</span> <span class="n">StratifiedShuffleSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                             <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span>
+                                             <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_seed</span><span class="p">())</span>
+            <span class="n">vfolder</span> <span class="o">=</span> <span class="n">vfolder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span>
+            <span class="n">train_idx</span><span class="p">,</span> <span class="n">valid_idx</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">vfolder</span><span class="p">)</span>
+
+            <span class="n">idxs</span> <span class="o">=</span> <span class="n">valid_idx</span> <span class="k">if</span> <span class="n">return_test_split</span> <span class="k">else</span> <span class="n">train_idx</span>
+            <span class="k">return</span> <span class="n">indices</span><span class="p">[</span><span class="n">idxs</span><span class="p">],</span> <span class="n">targets</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">targets</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_len</span>
+
+<div class="viewcode-block" id="DistributedStratifiedSampler.set_epoch"><a class="viewcode-back" href="../../../api/archai.datasets.html#archai.datasets.distributed_stratified_sampler.DistributedStratifiedSampler.set_epoch">[docs]</a>    <span class="k">def</span> <span class="nf">set_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epoch</span> <span class="o">=</span> <span class="n">epoch</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

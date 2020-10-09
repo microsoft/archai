@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.algos.petridish.petridish_op &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.algos.petridish.petridish_op</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.algos.petridish.petridish_op</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">import</span> <span class="nn">heapq</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">nn</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">ConvMacroParams</span><span class="p">,</span> <span class="n">OpDesc</span>
+<span class="kn">from</span> <span class="nn">archai.nas.operations</span> <span class="kn">import</span> <span class="n">Identity</span><span class="p">,</span> <span class="n">Op</span><span class="p">,</span> <span class="n">FactorizedReduce</span>
+<span class="kn">from</span> <span class="nn">archai.common.utils</span> <span class="kn">import</span> <span class="n">zip_eq</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_params</span> <span class="kn">import</span> <span class="n">ArchParams</span>
+
+<div class="viewcode-block" id="StopForward"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.StopForward">[docs]</a><span class="k">class</span> <span class="nc">StopForward</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sg_op</span> <span class="o">=</span> <span class="n">StopGradient</span><span class="p">()</span>
+
+<div class="viewcode-block" id="StopForward.forward"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.StopForward.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sg_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span></div></div>
+
+<div class="viewcode-block" id="StopGradient"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.StopGradient">[docs]</a><span class="k">class</span> <span class="nc">StopGradient</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_zero_grad</span><span class="p">(</span><span class="n">grad</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StopGradient.forward"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.StopGradient.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">:</span> <span class="c1"># TODO: check with Dey, without this search time validation doesn&#39;t work</span>
+            <span class="n">y</span><span class="o">.</span><span class="n">register_hook</span><span class="p">(</span><span class="n">StopGradient</span><span class="o">.</span><span class="n">_zero_grad</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span></div></div>
+
+<div class="viewcode-block" id="StopForwardReductionOp"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.StopForwardReductionOp">[docs]</a><span class="k">class</span> <span class="nc">StopForwardReductionOp</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">StopForward</span><span class="p">(),</span>
+            <span class="n">FactorizedReduce</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="StopForwardReductionOp.forward"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.StopForwardReductionOp.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="StopGradientReduction"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.StopGradientReduction">[docs]</a><span class="k">class</span> <span class="nc">StopGradientReduction</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">StopGradient</span><span class="p">(),</span>
+            <span class="n">FactorizedReduce</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="StopGradientReduction.forward"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.StopGradientReduction.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="TempIdentityOp"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.TempIdentityOp">[docs]</a><span class="k">class</span> <span class="nc">TempIdentityOp</span><span class="p">(</span><span class="n">Identity</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">op_desc</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TempIdentityOp.forward"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.TempIdentityOp.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span></div></div>
+
+<div class="viewcode-block" id="PetridishOp"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.PetridishOp">[docs]</a><span class="k">class</span> <span class="nc">PetridishOp</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="n">PRIMITIVES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;max_pool_3x3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;avg_pool_3x3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;skip_connect&#39;</span><span class="p">,</span>  <span class="c1"># identity</span>
+        <span class="s1">&#39;sep_conv_3x3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sep_conv_5x5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dil_conv_3x3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dil_conv_5x5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;none&#39;</span>  <span class="c1"># this must be at the end so top1 doesn&#39;t chose it</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ArchParams</span><span class="p">],</span>
+                 <span class="n">reduction</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># assume last PRIMITIVE is &#39;none&#39; (this is used for finalize)</span>
+        <span class="k">assert</span> <span class="n">PetridishOp</span><span class="o">.</span><span class="n">PRIMITIVES</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;none&#39;</span>
+
+        <span class="c1"># create edges for the op, each edge connects input state,</span>
+        <span class="c1"># within each edge we will have all N primitives</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">op_desc</span><span class="o">.</span><span class="n">in_len</span><span class="p">):</span>
+            <span class="c1"># edge contains all primitives with alphas</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+            <span class="c1"># for each input stride could be different,</span>
+            <span class="c1"># so we will make copy of our params and then set stride for this input</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;_strides&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="c1"># create primitives for the edge</span>
+            <span class="k">for</span> <span class="n">primitive</span> <span class="ow">in</span> <span class="n">PetridishOp</span><span class="o">.</span><span class="n">PRIMITIVES</span><span class="p">:</span>
+                <span class="n">primitive_op</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">OpDesc</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+                                                <span class="n">in_len</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">trainables</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+                                        <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">,</span> <span class="n">arch_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                <span class="c1"># wrap primitive with sg</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">StopGradient</span><span class="p">(),</span> <span class="n">primitive_op</span><span class="p">)</span>
+                <span class="n">edge</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="c1"># TODO: check with Dey: Do we really need StopForwardReductionOp</span>
+        <span class="c1">#   or StopGradientReductionOp because these two will only make sense</span>
+        <span class="c1">#   for cell stems.</span>
+        <span class="c1"># NOTE: Consider the case where prev_prev is normal, prev is reduction</span>
+        <span class="c1"># then s_0 is twice as big in each dimension as s_1 and the number of channels</span>
+        <span class="c1"># won&#39;t match. So you have to use StopGradientReductionOp on s_1 to make it match.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sf</span> <span class="o">=</span> <span class="n">StopForward</span><span class="p">()</span>
+
+        <span class="c1"># we do this at the end so that we can capture all arch params registered by</span>
+        <span class="c1"># any previous child modules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_arch_params</span><span class="p">(</span><span class="n">arch_params</span><span class="p">,</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">in_len</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PetridishOp.forward"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.PetridishOp.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]):</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="c1"># apply each input in the list to associated edge</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">edge</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">zip_eq</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">)):</span>
+            <span class="c1"># apply input to each primitive within edge</span>
+            <span class="c1"># TODO: is avg better idea than sum here? sum can explode as</span>
+            <span class="c1">#   number of primitives goes up</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">op</span><span class="p">(</span><span class="n">xi</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">zip_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">edge</span><span class="p">))</span> <span class="o">+</span> <span class="n">s</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sf</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_flatten_ops_alphas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Create list of (alpha, input_id, op_desc), sort them, select top k.</span>
+        <span class="c1"># Here op should be nn.Sequence of sg followed by primitive.</span>
+        <span class="c1"># First for loop gets edge and associated alphas.</span>
+        <span class="c1"># Second for loop gets op and associated alpha.</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">op</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>       <span class="c1"># op is nn.Sequence of stop grad and primitive op    \</span>
+            <span class="k">for</span> <span class="n">edge_alphas</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span>                                 \
+                <span class="n">zip_eq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">in_len</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">)</span>       \
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">zip_eq</span><span class="p">(</span><span class="n">edge_alphas</span><span class="p">,</span> <span class="n">edge</span><span class="p">))</span>
+
+<div class="viewcode-block" id="PetridishOp.finalize"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.PetridishOp.finalize">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span> <span class="c1"># probably this is not needed</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten_ops_alphas</span><span class="p">()</span>
+
+            <span class="c1"># select 3 largest ops by alpha</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">nlargest</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># TODO: add config</span>
+
+        <span class="c1"># multi_op needs to know each input and associated primitive</span>
+        <span class="n">final_op_desc</span> <span class="o">=</span> <span class="n">OpDesc</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;multi_op&#39;</span><span class="p">,</span>
+                                <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                                    <span class="c1"># copy convolution parameters</span>
+                                    <span class="s1">&#39;conv&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+                                <span class="p">},</span>
+                                <span class="c1"># Number of inputs remains same although only 3 of</span>
+                                <span class="c1"># them will be used.</span>
+                                <span class="n">in_len</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">in_len</span><span class="p">,</span>
+                                <span class="n">trainables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="c1"># primitive&#39;s finalize call also records its</span>
+                                <span class="c1"># weights in description. finalize call returns</span>
+                                <span class="c1"># (desc, rank) where rank for primitive is None</span>
+                                <span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">finalize</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">op</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">],</span>
+                                <span class="n">children_ins</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">op</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">]</span>
+                               <span class="p">)</span>
+
+        <span class="c1"># rank=None to indicate no further selection needed as in darts</span>
+        <span class="k">return</span> <span class="n">final_op_desc</span><span class="p">,</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PetridishOp.ops"><a class="viewcode-back" href="../../../../api/archai.algos.petridish.html#archai.algos.petridish.petridish_op.PetridishOp.ops">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">ops</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="s1">&#39;Op&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span> <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(((</span><span class="n">op</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">op</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten_ops_alphas</span><span class="p">()),</span>
+                    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_setup_arch_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">ArchParams</span><span class="p">],</span> <span class="n">in_len</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># do we have shared arch params?</span>
+        <span class="k">if</span> <span class="n">arch_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Each nn.Parameter is tensor with alphas for entire edge.</span>
+            <span class="c1"># We will create same numbers of nn.Parameter as number of edges</span>
+            <span class="n">n_primitives</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">PetridishOp</span><span class="o">.</span><span class="n">PRIMITIVES</span><span class="p">)</span>
+            <span class="n">pl</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ParameterList</span><span class="p">((</span>
+                <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>  <span class="c1"># TODO: use better init than uniform random?</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">n_primitives</span><span class="p">)</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+                    <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">in_len</span><span class="p">)</span>
+            <span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_arch_params</span><span class="p">([(</span><span class="s1">&#39;alphas&#39;</span><span class="p">,</span> <span class="n">pl</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">arch_params</span><span class="o">.</span><span class="n">has_kind</span><span class="p">(</span><span class="s1">&#39;alphas&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_arch_params</span><span class="p">(</span><span class="n">arch_params</span><span class="p">)</span>
+
+        <span class="c1"># we store alphas in list so Pytorch don&#39;t register them</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch_params</span><span class="p">()</span><span class="o">.</span><span class="n">paramlist_by_kind</span><span class="p">(</span><span class="s1">&#39;alphas&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

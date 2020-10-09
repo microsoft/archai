@@ -1,0 +1,805 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.nas.operations &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.nas.operations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.nas.operations</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentError</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span><span class="p">,</span> <span class="n">EnforceOverrides</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">affine_grid_generator</span><span class="p">,</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">strided</span>
+
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">ml_utils</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">OpDesc</span><span class="p">,</span> <span class="n">ConvMacroParams</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_params</span> <span class="kn">import</span> <span class="n">ArchParams</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_module</span> <span class="kn">import</span> <span class="n">ArchModule</span>
+<span class="kn">from</span> <span class="nn">archai.common.utils</span> <span class="kn">import</span> <span class="n">zip_eq</span>
+
+<span class="c1"># type alias</span>
+<span class="n">OpFactoryFn</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">]],</span> <span class="s1">&#39;Op&#39;</span><span class="p">]</span>
+
+<span class="c1"># Each op is a unary tensor operator, all take same constructor params</span>
+<span class="c1"># TODO: swap order of arch_params and affine to match with create signature</span>
+<span class="n">_ops_factory</span><span class="p">:</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;max_pool_3x3&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">PoolBN</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;avg_pool_3x3&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">PoolBN</span><span class="p">(</span><span class="s1">&#39;avg&#39;</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;skip_connect&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">SkipConnect</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;sep_conv_3x3&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">SepConv</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;sep_conv_5x5&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">SepConv</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;convbnrelu_3x3&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span> <span class="c1"># used by NASBench-101</span>
+                            <span class="n">ConvBNReLU</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;convbnrelu_1x1&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span> <span class="c1"># used by NASBench-101</span>
+                            <span class="n">ConvBNReLU</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;dil_conv_3x3&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">DilConv</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;dil_conv_5x5&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">DilConv</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">],</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;none&#39;</span><span class="p">:</span>             <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">Zero</span><span class="p">(</span><span class="n">op_desc</span><span class="p">),</span>
+    <span class="s1">&#39;identity&#39;</span><span class="p">:</span>         <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">Identity</span><span class="p">(</span><span class="n">op_desc</span><span class="p">),</span>
+    <span class="s1">&#39;sep_conv_7x7&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">SepConv</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;conv_7x1_1x7&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">FacConv</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;prepr_reduce&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">FactorizedReduce</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;prepr_normal&#39;</span><span class="p">:</span>     <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">ReLUConvBN</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;stem_conv3x3&#39;</span><span class="p">:</span>       <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">StemConv3x3</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;stem_conv3x3_s4&#39;</span><span class="p">:</span>   <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">StemConv3x3S4</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;stem_conv3x3_s4s2&#39;</span><span class="p">:</span>   <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">StemConv3x3S4S2</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;pool_adaptive_avg2d&#39;</span><span class="p">:</span>       <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">PoolAdaptiveAvg2D</span><span class="p">(),</span>
+    <span class="s1">&#39;pool_avg2d7x7&#39;</span><span class="p">:</span>    <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">AvgPool2d7x7</span><span class="p">(),</span>
+    <span class="s1">&#39;concate_channels&#39;</span><span class="p">:</span>   <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">ConcateChannelsOp</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;proj_channels&#39;</span><span class="p">:</span>   <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">ProjectChannelsOp</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">),</span>
+    <span class="s1">&#39;linear&#39;</span><span class="p">:</span>           <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">LinearOp</span><span class="p">(</span><span class="n">op_desc</span><span class="p">),</span>
+    <span class="s1">&#39;multi_op&#39;</span><span class="p">:</span>         <span class="k">lambda</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span>
+                            <span class="n">MultiOp</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="Op"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Op">[docs]</a><span class="k">class</span> <span class="nc">Op</span><span class="p">(</span><span class="n">ArchModule</span><span class="p">,</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">EnforceOverrides</span><span class="p">):</span>
+<div class="viewcode-block" id="Op.create"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Op.create">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">ArchParams</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="s1">&#39;Op&#39;</span><span class="p">:</span>
+        <span class="k">global</span> <span class="n">_ops_factory</span>
+        <span class="n">op</span> <span class="o">=</span> <span class="n">_ops_factory</span><span class="p">[</span><span class="n">op_desc</span><span class="o">.</span><span class="n">name</span><span class="p">](</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">arch_params</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+
+        <span class="c1"># TODO: annotate as Final?</span>
+        <span class="n">op</span><span class="o">.</span><span class="n">desc</span> <span class="o">=</span> <span class="n">op_desc</span> <span class="c1"># type: ignore</span>
+        <span class="c1"># load any pre-trained weights</span>
+        <span class="n">op</span><span class="o">.</span><span class="n">set_trainables</span><span class="p">(</span><span class="n">op_desc</span><span class="o">.</span><span class="n">trainables</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">op</span></div>
+
+<div class="viewcode-block" id="Op.get_trainables"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Op.get_trainables">[docs]</a>    <span class="k">def</span> <span class="nf">get_trainables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Mapping</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;sd&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()}</span></div>
+
+<div class="viewcode-block" id="Op.set_trainables"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Op.set_trainables">[docs]</a>    <span class="k">def</span> <span class="nf">set_trainables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">state_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">name</span>
+            <span class="c1"># At search time, batchnorms are not affine so when restoring</span>
+            <span class="c1"># weights during pretraining we don&#39;t have those keys which is why</span>
+            <span class="c1"># we use strict=False</span>
+            <span class="c1"># TODO: should we assign op_desc uuid to enforce more strictness?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">[</span><span class="s1">&#39;sd&#39;</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Op.register_op"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Op.register_op">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">register_op</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">factory_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">exists_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">global</span> <span class="n">_ops_factory</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_ops_factory</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">exists_ok</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ArgumentError</span><span class="p">(</span><span class="n">argument</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> is already registered in op factory&#39;</span><span class="p">)</span>
+            <span class="c1"># else no need to register again</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_ops_factory</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory_fn</span></div>
+
+<div class="viewcode-block" id="Op.finalize"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Op.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;for trainable op, return final op and its rank&quot;&quot;&quot;</span>
+
+        <span class="c1"># make copy because we are going to modify the trainables</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">clone_trainables</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># make copy of trainables so we don&#39;t keep around references</span>
+        <span class="n">desc</span><span class="o">.</span><span class="n">trainables</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_trainables</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">desc</span><span class="p">,</span> <span class="kc">None</span> <span class="c1"># desc, rank (None means op is unranked and cannot be removed)</span></div>
+
+<div class="viewcode-block" id="Op.ops"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Op.ops">[docs]</a>    <span class="k">def</span> <span class="nf">ops</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="s1">&#39;Op&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span> <span class="c1"># type: ignore</span>
+        <span class="sd">&quot;&quot;&quot;Return contituent ops, if this op is primitive just return self&quot;&quot;&quot;</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">nan</span></div>
+
+    <span class="c1"># if op should not be dropped during drop path then return False</span>
+<div class="viewcode-block" id="Op.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Op.can_drop_path">[docs]</a>    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="PoolBN"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.PoolBN">[docs]</a><span class="k">class</span> <span class="nc">PoolBN</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;AvgPool or MaxPool - BN &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pool_type</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            pool_type: &#39;max&#39; or &#39;avg&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+
+        <span class="n">stride</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">]</span>
+        <span class="n">kernel_size</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;kernel_size&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;padding&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pool_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">stride</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pool_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;avg&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AvgPool2d</span><span class="p">(</span>
+                <span class="n">kernel_size</span><span class="p">,</span> <span class="n">stride</span><span class="p">,</span> <span class="n">padding</span><span class="p">,</span> <span class="n">count_include_pad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+
+        <span class="c1"># TODO: pt.darts applies BN but original implementation doesn&#39;t</span>
+        <span class="c1"># self.bn = nn.BatchNorm2d(ch_in, affine=affine)</span>
+
+<div class="viewcode-block" id="PoolBN.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.PoolBN.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1">#out = self.bn(out)</span>
+        <span class="k">return</span> <span class="n">out</span></div></div>
+
+<div class="viewcode-block" id="SkipConnect"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.SkipConnect">[docs]</a><span class="k">class</span> <span class="nc">SkipConnect</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">stride</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">Identity</span><span class="p">(</span><span class="n">op_desc</span><span class="p">)</span> <span class="k">if</span> <span class="n">stride</span> <span class="o">==</span> <span class="mi">1</span> \
+                              <span class="k">else</span> <span class="n">FactorizedReduce</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SkipConnect.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.SkipConnect.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">Tensor</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SkipConnect.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.SkipConnect.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># TODO: original darts drops path only for identity, not FactorizedReduce</span>
+        <span class="c1">#   but that seems wrong. Here we drop path for skip connect.</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="FacConv"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.FacConv">[docs]</a><span class="k">class</span> <span class="nc">FacConv</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Factorized conv</span>
+<span class="sd">    ReLU - Conv(Kx1) - Conv(1xK) - BN</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">kernel_length</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">padding</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                 <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+        <span class="n">stride</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">net</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_in</span><span class="p">,</span> <span class="p">(</span><span class="n">kernel_length</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                      <span class="n">stride</span><span class="p">,</span> <span class="n">padding</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel_length</span><span class="p">),</span>
+                      <span class="n">stride</span><span class="p">,</span> <span class="n">padding</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="FacConv.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.FacConv.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ReLUConvBN"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.ReLUConvBN">[docs]</a><span class="k">class</span> <span class="nc">ReLUConvBN</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span> <span class="c1"># std DARTS op has BN at the end</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">stride</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">padding</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                 <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ReLUConvBN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span>
+                      <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ReLUConvBN.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.ReLUConvBN.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ConvBNReLU"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.ConvBNReLU">[docs]</a><span class="k">class</span> <span class="nc">ConvBNReLU</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span> <span class="c1"># NAS bench op has BN in the middle</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">stride</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">padding</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                 <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConvBNReLU</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span>
+                      <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#TODO: review inplace</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ConvBNReLU.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.ConvBNReLU.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="DilConv"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.DilConv">[docs]</a><span class="k">class</span> <span class="nc">DilConv</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; (Dilated) depthwise separable conv</span>
+<span class="sd">    ReLU - (Dilated) depthwise separable - Pointwise - BN</span>
+
+<span class="sd">    If dilation == 2, 3x3 conv =&gt; 5x5 receptive field</span>
+<span class="sd">                      5x5 conv =&gt; 9x9 receptive field</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">stride</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>  <span class="n">padding</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                 <span class="n">dilation</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DilConv</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_in</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+                      <span class="n">dilation</span><span class="o">=</span><span class="n">dilation</span><span class="p">,</span>
+                      <span class="n">groups</span><span class="o">=</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">),</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DilConv.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.DilConv.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SepConv"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.SepConv">[docs]</a><span class="k">class</span> <span class="nc">SepConv</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Depthwise separable conv</span>
+<span class="sd">    DilConv(dilation=1) * 2</span>
+
+<span class="sd">    This is same as two DilConv stacked with dilation=1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">padding</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+                 <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SepConv</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">DilConv</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">],</span>
+                    <span class="n">padding</span><span class="p">,</span> <span class="n">dilation</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">),</span>
+            <span class="n">DilConv</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="n">padding</span><span class="p">,</span> <span class="n">dilation</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">))</span>
+
+<div class="viewcode-block" id="SepConv.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.SepConv.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Identity"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Identity">[docs]</a><span class="k">class</span> <span class="nc">Identity</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">stride</span><span class="p">,</span> <span class="n">conv_params</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">],</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">stride</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span> <span class="o">==</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+<div class="viewcode-block" id="Identity.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Identity.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="Identity.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Identity.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="Zero"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Zero">[docs]</a><span class="k">class</span> <span class="nc">Zero</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents no connection. Zero op can be thought of 1x1 kernel with fixed zero weight.</span>
+<span class="sd">    For stride=1, it will produce output of same dimension as input but with all 0s. Now with stride of 2, it will zero out every other pixel in output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">stride</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;stride&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stride</span> <span class="o">=</span> <span class="n">stride</span>
+
+<div class="viewcode-block" id="Zero.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.Zero.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stride</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="bp">self</span><span class="o">.</span><span class="n">stride</span><span class="p">,</span> <span class="p">::</span><span class="bp">self</span><span class="o">.</span><span class="n">stride</span><span class="p">]</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="FactorizedReduce"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.FactorizedReduce">[docs]</a><span class="k">class</span> <span class="nc">FactorizedReduce</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    reduce feature maps height/width by 2X while doubling channels using two 1x1 convs, each with stride=2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: modify to take number of nodes in reduction cells where stride 2 was applied (currently only first two input nodes)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FactorizedReduce</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+        <span class="k">assert</span> <span class="n">ch_out</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">relu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+        <span class="c1"># this conv layer operates on even pixels to produce half width, half channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                                <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># this conv layer operates on odd pixels (because of code in forward()) to produce half width, half channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                                <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FactorizedReduce.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.FactorizedReduce.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># x: torch.Size([32, 32, 32, 32])</span>
+        <span class="c1"># conv1: [b, c_out//2, d//2, d//2]</span>
+        <span class="c1"># conv2: []</span>
+        <span class="c1"># out: torch.Size([32, 32, 16, 16])</span>
+
+        <span class="c1"># concate two half channels to produce same number of channels as before but with output as only half the width</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">conv_1</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_2</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:])],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div></div>
+
+
+<div class="viewcode-block" id="StemBase"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemBase">[docs]</a><span class="k">class</span> <span class="nc">StemBase</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract base class for model stems that enforces reduction property</span>
+<span class="sd">    indicating amount of spatial map reductions performed by stem, i.e., reduction=2 for each stride=2&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reduction</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="n">reduction</span></div>
+
+<div class="viewcode-block" id="StemConv3x3"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3">[docs]</a><span class="k">class</span> <span class="nc">StemConv3x3</span><span class="p">(</span><span class="n">StemBase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span> <span class="c1"># 3 =&gt; 48</span>
+            <span class="c1"># batchnorm is added after each layer. Bias is turned off due to</span>
+            <span class="c1"># BN in conv layer.</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="StemConv3x3.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StemConv3x3.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="StemConv3x3S4"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3S4">[docs]</a><span class="k">class</span> <span class="nc">StemConv3x3S4</span><span class="p">(</span><span class="n">StemBase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="c1"># keep in sync with StemConv3x3S4S2</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_out</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">ch_out</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="StemConv3x3S4.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3S4.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StemConv3x3S4.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3S4.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="StemConv3x3S4S2"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3S4S2">[docs]</a><span class="k">class</span> <span class="nc">StemConv3x3S4S2</span><span class="p">(</span><span class="n">StemBase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+        <span class="n">ch_in</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="n">ch_out</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="c1"># s4 ops - keep in sync with StemConv3x3S4</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_in</span><span class="p">,</span> <span class="n">ch_out</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_out</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">ch_out</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">),</span>
+
+            <span class="c1"># s2 ops</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">ch_out</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="StemConv3x3S4S2.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3S4S2.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StemConv3x3S4S2.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.StemConv3x3S4S2.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="AvgPool2d7x7"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.AvgPool2d7x7">[docs]</a><span class="k">class</span> <span class="nc">AvgPool2d7x7</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AvgPool2d</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AvgPool2d7x7.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.AvgPool2d7x7.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AvgPool2d7x7.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.AvgPool2d7x7.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="PoolAdaptiveAvg2D"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.PoolAdaptiveAvg2D">[docs]</a><span class="k">class</span> <span class="nc">PoolAdaptiveAvg2D</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">AdaptiveAvgPool2d</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PoolAdaptiveAvg2D.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.PoolAdaptiveAvg2D.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PoolAdaptiveAvg2D.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.PoolAdaptiveAvg2D.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="LinearOp"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.LinearOp">[docs]</a><span class="k">class</span> <span class="nc">LinearOp</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">n_ch</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_ch&#39;</span><span class="p">]</span>
+        <span class="n">n_classes</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_classes&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_ch</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LinearOp.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.LinearOp.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="n">flattened</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">flattened</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LinearOp.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.LinearOp.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="MergeOp"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.MergeOp">[docs]</a><span class="k">class</span> <span class="nc">MergeOp</span><span class="p">(</span><span class="n">Op</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ch_in</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ch_in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ch_out</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">ch_out</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_states</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;out_states&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="MergeOp.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.MergeOp.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MergeOp.can_drop_path"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.MergeOp.can_drop_path">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">can_drop_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="ConcateChannelsOp"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.ConcateChannelsOp">[docs]</a><span class="k">class</span> <span class="nc">ConcateChannelsOp</span><span class="p">(</span><span class="n">MergeOp</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConcateChannelsOp.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.ConcateChannelsOp.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">out_states</span><span class="p">:],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="ProjectChannelsOp"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.ProjectChannelsOp">[docs]</a><span class="k">class</span> <span class="nc">ProjectChannelsOp</span><span class="p">(</span><span class="n">MergeOp</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">op_desc</span><span class="p">,</span> <span class="n">affine</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch_in</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ch_out</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># 1x1 conv</span>
+                    <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ch_out</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ProjectChannelsOp.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.ProjectChannelsOp.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]):</span>
+        <span class="n">concatenated</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">out_states</span><span class="p">:],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">(</span><span class="n">concatenated</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DropPath_"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.DropPath_">[docs]</a><span class="k">class</span> <span class="nc">DropPath_</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Replace values in tensor by 0. with probability p</span>
+<span class="sd">        Ref: https://arxiv.org/abs/1605.07648</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; [!] DropPath is inplace module</span>
+<span class="sd">        Args:</span>
+<span class="sd">            p: probability of an path to be zeroed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">p</span>
+
+<div class="viewcode-block" id="DropPath_.extra_repr"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.DropPath_.extra_repr">[docs]</a>    <span class="k">def</span> <span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;p=</span><span class="si">{}</span><span class="s1">, inplace&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DropPath_.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.DropPath_.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ml_utils</span><span class="o">.</span><span class="n">drop_path_</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="MultiOp"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.MultiOp">[docs]</a><span class="k">class</span> <span class="nc">MultiOp</span><span class="p">(</span><span class="n">Op</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_desc</span><span class="p">:</span><span class="n">OpDesc</span><span class="p">,</span> <span class="n">affine</span><span class="p">:</span><span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;MultiOp combines multiple ops to one op. The set of ops to combine</span>
+<span class="sd">            if passed through op_desc.children and each of children&#39;s inputs are</span>
+<span class="sd">            passed through op_desc.children_ins. This op will receive list of</span>
+<span class="sd">            inputs in forward() and each of the children works on one of these</span>
+<span class="sd">            inputs and generates an output. All outputs of children are then</span>
+<span class="sd">            combined using projection operation to produce final output of the</span>
+<span class="sd">            overall op.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># get list of inputs and associated primitives</span>
+        <span class="n">iop_descs</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">children</span>
+        <span class="n">ins</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">children_ins</span>
+        <span class="k">assert</span> <span class="n">iop_descs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ins</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">iop_descs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ins</span><span class="p">)</span>
+
+        <span class="c1"># conv params typically specified by macro builder</span>
+        <span class="n">conv_params</span><span class="p">:</span><span class="n">ConvMacroParams</span> <span class="o">=</span> <span class="n">op_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ops</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ins</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">iop_desc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">iop_descs</span><span class="p">):</span>
+            <span class="n">iop_desc</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conv_params</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">iop_desc</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="c1"># number of channels as we will concate output of ops</span>
+        <span class="n">ch_out_sum</span> <span class="o">=</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ins</span><span class="p">)</span>
+        <span class="n">ch_adj_desc</span> <span class="o">=</span>  <span class="n">OpDesc</span><span class="p">(</span><span class="s1">&#39;proj_channels&#39;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;conv&#39;</span><span class="p">:</span> <span class="n">ConvMacroParams</span><span class="p">(</span><span class="n">ch_out_sum</span><span class="p">,</span> <span class="n">conv_params</span><span class="o">.</span><span class="n">ch_out</span><span class="p">),</span>
+                <span class="s1">&#39;out_states&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ins</span><span class="p">)</span>
+            <span class="p">},</span>
+            <span class="n">in_len</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">trainables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">children</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ch_adj</span> <span class="o">=</span> <span class="n">Op</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">ch_adj_desc</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MultiOp.forward"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.operations.MultiOp.forward">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">Union</span><span class="p">[</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tensor</span><span class="p">]])</span><span class="o">-&gt;</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="c1"># we may receive k=1..N tensors as inputs. Currently DagEdge will pass</span>
+        <span class="c1"># tensor as-is if k=1 to support primitives and create list of tensors</span>
+        <span class="c1"># if k &gt; 1. So below we handle k = 1 case.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ch_adj</span><span class="p">([</span><span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ops</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ins</span><span class="p">)])</span></div></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

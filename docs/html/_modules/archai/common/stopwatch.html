@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.common.stopwatch &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.common.stopwatch</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.common.stopwatch</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="c1"># adapted from https://github.com/ildoonet/pystopwatch2/blob/master/pystopwatch2/watch.py</span>
+
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="k">class</span> <span class="nc">_ClockState</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">PAUSE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">RUN</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">class</span> <span class="nc">_Clock</span><span class="p">:</span>
+    <span class="n">tag_default</span> <span class="o">=</span> <span class="s1">&#39;__default1958__&#39;</span>
+    <span class="n">th_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sum</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">_ClockState</span><span class="o">.</span><span class="n">PAUSE</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;state=</span><span class="si">%s</span><span class="s1"> elapsed=</span><span class="si">%.4f</span><span class="s1"> prev_time=</span><span class="si">%.8f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_time</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="StopWatch"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.stopwatch.StopWatch">[docs]</a><span class="k">class</span> <span class="nc">StopWatch</span><span class="p">:</span>
+    <span class="n">stopwatch</span><span class="p">:</span><span class="s1">&#39;StopWatch&#39;</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_Clock</span><span class="p">())</span>
+
+<div class="viewcode-block" id="StopWatch.start"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.stopwatch.StopWatch.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">_Clock</span><span class="o">.</span><span class="n">tag_default</span>
+        <span class="k">with</span> <span class="n">_Clock</span><span class="o">.</span><span class="n">th_lock</span><span class="p">:</span>
+            <span class="n">clock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">clock</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">_ClockState</span><span class="o">.</span><span class="n">RUN</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="n">clock</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">_ClockState</span><span class="o">.</span><span class="n">RUN</span>
+            <span class="n">clock</span><span class="o">.</span><span class="n">prev_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="StopWatch.pause"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.stopwatch.StopWatch.pause">[docs]</a>    <span class="k">def</span> <span class="nf">pause</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">_Clock</span><span class="o">.</span><span class="n">tag_default</span>
+        <span class="k">with</span> <span class="n">_Clock</span><span class="o">.</span><span class="n">th_lock</span><span class="p">:</span>
+            <span class="n">clock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+            <span class="n">clock</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">_ClockState</span><span class="o">.</span><span class="n">PAUSE</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">clock</span><span class="o">.</span><span class="n">prev_time</span>
+            <span class="n">clock</span><span class="o">.</span><span class="n">sum</span> <span class="o">+=</span> <span class="n">delta</span>
+            <span class="k">return</span> <span class="n">clock</span><span class="o">.</span><span class="n">sum</span></div>
+
+<div class="viewcode-block" id="StopWatch.clear"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.stopwatch.StopWatch.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">_Clock</span><span class="o">.</span><span class="n">tag_default</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="StopWatch.get_elapsed"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.stopwatch.StopWatch.get_elapsed">[docs]</a>    <span class="k">def</span> <span class="nf">get_elapsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">_Clock</span><span class="o">.</span><span class="n">tag_default</span>
+        <span class="n">clock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">sum</span>
+        <span class="k">if</span> <span class="n">clock</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">_ClockState</span><span class="o">.</span><span class="n">RUN</span><span class="p">:</span>
+            <span class="n">elapsed</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">clock</span><span class="o">.</span><span class="n">prev_time</span>
+
+        <span class="k">return</span> <span class="n">elapsed</span></div>
+
+<div class="viewcode-block" id="StopWatch.keys"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.stopwatch.StopWatch.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">clocks</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="StopWatch.set"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.stopwatch.StopWatch.set">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="n">instance</span><span class="p">:</span><span class="s1">&#39;StopWatch&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">StopWatch</span><span class="o">.</span><span class="n">stopwatch</span> <span class="o">=</span> <span class="n">instance</span></div>
+
+<div class="viewcode-block" id="StopWatch.get"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.stopwatch.StopWatch.get">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">()</span><span class="o">-&gt;</span><span class="s1">&#39;StopWatch&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">StopWatch</span><span class="o">.</span><span class="n">stopwatch</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

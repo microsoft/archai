@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Petridish - Code Walkthrough &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Frequently Asked Questions (FAQs)" href="faq.html" />
+    <link rel="prev" title="Archai - A 30 Minute Tutorial" href="blitz.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Petridish - Code Walkthrough</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#search">Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evaluation">Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#putting-it-all-together">Putting It All Together</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Petridish - Code Walkthrough</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/petridish.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="petridish-code-walkthrough">
+<h1>Petridish - Code Walkthrough<a class="headerlink" href="#petridish-code-walkthrough" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+<p>Petridish is a NAS algorithm that grows networks starting from any network. Usually the starting network is very small and hand-specified although in practice any set of networks can be thrown in as seed networks. At each search iteration petridish evaluates a number of candidates and picks the most promising ones and adds them to the parent network. It then trains this modified network for a few more epochs before adding them back to the parent pool for further consideration for growth. Parents architectures are only selected for further growth if they lie close to the convex hull of the pareto-frontier (which serves as an upper bound of the error-vs-multiply-adds or error-vs-flops or error-vs-memory) curve. The intuition being only those models which are currently near the estimated pareto-frontier have realistic chance of lowering the curve by producing children models. Before we move ahead it will serve the reader well to familiarize themselves with the details via <a class="reference external" href="https://www.microsoft.com/en-us/research/publication/efficient-forward-architecture-search/">paper at NeuRIPS 2019</a>, <a class="reference external" href="https://www.microsoft.com/en-us/research/blog/project-petridish-efficient-forward-neural-architecture-search/">blog post</a> or <a class="reference external" href="https://youtu.be/sZMZ6nJFaJY?t=2648">online lecture</a>.</p>
+<p>We will also assume that the reader has familiarized themselves with the core of Archai and followed through the <a class="reference internal" href="blitz.html"><span class="doc">getting started tutorial</span></a> which will come in very handy!</p>
+</div>
+<div class="section" id="search">
+<h2>Search<a class="headerlink" href="#search" title="Permalink to this headline">¶</a></h2>
+<p>All of Petridish functionality resides in the
+At the heart of Petridish is the <a class="reference external" href="https://github.com/microsoft/archai/blob/master/archai/algos/petridish/searcher_petridish.py"><code class="docutils literal notranslate"><span class="pre">SearcherPetridish</span></code></a> class which derives from the <code class="docutils literal notranslate"><span class="pre">SearchCombinations</span></code> class. Let’s have a a look at the <code class="docutils literal notranslate"><span class="pre">search</span></code> function in that file.</p>
+<p>At first we are going to seed the search process with a number of models each of which differ in the number of cells (normal or reduction) and number of nodes within each cell.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># seed the pool with many models of different</span>
+<span class="c1"># macro parameters like number of cells, reductions etc if parent pool</span>
+<span class="c1"># could not be restored and/or this is the first time this job has been run.</span>
+<span class="n">future_ids</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">is_restored</span> <span class="k">else</span>  <span class="bp">self</span><span class="o">.</span><span class="n">_create_seed_jobs</span><span class="p">(</span><span class="n">conf_search</span><span class="p">,</span>
+                                                            <span class="n">model_desc_builder</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you look inside the <code class="docutils literal notranslate"><span class="pre">self._create_seed_jobs</span></code> function you will find that it uses <a class="reference external" href="#"><code class="docutils literal notranslate"><span class="pre">ray</span></code></a> to train all the seed models in parallel (one seed model per available GPU). Note that this is done asynchronously and the function does not block but just queues up the jobs and returns immediately. The actual training is handled by the <code class="docutils literal notranslate"><span class="pre">self._train_model_desc_dist</span></code> ray remote function call.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_search_done</span><span class="p">():</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Ray jobs running: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">future_ids</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">future_ids</span><span class="p">:</span>
+        <span class="c1"># get first completed job</span>
+        <span class="n">job_id_done</span><span class="p">,</span> <span class="n">future_ids</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">future_ids</span><span class="p">)</span>
+
+        <span class="n">hull_point</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">job_id_done</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hull point id </span><span class="si">{</span><span class="n">hull_point</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1"> with stage </span><span class="si">{</span><span class="n">hull_point</span><span class="o">.</span><span class="n">job_stage</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> completed&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">is_trained_stage</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_convex_hull</span><span class="p">(</span><span class="n">hull_point</span><span class="p">)</span>
+
+            <span class="c1"># sample a point and search</span>
+            <span class="n">sampled_point</span> <span class="o">=</span> <span class="n">sample_from_hull</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hull_points</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_convex_hull_eps</span><span class="p">)</span>
+
+            <span class="n">future_id</span> <span class="o">=</span> <span class="n">SearcherPetridish</span><span class="o">.</span><span class="n">search_model_desc_dist</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">conf_search</span><span class="p">,</span> <span class="n">sampled_point</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">,</span> <span class="n">trainer_class</span><span class="p">,</span>
+                <span class="n">finalizers</span><span class="p">,</span> <span class="n">common</span><span class="o">.</span><span class="n">get_state</span><span class="p">())</span>
+            <span class="n">future_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future_id</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Added sampled point </span><span class="si">{</span><span class="n">sampled_point</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1"> for search&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">hull_point</span><span class="o">.</span><span class="n">job_stage</span><span class="o">==</span><span class="n">JobStage</span><span class="o">.</span><span class="n">SEARCH</span><span class="p">:</span>
+            <span class="c1"># create the job to train the searched model</span>
+            <span class="n">future_id</span> <span class="o">=</span> <span class="n">SearcherPetridish</span><span class="o">.</span><span class="n">train_model_desc_dist</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">conf_post_train</span><span class="p">,</span> <span class="n">hull_point</span><span class="p">,</span> <span class="n">common</span><span class="o">.</span><span class="n">get_state</span><span class="p">())</span>
+            <span class="n">future_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future_id</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Added sampled point </span><span class="si">{</span><span class="n">hull_point</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1"> for post-search training&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Job stage &quot;</span><span class="si">{</span><span class="n">hull_point</span><span class="o">.</span><span class="n">job_stage</span><span class="si">}</span><span class="s1">&quot; is not expected in search loop&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the above block of code we wait for any job in the queue to be completed in the <code class="docutils literal notranslate"><span class="pre">hull_point</span> <span class="pre">=</span> <span class="pre">ray.get(job_id_done[0])</span></code> line. Jobs returning from the pool can be either a trained seed or trained search model, or search model. By wrapping the job in a <code class="docutils literal notranslate"><span class="pre">ConvexHullPoint</span></code> class we can do bookkeeping on job stage and other meta-data.</p>
+<p>If a seed model or a trained search model finishes, we add it to the convex hull (<code class="docutils literal notranslate"><span class="pre">self._update_convex_hull(hull_point))</span></code> and sample a new model from the current estimate of the convex hull and send it to a child ray process where search over promising candidate layers is carried out. This is encapsulated in the <code class="docutils literal notranslate"><span class="pre">SearcherPetridish.search_model_desc_dist</span></code> remote ray function.</p>
+<p>If a model in the search stage finishes it is sent to a ray child process (<code class="docutils literal notranslate"><span class="pre">self.train_model_desc_dist</span></code>) for further training where now the chosen candidate layer gets to affect the parent network’s gradient flow.</p>
+<p>Now let’s look at some key parameters in the configuration file <a class="reference external" href="https://github.com/microsoft/archai/blob/master/confs/algos/petridish.yaml"><code class="docutils literal notranslate"><span class="pre">petridish.yaml</span></code></a> which controls key aspects of the pareto-frontier search process.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">petridish</span><span class="p">:</span>
+    <span class="nt">convex_hull_eps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.025</span> <span class="c1"># tolerance</span>
+    <span class="nt">max_madd</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200000000</span> <span class="c1"># if any parent model reaches this many multiply-additions then the search is terminated or it reaches maximum number of parent pool size</span>
+    <span class="nt">max_hull_points</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100</span> <span class="c1"># if the pool of parent models reaches this size then search is terminated or if it reaches max multiply-adds</span>
+    <span class="nt">checkpoints_foldername</span><span class="p">:</span> <span class="s">&#39;$expdir/petridish_search_checkpoints&#39;</span>
+<span class="nt">pareto</span><span class="p">:</span>
+    <span class="nt">max_cells</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
+    <span class="nt">max_reductions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="nt">max_nodes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span> <span class="c1"># if false then there will only be one seed model. if true a number of seed models with different number of cells, reductions and nodes will be used to initialize the search. this provides more coverage of the frontier.</span>
+<span class="nt">model_desc</span><span class="p">:</span>
+    <span class="nt">n_cells</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+    <span class="nt">n_reductions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+    <span class="nt">num_edges_to_sample</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span> <span class="c1"># number of edges each node will take inputs from</span>
+</pre></div>
+</div>
+<p>We have reproduced some key parts of the configuration file above. <code class="docutils literal notranslate"><span class="pre">petridish/convex_hull_eps</span></code> defines the tolerance value used to define a region around the lower convex hull of the
+error-flops or error-multiply-additions plot. From this region parent models are sampled to have a chance at producing children. <code class="docutils literal notranslate"><span class="pre">max_madd</span></code> currently set to 200M, means if any model is encountered which exceeds this threshold, the entire search process will be terminated. <code class="docutils literal notranslate"><span class="pre">max_hull_points</span></code> number of models are in the pool of parents then search is terminated as well. These parameters jointly control how long you want to continue search for and where you want to concentrate compute for search.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">pareto</span></code> section defines the maximum number of total cells, reduction cells and nodes to have in the skeleton of the architecture. Combined with the minimum values from the <code class="docutils literal notranslate"><span class="pre">model_desc</span></code> section, <code class="docutils literal notranslate"><span class="pre">self._create_seed_jobs</span></code> will enumerate these models.</p>
+<p><img alt="The output of Petridish is a gallery of models on the pareto-frontier curve." src="_images/convex_hull.png" /></p>
+<p>Petridish will produce a gallery of models picked to be those models on the lower convex hull as seen above.</p>
+</div>
+<div class="section" id="evaluation">
+<h2>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this headline">¶</a></h2>
+<p>The gallery of models found by Petridish is then trained for longer (usually 600 or 1500 epochs and with/without other enhancements like <a class="reference external" href="https://arxiv.org/abs/1805.09501">AutoAugment</a> preprocessing or <a class="reference external" href="https://arxiv.org/pdf/1708.04552.pdf">CutOut</a> etc).</p>
+<p>The code for model evaluation follows the usual pattern by overriding relevant parts of the <code class="docutils literal notranslate"><span class="pre">Evaluater</span></code> class and using <code class="docutils literal notranslate"><span class="pre">ray</span></code> for distributed parallel training of models on available gpus on the same machine.</p>
+<p><img alt="Accuracy vs. multiply-additions after evaluation" src="_images/model_gallery_accuracy_madds.png" /></p>
+<p>Above we see the Accuracy vs. multiply-additions gallery. For example the model at 328M multiply-additions achieves 97.23% top-1 accuracy on CIFAR10 with 3M parameters and using 600 epochs.</p>
+</div>
+<div class="section" id="putting-it-all-together">
+<h2>Putting It All Together<a class="headerlink" href="#putting-it-all-together" title="Permalink to this headline">¶</a></h2>
+<p>Just as detailed in the <a class="reference internal" href="blitz.html"><span class="doc">blitz</span></a> tutorial, we end up with our own <code class="docutils literal notranslate"><span class="pre">PetridishModelBuilder</span></code> and <code class="docutils literal notranslate"><span class="pre">EvaluaterPetridish</span></code> which we communicate to Archai via the <code class="docutils literal notranslate"><span class="pre">PetridishExperimentRunner</span></code> class and run the algorithm via <code class="docutils literal notranslate"><span class="pre">main.py</span></code>.</p>
+<p>Note that Petridish is not constrained to searching pareto-frontiers of error-vs-multiply-additions only. One can easily change the x-axis to other quantities like flops, memory, number of parameters, intensity etc. By changing the search termination criteria and the models used to seed the search process, one can control the part of the x-axis that one wants to focus compute on.</p>
+<p>We are looking forward to getting feedback, user stories and real-world scenarios that can be helped via Petridish.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="faq.html" class="btn btn-neutral float-right" title="Frequently Asked Questions (FAQs)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="blitz.html" class="btn btn-neutral float-left" title="Archai - A 30 Minute Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

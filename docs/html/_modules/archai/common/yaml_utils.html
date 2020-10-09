@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.common.yaml_utils &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.common.yaml_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.common.yaml_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">MutableMapping</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+
+<span class="n">_PREFIX_NODE</span> <span class="o">=</span> <span class="s1">&#39;_copy&#39;</span> <span class="c1"># for copy node content command (must be dict)</span>
+<span class="n">_PREFIX_PATH</span> <span class="o">=</span> <span class="s1">&#39;_copy:&#39;</span> <span class="c1"># for copy node value command (must be scaler)</span>
+
+
+<div class="viewcode-block" id="resolve_all"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.yaml_utils.resolve_all">[docs]</a><span class="k">def</span> <span class="nf">resolve_all</span><span class="p">(</span><span class="n">root_d</span><span class="p">:</span><span class="n">MutableMapping</span><span class="p">):</span>
+    <span class="n">_resolve_all</span><span class="p">(</span><span class="n">root_d</span><span class="p">,</span> <span class="n">root_d</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span></div>
+
+<span class="k">def</span> <span class="nf">_resolve_all</span><span class="p">(</span><span class="n">root_d</span><span class="p">:</span><span class="n">MutableMapping</span><span class="p">,</span> <span class="n">cur</span><span class="p">:</span><span class="n">MutableMapping</span><span class="p">,</span> <span class="n">cur_path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">prev_paths</span><span class="p">:</span><span class="nb">set</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">is_proper_path</span><span class="p">(</span><span class="n">cur_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cur_path</span> <span class="ow">in</span> <span class="n">prev_paths</span><span class="p">:</span>
+        <span class="k">return</span> <span class="c1"># else we get in to infinite recursion</span>
+    <span class="n">prev_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cur_path</span><span class="p">)</span>
+
+    <span class="c1"># if cur dict has &#39;_copy&#39; node with path in it</span>
+    <span class="n">child_path</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_PREFIX_NODE</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">child_path</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># resolve this path to get source dict</span>
+        <span class="n">child_d</span> <span class="o">=</span> <span class="n">_resolve_path</span><span class="p">(</span><span class="n">root_d</span><span class="p">,</span> <span class="n">_rel2full_path</span><span class="p">(</span><span class="n">cur_path</span><span class="p">,</span> <span class="n">child_path</span><span class="p">),</span> <span class="n">prev_paths</span><span class="p">)</span>
+        <span class="c1"># we expect target path to point to dict so we can merge its keys</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child_d</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Path &quot;</span><span class="si">{</span><span class="n">child_path</span><span class="si">}</span><span class="s1">&quot; should be dictionary but its instead &quot;</span><span class="si">{</span><span class="n">child_d</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="c1"># replace keys that have not been overriden</span>
+        <span class="n">_merge_source</span><span class="p">(</span><span class="n">child_d</span><span class="p">,</span> <span class="n">cur</span><span class="p">)</span>
+        <span class="c1"># remove command key</span>
+        <span class="k">del</span> <span class="n">cur</span><span class="p">[</span><span class="n">_PREFIX_NODE</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="c1"># if this key needs path resolution, get target and replace the value</span>
+        <span class="n">rpath</span> <span class="o">=</span> <span class="n">_req_resolve</span><span class="p">(</span><span class="n">cur</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">rpath</span><span class="p">:</span>
+            <span class="n">cur</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">_resolve_path</span><span class="p">(</span><span class="n">root_d</span><span class="p">,</span>
+                        <span class="n">_rel2full_path</span><span class="p">(</span><span class="n">_join_path</span><span class="p">(</span><span class="n">cur_path</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">rpath</span><span class="p">),</span> <span class="n">prev_paths</span><span class="p">)</span>
+        <span class="c1"># if replaced value is again dictionary, recurse on it</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cur</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">MutableMapping</span><span class="p">):</span>
+            <span class="n">_resolve_all</span><span class="p">(</span><span class="n">root_d</span><span class="p">,</span> <span class="n">cur</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">_join_path</span><span class="p">(</span><span class="n">cur_path</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">prev_paths</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_merge_source</span><span class="p">(</span><span class="n">source</span><span class="p">:</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span><span class="n">MutableMapping</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># for anything that source has but dest doesn&#39;t, just do copy</span>
+    <span class="k">for</span> <span class="n">sk</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sk</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dest</span><span class="p">:</span>
+            <span class="n">dest</span><span class="p">[</span><span class="n">sk</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="n">sk</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sv</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="n">sk</span><span class="p">]</span>
+            <span class="n">dv</span> <span class="o">=</span> <span class="n">dest</span><span class="p">[</span><span class="n">sk</span><span class="p">]</span>
+
+            <span class="c1"># recursively merge child nodes</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sv</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dv</span><span class="p">,</span> <span class="n">MutableMapping</span><span class="p">):</span>
+                <span class="n">_merge_source</span><span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="n">sk</span><span class="p">],</span> <span class="n">dest</span><span class="p">[</span><span class="n">sk</span><span class="p">])</span>
+            <span class="c1"># else at least dest value is not dict and should not be overriden</span>
+
+<span class="k">def</span> <span class="nf">_req_resolve</span><span class="p">(</span><span class="n">v</span><span class="p">:</span><span class="n">Any</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;If the value is actually a path we need resolve then return that path or return None&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">_PREFIX_PATH</span><span class="p">):</span>
+        <span class="c1"># we will almost always have space after _copy command</span>
+        <span class="k">return</span> <span class="n">v</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">_PREFIX_PATH</span><span class="p">):]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">_join_path</span><span class="p">(</span><span class="n">path1</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">path2</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="n">mid</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">path1</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">mid</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">path2</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="c1"># only 3 possibilities</span>
+    <span class="k">if</span> <span class="n">mid</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">path1</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">path2</span>
+    <span class="k">elif</span> <span class="n">mid</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">path1</span> <span class="o">+</span> <span class="n">path2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">path1</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">path2</span>
+
+    <span class="k">return</span> <span class="n">_norm_ended</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_norm_ended</span><span class="p">(</span><span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">path</span>
+
+<div class="viewcode-block" id="is_proper_path"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.yaml_utils.is_proper_path">[docs]</a><span class="k">def</span> <span class="nf">is_proper_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">))</span></div>
+
+<span class="k">def</span> <span class="nf">_rel2full_path</span><span class="p">(</span><span class="n">cwd</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">rel_path</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Given current directory and path, we return abolute path. For example,</span>
+<span class="sd">    cwd=&#39;/a/b/c&#39; and rel_path=&#39;../d/e&#39; should return &#39;/a/b/d/e&#39;. Note that rel_path</span>
+<span class="sd">    can hold absolute path in which case it will start with &#39;/&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">cwd</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">),</span> <span class="s1">&#39;cwd must be absolute path&#39;</span>
+
+    <span class="n">rel_parts</span> <span class="o">=</span> <span class="n">rel_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rel_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+        <span class="n">cwd_parts</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># rel_path is absolute path so ignore cwd</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cwd_parts</span> <span class="o">=</span> <span class="n">cwd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="n">full_parts</span> <span class="o">=</span> <span class="n">cwd_parts</span> <span class="o">+</span> <span class="n">rel_parts</span>
+
+    <span class="n">final</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">full_parts</span><span class="p">)):</span>
+        <span class="n">part</span> <span class="o">=</span> <span class="n">full_parts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">part</span> <span class="ow">or</span> <span class="n">part</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span> <span class="c1"># remove blank strings and single dots</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">part</span> <span class="o">==</span> <span class="s1">&#39;..&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">final</span><span class="p">):</span>
+                <span class="n">final</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cannot create abs path for cwd=</span><span class="si">{</span><span class="n">cwd</span><span class="si">}</span><span class="s1"> and rel_path=</span><span class="si">{</span><span class="n">rel_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+
+    <span class="n">final</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">final</span><span class="p">)</span>  <span class="c1"># should work even when final is empty</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="s1">&#39;..&#39;</span> <span class="ow">in</span> <span class="n">final</span> <span class="ow">and</span> <span class="n">is_proper_path</span><span class="p">(</span><span class="n">final</span><span class="p">)</span> <span class="c1"># make algo indeed worked</span>
+    <span class="k">return</span> <span class="n">final</span>
+
+
+<span class="k">def</span> <span class="nf">_resolve_path</span><span class="p">(</span><span class="n">root_d</span><span class="p">:</span><span class="n">MutableMapping</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">prev_paths</span><span class="p">:</span><span class="nb">set</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Any</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;For given path returns value or node from root_d&quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">is_proper_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="c1"># traverse path in root dict hierarchy</span>
+    <span class="n">cur_path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span> <span class="c1"># path at each iteration of for loop</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">root_d</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">part</span><span class="p">:</span>
+            <span class="k">continue</span> <span class="c1"># there will be blank vals at start</span>
+
+        <span class="c1"># For each part, we need to be able find key in dict but some dics may not</span>
+        <span class="c1"># be fully resolved yet. For last key, d will be either dict or other value.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="c1"># for this section, make sure everything is resolved</span>
+            <span class="c1"># before we prob for the key</span>
+            <span class="n">_resolve_all</span><span class="p">(</span><span class="n">root_d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">cur_path</span><span class="p">,</span> <span class="n">prev_paths</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+                <span class="c1"># &quot;cd&quot; into child node</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+                <span class="n">cur_path</span> <span class="o">=</span> <span class="n">_join_path</span><span class="p">(</span><span class="n">cur_path</span><span class="p">,</span> <span class="n">part</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Path </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> could not be found in specified dictionary at &quot;</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Path &quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&quot; cannot be resolved because &quot;</span><span class="si">{</span><span class="n">cur_path</span><span class="si">}</span><span class="s1">&quot; is not a dictionary so &quot;</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s1">&quot; cannot exist in it&#39;</span><span class="p">)</span>
+
+    <span class="c1"># last child is our answer</span>
+    <span class="n">rpath</span> <span class="o">=</span> <span class="n">_req_resolve</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rpath</span><span class="p">:</span>
+        <span class="n">next_path</span> <span class="o">=</span> <span class="n">_rel2full_path</span><span class="p">(</span><span class="n">cur_path</span><span class="p">,</span> <span class="n">rpath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">next_path</span> <span class="o">==</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot resolve path &quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&quot; because it is circular reference&#39;</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">_resolve_path</span><span class="p">(</span><span class="n">root_d</span><span class="p">,</span> <span class="n">next_path</span><span class="p">,</span> <span class="n">prev_paths</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

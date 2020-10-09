@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.networks &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.networks</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.networks</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">DataParallel</span>
+<span class="c1"># from torchvision import models</span>
+
+<span class="kn">from</span> <span class="nn">.resnet</span> <span class="kn">import</span> <span class="n">ResNet</span>
+<span class="kn">from</span> <span class="nn">.pyramidnet</span> <span class="kn">import</span> <span class="n">PyramidNet</span>
+<span class="kn">from</span> <span class="nn">.shakeshake.shake_resnet</span> <span class="kn">import</span> <span class="n">ShakeResNet</span>
+<span class="kn">from</span> <span class="nn">.wideresnet</span> <span class="kn">import</span> <span class="n">WideResNet</span>
+<span class="kn">from</span> <span class="nn">.shakeshake.shake_resnext</span> <span class="kn">import</span> <span class="n">ShakeResNeXt</span>
+
+
+<div class="viewcode-block" id="get_model"><a class="viewcode-back" href="../../api/archai.networks.html#archai.networks.get_model">[docs]</a><span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">num_class</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;resnet50&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ResNet</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;imagenet&#39;</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">num_class</span><span class="p">,</span> <span class="n">bottleneck</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;resnet200&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ResNet</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;imagenet&#39;</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">num_class</span><span class="p">,</span> <span class="n">bottleneck</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;wresnet40_2&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">WideResNet</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">num_class</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;wresnet28_10&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">WideResNet</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">dropout_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">num_class</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;shakeshake26_2x32d&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ShakeResNet</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="n">num_class</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;shakeshake26_2x64d&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ShakeResNet</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">num_class</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;shakeshake26_2x96d&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ShakeResNet</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="n">num_class</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;shakeshake26_2x112d&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ShakeResNet</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">112</span><span class="p">,</span> <span class="n">num_class</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;shakeshake26_2x96d_next&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ShakeResNeXt</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">num_class</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;pyramid&#39;</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">PyramidNet</span><span class="p">(</span><span class="s1">&#39;cifar10&#39;</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">conf</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">conf</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">num_class</span><span class="p">,</span> <span class="n">bottleneck</span><span class="o">=</span><span class="n">conf</span><span class="p">[</span><span class="s1">&#39;bottleneck&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s1">&#39;no model named, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="num_class"><a class="viewcode-back" href="../../api/archai.networks.html#archai.networks.num_class">[docs]</a><span class="k">def</span> <span class="nf">num_class</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;cifar10&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s1">&#39;reduced_cifar10&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s1">&#39;cifar10.1&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s1">&#39;cifar100&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="s1">&#39;svhn&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s1">&#39;reduced_svhn&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s1">&#39;imagenet&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s1">&#39;reduced_imagenet&#39;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>
+    <span class="p">}[</span><span class="n">dataset</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.nas.searcher &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.nas.searcher</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.nas.searcher</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">EnforceOverrides</span>
+
+<span class="kn">from</span> <span class="nn">torch.utils.data.dataloader</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">logger</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc_builder</span> <span class="kn">import</span> <span class="n">ModelDescBuilder</span>
+<span class="kn">from</span> <span class="nn">archai.nas.arch_trainer</span> <span class="kn">import</span> <span class="n">TArchTrainer</span>
+<span class="kn">from</span> <span class="nn">archai.common.trainer</span> <span class="kn">import</span> <span class="n">Trainer</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model_desc</span> <span class="kn">import</span> <span class="n">CellType</span><span class="p">,</span> <span class="n">ModelDesc</span>
+<span class="kn">from</span> <span class="nn">archai.datasets</span> <span class="kn">import</span> <span class="n">data</span>
+<span class="kn">from</span> <span class="nn">archai.nas.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">archai.common.metrics</span> <span class="kn">import</span> <span class="n">EpochMetrics</span><span class="p">,</span> <span class="n">Metrics</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">archai.nas.finalizers</span> <span class="kn">import</span> <span class="n">Finalizers</span>
+
+
+<div class="viewcode-block" id="ModelMetrics"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.ModelMetrics">[docs]</a><span class="k">class</span> <span class="nc">ModelMetrics</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span><span class="n">Model</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span><span class="n">Metrics</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span></div>
+
+<div class="viewcode-block" id="SearchResult"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.SearchResult">[docs]</a><span class="k">class</span> <span class="nc">SearchResult</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_desc</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">ModelDesc</span><span class="p">],</span>
+                 <span class="n">search_metrics</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Metrics</span><span class="p">],</span>
+                 <span class="n">train_metrics</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Metrics</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_desc</span> <span class="o">=</span> <span class="n">model_desc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_metrics</span> <span class="o">=</span> <span class="n">search_metrics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_metrics</span> <span class="o">=</span> <span class="n">train_metrics</span></div>
+
+<div class="viewcode-block" id="Searcher"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.Searcher">[docs]</a><span class="k">class</span> <span class="nc">Searcher</span><span class="p">(</span><span class="n">EnforceOverrides</span><span class="p">):</span>
+<div class="viewcode-block" id="Searcher.search"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.Searcher.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_search</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">ModelDescBuilder</span><span class="p">],</span>
+                 <span class="n">trainer_class</span><span class="p">:</span><span class="n">TArchTrainer</span><span class="p">,</span> <span class="n">finalizers</span><span class="p">:</span><span class="n">Finalizers</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">SearchResult</span><span class="p">:</span>
+
+        <span class="c1"># region config vars</span>
+        <span class="n">conf_model_desc</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;model_desc&#39;</span><span class="p">]</span>
+        <span class="n">conf_post_train</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;post_train&#39;</span><span class="p">]</span>
+
+        <span class="n">cells</span> <span class="o">=</span> <span class="n">conf_model_desc</span><span class="p">[</span><span class="s1">&#39;n_cells&#39;</span><span class="p">]</span>
+        <span class="n">reductions</span> <span class="o">=</span> <span class="n">conf_model_desc</span><span class="p">[</span><span class="s1">&#39;n_reductions&#39;</span><span class="p">]</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">conf_model_desc</span><span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">][</span><span class="s1">&#39;n_nodes&#39;</span><span class="p">]</span>
+        <span class="c1"># endregion</span>
+
+        <span class="k">assert</span> <span class="n">model_desc_builder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Default search implementation requires model_desc_builder&#39;</span>
+
+        <span class="c1"># build model description that we will search on</span>
+        <span class="n">model_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model_desc</span><span class="p">(</span><span class="n">model_desc_builder</span><span class="p">,</span> <span class="n">conf_model_desc</span><span class="p">,</span>
+                                           <span class="n">reductions</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+
+        <span class="c1"># perform search on model description</span>
+        <span class="n">model_desc</span><span class="p">,</span> <span class="n">search_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_model_desc</span><span class="p">(</span><span class="n">conf_search</span><span class="p">,</span> <span class="n">model_desc</span><span class="p">,</span>
+                                                     <span class="n">trainer_class</span><span class="p">,</span> <span class="n">finalizers</span><span class="p">)</span>
+
+        <span class="c1"># train searched model for few epochs to get some perf metrics</span>
+        <span class="n">model_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_model_desc</span><span class="p">(</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">conf_post_train</span><span class="p">)</span>
+
+        <span class="n">search_result</span> <span class="o">=</span> <span class="n">SearchResult</span><span class="p">(</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">search_metrics</span><span class="p">,</span>
+            <span class="n">model_metrics</span><span class="o">.</span><span class="n">metrics</span> <span class="k">if</span> <span class="n">model_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_log_result</span><span class="p">(</span><span class="n">conf_search</span><span class="p">,</span> <span class="n">search_result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">search_result</span></div>
+
+<div class="viewcode-block" id="Searcher.clean_log_result"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.Searcher.clean_log_result">[docs]</a>    <span class="k">def</span> <span class="nf">clean_log_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_search</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">search_result</span><span class="p">:</span><span class="n">SearchResult</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">final_desc_filename</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;final_desc_filename&#39;</span><span class="p">]</span>
+
+        <span class="c1"># remove weights info deom model_desc so its more readable</span>
+        <span class="n">search_result</span><span class="o">.</span><span class="n">model_desc</span><span class="o">.</span><span class="n">clear_trainables</span><span class="p">()</span>
+        <span class="c1"># if file name was specified then save the model desc</span>
+        <span class="k">if</span> <span class="n">final_desc_filename</span><span class="p">:</span>
+            <span class="n">search_result</span><span class="o">.</span><span class="n">model_desc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">final_desc_filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">search_result</span><span class="o">.</span><span class="n">search_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;search_top1_val&#39;</span><span class="p">:</span>
+                <span class="n">search_result</span><span class="o">.</span><span class="n">search_metrics</span><span class="o">.</span><span class="n">best_val_top1</span><span class="p">()})</span>
+        <span class="k">if</span> <span class="n">search_result</span><span class="o">.</span><span class="n">train_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">({</span><span class="s1">&#39;train_top1_val&#39;</span><span class="p">:</span>
+                <span class="n">search_result</span><span class="o">.</span><span class="n">train_metrics</span><span class="o">.</span><span class="n">best_val_top1</span><span class="p">()})</span></div>
+
+<div class="viewcode-block" id="Searcher.build_model_desc"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.Searcher.build_model_desc">[docs]</a>    <span class="k">def</span> <span class="nf">build_model_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_desc_builder</span><span class="p">:</span><span class="n">ModelDescBuilder</span><span class="p">,</span>
+                         <span class="n">conf_model_desc</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span>
+                         <span class="n">reductions</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">cells</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ModelDesc</span><span class="p">:</span>
+        <span class="c1"># reset macro params in copy of config</span>
+        <span class="n">conf_model_desc</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">conf_model_desc</span><span class="p">)</span>
+        <span class="n">conf_model_desc</span><span class="p">[</span><span class="s1">&#39;n_reductions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reductions</span>
+        <span class="n">conf_model_desc</span><span class="p">[</span><span class="s1">&#39;n_cells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cells</span>
+
+        <span class="c1"># create model desc for search using model config</span>
+        <span class="c1"># we will build model without call to model_desc_builder for pre-training</span>
+        <span class="n">model_desc</span> <span class="o">=</span> <span class="n">model_desc_builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">conf_model_desc</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">model_desc</span></div>
+
+<div class="viewcode-block" id="Searcher.get_data"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.Searcher.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_loader</span><span class="p">:</span><span class="n">Config</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">]]:</span>
+
+        <span class="c1"># this dict caches the dataset objects per dataset config so we don&#39;t have to reload</span>
+        <span class="c1"># the reason we do dynamic attribute is so that any dependent methods</span>
+        <span class="c1"># can do ray.remote</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_data_cache&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># first get from cache</span>
+        <span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">conf_loader</span><span class="p">),</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="c1"># if not found in cache then create</span>
+        <span class="k">if</span> <span class="n">train_ds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">conf_loader</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data_cache</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">conf_loader</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span></div>
+
+<div class="viewcode-block" id="Searcher.finalize_model"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.Searcher.finalize_model">[docs]</a>    <span class="k">def</span> <span class="nf">finalize_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span><span class="n">Model</span><span class="p">,</span> <span class="n">finalizers</span><span class="p">:</span><span class="n">Finalizers</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ModelDesc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">finalizers</span><span class="o">.</span><span class="n">finalize_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">restore_device</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Searcher.search_model_desc"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.Searcher.search_model_desc">[docs]</a>    <span class="k">def</span> <span class="nf">search_model_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_search</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">model_desc</span><span class="p">:</span><span class="n">ModelDesc</span><span class="p">,</span>
+                          <span class="n">trainer_class</span><span class="p">:</span><span class="n">TArchTrainer</span><span class="p">,</span> <span class="n">finalizers</span><span class="p">:</span><span class="n">Finalizers</span><span class="p">)</span>\
+                              <span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">ModelDesc</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Metrics</span><span class="p">]]:</span>
+
+        <span class="c1"># if trainer is not specified for algos like random search we return same desc</span>
+        <span class="k">if</span> <span class="n">trainer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">model_desc</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">pushd</span><span class="p">(</span><span class="s1">&#39;arch_search&#39;</span><span class="p">)</span>
+
+        <span class="n">conf_trainer</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;trainer&#39;</span><span class="p">]</span>
+        <span class="n">conf_loader</span> <span class="o">=</span> <span class="n">conf_search</span><span class="p">[</span><span class="s1">&#39;loader&#39;</span><span class="p">]</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">droppath</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># get data</span>
+        <span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">conf_loader</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">train_dl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="c1"># search arch</span>
+        <span class="n">arch_trainer</span> <span class="o">=</span> <span class="n">trainer_class</span><span class="p">(</span><span class="n">conf_trainer</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">search_metrics</span> <span class="o">=</span> <span class="n">arch_trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">)</span>
+
+        <span class="c1"># finalize</span>
+        <span class="n">found_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalize_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">finalizers</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">popd</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">found_desc</span><span class="p">,</span> <span class="n">search_metrics</span></div>
+
+<div class="viewcode-block" id="Searcher.train_model_desc"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.searcher.Searcher.train_model_desc">[docs]</a>    <span class="k">def</span> <span class="nf">train_model_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_desc</span><span class="p">:</span><span class="n">ModelDesc</span><span class="p">,</span> <span class="n">conf_train</span><span class="p">:</span><span class="n">Config</span><span class="p">)</span>\
+            <span class="o">-&gt;</span><span class="n">Optional</span><span class="p">[</span><span class="n">ModelMetrics</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Train given description&quot;&quot;&quot;</span>
+
+        <span class="c1"># region conf vars</span>
+        <span class="n">conf_trainer</span> <span class="o">=</span> <span class="n">conf_train</span><span class="p">[</span><span class="s1">&#39;trainer&#39;</span><span class="p">]</span>
+        <span class="n">conf_loader</span> <span class="o">=</span> <span class="n">conf_train</span><span class="p">[</span><span class="s1">&#39;loader&#39;</span><span class="p">]</span>
+        <span class="n">trainer_title</span> <span class="o">=</span> <span class="n">conf_trainer</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+        <span class="n">epochs</span> <span class="o">=</span> <span class="n">conf_trainer</span><span class="p">[</span><span class="s1">&#39;epochs&#39;</span><span class="p">]</span>
+        <span class="n">drop_path_prob</span> <span class="o">=</span> <span class="n">conf_trainer</span><span class="p">[</span><span class="s1">&#39;drop_path_prob&#39;</span><span class="p">]</span>
+        <span class="c1"># endregion</span>
+
+        <span class="c1"># if epochs ==0 then nothing to train, so save time</span>
+        <span class="k">if</span>  <span class="n">epochs</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">pushd</span><span class="p">(</span><span class="n">trainer_title</span><span class="p">)</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">model_desc</span><span class="p">,</span> <span class="n">droppath</span><span class="o">=</span><span class="n">drop_path_prob</span><span class="o">&gt;</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># get data</span>
+        <span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">conf_loader</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">train_dl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span><span class="n">conf_trainer</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">train_metrics</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">popd</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">ModelMetrics</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_metrics</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

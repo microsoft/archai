@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.nas.arch_trainer &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.nas.arch_trainer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.nas.arch_trainer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">torch.optim.optimizer</span> <span class="kn">import</span> <span class="n">Optimizer</span>
+<span class="kn">from</span> <span class="nn">torch.optim.lr_scheduler</span> <span class="kn">import</span> <span class="n">_LRScheduler</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span><span class="p">,</span> <span class="n">EnforceOverrides</span>
+
+<span class="kn">from</span> <span class="nn">..common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">..common</span> <span class="kn">import</span> <span class="n">common</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">..nas.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">..nas.model_desc</span> <span class="kn">import</span> <span class="n">ModelDesc</span>
+<span class="kn">from</span> <span class="nn">..common.trainer</span> <span class="kn">import</span> <span class="n">Trainer</span>
+<span class="kn">from</span> <span class="nn">..nas.vis_model_desc</span> <span class="kn">import</span> <span class="n">draw_model_desc</span>
+<span class="kn">from</span> <span class="nn">..common.checkpoint</span> <span class="kn">import</span> <span class="n">CheckPoint</span>
+
+<span class="n">TArchTrainer</span> <span class="o">=</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="s1">&#39;ArchTrainer&#39;</span><span class="p">]]</span>
+
+<div class="viewcode-block" id="ArchTrainer"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.arch_trainer.ArchTrainer">[docs]</a><span class="k">class</span> <span class="nc">ArchTrainer</span><span class="p">(</span><span class="n">Trainer</span><span class="p">,</span> <span class="n">EnforceOverrides</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_train</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+                 <span class="n">checkpoint</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">CheckPoint</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">conf_train</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_l1_alphas</span> <span class="o">=</span> <span class="n">conf_train</span><span class="p">[</span><span class="s1">&#39;l1_alphas&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plotsdir</span> <span class="o">=</span> <span class="n">conf_train</span><span class="p">[</span><span class="s1">&#39;plotsdir&#39;</span><span class="p">]</span>
+
+        <span class="c1"># if l1 regularization is needed then cache alphas</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l1_alphas</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">all_owned</span><span class="p">()</span><span class="o">.</span><span class="n">param_by_kind</span><span class="p">(</span><span class="s1">&#39;alphas&#39;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ArchTrainer.compute_loss"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.arch_trainer.ArchTrainer.compute_loss">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lossfn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+                     <span class="n">y</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">logits</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span>
+                     <span class="n">aux_weight</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">aux_logits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">(</span><span class="n">lossfn</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">logits</span><span class="p">,</span>
+                                    <span class="n">aux_weight</span><span class="p">,</span> <span class="n">aux_logits</span><span class="p">)</span>
+        <span class="c1"># add L1 alpha regularization</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l1_alphas</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">l_extra</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">abs</span><span class="p">())</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alphas</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_l1_alphas</span> <span class="o">*</span> <span class="n">l_extra</span>
+        <span class="k">return</span> <span class="n">loss</span></div>
+
+<div class="viewcode-block" id="ArchTrainer.post_epoch"><a class="viewcode-back" href="../../../api/archai.nas.html#archai.nas.arch_trainer.ArchTrainer.post_epoch">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">post_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_dl</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataLoader</span><span class="p">])</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">post_epoch</span><span class="p">(</span><span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_draw_model</span><span class="p">()</span></div>
+
+    <span class="c1"># TODO: move this outside as utility</span>
+    <span class="k">def</span> <span class="nf">_draw_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plotsdir</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">train_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">train_metrics</span><span class="p">:</span>
+            <span class="n">best_train</span><span class="p">,</span> <span class="n">best_val</span> <span class="o">=</span> <span class="n">train_metrics</span><span class="o">.</span><span class="n">run_metrics</span><span class="o">.</span><span class="n">best_epoch</span><span class="p">()</span>
+            <span class="n">is_best</span> <span class="o">=</span> <span class="n">best_val</span> <span class="ow">and</span> <span class="n">best_val</span><span class="o">==</span><span class="n">train_metrics</span><span class="o">.</span><span class="n">cur_epoch</span><span class="p">()</span>
+            <span class="n">is_best</span> <span class="o">=</span> <span class="n">is_best</span> <span class="ow">or</span> <span class="n">best_train</span><span class="o">==</span><span class="n">train_metrics</span><span class="o">.</span><span class="n">cur_epoch</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">is_best</span><span class="p">:</span>
+                <span class="c1"># log model_desc as a image</span>
+                <span class="n">plot_filepath</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_plotsdir</span><span class="p">,</span>
+                                    <span class="sa">f</span><span class="s2">&quot;EP</span><span class="si">{</span><span class="n">train_metrics</span><span class="o">.</span><span class="n">cur_epoch</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                                <span class="n">create</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">draw_model_desc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">finalize</span><span class="p">(),</span> <span class="n">filepath</span><span class="o">=</span><span class="n">plot_filepath</span><span class="p">,</span>
+                                <span class="n">caption</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Epoch </span><span class="si">{</span><span class="n">train_metrics</span><span class="o">.</span><span class="n">cur_epoch</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

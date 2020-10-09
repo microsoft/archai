@@ -1,0 +1,480 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.common.apex_utils &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>archai.common.apex_utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for archai.common.apex_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.optim.optimizer</span> <span class="kn">import</span> <span class="n">Optimizer</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">torch.backends</span> <span class="kn">import</span> <span class="n">cudnn</span>
+<span class="kn">import</span> <span class="nn">torch.distributed</span> <span class="k">as</span> <span class="nn">dist</span>
+
+<span class="kn">import</span> <span class="nn">ray</span>
+
+<span class="kn">import</span> <span class="nn">psutil</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">ml_utils</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">archai.common.ordereddict_logger</span> <span class="kn">import</span> <span class="n">OrderedDictLogger</span>
+<span class="kn">from</span> <span class="nn">archai.common.multi_optim</span> <span class="kn">import</span> <span class="n">MultiOptim</span>
+
+<div class="viewcode-block" id="ApexUtils"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils">[docs]</a><span class="k">class</span> <span class="nc">ApexUtils</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">apex_config</span><span class="p">:</span><span class="n">Config</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">OrderedDictLogger</span><span class="p">])</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># region conf vars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enabled</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;enabled&#39;</span><span class="p">]</span> <span class="c1"># global switch to disable anything apex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distributed_enabled</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;distributed_enabled&#39;</span><span class="p">]</span> <span class="c1"># enable/disable distributed mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_prec_enabled</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;mixed_prec_enabled&#39;</span><span class="p">]</span> <span class="c1"># enable/disable distributed mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opt_level</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;opt_level&#39;</span><span class="p">]</span> <span class="c1"># optimization level for mixed precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bn_fp32</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;bn_fp32&#39;</span><span class="p">]</span> <span class="c1"># keep BN in fp32</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loss_scale</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;loss_scale&#39;</span><span class="p">]</span> <span class="c1"># loss scaling mode for mixed prec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_bn</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;sync_bn&#39;</span><span class="p">]</span> <span class="c1"># should be replace BNs with sync BNs for distributed model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scale_lr</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;scale_lr&#39;</span><span class="p">]</span> <span class="c1"># enable/disable distributed mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min_world_size</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;min_world_size&#39;</span><span class="p">]</span> <span class="c1"># allows to confirm we are indeed in distributed setting</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;seed&#39;</span><span class="p">]</span>
+        <span class="n">detect_anomaly</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;detect_anomaly&#39;</span><span class="p">]</span>
+        <span class="n">conf_gpu_ids</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;gpus&#39;</span><span class="p">]</span>
+
+        <span class="n">conf_ray</span> <span class="o">=</span> <span class="n">apex_config</span><span class="p">[</span><span class="s1">&#39;ray&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ray_enabled</span> <span class="o">=</span> <span class="n">conf_ray</span><span class="p">[</span><span class="s1">&#39;enabled&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ray_local_mode</span> <span class="o">=</span> <span class="n">conf_ray</span><span class="p">[</span><span class="s1">&#39;local_mode&#39;</span><span class="p">]</span>
+        <span class="c1"># endregion</span>
+
+        <span class="c1"># to avoid circular references= with common, logger is passed from outside</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+
+        <span class="c1"># defaults for non-distributed mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_amp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ddp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_ranks</span><span class="p">(</span><span class="n">conf_gpu_ids</span><span class="p">)</span>
+
+        <span class="c1">#_log_info({&#39;apex_config&#39;: apex_config.to_dict()})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;ray.enabled&#39;</span><span class="p">:</span>  <span class="bp">self</span><span class="o">.</span><span class="n">is_ray</span><span class="p">(),</span> <span class="s1">&#39;apex.enabled&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enabled</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;torch.distributed.is_available&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_available</span><span class="p">(),</span>
+                        <span class="s1">&#39;apex.distributed_enabled&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distributed_enabled</span><span class="p">,</span>
+                        <span class="s1">&#39;apex.mixed_prec_enabled&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_prec_enabled</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+            <span class="c1"># dist.* properties are otherwise not accessible</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_op_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">SUM</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">SUM</span><span class="p">,</span>
+                        <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">MIN</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">ReduceOp</span><span class="o">.</span><span class="n">MAX</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;gloo_available&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_gloo_available</span><span class="p">(),</span>
+                        <span class="s1">&#39;mpi_available&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_mpi_available</span><span class="p">(),</span>
+                        <span class="s1">&#39;nccl_available&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_nccl_available</span><span class="p">()})</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mixed</span><span class="p">():</span>
+            <span class="c1"># init enable mixed precision</span>
+            <span class="k">assert</span> <span class="n">cudnn</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span> <span class="s2">&quot;Amp requires cudnn backend to be enabled.&quot;</span>
+            <span class="kn">from</span> <span class="nn">apex</span> <span class="kn">import</span> <span class="n">amp</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_amp</span> <span class="o">=</span> <span class="n">amp</span>
+
+        <span class="c1"># enable distributed processing</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dist</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ray</span><span class="p">(),</span> <span class="s2">&quot;Ray is not yet enabled for Apex distributed mode&quot;</span>
+
+            <span class="kn">from</span> <span class="nn">apex</span> <span class="kn">import</span> <span class="n">parallel</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ddp</span> <span class="o">=</span> <span class="n">parallel</span>
+
+            <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="c1"># distributed module is available</span>
+            <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_nccl_available</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">():</span>
+                <span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;nccl&#39;</span><span class="p">,</span> <span class="n">init_method</span><span class="o">=</span><span class="s1">&#39;env://&#39;</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">()</span>
+            <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span>
+            <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_rank</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_ray</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dist</span><span class="p">(),</span> <span class="s2">&quot;Ray is not yet enabled for Apex distributed mode&quot;</span>
+
+            <span class="kn">import</span> <span class="nn">ray</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ray</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">():</span>
+                <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">local_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ray_local_mode</span><span class="p">,</span> <span class="n">include_dashboard</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="c1"># for some reason Ray is detecting wrong number of GPUs</span>
+                         <span class="n">num_gpus</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>
+                <span class="n">ray_cpus</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">nodes</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Resources&#39;</span><span class="p">][</span><span class="s1">&#39;CPU&#39;</span><span class="p">]</span>
+                <span class="n">ray_gpus</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">nodes</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Resources&#39;</span><span class="p">][</span><span class="s1">&#39;GPU&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;ray_cpus&#39;</span><span class="p">:</span> <span class="n">ray_cpus</span><span class="p">,</span> <span class="s1">&#39;ray_gpus&#39;</span><span class="p">:</span><span class="n">ray_gpus</span><span class="p">})</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_world_size</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_world_size</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_rank</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_rank</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gpu</span> <span class="o">&lt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gpu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gpu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_gpus</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">detect_anomaly</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;amp_available&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+                     <span class="s1">&#39;distributed_available&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ddp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;dist_initialized&#39;</span><span class="p">:</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">()</span> <span class="k">if</span> <span class="n">dist</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+                     <span class="s1">&#39;world_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span><span class="p">,</span>
+                     <span class="s1">&#39;gpu&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gpu</span><span class="p">,</span> <span class="s1">&#39;gpu_ids&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">,</span>
+                     <span class="s1">&#39;local_rank&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span><span class="p">,</span>
+                     <span class="s1">&#39;global_rank&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_rank</span><span class="p">})</span>
+
+
+    <span class="k">def</span> <span class="nf">_setup_gpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span> <span class="n">detect_anomaly</span><span class="p">:</span><span class="nb">bool</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">setup_cuda</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span><span class="p">)</span>
+
+        <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">set_detect_anomaly</span><span class="p">(</span><span class="n">detect_anomaly</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;set_detect_anomaly&#39;</span><span class="p">:</span> <span class="n">detect_anomaly</span><span class="p">,</span>
+                          <span class="s1">&#39;is_anomaly_enabled&#39;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_anomaly_enabled</span><span class="p">()})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;gpu_names&#39;</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">cuda_device_names</span><span class="p">(),</span>
+                    <span class="s1">&#39;gpu_count&#39;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">(),</span>
+                    <span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="k">else</span> <span class="s1">&#39;NotSet&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;cudnn.enabled&#39;</span><span class="p">:</span> <span class="n">cudnn</span><span class="o">.</span><span class="n">enabled</span><span class="p">,</span>
+                    <span class="s1">&#39;cudnn.benchmark&#39;</span><span class="p">:</span> <span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span><span class="p">,</span>
+                    <span class="s1">&#39;cudnn.deterministic&#39;</span><span class="p">:</span> <span class="n">cudnn</span><span class="o">.</span><span class="n">deterministic</span><span class="p">,</span>
+                    <span class="s1">&#39;cudnn.version&#39;</span><span class="p">:</span> <span class="n">cudnn</span><span class="o">.</span><span class="n">version</span><span class="p">()</span>
+                    <span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;memory&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">())})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;CPUs&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">psutil</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())})</span>
+
+        <span class="c1"># gpu_usage = os.popen(</span>
+        <span class="c1">#     &#39;nvidia-smi --query-gpu=memory.total,memory.used --format=csv,nounits,noheader&#39;</span>
+        <span class="c1"># ).read().split(&#39;\n&#39;)</span>
+        <span class="c1"># for i, line in enumerate(gpu_usage):</span>
+        <span class="c1">#     vals = line.split(&#39;,&#39;)</span>
+        <span class="c1">#     if len(vals) == 2:</span>
+        <span class="c1">#         _log_info(&#39;GPU {} mem: {}, used: {}&#39;.format(i, vals[0], vals[1]))</span>
+
+    <span class="k">def</span> <span class="nf">_set_ranks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_gpu_ids</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+
+        <span class="c1"># this function needs to work even when torch.distributed is not available</span>
+
+        <span class="k">if</span> <span class="s1">&#39;WORLD_SIZE&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;WORLD_SIZE&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="s1">&#39;LOCAL_RANK&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LOCAL_RANK&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="s1">&#39;RANK&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;RANK&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_rank</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span> <span class="o">&lt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">(),</span> \
+            <span class="sa">f</span><span class="s1">&#39;local_rank=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span><span class="si">}</span><span class="s1"> but device_count=</span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span> \
+            <span class="s1">&#39; Possible cause may be Pytorch is not GPU enabled or you have too few GPUs&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">conf_gpu_ids</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="p">]</span>
+        <span class="c1"># which GPU to use, we will use only 1 GPU per process to avoid complications with apex</span>
+        <span class="c1"># remap if GPU IDs are specified</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gpu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu_ids</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gpu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_rank</span> <span class="o">%</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ApexUtils.is_mixed"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.is_mixed">[docs]</a>    <span class="k">def</span> <span class="nf">is_mixed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enabled</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_prec_enabled</span></div>
+<div class="viewcode-block" id="ApexUtils.is_dist"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.is_dist">[docs]</a>    <span class="k">def</span> <span class="nf">is_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enabled</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distributed_enabled</span></div>
+<div class="viewcode-block" id="ApexUtils.is_master"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.is_master">[docs]</a>    <span class="k">def</span> <span class="nf">is_master</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_rank</span> <span class="o">==</span> <span class="mi">0</span></div>
+<div class="viewcode-block" id="ApexUtils.is_ray"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.is_ray">[docs]</a>    <span class="k">def</span> <span class="nf">is_ray</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ray_enabled</span></div>
+
+    <span class="k">def</span> <span class="nf">_log_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span><span class="nb">dict</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ApexUtils.sync_devices"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.sync_devices">[docs]</a>    <span class="k">def</span> <span class="nf">sync_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dist</span><span class="p">():</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div>
+<div class="viewcode-block" id="ApexUtils.barrier"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.barrier">[docs]</a>    <span class="k">def</span> <span class="nf">barrier</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dist</span><span class="p">():</span>
+            <span class="n">dist</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span> <span class="c1"># wait for all processes to come to this point</span></div>
+
+<div class="viewcode-block" id="ApexUtils.reduce"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dist</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">):</span>
+                <span class="n">rt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">converted</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rt</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">converted</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">r_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op_map</span><span class="p">[</span><span class="n">op</span><span class="p">]</span>
+            <span class="n">dist</span><span class="o">.</span><span class="n">all_reduce</span><span class="p">(</span><span class="n">rt</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">r_op</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">op</span><span class="o">==</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+                <span class="n">rt</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span>
+
+            <span class="k">if</span> <span class="n">converted</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rt</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rt</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">rt</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">val</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_optim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multi_optim</span><span class="p">:</span><span class="n">MultiOptim</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Optimizer</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">multi_optim</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span> \
+            <span class="s1">&#39;Mixed precision is only supported for one optimizer&#39;</span>  \
+            <span class="sa">f</span><span class="s1">&#39; but </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">multi_optim</span><span class="p">)</span><span class="si">}</span><span class="s1"> optimizers were supplied&#39;</span>
+        <span class="k">return</span> <span class="n">multi_optim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">optim</span>
+
+<div class="viewcode-block" id="ApexUtils.backward"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.backward">[docs]</a>    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">:</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">multi_optim</span><span class="p">:</span><span class="n">MultiOptim</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mixed</span><span class="p">():</span>
+            <span class="n">optim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_optim</span><span class="p">(</span><span class="n">multi_optim</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amp</span><span class="o">.</span><span class="n">scale_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">optim</span><span class="p">)</span> <span class="k">as</span> <span class="n">scaled_loss</span><span class="p">:</span>
+                <span class="n">scaled_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ApexUtils.to_amp"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.to_amp">[docs]</a>    <span class="k">def</span> <span class="nf">to_amp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">multi_optim</span><span class="p">:</span><span class="n">MultiOptim</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span>\
+                <span class="o">-&gt;</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+        <span class="c1"># conver BNs to sync BNs in distributed mode</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dist</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sync_bn</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ddp</span><span class="o">.</span><span class="n">convert_syncbn_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;BNs_converted&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mixed</span><span class="p">():</span>
+            <span class="n">optim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_optim</span><span class="p">(</span><span class="n">multi_optim</span><span class="p">)</span>
+
+            <span class="c1"># scale LR</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dist</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_lr</span><span class="p">:</span>
+                <span class="n">lr</span> <span class="o">=</span> <span class="n">ml_utils</span><span class="o">.</span><span class="n">get_optim_lr</span><span class="p">(</span><span class="n">optim</span><span class="p">)</span>
+                <span class="n">scaled_lr</span> <span class="o">=</span> <span class="n">lr</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_size</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+                <span class="n">ml_utils</span><span class="o">.</span><span class="n">set_optim_lr</span><span class="p">(</span><span class="n">optim</span><span class="p">,</span> <span class="n">scaled_lr</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_info</span><span class="p">({</span><span class="s1">&#39;lr_scaled&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;old_lr&#39;</span><span class="p">:</span> <span class="n">lr</span><span class="p">,</span> <span class="s1">&#39;new_lr&#39;</span><span class="p">:</span> <span class="n">scaled_lr</span><span class="p">})</span>
+
+            <span class="n">model</span><span class="p">,</span> <span class="n">optim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amp</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
+                <span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">opt_level</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_opt_level</span><span class="p">,</span>
+                <span class="n">keep_batchnorm_fp32</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_bn_fp32</span><span class="p">,</span> <span class="n">loss_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_loss_scale</span>
+            <span class="p">)</span>
+
+            <span class="c1"># put back amp&#39;d optim</span>
+            <span class="n">multi_optim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">optim</span> <span class="o">=</span> <span class="n">optim</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dist</span><span class="p">():</span>
+            <span class="c1"># By default, apex.parallel.DistributedDataParallel overlaps communication with</span>
+            <span class="c1"># computation in the backward pass.</span>
+            <span class="c1"># delay_allreduce delays all communication to the end of the backward pass.</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ddp</span><span class="o">.</span><span class="n">DistributedDataParallel</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">delay_allreduce</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="ApexUtils.clip_grad"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.clip_grad">[docs]</a>    <span class="k">def</span> <span class="nf">clip_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clip</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">multi_optim</span><span class="p">:</span><span class="n">MultiOptim</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">clip</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mixed</span><span class="p">():</span>
+                <span class="n">optim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_optim</span><span class="p">(</span><span class="n">multi_optim</span><span class="p">)</span>
+                <span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_amp</span><span class="o">.</span><span class="n">master_params</span><span class="p">(</span><span class="n">optim</span><span class="p">),</span> <span class="n">clip</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">clip</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApexUtils.state_dict"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mixed</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amp</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ApexUtils.load_state_dict"><a class="viewcode-back" href="../../../api/archai.common.html#archai.common.apex_utils.ApexUtils.load_state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">load_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_mixed</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_amp</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span></div></div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.algos package &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="archai.algos.darts package" href="archai.algos.darts.html" />
+    <link rel="prev" title="archai package" href="archai.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">APIs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="archai.html">archai package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="archai.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">archai.algos package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.common.html">archai.common package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.datasets.html">archai.datasets package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.nas.html">archai.nas package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.networks.html">archai.networks package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="archai.html#module-archai">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">APIs</a> &raquo;</li>
+        
+          <li><a href="archai.html">archai package</a> &raquo;</li>
+        
+      <li>archai.algos package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/archai.algos.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="archai-algos-package">
+<h1>archai.algos package<a class="headerlink" href="#archai-algos-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="archai.algos.darts.html">archai.algos.darts package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.darts.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.darts.html#module-archai.algos.darts.bilevel_arch_trainer">archai.algos.darts.bilevel_arch_trainer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.darts.html#module-archai.algos.darts.bilevel_optimizer">archai.algos.darts.bilevel_optimizer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.darts.html#module-archai.algos.darts.bilevel_optimizer_slow">archai.algos.darts.bilevel_optimizer_slow module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.darts.html#module-archai.algos.darts.darts_exp_runner">archai.algos.darts.darts_exp_runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.darts.html#module-archai.algos.darts.darts_model_desc_builder">archai.algos.darts.darts_model_desc_builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.darts.html#module-archai.algos.darts.mixed_op">archai.algos.darts.mixed_op module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.darts.html#module-archai.algos.darts">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="archai.algos.divnas.html">archai.algos.divnas package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.analyse_activations">archai.algos.divnas.analyse_activations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.divnas_cell">archai.algos.divnas.divnas_cell module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.divnas_exp_runner">archai.algos.divnas.divnas_exp_runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.divnas_finalizers">archai.algos.divnas.divnas_finalizers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.divnas_model_desc_builder">archai.algos.divnas.divnas_model_desc_builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.divnas_rank_finalizer">archai.algos.divnas.divnas_rank_finalizer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.divop">archai.algos.divnas.divop module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.seqopt">archai.algos.divnas.seqopt module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas.wmr">archai.algos.divnas.wmr module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.divnas.html#module-archai.algos.divnas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="archai.algos.gumbelsoftmax.html">archai.algos.gumbelsoftmax package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.gumbelsoftmax.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.gumbelsoftmax.html#module-archai.algos.gumbelsoftmax.gs_arch_trainer">archai.algos.gumbelsoftmax.gs_arch_trainer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.gumbelsoftmax.html#module-archai.algos.gumbelsoftmax.gs_exp_runner">archai.algos.gumbelsoftmax.gs_exp_runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.gumbelsoftmax.html#module-archai.algos.gumbelsoftmax.gs_finalizers">archai.algos.gumbelsoftmax.gs_finalizers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.gumbelsoftmax.html#module-archai.algos.gumbelsoftmax.gs_model_desc_builder">archai.algos.gumbelsoftmax.gs_model_desc_builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.gumbelsoftmax.html#module-archai.algos.gumbelsoftmax.gs_op">archai.algos.gumbelsoftmax.gs_op module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.gumbelsoftmax.html#module-archai.algos.gumbelsoftmax">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="archai.algos.manual.html">archai.algos.manual package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.manual.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.manual.html#module-archai.algos.manual.manual_evaluater">archai.algos.manual.manual_evaluater module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.manual.html#module-archai.algos.manual.manual_exp_runner">archai.algos.manual.manual_exp_runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.manual.html#module-archai.algos.manual.manual_searcher">archai.algos.manual.manual_searcher module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.manual.html#module-archai.algos.manual">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="archai.algos.petridish.html">archai.algos.petridish package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.petridish.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.petridish.html#module-archai.algos.petridish.evaluater_petridish">archai.algos.petridish.evaluater_petridish module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.petridish.html#module-archai.algos.petridish.petridish_exp_runner">archai.algos.petridish.petridish_exp_runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.petridish.html#module-archai.algos.petridish.petridish_model_desc_builder">archai.algos.petridish.petridish_model_desc_builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.petridish.html#module-archai.algos.petridish.petridish_op">archai.algos.petridish.petridish_op module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.petridish.html#module-archai.algos.petridish.petridish_utils">archai.algos.petridish.petridish_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.petridish.html#module-archai.algos.petridish.searcher_petridish">archai.algos.petridish.searcher_petridish module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.petridish.html#module-archai.algos.petridish">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="archai.algos.random.html">archai.algos.random package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.random.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.random.html#module-archai.algos.random.random_exp_runner">archai.algos.random.random_exp_runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.random.html#module-archai.algos.random.random_model_desc_builder">archai.algos.random.random_model_desc_builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.random.html#module-archai.algos.random">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="archai.algos.xnas.html">archai.algos.xnas package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.xnas.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.xnas.html#module-archai.algos.xnas.xnas_arch_trainer">archai.algos.xnas.xnas_arch_trainer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.xnas.html#module-archai.algos.xnas.xnas_exp_runner">archai.algos.xnas.xnas_exp_runner module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.xnas.html#module-archai.algos.xnas.xnas_model_desc_builder">archai.algos.xnas.xnas_model_desc_builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.xnas.html#module-archai.algos.xnas.xnas_op">archai.algos.xnas.xnas_op module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.algos.xnas.html#module-archai.algos.xnas">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-archai.algos">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-archai.algos" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="archai.algos.darts.html" class="btn btn-neutral float-right" title="archai.algos.darts package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="archai.html" class="btn btn-neutral float-left" title="archai package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

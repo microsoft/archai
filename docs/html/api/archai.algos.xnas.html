@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>archai.algos.xnas package &mdash; Archai  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="archai.common package" href="archai.common.html" />
+    <link rel="prev" title="archai.algos.random package" href="archai.algos.random.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Archai
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installing Archai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Archai Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../blitz.html">Archai - A 30 Minute Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../petridish.html">Petridish - Code Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions (FAQs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dir_struct.html">Directory Structure</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">APIs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="archai.html">archai package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="archai.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="archai.algos.html">archai.algos package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.common.html">archai.common package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.datasets.html">archai.datasets package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.nas.html">archai.nas package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.networks.html">archai.networks package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="archai.html#module-archai">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Archai</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">APIs</a> &raquo;</li>
+        
+          <li><a href="archai.html">archai package</a> &raquo;</li>
+        
+          <li><a href="archai.algos.html">archai.algos package</a> &raquo;</li>
+        
+      <li>archai.algos.xnas package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/archai.algos.xnas.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="archai-algos-xnas-package">
+<h1>archai.algos.xnas package<a class="headerlink" href="#archai-algos-xnas-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-archai.algos.xnas.xnas_arch_trainer">
+<span id="archai-algos-xnas-xnas-arch-trainer-module"></span><h2>archai.algos.xnas.xnas_arch_trainer module<a class="headerlink" href="#module-archai.algos.xnas.xnas_arch_trainer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.xnas.xnas_arch_trainer.</code><code class="sig-name descname">XnasArchTrainer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf_train</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em>, <em class="sig-param"><span class="n">model</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model.Model" title="archai.nas.model.Model">archai.nas.model.Model</a></span></em>, <em class="sig-param"><span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="archai.common.html#archai.common.checkpoint.CheckPoint" title="archai.common.checkpoint.CheckPoint">archai.common.checkpoint.CheckPoint</a><span class="p">]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_arch_trainer.html#XnasArchTrainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.arch_trainer.ArchTrainer" title="archai.nas.arch_trainer.ArchTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.arch_trainer.ArchTrainer</span></code></a></p>
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.create_optimizer">
+<code class="sig-name descname">create_optimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf_optim</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span> &#x2192; torch.optim.optimizer.Optimizer<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_arch_trainer.html#XnasArchTrainer.create_optimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.create_optimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.post_epoch">
+<code class="sig-name descname">post_epoch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">train_dl</span><span class="p">:</span> <span class="n">torch.utils.data.dataloader.DataLoader</span></em>, <em class="sig-param"><span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_arch_trainer.html#XnasArchTrainer.post_epoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.post_epoch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.post_fit">
+<code class="sig-name descname">post_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">train_dl</span><span class="p">:</span> <span class="n">torch.utils.data.dataloader.DataLoader</span></em>, <em class="sig-param"><span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_arch_trainer.html#XnasArchTrainer.post_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.post_fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_epoch">
+<code class="sig-name descname">pre_epoch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">train_dl</span><span class="p">:</span> <span class="n">torch.utils.data.dataloader.DataLoader</span></em>, <em class="sig-param"><span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_arch_trainer.html#XnasArchTrainer.pre_epoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_epoch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_fit">
+<code class="sig-name descname">pre_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">train_dl</span><span class="p">:</span> <span class="n">torch.utils.data.dataloader.DataLoader</span></em>, <em class="sig-param"><span class="n">val_dl</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>torch.utils.data.dataloader.DataLoader<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_arch_trainer.html#XnasArchTrainer.pre_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_step">
+<code class="sig-name descname">pre_step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">torch.Tensor</span></em>, <em class="sig-param"><span class="n">y</span><span class="p">:</span> <span class="n">torch.Tensor</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_arch_trainer.html#XnasArchTrainer.pre_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.pre_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.update_checkpoint">
+<code class="sig-name descname">update_checkpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">checkpoint</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.checkpoint.CheckPoint" title="archai.common.checkpoint.CheckPoint">archai.common.checkpoint.CheckPoint</a></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_arch_trainer.html#XnasArchTrainer.update_checkpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_arch_trainer.XnasArchTrainer.update_checkpoint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.xnas.xnas_exp_runner">
+<span id="archai-algos-xnas-xnas-exp-runner-module"></span><h2>archai.algos.xnas.xnas_exp_runner module<a class="headerlink" href="#module-archai.algos.xnas.xnas_exp_runner" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.xnas.xnas_exp_runner.XnasExperimentRunner">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.xnas.xnas_exp_runner.</code><code class="sig-name descname">XnasExperimentRunner</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_filename</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">base_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">clean_expdir</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_exp_runner.html#XnasExperimentRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_exp_runner.XnasExperimentRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.exp_runner.ExperimentRunner" title="archai.nas.exp_runner.ExperimentRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.exp_runner.ExperimentRunner</span></code></a></p>
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_exp_runner.XnasExperimentRunner.model_desc_builder">
+<code class="sig-name descname">model_desc_builder</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder" title="archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder">archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder</a><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_exp_runner.html#XnasExperimentRunner.model_desc_builder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_exp_runner.XnasExperimentRunner.model_desc_builder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_exp_runner.XnasExperimentRunner.trainer_class">
+<code class="sig-name descname">trainer_class</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>Type<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.arch_trainer.ArchTrainer" title="archai.nas.arch_trainer.ArchTrainer">archai.nas.arch_trainer.ArchTrainer</a><span class="p">]</span><span class="p">]</span><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_exp_runner.html#XnasExperimentRunner.trainer_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_exp_runner.XnasExperimentRunner.trainer_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.xnas.xnas_model_desc_builder">
+<span id="archai-algos-xnas-xnas-model-desc-builder-module"></span><h2>archai.algos.xnas.xnas_model_desc_builder module<a class="headerlink" href="#module-archai.algos.xnas.xnas_model_desc_builder" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.xnas.xnas_model_desc_builder.</code><code class="sig-name descname">XnasModelDescBuilder</code><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_model_desc_builder.html#XnasModelDescBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.model_desc_builder.ModelDescBuilder" title="archai.nas.model_desc_builder.ModelDescBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.model_desc_builder.ModelDescBuilder</span></code></a></p>
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder.build_nodes">
+<code class="sig-name descname">build_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stem_shapes</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>int<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">conf_cell</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em>, <em class="sig-param"><span class="n">cell_index</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">cell_type</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.CellType" title="archai.nas.model_desc.CellType">archai.nas.model_desc.CellType</a></span></em>, <em class="sig-param"><span class="n">node_count</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">in_shape</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">out_shape</span><span class="p">:</span> <span class="n">List<span class="p">[</span>int<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>List<span class="p">[</span>List<span class="p">[</span>int<span class="p">]</span><span class="p">]</span><span class="p">, </span>List<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.NodeDesc" title="archai.nas.model_desc.NodeDesc">archai.nas.model_desc.NodeDesc</a><span class="p">]</span><span class="p">]</span><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_model_desc_builder.html#XnasModelDescBuilder.build_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder.build_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder.pre_build">
+<code class="sig-name descname">pre_build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conf_model_desc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config">archai.common.config.Config</a></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_model_desc_builder.html#XnasModelDescBuilder.pre_build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_model_desc_builder.XnasModelDescBuilder.pre_build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.xnas.xnas_op">
+<span id="archai-algos-xnas-xnas-op-module"></span><h2>archai.algos.xnas.xnas_op module<a class="headerlink" href="#module-archai.algos.xnas.xnas_op" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="archai.algos.xnas.xnas_op.XnasOp">
+<em class="property">class </em><code class="sig-prename descclassname">archai.algos.xnas.xnas_op.</code><code class="sig-name descname">XnasOp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">op_desc</span><span class="p">:</span> <span class="n"><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.OpDesc" title="archai.nas.model_desc.OpDesc">archai.nas.model_desc.OpDesc</a></span></em>, <em class="sig-param"><span class="n">arch_params</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.arch_params.ArchParams" title="archai.nas.arch_params.ArchParams">archai.nas.arch_params.ArchParams</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">affine</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_op.html#XnasOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_op.XnasOp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="archai.nas.html#archai.nas.operations.Op" title="archai.nas.operations.Op"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nas.operations.Op</span></code></a></p>
+<p>The output of XnasOp is weighted output of all allowed primitives.</p>
+<dl class="py attribute">
+<dt id="archai.algos.xnas.xnas_op.XnasOp.PRIMITIVES">
+<code class="sig-name descname">PRIMITIVES</code><em class="property"> = ['max_pool_3x3', 'avg_pool_3x3', 'skip_connect', 'sep_conv_3x3', 'sep_conv_5x5', 'dil_conv_3x3', 'dil_conv_5x5', 'none']</em><a class="headerlink" href="#archai.algos.xnas.xnas_op.XnasOp.PRIMITIVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_op.XnasOp.can_drop_path">
+<code class="sig-name descname">can_drop_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="../_modules/archai/algos/xnas/xnas_op.html#XnasOp.can_drop_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_op.XnasOp.can_drop_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_op.XnasOp.finalize">
+<code class="sig-name descname">finalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span><a class="reference internal" href="archai.nas.html#archai.nas.model_desc.OpDesc" title="archai.nas.model_desc.OpDesc">archai.nas.model_desc.OpDesc</a><span class="p">, </span>Optional<span class="p">[</span>float<span class="p">]</span><span class="p">]</span><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_op.html#XnasOp.finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_op.XnasOp.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>for trainable op, return final op and its rank</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_op.XnasOp.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_op.html#XnasOp.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_op.XnasOp.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="archai.algos.xnas.xnas_op.XnasOp.update_alphas">
+<code class="sig-name descname">update_alphas</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eta</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">current_t</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">total_t</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">grad_clip</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/archai/algos/xnas/xnas_op.html#XnasOp.update_alphas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#archai.algos.xnas.xnas_op.XnasOp.update_alphas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-archai.algos.xnas">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-archai.algos.xnas" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="archai.common.html" class="btn btn-neutral float-right" title="archai.common package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="archai.algos.random.html" class="btn btn-neutral float-left" title="archai.algos.random package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Microsoft
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
