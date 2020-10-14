@@ -169,6 +169,9 @@ class ModelDescBuilder(EnforceOverrides):
             return self._normal_indices[0]
         raise RuntimeError(f'Cannot get cell for shared trainables because cell_type "{cell_type}" is not recgnized')
 
+    def get_ch(self, shape:TensorShape)->int:
+        return int(shape[0])
+
     def build_cell_stems(self, in_shapes:TensorShapesList, conf_cell:Config,
                    cell_index:int)\
                        ->Tuple[TensorShapes, List[OpDesc]]:
@@ -181,11 +184,11 @@ class ModelDescBuilder(EnforceOverrides):
         # At start we have only one layer, i.e., model stems.
         # Typically model stems should have same channel count but for imagenet we do
         #   reduction at model stem so stem1 will have twice channels as stem0
-        p_ch_out = in_shapes[-1][0][0]
-        pp_ch_out = in_shapes[-2][0][0]
+        p_ch_out = self.get_ch(in_shapes[-1][0])
+        pp_ch_out = self.get_ch(in_shapes[-2][0])
 
         # was the previous layer reduction layer?
-        reduction_p = p_ch_out >= pp_ch_out*2
+        reduction_p = p_ch_out == pp_ch_out*2 or in_shapes[-2][0][2] == in_shapes[-1][0][2]*2
 
         # find out the node channels for this cell
         node_ch_out = self.node_channels[cell_index][0] # init with first node in cell
@@ -206,7 +209,9 @@ class ModelDescBuilder(EnforceOverrides):
         # output two shapes with proper channels setup
         # for default model desc, cell stems have same shapes and channels
         out_shape0 = copy.deepcopy(in_shapes[-1][0])
-        out_shape0[0] = node_ch_out
+        # set channels and reset shapes to -1 to indicate unknown
+        # for imagenet HxW would be floating point numbers due to one input reduced
+        out_shape0[0], out_shape0[2], out_shape0[3] = node_ch_out, -1, -1
         out_shape1 = copy.deepcopy(out_shape0)
 
         return [out_shape0, out_shape1], [s0_op, s1_op]
@@ -226,7 +231,8 @@ class ModelDescBuilder(EnforceOverrides):
         for n in cell_template.nodes():
             edges_copy = [e.clone(
                             # use new macro params
-                            conv_params=ConvMacroParams(stem_shapes[0][0], stem_shapes[0][0]),
+                            conv_params=ConvMacroParams(self.get_ch(stem_shapes[0]),
+                                                        self.get_ch(stem_shapes[0])),
                             # TODO: check for compatibility?
                             clear_trainables=True
                             ) for e in n.edges]
@@ -244,7 +250,8 @@ class ModelDescBuilder(EnforceOverrides):
         # default: create nodes with empty edges
         nodes:List[NodeDesc] =  [NodeDesc(edges=[],
                                             conv_params=ConvMacroParams(
-                                                in_shape[0], out_shape[0]))
+                                                self.get_ch(in_shape),
+                                                self.get_ch(out_shape)))
                                 for _ in range(node_count)]
 
         out_shapes = [copy.deepcopy(out_shape) for _  in range(node_count)]
@@ -276,7 +283,8 @@ class ModelDescBuilder(EnforceOverrides):
         in_shapes.append([copy.deepcopy(last_shape)])
 
         return OpDesc(model_post_op,
-                         params={'conv': ConvMacroParams(last_shape[0], last_shape[0])},
+                         params={'conv': ConvMacroParams(self.get_ch(last_shape),
+                                                         self.get_ch(last_shape))},
                          in_len=1, trainables=None)
 
     def build_logits_op(self, in_shapes:TensorShapesList, conf_model_desc:Config)->OpDesc:
@@ -308,7 +316,7 @@ class ModelDescBuilder(EnforceOverrides):
             ->Tuple[int, int, int]:
 
         node_count = len(node_shapes)
-        node_ch_out = node_shapes[-1][0]
+        node_ch_out = self.get_ch(node_shapes[-1])
 
         # we take all available node outputs as input to post op
         # if no nodes exist then we will use cell stem outputs
@@ -360,7 +368,7 @@ class ModelDescBuilder(EnforceOverrides):
 
         # TODO: shouldn't we be adding aux tower at *every* 1/3rd?
         if aux_weight and n_reductions > 1 and cell_index == 2*n_cells//3:
-            return AuxTowerDesc(out_shape[0], n_classes, aux_tower_stride)
+            return AuxTowerDesc(self.get_ch(out_shape), n_classes, aux_tower_stride)
         return None
 
     def build_model_stems(self, in_shapes:TensorShapesList,
@@ -376,7 +384,7 @@ class ModelDescBuilder(EnforceOverrides):
 
         out_channels = init_node_ch*stem_multiplier
 
-        conv_params = ConvMacroParams(in_shapes[-1][0][0], # channels of first input tensor
+        conv_params = ConvMacroParams(self.get_ch(in_shapes[-1][0]), # channels of first input tensor
                                       init_node_ch*stem_multiplier)
 
         stems = [OpDesc(name=op_name, params={'conv': conv_params},
@@ -392,8 +400,8 @@ class ModelDescBuilder(EnforceOverrides):
         # This way when we access first element of each output we get s1, s0.
         # Normailly s0==s1 but for networks like imagenet, s0 will have twice the channels
         #   of s1.
-        for stem_reduction in reversed(stem_reductions):
-            in_shapes.append([[out_channels, -1, -1, -1]])
+        for stem_reduction in stem_reductions:
+            in_shapes.append([[out_channels, -1, -1.0/stem_reduction, -1.0/stem_reduction]])
 
         return stems
 

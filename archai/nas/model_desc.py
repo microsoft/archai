@@ -24,7 +24,7 @@ Note: All classes in this file needs to be deepcopy compatible because
 # Each tensor shape is list
 # A layer can output multiple tensors so its shapes are TensorShapes
 # list of all layer outputs is TensorShapesList]
-TensorShape=List[Union[int]]
+TensorShape=List[Union[float]]
 TensorShapes=List[TensorShape]
 TensorShapesList=List[TensorShapes]
 

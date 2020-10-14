@@ -3,6 +3,9 @@ _cell_descs:
 - !!python/object:archai.nas.model_desc.CellDesc
   _nodes:
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: &id001 !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 16
+      ch_out: 16
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -11,7 +14,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: sep_conv_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 16
@@ -33,21 +36,8 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id001
     edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 16
-            ch_out: 16
-          stride: 1
-        trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
       - 0
@@ -62,7 +52,22 @@ _cell_descs:
             ch_out: 16
           stride: 1
         trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 16
+            ch_out: 16
+          stride: 1
+        trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id001
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -71,7 +76,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 16
@@ -85,7 +90,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: max_pool_3x3
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 16
@@ -93,10 +98,25 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id001
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 0
+      - 3
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 16
+            ch_out: 16
+          stride: 1
+        trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
@@ -108,30 +128,38 @@ _cell_descs:
             ch_out: 16
           stride: 1
         trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 16
-            ch_out: 16
-          stride: 1
-        trainables: null
-  alphas_from: 0
-  cell_ch_out: 64
-  cell_type: &id001 !!python/object/apply:archai.nas.model_desc.CellType
+  cell_type: &id003 !!python/object/apply:archai.nas.model_desc.CellType
   - regular
-  conv_params: !!python/object:archai.nas.model_desc.ConvMacroParams
-    ch_in: 16
-    ch_out: 16
+  conf_cell: &id004 !!python/object:archai.common.config.Config
+    args: null
+    config_filepath: null
+    data:
+      cell_post_op: concate_channels
+      n_nodes: 4
+    extra_args: []
   id: 0
-  max_final_edges: 2
-  node_ch_out: 16
+  node_shapes:
+  - - 16
+    - -1
+    - -1
+    - -1
+  - - 16
+    - -1
+    - -1
+    - -1
+  - - 16
+    - -1
+    - -1
+    - -1
+  - - 16
+    - -1
+    - -1
+    - -1
+  out_shape:
+  - 64
+  - -1
+  - -1
+  - -1
   post_op: !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
@@ -143,7 +171,17 @@ _cell_descs:
         ch_out: 64
       out_states: 4
     trainables: null
-  s0_op: !!python/object:archai.nas.model_desc.OpDesc
+  stem_shapes:
+  - - 16
+    - -1
+    - -1
+    - -1
+  - - 16
+    - -1
+    - -1
+    - -1
+  stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -153,7 +191,7 @@ _cell_descs:
         ch_in: 48
         ch_out: 16
     trainables: null
-  s1_op: !!python/object:archai.nas.model_desc.OpDesc
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -163,9 +201,13 @@ _cell_descs:
         ch_in: 48
         ch_out: 16
     trainables: null
+  trainables_from: 0
 - !!python/object:archai.nas.model_desc.CellDesc
   _nodes:
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: &id002 !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 16
+      ch_out: 16
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -174,7 +216,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: sep_conv_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 16
@@ -196,21 +238,8 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id002
     edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 16
-            ch_out: 16
-          stride: 1
-        trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
       - 0
@@ -225,7 +254,22 @@ _cell_descs:
             ch_out: 16
           stride: 1
         trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 16
+            ch_out: 16
+          stride: 1
+        trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id002
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -234,7 +278,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 16
@@ -248,7 +292,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: max_pool_3x3
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 16
@@ -256,10 +300,25 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id002
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 0
+      - 3
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 16
+            ch_out: 16
+          stride: 1
+        trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
@@ -271,29 +330,31 @@ _cell_descs:
             ch_out: 16
           stride: 1
         trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 16
-            ch_out: 16
-          stride: 1
-        trainables: null
-  alphas_from: 0
-  cell_ch_out: 64
-  cell_type: *id001
-  conv_params: !!python/object:archai.nas.model_desc.ConvMacroParams
-    ch_in: 16
-    ch_out: 16
+  cell_type: *id003
+  conf_cell: *id004
   id: 1
-  max_final_edges: 2
-  node_ch_out: 16
+  node_shapes:
+  - - 16
+    - -1
+    - -1
+    - -1
+  - - 16
+    - -1
+    - -1
+    - -1
+  - - 16
+    - -1
+    - -1
+    - -1
+  - - 16
+    - -1
+    - -1
+    - -1
+  out_shape:
+  - 64
+  - -1
+  - -1
+  - -1
   post_op: !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
@@ -305,7 +366,17 @@ _cell_descs:
         ch_out: 64
       out_states: 4
     trainables: null
-  s0_op: !!python/object:archai.nas.model_desc.OpDesc
+  stem_shapes:
+  - - 16
+    - -1
+    - -1
+    - -1
+  - - 16
+    - -1
+    - -1
+    - -1
+  stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -315,7 +386,7 @@ _cell_descs:
         ch_in: 48
         ch_out: 16
     trainables: null
-  s1_op: !!python/object:archai.nas.model_desc.OpDesc
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -325,9 +396,13 @@ _cell_descs:
         ch_in: 64
         ch_out: 16
     trainables: null
+  trainables_from: 0
 - !!python/object:archai.nas.model_desc.CellDesc
   _nodes:
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: &id005 !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 32
+      ch_out: 32
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -336,7 +411,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: max_pool_3x3
+        name: sep_conv_5x5
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
@@ -350,7 +425,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_3x3
+        name: max_pool_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
@@ -358,7 +433,22 @@ _cell_descs:
           stride: 2
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id005
     edges:
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 0
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: avg_pool_3x3
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 32
+            ch_out: 32
+          stride: 2
+        trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
       - 2
@@ -372,6 +462,23 @@ _cell_descs:
             ch_in: 32
             ch_out: 32
           stride: 1
+        trainables: null
+  - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id005
+    edges:
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 1
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: max_pool_3x3
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 32
+            ch_out: 32
+          stride: 2
         trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -388,40 +495,25 @@ _cell_descs:
           stride: 2
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id005
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 3
+      - 0
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: max_pool_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
             ch_out: 32
-          stride: 1
+          stride: 2
         trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 2
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: skip_connect
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 32
-            ch_out: 32
-          stride: 1
-        trainables: null
-  - !!python/object:archai.nas.model_desc.NodeDesc
-    edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 3
+      - 4
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
@@ -433,30 +525,32 @@ _cell_descs:
             ch_out: 32
           stride: 1
         trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 4
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_5x5
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 32
-            ch_out: 32
-          stride: 1
-        trainables: null
-  alphas_from: 2
-  cell_ch_out: 128
-  cell_type: &id002 !!python/object/apply:archai.nas.model_desc.CellType
+  cell_type: &id009 !!python/object/apply:archai.nas.model_desc.CellType
   - reduction
-  conv_params: !!python/object:archai.nas.model_desc.ConvMacroParams
-    ch_in: 32
-    ch_out: 32
+  conf_cell: *id004
   id: 2
-  max_final_edges: 2
-  node_ch_out: 32
+  node_shapes:
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  out_shape:
+  - 128
+  - -1
+  - -1
+  - -1
   post_op: !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
@@ -468,7 +562,17 @@ _cell_descs:
         ch_out: 128
       out_states: 4
     trainables: null
-  s0_op: !!python/object:archai.nas.model_desc.OpDesc
+  stem_shapes:
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -478,7 +582,7 @@ _cell_descs:
         ch_in: 64
         ch_out: 32
     trainables: null
-  s1_op: !!python/object:archai.nas.model_desc.OpDesc
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -488,9 +592,13 @@ _cell_descs:
         ch_in: 64
         ch_out: 32
     trainables: null
+  trainables_from: 2
 - !!python/object:archai.nas.model_desc.CellDesc
   _nodes:
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: &id006 !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 32
+      ch_out: 32
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -499,7 +607,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: sep_conv_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
@@ -521,21 +629,8 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id006
     edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 32
-            ch_out: 32
-          stride: 1
-        trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
       - 0
@@ -550,7 +645,22 @@ _cell_descs:
             ch_out: 32
           stride: 1
         trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 32
+            ch_out: 32
+          stride: 1
+        trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id006
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -559,7 +669,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
@@ -573,7 +683,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: max_pool_3x3
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
@@ -581,10 +691,25 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id006
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 0
+      - 3
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 32
+            ch_out: 32
+          stride: 1
+        trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
@@ -596,29 +721,31 @@ _cell_descs:
             ch_out: 32
           stride: 1
         trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 32
-            ch_out: 32
-          stride: 1
-        trainables: null
-  alphas_from: 0
-  cell_ch_out: 128
-  cell_type: *id001
-  conv_params: !!python/object:archai.nas.model_desc.ConvMacroParams
-    ch_in: 32
-    ch_out: 32
+  cell_type: *id003
+  conf_cell: *id004
   id: 3
-  max_final_edges: 2
-  node_ch_out: 32
+  node_shapes:
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  out_shape:
+  - 128
+  - -1
+  - -1
+  - -1
   post_op: !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
@@ -630,7 +757,17 @@ _cell_descs:
         ch_out: 128
       out_states: 4
     trainables: null
-  s0_op: !!python/object:archai.nas.model_desc.OpDesc
+  stem_shapes:
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -640,7 +777,7 @@ _cell_descs:
         ch_in: 64
         ch_out: 32
     trainables: null
-  s1_op: !!python/object:archai.nas.model_desc.OpDesc
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -650,9 +787,13 @@ _cell_descs:
         ch_in: 128
         ch_out: 32
     trainables: null
+  trainables_from: 0
 - !!python/object:archai.nas.model_desc.CellDesc
   _nodes:
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: &id007 !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 32
+      ch_out: 32
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -661,7 +802,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: sep_conv_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
@@ -683,21 +824,8 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id007
     edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 32
-            ch_out: 32
-          stride: 1
-        trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
       - 0
@@ -712,7 +840,22 @@ _cell_descs:
             ch_out: 32
           stride: 1
         trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 32
+            ch_out: 32
+          stride: 1
+        trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id007
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -721,7 +864,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
@@ -735,7 +878,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: max_pool_3x3
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 32
@@ -743,10 +886,25 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id007
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 0
+      - 3
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 32
+            ch_out: 32
+          stride: 1
+        trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
@@ -758,29 +916,31 @@ _cell_descs:
             ch_out: 32
           stride: 1
         trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 32
-            ch_out: 32
-          stride: 1
-        trainables: null
-  alphas_from: 0
-  cell_ch_out: 128
-  cell_type: *id001
-  conv_params: !!python/object:archai.nas.model_desc.ConvMacroParams
-    ch_in: 32
-    ch_out: 32
+  cell_type: *id003
+  conf_cell: *id004
   id: 4
-  max_final_edges: 2
-  node_ch_out: 32
+  node_shapes:
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  out_shape:
+  - 128
+  - -1
+  - -1
+  - -1
   post_op: !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
@@ -792,7 +952,17 @@ _cell_descs:
         ch_out: 128
       out_states: 4
     trainables: null
-  s0_op: !!python/object:archai.nas.model_desc.OpDesc
+  stem_shapes:
+  - - 32
+    - -1
+    - -1
+    - -1
+  - - 32
+    - -1
+    - -1
+    - -1
+  stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -802,7 +972,7 @@ _cell_descs:
         ch_in: 128
         ch_out: 32
     trainables: null
-  s1_op: !!python/object:archai.nas.model_desc.OpDesc
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -812,9 +982,13 @@ _cell_descs:
         ch_in: 128
         ch_out: 32
     trainables: null
+  trainables_from: 0
 - !!python/object:archai.nas.model_desc.CellDesc
   _nodes:
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: &id008 !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 64
+      ch_out: 64
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -823,7 +997,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: max_pool_3x3
+        name: sep_conv_5x5
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 64
@@ -837,7 +1011,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_3x3
+        name: max_pool_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 64
@@ -845,7 +1019,22 @@ _cell_descs:
           stride: 2
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id008
     edges:
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 0
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: avg_pool_3x3
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 2
+        trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
       - 2
@@ -860,6 +1049,23 @@ _cell_descs:
             ch_out: 64
           stride: 1
         trainables: null
+  - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id008
+    edges:
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 1
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: max_pool_3x3
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 2
+        trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
       - 0
@@ -875,15 +1081,149 @@ _cell_descs:
           stride: 2
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id008
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 3
+      - 0
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: max_pool_3x3
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 2
+        trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 4
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: dil_conv_5x5
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 1
+        trainables: null
+  cell_type: *id009
+  conf_cell: *id004
+  id: 5
+  node_shapes:
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  out_shape:
+  - 256
+  - -1
+  - -1
+  - -1
+  post_op: !!python/object:archai.nas.model_desc.OpDesc
+    children: null
+    children_ins: null
+    in_len: 1
+    name: concate_channels
+    params:
+      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+        ch_in: 256
+        ch_out: 256
+      out_states: 4
+    trainables: null
+  stem_shapes:
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
+    children: null
+    children_ins: null
+    in_len: 1
+    name: prepr_normal
+    params:
+      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+        ch_in: 128
+        ch_out: 64
+    trainables: null
+  - !!python/object:archai.nas.model_desc.OpDesc
+    children: null
+    children_ins: null
+    in_len: 1
+    name: prepr_normal
+    params:
+      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+        ch_in: 128
+        ch_out: 64
+    trainables: null
+  trainables_from: 2
+- !!python/object:archai.nas.model_desc.CellDesc
+  _nodes:
+  - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: &id010 !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 64
+      ch_out: 64
+    edges:
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 0
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: sep_conv_3x3
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 1
+        trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 1
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: sep_conv_3x3
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 1
+        trainables: null
+  - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id010
+    edges:
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 0
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: sep_conv_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 64
@@ -905,138 +1245,7 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
-    edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 3
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: dil_conv_5x5
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 4
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_5x5
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
-  alphas_from: 2
-  cell_ch_out: 256
-  cell_type: *id002
-  conv_params: !!python/object:archai.nas.model_desc.ConvMacroParams
-    ch_in: 64
-    ch_out: 64
-  id: 5
-  max_final_edges: 2
-  node_ch_out: 64
-  post_op: !!python/object:archai.nas.model_desc.OpDesc
-    children: null
-    children_ins: null
-    in_len: 1
-    name: concate_channels
-    params:
-      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-        ch_in: 256
-        ch_out: 256
-      out_states: 4
-    trainables: null
-  s0_op: !!python/object:archai.nas.model_desc.OpDesc
-    children: null
-    children_ins: null
-    in_len: 1
-    name: prepr_normal
-    params:
-      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-        ch_in: 128
-        ch_out: 64
-    trainables: null
-  s1_op: !!python/object:archai.nas.model_desc.OpDesc
-    children: null
-    children_ins: null
-    in_len: 1
-    name: prepr_normal
-    params:
-      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-        ch_in: 128
-        ch_out: 64
-    trainables: null
-- !!python/object:archai.nas.model_desc.CellDesc
-  _nodes:
-  - !!python/object:archai.nas.model_desc.NodeDesc
-    edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 0
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_5x5
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
-  - !!python/object:archai.nas.model_desc.NodeDesc
-    edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 0
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
-  - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id010
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -1045,7 +1254,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 64
@@ -1059,7 +1268,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: max_pool_3x3
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 64
@@ -1067,10 +1276,25 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id010
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 0
+      - 3
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 1
+        trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
@@ -1082,29 +1306,31 @@ _cell_descs:
             ch_out: 64
           stride: 1
         trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
-  alphas_from: 0
-  cell_ch_out: 256
-  cell_type: *id001
-  conv_params: !!python/object:archai.nas.model_desc.ConvMacroParams
-    ch_in: 64
-    ch_out: 64
+  cell_type: *id003
+  conf_cell: *id004
   id: 6
-  max_final_edges: 2
-  node_ch_out: 64
+  node_shapes:
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  out_shape:
+  - 256
+  - -1
+  - -1
+  - -1
   post_op: !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
@@ -1116,7 +1342,17 @@ _cell_descs:
         ch_out: 256
       out_states: 4
     trainables: null
-  s0_op: !!python/object:archai.nas.model_desc.OpDesc
+  stem_shapes:
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -1126,7 +1362,7 @@ _cell_descs:
         ch_in: 128
         ch_out: 64
     trainables: null
-  s1_op: !!python/object:archai.nas.model_desc.OpDesc
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -1136,9 +1372,13 @@ _cell_descs:
         ch_in: 256
         ch_out: 64
     trainables: null
+  trainables_from: 0
 - !!python/object:archai.nas.model_desc.CellDesc
   _nodes:
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: &id011 !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 64
+      ch_out: 64
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -1147,7 +1387,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: sep_conv_3x3
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 64
@@ -1169,21 +1409,8 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id011
     edges:
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
       - 0
@@ -1198,7 +1425,22 @@ _cell_descs:
             ch_out: 64
           stride: 1
         trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 1
+        trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id011
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
@@ -1207,7 +1449,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: sep_conv_5x5
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 64
@@ -1221,7 +1463,7 @@ _cell_descs:
         children: null
         children_ins: null
         in_len: 1
-        name: max_pool_3x3
+        name: skip_connect
         params:
           conv: !!python/object:archai.nas.model_desc.ConvMacroParams
             ch_in: 64
@@ -1229,10 +1471,25 @@ _cell_descs:
           stride: 1
         trainables: null
   - !!python/object:archai.nas.model_desc.NodeDesc
+    conv_params: *id011
     edges:
     - !!python/object:archai.nas.model_desc.EdgeDesc
       input_ids:
-      - 0
+      - 3
+      op_desc: !!python/object:archai.nas.model_desc.OpDesc
+        children: null
+        children_ins: null
+        in_len: 1
+        name: skip_connect
+        params:
+          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+            ch_in: 64
+            ch_out: 64
+          stride: 1
+        trainables: null
+    - !!python/object:archai.nas.model_desc.EdgeDesc
+      input_ids:
+      - 2
       op_desc: !!python/object:archai.nas.model_desc.OpDesc
         children: null
         children_ins: null
@@ -1244,29 +1501,31 @@ _cell_descs:
             ch_out: 64
           stride: 1
         trainables: null
-    - !!python/object:archai.nas.model_desc.EdgeDesc
-      input_ids:
-      - 1
-      op_desc: !!python/object:archai.nas.model_desc.OpDesc
-        children: null
-        children_ins: null
-        in_len: 1
-        name: sep_conv_3x3
-        params:
-          conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-            ch_in: 64
-            ch_out: 64
-          stride: 1
-        trainables: null
-  alphas_from: 0
-  cell_ch_out: 256
-  cell_type: *id001
-  conv_params: !!python/object:archai.nas.model_desc.ConvMacroParams
-    ch_in: 64
-    ch_out: 64
+  cell_type: *id003
+  conf_cell: *id004
   id: 7
-  max_final_edges: 2
-  node_ch_out: 64
+  node_shapes:
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  out_shape:
+  - 256
+  - -1
+  - -1
+  - -1
   post_op: !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
@@ -1278,7 +1537,17 @@ _cell_descs:
         ch_out: 256
       out_states: 4
     trainables: null
-  s0_op: !!python/object:archai.nas.model_desc.OpDesc
+  stem_shapes:
+  - - 64
+    - -1
+    - -1
+    - -1
+  - - 64
+    - -1
+    - -1
+    - -1
+  stems:
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -1288,7 +1557,7 @@ _cell_descs:
         ch_in: 256
         ch_out: 64
     trainables: null
-  s1_op: !!python/object:archai.nas.model_desc.OpDesc
+  - !!python/object:archai.nas.model_desc.OpDesc
     children: null
     children_ins: null
     in_len: 1
@@ -1298,6 +1567,7 @@ _cell_descs:
         ch_in: 256
         ch_out: 64
     trainables: null
+  trainables_from: 0
 aux_tower_descs:
 - null
 - null
@@ -1307,6 +1577,44 @@ aux_tower_descs:
 - null
 - null
 - null
+conf_model_desc: !!python/object:archai.common.config.Config
+  args: null
+  config_filepath: null
+  data:
+    aux_tower_stride: 3
+    aux_weight: 0.0
+    cell: *id004
+    dataset: !!python/object:archai.common.config.Config
+      args: null
+      config_filepath: null
+      data:
+        channels: 3
+        dataroot: ~/dataroot
+        max_batches: -1
+        n_classes: 10
+        name: cifar10
+        storage_name: cifar-10-batches-py
+      extra_args: []
+    max_final_edges: 2
+    model_post_op: pool_adaptive_avg2d
+    model_stems: !!python/object:archai.common.config.Config
+      args: null
+      config_filepath: null
+      data:
+        init_node_ch: 16
+        ops:
+        - stem_conv3x3
+        - stem_conv3x3
+        stem_multiplier: 3
+      extra_args: []
+    n_cells: 8
+    n_reductions: 2
+    params: !!python/object:archai.common.config.Config
+      args: null
+      config_filepath: null
+      data: {}
+      extra_args: []
+  extra_args: []
 ds_ch: 3
 logits_op: !!python/object:archai.nas.model_desc.OpDesc
   children: null
@@ -1317,9 +1625,30 @@ logits_op: !!python/object:archai.nas.model_desc.OpDesc
     n_ch: 256
     n_classes: 10
   trainables: null
+max_final_edges: 2
+model_stems:
+- !!python/object:archai.nas.model_desc.OpDesc
+  children: null
+  children_ins: null
+  in_len: 1
+  name: stem_conv3x3
+  params:
+    conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 3
+      ch_out: 48
+  trainables: null
+- !!python/object:archai.nas.model_desc.OpDesc
+  children: null
+  children_ins: null
+  in_len: 1
+  name: stem_conv3x3
+  params:
+    conv: !!python/object:archai.nas.model_desc.ConvMacroParams
+      ch_in: 3
+      ch_out: 48
+  trainables: null
 n_classes: 10
-params:
-  gs_num_sample: 4
+params: {}
 pool_op: !!python/object:archai.nas.model_desc.OpDesc
   children: null
   children_ins: null
@@ -1330,24 +1659,3 @@ pool_op: !!python/object:archai.nas.model_desc.OpDesc
       ch_in: 256
       ch_out: 256
   trainables: null
-model_stems:
-  - !!python/object:archai.nas.model_desc.OpDesc
-    children: null
-    children_ins: null
-    in_len: 1
-    name: stem_conv3x3
-    params:
-      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-        ch_in: 3
-        ch_out: 48
-    trainables: null
-  - !!python/object:archai.nas.model_desc.OpDesc
-    children: null
-    children_ins: null
-    in_len: 1
-    name: stem_conv3x3
-    params:
-      conv: !!python/object:archai.nas.model_desc.ConvMacroParams
-        ch_in: 3
-        ch_out: 48
-    trainables: null

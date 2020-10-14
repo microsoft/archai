@@ -54,6 +54,14 @@
             "args": ["--algos", "darts"]
         },
         {
+            "name": "Darts-Eval-ImageNet",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "darts", "--datasets", "imagenet", "--no-search", "--nas.eval.final_desc_filename", "models/darts/final_model_desc1.yaml"]
+        },
+        {
             "name": "DiDarts-E2E-Toy",
             "type": "python",
             "request": "launch",
@@ -84,6 +92,14 @@
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "petridish"]
+        },
+        {
+            "name": "Petridish-Eval-ImageNet",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "petridish", "--datasets", "imagenet", "--no-search", "--nas.eval.final_desc_foldername", "models/petridish/pt_sweep_seed_36_epochs_600_scale_2.0/model_desc_gallery"]
         },
         {
             "name": "Petridish-Toy",
