@@ -8,15 +8,16 @@ if python -c "import apex" &> /dev/null; then
 else
     mkdir -p ~/GitHubSrc
     pushd ~/GitHubSrc
+    rm -rf ./apex # for some reason this exist in amlk8s
     git clone https://github.com/NVIDIA/apex
     cd apex
-    pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+    pip install --user -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
     popd
 fi
 
 if python -c "import nvidia.dali.pipeline" &> /dev/null; then
     echo 'NVidia dali is already installed'
 else
-    pip install --extra-index-url https://developer.download.nvidia.com/compute/redist/cuda/10.0 nvidia-dali
+    pip install --user --extra-index-url https://developer.download.nvidia.com/compute/redist/ nvidia-dali-cuda100
 fi
 

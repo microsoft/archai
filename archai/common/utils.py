@@ -14,6 +14,7 @@ from itertools import zip_longest
 import shutil
 import multiprocessing
 from distutils import dir_util
+from datetime import datetime
 
 import  torch
 import torch.backends.cudnn as cudnn
@@ -243,10 +244,16 @@ def setup_cuda(seed:Union[float, int], local_rank:int):
 def cuda_device_names()->str:
     return ', '.join([torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())])
 
-def exec_shell_command(command:str, print_command=True)->None:
-    if print_command:
-        print(command)
-    subprocess.run(command, shell=True, check=True)
+def exec_shell_command(command:str, print_command_start=True, print_command_end=True)->subprocess.CompletedProcess:
+    if print_command_start:
+        print(f'[{datetime.now()}] Running: {command}')
+
+    ret = subprocess.run(command, shell=True, check=True)
+
+    if print_command_end:
+        print(f'[{datetime.now()}] returncode={ret.returncode} Finished: {command}')
+
+    return ret
 
 def zip_eq(*iterables):
     sentinel = object()
