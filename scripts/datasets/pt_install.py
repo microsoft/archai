@@ -55,7 +55,7 @@ def untar_dataset(conf_name:str, pt_data_dir:str, conf_dataset:Config, dataroot:
     _create_ram_disk(tar_size, local_dataroot)
     # os.makedirs(local_dataroot, exist_ok=True)
 
-    command = f'tar -xf "{tar_filepath}" -C "{local_dataroot}"'
+    command = f'tar --skip-old-files -xf "{tar_filepath}" -C "{local_dataroot}"'
 
     utils.exec_shell_command(command)
 
