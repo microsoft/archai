@@ -135,6 +135,10 @@ def create_conf(config_filepath: Optional[str]=None,
     # if pt infrastructure doesn't exit then param_overrides == param_args
     param_overrides = _pt_params(param_args)
 
+    # create env vars that might be used in paths in config
+    if 'default_dataroot' not in os.environ:
+        os.environ['default_dataroot'] = _default_dataroot()
+
     conf = Config(config_filepath=config_filepath,
                   param_args=param_overrides,
                   use_args=use_args)
@@ -232,8 +236,6 @@ def _update_conf(conf:Config)->None:
 
     # make sure dataroot exists
     dataroot = conf_dataset['dataroot']
-    if not dataroot:
-        dataroot = _default_dataroot()
     dataroot = utils.full_path(dataroot)
 
     # make sure logdir and expdir exists
@@ -255,6 +257,7 @@ def _update_conf(conf:Config)->None:
     conf_common['distdir'] = distdir
 
 def update_envvars(conf)->None:
+    """Get values from config and put it into env vars"""
     conf_common = get_conf_common(conf)
     logdir = conf_common['logdir']
     expdir = conf_common['expdir']
@@ -284,7 +287,7 @@ def create_dirs(conf:Config, clean_expdir:bool)->Optional[str]:
     distdir = conf_common['distdir']
 
     conf_dataset = get_conf_dataset(conf)
-    dataroot = conf_dataset['dataroot']
+    dataroot = utils.full_path(conf_dataset['dataroot'])
 
     # make sure dataroot exists
     os.makedirs(dataroot, exist_ok=True)

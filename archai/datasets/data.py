@@ -71,7 +71,7 @@ def get_data(conf_loader:Config)\
 
 def create_dataset_provider(conf_dataset:Config)->DatasetProvider:
     ds_name = conf_dataset['name']
-    dataroot = conf_dataset['dataroot']
+    dataroot = utils.full_path(conf_dataset['dataroot'])
     storage_name = conf_dataset['storage_name']
 
     logger.info({'ds_name': ds_name, 'dataroot':dataroot, 'storage_name':storage_name})

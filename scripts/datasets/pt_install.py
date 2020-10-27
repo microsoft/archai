@@ -42,7 +42,7 @@ def untar_dataset(conf_name:str, pt_data_dir:str, conf_dataset:Config, dataroot:
 
     print(f'Untaring for data config: {conf_name}')
 
-    storage_name = conf_dataset['storage_name']
+    storage_name = conf_dataset['storage_name'] #TODO: rename to file_name
     tar_filepath = os.path.join(pt_data_dir, storage_name + '.tar')
     if not os.path.isfile(tar_filepath):
         raise RuntimeError(f'Tar file for dataset at {tar_filepath} was not found')
@@ -71,7 +71,7 @@ def _default_dataroot()->str:
 
 def main():
     parser = argparse.ArgumentParser(description='Archai data install')
-    parser.add_argument('--dataroot', type=str, default=_default_dataroot(),
+    parser.add_argument('--dataroot', type=str, default=_default_dataroot(), #TODO:should read from conf_dataset
                         help='path to dataroot on local drive')
     parser.add_argument('--dataset', type=str, default='cifar10',
                         help='Name of the dataset for which confs/dataset/name.yaml should exist and have name of folder or tar file it resides in')
@@ -86,7 +86,7 @@ def main():
     conf_data_filepath = f'confs/datasets/{args.dataset}.yaml'
     print('conf_data_filepath:', conf_data_filepath)
 
-    conf = Config(config_filepath=conf_data_filepath)
+    conf = Config(config_filepath=conf_data_filepath) #TODO: use common.create_config so env vars and pt stuff taken care of
     for dataset_key in ['dataset', 'dataset_search', 'dataset_eval']:
         if dataset_key in conf:
             print(f'dataset_key: {dataset_key}')
