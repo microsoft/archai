@@ -61,10 +61,17 @@ def untar_dataset(conf_name:str, pt_data_dir:str, conf_dataset:Config, dataroot:
 
     print(f'dataset copied from {tar_filepath} to {local_dataroot} sucessfully')
 
+def _is_pt()->bool:
+    """Is this code running in pt infrastrucuture"""
+    return os.environ.get('PT_OUTPUT_DIR', '') != ''
+
+def _default_dataroot()->str:
+    # the home folder on ITP VMs is super slow so use local temp directory instead
+    return '/var/tmp/dataroot' if _is_pt() else '~/dataroot'
 
 def main():
     parser = argparse.ArgumentParser(description='Archai data install')
-    parser.add_argument('--dataroot', type=str, default='~/dataroot',
+    parser.add_argument('--dataroot', type=str, default=_default_dataroot(),
                         help='path to dataroot on local drive')
     parser.add_argument('--dataset', type=str, default='cifar10',
                         help='Name of the dataset for which confs/dataset/name.yaml should exist and have name of folder or tar file it resides in')

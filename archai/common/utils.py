@@ -15,6 +15,7 @@ import shutil
 import multiprocessing
 from distutils import dir_util
 from datetime import datetime
+import platform
 
 import  torch
 import torch.backends.cudnn as cudnn
@@ -344,3 +345,6 @@ def main_process_pid()->int:
     return int(os.environ['main_process_pid'])
 def process_name()->str:
     return multiprocessing.current_process().name
+
+def is_windows()->bool:
+    return platform.system()=='Windows'
