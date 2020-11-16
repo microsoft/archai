@@ -14,6 +14,7 @@ from ..datasets.data import get_dataloaders
 from ..common.metrics import Accumulator
 from ..networks import get_model, num_class
 from ..common import ml_utils
+from ..common import utils
 
 
 # TODO: remove scheduler parameter?
@@ -112,7 +113,7 @@ def train_and_eval(conf, val_ratio, val_fold, save_path, only_eval,
 
     # region conf vars
     conf_dataset         = conf['dataset']
-    dataroot        = conf_dataset['dataroot']
+    dataroot        = utils.full_path(conf_dataset['dataroot'])
     horovod         = conf['common']['horovod']
     checkpoint_freq = conf['common']['checkpoint']['freq']
     conf_loader     = conf['autoaug']['loader']

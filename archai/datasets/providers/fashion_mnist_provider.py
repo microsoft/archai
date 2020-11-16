@@ -11,12 +11,13 @@ from torchvision.transforms import transforms
 
 from archai.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
+from archai.common import utils
 
 
 class FashionMnistProvider(DatasetProvider):
     def __init__(self, conf_dataset:Config):
         super().__init__(conf_dataset)
-        self._dataroot = conf_dataset['dataroot']
+        self._dataroot = utils.full_path(conf_dataset['dataroot'])
 
     @overrides
     def get_datasets(self, load_train:bool, load_test:bool,
