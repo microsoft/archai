@@ -18,6 +18,7 @@ fi
 if python -c "import nvidia.dali.pipeline" &> /dev/null; then
     echo 'NVidia dali is already installed'
 else
+    pip install --user nvidia-pyindex
     pip install --user --extra-index-url https://developer.download.nvidia.com/compute/redist/ nvidia-dali-cuda100
 fi
 
