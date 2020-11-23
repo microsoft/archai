@@ -38,7 +38,7 @@ For more information on available switches and algorithms, please see [running a
 
 The best way to familiarize yourself with Archai is to take a quick tour through our [30 Minute tutorial](docs/blitz.md).
 
-We also have tbe [tutorial for Petridish](docs/petridish.md) algorithm that was developed at Microsoft Research and now available through Archai.
+We also have the [tutorial for Petridish](docs/petridish.md) algorithm that was developed at Microsoft Research and now available through Archai.
 
 ### Visual Studio Code
 
