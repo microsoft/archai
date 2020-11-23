@@ -1,6 +1,6 @@
 # Welcome to Archai
 
-Archai is a platform for Neural Network Search (NAS) that allow you to generate efficient deep networks for your applications. Archai aspires to accelerate NAS research by enabling easy mix and match between different techniques while ensuring reproducibility, self-documented hyper-parameters and fair comparison. To achieve this, Archai uses common code base that unifies several algorithms. Archai is extensible and modular to allow rapid experimentation of new research ideas and develop new NAS algorithms. Archai also hopes to make NAS research more accessible to non-experts by providing powerful configuration system and easy to use tools.
+Archai is a platform for Neural Network Search (NAS) that allows you to generate efficient deep networks for your applications. Archai aspires to accelerate NAS research by enabling easy mix and match between different techniques while ensuring reproducibility, self-documented hyper-parameters and fair comparison. To achieve this, Archai uses a common code base that unifies several algorithms. Archai is extensible and modular to allow rapid experimentation of new research ideas and develop new NAS algorithms. Archai also hopes to make NAS research more accessible to non-experts by providing powerful configuration system and easy to use tools.
 
 [Extensive feature list](docs/features.md)
 
@@ -26,7 +26,7 @@ For more information, please see [Install guide](docs/install.md)
 
 ### Running Algorithms
 
-To run specific NAS algorithm, specify it by `--algos` switch:
+To run a specific NAS algorithm, specify it by `--algos` switch:
 
 ```bash
 python scripts/main.py --algos darts --full
@@ -38,13 +38,13 @@ For more information on available switches and algorithms, please see [running a
 
 The best way to familiarize yourself with Archai is to take a quick tour through our [30 Minute tutorial](docs/blitz.md).
 
-We also have [tutorial for Petridish](docs/petridish.md) algorithm that was developed at Microsoft Research and now available through Archai.
+We also have tbe [tutorial for Petridish](docs/petridish.md) algorithm that was developed at Microsoft Research and now available through Archai.
 
 ### Visual Studio Code
 
 We highly recommend [Visual Studio Code](https://code.visualstudio.com/) to take advantage of predefined run configurations and interactive debugging.
 
-From archai directory, launch Visual Studio Code. Select the Run button (Ctrl+Shift+D), chose the run configuration you want and click on Play icon.
+From the archai directory, launch Visual Studio Code. Select the Run button (Ctrl+Shift+D), chose the run configuration you want and click on Play icon.
 
 ### Running experiments on Azure AML
 
