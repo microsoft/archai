@@ -196,7 +196,7 @@ class Trainer(EnforceOverrides):
             if self._metrics.epochs() % self._validation_freq == 0 or \
                     self._metrics.epochs() >= self._epochs: # last epoch
 
-                # these asserts makes sure train and val are not ovrlapiing
+                # these asserts makes sure train and val are not overlapping
                 # assert train_dl.sampler.epoch == val_dl.sampler.epoch
                 # tidx = list(train_dl.sampler)
                 # vidx = list(val_dl.sampler)
