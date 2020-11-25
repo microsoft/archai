@@ -12,6 +12,8 @@ from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.nas.evaluater import Evaluater, EvalResult
 
+from archai.common.common import get_expdir, logger
+
 from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
 from .freeze_evaluator import FreezeEvaluator
 
@@ -30,8 +32,10 @@ class FreezeExperimentRunner(ExperimentRunner):
         evaler = self.evaluater()
         reg_eval_result = evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
 
+        logger.pushd('freeze_evaluate')
         freeze_evaler = FreezeEvaluator()
         freeze_eval_result = freeze_evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
+        logger.popd()
 
         # NOTE: Not returning freeze eval results
         # but it seems like we don't need to anyways as things get logged to disk

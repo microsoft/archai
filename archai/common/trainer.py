@@ -132,7 +132,7 @@ class Trainer(EnforceOverrides):
 
         # optimizers, schedulers needs to be recreated for each fit call
         # as they have state specific to each run
-        optim = self.create_optimizer(self.conf_optim, self.model.parameters())
+        optim = self.create_optimizer(self.conf_optim, filter(lambda p: p.requires_grad, self.model.parameters()))
         # create scheduler for optim before applying amp
         sched, sched_on_epoch = self.create_scheduler(self.conf_sched, optim, train_len)
 
