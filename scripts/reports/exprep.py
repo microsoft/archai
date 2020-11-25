@@ -64,8 +64,8 @@ def main():
                 sub_job = 'eval'
             else:
                 raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
-                                   'end with either _search or _eval which '
-                                   'should be the case if ExperimentRunner was used.')
+                                  'end with either _search or _eval which '
+                                  'should be the case if ExperimentRunner was used.')
 
             logs_filepath = os.path.join(str(subdir), 'log.yaml')
             if os.path.isfile(logs_filepath):
