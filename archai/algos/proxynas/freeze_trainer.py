@@ -36,7 +36,7 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
 
     @overrides
     def post_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
-        super()._post_epoch(train_dl, val_dl)
+        super().post_epoch(train_dl, val_dl)
 
         # if current validation accuracy is above
         # freeze everything other than the last layer
