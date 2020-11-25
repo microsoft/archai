@@ -14,6 +14,7 @@ from archai.algos.xnas.xnas_exp_runner import XnasExperimentRunner
 from archai.algos.gumbelsoftmax.gs_exp_runner import GsExperimentRunner
 from archai.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
 from archai.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
+from archai.algos.proxynas.freeze_experiment_runner import FreezeExperimentRunner
 
 
 def main():
@@ -25,12 +26,13 @@ def main():
         'manual': ManualExperimentRunner,
         'gs': GsExperimentRunner,
         'divnas': DivnasExperimentRunner,
-        'didarts': DiDartsExperimentRunner
+        'didarts': DiDartsExperimentRunner,
+        'proxynas': FreezeExperimentRunner
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
-    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts,petridish,gs,manual,divnas',
-                        help='NAS algos to run, seperated by comma')
+    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts,petridish,gs,manual,divnas,proxynas',
+                        help='NAS algos to run, separated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
                         help='datasets to use, separated by comma')
     parser.add_argument('--full', type=lambda x:x.lower()=='true',

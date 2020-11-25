@@ -207,6 +207,22 @@
             "args": ["--algos", "random"]
         },
         {
+            "name": "Proxynas-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "proxynas"]
+        },
+        {
+            "name": "Proxynas-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "proxynas"]
+        },
+        {
             "name": "Resnet-Toy",
             "type": "python",
             "request": "launch",
