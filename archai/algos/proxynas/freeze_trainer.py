@@ -47,6 +47,10 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
             # freeze everything other than the last layer
             self.freeze_but_last_layer()
 
+            # reset optimizer
+            del self._multi_optim
+            self._multi_optim = self.create_multi_optim(len(train_dl))
+
 
     def freeze_but_last_layer(self) -> None:
         # first freeze all parameters
