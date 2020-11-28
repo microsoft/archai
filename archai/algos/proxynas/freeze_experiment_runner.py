@@ -32,13 +32,24 @@ class FreezeExperimentRunner(ExperimentRunner):
         evaler = self.evaluater()
         reg_eval_result = evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
 
+        # change relevant parts of conv_eval to ensure that freeze_evaler 
+        # doesn't resume from checkpoints created by evaler and saves 
+        # models to different names as well
+        conf_eval['full_desc_filename'] = '$expdir/freeze_full_model_desc.yaml'
+        conf_eval['metric_filename'] = '$expdir/freeze_eval_train_metrics.yaml'
+        conf_eval['model_filename'] = '$expdir/freeze_model.pt'
+        conf_eval['trainer']['epochs'] = conf_eval['trainer']['freeze_epochs']
+        if conf_eval['checkpoint'] is not None:
+            conf_eval['checkpoint']['filename'] = '$expdir/freeze_checkpoint.pth'
+
         logger.pushd('freeze_evaluate')
         freeze_evaler = FreezeEvaluator()
         freeze_eval_result = freeze_evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
         logger.popd()
 
-        # NOTE: Not returning freeze eval results
-        # but it seems like we don't need to anyways as things get logged to disk
+        # NOTE: Not returning freeze eval results to meet signature contract
+        # but it seems like we don't need to anyways as everything we need is
+        # logged to disk
         return reg_eval_result
 
 
