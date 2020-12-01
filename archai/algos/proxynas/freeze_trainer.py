@@ -32,6 +32,9 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         super().__init__(conf_train, model, checkpoint) 
 
 
+        self._epoch_freeze_started = None
+        self._max_epochs = None
+
     @overrides
     def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
         super().pre_fit(train_dl, val_dl)
