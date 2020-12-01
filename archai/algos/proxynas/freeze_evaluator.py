@@ -36,6 +36,10 @@ class FreezeEvaluator(Evaluater, EnforceOverrides):
         conf_loader = conf_train['loader']
         conf_train = conf_train['trainer']
 
+        # TODO: this will not be needed after precise freeze stopping is implemented
+        # but reasonable for now
+        conf_train['epochs'] = conf_train['proxynas']['freeze_epochs']
+
         # get data
         train_dl, test_dl = self.get_data(conf_loader)
 
