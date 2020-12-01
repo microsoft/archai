@@ -113,7 +113,7 @@ nas:
         decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
       lr_schedule:
         type: 'cosine'
-        min_lr: 0.001 # min learning rate to se bet in eta_min param of scheduler
+        min_lr: 0.001 # min learning rate to be set in eta_min param of scheduler
         warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
           multiplier: 1
           epochs: 0 # 0 disables warmup

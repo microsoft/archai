@@ -28,9 +28,11 @@ class FreezeExperimentRunner(ExperimentRunner):
 
     @overrides
     def run_eval(self, conf_eval:Config)->EvalResult:
-        # regular evaluation of the architecture   
-        evaler = self.evaluater()
-        reg_eval_result = evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
+        # regular evaluation of the architecture
+        reg_eval_result = None
+        if conf_eval['trainer']['proxynas']['train_regular']:
+            evaler = self.evaluater()
+            reg_eval_result = evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
 
         # change relevant parts of conv_eval to ensure that freeze_evaler 
         # doesn't resume from checkpoints created by evaler and saves 
@@ -38,7 +40,7 @@ class FreezeExperimentRunner(ExperimentRunner):
         conf_eval['full_desc_filename'] = '$expdir/freeze_full_model_desc.yaml'
         conf_eval['metric_filename'] = '$expdir/freeze_eval_train_metrics.yaml'
         conf_eval['model_filename'] = '$expdir/freeze_model.pt'
-        conf_eval['trainer']['epochs'] = conf_eval['trainer']['freeze_epochs']
+        
         if conf_eval['checkpoint'] is not None:
             conf_eval['checkpoint']['filename'] = '$expdir/freeze_checkpoint.pth'
 
@@ -50,7 +52,11 @@ class FreezeExperimentRunner(ExperimentRunner):
         # NOTE: Not returning freeze eval results to meet signature contract
         # but it seems like we don't need to anyways as everything we need is
         # logged to disk
-        return reg_eval_result
+        if reg_eval_result is not None:
+            return reg_eval_result
+        else:
+            return freeze_eval_result
+
 
 
 
