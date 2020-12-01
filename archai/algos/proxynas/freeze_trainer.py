@@ -14,6 +14,7 @@ from overrides import overrides, EnforceOverrides
 
 from archai.common.config import Config
 from archai.common import common, utils
+from archai.common.common import logger
 from archai.nas.model import Model
 from archai.nas.model_desc import ModelDesc
 from archai.nas.arch_trainer import ArchTrainer
@@ -30,33 +31,53 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         super().__init__(conf_train, model, checkpoint) 
 
         # region config vars specific to freeze trainer
-        self.conf_train = conf_train
         self._val_top1_acc = conf_train['val_top1_acc_threshold']
+        self._in_freeze_mode = False
         # endregion
+
+        self._epoch_freeze_started = None
+        self._max_epochs = None
 
     @overrides
     def post_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
         super().post_epoch(train_dl, val_dl)
 
-        # if current validation accuracy is above
+        # if current validation accuracy is above threshold
         # freeze everything other than the last layer
         best_val_top1_avg = self._metrics.best_val_top1()
 
-        if best_val_top1_avg >= self._val_top1_acc:
+        if best_val_top1_avg >= self._val_top1_acc and not self._in_freeze_mode:
 
             # freeze everything other than the last layer
             self.freeze_but_last_layer()
 
             # reset optimizer
             del self._multi_optim
+            
+            self.conf_optim['lr'] = self.conf_train['proxynas']['freeze_lr']
+            self.conf_sched = Config()
+            self._aux_weight = self.conf_train['proxynas']['aux_weight']
+
             self._multi_optim = self.create_multi_optim(len(train_dl))
+
+            # before checkpoint restore, convert to amp
+            self.model = self._apex.to_amp(self.model, self._multi_optim,
+                                           batch_size=train_dl.batch_size)
+
+            self._in_freeze_mode = True
+            self._epoch_freeze_started = self._metrics.epochs()
+            self._max_epochs = self._epoch_freeze_started + self.conf_train['proxynas']['freeze_epochs']
+            logger.info('-----------Entered freeze training-----------------')
+        
+        # TODO: Implement precise stopping at epoch
+        # if self._in_freeze_mode and self.metrics.epochs() > self._max_epochs:
+        #     break
+
+
 
 
     def freeze_but_last_layer(self) -> None:
-        # first freeze all parameters
-        for param in self.model.parameters():
-            param.requires_grad = False
-
+        
         # NOTE: assumption here is that the last 
         # layer has the word 'logits' in the name string
         # e.g. logits_op._op.weight, logits_op._op.bias
@@ -64,8 +85,8 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         # TODO: confirm from Shital that this is good!
         
         for name, param in self.model.named_parameters():
-            if 'logits' in name:
-                param.requires_grad = True
+            if not 'logits' in name:
+                param.requires_grad = False
 
 
             

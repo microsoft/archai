@@ -101,7 +101,7 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
     if conf_warmup is not None and 'epochs' in conf_warmup:
         warmup_epochs = conf_warmup['epochs']
 
-    if conf_lrs is not None:
+    if conf_lrs: 
         lr_scheduler_type = conf_lrs['type'] # TODO: default should be none?
 
         if lr_scheduler_type == 'cosine':
