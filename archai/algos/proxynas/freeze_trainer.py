@@ -56,7 +56,7 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
             
             self.conf_optim['lr'] = self.conf_train['proxynas']['freeze_lr']
             self.conf_optim['decay'] = self.conf_train['proxynas']['freeze_decay']
-            self.conf_optiom['momentum'] = self.conf_train['proxynas']['freeze_momentum']
+            self.conf_optim['momentum'] = self.conf_train['proxynas']['freeze_momentum']
             self.conf_sched = Config()
             self._aux_weight = self.conf_train['proxynas']['aux_weight']
 
