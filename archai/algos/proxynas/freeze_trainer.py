@@ -65,9 +65,7 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
             # before checkpoint restore, convert to amp
             self.model = self._apex.to_amp(self.model, self._multi_optim,
                                            batch_size=train_dl.batch_size)
-
-            
-
+        
             self._in_freeze_mode = True
             self._epoch_freeze_started = self._metrics.epochs()
             self._max_epochs = self._epoch_freeze_started + self.conf_train['proxynas']['freeze_epochs']
