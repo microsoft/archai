@@ -11,10 +11,12 @@ nas:
       num_edges_to_sample: 2
     trainer:
       plotsdir: ''
-      val_top1_acc_threshold: 0.1 # after some accuracy we will shift into training only the last layer
       epochs: 600
       proxynas:
+        val_top1_acc_threshold: 0.05 # after some accuracy we will shift into training only the last layer
         freeze_epochs: 10
         freeze_lr: 0.001
+        freeze_decay: 0.0
+        freeze_momentum: 0.0
         train_regular: False
         aux_weight: 0.0 # disable auxiliary loss part during finetuning
