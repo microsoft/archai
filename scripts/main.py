@@ -29,6 +29,7 @@ def main():
         'xnas': XnasExperimentRunner,
         'random': RandomExperimentRunner,
         'manual': ManualExperimentRunner,
+        'manual_freeze': ManualFreezeExperimentRunner,
         'gs': GsExperimentRunner,
         'divnas': DivnasExperimentRunner,
         'didarts': DiDartsExperimentRunner,

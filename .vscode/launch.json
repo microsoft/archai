@@ -335,6 +335,22 @@
             "args": ["--algos", "manual"]
         },
         {
+            "name": "ManualFreeze-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "manual_freeze"]
+        },
+        {
+            "name": "ManualFreeze-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "manual_freeze", "--full"]
+        },
+        {
             "name": "TrainAug resnet50 cocob cifar10",
             "type": "python",
             "request": "launch",
