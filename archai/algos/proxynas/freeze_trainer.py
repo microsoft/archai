@@ -21,6 +21,7 @@ from archai.nas.arch_trainer import ArchTrainer
 from archai.common.trainer import Trainer
 from archai.nas.vis_model_desc import draw_model_desc
 from archai.common.checkpoint import CheckPoint
+from archai.common.ml_utils import set_optim_lr
 
 TFreezeTrainer = Optional[Type['FreezeTrainer']]
 
@@ -51,20 +52,20 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
             # freeze everything other than the last layer
             self.freeze_but_last_layer()
 
-            # reset optimizer
-            del self._multi_optim
+            # # reset optimizer
+            # del self._multi_optim
             
-            self.conf_optim['lr'] = self.conf_train['proxynas']['freeze_lr']
-            self.conf_optim['decay'] = self.conf_train['proxynas']['freeze_decay']
-            self.conf_optim['momentum'] = self.conf_train['proxynas']['freeze_momentum']
-            self.conf_sched = Config()
-            self._aux_weight = self.conf_train['proxynas']['aux_weight']
+            # self.conf_optim['lr'] = self.conf_train['proxynas']['freeze_lr']
+            # self.conf_optim['decay'] = self.conf_train['proxynas']['freeze_decay']
+            # self.conf_optim['momentum'] = self.conf_train['proxynas']['freeze_momentum']
+            # self.conf_sched = Config()
+            # self._aux_weight = self.conf_train['proxynas']['aux_weight']
 
-            self.model.zero_grad()
-            self._multi_optim = self.create_multi_optim(len(train_dl))
-            # before checkpoint restore, convert to amp
-            self.model = self._apex.to_amp(self.model, self._multi_optim,
-                                           batch_size=train_dl.batch_size)
+            # self.model.zero_grad()
+            # self._multi_optim = self.create_multi_optim(len(train_dl))
+            # # before checkpoint restore, convert to amp
+            # self.model = self._apex.to_amp(self.model, self._multi_optim,
+            #                                batch_size=train_dl.batch_size)
         
             self._in_freeze_mode = True
             self._epoch_freeze_started = self._metrics.epochs()
@@ -83,7 +84,9 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
             param.requires_grad = False
         
         for name, param in self.model.named_parameters():
-            if 'logits_op._op' in name:
+            # TODO: Make the layer names to be updated a config value
+            # 'logits_op._op'
+            if 'fc' in name:
                 param.requires_grad = True
 
         for name, param in self.model.named_parameters():
