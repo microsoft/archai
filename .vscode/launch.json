@@ -247,12 +247,28 @@
             "args": ["--aml_secrets_filepath", "/home/dedey/aml_secrets/aml_secrets_msrlabspvc1.yaml", "--algo", "darts", "--full"]
         },
         {
-            "name": "Manual-E2E-Toy",
+            "name": "Manual-Toy",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "manual"]
+        },
+        {
+            "name": "ManualFreeze-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "manual_freeze"]
+        },
+        {
+            "name": "ManualFreeze-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "manual_freeze", "--full"]
         },
         {
             "name": "TrainAug resnet50 cocob cifar10",
@@ -280,7 +296,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/exprep.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_initial",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_unfreeze_logits",
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
