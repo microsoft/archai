@@ -15,6 +15,7 @@ from archai.algos.gumbelsoftmax.gs_exp_runner import GsExperimentRunner
 from archai.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
 from archai.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
 from archai.algos.proxynas.freeze_experiment_runner import FreezeExperimentRunner
+from archai.algos.manual_freeze.manual_freeze_exp_runner import ManualFreezeExperimentRunner
 
 
 def main():
@@ -24,6 +25,7 @@ def main():
         'xnas': XnasExperimentRunner,
         'random': RandomExperimentRunner,
         'manual': ManualExperimentRunner,
+        'manual_freeze': ManualFreezeExperimentRunner,
         'gs': GsExperimentRunner,
         'divnas': DivnasExperimentRunner,
         'didarts': DiDartsExperimentRunner,
