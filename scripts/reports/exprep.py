@@ -30,8 +30,7 @@ import re
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
     parser.add_argument('--results-dir', '-d', type=str,
-                        #default=r'D:\GitHubSrc\archaiphilly\phillytools\darts_baseline_20200411',
-                        default=r'~/logdir/report_test',
+                        default=r'~/logdir/proxynas_test_0001', # r'~/logdir/report_test'
                         help='folder with experiment results from pt')
     parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
                         help='folder to output reports')
@@ -68,7 +67,7 @@ def main():
                                    'end with either _search or _eval which '
                                    'should be the case if ExperimentRunner was used.')
 
-            logs_filepath = os.path.join(str(subdir), 'logs.yaml')
+            logs_filepath = os.path.join(str(subdir), 'log.yaml')
             if os.path.isfile(logs_filepath):
                 fix_yaml(logs_filepath)
                 with open(logs_filepath, 'r') as f:
@@ -210,8 +209,8 @@ def get_epoch_stats(node_path:str, logs_epochs_nodes:List[OrderedDict])->List[Ep
     return epoch_stats
 
 def get_valid_filename(s):
-    s = str(s).strip().replace(' ', '_')
-    return re.sub(r'(?u)[^-\w.]', '', s)
+    s = str(s).strip().replace(' ', '-')
+    return re.sub(r'(?u)[^-\w.]', '-', s)
 
 def get_summary_text(log_key:str, out_dir:str, node_path:str, epoch_stats:List[EpochStats], seed_runs:int)->str:
     lines = ['','']
@@ -223,7 +222,7 @@ def get_summary_text(log_key:str, out_dir:str, node_path:str, epoch_stats:List[E
     lines.append(f'Number of seeds: {seed_runs}\n')
 
     lines.append('\n')
-    plot_filename = get_valid_filename(node_path)+'.png'
+    plot_filename = get_valid_filename(log_key + ':' + node_path)+'.png'
     plot_filepath = os.path.join(out_dir, plot_filename)
     plot_epochs(epoch_stats, plot_filepath)
     lines.append('')
