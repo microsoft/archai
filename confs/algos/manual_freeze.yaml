@@ -26,12 +26,13 @@ nas:
         type: 'cosine'
         min_lr: 0.001 # min learning rate to be set in eta_min param of scheduler
       proxynas:
-        val_top1_acc_threshold: 0.05 # after some accuracy we will shift into training only the last layer
+        val_top1_acc_threshold: 0.80 # after some accuracy we will shift into training only the last layer
         freeze_epochs: 200
         freeze_lr: 0.001
         freeze_decay: 0.0
         freeze_momentum: 0.0
         train_regular: False
+        identifiers_to_unfreeze: ['fc', 'bn']
         aux_weight: 0.0 # disable auxiliary loss part during finetuning
 
     

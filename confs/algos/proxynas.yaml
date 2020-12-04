@@ -12,6 +12,8 @@ nas:
     trainer:
       plotsdir: ''
       epochs: 600
+      aux_weight: 0.0
+      drop_path_prob: 0.0
       proxynas:
         val_top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last layer
         freeze_epochs: 200
@@ -19,4 +21,5 @@ nas:
         freeze_decay: 0.0
         freeze_momentum: 0.0
         train_regular: False
+        identifiers_to_unfreeze: ['logits_op._op', 'bn']
         aux_weight: 0.0 # disable auxiliary loss part during finetuning
