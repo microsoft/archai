@@ -30,7 +30,6 @@ import re
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
     parser.add_argument('--results-dir', '-d', type=str,
-                        #default=r'D:\GitHubSrc\archaiphilly\phillytools\darts_baseline_20200411',
                         default=r'~/logdir/report_test',
                         help='folder with experiment results from pt')
     parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
