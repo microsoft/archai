@@ -235,13 +235,20 @@ def get_summary_text(log_key:str, out_dir:str, node_path:str, epoch_stats:List[E
 
     lines.append(f'Train epoch time: {stat2str(train_duration)}')
     lines.append('')
-    milestones = [35, 200, 600, 1500]
+    milestones = [0, 5, 30, 100, 200, 600, 1500]
     for milestone in milestones:
-        if len(epoch_stats) >= milestone:
+        if len(epoch_stats) >= milestone and len(epoch_stats[milestone-1].val_fold.top1)>0:
             lines.append(f'{stat2str(epoch_stats[milestone-1].val_fold.top1)} val top1 @ {milestone} epochs\n')
     # last epoch
     if not len(epoch_stats) in milestones:
-        lines.append(f'{stat2str(epoch_stats[-1].val_fold.top1)} val top1 @ {len(epoch_stats)} epochs\n')
+        # find last epoch with valid stats
+        last_epoch = len(epoch_stats)-1
+        while last_epoch>=0 and len(epoch_stats[last_epoch].val_fold.top1)==0:
+            last_epoch -= 1
+        if last_epoch >=0:
+            lines.append(f'{stat2str(epoch_stats[last_epoch].val_fold.top1)} val top1 @ {len(epoch_stats)} epochs [Last]\n')
+        else:
+            lines.append(f'[Last] No epoch with valid val stats found!')
 
     return '\n'.join(lines)
 
@@ -282,28 +289,28 @@ def plot_epochs(epoch_stats:List[EpochStats], filepath:str):
     clrs = sns.color_palette("husl", 5)
     with sns.axes_style("darkgrid"):
         metrics = []
-        val_top1_means = [es.val_fold.top1.mean() if len(es.val_fold.top1)>0 else 0 for es in epoch_stats]
-        val_top1_std = [es.val_fold.top1.stddev() if len(es.val_fold.top1)>1 else 0 for es in epoch_stats]
-        val_top1_min = [es.val_fold.top1.minimum() if len(es.val_fold.top1)>0 else 0 for es in epoch_stats]
-        val_top1_max = [es.val_fold.top1.maximum() if len(es.val_fold.top1)>0 else 0 for es in epoch_stats]
+        val_top1_means = [es.val_fold.top1.mean() if len(es.val_fold.top1)>0 else np.nan for es in epoch_stats]
+        val_top1_std = [es.val_fold.top1.stddev() if len(es.val_fold.top1)>1 else np.nan for es in epoch_stats]
+        val_top1_min = [es.val_fold.top1.minimum() if len(es.val_fold.top1)>0 else np.nan for es in epoch_stats]
+        val_top1_max = [es.val_fold.top1.maximum() if len(es.val_fold.top1)>0 else np.nan for es in epoch_stats]
         metrics.append((val_top1_means, val_top1_std, 'val_top1', val_top1_min, val_top1_max))
 
-        val_top5_means = [es.val_fold.top5.mean() for es in epoch_stats]
-        val_top5_std = [es.val_fold.top5.stddev() if len(es.val_fold.top5)>1 else 0 for es in epoch_stats]
-        val_top5_min = [es.val_fold.top5.minimum() if len(es.val_fold.top5)>0 else 0 for es in epoch_stats]
-        val_top5_max = [es.val_fold.top5.maximum() if len(es.val_fold.top5)>0 else 0 for es in epoch_stats]
+        val_top5_means = [es.val_fold.top5.mean() if len(es.val_fold.top5)>0 else np.nan for es in epoch_stats]
+        val_top5_std = [es.val_fold.top5.stddev() if len(es.val_fold.top5)>1 else np.nan for es in epoch_stats]
+        val_top5_min = [es.val_fold.top5.minimum() if len(es.val_fold.top5)>0 else np.nan for es in epoch_stats]
+        val_top5_max = [es.val_fold.top5.maximum() if len(es.val_fold.top5)>0 else np.nan for es in epoch_stats]
         metrics.append((val_top5_means, val_top5_std, 'val_top5', val_top5_min, val_top5_max))
 
-        train_top1_means = [es.train_fold.top1.mean() for es in epoch_stats]
-        train_top1_std = [es.train_fold.top1.stddev() if len(es.train_fold.top1)>1 else 0 for es in epoch_stats]
-        train_top1_min = [es.train_fold.top1.minimum() if len(es.train_fold.top1)>0 else 0 for es in epoch_stats]
-        train_top1_max = [es.train_fold.top1.maximum() if len(es.train_fold.top1)>0 else 0 for es in epoch_stats]
+        train_top1_means = [es.train_fold.top1.mean() if len(es.train_fold.top1)>0 else np.nan for es in epoch_stats]
+        train_top1_std = [es.train_fold.top1.stddev() if len(es.train_fold.top1)>1 else np.nan for es in epoch_stats]
+        train_top1_min = [es.train_fold.top1.minimum() if len(es.train_fold.top1)>0 else np.nan for es in epoch_stats]
+        train_top1_max = [es.train_fold.top1.maximum() if len(es.train_fold.top1)>0 else np.nan for es in epoch_stats]
         metrics.append((train_top1_means, train_top1_std, 'train_top1', train_top1_min, train_top1_max))
 
-        train_top5_means = [es.train_fold.top5.mean() for es in epoch_stats]
-        train_top5_std = [es.train_fold.top5.stddev() if len(es.train_fold.top5)>1 else 0 for es in epoch_stats]
-        train_top5_min = [es.train_fold.top1.minimum() if len(es.train_fold.top5)>0 else 0 for es in epoch_stats]
-        train_top5_max = [es.train_fold.top1.maximum() if len(es.train_fold.top5)>0 else 0 for es in epoch_stats]
+        train_top5_means = [es.train_fold.top5.mean() if len(es.train_fold.top5)>0 else np.nan for es in epoch_stats]
+        train_top5_std = [es.train_fold.top5.stddev() if len(es.train_fold.top5)>1 else np.nan for es in epoch_stats]
+        train_top5_min = [es.train_fold.top1.minimum() if len(es.train_fold.top5)>0 else np.nan for es in epoch_stats]
+        train_top5_max = [es.train_fold.top1.maximum() if len(es.train_fold.top5)>0 else np.nan for es in epoch_stats]
         metrics.append((train_top5_means, train_top5_std, 'train_top5', train_top5_min, train_top5_max))
 
         for i, metric in enumerate(metrics):
