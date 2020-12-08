@@ -11,7 +11,7 @@ from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc
 from archai.common.config import Config
-
+from archai.common import common
 
 class RandOps:
     """Container to store (op_names, to_states) for each nodes"""
@@ -28,9 +28,14 @@ class RandOps:
     ]
 
     def __init__(self, n_nodes:int, max_edges:int) -> None:
+
+        # get list of primitives either from conf or use default list
+        conf = common.get_conf()
+        primitives = conf.get_val('primitives', RandOps.PRIMITIVES)
+
         self.ops_and_ins:List[Tuple[List[str], List[int]]] = []
         for i in range(n_nodes):
-            op_names = random.choices(RandOps.PRIMITIVES, k=max_edges)
+            op_names = random.choices(primitives, k=max_edges)
             to_states = random.sample(list(range(i+2)), k=max_edges)
             self.ops_and_ins.append((op_names, to_states))
 
