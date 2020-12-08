@@ -10,7 +10,10 @@ from collections import OrderedDict
 import yaml
 from inspect import getsourcefile
 import re
+<<<<<<< HEAD
 from tqdm import tqdm
+=======
+>>>>>>> d6e6e107 (Added analysis scripts to compute kendall tau and spearman's correlation for proxynas experiments.)
 
 from scipy.stats import kendalltau, spearmanr
 
@@ -53,6 +56,7 @@ def main():
     # get list of all structured logs for each job
     logs = {}
     job_count = 0
+<<<<<<< HEAD
     for job_dir in tqdm(results_dir.iterdir()):
         if job_dir.is_dir():
             job_count += 1
@@ -85,6 +89,31 @@ def main():
                             all_good = False
                         if all_good:
                             print(f'{key} is all good')
+=======
+    for job_dir in results_dir.iterdir():
+        job_count += 1
+        for subdir in job_dir.iterdir():
+            if not subdir.is_dir():
+                continue
+            # currently we expect that each job was ExperimentRunner job which should have
+            # _search or _eval folders
+            if subdir.stem.endswith('_search'):
+                sub_job = 'search'
+            elif subdir.stem.endswith('_eval'):
+                sub_job = 'eval'
+            else:
+                raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
+                                  'end with either _search or _eval which '
+                                  'should be the case if ExperimentRunner was used.')
+
+            logs_filepath = os.path.join(str(subdir), 'log.yaml')
+            if os.path.isfile(logs_filepath):
+                fix_yaml(logs_filepath)
+                with open(logs_filepath, 'r') as f:
+                    key = job_dir.name + ':' + sub_job
+                    logs[key] = yaml.load(f, Loader=yaml.Loader)
+
+>>>>>>> d6e6e107 (Added analysis scripts to compute kendall tau and spearman's correlation for proxynas experiments.)
 
 
     # logs['proxynas_parameterless_seed_198980.3100969506_freeze_lr_0.001:eval']['eval_arch']['eval_train']['best_val']['top1']
@@ -93,6 +122,7 @@ def main():
     all_freeze_evals = []
     for key in logs.keys():
         if 'eval' in key:
+<<<<<<< HEAD
             try:
                 reg_eval_top1 = logs[key]['eval_arch']['eval_train']['best_val']['top1']
                 freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['eval_train']['best_val']['top1']
@@ -101,25 +131,41 @@ def main():
                 all_freeze_evals.append(freeze_eval_top1)
             except KeyError as err:
                 print(f'KeyError {err} in {key}')
+=======
+            reg_eval_top1 = logs[key]['eval_arch']['eval_train']['best_val']['top1']
+            freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['eval_train']['best_val']['top1']
+
+            all_reg_evals.append(reg_eval_top1)
+            all_freeze_evals.append(freeze_eval_top1)
+>>>>>>> d6e6e107 (Added analysis scripts to compute kendall tau and spearman's correlation for proxynas experiments.)
         
     tau, p_value = kendalltau(all_reg_evals, all_freeze_evals)
     spe, sp_value = spearmanr(all_reg_evals, all_freeze_evals)
     print(f'Kendall Tau score: {tau}, p_value {p_value}')
     print(f'Spearman corr: {spe}, p_value {sp_value}')
+<<<<<<< HEAD
     results_savename = os.path.join(results_dir, 'results.txt')
     with open(results_savename, 'w') as f:
         f.write(f'Kendall Tau score: {tau}, p_value {p_value}')
         f.write(f'Spearman corr: {spe}, p_value {sp_value}')
 
+=======
+>>>>>>> d6e6e107 (Added analysis scripts to compute kendall tau and spearman's correlation for proxynas experiments.)
     
     plt.scatter(all_reg_evals, all_freeze_evals)
     plt.xlabel('Val top1 at 600 epochs')
     plt.ylabel('Freeze training')
+<<<<<<< HEAD
     plt.title('Freeze training at 0.75 val top1 followed by 200 epochs')
     savename = os.path.join(results_dir, 'proxynas_0.75_freeze_training_200_epochs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
 
+=======
+    plt.title('Freeze training at 0.6 val top1 followed by 200 epochs')
+    plt.savefig('proxynas_0.6_freeze_training_200_epochs.png',
+        dpi=plt.gcf().dpi, bbox_inches='tight')
+>>>>>>> d6e6e107 (Added analysis scripts to compute kendall tau and spearman's correlation for proxynas experiments.)
 
 if __name__ == '__main__':
     main()

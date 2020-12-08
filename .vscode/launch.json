@@ -740,12 +740,8 @@
             "request": "launch",
             "program": "${cwd}/archai/nlp/nas/characterize_search_space.py",
             "console": "integratedTerminal",
-<<<<<<< HEAD
-            "args": ["--list-of-npys", "/home/dedey/archai_experiment_reports/transnasbench_heatmaps/list.txt",
-                    "--out-dir", "/home/dedey/archai_experiment_reports/transnasbench_heatmaps"]
-=======
-            "args": []
->>>>>>> c97f7e8b (refactor(ds): restores main branch for everything except `discrete_search` folder)
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_regular_and_parameterless",
+            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
             "name": "CurrentFile",
