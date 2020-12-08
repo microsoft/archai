@@ -11,6 +11,8 @@ import yaml
 from inspect import getsourcefile
 import re
 
+from scipy.stats import kendalltau, spearmanr
+
 from runstats import Statistics
 
 import matplotlib
@@ -25,8 +27,6 @@ from archai.common.ordereddict_logger import OrderedDictLogger
 from analysis_utils import epoch_nodes, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
 
 import re
-
-
 
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
@@ -75,21 +75,31 @@ def main():
                     key = job_dir.name + ':' + sub_job
                     logs[key] = yaml.load(f, Loader=yaml.Loader)
 
-    # create list of epoch nodes having same path in the logs
-    grouped_logs = group_multi_runs(logs)
-    collated_grouped_logs = collect_epoch_nodes(grouped_logs)
-    summary_text, details_text = '', ''
 
-    for log_key, grouped_logs in collated_grouped_logs.items():
-        # for each path for epochs nodes, compute stats
-        for node_path, logs_epochs_nodes in grouped_logs.items():
-            collated_epoch_stats = get_epoch_stats(node_path, logs_epochs_nodes)
-            summary_text += get_summary_text(log_key, out_dir, node_path, collated_epoch_stats, len(logs_epochs_nodes))
-            details_text += get_details_text(log_key, out_dir, node_path, collated_epoch_stats, len(logs_epochs_nodes))
 
-    write_report('summary.md', **vars())
-    write_report('details.md', **vars())
+    # logs['proxynas_parameterless_seed_198980.3100969506_freeze_lr_0.001:eval']['eval_arch']['eval_train']['best_val']['top1']
+    # logs['proxynas_parameterless_seed_198980.3100969506_freeze_lr_0.001:eval']['freeze_evaluate']['eval_arch']['eval_train']['best_val']['top1']
+    all_reg_evals = []
+    all_freeze_evals = []
+    for key in logs.keys():
+        if 'eval' in key:
+            reg_eval_top1 = logs[key]['eval_arch']['eval_train']['best_val']['top1']
+            freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['eval_train']['best_val']['top1']
 
+            all_reg_evals.append(reg_eval_top1)
+            all_freeze_evals.append(freeze_eval_top1)
+        
+    tau, p_value = kendalltau(all_reg_evals, all_freeze_evals)
+    spe, sp_value = spearmanr(all_reg_evals, all_freeze_evals)
+    print(f'Kendall Tau score: {tau}, p_value {p_value}')
+    print(f'Spearman corr: {spe}, p_value {sp_value}')
+    
+    plt.scatter(all_reg_evals, all_freeze_evals)
+    plt.xlabel('Val top1 at 600 epochs')
+    plt.ylabel('Freeze training')
+    plt.title('Freeze training at 0.6 val top1 followed by 200 epochs')
+    plt.savefig('proxynas_0.6_freeze_training_200_epochs.png',
+        dpi=plt.gcf().dpi, bbox_inches='tight')
 
 if __name__ == '__main__':
     main()
