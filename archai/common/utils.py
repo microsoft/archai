@@ -16,6 +16,8 @@ import multiprocessing
 from distutils import dir_util
 from datetime import datetime
 import platform
+from urllib.parse import urlparse, unquote
+from urllib.request import url2pathname
 
 import  torch
 import torch.backends.cudnn as cudnn
@@ -273,7 +275,7 @@ def filepath_without_ext(filepath:str)->str:
 
 def filepath_ext(filepath:str)->str:
     """Returns 'd.e.f' for '/a/b/c/d.e.f' """
-    return pathlib.Path(filepath).name
+    return pathlib.Path(filepath).suffix
 
 def filepath_name_ext(filepath:str)->str:
     """Returns '.f' for '/a/b/c/d.e.f' """
@@ -348,3 +350,26 @@ def process_name()->str:
 
 def is_windows()->bool:
     return platform.system()=='Windows'
+
+def path2uri(path:str, windows_non_standard:bool=False)->str:
+    uri = pathlib.Path(full_path(path)).as_uri()
+
+    # there is lot of buggy regex based code out there which expects Windows file URIs as
+    # file://C/... instead of standard file:///C/...
+    # When passing file uri to such code, turn on windows_non_standard
+    if windows_non_standard and is_windows():
+        uri = uri.replace('file:///', 'file://')
+    return uri
+
+def uri2path(file_uri:str, windows_non_standard:bool=False)->str:
+    # there is lot of buggy regex based code out there which expects Windows file URIs as
+    # file://C/... instead of standard file:///C/...
+    # When passing file uri to such code, turn on windows_non_standard
+    if windows_non_standard and is_windows():
+        file_uri = file_uri.replace('file://', 'file:///')
+
+    parsed = urlparse(file_uri)
+    host = "{0}{0}{mnt}{0}".format(os.path.sep, mnt=parsed.netloc)
+    return os.path.normpath(
+        os.path.join(host, url2pathname(unquote(parsed.path)))
+    )
