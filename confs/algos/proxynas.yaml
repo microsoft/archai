@@ -12,6 +12,9 @@ nas:
   eval:
     model_desc:
       num_edges_to_sample: 2
+    loader:
+      naswotrain:
+        train_batch: 512 # batch size for computing trainingless score  
     trainer:
       plotsdir: ''
       epochs: 600
