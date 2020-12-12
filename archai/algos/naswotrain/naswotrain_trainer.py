@@ -38,6 +38,9 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
 
         self._metrics = NaswoTrainMetrics(self._title, self._apex, logger_freq=self._logger_freq)     
 
+        # create optimizers and schedulers (we don't need it only to make to_amp call pass)
+        self._multi_optim = self.create_multi_optim(len(train_dl))
+
         # before checkpoint restore, convert to amp
         self.model = self._apex.to_amp(self.model, self._multi_optim,
                                        batch_size=train_dl.batch_size)
@@ -56,6 +59,9 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         self._metrics.naswotraining_score = score
         logger.info(f'nas without training score: {score}')
 
+        # make sure we don't keep references to the graph
+        del self._multi_optim
+
         logger.popd()
         return self.get_metrics()
 
@@ -65,6 +71,8 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         self.model.zero_grad()
         x.requires_grad_(True)
         logits, aux_logits = self.model(x)
+        # WARNING: We should be changing the number of output classes to 1 before 
+        # charging ahead
         logits.backward(torch.ones_like(logits))
         jacob = x.grad.detach()
         return jacob
