@@ -15,6 +15,7 @@ from archai.nas.evaluater import Evaluater, EvalResult
 from archai.common.common import get_expdir, logger
 
 from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.naswotrain.naswotrain_evaluator import NaswotrainEvaluator
 from .freeze_evaluator import FreezeEvaluator
 
 class FreezeExperimentRunner(ExperimentRunner):
@@ -28,12 +29,22 @@ class FreezeExperimentRunner(ExperimentRunner):
 
     @overrides
     def run_eval(self, conf_eval:Config)->EvalResult:
+        # without training architecture evaluation score
+        # ---------------------------------------
+        logger.pushd('naswotrain_evaluate')
+        naswotrain_evaler = NaswotrainEvaluator()
+        naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
+        logger.popd()
+
         # regular evaluation of the architecture
+        # --------------------------------------
         reg_eval_result = None
         if conf_eval['trainer']['proxynas']['train_regular']:
             evaler = self.evaluater()
             reg_eval_result = evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
 
+        # freeze train evaluation of the architecture
+        # -------------------------------------------
         # change relevant parts of conv_eval to ensure that freeze_evaler 
         # doesn't resume from checkpoints created by evaler and saves 
         # models to different names as well
