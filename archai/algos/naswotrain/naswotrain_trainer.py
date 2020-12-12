@@ -64,6 +64,9 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         # make sure we don't keep references to the graph
         del self._multi_optim
 
+        # make sure we don't keep references to the graph
+        del self._multi_optim
+
         logger.popd()
         return self.get_metrics()
 
