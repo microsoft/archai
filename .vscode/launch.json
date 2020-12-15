@@ -482,6 +482,18 @@
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
+<<<<<<< HEAD
+=======
+            "name": "Analysis Proxynas",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_proxynas.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_regular_and_parameterless_thresh_0.75",
+            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+        },
+        {
+>>>>>>> 2fb471e0 (Made proxynas analysis script more robust.)
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",
