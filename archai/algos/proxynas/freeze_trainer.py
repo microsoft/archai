@@ -80,19 +80,35 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         # e.g. logits_op._op.weight, logits_op._op.bias
         # e.g. _aux_towers.13.logits_op.weight, _aux_towers.13.logits_op.bias
 
-        for name, param in self.model.named_parameters():
-            param.requires_grad = False
+
+        # Freezing via module names
+        for module in self.model.modules():
+            module.requires_grad = False
         
-        for name, param in self.model.named_parameters():
-            # TODO: Make the layer names to be updated a config value
-            # 'fc' for resnet18
-            # 'logits_op._op' for darts search space
+        # Unfreeze only some
+        for name, module in self.model.named_modules():
             for identifier in self.conf_train['proxynas']['identifiers_to_unfreeze']:
                 if identifier in name:
-                    param.requires_grad = True
+                    module.requires_grad = True
 
-        for name, param in self.model.named_parameters():
-            if param.requires_grad:
+        for name, module in self.model.named_modules():
+            if module.requires_grad:
                 logger.info(f'{name} requires grad')
+
+        # NOTE: freezing via named_parameters() doesn't expose all parameters? Check with Shital.    
+        # for name, param in self.model.named_parameters():
+        #     param.requires_grad = False
+        
+        # for name, param in self.model.named_parameters():
+        #     # TODO: Make the layer names to be updated a config value
+        #     # 'fc' for resnet18
+        #     # 'logits_op._op' for darts search space
+        #     for identifier in self.conf_train['proxynas']['identifiers_to_unfreeze']:
+        #         if identifier in name:
+        #             param.requires_grad = True
+
+        # for name, param in self.model.named_parameters():
+        #     if param.requires_grad:
+        #         logger.info(f'{name} requires grad')
 
             
