@@ -3,6 +3,7 @@
 
 from archai.nas.evaluater import EvalResult
 from typing import Type
+from copy import deepcopy
 
 from overrides import overrides
 
@@ -33,7 +34,8 @@ class FreezeExperimentRunner(ExperimentRunner):
         # ---------------------------------------
         logger.pushd('naswotrain_evaluate')
         naswotrain_evaler = NaswotrainEvaluator()
-        naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
+        conf_eval_naswotrain = deepcopy(conf_eval)
+        naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval_naswotrain, model_desc_builder=self.model_desc_builder())
         logger.popd()
 
         # regular evaluation of the architecture
@@ -41,7 +43,8 @@ class FreezeExperimentRunner(ExperimentRunner):
         reg_eval_result = None
         if conf_eval['trainer']['proxynas']['train_regular']:
             evaler = self.evaluater()
-            reg_eval_result = evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
+            conf_eval_reg = deepcopy(conf_eval)
+            reg_eval_result = evaler.evaluate(conf_eval_reg, model_desc_builder=self.model_desc_builder())
 
         # freeze train evaluation of the architecture
         # -------------------------------------------
@@ -57,7 +60,8 @@ class FreezeExperimentRunner(ExperimentRunner):
 
         logger.pushd('freeze_evaluate')
         freeze_evaler = FreezeEvaluator()
-        freeze_eval_result = freeze_evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
+        conf_eval_freeze = deepcopy(conf_eval)
+        freeze_eval_result = freeze_evaler.evaluate(conf_eval_freeze, model_desc_builder=self.model_desc_builder())
         logger.popd()
 
         # NOTE: Not returning freeze eval results to meet signature contract

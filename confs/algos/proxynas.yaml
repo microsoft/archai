@@ -14,7 +14,7 @@ nas:
       num_edges_to_sample: 2
     loader:
       naswotrain:
-        train_batch: 512 # batch size for computing trainingless score  
+        train_batch: 128 # batch size for computing trainingless score  
     trainer:
       plotsdir: ''
       epochs: 600
@@ -26,6 +26,6 @@ nas:
         freeze_lr: 0.001
         freeze_decay: 0.0
         freeze_momentum: 0.0
-        train_regular: True
-        identifiers_to_unfreeze: ['logits_op._op']
+        train_regular: False
+        identifiers_to_unfreeze: ['logits_op._op', 'cells.19']
         aux_weight: 0.0 # disable auxiliary loss part during finetuning

@@ -68,7 +68,7 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         for name, param in self.model.named_parameters():            
             for identifier in self.conf_train['identifiers_to_unfreeze']:
                 if identifier in name:
-                    param.requires_grad = True
+                    module.requires_grad = True
 
         for name, param in self.model.named_parameters():
             if param.requires_grad:
