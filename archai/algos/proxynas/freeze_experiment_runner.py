@@ -20,6 +20,8 @@ from archai.algos.naswotrain.naswotrain_evaluator import NaswotrainEvaluator
 from .freeze_evaluator import FreezeEvaluator
 
 class FreezeExperimentRunner(ExperimentRunner):
+    ''' Samples a random architecture from DARTS search space and freeze trains it '''
+    
     @overrides
     def model_desc_builder(self)->RandomModelDescBuilder:
         return RandomModelDescBuilder()
