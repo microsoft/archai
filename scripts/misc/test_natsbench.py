@@ -1,12 +1,7 @@
+# this is installed via pip
 from nats_bench import create
 
-
-
-
-
-
-
-
+from archai.algos.natsbench.lib.models import get_cell_based_tiny_net
 
 def main():
 
@@ -24,9 +19,18 @@ def main():
     cost_info = api.get_cost_info(12, 'cifar10')
 
     # Show information of an architecture index
-    api.show(100)
+    # api.show(100)
 
+    # Query by index to get all runs individually (see paper appendix)
     data = api.query_by_index(284, dataname='cifar10', hp='12')
+
+    # Create the instance of th 12-th candidate for CIFAR-10
+    config = api.get_net_config(12, 'cifar10')
+    # network is a nn.Module subclass. the last few modules have names
+    # lastact, lastact.0, lastact.1, global_pooling, classifier 
+    # which we can freeze train as usual
+    network = get_cell_based_tiny_net(config)
+
 
     print('dummy')
 
