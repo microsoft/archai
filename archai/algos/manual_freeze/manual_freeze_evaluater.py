@@ -29,7 +29,6 @@ from archai.nas.evaluater import Evaluater
 from archai.algos.proxynas.freeze_trainer import FreezeTrainer
 
 
-
 class ManualFreezeEvaluater(Evaluater):
     @overrides
     def create_model(self, conf_eval:Config, model_desc_builder:ModelDescBuilder,
