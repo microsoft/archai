@@ -22,7 +22,10 @@ def main():
     # api.show(100)
 
     # Query by index to get all runs individually (see paper appendix)
-    data = api.query_by_index(284, dataname='cifar10', hp='12')
+    data = api.query_by_index(284, dataname='cifar10', hp='200')
+    data[777].train_acc1es[199]
+
+    info = api.get_more_info(284, 'cifar10', hp=200)
 
     # Create the instance of th 12-th candidate for CIFAR-10
     config = api.get_net_config(12, 'cifar10')
@@ -30,14 +33,6 @@ def main():
     # lastact, lastact.0, lastact.1, global_pooling, classifier 
     # which we can freeze train as usual
     network = get_cell_based_tiny_net(config)
-
-
-    print('dummy')
-
-
-
-
-
 
 
 

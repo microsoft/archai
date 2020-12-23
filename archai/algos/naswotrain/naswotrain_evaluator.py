@@ -48,7 +48,6 @@ class NaswotrainEvaluator(Evaluater, EnforceOverrides):
         return train_metrics
 
 
-
     @overrides
     def create_model(self, conf_eval: Config, model_desc_builder: ModelDescBuilder, 
                     final_desc_filename=None, full_desc_filename=None) -> nn.Module:
