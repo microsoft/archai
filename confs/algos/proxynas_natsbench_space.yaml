@@ -1,0 +1,34 @@
+__include__: 'darts.yaml' # just use darts defaults
+
+primitives: ['max_pool_3x3', 'avg_pool_3x3', 'skip_connect', 'sep_conv_3x3', 'sep_conv_5x5', 'dil_conv_3x3', 'dil_conv_5x5']
+
+#primitives: ['max_pool_3x3', 'avg_pool_3x3', 'skip_connect']
+
+nas:
+  search:
+    model_desc:
+      num_edges_to_sample: 2 # number of edges each node will take input from
+
+  eval:
+    natsbench:
+      arch_index: 42
+      natsbench_location: 'C:\\Users\\dedey\\dataroot\\natsbench\\NATS-tss-v1_0-3ffb9-simple'
+    model_desc:
+      num_edges_to_sample: 2
+    loader:
+      naswotrain:
+        train_batch: 128 # batch size for computing trainingless score  
+    trainer:
+      plotsdir: ''
+      epochs: 600
+      aux_weight: 0.0
+      drop_path_prob: 0.0
+      proxynas:
+        val_top1_acc_threshold: 0.75 # after some accuracy we will shift into training only the last 'n' layers
+        freeze_epochs: 200
+        freeze_lr: 0.1
+        freeze_decay: 0.0
+        freeze_momentum: 0.0
+        train_regular: True
+        identifiers_to_unfreeze: ['logits_op._op', 'cells.19']
+        aux_weight: 0.0 # disable auxiliary loss part during finetuning
