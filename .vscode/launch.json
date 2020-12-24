@@ -498,12 +498,21 @@
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
-            "name": "Analysis Proxynas",
+            "name": "Analysis Freeze Darts Space",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_proxynas.py",
+            "program": "${cwd}/scripts/reports/analysis_freeze_darts_space.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_regular_and_parameterless_thresh_0.75",
+            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Proxynas Natsbench Space",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\deleteme",
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
