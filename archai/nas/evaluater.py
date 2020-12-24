@@ -72,7 +72,6 @@ class Evaluater(EnforceOverrides):
         return train_metrics
 
     def get_data(self, conf_loader:Config)->Tuple[DataLoader, DataLoader]:
-
         # this dict caches the dataset objects per dataset config so we don't have to reload
         # the reason we do dynamic attribute is so that any dependent methods
         # can do ray.remote

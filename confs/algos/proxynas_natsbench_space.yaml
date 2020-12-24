@@ -1,8 +1,5 @@
 __include__: 'darts.yaml' # just use darts defaults
 
-primitives: ['max_pool_3x3', 'avg_pool_3x3', 'skip_connect', 'sep_conv_3x3', 'sep_conv_5x5', 'dil_conv_3x3', 'dil_conv_5x5']
-
-#primitives: ['max_pool_3x3', 'avg_pool_3x3', 'skip_connect']
 
 nas:
   search:
@@ -24,11 +21,11 @@ nas:
       aux_weight: 0.0
       drop_path_prob: 0.0
       proxynas:
-        val_top1_acc_threshold: 0.75 # after some accuracy we will shift into training only the last 'n' layers
-        freeze_epochs: 200
+        val_top1_acc_threshold: 0.10 # after some accuracy we will shift into training only the last 'n' layers
+        freeze_epochs: 10
         freeze_lr: 0.1
         freeze_decay: 0.0
         freeze_momentum: 0.0
         train_regular: True
-        identifiers_to_unfreeze: ['logits_op._op', 'cells.19']
+        identifiers_to_unfreeze: ['classifier'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling, classifier: 
         aux_weight: 0.0 # disable auxiliary loss part during finetuning
