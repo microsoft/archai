@@ -55,6 +55,7 @@ class FreezeNatsbenchExperimentRunner(ExperimentRunner):
         # regular evaluation of the architecture
         # where we simply lookup the result
         # --------------------------------------
+        logger.pushd('regular_evaluate')
         if conf_eval['trainer']['proxynas']['train_regular']:
             arch_id = conf_eval['natsbench']['arch_index']
             natsbench_location = conf_eval['natsbench']['natsbench_location']
@@ -72,6 +73,8 @@ class FreezeNatsbenchExperimentRunner(ExperimentRunner):
             info = api.get_more_info(arch_id, dataset_name, hp=200, is_random=False)
             test_accuracy = info['test-accuracy']
             logger.info(f'Regular training top1 test accuracy is {test_accuracy}')
+            logger.info({'regtrainingtop1': float(test_accuracy)})
+        logger.popd()
             
 
         # freeze train evaluation of the architecture

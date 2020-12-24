@@ -50,7 +50,7 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         if best_val_top1_avg >= self._val_top1_acc and not self._in_freeze_mode:
 
             # freeze everything other than the last layer
-            self.freeze_but_last_layer()
+            self._freeze_but_last_layer()
 
             # reset optimizer
             del self._multi_optim
@@ -73,7 +73,7 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
             logger.info('-----------Entered freeze training-----------------')
 
 
-    def freeze_but_last_layer(self) -> None:
+    def _freeze_but_last_layer(self) -> None:
         
         # NOTE: assumption here is that the last 
         # layer has the word 'logits' in the name string
