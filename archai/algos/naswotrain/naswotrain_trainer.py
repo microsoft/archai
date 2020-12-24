@@ -58,6 +58,7 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         score = self._eval_score(jacobs)
         self._metrics.naswotraining_score = score
         logger.info(f'nas without training score: {score}')
+        logger.info({'naswithouttraining':float(score)})
 
         # make sure we don't keep references to the graph
         del self._multi_optim
