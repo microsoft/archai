@@ -116,6 +116,8 @@ class Trainer(EnforceOverrides):
             self._train_epoch(data_loaders.train_dl)
             self.post_epoch(data_loaders)
             logger.popd()
+            if self._should_terminate():
+                break
         logger.popd()
         self.post_fit(data_loaders)
 
@@ -174,6 +176,9 @@ class Trainer(EnforceOverrides):
         self._set_drop_path(epoch, self._epochs)
 
         assert self._metrics.epochs() == epoch
+
+    def _should_terminate(self):
+        return False
 
     #########################  hooks #########################
     def pre_fit(self, data_loaders:data.DataLoaders)->None:
