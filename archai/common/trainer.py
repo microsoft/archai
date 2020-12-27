@@ -161,7 +161,7 @@ class Trainer(EnforceOverrides):
 
     def get_optimizer(self, index=0)->Optimizer:
         return self._multi_optim[index].optim
-        
+
     def get_scheduler(self, index=0)->Optional[_LRScheduler]:
         return self._multi_optim[index].sched
 
