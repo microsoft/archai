@@ -1,52 +1,72 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.nas.evaluater import EvalResult
-from typing import Type
-from copy import deepcopy
+
+from typing import Optional, Type
 
 from overrides import overrides
+from copy import deepcopy
 
 from archai.common.config import Config
 from archai.nas import nas_utils
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
-from archai.nas.evaluater import Evaluater, EvalResult
+from archai.nas.model_desc_builder import ModelDescBuilder
+from archai.nas.evaluater import EvalResult
+from .freeze_manual_evaluater import ManualFreezeEvaluater
+from .freeze_manual_searcher import ManualFreezeSearcher
+
+from archai.algos.naswotrain.naswotrain_manual_evaluator import NaswotrainManualEvaluater
 
 from archai.common.common import get_expdir, logger
 
-from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
-from archai.algos.naswotrain.naswotrain_evaluator import NaswotrainEvaluator
-from .freeze_evaluator import FreezeEvaluator
+class ManualFreezeExperimentRunner(ExperimentRunner):
+    """Runs manually designed models such as resnet"""
 
-class FreezeExperimentRunner(ExperimentRunner):
-    ''' Samples a random architecture from DARTS search space and freeze trains it '''
-    
     @overrides
-    def model_desc_builder(self)->RandomModelDescBuilder:
-        return RandomModelDescBuilder()
+    def model_desc_builder(self)->Optional[ModelDescBuilder]:
+        return None
 
     @overrides
     def trainer_class(self)->TArchTrainer:
-        return None
+        return None # no search trainer
+
+    @overrides
+    def searcher(self)->ManualFreezeSearcher:
+        return ManualFreezeSearcher()
+
+    @overrides
+    def evaluater(self)->ManualFreezeEvaluater:
+        return ManualFreezeEvaluater()
+
+    @overrides
+    def copy_search_to_eval(self)->None:
+        pass
 
     @overrides
     def run_eval(self, conf_eval:Config)->EvalResult:
         # without training architecture evaluation score
         # ---------------------------------------
         logger.pushd('naswotrain_evaluate')
-        naswotrain_evaler = NaswotrainEvaluator()
+        naswotrain_evaler = NaswotrainManualEvaluater()
         conf_eval_naswotrain = deepcopy(conf_eval)
+
+        if conf_eval_naswotrain['checkpoint'] is not None:
+            conf_eval_naswotrain['checkpoint']['filename'] = '$expdir/naswotrain_checkpoint.pth'
+
         naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval_naswotrain, model_desc_builder=self.model_desc_builder())
         logger.popd()
 
         # regular evaluation of the architecture
+        # this is expensive 
         # --------------------------------------
+        logger.pushd('regular_evaluate')
         reg_eval_result = None
-        if conf_eval['trainer']['proxynas']['train_regular']:
+        if conf_eval['trainer']['train_regular']:
             evaler = self.evaluater()
             conf_eval_reg = deepcopy(conf_eval)
             reg_eval_result = evaler.evaluate(conf_eval_reg, model_desc_builder=self.model_desc_builder())
+        logger.popd()
 
         # freeze train evaluation of the architecture
         # -------------------------------------------
@@ -61,7 +81,7 @@ class FreezeExperimentRunner(ExperimentRunner):
             conf_eval['checkpoint']['filename'] = '$expdir/freeze_checkpoint.pth'
 
         logger.pushd('freeze_evaluate')
-        freeze_evaler = FreezeEvaluator()
+        freeze_evaler = ManualFreezeEvaluater()
         conf_eval_freeze = deepcopy(conf_eval)
         freeze_eval_result = freeze_evaler.evaluate(conf_eval_freeze, model_desc_builder=self.model_desc_builder())
         logger.popd()
@@ -72,8 +92,4 @@ class FreezeExperimentRunner(ExperimentRunner):
         if reg_eval_result is not None:
             return reg_eval_result
         else:
-            return freeze_eval_result
-
-
-
-
+            return freeze_eval_result    
