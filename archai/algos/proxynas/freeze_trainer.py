@@ -42,34 +42,31 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
 
     def _freeze_but_last_layer(self) -> None:
         
-        # Freezing via module names
-        for module in self.model.modules():
-            module.requires_grad = False
+        # # Freezing via module names
+        # for module in self.model.modules():
+        #     module.requires_grad = False
         
-        # Unfreeze only some
-        for name, module in self.model.named_modules():
-            for identifier in self.conf_train['identifiers_to_unfreeze']:
-                if identifier in name:
-                    module.requires_grad = True
-
-        for name, module in self.model.named_modules():
-            if module.requires_grad:
-                logger.info(f'{name} requires grad')
-
-        # NOTE: freezing via named_parameters() doesn't expose all parameters? Check with Shital.    
-        # for name, param in self.model.named_parameters():
-        #     param.requires_grad = False
-        
-        # for name, param in self.model.named_parameters():
-        #     # TODO: Make the layer names to be updated a config value
-        #     # 'fc' for resnet18
-        #     # 'logits_op._op' for darts search space
-        #     for identifier in self.conf_train['proxynas']['identifiers_to_unfreeze']:
+        # # Unfreeze only some
+        # for name, module in self.model.named_modules():
+        #     for identifier in self.conf_train['identifiers_to_unfreeze']:
         #         if identifier in name:
-        #             param.requires_grad = True
+        #             print('we are hitting this')
+        #             module.requires_grad = True
 
-        # for name, param in self.model.named_parameters():
-        #     if param.requires_grad:
+        # for name, module in self.model.named_modules():
+        #     if module.requires_grad:
         #         logger.info(f'{name} requires grad')
 
-            
+        # Do it via parameters    
+        # NOTE: freezing via named_parameters() doesn't expose all parameters? Check with Shital.    
+        for param in self.model.parameters():
+            param.requires_grad = False
+        
+        for name, param in self.model.named_parameters():            
+            for identifier in self.conf_train['identifiers_to_unfreeze']:
+                if identifier in name:
+                    param.requires_grad = True
+
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:
+                logger.info(f'{name} requires grad')            

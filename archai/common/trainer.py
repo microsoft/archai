@@ -64,6 +64,10 @@ class Trainer(EnforceOverrides):
 
         self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
+        # NOTE: critical that pre_fit is called before creating optimizers
+        # as otherwise FreezeTrainer does not work correctly    
+        self.pre_fit(train_dl, val_dl)
+
         # create optimizers and schedulers
         self._multi_optim = self.create_multi_optim(len(train_dl))
         # before checkpoint restore, convert to amp
@@ -71,8 +75,6 @@ class Trainer(EnforceOverrides):
                                        batch_size=train_dl.batch_size)
 
         self._lossfn = self._lossfn.to(self.get_device())
-
-        self.pre_fit(train_dl, val_dl)
 
         # we need to restore checkpoint after all objects are created because
         # restoring checkpoint requires load_state_dict calls on these objects
