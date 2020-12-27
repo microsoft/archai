@@ -14,7 +14,7 @@ from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.evaluater import EvalResult
 from archai.common.common import get_expdir, logger
-from archai.algos.manual_freeze.manual_freeze_searcher import ManualFreezeSearcher
+from archai.algos.proxynas.freeze_manual_searcher import ManualFreezeSearcher
 from archai.algos.naswotrain.naswotrain_natsbench_evaluator import NaswotrainNatsbenchEvaluater
 from .freeze_natsbench_evaluater import FreezeNatsbenchEvaluater
 

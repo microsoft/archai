@@ -7,6 +7,7 @@ import importlib
 import sys
 import string
 import os
+from copy import deepcopy
 
 import torch
 from torch import nn
