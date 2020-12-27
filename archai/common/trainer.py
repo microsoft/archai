@@ -71,6 +71,10 @@ class Trainer(EnforceOverrides):
 
         self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
+        # NOTE: critical that pre_fit is called before creating optimizers
+        # as otherwise FreezeTrainer does not work correctly    
+        self.pre_fit(train_dl, val_dl)
+
         # create optimizers and schedulers
         self._multi_optim = self.create_multi_optim(len(data_loaders.train_dl))
         # before checkpoint restore, convert to amp

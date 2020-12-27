@@ -13,10 +13,11 @@ nas:
     model_desc:
       num_edges_to_sample: 2
     loader:
+      train_batch: 96
       naswotrain:
         train_batch: 128 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 1024 # batch size for freeze training
+        train_batch: 2048 # batch size for freeze training
     trainer:
       plotsdir: ''
       epochs: 600
@@ -24,7 +25,7 @@ nas:
   
     freeze_trainer:
       plotsdir: ''
-      identifiers_to_unfreeze: ['classifier'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling, classifier: linear layer  
+      identifiers_to_unfreeze: ['classifier', 'lastact', 'global_pooling'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling, classifier: linear layer  
       apex:
         _copy: '/common/apex'
       aux_weight: 0.0 # very important that this is 0.0 for freeze training
