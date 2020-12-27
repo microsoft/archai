@@ -55,4 +55,8 @@ class TinyNetwork(nn.Module):
     out = out.view(out.size(0), -1)
     logits = self.classifier(out)
 
-    return out, logits
+    # archai trainer class expects output to be
+    # logits, aux_logits
+    # WARNING: what does this break?
+    #return out, logits
+    return logits, None

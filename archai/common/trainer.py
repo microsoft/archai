@@ -71,6 +71,10 @@ class Trainer(EnforceOverrides):
 
         self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
+        # NOTE: critical that pre_fit is called before creating optimizers
+        # as otherwise FreezeTrainer does not work correctly
+        self.pre_fit(data_loaders)
+
         # create optimizers and schedulers
         self._multi_optim = self.create_multi_optim(len(data_loaders.train_dl))
         # before checkpoint restore, convert to amp
@@ -156,7 +160,7 @@ class Trainer(EnforceOverrides):
 
     def get_optimizer(self, index=0)->Optimizer:
         return self._multi_optim[index].optim
-        
+
     def get_scheduler(self, index=0)->Optional[_LRScheduler]:
         return self._multi_optim[index].sched
 
