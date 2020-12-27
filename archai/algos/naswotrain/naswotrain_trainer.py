@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional, Callable, Type
+from typing import Optional, Callable, Tuple, Type
 import os
 import numpy as np
 
@@ -71,7 +71,11 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         ''' Modified from https://github.com/BayesWatch/nas-without-training/blob/master/search.py '''
         self.model.zero_grad()
         x.requires_grad_(True)
-        logits, aux_logits = self.model(x)
+        logits = self.model(x)
+        # Manual models only return logits, 
+        # whereas DARTS space models return logits, aux_logits
+        if isinstance(logits, tuple):
+            logits = logits[0]
         # WARNING: We should be changing the number of output classes to 1 before 
         # charging ahead
         logits.backward(torch.ones_like(logits))

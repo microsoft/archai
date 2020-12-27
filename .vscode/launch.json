@@ -239,6 +239,22 @@
             "args": ["--algos", "proxynas_natsbench_space"]
         },
         {
+            "name": "Proxynas-Manual-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "proxynas_manual"]
+        },
+        {
+            "name": "Proxynas-Manual-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "proxynas_manual", "--full"]
+        },
+        {
             "name": "Resnet-Toy",
             "type": "python",
             "request": "launch",
@@ -269,22 +285,6 @@
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "manual"]
-        },
-        {
-            "name": "ManualFreeze-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "manual_freeze"]
-        },
-        {
-            "name": "ManualFreeze-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "manual_freeze", "--full"]
         },
         {
             "name": "TrainAug resnet50 cocob cifar10",
