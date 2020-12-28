@@ -4,11 +4,13 @@
 
 from typing import Optional, Type
 from copy import deepcopy
+import os
 
 from overrides import overrides
 
 from archai.common.config import Config
 from archai.nas import nas_utils
+from archai.common import utils
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.nas.model_desc_builder import ModelDescBuilder
@@ -57,7 +59,8 @@ class FreezeNatsbenchExperimentRunner(ExperimentRunner):
         # --------------------------------------
         logger.pushd('regular_evaluate')
         arch_id = conf_eval['natsbench']['arch_index']
-        natsbench_location = conf_eval['natsbench']['natsbench_location']
+        dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
+        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])        
         dataset_name = conf_eval['loader']['dataset']['name']
 
         api = create(natsbench_location, 'tss', fast_mode=True, verbose=True)
