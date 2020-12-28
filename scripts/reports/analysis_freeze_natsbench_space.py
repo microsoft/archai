@@ -268,6 +268,25 @@ def main():
     savename = os.path.join(out_dir, 'proxynas_naswotraining.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
+    # Naswottraining results
+    naswot_tau, naswot_p_value = kendalltau(all_reg_evals, all_naswotrain_evals)
+    naswot_spe, naswot_sp_value = spearmanr(all_reg_evals, all_naswotrain_evals)
+    print(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value}')
+    print(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value}')
+    results_savename = os.path.join(results_dir, 'results.txt')
+    with open(results_savename, 'a') as f:
+        f.write(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value}')
+        f.write(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value}')
+
+    
+    plt.scatter(all_reg_evals, all_naswotrain_evals)
+    plt.xlabel('Val top1 at 600 epochs')
+    plt.ylabel('Naswotraining')
+    plt.title('Naswotraining')
+    savename = os.path.join(results_dir, 'proxynas_naswotraining.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+
 
     # Rank correlations at top n percent of architectures
     reg_freezelast_naswot_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_naswotrain_evals[i]) for i in range(len(all_reg_evals))]
