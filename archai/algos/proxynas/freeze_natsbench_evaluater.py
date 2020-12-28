@@ -44,7 +44,9 @@ class FreezeNatsbenchEvaluater(Evaluater):
         if not final_desc_filename:
             final_desc_filename = conf_eval['final_desc_filename']
         arch_index = conf_eval['natsbench']['arch_index']
-        natsbench_location = conf_eval['natsbench']['natsbench_location']
+
+        dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
+        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])
         # endregion
 
         assert arch_index

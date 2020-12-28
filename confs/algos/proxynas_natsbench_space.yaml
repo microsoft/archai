@@ -9,7 +9,7 @@ nas:
   eval:
     natsbench:
       arch_index: 42
-      natsbench_location: 'C:\\Users\\dedey\\dataroot\\natsbench\\NATS-tss-v1_0-3ffb9-simple'
+      natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
     model_desc:
       num_edges_to_sample: 2
     loader:
