@@ -90,9 +90,9 @@ def main():
 
     # logs['proxynas_blahblah:eval']['naswotrain_evaluate']['eval_arch']['eval_train']['naswithouttraining']
     # logs['proxynas_blahblah:eval']['regular_evaluate']['regtrainingtop1']
-    # logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['eval_train']['epochs']['9']['val']['top1']
-    # last_epoch_key = list(logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['eval_train']['epochs'].keys())[-1]
-    # last_val_top1 = logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['eval_train']['epochs'][last_epoch_key]['val']['top1']
+    # logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs']['9']['val']['top1']
+    # last_epoch_key = list(logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'].keys())[-1]
+    # last_val_top1 = logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][last_epoch_key]['val']['top1']
 
     all_reg_evals = []
     all_naswotrain_evals = []
@@ -107,31 +107,50 @@ def main():
                 reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
 
                 # freeze evaluationj
-                last_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['eval_train']['epochs'].keys())[-1]
-                freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['eval_train']['epochs'][last_epoch_key]['val']['top1']
+                last_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'].keys())[-1]
+                freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][last_epoch_key]['val']['top1']
                 
                 all_naswotrain_evals.append(naswotrain_top1)
                 all_reg_evals.append(reg_eval_top1)
                 all_freeze_evals.append(freeze_eval_top1)
             except KeyError as err:
                 print(f'KeyError {err} in {key}')
-        
-    tau, p_value = kendalltau(all_reg_evals, all_freeze_evals)
-    spe, sp_value = spearmanr(all_reg_evals, all_freeze_evals)
-    print(f'Kendall Tau score: {tau}, p_value {p_value}')
-    print(f'Spearman corr: {spe}, p_value {sp_value}')
+
+    # Freeze training results        
+    freeze_tau, freeze_p_value = kendalltau(all_reg_evals, all_freeze_evals)
+    freeze_spe, freeze_sp_value = spearmanr(all_reg_evals, all_freeze_evals)
+    print(f'Freeze Kendall Tau score: {freeze_tau}, p_value {freeze_p_value}')
+    print(f'Freeze Spearman corr: {freeze_spe}, p_value {freeze_sp_value}')
     results_savename = os.path.join(results_dir, 'results.txt')
     with open(results_savename, 'w') as f:
-        f.write(f'Kendall Tau score: {tau}, p_value {p_value}')
-        f.write(f'Spearman corr: {spe}, p_value {sp_value}')
+        f.write(f'Kendall Tau score: {freeze_tau}, p_value {freeze_p_value}')
+        f.write(f'Spearman corr: {freeze_spe}, p_value {freeze_sp_value}')
 
-    
     plt.scatter(all_reg_evals, all_freeze_evals)
     plt.xlabel('Val top1 at 600 epochs')
     plt.ylabel('Freeze training')
-    plt.title('Freeze training at 0.75 val top1 followed by 200 epochs')
+    plt.title('Freeze training at 0.75 val')
     savename = os.path.join(results_dir, 'proxynas_0.75_freeze_training_200_epochs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    # Naswottraining results
+    naswot_tau, naswot_p_value = kendalltau(all_reg_evals, all_naswotrain_evals)
+    naswot_spe, naswot_sp_value = spearmanr(all_reg_evals, all_naswotrain_evals)
+    print(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value}')
+    print(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value}')
+    results_savename = os.path.join(results_dir, 'results.txt')
+    with open(results_savename, 'a') as f:
+        f.write(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value}')
+        f.write(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value}')
+
+    
+    plt.scatter(all_reg_evals, all_naswotrain_evals)
+    plt.xlabel('Val top1 at 600 epochs')
+    plt.ylabel('Naswotraining')
+    plt.title('Naswotraining')
+    savename = os.path.join(results_dir, 'proxynas_naswotraining.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
 
 
 
