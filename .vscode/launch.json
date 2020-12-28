@@ -416,12 +416,12 @@
             "args": []
         },
         {
-            "name": "Analysis Proxynas Natsbench Space",
+            "name": "Analysis Freeze Natsbench Space",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\deleteme",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_nb_hp_hunt_last_1",
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
