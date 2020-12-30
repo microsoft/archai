@@ -8,7 +8,7 @@ nas:
 
   eval:
     natsbench:
-      arch_index: 42
+      arch_index: 1891
       natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
     model_desc:
       num_edges_to_sample: 2
