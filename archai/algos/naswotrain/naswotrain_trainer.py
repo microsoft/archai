@@ -76,8 +76,6 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         # whereas DARTS space models return logits, aux_logits
         if isinstance(logits, tuple):
             logits = logits[0]
-        # WARNING: We should be changing the number of output classes to 1 before 
-        # charging ahead
         logits.backward(torch.ones_like(logits))
         jacob = x.grad.detach()
         return jacob
