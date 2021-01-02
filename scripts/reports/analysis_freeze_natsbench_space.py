@@ -11,23 +11,53 @@ import yaml
 from inspect import getsourcefile
 import re
 from tqdm import tqdm
+import seaborn as sns
 
 from scipy.stats import kendalltau, spearmanr
 
 from runstats import Statistics
 
-import matplotlib
-matplotlib.use('Agg')
+#import matplotlib
+#matplotlib.use('TkAgg')
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import multiprocessing
+from multiprocessing import Pool
 
 from archai.common import utils
 from archai.common.ordereddict_logger import OrderedDictLogger
 from analysis_utils import epoch_nodes, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
 
 import re
+
+def parse_a_job(job_dir:str)->OrderedDict:
+     if job_dir.is_dir():
+        for subdir in job_dir.iterdir():
+            if not subdir.is_dir():
+                continue
+            # currently we expect that each job was ExperimentRunner job which should have
+            # _search or _eval folders
+            if subdir.stem.endswith('_search'):
+                sub_job = 'search'
+            elif subdir.stem.endswith('_eval'):
+                sub_job = 'eval'
+            else:
+                raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
+                                'end with either _search or _eval which '
+                                'should be the case if ExperimentRunner was used.')
+
+            logs_filepath = os.path.join(str(subdir), 'log.yaml')
+            if os.path.isfile(logs_filepath):
+                fix_yaml(logs_filepath)
+                with open(logs_filepath, 'r') as f:
+                    key = job_dir.name + ':' + sub_job
+                    data = yaml.load(f, Loader=yaml.Loader)
+                return (key, data)
+
+def myfunc(x):
+    return x*x
 
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
@@ -52,42 +82,41 @@ def main():
 
     # get list of all structured logs for each job
     logs = {}
-    job_count = 0
-    for job_dir in tqdm(results_dir.iterdir()):
-        if job_dir.is_dir():
-            job_count += 1
-            for subdir in job_dir.iterdir():
-                if not subdir.is_dir():
-                    continue
-                # currently we expect that each job was ExperimentRunner job which should have
-                # _search or _eval folders
-                if subdir.stem.endswith('_search'):
-                    sub_job = 'search'
-                elif subdir.stem.endswith('_eval'):
-                    sub_job = 'eval'
-                else:
-                    raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
-                                    'end with either _search or _eval which '
-                                    'should be the case if ExperimentRunner was used.')
+    job_dirs = list(results_dir.iterdir())
 
-                logs_filepath = os.path.join(str(subdir), 'log.yaml')
-                if os.path.isfile(logs_filepath):
-                    fix_yaml(logs_filepath)
-                    with open(logs_filepath, 'r') as f:
-                        key = job_dir.name + ':' + sub_job
-                        logs[key] = yaml.load(f, Loader=yaml.Loader)
-                        all_good = True
-                        if 'eval_arch' not in logs[key].keys():
-                            print(f'eval_arch not in {key}')
-                            all_good = False
-                        if 'freeze_evaluate' not in logs[key].keys():
-                            print(f'freeze_evaluate not in {key}')
-                            all_good = False
-                        if all_good:
-                            print(f'{key} is all good')
+    # parallel parssing of yaml logs
+    with Pool(24) as p:
+        a = p.map(parse_a_job, job_dirs)
 
+    for key, data in a:
+        logs[key] = data
 
+    # # single process parsing of yaml logs
+    # for job_dir in tqdm(results_dir.iterdir()):
+    #     if job_dir.is_dir():
+    #         for subdir in job_dir.iterdir():
+    #             if not subdir.is_dir():
+    #                 continue
+    #             # currently we expect that each job was ExperimentRunner job which should have
+    #             # _search or _eval folders
+    #             if subdir.stem.endswith('_search'):
+    #                 sub_job = 'search'
+    #             elif subdir.stem.endswith('_eval'):
+    #                 sub_job = 'eval'
+    #             else:
+    #                 raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
+    #                                 'end with either _search or _eval which '
+    #                                 'should be the case if ExperimentRunner was used.')
 
+    #             logs_filepath = os.path.join(str(subdir), 'log.yaml')
+    #             if os.path.isfile(logs_filepath):
+    #                 fix_yaml(logs_filepath)
+    #                 with open(logs_filepath, 'r') as f:
+    #                     key = job_dir.name + ':' + sub_job
+    #                     logs[key] = yaml.load(f, Loader=yaml.Loader)
+                        
+
+    # examples of accessing logs
     # logs['proxynas_blahblah:eval']['naswotrain_evaluate']['eval_arch']['eval_train']['naswithouttraining']
     # logs['proxynas_blahblah:eval']['regular_evaluate']['regtrainingtop1']
     # logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs']['9']['val']['top1']
@@ -121,24 +150,25 @@ def main():
     freeze_spe, freeze_sp_value = spearmanr(all_reg_evals, all_freeze_evals)
     print(f'Freeze Kendall Tau score: {freeze_tau}, p_value {freeze_p_value}')
     print(f'Freeze Spearman corr: {freeze_spe}, p_value {freeze_sp_value}')
-    results_savename = os.path.join(results_dir, 'results.txt')
+    results_savename = os.path.join(out_dir, 'results.txt')
     with open(results_savename, 'w') as f:
-        f.write(f'Kendall Tau score: {freeze_tau}, p_value {freeze_p_value}')
-        f.write(f'Spearman corr: {freeze_spe}, p_value {freeze_sp_value}')
+        f.write(f'Freeze Kendall Tau score: {freeze_tau}, p_value {freeze_p_value} \n')
+        f.write(f'Freeze Spearman corr: {freeze_spe}, p_value {freeze_sp_value} \n')
 
-    plt.scatter(all_reg_evals, all_freeze_evals)
-    plt.xlabel('Val top1 at 600 epochs')
+
+    sns.scatterplot(x=all_reg_evals, y=all_freeze_evals)
+    plt.xlabel('Test top1 at natsbench full training')
     plt.ylabel('Freeze training')
-    plt.title('Freeze training at 0.75 val')
-    savename = os.path.join(results_dir, 'proxynas_0.75_freeze_training_200_epochs.png')
+    plt.title('Freeze training at 0.60 val')
+    savename = os.path.join(out_dir, 'proxynas_0.7_freeze_training_100_epochs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
     # Naswottraining results
     naswot_tau, naswot_p_value = kendalltau(all_reg_evals, all_naswotrain_evals)
     naswot_spe, naswot_sp_value = spearmanr(all_reg_evals, all_naswotrain_evals)
-    print(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value}')
-    print(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value}')
-    results_savename = os.path.join(results_dir, 'results.txt')
+    print(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value} \n')
+    print(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value} \n')
+    results_savename = os.path.join(out_dir, 'results.txt')
     with open(results_savename, 'a') as f:
         f.write(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value}')
         f.write(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value}')
@@ -148,7 +178,7 @@ def main():
     plt.xlabel('Val top1 at 600 epochs')
     plt.ylabel('Naswotraining')
     plt.title('Naswotraining')
-    savename = os.path.join(results_dir, 'proxynas_naswotraining.png')
+    savename = os.path.join(out_dir, 'proxynas_naswotraining.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
 
