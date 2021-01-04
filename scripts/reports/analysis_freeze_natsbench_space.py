@@ -268,21 +268,32 @@ def main():
     savename = os.path.join(out_dir, 'proxynas_naswotraining.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
+    plt.clf()
+    for epoch_key in freeze_taus.keys():
+        plt.scatter(epoch_key, freeze_spes[epoch_key])
+    plt.xlabel('Epochs of freeze training')
+    plt.ylabel('Spearman Correlation')
+    plt.grid()
+    savename = os.path.join(out_dir, 'proxynas_freeze_training_spearman_corrs.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+    
+
     # Naswottraining results
     naswot_tau, naswot_p_value = kendalltau(all_reg_evals, all_naswotrain_evals)
     naswot_spe, naswot_sp_value = spearmanr(all_reg_evals, all_naswotrain_evals)
-    print(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value} \n')
-    print(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value} \n')
+    print(f'Naswotraining Kendall Tau score: {naswot_tau:3.03f}, p_value {naswot_p_value:3.03f}')
+    print(f'Naswotraining Spearman corr: {naswot_spe:3.03f}, p_value {naswot_sp_value:3.03f}')
     results_savename = os.path.join(out_dir, 'results.txt')
     with open(results_savename, 'a') as f:
-        f.write(f'Naswotraining Kendall Tau score: {naswot_tau}, p_value {naswot_p_value}')
-        f.write(f'Naswotraining Spearman corr: {naswot_spe}, p_value {naswot_sp_value}')
+        f.write(f'Naswotraining Kendall Tau score: {naswot_tau:3.03f}, p_value {naswot_p_value:3.03f} \n')
+        f.write(f'Naswotraining Spearman corr: {naswot_spe:3.03f}, p_value {naswot_sp_value:3.03f} \n')
 
-    
-    plt.scatter(all_reg_evals, all_naswotrain_evals)
-    plt.xlabel('Val top1 at 600 epochs')
+    plt.clf()
+    sns.scatterplot(all_reg_evals, all_naswotrain_evals)
+    plt.xlabel('Test top1 at 200 epochs')
     plt.ylabel('Naswotraining')
     plt.title('Naswotraining')
+    plt.grid()
     savename = os.path.join(out_dir, 'proxynas_naswotraining.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
