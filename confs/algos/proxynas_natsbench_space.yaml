@@ -40,13 +40,13 @@ nas:
         type: 'CrossEntropyLoss'
       optimizer:
         type: 'sgd'
-        lr: 0.3 # init learning rate
+        lr: 0.5 # init learning rate
         decay: 0.0 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: False # pytorch default is False
         decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
       lr_schedule:
-        type: null
+        type: 'cosine'
         min_lr: 0.001 # min learning rate to be set in eta_min param of scheduler
         warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
           multiplier: 1
