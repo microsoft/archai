@@ -312,7 +312,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_aggregate.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_nb_hp_cell16_nosched_2",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_nb_hp_hunt_cell13",
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
