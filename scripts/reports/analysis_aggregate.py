@@ -10,6 +10,7 @@ from collections import OrderedDict
 import yaml
 from inspect import getsourcefile
 import re
+from multiprocessing import Pool
 
 from runstats import Statistics
 
@@ -27,6 +28,29 @@ from analysis_utils import epoch_nodes, fix_yaml, remove_seed_part, group_multi_
 
 import re
 
+def parse_a_job(job_dir:str)->OrderedDict:
+    if job_dir.is_dir():
+        for subdir in job_dir.iterdir():
+            if not subdir.is_dir():
+                continue
+            # currently we expect that each job was ExperimentRunner job which should have
+            # _search or _eval folders
+            if subdir.stem.endswith('_search'):
+                sub_job = 'search'
+            elif subdir.stem.endswith('_eval'):
+                sub_job = 'eval'
+            else:
+                raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
+                                'end with either _search or _eval which '
+                                'should be the case if ExperimentRunner was used.')
+
+            logs_filepath = os.path.join(str(subdir), 'log.yaml')
+            if os.path.isfile(logs_filepath):
+                fix_yaml(logs_filepath)
+                with open(logs_filepath, 'r') as f:
+                    key = job_dir.name + ':' + sub_job
+                    data = yaml.load(f, Loader=yaml.Loader)
+                return (key, data)
 
 
 def main():
@@ -50,32 +74,44 @@ def main():
     print(f'out_dir: {out_dir}')
     os.makedirs(out_dir, exist_ok=True)
 
-    # get list of all structured logs for each job
+     # get list of all structured logs for each job
     logs = {}
     job_count = 0
-    for job_dir in results_dir.iterdir():
+    job_dirs = list(results_dir.iterdir())
+
+    # parallel parssing of yaml logs
+    with Pool(18) as p:
+        a = p.map(parse_a_job, job_dirs)
+
+    for key, data in a:
+        logs[key] = data
         job_count += 1
-        for subdir in job_dir.iterdir():
-            if not subdir.is_dir():
-                continue
-            # currently we expect that each job was ExperimentRunner job which should have
-            # _search or _eval folders
-            if subdir.stem.endswith('_search'):
-                sub_job = 'search'
-            elif subdir.stem.endswith('_eval'):
-                sub_job = 'eval'
-            else:
-                raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
-                                  'end with either _search or _eval which '
-                                  'should be the case if ExperimentRunner was used.')
 
-            logs_filepath = os.path.join(str(subdir), 'log.yaml')
-            if os.path.isfile(logs_filepath):
-                fix_yaml(logs_filepath)
-                with open(logs_filepath, 'r') as f:
-                    key = job_dir.name + ':' + sub_job
-                    logs[key] = yaml.load(f, Loader=yaml.Loader)
+    # # single process parsing of yaml logs
+    # for job_dir in tqdm(results_dir.iterdir()):
+    #     if job_dir.is_dir():
+    #         for subdir in job_dir.iterdir():
+    #             if not subdir.is_dir():
+    #                 continue
+    #             # currently we expect that each job was ExperimentRunner job which should have
+    #             # _search or _eval folders
+    #             if subdir.stem.endswith('_search'):
+    #                 sub_job = 'search'
+    #             elif subdir.stem.endswith('_eval'):
+    #                 sub_job = 'eval'
+    #             else:
+    #                 raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
+    #                                 'end with either _search or _eval which '
+    #                                 'should be the case if ExperimentRunner was used.')
 
+    #             logs_filepath = os.path.join(str(subdir), 'log.yaml')
+    #             if os.path.isfile(logs_filepath):
+    #                 fix_yaml(logs_filepath)
+    #                 with open(logs_filepath, 'r') as f:
+    #                     key = job_dir.name + ':' + sub_job
+    #                     logs[key] = yaml.load(f, Loader=yaml.Loader)
+
+    
     # create list of epoch nodes having same path in the logs
     grouped_logs = group_multi_runs(logs)
     collated_grouped_logs = collect_epoch_nodes(grouped_logs)
