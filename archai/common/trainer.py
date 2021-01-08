@@ -23,7 +23,7 @@ from archai.common.multi_optim import MultiOptim, OptimSched
 
 class Trainer(EnforceOverrides):
     def __init__(self, conf_train:Config, model:nn.Module,
-                 checkpoint:Optional[CheckPoint])->None:
+                 checkpoint:Optional[CheckPoint]=None)->None:
         # region config vars
         self.conf_train = conf_train
         conf_lossfn = conf_train['lossfn']

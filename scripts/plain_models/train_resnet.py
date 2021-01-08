@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-
-from typing import Optional
 import torch
 from archai import cifar10_models
 from archai.common.trainer import Trainer
@@ -22,7 +20,7 @@ def train_test(conf_eval:Config):
     train_dl, _, test_dl = data.get_data(conf_loader)
 
     # train!
-    trainer = Trainer(conf_trainer, model, None)
+    trainer = Trainer(conf_trainer, model)
     trainer.fit(train_dl, test_dl)
 
 
