@@ -41,6 +41,8 @@ class Trainer(EnforceOverrides):
         self._validation_freq = 0 if conf_validation is None else conf_validation['freq']
         # endregion
 
+        logger.pushd(self._title + '__init__')
+
         self._apex = ApexUtils(conf_apex, logger)
 
         self._checkpoint = checkpoint
@@ -58,6 +60,8 @@ class Trainer(EnforceOverrides):
             logger.warn({'droppath_module': None})
 
         self._start_epoch = -1 # nothing is started yet
+
+        logger.popd()
 
     def fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->Metrics:
         logger.pushd(self._title)

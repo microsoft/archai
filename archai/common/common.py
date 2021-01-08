@@ -172,7 +172,7 @@ def common_init(config_filepath: Optional[str]=None,
 
     _create_sysinfo(conf)
 
-    # create a[ex to know distributed processing paramters
+    # create apex to know distributed processing paramters
     conf_apex = get_conf_common(conf)['apex']
     apex = ApexUtils(conf_apex, logger=logger)
 

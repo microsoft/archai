@@ -12,19 +12,8 @@ from archai.common.common import logger, common_init
 from archai.datasets import data
 
 def train_test(conf_eval:Config):
-    # region conf vars
     conf_loader       = conf_eval['loader']
     conf_trainer = conf_eval['trainer']
-    # endregion
-
-    conf_trainer['validation']['freq']=1
-    conf_trainer['epochs'] = 10
-    conf_loader['train_batch'] = 128
-    conf_loader['test_batch'] = 4096
-    conf_loader['cutout'] = 0
-    conf_trainer['drop_path_prob'] = 0.0
-    conf_trainer['grad_clip'] = 0.0
-    conf_trainer['aux_weight'] = 0.0
 
     Net = cifar10_models.resnet34
     model = Net().to(torch.device('cuda', 0))
@@ -38,8 +27,7 @@ def train_test(conf_eval:Config):
 
 
 if __name__ == '__main__':
-    conf = common_init(config_filepath='confs/algos/darts.yaml',
-                       param_args=['--common.experiment_name', 'restnet_test'])
+    conf = common_init(config_filepath='confs/algos/resnet.yaml')
 
     conf_eval = conf['nas']['eval']
 
