@@ -9,7 +9,7 @@ from archai.common.common import common_init
 from archai.datasets import data
 
 def train_test(conf_eval:Config):
-    conf_loader       = conf_eval['loader']
+    conf_loader = conf_eval['loader']
     conf_trainer = conf_eval['trainer']
 
     # create model
