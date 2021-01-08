@@ -1,0 +1,18 @@
+__include__: 'darts.yaml' # just use darts defaults
+
+common:
+  experiment_name: 'MyResnet'
+
+nas:
+  eval:
+    loader:
+      train_batch: 128
+      test_batch: 4096
+      cutout: 0
+      drop_path_prob: 0.0
+      grad_clip: 0.0
+      aux_weight: 0.0
+    trainer:
+      epochs: 10
+      logger_freq: 1
+
