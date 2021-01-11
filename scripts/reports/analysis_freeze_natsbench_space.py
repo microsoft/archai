@@ -298,6 +298,10 @@ def main():
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
 
+    # Rank correlations at top n percent of architectures
+    assert len(all_reg_evals) == len(all_freeze_evals_last)
+    assert len(all_reg_evals) == len(all_naswotrain_evals)
+    reg_freezelast_naswot_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_naswotrain_evals[i]) for i in range(len(all_reg_evals))]
 
     # Rank correlations at top n percent of architectures
     reg_freezelast_naswot_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_naswotrain_evals[i]) for i in range(len(all_reg_evals))]
