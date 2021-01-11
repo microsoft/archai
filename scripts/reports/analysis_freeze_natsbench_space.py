@@ -7,11 +7,13 @@ import glob
 import os
 import pathlib
 from collections import OrderedDict, defaultdict
+from scipy.stats.stats import _two_sample_transform
 import yaml
 from inspect import getsourcefile
 import re
 from tqdm import tqdm
 import seaborn as sns
+import math as ma
 
 from scipy.stats import kendalltau, spearmanr
 
@@ -186,6 +188,7 @@ def main():
         plt.scatter(epoch_key, freeze_taus[epoch_key])
     plt.xlabel('Epochs of freeze training')
     plt.ylabel('Kendall Tau')
+    plt.ylim((0.0, 1.0))
     plt.grid()
     savename = os.path.join(out_dir, 'proxynas_freeze_training_kendall_taus.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
@@ -195,6 +198,7 @@ def main():
         plt.scatter(epoch_key, freeze_spes[epoch_key])
     plt.xlabel('Epochs of freeze training')
     plt.ylabel('Spearman Correlation')
+    plt.ylim((0.0, 1.0))
     plt.grid()
     savename = os.path.join(out_dir, 'proxynas_freeze_training_spearman_corrs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
@@ -220,7 +224,40 @@ def main():
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
 
+    # Rank correlations at top n percent of architectures
+    assert len(all_reg_evals) == len(all_freeze_evals_last)
+    assert len(all_reg_evals) == len(all_naswotrain_evals)
+    reg_freezelast_naswot_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_naswotrain_evals[i]) for i in range(len(all_reg_evals))]
 
+    # sort in descending order of accuracy of regular evaluation
+    reg_freezelast_naswot_evals.sort(key=lambda x: x[0], reverse=True)
+
+    spe_freeze_top_percents = []
+    spe_naswot_top_percents = []
+    top_percents = []
+    for top_percent in range(10, 101, 10):
+        top_percents.append(top_percent)
+        num_to_keep = int(ma.floor(len(reg_freezelast_naswot_evals) * top_percent * 0.01))
+        top_percent_evals = reg_freezelast_naswot_evals[:num_to_keep]
+        top_percent_reg = [x[0] for x in top_percent_evals] 
+        top_percent_freeze = [x[1] for x in top_percent_evals]
+        top_percent_naswot = [x[2] for x in top_percent_evals]
+
+        spe_freeze, _ = spearmanr(top_percent_reg, top_percent_freeze)
+        spe_freeze_top_percents.append(spe_freeze)
+        spe_naswot, _ = spearmanr(top_percent_reg, top_percent_naswot)
+        spe_naswot_top_percents.append(spe_naswot)
+
+    plt.clf()
+    sns.scatterplot(top_percents, spe_freeze_top_percents)
+    sns.scatterplot(top_percents, spe_naswot_top_percents)
+    plt.legend(labels=['Freeze Train', 'Naswot'])
+    plt.ylim((0.0, 1.0))
+    plt.xlabel('Top percent of architectures')
+    plt.ylabel('Spearman Correlation')
+    plt.grid()
+    savename = os.path.join(out_dir, f'spe_top_archs.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
 if __name__ == '__main__':
     main()

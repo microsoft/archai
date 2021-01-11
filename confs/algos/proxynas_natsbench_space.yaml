@@ -21,7 +21,7 @@ nas:
     trainer:
       plotsdir: ''
       epochs: 600
-      val_top1_acc_threshold: 0.70 # after some accuracy we will shift into training only the last 'n' layers
+      val_top1_acc_threshold: 0.80 # after some accuracy we will shift into training only the last 'n' layers
   
     freeze_trainer:
       plotsdir: ''
