@@ -228,7 +228,7 @@ def download_and_extract_tar(url, download_root, extract_root=None, filename=Non
 
     extract_tar(os.path.join(download_root, filename), extract_root, **kwargs)
 
-def setup_cuda(seed:Union[float, int], local_rank:int):
+def setup_cuda(seed:Union[float, int], local_rank:int=0):
     seed = int(seed) + local_rank
     # setup cuda
     cudnn.enabled = True

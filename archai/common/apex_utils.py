@@ -116,7 +116,7 @@ class ApexUtils:
 
 
     def _setup_gpus(self, seed:float, detect_anomaly:bool):
-        utils.setup_cuda(seed, self.local_rank)
+        utils.setup_cuda(seed, local_rank=self.local_rank)
 
         torch.autograd.set_detect_anomaly(detect_anomaly)
         self._log_info({'set_detect_anomaly': detect_anomaly,
