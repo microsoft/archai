@@ -239,6 +239,22 @@
             "args": ["--algos", "proxynas_natsbench_space"]
         },
         {
+            "name": "Naswot-Conditional-Natsbench-Space-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "naswot_conditional_natsbench_space"]
+        },
+        {
+            "name": "Naswot-Conditional-Natsbench-Space-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "naswot_conditional_natsbench_space"]
+        },
+        {
             "name": "Proxynas-Manual-Toy",
             "type": "python",
             "request": "launch",

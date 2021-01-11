@@ -77,6 +77,8 @@ class NaswotrainNatsbenchEvaluater(Evaluater):
     def train_model(self,  conf_train:Config, model:nn.Module,
                     checkpoint:Optional[CheckPoint])->Metrics:
         conf_loader = conf_train['loader']
+        # change the loader batch size to that desired for computing score
+        conf_loader['train_batch'] = conf_loader['naswotrain']['train_batch']
         conf_train = conf_train['trainer']
 
         # get data
