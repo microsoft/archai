@@ -350,6 +350,15 @@
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
+            "name": "Analysis Naswot Conditional Natsbench Space",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_naswot_cond_natsbench_space.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_naswotcond0.6",
+            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",
