@@ -23,7 +23,7 @@ from archai.common.multi_optim import MultiOptim, OptimSched
 
 class Trainer(EnforceOverrides):
     def __init__(self, conf_train:Config, model:nn.Module,
-                 checkpoint:Optional[CheckPoint])->None:
+                 checkpoint:Optional[CheckPoint]=None)->None:
         # region config vars
         self.conf_train = conf_train
         conf_lossfn = conf_train['lossfn']
@@ -40,6 +40,8 @@ class Trainer(EnforceOverrides):
         conf_apex = conf_train['apex']
         self._validation_freq = 0 if conf_validation is None else conf_validation['freq']
         # endregion
+
+        logger.pushd(self._title + '__init__')
 
         self._apex = ApexUtils(conf_apex, logger)
 
@@ -58,6 +60,8 @@ class Trainer(EnforceOverrides):
             logger.warn({'droppath_module': None})
 
         self._start_epoch = -1 # nothing is started yet
+
+        logger.popd()
 
     def fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->Metrics:
         logger.pushd(self._title)
