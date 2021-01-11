@@ -6,6 +6,7 @@ import importlib
 import sys
 import string
 import os
+from copy import deepcopy
 
 from overrides import overrides
 
@@ -77,8 +78,10 @@ class NaswotrainNatsbenchConditionalEvaluater(Evaluater):
     @overrides
     def train_model(self,  conf_train:Config, model:nn.Module,
                     checkpoint:Optional[CheckPoint])->Metrics:
-        conf_loader = conf_train['loader']
-        conf_train_cond = conf_train['trainer']
+        conf_loader_cond = deepcopy(conf_train['loader'])
+        conf_train_cond = deepcopy(conf_train['trainer'])
+        conf_loader_naswot = deepcopy(conf_train['loader'])
+        conf_train_naswot = deepcopy(conf_train['trainer'])
 
         # NOTE: we don't pass checkpoint to the trainers
         # as it creates complications and we don't need it 
@@ -87,16 +90,23 @@ class NaswotrainNatsbenchConditionalEvaluater(Evaluater):
 
         # first run conditional training
         logger.pushd('conditional_training')
-        train_dl, test_dl = self.get_data(conf_loader)        
+        train_dl, test_dl = self.get_data(conf_loader_cond)        
         # first regular train until certain accuracy is achieved
         cond_trainer = ConditionalTrainer(conf_train_cond, model, checkpoint)
         cond_trainer_metrics = cond_trainer.fit(train_dl, test_dl)
         logger.popd()
 
         # then run naswotrain once certain accuracy has been reached
-        train_dl, test_dl = self.get_data(conf_loader)
-        trainer = NaswotrainTrainer(conf_train, model, checkpoint)
+        logger.pushd('conditional_naswot')
+        
+        # change the loader batch size to that desired for computing score
+        conf_loader_naswot['train_batch'] = conf_loader_naswot['naswotrain']['train_batch']
+        train_dl, test_dl = self.get_data(conf_loader_naswot)
+
+        trainer = NaswotrainTrainer(conf_train_naswot, model, checkpoint)
         train_metrics = trainer.fit(train_dl, test_dl)
+        logger.popd()
+
         return train_metrics
 
     
