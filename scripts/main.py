@@ -17,7 +17,7 @@ from archai.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
 from archai.algos.proxynas.freeze_dartsspace_experiment_runner import FreezeDartsspaceExperimentRunner
 from archai.algos.proxynas.freeze_natsbench_experiment_runner import FreezeNatsbenchExperimentRunner
 from archai.algos.proxynas.freeze_manual_experiment_runner import ManualFreezeExperimentRunner
-
+from archai.algos.naswotrain.naswotrain_natsbench_conditional_experiment_runner import NaswotConditionalNatsbenchExperimentRunner
 
 def main():
     runner_types:Dict[str, Type[ExperimentRunner]] = {
@@ -31,11 +31,12 @@ def main():
         'didarts': DiDartsExperimentRunner,
         'proxynas_darts_space': FreezeDartsspaceExperimentRunner,
         'proxynas_natsbench_space': FreezeNatsbenchExperimentRunner,
-        'proxynas_manual': ManualFreezeExperimentRunner
+        'proxynas_manual': ManualFreezeExperimentRunner,
+        'naswot_conditional_natsbench_space': NaswotConditionalNatsbenchExperimentRunner
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
-    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts,petridish,gs,manual,divnas,proxynas_manual,proxynas_darts_space,proxynas_natsbench_space',
+    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts,petridish,gs,manual,divnas,proxynas_manual,proxynas_darts_space,proxynas_natsbench_space,naswot_conditional_natsbench_space',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
                         help='datasets to use, separated by comma')

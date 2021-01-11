@@ -57,8 +57,9 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         jacobs = jacobs.reshape(jacobs.size(0), -1).cpu().numpy()
         score = self._eval_score(jacobs)
         self._metrics.naswotraining_score = score
-        logger.info(f'nas without training score: {score}')
+        logger.info(f'nas without training score: {score} using batch size: {train_dl.batch_size}')
         logger.info({'naswithouttraining':float(score)})
+        logger.info({'naswithouttraining_batch_size':train_dl.batch_size})
 
         # make sure we don't keep references to the graph
         del self._multi_optim
