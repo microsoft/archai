@@ -1,0 +1,22 @@
+__include__: 'darts.yaml' # just use darts defaults
+
+
+nas:
+  search:
+    model_desc:
+      num_edges_to_sample: 2 # number of edges each node will take input from
+
+  eval:
+    natsbench:
+      arch_index: 1891
+      natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
+    model_desc:
+      num_edges_to_sample: 2
+    loader:
+      train_batch: 96
+      naswotrain:
+        train_batch: 256 # batch size for computing trainingless score    
+    trainer:
+      plotsdir: ''
+      epochs: 600
+      val_top1_acc_threshold: 0.80 # after some accuracy we will shift into training only the last 'n' layers
