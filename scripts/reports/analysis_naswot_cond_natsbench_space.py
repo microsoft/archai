@@ -180,10 +180,10 @@ def main():
     plt.clf()
     sns.scatterplot(all_reg_evals, all_cond_naswotrain_evals)
     plt.xlabel('Test top1 at 200 epochs')
-    plt.ylabel('Naswotraining')
-    plt.title('Naswotraining')
+    plt.ylabel('Cond. Naswot')
+    plt.title('Cond. Naswot')
     plt.grid()
-    savename = os.path.join(out_dir, 'proxynas_naswotraining.png')
+    savename = os.path.join(out_dir, 'proxynas_condnaswot.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
     # Rank correlations at top n percent of architectures
