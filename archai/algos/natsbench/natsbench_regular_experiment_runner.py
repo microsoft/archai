@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-
-from archai.algos.natsbench.natsbench_regular_evaluator import NatsbenchRegularEvaluater
 from typing import Optional, Type
 from copy import deepcopy
 import os
@@ -18,7 +16,7 @@ from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.evaluater import EvalResult
 from archai.common.common import get_expdir, logger
 from archai.algos.proxynas.freeze_manual_searcher import ManualFreezeSearcher
-from archai.algos.naswotrain.naswotrain_natsbench_evaluator import NaswotrainNatsbenchEvaluater
+from archai.algos.natsbench.natsbench_regular_evaluator import NatsbenchRegularEvaluater
 
 from nats_bench import create
 class NatsbenchRegularExperimentRunner(ExperimentRunner):
