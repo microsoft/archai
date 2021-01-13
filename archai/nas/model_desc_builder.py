@@ -84,6 +84,7 @@ class ModelDescBuilder(EnforceOverrides):
 
     def build(self, conf_model_desc: Config,
                  template:Optional[ModelDesc]=None)->ModelDesc:
+        """main entry point for the class"""
 
         self._init_build(conf_model_desc, template)
 
@@ -413,6 +414,7 @@ class ModelDescBuilder(EnforceOverrides):
         return list(op.reduction for op in ops)
 
     def pre_build(self, conf_model_desc:Config)->None:
+        """hook for accomplishing any setup before build starts"""
         pass
 
     def seed_cell(self, model_desc:ModelDesc)->None:
