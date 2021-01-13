@@ -16,7 +16,7 @@ from __future__ import print_function
 import numpy as np
 import math
 
-from base_ops import *
+from .base_ops import *
 
 import torch
 import torch.nn as nn
@@ -24,20 +24,20 @@ import torch.nn.functional as F
 
 
 class Network(nn.Module):
-    def __init__(self, spec, args):
+    def __init__(self, spec, stem_out_channels, num_stacks, num_modules_per_stack, num_labels):
         super(Network, self).__init__()
 
         self.layers = nn.ModuleList([])
 
         in_channels = 3
-        out_channels = args.stem_out_channels # out channels for the model stem
+        out_channels = stem_out_channels # out channels for the model stem
 
         # initial stem convolution
         stem_conv = ConvBnRelu(in_channels, out_channels, 3, 1, 1)
         self.layers.append(stem_conv)
 
         in_channels = out_channels
-        for stack_num in range(args.num_stacks):
+        for stack_num in range(num_stacks):
             if stack_num > 0:
                 # downsampling by maxpool doesn't change the channel
                 downsample = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -45,12 +45,12 @@ class Network(nn.Module):
 
                 out_channels *= 2
 
-            for module_num in range(args.num_modules_per_stack):
+            for module_num in range(num_modules_per_stack):
                 cell = Cell(spec, in_channels, out_channels)
                 self.layers.append(cell)
                 in_channels = out_channels
 
-        self.classifier = nn.Linear(out_channels, args.num_labels)
+        self.classifier = nn.Linear(out_channels, num_labels)
 
         self._initialize_weights()
 
