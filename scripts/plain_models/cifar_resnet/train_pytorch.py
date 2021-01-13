@@ -17,6 +17,7 @@ import yaml
 
 from archai.common import utils
 from archai import cifar10_models
+from archai.datasets.list_dataset import ListDataset
 
 
 def train_test(datadir:str, expdir:str,
@@ -127,6 +128,7 @@ def cifar10_dataloaders(datadir:str, train_batch_size=128, test_batch_size=4096,
 def train_epoch(epoch, net, train_dl, device, crit, optim,
                 sched, sched_on_epoch, half)->Tuple[float, float]:
     correct, total, loss_total = 0, 0, 0.0
+    ds = ListDataset(train_dl)
     net.train()
     for batch_idx, (inputs, targets) in enumerate(train_dl):
         inputs = inputs.to(device, non_blocking=True)
