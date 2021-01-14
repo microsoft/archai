@@ -25,7 +25,7 @@ def main():
     data = api.query_by_index(284, dataname='cifar10', hp='200')
     data[777].train_acc1es[199]
 
-    info = api.get_more_info(284, 'cifar10', hp=200)
+    info = api.get_more_info(9682, 'cifar10', hp=200, is_random=False)
 
     # Create the instance of th 12-th candidate for CIFAR-10
     config = api.get_net_config(12, 'cifar10')
