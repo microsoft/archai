@@ -7,7 +7,7 @@ from archai.datasets import data
 
 
 def main():
-    conf = common_init(config_filepath='confs/algos/resnet.yaml')
+    conf = common_init(config_filepath='confs/algos/nasbench101.yaml')
     conf_eval = conf['nas']['eval']
     conf_loader = conf_eval['loader']
     conf_trainer = conf_eval['trainer']
