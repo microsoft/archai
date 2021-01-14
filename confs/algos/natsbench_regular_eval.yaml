@@ -8,12 +8,13 @@ nas:
 
   eval:
     natsbench:
-      arch_index: 1891
+      arch_index: 9682
       natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
     model_desc:
       num_edges_to_sample: 2
     loader:
-      train_batch: 256      
+      train_batch: 2048 # natsbench uses 256
+      aug: 'fa_reduced_cifar10' # In natsbench paper they use random flip and crop, we are doing lot more here     
     trainer: # matching natsbench paper closely
       plotsdir: ''
       apex:
@@ -37,7 +38,7 @@ nas:
         decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
       lr_schedule:
         type: 'cosine'
-        min_lr: 0.001 # min learning rate to be set in eta_min param of scheduler
+        min_lr: 0.000 # min learning rate to be set in eta_min param of scheduler
         warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
           multiplier: 1
           epochs: 0 # 0 disables warmup
