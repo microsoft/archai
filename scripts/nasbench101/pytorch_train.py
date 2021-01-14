@@ -12,7 +12,7 @@ def main():
     conf_loader = conf_eval['loader']
     conf_trainer = conf_eval['trainer']
 
-    model = model_builder.build(model_builder.EXAMPLE_DESC_MATRIX)
+    model = model_builder.build(model_builder.EXAMPLE_DESC_MATRIX, model_builder.EXAMPLE_VERTEX_OPS)
 
     train_dl, _, test_dl = data.get_data(conf_loader)
 
