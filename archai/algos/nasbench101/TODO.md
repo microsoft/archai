@@ -1,3 +1,6 @@
+- support only one stem in model
+- enable model init strategies
+
 - Output node is vertex_op(sum(edges)) + projected input
 - Yaml:
     - every cell reduction, cell stem = max_pool, model stem

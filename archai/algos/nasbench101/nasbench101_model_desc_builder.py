@@ -22,16 +22,46 @@ class NasBench101CellBuilder(ModelDescBuilder):
                        lambda op_desc, arch_params, affine:
                            NasBench101Op(op_desc, arch_params, affine))
 
-    @overrides
-    def build_cells(self, in_shapes:TensorShapesList, conf_model_desc:Config)\
-            ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
+        # extract model specs from params in config
         params = conf_model_desc['params'].to_dict()
         cell_matrix = params['cell_matrix']
         vertex_ops = params['vertex_ops']
+        self.num_stacks = params['num_stacks']
 
         self._cell_matrix, self._vertex_ops = model_matrix.prune(cell_matrix, vertex_ops)
 
-        return super().build_cells(in_shapes, conf_model_desc)
+    @overrides
+    def build_cell(self, in_shapes:TensorShapesList, conf_cell:Config,
+                   cell_index:int) ->CellDesc:
+
+        stem_shapes, stems = self.build_cell_stems(in_shapes, conf_cell, cell_index)
+        cell_type = self.get_cell_type(cell_index)
+
+        if self.template is None:
+            node_count = self.get_node_count(cell_index)
+            in_shape = stem_shapes[0] # input shape to noded is same as cell stem
+            out_shape = stem_shapes[0] # we ask nodes to keep the output shape same
+            node_shapes, nodes = self.build_nodes(stem_shapes, conf_cell,
+                                                  cell_index, cell_type, node_count, in_shape, out_shape)
+        else:
+            node_shapes, nodes = self.build_nodes_from_template(stem_shapes, conf_cell, cell_index)
+
+        post_op_shape, post_op_desc = self.build_cell_post_op(stem_shapes,
+            node_shapes, conf_cell, cell_index)
+
+        cell_desc = CellDesc(
+            id=cell_index, cell_type=self.get_cell_type(cell_index),
+            conf_cell=conf_cell,
+            stems=stems, stem_shapes=stem_shapes,
+            nodes=nodes, node_shapes=node_shapes,
+            post_op=post_op_desc, out_shape=post_op_shape,
+            trainables_from=self.get_trainables_from(cell_index)
+        )
+
+        # output same shape twice to indicate s0 and s1 inputs for next cell
+        in_shapes.append([post_op_shape])
+
+        return cell_desc
 
     @overrides
     def build_nodes(self, stem_shapes:TensorShapes, conf_cell:Config,
