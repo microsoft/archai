@@ -173,7 +173,7 @@ def main():
     print(f'Cond. Naswot Kendall Tau score: {cond_naswot_tau:3.03f}, p_value {cond_naswot_p_value:3.03f}')
     print(f'Cond. Naswot Spearman corr: {cond_naswot_spe:3.03f}, p_value {cond_naswot_sp_value:3.03f}')
     results_savename = os.path.join(out_dir, 'results.txt')
-    with open(results_savename, 'w') as f:
+    with open(results_savename, 'a') as f:
         f.write(f'Cond. Naswot Kendall Tau score: {cond_naswot_tau:3.03f}, p_value {cond_naswot_p_value:3.03f} \n')
         f.write(f'Cond. Naswot Spearman corr: {cond_naswot_spe:3.03f}, p_value {cond_naswot_sp_value:3.03f} \n')
 
@@ -214,7 +214,7 @@ def main():
     sns.scatterplot(top_percents, spe_cnaswot_top_percents)
     sns.scatterplot(top_percents, spe_naswot_top_percents)
     plt.legend(labels=['Conditional Naswot', 'Naswot'])
-    plt.ylim((0.0, 1.0))
+    plt.ylim((-1.0, 1.0))
     plt.xlabel('Top percent of architectures')
     plt.ylabel('Spearman Correlation')
     plt.grid()
