@@ -83,11 +83,7 @@ repeat of the provided model trained to 108 epochs. The available keys are:
   - final_test_accuracy
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-from typing import List
+from typing import Dict, List, Optional, Tuple
 import base64
 import copy
 import json
@@ -95,8 +91,10 @@ import os
 import random
 import time
 import pickle
+import logging
 
 import numpy as np
+from numpy.lib.function_base import average
 
 from archai.common import utils
 from . import config
@@ -127,19 +125,19 @@ class Nasbench101Dataset(object):
     random.seed(seed)
 
     dataset_file = utils.full_path(dataset_file)
-    print(f'Loading dataset from file "{dataset_file}"...')
+    logging.info(f'Loading dataset from file "{dataset_file}"...')
     start = time.time()
 
     # Stores the fixed statistics that are independent of evaluation (i.e.,
     # adjacency matrix, operations, and number of parameters).
     # hash --> metric name --> scalar
-    self.fixed_statistics = {}
+    self.fixed_statistics:Dict[str, dict] = {}
 
     # Stores the statistics that are computed via training and evaluating the
     # model on CIFAR-10. Statistics are computed for multiple repeats of each
     # model at each max epoch length.
     # hash --> epochs --> repeat index --> metric name --> scalar
-    self.computed_statistics = {}
+    self.computed_statistics:Dict[str, Dict[int, List[dict]]] = {}
 
     # Valid queriable epoch lengths. {4, 12, 36, 108} for the full dataset or
     # {108} for the smaller dataset with only the 108 epochs.
@@ -195,22 +193,49 @@ class Nasbench101Dataset(object):
 
       self.computed_statistics[module_hash][epochs].append(data_point)
 
+    module_hash_acc:List[Tuple[float, str]] = []
+    for module_hash, fixed_stat in self.fixed_statistics.items():
+      computed_epochs_stat = self.computed_statistics[module_hash]
+      max_epochs = max(computed_epochs_stat.keys())
+      fixed_stat['max_epochs'] = max_epochs
+      computed_stats = computed_epochs_stat[max_epochs]
+
+      fixed_stat['all_final_training_time'] = [c['final_training_time'] for c in computed_stats]
+      fixed_stat['all_final_train_accuracy'] = [c['final_train_accuracy'] for c in computed_stats]
+      fixed_stat['all_final_validation_accuracy'] = [c['final_validation_accuracy'] for c in computed_stats]
+      fixed_stat['all_final_test_accuracy'] = [c['final_test_accuracy'] for c in computed_stats]
+      fixed_stat['avg_final_test_accuracy'] = average(fixed_stat['all_final_test_accuracy'])
+
+      module_hash_acc.append((fixed_stat['avg_final_test_accuracy'], module_hash))
+
+    self.module_hashes = sorted(module_hash_acc, key=lambda v: v[0])
+    for i, (acc, module_hash) in enumerate(self.module_hashes):
+      self.fixed_statistics[module_hash]['index'] = i
+
     elapsed = time.time() - start
-    print('Loaded dataset in %d seconds' % elapsed)
+    logging.info('Loaded dataset in %d seconds' % elapsed)
 
-    self.history = {}
-    self.training_time_spent = 0.0
-    self.total_epochs_spent = 0
+  def __len__(self):
+      return len(self.module_hashes)
 
-  def query(self, desc_matrix:List[List[int]], vertex_ops:List[str], epochs=108, stop_halfway=False):
+  def __getitem__(self, idx, epochs=108, stop_halfway=False,
+                  run_index:Optional[int]=None):
+    module_hash = self.module_hashes[idx][1]
+    fixed_stat, computed_stat = self.get_metrics_from_hash(module_hash)
+    return self._join_fixed_computed(fixed_stat, computed_stat, epochs=epochs,
+                                     stop_halfway=stop_halfway,
+                                     run_index=run_index)
+
+  def create_model_spec(self, desc_matrix:List[List[int]], vertex_ops:List[str])->ModelSpec:
+    return ModelSpec(desc_matrix, vertex_ops)
+
+  def query(self, desc_matrix:List[List[int]], vertex_ops:List[str],
+            epochs=108, stop_halfway=False, run_index:Optional[int]=None):
     """Fetch one of the evaluations for this model spec.
 
     Each call will sample one of the config['num_repeats'] evaluations of the
     model. This means that repeated queries of the same model (or isomorphic
     models) may return identical metrics.
-
-    This function will increment the budget counters for benchmarking purposes.
-    See self.training_time_spent, and self.total_epochs_spent.
 
     This function also allows querying the evaluation metrics at the halfway
     point of training using stop_halfway. Using this option will increment the
@@ -225,6 +250,7 @@ class Nasbench101Dataset(object):
         and accuracies at the halfway point of training (num_epochs/2).
         Otherwise, returns the time and accuracies at the end of training
         (num_epochs).
+      run_index: index of run. If None then return random run.
 
     Returns:
       dict containing the evaluated data for this object.
@@ -233,20 +259,37 @@ class Nasbench101Dataset(object):
       OutOfDomainError: if model_spec or num_epochs is outside the search space.
     """
 
-    model_spec = ModelSpec(desc_matrix, vertex_ops)
+    model_spec = self.create_model_spec(desc_matrix, vertex_ops)
 
     if epochs not in self.valid_epochs:
       raise OutOfDomainError('invalid number of epochs, must be one of %s'
                              % self.valid_epochs)
 
     fixed_stat, computed_stat = self.get_metrics_from_spec(model_spec)
-    sampled_index = random.randint(0, self.config['num_repeats'] - 1)
-    computed_stat = computed_stat[epochs][sampled_index]
+    return self._join_fixed_computed(fixed_stat, computed_stat, epochs=epochs,
+                                     stop_halfway=stop_halfway,
+                                     run_index=run_index)
 
-    data = {}
+
+  def _join_fixed_computed(self, fixed_stat, computed_stat,
+                           epochs=108, stop_halfway=False,
+                           run_index:Optional[int]=None)->dict:
+    if run_index is None:
+      run_index = random.randint(0, self.config['num_repeats'] - 1)
+
+    computed_stat = computed_stat[epochs][run_index]
+
+    data = {'run_index':run_index, 'epochs':epochs, 'stop_halfway':stop_halfway}
     data['module_adjacency'] = fixed_stat['module_adjacency']
     data['module_operations'] = fixed_stat['module_operations']
     data['trainable_parameters'] = fixed_stat['trainable_parameters']
+    data['index'] = fixed_stat['index']
+
+    data['all_final_training_time'] = fixed_stat['all_final_training_time']
+    data['all_final_train_accuracy'] = fixed_stat['all_final_train_accuracy']
+    data['all_final_validation_accuracy'] = fixed_stat['all_final_validation_accuracy']
+    data['all_final_test_accuracy'] = fixed_stat['all_final_test_accuracy']
+    data['avg_final_test_accuracy'] = fixed_stat['avg_final_test_accuracy']
 
     if stop_halfway:
       data['training_time'] = computed_stat['halfway_training_time']
@@ -259,45 +302,27 @@ class Nasbench101Dataset(object):
       data['validation_accuracy'] = computed_stat['final_validation_accuracy']
       data['test_accuracy'] = computed_stat['final_test_accuracy']
 
-    self.training_time_spent += data['training_time']
-    if stop_halfway:
-      self.total_epochs_spent += epochs // 2
-    else:
-      self.total_epochs_spent += epochs
-
     return data
 
-  def is_valid(self, model_spec):
+
+  def is_valid(self, desc_matrix:List[List[int]], vertex_ops:List[str]):
     """Checks the validity of the model_spec.
 
     For the purposes of benchmarking, this does not increment the budget
     counters.
 
-    Args:
-      model_spec: ModelSpec object.
-
     Returns:
       True if model is within space.
     """
+
+    model_spec = self.create_model_spec(desc_matrix, vertex_ops)
+
     try:
       self._check_spec(model_spec)
     except OutOfDomainError:
       return False
 
     return True
-
-  def get_budget_counters(self):
-    """Returns the time and budget counters."""
-    return self.training_time_spent, self.total_epochs_spent
-
-  def reset_budget_counters(self):
-    """Reset the time and epoch budget counters."""
-    self.training_time_spent = 0.0
-    self.total_epochs_spent = 0
-
-  def hash_iterator(self):
-    """Returns iterator over all unique model hashes."""
-    return self.fixed_statistics.keys()
 
   def get_metrics_from_hash(self, module_hash):
     """Returns the metrics for all epochs and all repeats of a hash.
@@ -306,13 +331,13 @@ class Nasbench101Dataset(object):
     As such, it does not increment any of the budget counters.
 
     Args:
-      module_hash: MD5 hash, i.e., the values yielded by hash_iterator().
+      module_hash: MD5 hash from the key
 
     Returns:
       fixed stats and computed stats of the model spec provided.
     """
-    fixed_stat = copy.deepcopy(self.fixed_statistics[module_hash])
-    computed_stat = copy.deepcopy(self.computed_statistics[module_hash])
+    fixed_stat = self.fixed_statistics[module_hash]
+    computed_stat = self.computed_statistics[module_hash]
     return fixed_stat, computed_stat
 
   def get_metrics_from_spec(self, model_spec):
