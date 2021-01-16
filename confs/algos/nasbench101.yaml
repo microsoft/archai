@@ -28,7 +28,7 @@ nas:
       aux_weight: 0.0
       drop_path_prob: 0.0 # probability that given edge will be dropped
       grad_clip: 5.0 # grads above this value is clipped
-      epochs: 100
+      epochs: 108
       optimizer:
         type: 'sgd'
         lr: 0.025 # init learning rate
