@@ -15,6 +15,7 @@ from __future__ import print_function
 
 import numpy as np
 import math
+import logging
 
 from .base_ops import *
 
@@ -26,6 +27,9 @@ import torch.nn.functional as F
 class Network(nn.Module):
     def __init__(self, spec, stem_out_channels, num_stacks, num_modules_per_stack, num_labels):
         super(Network, self).__init__()
+
+        logging.debug('matrix', str(spec.matrix))
+        logging.debug('ops', spec.ops)
 
         self.layers = nn.ModuleList([])
 
@@ -46,6 +50,7 @@ class Network(nn.Module):
                 out_channels *= 2
 
             for module_num in range(num_modules_per_stack):
+                logging.debug(f'stack={stack_num}, cell={module_num}, in_channels={in_channels}, out_channels={out_channels}')
                 cell = Cell(spec, in_channels, out_channels)
                 self.layers.append(cell)
                 in_channels = out_channels
