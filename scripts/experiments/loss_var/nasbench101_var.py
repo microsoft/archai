@@ -294,12 +294,16 @@ def main():
     args = parser.parse_args()
 
     if not args.datadir:
-        args.datadir = os.environ.get('PT_DATA_DIR', '') or '~/dataroot'
+        args.datadir = '~/dataroot'
+    nsds_dir = args.datadir
+    if os.environ.get('PT_DATA_DIR', ''):
+        nsds_dir = os.environ.get('PT_DATA_DIR')
     if not args.outdir:
         args.outdir = os.environ.get('PT_OUTPUT_DIR', '')
         if not args.outdir:
             args.outdir = os.path.join(
                 '~/logdir', 'cifar_testbed', args.experiment_name)
+    assert isinstance(nsds_dir, str)
 
     expdir = utils.full_path(args.outdir)
     os.makedirs(expdir, exist_ok=True)
@@ -326,7 +330,7 @@ def main():
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     nsds = Nasbench101Dataset(
-        os.path.join(args.datadir, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl'))
+        os.path.join(nsds_dir, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl'))
 
     # load data just before train start so any errors so far is not delayed
     train_dl, val_dl, test_dl = get_data(datadir=datadir,
