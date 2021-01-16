@@ -96,10 +96,13 @@ import logging
 import numpy as np
 from numpy.lib.function_base import average
 
+from torch import nn
+
 from archai.common import utils
 from . import config
 from . import model_metrics_pb2
 from . import model_spec as _model_spec
+from . import model_builder
 
 # Bring ModelSpec to top-level for convenience. See lib/model_spec.py.
 ModelSpec = _model_spec.ModelSpec
@@ -304,6 +307,13 @@ class Nasbench101Dataset(object):
 
     return data
 
+  def create_model(self, index:int, device=None,
+          stem_out_channels=128, num_stacks=3, num_modules_per_stack=3, num_labels=10)->nn.Module:
+    data = self[index]
+    adj, ops = data['module_adjacency'], data['module_operations']
+    return model_builder.build(adj, ops, device=device,
+          stem_out_channels=stem_out_channels, num_stacks=num_stacks,
+          num_modules_per_stack=num_modules_per_stack, num_labels=num_labels)
 
   def is_valid(self, desc_matrix:List[List[int]], vertex_ops:List[str]):
     """Checks the validity of the model_spec.
