@@ -27,6 +27,9 @@ def main():
   best = nsds[len(nsds)-1]
   print('best', best)
 
+  # create model by index
+  model = nsds.create_model(42)
+  print(model)
 
 if __name__ == '__main__':
     main()
