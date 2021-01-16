@@ -1,18 +1,24 @@
+import logging
+
+from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 from archai.algos.nasbench101 import model_builder
 from archai import cifar10_models
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import common_init
 from archai.datasets import data
+from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 
 
 def main():
-    conf = common_init(config_filepath='confs/algos/resnet.yaml')
+    conf = common_init(config_filepath='confs/algos/nasbench101.yaml')
     conf_eval = conf['nas']['eval']
     conf_loader = conf_eval['loader']
     conf_trainer = conf_eval['trainer']
 
-    model = model_builder.build(model_builder.EXAMPLE_DESC_MATRIX, model_builder.EXAMPLE_VERTEX_OPS)
+    #model = model_builder.build(model_builder.EXAMPLE_DESC_MATRIX, model_builder.EXAMPLE_VERTEX_OPS)
+    nsds= Nasbench101Dataset('~/dataroot/nasbench_ds/nasbench101_sample.tfrecord.pkl')
+    model = nsds.create_model(0) # 401277 is same model as example
 
     train_dl, _, test_dl = data.get_data(conf_loader)
 
