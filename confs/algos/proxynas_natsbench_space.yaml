@@ -13,11 +13,12 @@ nas:
     model_desc:
       num_edges_to_sample: 2
     loader:
-      train_batch: 2048
+      train_batch: 2048 # 2048 for V100 works! 1024 for 2080Ti for testing
+      aug: 'fa_reduced_cifar10' # in natsbench paper they use random flip and crop, we are doing lot more here
       naswotrain:
         train_batch: 256 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 2048 # batch size for freeze training
+        train_batch: 3072 # batch size for freeze training
     trainer:
       plotsdir: ''
       val_top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
@@ -49,7 +50,7 @@ nas:
   
     freeze_trainer:
       plotsdir: ''
-      identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.16'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling (doesn't get exposed as a named param though), classifier: linear layer
+      identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.16', 'cells.15', 'cells.14', 'cells.13'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling (doesn't get exposed as a named param though), classifier: linear layer
       apex:
         _copy: '/common/apex'
       aux_weight: 0.0 # very important that this is 0.0 for freeze training
@@ -58,13 +59,13 @@ nas:
       l1_alphas: 0.0  # weight to be applied to sum(abs(alphas)) to loss term
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger
       title: 'eval_train'
-      epochs: 100
+      epochs: 10
       batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
       lossfn:
         type: 'CrossEntropyLoss'
       optimizer:
         type: 'sgd'
-        lr: 0.5 # init learning rate
+        lr: 1.5 # init learning rate
         decay: 0.0 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: False # pytorch default is False
