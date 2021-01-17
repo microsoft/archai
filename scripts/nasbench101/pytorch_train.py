@@ -22,7 +22,7 @@ def main():
         conf_trainer = conf_eval['trainer']
 
         params = nsds[i]['trainable_parameters']
-        if params < 10e6 or params > 15e6:
+        if params < 1e6 or params > 8e6:
             continue
         print('selected:',i,params)
         model = nsds.create_model(i) # 401277 is same model as example
