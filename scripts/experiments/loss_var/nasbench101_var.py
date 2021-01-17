@@ -17,7 +17,7 @@ import torchvision.transforms as transforms
 
 import yaml
 
-from archai.common import utils
+from archai.common import utils, common
 from archai import cifar10_models
 from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 
@@ -226,7 +226,10 @@ class CutoutDefault:
 
 
 def log_metrics(expdir: str, filename: str, metrics, test_acc: float, args, perf_data:dict) -> None:
-    print('filename:', f'test_acc: {test_acc}', metrics[-1])
+    print(f'filename: {filename}',
+          f'test_acc: {test_acc}',
+          f'nasbenc101_test_acc: {perf_data["avg_final_test_accuracy"]}',
+          metrics[-1])
     results = [
         ('test_acc', test_acc),
         ('nasbenc101_test_acc', perf_data['avg_final_test_accuracy']),
@@ -271,8 +274,8 @@ def main():
     parser.add_argument('--experiment-name', '-n', default='train_pytorch')
     parser.add_argument('--experiment-description', '-d',
                         default='Train cifar usin pure PyTorch code')
-    parser.add_argument('--epochs', '-e', type=int, default=1)
-    parser.add_argument('--model-name', '-m', default='resnet34')
+    parser.add_argument('--epochs', '-e', type=int, default=108)
+    parser.add_argument('--model-name', '-m', default='5')
     parser.add_argument('--device', default='',
                         help='"cuda" or "cpu" or "" in which case use cuda if available')
     parser.add_argument('--train-batch-size', '-b', type=int, default=128)
@@ -294,7 +297,7 @@ def main():
     args = parser.parse_args()
 
     if not args.datadir:
-        args.datadir = '~/dataroot'
+        args.datadir = common.default_dataroot()
     nsds_dir = args.datadir
     if os.environ.get('PT_DATA_DIR', ''):
         nsds_dir = os.environ.get('PT_DATA_DIR')
@@ -330,7 +333,7 @@ def main():
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     nsds = Nasbench101Dataset(
-        os.path.join(nsds_dir, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl'))
+        os.path.join(nsds_dir, 'nasbench_ds', 'nasbench_full.tfrecord.pkl'))
 
     # load data just before train start so any errors so far is not delayed
     train_dl, val_dl, test_dl = get_data(datadir=datadir,
@@ -338,18 +341,18 @@ def main():
                                          train_num_workers=args.loader_workers, test_num_workers=args.loader_workers,
                                          cutout=args.cutout)
 
-    for model_id in [4, 400, 4000, 40000, 400000]:
-        perf_data = nsds[model_id]
-        epochs = perf_data['epochs']
+    model_id = int(args.model_name) # 5, 401, 4001, 40001, 400001
+    perf_data = nsds[model_id]
+    epochs = args.epochs
 
-        net = create_model(nsds, model_id, device, args.half)
-        crit = create_crit(device, args.half)
-        optim, sched, sched_on_epoch = optim_sched_cosine(net, epochs)
+    net = create_model(nsds, model_id, device, args.half)
+    crit = create_crit(device, args.half)
+    optim, sched, sched_on_epoch = optim_sched_cosine(net, epochs)
 
-        train_metrics = train(epochs, train_dl, val_dl, net, device, crit, optim,
-                            sched, sched_on_epoch, args.half, False, grad_clip=args.grad_clip)
-        test_acc = test(net, test_dl, device, args.half)
-        log_metrics(expdir, f'metrics_{model_id}', train_metrics, test_acc, args, perf_data)
+    train_metrics = train(epochs, train_dl, val_dl, net, device, crit, optim,
+                        sched, sched_on_epoch, args.half, False, grad_clip=args.grad_clip)
+    test_acc = test(net, test_dl, device, args.half)
+    log_metrics(expdir, f'metrics_{model_id}', train_metrics, test_acc, args, perf_data)
 
 if __name__ == '__main__':
     main()

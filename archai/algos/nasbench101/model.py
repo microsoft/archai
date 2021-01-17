@@ -28,8 +28,8 @@ class Network(nn.Module):
     def __init__(self, spec, stem_out_channels, num_stacks, num_modules_per_stack, num_labels):
         super(Network, self).__init__()
 
-        logging.debug('matrix', str(spec.matrix))
-        logging.debug('ops', spec.ops)
+        logging.info(f'model matrix: {spec.matrix}')
+        logging.info(f'model ops: {spec.ops}')
 
         self.layers = nn.ModuleList([])
 
