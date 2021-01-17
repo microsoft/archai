@@ -137,7 +137,7 @@ def create_conf(config_filepath: Optional[str]=None,
 
     # create env vars that might be used in paths in config
     if 'default_dataroot' not in os.environ:
-        os.environ['default_dataroot'] = _default_dataroot()
+        os.environ['default_dataroot'] = default_dataroot()
 
     conf = Config(config_filepath=config_filepath,
                   param_args=param_overrides,
@@ -219,13 +219,13 @@ def create_tb_writer(conf:Config, is_master=True)-> SummaryWriterAny:
 
     return WriterClass(log_dir=tb_dir)
 
-def _is_pt()->bool:
+def is_pt()->bool:
     """Is this code running in pt infrastrucuture"""
     return os.environ.get('PT_OUTPUT_DIR', '') != ''
 
-def _default_dataroot()->str:
+def default_dataroot()->str:
     # the home folder on ITP VMs is super slow so use local temp directory instead
-    return '/var/tmp/dataroot' if _is_pt() else '~/dataroot'
+    return '/var/tmp/dataroot' if is_pt() else '~/dataroot'
 
 def _update_conf(conf:Config)->None:
     """Updates conf with full paths resolving enviromental vars"""

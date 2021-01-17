@@ -9,10 +9,10 @@ nas:
       train_batch: 128
       test_batch: 4096
       cutout: 0
+    trainer:
+      epochs: 200
+      logger_freq: 1
       drop_path_prob: 0.0
       grad_clip: 0.0
       aux_weight: 0.0
-    trainer:
-      epochs: 10
-      logger_freq: 1
 
