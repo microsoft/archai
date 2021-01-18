@@ -18,7 +18,7 @@ nas:
       naswotrain:
         train_batch: 256 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 3072 # batch size for freeze training
+        train_batch: 2048 # batch size for freeze training
     trainer:
       plotsdir: ''
       val_top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
