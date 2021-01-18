@@ -50,7 +50,7 @@ class FreezeNasbench101Evaluater(Evaluater):
         arch_index = conf_eval['nasbench101']['arch_index']
 
         dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])
-        nasbench101_location = os.path.join(dataroot, 'nassbench_ds')             
+        nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl')             
         # endregion
 
         assert arch_index
