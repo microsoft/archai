@@ -150,7 +150,7 @@ def main():
                 all_freeze_evals_last.append(freeze_eval_top1)
 
                 # collect evals at other epochs
-                for epoch in range(100):            
+                for epoch in range(int(last_epoch_key)):            
                     all_freeze_evals[epoch].append(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][str(epoch)]['val']['top1'])
                     
             except KeyError as err:
@@ -188,7 +188,7 @@ def main():
         plt.scatter(epoch_key, freeze_taus[epoch_key])
     plt.xlabel('Epochs of freeze training')
     plt.ylabel('Kendall Tau')
-    plt.ylim((0.0, 1.0))
+    plt.ylim((-1.0, 1.0))
     plt.grid()
     savename = os.path.join(out_dir, 'proxynas_freeze_training_kendall_taus.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
@@ -198,7 +198,7 @@ def main():
         plt.scatter(epoch_key, freeze_spes[epoch_key])
     plt.xlabel('Epochs of freeze training')
     plt.ylabel('Spearman Correlation')
-    plt.ylim((0.0, 1.0))
+    plt.ylim((-1.0, 1.0))
     plt.grid()
     savename = os.path.join(out_dir, 'proxynas_freeze_training_spearman_corrs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
@@ -252,7 +252,7 @@ def main():
     sns.scatterplot(top_percents, spe_freeze_top_percents)
     sns.scatterplot(top_percents, spe_naswot_top_percents)
     plt.legend(labels=['Freeze Train', 'Naswot'])
-    plt.ylim((0.0, 1.0))
+    plt.ylim((-1.0, 1.0))
     plt.xlabel('Top percent of architectures')
     plt.ylabel('Spearman Correlation')
     plt.grid()
