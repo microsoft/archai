@@ -16,6 +16,7 @@ from archai.common.config import Config
 from archai.common import common, utils
 from archai.common.common import logger
 from archai.nas.model import Model
+from archai.nas.nas_utils import get_model_stats
 from archai.nas.model_desc import ModelDesc
 from archai.nas.arch_trainer import ArchTrainer
 from archai.common.trainer import Trainer
@@ -46,3 +47,8 @@ class ConditionalTrainer(ArchTrainer, EnforceOverrides):
             return True
         else: 
             return False
+
+
+    @overrides
+    def pre_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+        super().pre_fit(train_dl, val_dl)
