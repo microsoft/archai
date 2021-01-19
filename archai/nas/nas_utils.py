@@ -36,4 +36,3 @@ def get_model_stats(model:Model,
     model_stats = tw.ModelStats(model, input_tensor_shape,
                                 clone_model=clone_model)
     return model_stats
-

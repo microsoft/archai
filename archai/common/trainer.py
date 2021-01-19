@@ -19,6 +19,7 @@ from archai.common.common import logger
 from archai.common.checkpoint import CheckPoint
 from archai.common.apex_utils import ApexUtils
 from archai.common.multi_optim import MultiOptim, OptimSched
+from archai.nas.nas_utils import get_model_stats
 
 
 class Trainer(EnforceOverrides):
@@ -182,6 +183,20 @@ class Trainer(EnforceOverrides):
     #########################  hooks #########################
     def pre_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
         self._metrics.pre_run()
+        
+        # compute model stats per minibatch of training data
+        data_iterator = iter(train_dl)
+        x, target = next(data_iterator)
+        x_shape = list(x.shape)
+        x_shape[0] = 1 # to prevent overflow errors with large batch size we will use a batch size of 1
+        model_stats = get_model_stats(self.model, input_tensor_shape=x_shape, clone_model=True)
+
+        # log model stats
+        logger.info({'flops_per_batch': model_stats.Flops * train_dl.batch_size})
+        logger.info({'madd_per_batch': model_stats.MAdd * train_dl.batch_size})
+        logger.info({'num_batches': len(train_dl)})
+        logger.info({'total_flops_epoch': len(train_dl) * model_stats.Flops * train_dl.batch_size})
+
 
     def post_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
         self._metrics.post_run()
