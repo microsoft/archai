@@ -13,12 +13,12 @@ nas:
     model_desc:
       num_edges_to_sample: 2
     loader:
-      train_batch: 1024 # 2048 for V100 works! 1024 for 2080Ti for testing
+      train_batch: 1024 # 1024 works reliably on V100. 2048 causes issues.
       aug: 'fa_reduced_cifar10' # in natsbench paper they use random flip and crop, we are doing lot more here
       naswotrain:
         train_batch: 256 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 2048 # batch size for freeze training
+        train_batch: 2048 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
     trainer:
       plotsdir: ''
       val_top1_acc_threshold: 0.4 # after some accuracy we will shift into training only the last 'n' layers
