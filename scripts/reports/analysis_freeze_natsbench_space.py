@@ -124,37 +124,77 @@ def main():
     # logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs']['9']['val']['top1']
     # last_epoch_key = list(logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'].keys())[-1]
     # last_val_top1 = logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][last_epoch_key]['val']['top1']
+    # epoch_duration = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs']['0']['train']['duration']
+
 
     all_reg_evals = []
     all_naswotrain_evals = []
     all_freeze_evals_last = []
+    all_freeze_flops_last = []
+    all_cond_flops_last = []
+    all_freeze_time_last = []
+
     all_freeze_evals = defaultdict(list)
 
     for key in logs.keys():
         if 'eval' in key:
             try:
-                # naswotrain
-                naswotrain_top1 = logs[key]['naswotrain_evaluate']['eval_arch']['eval_train']['naswithouttraining']
-                all_naswotrain_evals.append(naswotrain_top1)
 
-                # regular evaluation
-                reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
-                all_reg_evals.append(reg_eval_top1)
+                # TODO: if at the end of conditional training val accuracy has not gone above target then don't consider it
 
                 # freeze evaluation 
                 #--------------------
 
                 # at last epoch
-                last_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'].keys())[-1]
-                freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][last_epoch_key]['val']['top1']                                            
+                last_freeze_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'].keys())[-1]
+                freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][last_freeze_epoch_key]['val']['top1']                                            
                 all_freeze_evals_last.append(freeze_eval_top1)
 
                 # collect evals at other epochs
-                for epoch in range(100):            
+                for epoch in range(int(last_freeze_epoch_key)):            
                     all_freeze_evals[epoch].append(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][str(epoch)]['val']['top1'])
+        
+                # collect flops used for conditional training and freeze training
+                freeze_mega_flops_epoch = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['total_mega_flops_epoch']
+                freeze_mega_flops_used = freeze_mega_flops_epoch * int(last_freeze_epoch_key)
+                all_freeze_flops_last.append(freeze_mega_flops_used)
+
+                last_cond_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'].keys())[-1]
+                cond_mega_flops_epoch = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['total_mega_flops_epoch']
+                cond_mega_flops_used = cond_mega_flops_epoch * int(last_cond_epoch_key)
+                all_cond_flops_last.append(cond_mega_flops_used)
+
+                # collect duration for conditional training and freeze training
+                freeze_duration = 0.0
+                for epoch_key in logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs']:
+                    freeze_duration += logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][epoch_key]['train']['duration']
+
+                cond_duration = 0.0
+                for epoch_key in logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs']:
+                    cond_duration += logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][epoch_key]['train']['duration']
+
+                all_freeze_time_last.append(freeze_duration + cond_duration)
+
+                # naswotrain
+                # --------------
+                naswotrain_top1 = logs[key]['naswotrain_evaluate']['eval_arch']['eval_train']['naswithouttraining']
+                all_naswotrain_evals.append(naswotrain_top1)
+
+                # regular evaluation
+                # --------------------
+                reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
+                all_reg_evals.append(reg_eval_top1)
                     
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
+
+
+    # Sanity check
+    assert len(all_reg_evals) == len(all_freeze_evals_last)
+    assert len(all_reg_evals) == len(all_naswotrain_evals)
+    assert len(all_reg_evals) == len(all_freeze_flops_last)
+    assert len(all_reg_evals) == len(all_cond_flops_last)
+    assert len(all_reg_evals) == len(all_freeze_time_last)
 
     # Freeze training results at last epoch        
     freeze_tau, freeze_p_value = kendalltau(all_reg_evals, all_freeze_evals_last)
@@ -171,8 +211,20 @@ def main():
     plt.xlabel('Test top1 at natsbench full training')
     plt.ylabel('Freeze training')
     plt.grid()
-    savename = os.path.join(out_dir, 'proxynas_freeze_training_100_epochs.png')
+    savename = os.path.join(out_dir, 'proxynas_freeze_training_epochs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    # Report average runtime and average flops consumed 
+    total_freeze_flops = np.array(all_freeze_flops_last) + np.array(all_cond_flops_last)
+    avg_freeze_flops = np.mean(total_freeze_flops)
+    stderr_freeze_flops = np.std(total_freeze_flops) / np.sqrt(len(all_freeze_flops_last))
+
+    avg_freeze_runtime = np.mean(np.array(all_freeze_time_last))
+    stderr_freeze_runtime = np.std(np.array(all_freeze_time_last)) / np.sqrt(len(all_freeze_time_last))
+
+    with open(results_savename, 'a') as f:
+        f.write(f'Avg. Freeze MFlops: {avg_freeze_flops:.03f}, stderr {stderr_freeze_flops:.03f} \n')
+        f.write(f'Avg. Freeze Runtime: {avg_freeze_runtime:.03f}, stderr {stderr_freeze_runtime:.03f} \n')
 
     # Plot freeze training rank correlations if cutoff at various epochs
     freeze_taus = {}
@@ -225,8 +277,6 @@ def main():
 
 
     # Rank correlations at top n percent of architectures
-    assert len(all_reg_evals) == len(all_freeze_evals_last)
-    assert len(all_reg_evals) == len(all_naswotrain_evals)
     reg_freezelast_naswot_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_naswotrain_evals[i]) for i in range(len(all_reg_evals))]
 
     # sort in descending order of accuracy of regular evaluation
