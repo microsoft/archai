@@ -191,11 +191,15 @@ class Trainer(EnforceOverrides):
         x_shape[0] = 1 # to prevent overflow errors with large batch size we will use a batch size of 1
         model_stats = get_model_stats(self.model, input_tensor_shape=x_shape, clone_model=True)
 
+        # important to do to avoid overflow
+        mega_flops = float(model_stats.Flops)/1e6
+        mega_madd = float(model_stats.MAdd)/1e6
+
         # log model stats
-        logger.info({'flops_per_batch': model_stats.Flops * train_dl.batch_size})
-        logger.info({'madd_per_batch': model_stats.MAdd * train_dl.batch_size})
+        logger.info({'mega_flops_per_batch': mega_flops * float(train_dl.batch_size)})
+        logger.info({'mega_madd_per_batch': mega_madd * float(train_dl.batch_size)})
         logger.info({'num_batches': len(train_dl)})
-        logger.info({'total_flops_epoch': len(train_dl) * model_stats.Flops * train_dl.batch_size})
+        logger.info({'total_mega_flops_epoch': len(train_dl) * mega_flops * train_dl.batch_size})
 
 
     def post_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
