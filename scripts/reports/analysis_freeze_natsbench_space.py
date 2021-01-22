@@ -93,31 +93,7 @@ def main():
     for key, data in a:
         logs[key] = data
 
-    # # single process parsing of yaml logs
-    # for job_dir in tqdm(results_dir.iterdir()):
-    #     if job_dir.is_dir():
-    #         for subdir in job_dir.iterdir():
-    #             if not subdir.is_dir():
-    #                 continue
-    #             # currently we expect that each job was ExperimentRunner job which should have
-    #             # _search or _eval folders
-    #             if subdir.stem.endswith('_search'):
-    #                 sub_job = 'search'
-    #             elif subdir.stem.endswith('_eval'):
-    #                 sub_job = 'eval'
-    #             else:
-    #                 raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
-    #                                 'end with either _search or _eval which '
-    #                                 'should be the case if ExperimentRunner was used.')
-
-    #             logs_filepath = os.path.join(str(subdir), 'log.yaml')
-    #             if os.path.isfile(logs_filepath):
-    #                 fix_yaml(logs_filepath)
-    #                 with open(logs_filepath, 'r') as f:
-    #                     key = job_dir.name + ':' + sub_job
-    #                     logs[key] = yaml.load(f, Loader=yaml.Loader)
-                        
-
+                   
     # examples of accessing logs
     # logs['proxynas_blahblah:eval']['naswotrain_evaluate']['eval_arch']['eval_train']['naswithouttraining']
     # logs['proxynas_blahblah:eval']['regular_evaluate']['regtrainingtop1']
@@ -140,7 +116,12 @@ def main():
         if 'eval' in key:
             try:
 
-                # TODO: if at the end of conditional training val accuracy has not gone above target then don't consider it
+                # if at the end of conditional training val accuracy has not gone above target then don't consider it
+                last_cond_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'].keys())[-1]
+                val_end_cond = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][last_cond_epoch_key]['val']['top1']
+                if val_end_cond < 0.6:
+                    print('Found arch which did not reach condition at training')
+                    continue                
 
                 # freeze evaluation 
                 #--------------------

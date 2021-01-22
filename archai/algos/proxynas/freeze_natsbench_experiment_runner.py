@@ -60,7 +60,8 @@ class FreezeNatsbenchExperimentRunner(ExperimentRunner):
         logger.pushd('regular_evaluate')
         arch_id = conf_eval['natsbench']['arch_index']
         dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
-        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])        
+        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])
+        logger.info(natsbench_location)        
         dataset_name = conf_eval['loader']['dataset']['name']
 
         api = create(natsbench_location, 'tss', fast_mode=True, verbose=True)

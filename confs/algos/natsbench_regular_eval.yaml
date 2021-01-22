@@ -13,8 +13,8 @@ nas:
     model_desc:
       num_edges_to_sample: 2
     loader:
-      train_batch: 2048 # natsbench uses 256
-      aug: 'fa_reduced_cifar10' # In natsbench paper they use random flip and crop, we are doing lot more here     
+      train_batch: 1024 # natsbench uses 256
+      aug: '' # random flip and crop are already there in default params
     trainer: # matching natsbench paper closely
       plotsdir: ''
       apex:
