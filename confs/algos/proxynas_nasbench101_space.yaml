@@ -20,7 +20,7 @@ nas:
         train_batch: 256 # batch size for freeze training. 256 works with 5gb usage on 2080Ti.
     trainer:
       plotsdir: ''
-      val_top1_acc_threshold: 0.10 # after some accuracy we will shift into training only the last 'n' layers
+      val_top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
       apex:
         _copy: '/common/apex'
       aux_weight: '_copy: /nas/eval/model_desc/aux_weight'
