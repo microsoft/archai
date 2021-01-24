@@ -43,6 +43,7 @@ class ConditionalTrainer(ArchTrainer, EnforceOverrides):
         best_val_top1_avg = self._metrics.best_val_top1()
 
         if best_val_top1_avg >= self._val_top1_acc:
+            logger.info(f'terminating at {best_val_top1_avg}')
             logger.info('----------terminating regular training---------')
             return True
         else: 
