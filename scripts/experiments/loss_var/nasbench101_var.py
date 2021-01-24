@@ -55,6 +55,19 @@ def optim_sched_orig(net, epochs):
 
     return optim, sched, sched_on_epoch
 
+def optim_sched_paper(net, epochs):
+    lr, momentum, weight_decay = 0.2, 0.9, 0.0001
+    optim = torch.optim.SGD(net.parameters(),
+                            lr, momentum=momentum, weight_decay=weight_decay)
+    logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
+
+    sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, epochs)
+    sched_on_epoch = True
+
+    logging.info(f'sched_on_epoch={sched_on_epoch}, sched={str(sched)}')
+
+    return optim, sched, sched_on_epoch
+
 def optim_sched_cosine(net, epochs):
     lr, momentum, weight_decay = 0.025, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(),
@@ -67,7 +80,6 @@ def optim_sched_cosine(net, epochs):
     logging.info(f'sched_on_epoch={sched_on_epoch}, sched={str(sched)}')
 
     return optim, sched, sched_on_epoch
-
 
 def get_data(datadir: str, train_batch_size=128, test_batch_size=4096,
              cutout=0, train_num_workers=-1, test_num_workers=-1,
