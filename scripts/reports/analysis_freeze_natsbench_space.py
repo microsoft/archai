@@ -112,6 +112,8 @@ def main():
 
     all_freeze_evals = defaultdict(list)
 
+    num_archs_unmet_cond = 0
+
     for key in logs.keys():
         if 'eval' in key:
             try:
@@ -120,7 +122,9 @@ def main():
                 last_cond_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'].keys())[-1]
                 val_end_cond = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][last_cond_epoch_key]['val']['top1']
                 if val_end_cond < 0.6:
-                    print('Found arch which did not reach condition at training')
+                    num_archs_unmet_cond += 1
+                    reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
+                    print(f'end cond epoch: {last_cond_epoch_key}, val end cond: {val_end_cond:.03f}, gt 200: {reg_eval_top1:.03f}')
                     continue                
 
                 # freeze evaluation 
@@ -170,6 +174,15 @@ def main():
                 print(f'KeyError {err} not in {key}!')
 
 
+    # Store some key numbers in results.txt
+    results_savename = os.path.join(out_dir, 'results.txt')
+    with open(results_savename, 'w') as f:
+        f.write(f'Number of archs which did not reach condition: {num_archs_unmet_cond} \n')
+        f.write(f'Total valid archs processed: f{len(logs) - num_archs_unmet_cond} \n')
+
+    print(f'Number of archs which did not reach condition: {num_archs_unmet_cond}')
+    print(f'Total valid archs processed: {len(logs) - num_archs_unmet_cond}')
+
     # Sanity check
     assert len(all_reg_evals) == len(all_freeze_evals_last)
     assert len(all_reg_evals) == len(all_naswotrain_evals)
@@ -182,8 +195,7 @@ def main():
     freeze_spe, freeze_sp_value = spearmanr(all_reg_evals, all_freeze_evals_last)
     print(f'Freeze Kendall Tau score: {freeze_tau:3.03f}, p_value {freeze_p_value:3.03f}')
     print(f'Freeze Spearman corr: {freeze_spe:3.03f}, p_value {freeze_sp_value:3.03f}')
-    results_savename = os.path.join(out_dir, 'results.txt')
-    with open(results_savename, 'w') as f:
+    with open(results_savename, 'a') as f:
         f.write(f'Freeze Kendall Tau score: {freeze_tau:3.03f}, p_value {freeze_p_value:3.03f} \n')
         f.write(f'Freeze Spearman corr: {freeze_spe:3.03f}, p_value {freeze_sp_value:3.03f} \n')
 
