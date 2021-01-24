@@ -335,7 +335,7 @@ class RunMetrics:
         best_train = max(self.epochs_metrics, key=lambda e:e.top1.avg)
         best_val = max(self.epochs_metrics,
             key=lambda e:e.val_metrics.top1.avg if e.val_metrics else -1)
-        best_val = best_val if best_val.val_metrics else None
+        best_val = best_val.val_metrics if best_val.val_metrics else None
         return best_train, best_val
 
     def epoch_time_avg(self):
