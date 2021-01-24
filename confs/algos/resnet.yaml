@@ -9,9 +9,11 @@ nas:
       train_batch: 128
       test_batch: 4096
       cutout: 0
+      # dataset:
+      #   max_batches: 2
     trainer:
       epochs: 200
-      logger_freq: 1
+      logger_freq: 10
       drop_path_prob: 0.0
       grad_clip: 0.0
       aux_weight: 0.0
