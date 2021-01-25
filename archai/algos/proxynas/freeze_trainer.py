@@ -59,7 +59,6 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         #         logger.info(f'{name} requires grad')
 
         # Do it via parameters
-        # NOTE: freezing via named_parameters() doesn't expose all parameters? Check with Shital.
         for param in self.model.parameters():
             param.requires_grad = False
 
