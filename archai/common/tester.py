@@ -83,7 +83,7 @@ class Tester(EnforceOverrides):
                 self._apex.sync_devices()
 
                 logger.popd()
-        self._metrics.post_epoch(None)
+        self._metrics.post_epoch() # no "val" dataset for the test phase
 
     def get_metrics(self)->Optional[Metrics]:
         return self._metrics

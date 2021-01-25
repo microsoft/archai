@@ -22,10 +22,10 @@ def main():
 
     model = nsds.create_model(5) # 401277 is same model as example
 
-    train_dl, _, test_dl = data.get_data(conf_loader)
+    data_loaders = data.get_data(conf_loader)
 
     trainer = Trainer(conf_trainer, model)
-    trainer.fit(train_dl, test_dl)
+    trainer.fit(data_loaders)
 
 if __name__ == '__main__':
     main()

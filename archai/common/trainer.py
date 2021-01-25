@@ -16,6 +16,7 @@ from archai.common.tester import Tester
 from archai.common.config import Config
 from archai.common import utils, ml_utils
 from archai.common.common import logger
+from archai.datasets import data
 from archai.common.checkpoint import CheckPoint
 from archai.common.apex_utils import ApexUtils
 from archai.common.multi_optim import MultiOptim, OptimSched
@@ -63,20 +64,22 @@ class Trainer(EnforceOverrides):
 
         logger.popd()
 
-    def fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->Metrics:
+    def fit(self, data_loaders:data.DataLoaders)->Metrics:
         logger.pushd(self._title)
+
+        assert data_loaders.train_dl is not None
 
         self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
         # create optimizers and schedulers
-        self._multi_optim = self.create_multi_optim(len(train_dl))
+        self._multi_optim = self.create_multi_optim(len(data_loaders.train_dl))
         # before checkpoint restore, convert to amp
         self.model = self._apex.to_amp(self.model, self._multi_optim,
-                                       batch_size=train_dl.batch_size)
+                                       batch_size=data_loaders.train_dl.batch_size)
 
         self._lossfn = self._lossfn.to(self.get_device())
 
-        self.pre_fit(train_dl, val_dl)
+        self.pre_fit(data_loaders)
 
         # we need to restore checkpoint after all objects are created because
         # restoring checkpoint requires load_state_dict calls on these objects
@@ -108,13 +111,13 @@ class Trainer(EnforceOverrides):
         logger.pushd('epochs')
         for epoch in range(self._start_epoch, self._epochs):
             logger.pushd(epoch)
-            self._set_epoch(epoch, train_dl, val_dl)
-            self.pre_epoch(train_dl, val_dl)
-            self._train_epoch(train_dl)
-            self.post_epoch(train_dl, val_dl)
+            self._set_epoch(epoch, data_loaders)
+            self.pre_epoch(data_loaders)
+            self._train_epoch(data_loaders.train_dl)
+            self.post_epoch(data_loaders)
             logger.popd()
         logger.popd()
-        self.post_fit(train_dl, val_dl)
+        self.post_fit(data_loaders)
 
         # make sure we don't keep references to the graph
         del self._multi_optim
@@ -157,14 +160,14 @@ class Trainer(EnforceOverrides):
     def get_metrics(self)->Metrics:
         return self._metrics
 
-    def _set_epoch(self, epoch:int, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+    def _set_epoch(self, epoch:int, data_loaders:data.DataLoaders)->None:
         # optimizers such as bi-level may use val set for its own use
         # which causes reshuffling due to automatic epoch counting
         # here we make sure that val_dl has same epoch as train_dl
-        if hasattr(train_dl.sampler, 'set_epoch'):
-            train_dl.sampler.set_epoch(epoch)
-        if val_dl is not None and hasattr(val_dl.sampler, 'set_epoch'):
-            val_dl.sampler.set_epoch(epoch)
+        if hasattr(data_loaders.train_dl.sampler, 'set_epoch'):
+            data_loaders.train_dl.sampler.set_epoch(epoch)
+        if data_loaders.val_dl is not None and hasattr(data_loaders.val_dl.sampler, 'set_epoch'):
+            data_loaders.val_dl.sampler.set_epoch(epoch)
 
         # apply droppath
         self._set_drop_path(epoch, self._epochs)
@@ -172,21 +175,26 @@ class Trainer(EnforceOverrides):
         assert self._metrics.epochs() == epoch
 
     #########################  hooks #########################
-    def pre_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+    def pre_fit(self, data_loaders:data.DataLoaders)->None:
         self._metrics.pre_run()
 
-    def post_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
-        self._metrics.post_run()
+    def post_fit(self, data_loaders:data.DataLoaders)->None:
+        test_metrics = None
+        # first run test before checkpointing, otherwise we won't have val metrics
+        if data_loaders.test_dl and self._tester:
+            test_metrics = self._tester.test(data_loaders.test_dl)
 
-    def pre_epoch(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+        self._metrics.post_run(test_metrics=test_metrics)
+
+    def pre_epoch(self, data_loaders:data.DataLoaders)->None:
         self._metrics.pre_epoch(lr=self._multi_optim.get_lr(0, 0))
 
-    def post_epoch(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+    def post_epoch(self, data_loaders:data.DataLoaders)->None:
         val_metrics = None
         # first run test before checkpointing, otherwise we won't have val metrics
-        if val_dl and self._tester and self._validation_freq > 0:
+        if data_loaders.val_dl and self._tester and self._validation_freq > 0:
             if self._metrics.epochs() % self._validation_freq == 0 or \
-                    self._metrics.epochs() >= self._epochs:
+                    self._metrics.epochs() >= self._epochs: # last epoch
 
                 # these asserts makes sure train and val are not ovrlapiing
                 # assert train_dl.sampler.epoch == val_dl.sampler.epoch
@@ -194,10 +202,10 @@ class Trainer(EnforceOverrides):
                 # vidx = list(val_dl.sampler)
                 # assert all(ti not in vidx for ti in tidx)
 
-                val_metrics = self._tester.test(val_dl)
+                val_metrics = self._tester.test(data_loaders.val_dl)
 
         # update val metrics
-        self._metrics.post_epoch(val_metrics, lr=self._multi_optim.get_lr(0, 0))
+        self._metrics.post_epoch(lr=self._multi_optim.get_lr(0, 0), val_metrics=val_metrics)
 
         # checkpoint if enabled with given freq or if this is the last epoch
         if self._checkpoint is not None and self._apex.is_master() and \

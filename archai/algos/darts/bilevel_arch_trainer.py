@@ -18,6 +18,7 @@ from archai.nas.arch_trainer import ArchTrainer
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
+from archai.datasets import data
 from archai.common.common import logger
 from archai.algos.darts.bilevel_optimizer import BilevelOptimizer
 
@@ -31,12 +32,12 @@ class BilevelArchTrainer(ArchTrainer):
         self._conf_alpha_optim = conf_train['alpha_optimizer']
 
     @overrides
-    def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
-        super().pre_fit(train_dl, val_dl)
+    def pre_fit(self, data_loaders:data.DataLoaders)->None:
+        super().pre_fit(data_loaders)
 
         # optimizers, schedulers needs to be recreated for each fit call
         # as they have state
-        assert val_dl is not None
+        assert data_loaders.val_dl is not None
         w_momentum = self._conf_w_optim['momentum']
         w_decay = self._conf_w_optim['decay']
         lossfn = ml_utils.get_lossfn(self._conf_w_lossfn).to(self.get_device())
@@ -46,22 +47,25 @@ class BilevelArchTrainer(ArchTrainer):
                                                 self.get_device(), self.batch_chunks)
 
     @overrides
-    def post_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+    def post_fit(self, data_loaders:data.DataLoaders)->None:
         # delete state we created in pre_fit
         del self._bilevel_optim
-        return super().post_fit(train_dl, val_dl)
+        return super().post_fit(data_loaders)
 
     @overrides
-    def pre_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
-        super().pre_epoch(train_dl, val_dl)
+    def pre_epoch(self, data_loaders:data.DataLoaders)->None:
+        super().pre_epoch(data_loaders)
 
         # prep val set to train alphas
-        self._valid_iter = iter(val_dl)  # type: ignore
+        assert data_loaders.val_dl is not None
+        self._val_dl = data_loaders.val_dl
+        self._valid_iter = iter(data_loaders.val_dl)  # type: ignore
 
     @overrides
-    def post_epoch(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
+    def post_epoch(self, data_loaders:data.DataLoaders)->None:
+        del self._val_dl
         del self._valid_iter # clean up
-        super().post_epoch(train_dl, val_dl)
+        super().post_epoch(data_loaders)
 
     @overrides
     def pre_step(self, x: Tensor, y: Tensor) -> None:

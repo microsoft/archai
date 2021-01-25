@@ -29,9 +29,16 @@ from ..common.config import Config
 from .limit_dataset import LimitDataset, DatasetLike
 from .distributed_stratified_sampler import DistributedStratifiedSampler
 
-def get_data(conf_loader:Config)\
-        -> Tuple[Optional[DataLoader], Optional[DataLoader], Optional[DataLoader]]:
 
+class DataLoaders:
+    def __init__(self, train_dl:Optional[DataLoader]=None,
+                 val_dl:Optional[DataLoader]=None,
+                 test_dl:Optional[DataLoader]=None) -> None:
+        self.train_dl = train_dl
+        self.val_dl = val_dl
+        self.test_dl = test_dl
+
+def get_data(conf_loader:Config)->DataLoaders:
     logger.pushd('data')
 
     # region conf vars
@@ -67,7 +74,7 @@ def get_data(conf_loader:Config)\
 
     logger.popd()
 
-    return train_dl, val_dl, test_dl
+    return DataLoaders(train_dl=train_dl, val_dl=val_dl, test_dl=test_dl)
 
 def create_dataset_provider(conf_dataset:Config)->DatasetProvider:
     ds_name = conf_dataset['name']

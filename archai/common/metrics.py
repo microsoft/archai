@@ -55,8 +55,8 @@ class Metrics:
         self._reset_run()
         self.run_metrics.pre_run()
 
-    def post_run(self)->None:
-        self.run_metrics.post_run()
+    def post_run(self, test_metrics:Optional['Metrics']=None)->None:
+        self.run_metrics.post_run(test_metrics)
 
         # logging
         if self.logger_freq > 0:
@@ -70,7 +70,7 @@ class Metrics:
                                 'dist_run_sum': self.reduce_sum(self.run_metrics.duration())})
 
 
-            best_train, best_val = self.run_metrics.best_epoch()
+            best_train, best_val, best_test = self.run_metrics.best_epoch()
             with logger.pushd('best_train'):
                 logger.info({'epoch': best_train.index,
                             'top1': best_train.top1.avg})
@@ -81,10 +81,18 @@ class Metrics:
             if best_val:
                 with logger.pushd('best_val'):
                     logger.info({'epoch': best_val.index,
-                                'top1': best_val.val_metrics.top1.avg})
+                                'top1': best_val.top1.avg})
                     if self.is_dist():
                         logger.info({'dist_epoch': self.reduce_mean(best_val.index),
-                                    'dist_top1': self.reduce_mean(best_val.val_metrics.top1.avg)})
+                                    'dist_top1': self.reduce_mean(best_val.top1.avg)})
+
+            if best_test:
+                with logger.pushd('best_test'):
+                    logger.info({'epoch': best_test.index,
+                                'top1': best_test.top1.avg})
+                    if self.is_dist():
+                        logger.info({'dist_epoch': self.reduce_mean(best_test.index),
+                                    'dist_top1': self.reduce_mean(best_test.top1.avg)})
 
     def pre_step(self, x: Tensor, y: Tensor):
         self.run_metrics.cur_epoch().pre_step()
@@ -135,12 +143,13 @@ class Metrics:
                 writer.add_scalar(f'{self._tb_path}/train_steps/lr',
                                     lr, self.global_step)
 
-    def post_epoch(self, val_metrics:Optional['Metrics'], lr:float=math.nan):
+    def post_epoch(self, lr:float=math.nan, val_metrics:Optional['Metrics']=None):
         epoch = self.run_metrics.cur_epoch()
-        epoch.post_epoch(val_metrics, lr)
-        test_epoch = None
+        epoch.post_epoch(lr, val_metrics)
+
+        val_epoch_metrics = None
         if val_metrics:
-            test_epoch = val_metrics.run_metrics.epochs_metrics[0]
+            val_epoch_metrics = val_metrics.run_metrics.epochs_metrics[-1]
 
         if self.logger_freq > 0:
             with logger.pushd('train'):
@@ -157,17 +166,17 @@ class Metrics:
                                 'dist_duration': self.reduce_mean(epoch.duration()),
                                 'dist_step_time': self.reduce_mean(epoch.step_time.avg),
                                 'dist_end_lr': self.reduce_mean(lr)})
-            if test_epoch:
+            if val_epoch_metrics:
                 with logger.pushd('val'):
-                    logger.info({'top1': test_epoch.top1.avg,
-                                'top5': test_epoch.top5.avg,
-                                'loss': test_epoch.loss.avg,
-                                'duration': test_epoch.duration()})
+                    logger.info({'top1': val_epoch_metrics.top1.avg,
+                                'top5': val_epoch_metrics.top5.avg,
+                                'loss': val_epoch_metrics.loss.avg,
+                                'duration': val_epoch_metrics.duration()})
                     if self.is_dist():
-                        logger.info({'dist_top1': self.reduce_mean(test_epoch.top1.avg),
-                                    'dist_top5': self.reduce_mean(test_epoch.top5.avg),
-                                    'dist_loss': self.reduce_mean(test_epoch.loss.avg),
-                                    'dist_duration': self.reduce_mean(test_epoch.duration())})
+                        logger.info({'dist_top1': self.reduce_mean(val_epoch_metrics.top1.avg),
+                                    'dist_top5': self.reduce_mean(val_epoch_metrics.top5.avg),
+                                    'dist_loss': self.reduce_mean(val_epoch_metrics.loss.avg),
+                                    'dist_duration': self.reduce_mean(val_epoch_metrics.duration())})
 
         # writer = get_tb_writer()
         # writer.add_scalar(f'{self._tb_path}/train_epochs/loss',
@@ -236,6 +245,9 @@ class Metrics:
     def best_val_top1(self)->float:
         val_epoch_metrics = self.run_metrics.best_epoch()[1]
         return val_epoch_metrics.top1.avg if val_epoch_metrics is not None else math.nan
+    def best_test_top1(self)->float:
+        test_epoch_metrics = self.run_metrics.best_epoch()[2]
+        return test_epoch_metrics.top1.avg if test_epoch_metrics is not None else math.nan
 
 class Accumulator:
     # TODO: replace this with Metrics class
@@ -277,6 +289,8 @@ class Accumulator:
         return newone
 
 class EpochMetrics:
+    """Stores the metrics for each epoch. Training metrics is in top1, top5 etc
+    while validation metrics is in val_metrics"""
     def __init__(self, index:int) -> None:
         self.index = index
         self.top1 = utils.AverageMeter()
@@ -302,25 +316,33 @@ class EpochMetrics:
     def pre_epoch(self, lr:float):
         self.start_time = time.time()
         self.start_lr = lr
-    def post_epoch(self, val_metrics:Optional[Metrics], lr:float):
+    def post_epoch(self, lr:float, val_metrics:Optional[Metrics]):
         self.end_time = time.time()
         self.end_lr = lr
-        self.val_metrics = val_metrics.run_metrics.epochs_metrics[-1] \
-                                if val_metrics is not None else None
+
+        if val_metrics is not None:
+            assert len(val_metrics.run_metrics.epochs_metrics)==1, 'Number of epochs in val metrics should be 1'
+            self.val_metrics = val_metrics.run_metrics.epochs_metrics[-1]
+
     def duration(self):
         return self.end_time-self.start_time
 
 class RunMetrics:
+    """Metrics for the entire run. It mainly consist of metrics for each epoch"""
     def __init__(self) -> None:
         self.epochs_metrics:List[EpochMetrics] = []
         self.start_time = math.nan
         self.end_time = math.nan
         self.epoch = -1
+        self.test_metrics:Optional['Metrics'] = None
 
     def pre_run(self):
         self.start_time = time.time()
-    def post_run(self):
+    def post_run(self, test_metrics:Optional['Metrics']=None):
         self.end_time = time.time()
+        self.test_metrics = test_metrics
+        # test should have only one epoch
+        assert test_metrics is None or len(test_metrics.run_metrics.epochs_metrics)==1
 
     def add_epoch(self)->EpochMetrics:
         self.epoch = len(self.epochs_metrics)
@@ -331,12 +353,18 @@ class RunMetrics:
     def cur_epoch(self)->EpochMetrics:
         return self.epochs_metrics[self.epoch]
 
-    def best_epoch(self)->Tuple[EpochMetrics, Optional[EpochMetrics]]:
+    def best_epoch(self)->Tuple[EpochMetrics, Optional[EpochMetrics],
+                                Optional[EpochMetrics]]: # [train, val, test]
         best_train = max(self.epochs_metrics, key=lambda e:e.top1.avg)
+
         best_val = max(self.epochs_metrics,
             key=lambda e:e.val_metrics.top1.avg if e.val_metrics else -1)
         best_val = best_val.val_metrics if best_val.val_metrics else None
-        return best_train, best_val
+
+        best_test = self.test_metrics.run_metrics.epochs_metrics[-1] \
+                    if self.test_metrics else None
+
+        return best_train, best_val, best_test
 
     def epoch_time_avg(self):
         return statistics.mean((e.duration() for e in self.epochs_metrics))
