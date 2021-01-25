@@ -93,7 +93,7 @@ def test_combinations():
 def imagenet_test():
     conf = Config('confs/algos/darts.yaml;confs/datasets/imagenet.yaml',)
     conf_loader = conf['nas']['eval']['loader']
-    dl_train, *_ = data.get_data(conf_loader)
+    data_loaders = data.get_data(conf_loader)
 
 
 def exclusion_test(data_len=32, labels_len=2, val_ratio=0.5):

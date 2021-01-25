@@ -9,6 +9,7 @@ nas:
       train_batch: 128
       test_batch: 4096
       cutout: 0
+      val_ratio: 0.1
       # dataset:
       #   max_batches: 2
     trainer:
