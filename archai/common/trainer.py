@@ -84,8 +84,6 @@ class Trainer(EnforceOverrides):
 
         self._lossfn = self._lossfn.to(self.get_device())
 
-        self.pre_fit(data_loaders)
-
         # we need to restore checkpoint after all objects are created because
         # restoring checkpoint requires load_state_dict calls on these objects
         self._start_epoch = 0
@@ -161,7 +159,6 @@ class Trainer(EnforceOverrides):
 
     def get_optimizer(self, index=0)->Optimizer:
         return self._multi_optim[index].optim
-
     def get_scheduler(self, index=0)->Optional[_LRScheduler]:
         return self._multi_optim[index].sched
 
@@ -188,7 +185,7 @@ class Trainer(EnforceOverrides):
     #########################  hooks #########################
     def pre_fit(self, data_loaders:data.DataLoaders)->None:
         self._metrics.pre_run()
-        
+
         # compute model stats per minibatch of training data
         data_iterator = iter(train_dl)
         x, target = next(data_iterator)
