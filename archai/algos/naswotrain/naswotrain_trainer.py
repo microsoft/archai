@@ -20,6 +20,7 @@ from archai.common.common import logger
 from archai.nas.model import Model
 from archai.nas.model_desc import ModelDesc
 from archai.nas.arch_trainer import ArchTrainer
+from archai.datasets import data
 from archai.common.trainer import Trainer
 from archai.nas.vis_model_desc import draw_model_desc
 from archai.common.checkpoint import CheckPoint
@@ -33,23 +34,23 @@ TNaswotrainTrainer = Optional[Type['NaswotrainTrainer']]
 class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
 
     @overrides
-    def fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->Metrics:
+    def fit(self, data_loaders:data.DataLoaders)->Metrics:
         logger.pushd(self._title)
 
-        self._metrics = NaswoTrainMetrics(self._title, self._apex, logger_freq=self._logger_freq)     
+        self._metrics = NaswoTrainMetrics(self._title, self._apex, logger_freq=self._logger_freq)
 
         # create optimizers and schedulers (we don't need it only to make to_amp call pass)
-        self._multi_optim = self.create_multi_optim(len(train_dl))
+        self._multi_optim = self.create_multi_optim(len(data_loaders.train_dl))
 
         # before checkpoint restore, convert to amp
         self.model = self._apex.to_amp(self.model, self._multi_optim,
-                                       batch_size=train_dl.batch_size)
+                                       batch_size=data_loaders.train_dl.batch_size)
 
-        # score the model with one minibatch of data 
+        # score the model with one minibatch of data
         # as in the paper "Neural Architecture Search without Training", Mellor et al. 2020
         # modified from https://github.com/BayesWatch/nas-without-training/blob/master/search.py
         self.model.train()
-        data_iterator = iter(train_dl)
+        data_iterator = iter(data_loaders.train_dl)
         x, target = next(data_iterator)
         x, target = x.to(self.get_device()), target.to(self.get_device())
 
@@ -57,9 +58,9 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         jacobs = jacobs.reshape(jacobs.size(0), -1).cpu().numpy()
         score = self._eval_score(jacobs)
         self._metrics.naswotraining_score = score
-        logger.info(f'nas without training score: {score} using batch size: {train_dl.batch_size}')
+        logger.info(f'nas without training score: {score} using batch size: {data_loaders.train_dl.batch_size}')
         logger.info({'naswithouttraining':float(score)})
-        logger.info({'naswithouttraining_batch_size':train_dl.batch_size})
+        logger.info({'naswithouttraining_batch_size':data_loaders.train_dl.batch_size})
 
         # make sure we don't keep references to the graph
         del self._multi_optim
@@ -76,7 +77,7 @@ class NaswotrainTrainer(ArchTrainer, EnforceOverrides):
         self.model.zero_grad()
         x.requires_grad_(True)
         logits = self.model(x)
-        # Manual models only return logits, 
+        # Manual models only return logits,
         # whereas DARTS space models return logits, aux_logits
         if isinstance(logits, tuple):
             logits = logits[0]

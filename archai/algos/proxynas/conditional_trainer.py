@@ -23,6 +23,7 @@ from archai.common.trainer import Trainer
 from archai.nas.vis_model_desc import draw_model_desc
 from archai.common.checkpoint import CheckPoint
 from archai.common.ml_utils import set_optim_lr
+from archai.datasets import data
 
 TFreezeTrainer = Optional[Type['ConditionalTrainer']]
 
@@ -30,7 +31,7 @@ TFreezeTrainer = Optional[Type['ConditionalTrainer']]
 class ConditionalTrainer(ArchTrainer, EnforceOverrides):
     def __init__(self, conf_train: Config, model: nn.Module,
                  checkpoint:Optional[CheckPoint]) -> None:
-        super().__init__(conf_train, model, checkpoint) 
+        super().__init__(conf_train, model, checkpoint)
 
         # region config vars specific to freeze trainer
         self._val_top1_acc = conf_train['val_top1_acc_threshold']
@@ -46,10 +47,10 @@ class ConditionalTrainer(ArchTrainer, EnforceOverrides):
             logger.info(f'terminating at {best_val_top1_avg}')
             logger.info('----------terminating regular training---------')
             return True
-        else: 
+        else:
             return False
 
 
     @overrides
-    def pre_fit(self, train_dl:DataLoader, val_dl:Optional[DataLoader])->None:
-        super().pre_fit(train_dl, val_dl)
+    def pre_fit(self, data_loaders:data.DataLoaders)->None:
+        super().pre_fit(data_loaders)

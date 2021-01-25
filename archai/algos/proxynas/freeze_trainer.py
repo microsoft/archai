@@ -22,6 +22,7 @@ from archai.common.trainer import Trainer
 from archai.nas.vis_model_desc import draw_model_desc
 from archai.common.checkpoint import CheckPoint
 from archai.common.ml_utils import set_optim_lr
+from archai.datasets import data
 
 TFreezeTrainer = Optional[Type['FreezeTrainer']]
 
@@ -29,26 +30,26 @@ TFreezeTrainer = Optional[Type['FreezeTrainer']]
 class FreezeTrainer(ArchTrainer, EnforceOverrides):
     def __init__(self, conf_train: Config, model: nn.Module,
                  checkpoint:Optional[CheckPoint]) -> None:
-        super().__init__(conf_train, model, checkpoint) 
+        super().__init__(conf_train, model, checkpoint)
 
 
         self._epoch_freeze_started = None
         self._max_epochs = None
 
     @overrides
-    def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
-        super().pre_fit(train_dl, val_dl)
+    def pre_fit(self, data_loaders:data.DataLoaders) -> None:
+        super().pre_fit(data_loaders)
 
         # freeze everything other than the last layer
         self._freeze_but_last_layer()
 
 
     def _freeze_but_last_layer(self) -> None:
-        
+
         # # Freezing via module names
         # for module in self.model.modules():
         #     module.requires_grad = False
-        
+
         # # Unfreeze only some
         # for name, module in self.model.named_modules():
         #     for identifier in self.conf_train['identifiers_to_unfreeze']:
@@ -60,16 +61,16 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         #     if module.requires_grad:
         #         logger.info(f'{name} requires grad')
 
-        # Do it via parameters    
-        # NOTE: freezing via named_parameters() doesn't expose all parameters? Check with Shital.    
+        # Do it via parameters
+        # NOTE: freezing via named_parameters() doesn't expose all parameters? Check with Shital.
         for param in self.model.parameters():
             param.requires_grad = False
-        
-        for name, param in self.model.named_parameters():            
+
+        for name, param in self.model.named_parameters():
             for identifier in self.conf_train['identifiers_to_unfreeze']:
                 if identifier in name:
                     module.requires_grad = True
 
         for name, param in self.model.named_parameters():
             if param.requires_grad:
-                logger.info(f'{name} requires grad')            
+                logger.info(f'{name} requires grad')
