@@ -34,17 +34,17 @@ class ConditionalTrainer(ArchTrainer, EnforceOverrides):
         super().__init__(conf_train, model, checkpoint)
 
         # region config vars specific to freeze trainer
-        self._val_top1_acc = conf_train['val_top1_acc_threshold']
+        self._train_top1_acc_threshold = conf_train['train_top1_acc_threshold']
         # endregion
 
     @overrides
     def _should_terminate(self):
         # if current validation accuracy is above threshold
         # terminate training
-        best_val_top1_avg = self._metrics.best_val_top1()
+        best_train_top1_avg = self._metrics.best_train_top1()
 
-        if best_val_top1_avg >= self._val_top1_acc:
-            logger.info(f'terminating at {best_val_top1_avg}')
+        if best_train_top1_avg >= self._train_top1_acc_threshold:
+            logger.info(f'terminating at {best_train_top1_avg}')
             logger.info('----------terminating regular training---------')
             return True
         else:

@@ -242,9 +242,11 @@ class Metrics:
 
     def best_train_top1(self)->float:
         return self.run_metrics.best_epoch()[0].top1.avg
+
     def best_val_top1(self)->float:
         val_epoch_metrics = self.run_metrics.best_epoch()[1]
         return val_epoch_metrics.top1.avg if val_epoch_metrics is not None else math.nan
+
     def best_test_top1(self)->float:
         test_epoch_metrics = self.run_metrics.best_epoch()[2]
         return test_epoch_metrics.top1.avg if test_epoch_metrics is not None else math.nan
@@ -338,6 +340,7 @@ class RunMetrics:
 
     def pre_run(self):
         self.start_time = time.time()
+
     def post_run(self, test_metrics:Optional['Metrics']=None):
         self.end_time = time.time()
         self.test_metrics = test_metrics
@@ -359,6 +362,7 @@ class RunMetrics:
 
         best_val = max(self.epochs_metrics,
             key=lambda e:e.val_metrics.top1.avg if e.val_metrics else -1)
+            
         best_val = best_val.val_metrics if best_val.val_metrics else None
 
         best_test = self.test_metrics.run_metrics.epochs_metrics[-1] \
@@ -368,6 +372,7 @@ class RunMetrics:
 
     def epoch_time_avg(self):
         return statistics.mean((e.duration() for e in self.epochs_metrics))
+
     def step_time_avg(self):
         return statistics.mean((e.step_time.avg for e in self.epochs_metrics))
 
