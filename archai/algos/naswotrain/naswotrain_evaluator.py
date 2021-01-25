@@ -36,20 +36,20 @@ class NaswotrainEvaluator(Evaluater, EnforceOverrides):
         conf_loader = conf_train['loader']
         conf_train = conf_train['trainer']
 
-        # Need a large batch size for getting good estimate of correlations 
+        # Need a large batch size for getting good estimate of correlations
         # amongst the dataset
         conf_loader['train_batch'] = conf_loader['naswotrain']['train_batch']
 
         # get data
-        train_dl, test_dl = self.get_data(conf_loader)
+        data_loaders = self.get_data(conf_loader)
 
         trainer = NaswotrainTrainer(conf_train, model, checkpoint)
-        train_metrics = trainer.fit(train_dl, test_dl)
+        train_metrics = trainer.fit(data_loaders)
         return train_metrics
 
 
     @overrides
-    def create_model(self, conf_eval: Config, model_desc_builder: ModelDescBuilder, 
+    def create_model(self, conf_eval: Config, model_desc_builder: ModelDescBuilder,
                     final_desc_filename=None, full_desc_filename=None) -> nn.Module:
 
         assert model_desc_builder is not None, 'Default evaluater requires model_desc_builder'
@@ -69,7 +69,7 @@ class NaswotrainEvaluator(Evaluater, EnforceOverrides):
 
         # NOTE: Changing the number of classes to 1
         # to make the function scalar valued as it is necessary
-        # for the score function to conform to the paper 
+        # for the score function to conform to the paper
         model_desc.logits_op.params['n_classes'] = 1
 
         # save desc for reference
@@ -84,6 +84,6 @@ class NaswotrainEvaluator(Evaluater, EnforceOverrides):
                     'n_reductions': conf_model_desc['n_reductions'],
                     'n_nodes': conf_model_desc['cell']['n_nodes']})
 
-        return model    
+        return model
 
 
