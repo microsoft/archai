@@ -36,15 +36,15 @@ class NaswotrainManualEvaluater(Evaluater):
         conf_loader = conf_train['loader']
         conf_train = conf_train['trainer']
 
-        # Need a large batch size for getting good estimate of correlations 
+        # Need a large batch size for getting good estimate of correlations
         # amongst the dataset
         conf_loader['train_batch'] = conf_loader['naswotrain']['train_batch']
 
         # get data
-        train_dl, test_dl = self.get_data(conf_loader)
+        data_loaders = self.get_data(conf_loader)
 
         trainer = NaswotrainTrainer(conf_train, model, checkpoint)
-        train_metrics = trainer.fit(train_dl, test_dl)
+        train_metrics = trainer.fit(data_loaders)
         return train_metrics
 
     @overrides

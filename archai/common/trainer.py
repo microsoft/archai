@@ -186,6 +186,9 @@ class Trainer(EnforceOverrides):
     def pre_fit(self, data_loaders:data.DataLoaders)->None:
         self._metrics.pre_run()
 
+        train_dl = data_loaders.train_dl
+        assert train_dl is not None
+
         # compute model stats per minibatch of training data
         data_iterator = iter(train_dl)
         x, target = next(data_iterator)
