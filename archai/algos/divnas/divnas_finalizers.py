@@ -31,7 +31,8 @@ class DivnasFinalizers(Finalizers):
         # TODO: confirm this is correct in case you get silent bugs
         conf = get_conf()
         conf_loader = conf['nas']['search']['loader']
-        train_dl, val_dl, test_dl = get_data(conf_loader)
+        data_loaders = get_data(conf_loader)
+        assert data_loaders.train_dl is not None
 
         # wrap all cells in the model
         self._divnas_cells:Dict[int, Divnas_Cell] = {}
@@ -54,7 +55,7 @@ class DivnasFinalizers(Finalizers):
         model.eval()
         with torch.no_grad():
             for _ in range(1):
-                for _, (x, _) in enumerate(train_dl):
+                for _, (x, _) in enumerate(data_loaders.train_dl):
                     _, _ = model(x), None
                     # now you can go through and update the
                     # node covariances in every cell

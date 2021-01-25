@@ -44,8 +44,8 @@ class NaswotrainNatsbenchEvaluater(Evaluater):
         if not final_desc_filename:
             final_desc_filename = conf_eval['final_desc_filename']
         arch_index = conf_eval['natsbench']['arch_index']
-        dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
-        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])        
+        dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])
+        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])
         # endregion
 
         assert arch_index
@@ -60,14 +60,14 @@ class NaswotrainNatsbenchEvaluater(Evaluater):
 
         if arch_index > 15625 or arch_index < 0:
             logger.warn(f'architecture id {arch_index} is invalid ')
-        
+
         if dataset_name not in {'cifar10', 'cifar100', 'ImageNet16-120'}:
             logger.warn(f'dataset {dataset_name} is not part of natsbench')
             raise NotImplementedError()
 
         config = api.get_net_config(arch_index, dataset_name)
         # network is a nn.Module subclass. the last few modules have names
-        # lastact, lastact.0, lastact.1, global_pooling, classifier 
+        # lastact, lastact.0, lastact.1, global_pooling, classifier
         # which we can freeze train as usual
         model = get_cell_based_tiny_net(config)
 
@@ -82,10 +82,9 @@ class NaswotrainNatsbenchEvaluater(Evaluater):
         conf_train = conf_train['trainer']
 
         # get data
-        train_dl, test_dl = self.get_data(conf_loader)
+        data_loaders = self.get_data(conf_loader)
 
         trainer = NaswotrainTrainer(conf_train, model, checkpoint)
-        train_metrics = trainer.fit(train_dl, test_dl)
+        train_metrics = trainer.fit(data_loaders)
         return train_metrics
 
-    

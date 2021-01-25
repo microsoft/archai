@@ -172,8 +172,8 @@ To perform a search, DARTS uses bi-level optimization algorithm. To implement th
 ```python
 class BilevelArchTrainer(ArchTrainer):
     ...
-    def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
-        super().pre_fit(train_dl, val_dl)
+    def pre_fit(self, data_loaders:data.DataLoaders)->None:
+        super().pre_fit(data_loaders)
 
         # get config params for bi-level optimizer
         w_momentum = self._conf_w_optim['momentum']

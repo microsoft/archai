@@ -46,8 +46,8 @@ class NaswotrainNatsbenchConditionalEvaluater(Evaluater):
         if not final_desc_filename:
             final_desc_filename = conf_eval['final_desc_filename']
         arch_index = conf_eval['natsbench']['arch_index']
-        dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
-        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])        
+        dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])
+        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])
         # endregion
 
         assert arch_index
@@ -62,14 +62,14 @@ class NaswotrainNatsbenchConditionalEvaluater(Evaluater):
 
         if arch_index > 15625 or arch_index < 0:
             logger.warn(f'architecture id {arch_index} is invalid ')
-        
+
         if dataset_name not in {'cifar10', 'cifar100', 'ImageNet16-120'}:
             logger.warn(f'dataset {dataset_name} is not part of natsbench')
             raise NotImplementedError()
 
         config = api.get_net_config(arch_index, dataset_name)
         # network is a nn.Module subclass. the last few modules have names
-        # lastact, lastact.0, lastact.1, global_pooling, classifier 
+        # lastact, lastact.0, lastact.1, global_pooling, classifier
         # which we can freeze train as usual
         model = get_cell_based_tiny_net(config)
 
@@ -84,29 +84,28 @@ class NaswotrainNatsbenchConditionalEvaluater(Evaluater):
         conf_train_naswot = deepcopy(conf_train['trainer'])
 
         # NOTE: we don't pass checkpoint to the trainers
-        # as it creates complications and we don't need it 
+        # as it creates complications and we don't need it
         # as these trainers are quite fast
         checkpoint = None
 
         # first run conditional training
         logger.pushd('conditional_training')
-        train_dl, test_dl = self.get_data(conf_loader_cond)        
+        data_loaders = self.get_data(conf_loader_cond)
         # first regular train until certain accuracy is achieved
         cond_trainer = ConditionalTrainer(conf_train_cond, model, checkpoint)
-        cond_trainer_metrics = cond_trainer.fit(train_dl, test_dl)
+        cond_trainer_metrics = cond_trainer.fit(data_loaders)
         logger.popd()
 
         # then run naswotrain once certain accuracy has been reached
         logger.pushd('conditional_naswot')
-        
+
         # change the loader batch size to that desired for computing score
         conf_loader_naswot['train_batch'] = conf_loader_naswot['naswotrain']['train_batch']
-        train_dl, test_dl = self.get_data(conf_loader_naswot)
+        data_loaders = self.get_data(conf_loader_naswot)
 
         trainer = NaswotrainTrainer(conf_train_naswot, model, checkpoint)
-        train_metrics = trainer.fit(train_dl, test_dl)
+        train_metrics = trainer.fit(data_loaders)
         logger.popd()
 
         return train_metrics
 
-    

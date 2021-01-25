@@ -48,7 +48,7 @@ class NaswotrainNasbench101Evaluater(Evaluater):
         arch_index = conf_eval['nasbench101']['arch_index']
 
         dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])
-        nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl')             
+        nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl')
         # endregion
 
         assert arch_index
@@ -80,10 +80,9 @@ class NaswotrainNasbench101Evaluater(Evaluater):
         conf_train = conf_train['trainer']
 
         # get data
-        train_dl, test_dl = self.get_data(conf_loader)
+        data_loaders = self.get_data(conf_loader)
 
         trainer = NaswotrainTrainer(conf_train, model, checkpoint)
-        train_metrics = trainer.fit(train_dl, test_dl)
+        train_metrics = trainer.fit(data_loaders)
         return train_metrics
 
-    

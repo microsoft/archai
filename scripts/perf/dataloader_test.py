@@ -18,24 +18,24 @@ conf_loader       = conf_eval['loader']
 conf_loader['train_batch'] = 512
 conf_loader['test_batch'] = 4096
 conf_loader['cutout'] = 0
-train_dl, _, test_dl = data.get_data(conf_loader)
-
+data_loaders = data.get_data(conf_loader)
+assert data_loaders.train_dl is not None
 
 @MeasureTime
 def iter_dl(dl):
     dummy = 0.0
-    for x,y in train_dl:
+    for x,y in dl:
         x = x.cuda()
         y = y.cuda()
         dummy += len(x)
        # dummy += len(y)
     return dummy
 
-logging.info(f'batch_cout={len(train_dl)}')
+logging.info(f'batch_count={len(data_loaders.train_dl)}')
 
 dummy = 0.0
 for _ in range(10):
-    dummy = iter_dl(train_dl)
+    dummy = iter_dl(data_loaders.train_dl)
     print(dummy)
 
 print_all_timings()

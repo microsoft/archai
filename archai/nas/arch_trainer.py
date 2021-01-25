@@ -12,13 +12,14 @@ from torch.optim.lr_scheduler import _LRScheduler
 
 from overrides import overrides, EnforceOverrides
 
-from ..common.config import Config
-from ..common import common, utils
-from ..nas.model import Model
-from ..nas.model_desc import ModelDesc
-from ..common.trainer import Trainer
-from ..nas.vis_model_desc import draw_model_desc
-from ..common.checkpoint import CheckPoint
+from archai.common.config import Config
+from archai.common import common, utils
+from archai.nas.model import Model
+from archai.nas.model_desc import ModelDesc
+from archai.common.trainer import Trainer
+from archai.datasets import data
+from archai.nas.vis_model_desc import draw_model_desc
+from archai.common.checkpoint import CheckPoint
 
 TArchTrainer = Optional[Type['ArchTrainer']]
 
@@ -47,8 +48,8 @@ class ArchTrainer(Trainer, EnforceOverrides):
         return loss
 
     @overrides
-    def post_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader])->None:
-        super().post_epoch(train_dl, val_dl)
+    def post_epoch(self, data_loaders:data.DataLoaders)->None:
+        super().post_epoch(data_loaders)
         self._draw_model()
 
     # TODO: move this outside as utility
@@ -57,9 +58,13 @@ class ArchTrainer(Trainer, EnforceOverrides):
             return
         train_metrics = self.get_metrics()
         if train_metrics:
-            best_train, best_val = train_metrics.run_metrics.best_epoch()
-            is_best = best_val and best_val==train_metrics.cur_epoch()
-            is_best = is_best or best_train==train_metrics.cur_epoch()
+            best_train, best_val, best_test = train_metrics.run_metrics.best_epoch()
+            # if test is available and is best for this epoch then mark it as best
+            is_best = best_test and best_test.index==train_metrics.cur_epoch().index
+            # if val is available and is best for this epoch then mark it as best
+            is_best = is_best or best_val and best_val.index==train_metrics.cur_epoch().index
+            # if neither val or test availavle then use train metrics
+            is_best = is_best or best_train.index==train_metrics.cur_epoch().index
             if is_best:
                 # log model_desc as a image
                 plot_filepath = utils.full_path(os.path.join(

@@ -364,7 +364,7 @@ def hull_points2tsv(points:List[ConvexHullPoint])->str:
         vals.extend([mstats.inference_memory, mstats.parameters])
 
         # add metrics
-        train_metrics, val_metrics = metrics.run_metrics.best_epoch()
+        train_metrics, val_metrics, test_metrics = metrics.run_metrics.best_epoch()
         vals.extend([train_metrics.index, train_metrics.top1.avg])
         if val_metrics:
             vals.extend([val_metrics.index, val_metrics.top1.avg])
@@ -401,10 +401,10 @@ def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float)->
     # scale between [0,1] to avoid numerical issues
     scaled_counts = [(count - counts_min)/counts_range for count in counts]
     count_scores = [1.0/(scaled_count + 1) for scaled_count in scaled_counts]
-    
+
     # form scores to sample inversely proportional to madds
     # since it takes less compute to train a smaller model
-    # this allows us to evaluate each point equal number of times 
+    # this allows us to evaluate each point equal number of times
     # with any compute budget
     eps_madds = [point.model_stats.MAdd for point in eps_points]
     madd_max = max(eps_madds)

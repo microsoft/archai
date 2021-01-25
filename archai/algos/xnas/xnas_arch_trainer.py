@@ -21,7 +21,7 @@ from archai.nas.model import Model
 from archai.nas.model_desc import CellType
 from archai.common.checkpoint import CheckPoint
 from archai.common.common import logger
-from archai.common.utils import zip_eq
+from archai.datasets import data
 from archai.common.common import get_conf
 from .xnas_op import XnasOp
 
@@ -40,16 +40,16 @@ class XnasArchTrainer(ArchTrainer):
                                          self.model.nonarch_params(recurse=True))
 
     @overrides
-    def pre_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
-        super().pre_fit(train_dl, val_dl)
+    def pre_fit(self, data_loaders:data.DataLoaders) -> None:
+        super().pre_fit(data_loaders)
 
         # optimizers, schedulers needs to be recreated for each fit call
         # as they have state
-        assert val_dl is not None
+        assert data_loaders.val_dl is not None
 
         conf = get_conf()
         self._train_batch = conf['nas']['search']['loader']['train_batch']
-        num_val_examples = len(val_dl) * self._train_batch
+        num_val_examples = len(data_loaders.val_dl) * self._train_batch
         num_cells = conf['nas']['search']['model_desc']['n_cells']
         num_reduction_cells = conf['nas']['search']['model_desc']['n_reductions']
         num_normal_cells = num_cells - num_reduction_cells
@@ -70,26 +70,29 @@ class XnasArchTrainer(ArchTrainer):
             self._reduction_cell_effective_t * self._grad_clip * self._grad_clip))
 
         self._xnas_optim = _XnasOptimizer(self._normal_cell_lr, self._reduction_cell_lr, self._normal_cell_effective_t,
-                                          self._reduction_cell_effective_t, self._train_batch, self._grad_clip, 
+                                          self._reduction_cell_effective_t, self._train_batch, self._grad_clip,
                                           self._multi_optim, self._apex, self.model)
 
     @overrides
-    def post_fit(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
+    def post_fit(self, data_loaders:data.DataLoaders) -> None:
         # delete state we created in pre_fit
         del self._xnas_optim
-        return super().post_fit(train_dl, val_dl)
+        return super().post_fit(data_loaders)
 
     @overrides
-    def pre_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
-        super().pre_epoch(train_dl, val_dl)
+    def pre_epoch(self, data_loaders:data.DataLoaders)->None:
+        super().pre_epoch(data_loaders)
 
         # prep val set to train alphas
-        self._valid_iter = iter(val_dl)  # type: ignore
+        assert data_loaders.val_dl is not None
+        self._val_dl = data_loaders.val_dl
+        self._valid_iter = iter(data_loaders.val_dl)  # type: ignore
 
     @overrides
-    def post_epoch(self, train_dl: DataLoader, val_dl: Optional[DataLoader]) -> None:
-        del self._valid_iter  # clean up
-        super().post_epoch(train_dl, val_dl)
+    def post_epoch(self, data_loaders:data.DataLoaders)->None:
+        del self._val_dl
+        del self._valid_iter # clean up
+        super().post_epoch(data_loaders)
 
     @overrides
     def pre_step(self, x: Tensor, y: Tensor) -> None:
@@ -146,16 +149,16 @@ class _XnasOptimizer:
         # put model in train mode just to be safe
         self._model.train()
 
-        # XNAS authors told Liam Li et al that 
+        # XNAS authors told Liam Li et al that
         # the updates are made per data point instead
         # of at a batch level. While nn.CrossEntropyLoss
-        # can give back per data point losses by using reduction='none' option, 
-        # loss.backward() can only deal with scalar losses. So for now trying 
-        # to do this one data point at a time to see if that 
-        # runs reasonably fast. If not the next thing to try is 
-        # to get the per data point loss all at once and then 
+        # can give back per data point losses by using reduction='none' option,
+        # loss.backward() can only deal with scalar losses. So for now trying
+        # to do this one data point at a time to see if that
+        # runs reasonably fast. If not the next thing to try is
+        # to get the per data point loss all at once and then
         # try to do loss[i].backward() and update alphas
-        
+
         batch_size = x_valid.shape[0]
         for i in range(batch_size):
             x = torch.unsqueeze(x_valid[i,:], 0)
@@ -188,6 +191,6 @@ class _XnasOptimizer:
                 else:
                     raise NotImplementedError
 
-                # BUG: t need to be corrected        
+                # BUG: t need to be corrected
                 for op in cell.ops():
                     op.update_alphas(lr, t, T, self._grad_clip)

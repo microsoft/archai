@@ -17,11 +17,11 @@ def train_test(conf_eval:Config):
     model = Net().to(torch.device('cuda', 0))
 
     # get data
-    train_dl, _, test_dl = data.get_data(conf_loader)
+    data_loaders = data.get_data(conf_loader)
 
     # train!
     trainer = Trainer(conf_trainer, model)
-    trainer.fit(train_dl, test_dl)
+    trainer.fit(data_loaders)
 
 
 if __name__ == '__main__':

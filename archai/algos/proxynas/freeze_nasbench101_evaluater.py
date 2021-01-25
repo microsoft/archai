@@ -50,7 +50,7 @@ class FreezeNasbench101Evaluater(Evaluater):
         arch_index = conf_eval['nasbench101']['arch_index']
 
         dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])
-        nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl')             
+        nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl')
         # endregion
 
         assert arch_index
@@ -79,29 +79,29 @@ class FreezeNasbench101Evaluater(Evaluater):
         conf_train_freeze = conf_train['freeze_trainer']
 
         # NOTE: we don't pass checkpoint to the trainers
-        # as it creates complications and we don't need it 
+        # as it creates complications and we don't need it
         # as these trainers are quite fast
         checkpoint = None
 
         logger.pushd('conditional_training')
-        train_dl, test_dl = self.get_data(conf_loader)        
+        data_loaders = self.get_data(conf_loader)
         # first regular train until certain accuracy is achieved
         cond_trainer = ConditionalTrainer(conf_train_cond, model, checkpoint)
-        cond_trainer_metrics = cond_trainer.fit(train_dl, test_dl)
+        cond_trainer_metrics = cond_trainer.fit(data_loaders)
         logger.popd()
 
         # get data with new batch size for freeze training
-        # NOTE: important to create copy and modify as otherwise get_data will return 
+        # NOTE: important to create copy and modify as otherwise get_data will return
         # a cached data loader by hashing the id of conf_loader
         conf_loader_freeze = deepcopy(conf_loader)
         conf_loader_freeze['train_batch'] = conf_loader['freeze_loader']['train_batch']
 
         logger.pushd('freeze_training')
-        train_dl, test_dl = self.get_data(conf_loader_freeze)
+        data_loaders = self.get_data(conf_loader_freeze)
         # now just finetune the last few layers
         checkpoint = None
         trainer = FreezeTrainer(conf_train_freeze, model, checkpoint)
-        freeze_train_metrics = trainer.fit(train_dl, test_dl)
+        freeze_train_metrics = trainer.fit(data_loaders)
         logger.popd()
 
         return freeze_train_metrics

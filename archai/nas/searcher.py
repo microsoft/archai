@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterator, Mapping, Type, Optional, Tuple, List
+from typing import Iterator, Mapping, Type, Optional, Tuple, List, Dict
 import math
 import copy
 import random
@@ -99,21 +99,22 @@ class Searcher(EnforceOverrides):
 
         return model_desc
 
-    def get_data(self, conf_loader:Config)->Tuple[Optional[DataLoader], Optional[DataLoader]]:
+    def get_data(self, conf_loader:Config)->data.DataLoaders:
 
         # this dict caches the dataset objects per dataset config so we don't have to reload
         # the reason we do dynamic attribute is so that any dependent methods
         # can do ray.remote
         if not hasattr(self, '_data_cache'):
-            self._data_cache = {}
+            self._data_cache:Dict[int, data.DataLoaders] = {}
 
         # first get from cache
-        train_ds, val_ds = self._data_cache.get(id(conf_loader), (None, None))
-        # if not found in cache then create
-        if train_ds is None:
-            train_ds, val_ds, _ = data.get_data(conf_loader)
-            self._data_cache[id(conf_loader)] = (train_ds, val_ds)
-        return train_ds, val_ds
+        if id(conf_loader) in self._data_cache:
+            data_loaders = self._data_cache[id(conf_loader)]
+        else:
+            data_loaders = data.get_data(conf_loader)
+            self._data_cache[id(conf_loader)] = data_loaders
+
+        return data_loaders
 
     def finalize_model(self, model:Model, finalizers:Finalizers)->ModelDesc:
         return finalizers.finalize_model(model, restore_device=False)
@@ -134,12 +135,11 @@ class Searcher(EnforceOverrides):
         model = Model(model_desc, droppath=False, affine=False)
 
         # get data
-        train_dl, val_dl = self.get_data(conf_loader)
-        assert train_dl is not None
+        data_loaders = self.get_data(conf_loader)
 
         # search arch
         arch_trainer = trainer_class(conf_trainer, model, checkpoint=None)
-        search_metrics = arch_trainer.fit(train_dl, val_dl)
+        search_metrics = arch_trainer.fit(data_loaders)
 
         # finalize
         found_desc = self.finalize_model(model, finalizers)
@@ -169,11 +169,10 @@ class Searcher(EnforceOverrides):
         model = Model(model_desc, droppath=drop_path_prob>0.0, affine=True)
 
         # get data
-        train_dl, val_dl = self.get_data(conf_loader)
-        assert train_dl is not None
+        data_loaders= self.get_data(conf_loader)
 
         trainer = Trainer(conf_trainer, model, checkpoint=None)
-        train_metrics = trainer.fit(train_dl, val_dl)
+        train_metrics = trainer.fit(data_loaders)
 
         logger.popd()
 

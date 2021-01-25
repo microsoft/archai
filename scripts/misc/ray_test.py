@@ -38,11 +38,11 @@ def train_test()->Metrics:
     model = Net().to(torch.device('cuda'))
 
     # get data
-    train_dl, _, test_dl = data.get_data(conf_loader)
-    assert train_dl is not None and test_dl is not None
+    data_loaders = data.get_data(conf_loader)
+    assert data_loaders.train_dl is not None and data_loaders.test_dl is not None
 
     trainer = Trainer(conf_trainer, model, None)
-    trainer.fit(train_dl, test_dl)
+    trainer.fit(data_loaders)
     met = trainer.get_metrics()
     return met
 
