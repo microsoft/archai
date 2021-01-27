@@ -239,6 +239,22 @@
             "args": ["--algos", "proxynas_natsbench_space"]
         },
         {
+            "name": "Proxynas-Phased-FT-Natsbench-Space-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "phased_freezetrain_natsbench_space"]
+        },
+        {
+            "name": "Proxynas-Phased-FT-Natsbench-Space-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "phased_freezetrain_natsbench_space"]
+        },
+        {
             "name": "Proxynas-Nasbench101-Space-Full",
             "type": "python",
             "request": "launch",
@@ -482,8 +498,6 @@
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
-<<<<<<< HEAD
-=======
             "name": "Analysis Proxynas",
             "type": "python",
             "request": "launch",
@@ -493,7 +507,34 @@
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
->>>>>>> 2fb471e0 (Made proxynas analysis script more robust.)
+
+            "name": "Analysis Freeze Natsbench Space",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\ft_fb2048_ftlr1.5_fte60_ct1024",
+            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Naswot Conditional Natsbench Space",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_naswot_cond_natsbench_space.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_naswotcond0.8",
+            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Regular Natsbench Space",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_regular_natsbench_space.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_reg_b1024_e30",
+            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",

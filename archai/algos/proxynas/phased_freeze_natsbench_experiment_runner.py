@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+
 from typing import Optional, Type
 from copy import deepcopy
 import os
@@ -16,11 +17,12 @@ from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.evaluater import EvalResult
 from archai.common.common import get_expdir, logger
 from archai.algos.proxynas.freeze_manual_searcher import ManualFreezeSearcher
-from archai.algos.natsbench.natsbench_regular_evaluator import NatsbenchRegularEvaluater
+from archai.algos.naswotrain.naswotrain_natsbench_evaluator import NaswotrainNatsbenchEvaluater
+from .phased_freeze_natsbench_evaluater import PhasedFreezeNatsbenchEvaluater
 
 from nats_bench import create
-class NatsbenchRegularExperimentRunner(ExperimentRunner):
-    """Runs regular training on architectures from natsbench"""
+class PhasedFreezeNatsbenchExperimentRunner(ExperimentRunner):
+    """Runs freeze training on architectures from natsbench"""
 
     @overrides
     def model_desc_builder(self)->Optional[ModelDescBuilder]:
@@ -40,6 +42,17 @@ class NatsbenchRegularExperimentRunner(ExperimentRunner):
 
     @overrides
     def run_eval(self, conf_eval:Config)->EvalResult:
+        # without training architecture evaluation score
+        # ---------------------------------------
+        logger.pushd('naswotrain_evaluate')
+        naswotrain_evaler = NaswotrainNatsbenchEvaluater()
+        conf_eval_naswotrain = deepcopy(conf_eval)
+
+        if conf_eval_naswotrain['checkpoint'] is not None:
+            conf_eval_naswotrain['checkpoint']['filename'] = '$expdir/naswotrain_checkpoint.pth'
+
+        naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval_naswotrain, model_desc_builder=self.model_desc_builder())
+        logger.popd()
 
         # regular evaluation of the architecture
         # where we simply lookup the result
@@ -65,9 +78,24 @@ class NatsbenchRegularExperimentRunner(ExperimentRunner):
         logger.info(f'Regular training top1 test accuracy is {test_accuracy}')
         logger.info({'regtrainingtop1': float(test_accuracy)})
         logger.popd()
+            
 
-
-        # regular evaluation of n epochs
-        evaler = NatsbenchRegularEvaluater()
-        return evaler.evaluate(conf_eval, model_desc_builder=self.model_desc_builder())
+        # freeze train evaluation of the architecture
+        # -------------------------------------------
+        # change relevant parts of conf_eval to ensure that freeze_evaler 
+        # doesn't resume from checkpoints created by other evalers and saves 
+        # models to different names as well
+        conf_eval['full_desc_filename'] = '$expdir/phased_freeze_full_model_desc.yaml'
+        conf_eval['metric_filename'] = '$expdir/phased_freeze_eval_train_metrics.yaml'
+        conf_eval['model_filename'] = '$expdir/phased_freeze_model.pt'
         
+        if conf_eval['checkpoint'] is not None:
+            conf_eval['checkpoint']['filename'] = '$expdir/phased_freeze_checkpoint.pth'
+
+        logger.pushd('freeze_evaluate')
+        phased_freeze_evaler = PhasedFreezeNatsbenchEvaluater()
+        conf_eval_phased_freeze = deepcopy(conf_eval)
+        phased_freeze_eval_result = phased_freeze_evaler.evaluate(conf_eval_phased_freeze, model_desc_builder=self.model_desc_builder())
+        logger.popd()
+
+        return phased_freeze_eval_result
