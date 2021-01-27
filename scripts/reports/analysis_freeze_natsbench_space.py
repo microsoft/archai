@@ -106,9 +106,12 @@ def main():
     all_reg_evals = []
     all_naswotrain_evals = []
     all_freeze_evals_last = []
+    all_cond_evals_last = []
     all_freeze_flops_last = []
     all_cond_flops_last = []
     all_freeze_time_last = []
+    all_cond_time_last = []
+    all_partial_time_last = []
 
     all_freeze_evals = defaultdict(list)
 
@@ -118,26 +121,26 @@ def main():
         if 'eval' in key:
             try:
 
-                # if at the end of conditional training val accuracy has not gone above target then don't consider it
-                last_cond_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'].keys())[-1]
-                val_end_cond = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][last_cond_epoch_key]['val']['top1']
-                if val_end_cond < 0.6:
-                    num_archs_unmet_cond += 1
-                    reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
-                    print(f'end cond epoch: {last_cond_epoch_key}, val end cond: {val_end_cond:.03f}, gt 200: {reg_eval_top1:.03f}')
-                    continue                
+                # # if at the end of conditional training train accuracy has not gone above target then don't consider it
+                # last_cond_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'].keys())[-1]
+                # train_end_cond = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][last_cond_epoch_key]['train']['top1']
+                # if train_end_cond < 0.6:
+                #     num_archs_unmet_cond += 1
+                #     reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
+                #     print(f'end cond epoch: {last_cond_epoch_key}, val end cond: {train_end_cond:.03f}, gt 200: {reg_eval_top1:.03f}')
+                #     continue                
 
                 # freeze evaluation 
                 #--------------------
 
                 # at last epoch
                 last_freeze_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'].keys())[-1]
-                freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][last_freeze_epoch_key]['val']['top1']                                            
+                freeze_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][last_freeze_epoch_key]['train']['top1']                                            
                 all_freeze_evals_last.append(freeze_eval_top1)
 
                 # collect evals at other epochs
                 for epoch in range(int(last_freeze_epoch_key)):            
-                    all_freeze_evals[epoch].append(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][str(epoch)]['val']['top1'])
+                    all_freeze_evals[epoch].append(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][str(epoch)]['train']['top1'])
         
                 # collect flops used for conditional training and freeze training
                 freeze_mega_flops_epoch = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['total_mega_flops_epoch']
@@ -149,6 +152,10 @@ def main():
                 cond_mega_flops_used = cond_mega_flops_epoch * int(last_cond_epoch_key)
                 all_cond_flops_last.append(cond_mega_flops_used)
 
+                # collect training error at end of conditional training
+                cond_eval_top1 = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][last_cond_epoch_key]['train']['top1']
+                all_cond_evals_last.append(cond_eval_top1)
+
                 # collect duration for conditional training and freeze training
                 freeze_duration = 0.0
                 for epoch_key in logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs']:
@@ -159,6 +166,10 @@ def main():
                     cond_duration += logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][epoch_key]['train']['duration']
 
                 all_freeze_time_last.append(freeze_duration + cond_duration)
+                all_cond_time_last.append(cond_duration)
+                all_partial_time_last.append(freeze_duration)
+
+                
 
                 # naswotrain
                 # --------------
@@ -185,11 +196,12 @@ def main():
 
     # Sanity check
     assert len(all_reg_evals) == len(all_freeze_evals_last)
+    assert len(all_reg_evals) == len(all_cond_evals_last)
     assert len(all_reg_evals) == len(all_naswotrain_evals)
     assert len(all_reg_evals) == len(all_freeze_flops_last)
     assert len(all_reg_evals) == len(all_cond_flops_last)
     assert len(all_reg_evals) == len(all_freeze_time_last)
-
+    
     # Freeze training results at last epoch        
     freeze_tau, freeze_p_value = kendalltau(all_reg_evals, all_freeze_evals_last)
     freeze_spe, freeze_sp_value = spearmanr(all_reg_evals, all_freeze_evals_last)
@@ -207,6 +219,23 @@ def main():
     savename = os.path.join(out_dir, 'proxynas_freeze_training_epochs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
+    # Conditional training results at last epoch
+    cond_tau, cond_p_value = kendalltau(all_reg_evals, all_cond_evals_last)
+    cond_spe, cond_sp_value = spearmanr(all_reg_evals, all_cond_evals_last)
+    print(f'Conditional Kendall Tau score: {cond_tau:3.03f}, p_value {cond_p_value:3.03f}')
+    print(f'Conditional Spearman corr: {cond_spe:3.03f}, p_value {cond_sp_value:3.03f}')
+    with open(results_savename, 'a') as f:
+        f.write(f'Conditional Kendall Tau score: {cond_tau:3.03f}, p_value {cond_p_value:3.03f} \n')
+        f.write(f'Conditional Spearman corr: {cond_spe:3.03f}, p_value {cond_sp_value:3.03f} \n')
+
+    plt.clf()
+    sns.scatterplot(x=all_reg_evals, y=all_cond_evals_last)
+    plt.xlabel('Test top1 at natsbench full training')
+    plt.ylabel('Conditional training')
+    plt.grid()
+    savename = os.path.join(out_dir, 'proxynas_cond_training_epochs.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+ 
     # Report average runtime and average flops consumed 
     total_freeze_flops = np.array(all_freeze_flops_last) + np.array(all_cond_flops_last)
     avg_freeze_flops = np.mean(total_freeze_flops)
@@ -215,9 +244,17 @@ def main():
     avg_freeze_runtime = np.mean(np.array(all_freeze_time_last))
     stderr_freeze_runtime = np.std(np.array(all_freeze_time_last)) / np.sqrt(len(all_freeze_time_last))
 
+    avg_cond_runtime = np.mean(np.array(all_cond_time_last))
+    stderr_cond_runtime = np.std(np.array(all_cond_time_last)) / np.sqrt(len(all_cond_time_last))
+
+    avg_partial_runtime = np.mean(np.array(all_partial_time_last))
+    stderr_partial_runtime = np.std(np.array(all_partial_time_last)) / np.sqrt(len(all_partial_time_last))
+
     with open(results_savename, 'a') as f:
         f.write(f'Avg. Freeze MFlops: {avg_freeze_flops:.03f}, stderr {stderr_freeze_flops:.03f} \n')
         f.write(f'Avg. Freeze Runtime: {avg_freeze_runtime:.03f}, stderr {stderr_freeze_runtime:.03f} \n')
+        f.write(f'Avg. Conditional Runtime: {avg_cond_runtime:.03f}, stderr {stderr_cond_runtime:.03f} \n')
+        f.write(f'Avg. Partial Runtime: {avg_partial_runtime:.03f}, stderr {stderr_partial_runtime:.03f} \n')
 
     # Plot freeze training rank correlations if cutoff at various epochs
     freeze_taus = {}
