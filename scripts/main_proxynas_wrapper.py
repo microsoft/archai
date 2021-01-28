@@ -23,14 +23,16 @@ def main():
 
     for arch_id in archs_to_proc:
         # assemble command string    
-        #print(os.getcwd())
-        command = f'python scripts/main.py --full --algos {args.algos}  \
-                    --common.seed 36 --nas.eval.natsbench.arch_index {arch_id} \
-                    --nas.eval.trainer.train_top1_acc_threshold {args.train_top1_acc_threshold}\
-                    --exp-prefix proxynas_{arch_id}'
-        #print(command)
+        print(os.getcwd())
         print(os.listdir('.'))
-        #ret = subprocess.run(command)
+        
+        command_list = ['python', 'scripts/main.py', '--full', '--algos', f'{args.algos}',\
+                        '--common.seed', '36', '--nas.eval.natsbench.arch_index', f'{arch_id}',\
+                        '--nas.eval.trainer.train_top1_acc_threshold', f'{args.train_top1_acc_threshold}',\
+                        '--exp-prefix', f'proxynas_{arch_id}']
+        
+        print(command_list)
+        ret = subprocess.run(command_list)
 
 
 

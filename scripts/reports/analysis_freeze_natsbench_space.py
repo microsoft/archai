@@ -55,11 +55,10 @@ def parse_a_job(job_dir:str)->OrderedDict:
                 fix_yaml(logs_filepath)
                 with open(logs_filepath, 'r') as f:
                     key = job_dir.name + ':' + sub_job
+                    print(key)
                     data = yaml.load(f, Loader=yaml.Loader)
                 return (key, data)
 
-def myfunc(x):
-    return x*x
 
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
@@ -85,6 +84,9 @@ def main():
     # get list of all structured logs for each job
     logs = {}
     job_dirs = list(results_dir.iterdir())
+
+    # test single job parsing for debugging
+    a = parse_a_job(job_dirs[0])
 
     # parallel parssing of yaml logs
     with Pool(18) as p:
