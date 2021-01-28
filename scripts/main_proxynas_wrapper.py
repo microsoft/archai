@@ -3,6 +3,7 @@
 
 import argparse
 import subprocess
+import os
 
 from archai.common.utils import exec_shell_command
 
@@ -22,11 +23,14 @@ def main():
 
     for arch_id in archs_to_proc:
         # assemble command string    
+        #print(os.getcwd())
         command = f'python scripts/main.py --full --algos {args.algos}  \
                     --common.seed 36 --nas.eval.natsbench.arch_index {arch_id} \
                     --nas.eval.trainer.train_top1_acc_threshold {args.train_top1_acc_threshold}\
                     --exp-prefix proxynas_{arch_id}'
-        ret = subprocess.run(command)
+        #print(command)
+        print(os.listdir('.'))
+        #ret = subprocess.run(command)
 
 
 
