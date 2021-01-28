@@ -153,8 +153,10 @@ def common_init(config_filepath: Optional[str]=None,
                 param_args: list = [], use_args=True,
                 clean_expdir=False)->Config:
 
-    if not utils.is_main_process():
-        raise RuntimeError('common_init should not be called from child process. Please use Common.init_from()')
+    # TODO: multiple child processes will create issues with shared state so we need to
+    # detect multiple child processes but allow if there is only one child process.
+    # if not utils.is_main_process():
+    #     raise RuntimeError('common_init should not be called from child process. Please use Common.init_from()')
 
     conf = create_conf(config_filepath, param_args, use_args)
 

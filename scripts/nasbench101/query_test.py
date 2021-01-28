@@ -10,6 +10,9 @@ def main():
   # create dataset
   nsds= Nasbench101Dataset('~/dataroot/nasbench_ds/nasbench_only108.tfrecord.pkl')
 
+  model4 = nsds[0]
+  print('model4', model4)
+
   # query for specific model
   data = nsds.query(model_builder.EXAMPLE_DESC_MATRIX, model_builder.EXAMPLE_VERTEX_OPS)
   print('queried', data)
