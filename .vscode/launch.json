@@ -319,6 +319,14 @@
             "args": ["--algos", "proxynas_manual", "--full"]
         },
         {
+            "name": "Main Proxynas Wrapper",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main_proxynas_wrapper.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "proxynas_natsbench_space", "--arch-list-index", "0", "--num-archs", "20", "--train-top1-acc-threshold", "0.6"]
+        },
+        {
             "name": "Resnet-Toy",
             "type": "python",
             "request": "launch",
@@ -513,7 +521,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\ft_fb2048_ftlr1.5_fte60_ct1024_ftt0.6",
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\ft_fb2048_ftlr1.5_fte10_ct256_ftt0.3",
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
         },
         {
