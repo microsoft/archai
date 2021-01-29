@@ -34,8 +34,24 @@ from analysis_utils import epoch_nodes, fix_yaml, remove_seed_part, group_multi_
 
 import re
 
-def parse_a_job(job_dir:str)->OrderedDict:
+
+def find_valid_log(subdir:str)->str:
+    # originally log should be in base folder of eval or search
+    logs_filepath_og = os.path.join(str(subdir), 'log.yaml')
+    if os.path.isfile(logs_filepath_og):
+        return logs_filepath_og
+    else:
+        # look in the 'dist' folder for any yaml file
+        dist_folder = os.path.join(str(subdir), 'dist')
+        for f in os.listdir(dist_folder):
+            if f.endswith(".yaml"):
+                return os.path.join(dist_folder, f)
+
+
+def parse_a_job(job_dir:str)->Dict:
      if job_dir.is_dir():
+
+        storage = {}
         for subdir in job_dir.iterdir():
             if not subdir.is_dir():
                 continue
@@ -50,14 +66,21 @@ def parse_a_job(job_dir:str)->OrderedDict:
                                 'end with either _search or _eval which '
                                 'should be the case if ExperimentRunner was used.')
 
-            logs_filepath = os.path.join(str(subdir), 'log.yaml')
+            logs_filepath = find_valid_log(subdir)
+            config_used_filepath = os.path.join(subdir, 'config_used.yaml')
+
             if os.path.isfile(logs_filepath):
                 fix_yaml(logs_filepath)
+                key = job_dir.name + subdir.name + ':' + sub_job
+                # parse log
                 with open(logs_filepath, 'r') as f:
-                    key = job_dir.name + ':' + sub_job
-                    print(key)
-                    data = yaml.load(f, Loader=yaml.Loader)
-                return (key, data)
+                    data = yaml.load(f, Loader=yaml.Loader)                    
+                # parse config used
+                with open(config_used_filepath, 'r') as f:
+                    confs = yaml.load(f, Loader=yaml.Loader)
+                storage[key] = (data, confs)
+            
+        return storage
 
 
 def main():
@@ -83,18 +106,20 @@ def main():
 
     # get list of all structured logs for each job
     logs = {}
+    confs = {}
     job_dirs = list(results_dir.iterdir())
 
     # test single job parsing for debugging
     a = parse_a_job(job_dirs[0])
 
-    # parallel parssing of yaml logs
+    # parallel parsing of yaml logs
     with Pool(18) as p:
         a = p.map(parse_a_job, job_dirs)
 
-    for key, data in a:
-        logs[key] = data
-
+    for storage in a:
+        for key, val in storage.items():
+            logs[key] = val[0]
+            confs[key] = val[1]
                    
     # examples of accessing logs
     # logs['proxynas_blahblah:eval']['naswotrain_evaluate']['eval_arch']['eval_train']['naswithouttraining']
@@ -104,13 +129,52 @@ def main():
     # last_val_top1 = logs['proxynas_blahblah:eval']['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'][last_epoch_key]['val']['top1']
     # epoch_duration = logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs']['0']['train']['duration']
 
+    # remove all search jobs
+    for key in list(logs.keys()):
+        if 'search' in key:
+            logs.pop(key)
+
+    # remove all arch_ids which did not finish
+    for key in list(logs.keys()):
+        to_delete = False
+
+        # it might have died early
+        if 'freeze_evaluate' not in list(logs[key].keys()):
+            to_delete = True
+
+        if 'naswotrain_evaluate' not in list(logs[key].keys()):
+            to_delete = True
+        
+        if 'regular_evaluate' not in list(logs[key].keys()):
+            to_delete = True
+        
+        if to_delete:
+            print(f'arch id {key} did not finish. removing from calculations.')
+            logs.pop(key)
+            continue
+
+        if 'freeze_training'not in list(logs[key]['freeze_evaluate']['eval_arch'].keys()):
+            print(f'arch id {key} did not finish. removing from calculations.')
+            logs.pop(key)
+            continue
+
+        # freeze train may not have finished
+        num_freeze_epochs = confs[key]['nas']['eval']['freeze_trainer']['epochs']
+        last_freeze_epoch_key = int(list(logs[key]['freeze_evaluate']['eval_arch']['freeze_training']['eval_train']['epochs'].keys())[-1])
+        if last_freeze_epoch_key != num_freeze_epochs - 1:
+            print(f'arch id {key} did not finish. removing from calculations.')
+            logs.pop(key)
+
 
     all_reg_evals = []
+    
     all_naswotrain_evals = []
     all_freeze_evals_last = []
     all_cond_evals_last = []
+    
     all_freeze_flops_last = []
     all_cond_flops_last = []
+
     all_freeze_time_last = []
     all_cond_time_last = []
     all_partial_time_last = []
@@ -123,14 +187,12 @@ def main():
         if 'eval' in key:
             try:
 
-                # # if at the end of conditional training train accuracy has not gone above target then don't consider it
-                # last_cond_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'].keys())[-1]
-                # train_end_cond = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][last_cond_epoch_key]['train']['top1']
-                # if train_end_cond < 0.6:
-                #     num_archs_unmet_cond += 1
-                #     reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
-                #     print(f'end cond epoch: {last_cond_epoch_key}, val end cond: {train_end_cond:.03f}, gt 200: {reg_eval_top1:.03f}')
-                #     continue                
+                # if at the end of conditional training train accuracy has not gone above target then don't consider it
+                last_cond_epoch_key = list(logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'].keys())[-1]
+                train_end_cond = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][last_cond_epoch_key]['train']['top1']
+                if train_end_cond < confs[key]['nas']['eval']['trainer']['train_top1_acc_threshold']:
+                    num_archs_unmet_cond += 1
+                    continue                
 
                 # freeze evaluation 
                 #--------------------
@@ -241,23 +303,27 @@ def main():
     # Report average runtime and average flops consumed 
     total_freeze_flops = np.array(all_freeze_flops_last) + np.array(all_cond_flops_last)
     avg_freeze_flops = np.mean(total_freeze_flops)
-    stderr_freeze_flops = np.std(total_freeze_flops) / np.sqrt(len(all_freeze_flops_last))
+    std_freeze_flops = np.std(total_freeze_flops)
+    stderr_freeze_flops = std_freeze_flops / np.sqrt(len(all_freeze_flops_last))
 
     avg_freeze_runtime = np.mean(np.array(all_freeze_time_last))
-    stderr_freeze_runtime = np.std(np.array(all_freeze_time_last)) / np.sqrt(len(all_freeze_time_last))
+    std_freeze_runtime = np.std(np.array(all_freeze_time_last))
+    stderr_freeze_runtime = std_freeze_runtime / np.sqrt(len(all_freeze_time_last))
 
     avg_cond_runtime = np.mean(np.array(all_cond_time_last))
-    stderr_cond_runtime = np.std(np.array(all_cond_time_last)) / np.sqrt(len(all_cond_time_last))
+    std_cond_runtime = np.std(np.array(all_cond_time_last))
+    stderr_cond_runtime = std_cond_runtime / np.sqrt(len(all_cond_time_last))
 
     avg_partial_runtime = np.mean(np.array(all_partial_time_last))
-    stderr_partial_runtime = np.std(np.array(all_partial_time_last)) / np.sqrt(len(all_partial_time_last))
+    std_partial_runtime = np.std(np.array(all_partial_time_last))
+    stderr_partial_runtime = std_partial_runtime / np.sqrt(len(all_partial_time_last))
 
     with open(results_savename, 'a') as f:
-        f.write(f'Avg. Freeze MFlops: {avg_freeze_flops:.03f}, stderr {stderr_freeze_flops:.03f} \n')
-        f.write(f'Avg. Freeze Runtime: {avg_freeze_runtime:.03f}, stderr {stderr_freeze_runtime:.03f} \n')
-        f.write(f'Avg. Conditional Runtime: {avg_cond_runtime:.03f}, stderr {stderr_cond_runtime:.03f} \n')
-        f.write(f'Avg. Partial Runtime: {avg_partial_runtime:.03f}, stderr {stderr_partial_runtime:.03f} \n')
-
+        f.write(f'Avg. Freeze MFlops: {avg_freeze_flops:.03f}, std {std_freeze_flops}, stderr {stderr_freeze_flops:.03f} \n')
+        f.write(f'Avg. Freeze Runtime: {avg_freeze_runtime:.03f}, std {std_freeze_runtime}, stderr {stderr_freeze_runtime:.03f} \n')
+        f.write(f'Avg. Conditional Runtime: {avg_cond_runtime:.03f}, std {std_cond_runtime}, stderr {stderr_cond_runtime:.03f} \n')
+        f.write(f'Avg. Partial Runtime: {avg_partial_runtime:.03f}, std {std_partial_runtime}, stderr {stderr_partial_runtime:.03f} \n')
+ 
     # Plot freeze training rank correlations if cutoff at various epochs
     freeze_taus = {}
     freeze_spes = {}
