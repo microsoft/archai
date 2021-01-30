@@ -377,10 +377,13 @@ def main():
 
 
     # Rank correlations at top n percent of architectures
-    reg_freezelast_naswot_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_naswotrain_evals[i]) for i in range(len(all_reg_evals))]
+    reg_freezelast_naswot_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_naswotrain_evals[i], all_freeze_time_last[i]) for i in range(len(all_reg_evals))]
 
     # sort in descending order of accuracy of regular evaluation
     reg_freezelast_naswot_evals.sort(key=lambda x: x[0], reverse=True)
+
+    top_percent_freeze_times_avg = []
+    top_percent_freeze_times_std = []
 
     spe_freeze_top_percents = []
     spe_naswot_top_percents = []
@@ -392,6 +395,10 @@ def main():
         top_percent_reg = [x[0] for x in top_percent_evals] 
         top_percent_freeze = [x[1] for x in top_percent_evals]
         top_percent_naswot = [x[2] for x in top_percent_evals]
+        top_percent_freeze_times = [x[3] for x in top_percent_evals]
+
+        top_percent_freeze_times_avg.append(np.mean(np.array(top_percent_freeze_times)))
+        top_percent_freeze_times_std.append(np.std(np.array(top_percent_freeze_times)))    
 
         spe_freeze, _ = spearmanr(top_percent_reg, top_percent_freeze)
         spe_freeze_top_percents.append(spe_freeze)
@@ -408,6 +415,16 @@ def main():
     plt.grid()
     savename = os.path.join(out_dir, f'spe_top_archs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    plt.clf()
+    plt.errorbar(top_percents, top_percent_freeze_times_avg, yerr=np.array(top_percent_freeze_times_std)/2, marker='s', mfc='red', ms=10, mew=4)
+    plt.xlabel('Top percent of architectures')
+    plt.ylabel('Avg. time (s)')
+    plt.yticks(np.arange(0,600, step=50))
+    plt.grid()
+    savename = os.path.join(out_dir, f'freeze_train_duration_top_archs.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
 
 if __name__ == '__main__':
     main()
