@@ -150,10 +150,13 @@ def main():
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
     # Rank correlations at top n percent of architectures
-    reg_shortreg_evals = [(all_reg_evals[i], all_short_reg_evals[i]) for i in range(len(all_reg_evals))]
+    reg_shortreg_evals = [(all_reg_evals[i], all_short_reg_evals[i], all_short_reg_time[i]) for i in range(len(all_reg_evals))]
 
     # sort in descending order of accuracy of regular evaluation
     reg_shortreg_evals.sort(key=lambda x: x[0], reverse=True)
+
+    top_percent_shortreg_times_avg = []
+    top_percent_shortreg_times_std = []
 
     spe_shortreg_top_percents = []
     top_percents = []
@@ -163,6 +166,10 @@ def main():
         top_percent_evals = reg_shortreg_evals[:num_to_keep]
         top_percent_reg = [x[0] for x in top_percent_evals] 
         top_percent_shortreg = [x[1] for x in top_percent_evals]
+        top_percent_shortreg_times = [x[2] for x in top_percent_evals]
+
+        top_percent_shortreg_times_avg.append(np.mean(np.array(top_percent_shortreg_times)))
+        top_percent_shortreg_times_std.append(np.std(np.array(top_percent_shortreg_times)))    
 
         spe_freeze, _ = spearmanr(top_percent_reg, top_percent_shortreg)
         spe_shortreg_top_percents.append(spe_freeze)
@@ -176,6 +183,15 @@ def main():
     plt.ylabel('Spearman Correlation')
     plt.grid()
     savename = os.path.join(out_dir, f'spe_top_archs.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    plt.clf()
+    plt.errorbar(top_percents, top_percent_shortreg_times_avg, yerr=np.array(top_percent_shortreg_times_std)/2, marker='s', mfc='red', ms=10, mew=4)
+    plt.xlabel('Top percent of architectures')
+    plt.ylabel('Avg. time (s)')
+    plt.yticks(np.arange(0,600, step=50))
+    plt.grid()
+    savename = os.path.join(out_dir, f'shortreg_train_duration_top_archs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
     # time taken
