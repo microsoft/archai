@@ -14,6 +14,7 @@ import re
 from tqdm import tqdm
 import seaborn as sns
 import math as ma
+import pickle
 
 from scipy.stats import kendalltau, spearmanr
 
@@ -24,9 +25,9 @@ from runstats import Statistics
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
-import multiprocessing
 from multiprocessing import Pool
+from collections import namedtuple
+
 
 from archai.common import utils
 from archai.common.ordereddict_logger import OrderedDictLogger
@@ -67,6 +68,11 @@ def parse_a_job(job_dir:str)->Dict:
                                 'should be the case if ExperimentRunner was used.')
 
             logs_filepath = find_valid_log(subdir)
+            # if no valid logfile found, ignore this job as it probably 
+            # didn't finish or errored out or is yet to run
+            if not logs_filepath:
+                continue
+
             config_used_filepath = os.path.join(subdir, 'config_used.yaml')
 
             if os.path.isfile(logs_filepath):
@@ -109,8 +115,10 @@ def main():
     confs = {}
     job_dirs = list(results_dir.iterdir())
 
-    # test single job parsing for debugging
-    a = parse_a_job(job_dirs[0])
+    # # test single job parsing for debugging
+    # # WARNING: very slow, just use for debugging
+    # for job_dir in job_dirs:
+    #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
     with Pool(18) as p:
@@ -412,7 +420,7 @@ def main():
     plt.grid()
     savename = os.path.join(out_dir, f'spe_top_archs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
-
+    
     plt.clf()
     plt.errorbar(top_percents, top_percent_freeze_times_avg, yerr=np.array(top_percent_freeze_times_std)/2, marker='s', mfc='red', ms=10, mew=4)
     plt.xlabel('Top percent of architectures')
@@ -422,6 +430,23 @@ def main():
     savename = os.path.join(out_dir, f'freeze_train_duration_top_archs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
+    # save raw data for other aggregate plots over experiments
+    raw_data_dict = {}
+    raw_data_dict['top_percents'] = top_percents
+    raw_data_dict['spe_freeze'] = spe_freeze_top_percents
+    raw_data_dict['spe_naswot'] = spe_naswot_top_percents
+    raw_data_dict['freeze_times_avg'] = top_percent_freeze_times_avg
+    raw_data_dict['freeze_times_std'] = top_percent_freeze_times_std
+
+    savename = os.path.join(out_dir, 'raw_data.yaml')
+    with open(savename, 'w') as f:
+        yaml.dump(raw_data_dict, f)
+
+    with open(savename, 'rb') as f:
+        a = yaml.load(f, Loader=yaml.Loader)
+
+    print('here')
+    
 
 if __name__ == '__main__':
     main()
