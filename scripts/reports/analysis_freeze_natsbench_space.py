@@ -426,7 +426,7 @@ def main():
     spe_freeze_top_percents = []
     spe_naswot_top_percents = []
     top_percents = []
-    for top_percent in range(10, 101, 10):
+    for top_percent in range(2, 101, 2):
         top_percents.append(top_percent)
         num_to_keep = int(ma.floor(len(reg_freezelast_naswot_evals) * top_percent * 0.01))
         top_percent_evals = reg_freezelast_naswot_evals[:num_to_keep]
@@ -475,10 +475,7 @@ def main():
     with open(savename, 'w') as f:
         yaml.dump(raw_data_dict, f)
 
-    with open(savename, 'rb') as f:
-        a = yaml.load(f, Loader=yaml.Loader)
-
-    print('here')
+    
     
 
 if __name__ == '__main__':
