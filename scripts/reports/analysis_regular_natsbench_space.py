@@ -160,7 +160,7 @@ def main():
 
     spe_shortreg_top_percents = []
     top_percents = []
-    for top_percent in range(10, 101, 10):
+    for top_percent in range(5, 101, 5):
         top_percents.append(top_percent)
         num_to_keep = int(ma.floor(len(reg_shortreg_evals) * top_percent * 0.01))
         top_percent_evals = reg_shortreg_evals[:num_to_keep]
@@ -171,8 +171,8 @@ def main():
         top_percent_shortreg_times_avg.append(np.mean(np.array(top_percent_shortreg_times)))
         top_percent_shortreg_times_std.append(np.std(np.array(top_percent_shortreg_times)))    
 
-        spe_freeze, _ = spearmanr(top_percent_reg, top_percent_shortreg)
-        spe_shortreg_top_percents.append(spe_freeze)
+        spe_shortreg, _ = spearmanr(top_percent_reg, top_percent_shortreg)
+        spe_shortreg_top_percents.append(spe_shortreg)
                 
     plt.clf()
     sns.scatterplot(top_percents, spe_shortreg_top_percents)
@@ -200,6 +200,17 @@ def main():
 
     with open(results_savename, 'a') as f:
         f.write(f'Avg. Shortened Training Runtime: {avg_shortreg_runtime:.03f}, stderr {stderr_shortreg_runtime:.03f} \n')
+
+    # save raw data for other aggregate plots over experiments
+    raw_data_dict = {}
+    raw_data_dict['top_percents'] = top_percents
+    raw_data_dict['spe_shortreg'] = spe_shortreg_top_percents
+    raw_data_dict['shortreg_times_avg'] = top_percent_shortreg_times_avg
+    raw_data_dict['shortreg_times_std'] = top_percent_shortreg_times_std
+
+    savename = os.path.join(out_dir, 'raw_data.yaml')
+    with open(savename, 'w') as f:
+        yaml.dump(raw_data_dict, f)
 
 if __name__ == '__main__':
     main()
