@@ -160,7 +160,7 @@ def main():
 
     spe_shortreg_top_percents = []
     top_percents = []
-    for top_percent in range(5, 101, 5):
+    for top_percent in range(2, 101, 2):
         top_percents.append(top_percent)
         num_to_keep = int(ma.floor(len(reg_shortreg_evals) * top_percent * 0.01))
         top_percent_evals = reg_shortreg_evals[:num_to_keep]
