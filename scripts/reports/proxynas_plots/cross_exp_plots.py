@@ -73,7 +73,19 @@ def main():
                 'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6']
 
 
-    shortreg_exp_list = ['nb_reg_b1024_e10', 'nb_reg_b1024_e20', 'nb_reg_b1024_e30']
+    shortreg_exp_list = ['nb_reg_b1024_e01', \
+                         'nb_reg_b1024_e02', \
+                         'nb_reg_b1024_e04', \
+                         'nb_reg_b1024_e06', \
+                         'nb_reg_b1024_e08', \
+                         'nb_reg_b1024_e10', \
+                         'nb_reg_b512_e01', \
+                         'nb_reg_b512_e02', \
+                         'nb_reg_b512_e04', \
+                         'nb_reg_b512_e06', \
+                         'nb_reg_b512_e08', \
+                         'nb_reg_b512_e10' ]
+                        
 
     # parse raw data from all processed experiments
     data = parse_raw_data(exp_folder, exp_list)
@@ -84,6 +96,7 @@ def main():
     colors = [cmap(i) for i in np.linspace(0, 1, len(exp_list)*2)]
     linestyles = ['solid', 'dashdot', 'dotted', 'dashed']
     markers = ['.', 'v', '^', '<', '>', '1', 's', 'p', '*', '+', 'x', 'X', 'D', 'd']
+    mathy_markers = ["$a$", "$b$", "$c$", "$d$", "$e$", "$f$", "$g$", "$h$", "$i$", "$j$", "$k$", "$l$", "$m$", "$n$", "$o$", "$p$", "$q$", "$r$", "$s$", "$t$", "$u$", "$v$", "$w$", "$x$", "$y$", "$z$"]
     
     cc = cycler(color=colors) * cycler(linestyle=linestyles) * cycler(marker=markers)
 
@@ -112,8 +125,10 @@ def main():
             break
 
     # plot shortreg data
+    counter = 0
     for i, key in enumerate(shortreg_data.keys()):
-        plt.plot(shortreg_data[key]['top_percents'], shortreg_data[key]['spe_shortreg'], marker = '8', mfc='green', ms=10)
+        plt.plot(shortreg_data[key]['top_percents'], shortreg_data[key]['spe_shortreg'], marker = mathy_markers[counter], mfc='green', ms=10)
+        counter += 1
         legend_labels.append(key)
     
         # annotate the shortreg data points with time information
@@ -166,23 +181,35 @@ def main():
         tp_info[tp] = this_tp_info
 
     # now plot each top percent
-    cc = cycler(marker=markers)
+    # markers the same size as number of freezetrain experiments
+    
     fig, axs = plt.subplots(5, 10)
     handles = None
     labels = None
     for tp_key, ax in zip(tp_info.keys(), axs.flat):
+        counter = 0
+        counter_reg = 0
         for exp in tp_info[tp_key].keys():
             duration = tp_info[tp_key][exp][0]
             spe = tp_info[tp_key][exp][1]
-            #ax.set_prop_cycle(cc)
-            ax.scatter(duration, spe, label=exp)
+
+            if 'ft_fb' in exp:
+                marker = markers[counter]
+                counter += 1
+            elif 'nb_reg' in exp:
+                marker = mathy_markers[counter_reg]
+                counter_reg += 1
+            else:
+                raise NotImplementedError
+
+            ax.scatter(duration, spe, label=exp, marker=marker)
             ax.set_title(str(tp_key))
             #ax.set(xlabel='Duration (s)', ylabel='SPE')
             ax.set_ylim([0, 1])
             
     
     handles, labels = axs.flat[-1].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='upper center')
+    fig.legend(handles, labels, loc='center right')
     
     plt.show()
 
@@ -191,7 +218,6 @@ def main():
     # ------------------------------------------------------------
     plt.clf()
     time_legend_labels = []
-
     for key in data.keys():
         plt.errorbar(data[key]['top_percents'], data[key]['freeze_times_avg'], yerr=np.array(data[key]['freeze_times_std'])/2, marker='*', mfc='red', ms=5)    
         time_legend_labels.append(key + '_freezetrain')

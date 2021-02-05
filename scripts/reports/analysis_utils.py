@@ -300,3 +300,56 @@ def write_report(template_filename:str, **kwargs)->None:
     with open(outfilepath, 'w', encoding='utf-8') as f:
         f.write(report)
     print(f'report written to: {outfilepath}')
+
+
+def find_valid_log(subdir:str)->str:
+    # originally log should be in base folder of eval or search
+    logs_filepath_og = os.path.join(str(subdir), 'log.yaml')
+    if os.path.isfile(logs_filepath_og):
+        return logs_filepath_og
+    else:
+        # look in the 'dist' folder for any yaml file
+        dist_folder = os.path.join(str(subdir), 'dist')
+        for f in os.listdir(dist_folder):
+            if f.endswith(".yaml"):
+                return os.path.join(dist_folder, f)
+
+
+def parse_a_job(job_dir:str)->Dict:
+     if job_dir.is_dir():
+
+        storage = {}
+        for subdir in job_dir.iterdir():
+            if not subdir.is_dir():
+                continue
+            # currently we expect that each job was ExperimentRunner job which should have
+            # _search or _eval folders
+            if subdir.stem.endswith('_search'):
+                sub_job = 'search'
+            elif subdir.stem.endswith('_eval'):
+                sub_job = 'eval'
+            else:
+                raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
+                                'end with either _search or _eval which '
+                                'should be the case if ExperimentRunner was used.')
+
+            logs_filepath = find_valid_log(subdir)
+            # if no valid logfile found, ignore this job as it probably 
+            # didn't finish or errored out or is yet to run
+            if not logs_filepath:
+                continue
+
+            config_used_filepath = os.path.join(subdir, 'config_used.yaml')
+
+            if os.path.isfile(logs_filepath):
+                fix_yaml(logs_filepath)
+                key = job_dir.name + subdir.name + ':' + sub_job
+                # parse log
+                with open(logs_filepath, 'r') as f:
+                    data = yaml.load(f, Loader=yaml.Loader)                    
+                # parse config used
+                with open(config_used_filepath, 'r') as f:
+                    confs = yaml.load(f, Loader=yaml.Loader)
+                storage[key] = (data, confs)
+            
+        return storage
