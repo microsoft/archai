@@ -30,33 +30,9 @@ from multiprocessing import Pool
 
 from archai.common import utils
 from archai.common.ordereddict_logger import OrderedDictLogger
-from analysis_utils import epoch_nodes, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
+from analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
 
 import re
-
-def parse_a_job(job_dir:str)->OrderedDict:
-     if job_dir.is_dir():
-        for subdir in job_dir.iterdir():
-            if not subdir.is_dir():
-                continue
-            # currently we expect that each job was ExperimentRunner job which should have
-            # _search or _eval folders
-            if subdir.stem.endswith('_search'):
-                sub_job = 'search'
-            elif subdir.stem.endswith('_eval'):
-                sub_job = 'eval'
-            else:
-                raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
-                                'end with either _search or _eval which '
-                                'should be the case if ExperimentRunner was used.')
-
-            logs_filepath = os.path.join(str(subdir), 'log.yaml')
-            if os.path.isfile(logs_filepath):
-                fix_yaml(logs_filepath)
-                with open(logs_filepath, 'r') as f:
-                    key = job_dir.name + ':' + sub_job
-                    data = yaml.load(f, Loader=yaml.Loader)
-                return (key, data)
 
 
 def main():
@@ -82,21 +58,56 @@ def main():
 
     # get list of all structured logs for each job
     logs = {}
+    confs = {}
     job_dirs = list(results_dir.iterdir())
 
-    # parallel parssing of yaml logs
+    # # test single job parsing for debugging
+    # # WARNING: very slow, just use for debugging
+    # for job_dir in job_dirs:
+    #     a = parse_a_job(job_dir)
+
+    # parallel parsing of yaml logs
     with Pool(18) as p:
         a = p.map(parse_a_job, job_dirs)
 
-    for key, data in a:
-        logs[key] = data
-
+    for storage in a:
+        for key, val in storage.items():
+            logs[key] = val[0]
+            confs[key] = val[1]
                    
     # examples of accessing logs
     # best_test = logs[key]['eval_arch']['eval_train']['best_test']['top1']
     # best_train = logs[key]['eval_arch']['eval_train']['best_train']['top1']
 
+    # remove all search jobs
+    for key in list(logs.keys()):
+        if 'search' in key:
+            logs.pop(key)
 
+    # remove all arch_ids which did not finish
+    # remove all arch_ids which did not finish
+    for key in list(logs.keys()):
+        to_delete = False
+
+        # it might have died early
+        if 'eval_arch' not in list(logs[key].keys()):
+            to_delete = True
+ 
+        if 'regular_evaluate' not in list(logs[key].keys()):
+            to_delete = True
+        
+        if to_delete:
+            print(f'arch id {key} did not finish. removing from calculations.')
+            logs.pop(key)
+            continue
+
+        if 'eval_train' not in list(logs[key]['eval_arch'].keys()):
+            print(f'arch id {key} did not finish. removing from calculations.')
+            logs.pop(key)
+            continue
+
+
+    all_arch_ids = []
     all_reg_evals = []
     all_short_reg_evals = []
     all_short_reg_time = []
@@ -120,7 +131,11 @@ def main():
                 # --------------------
                 reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
                 all_reg_evals.append(reg_eval_top1)
-                    
+
+                # record the arch id
+                # --------------------
+                all_arch_ids.append(confs[key]['nas']['eval']['natsbench']['arch_index'])
+                                
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
 
@@ -160,7 +175,8 @@ def main():
 
     spe_shortreg_top_percents = []
     top_percents = []
-    for top_percent in range(2, 101, 2):
+    top_percent_range = range(2, 101, 2) 
+    for top_percent in top_percent_range:
         top_percents.append(top_percent)
         num_to_keep = int(ma.floor(len(reg_shortreg_evals) * top_percent * 0.01))
         top_percent_evals = reg_shortreg_evals[:num_to_keep]
@@ -201,12 +217,37 @@ def main():
     with open(results_savename, 'a') as f:
         f.write(f'Avg. Shortened Training Runtime: {avg_shortreg_runtime:.03f}, stderr {stderr_shortreg_runtime:.03f} \n')
 
+    # how much overlap in top x% of architectures between method and groundtruth
+    # ----------------------------------------------------------------------------
+    arch_id_reg_evals =  [(arch_id, reg_eval) for arch_id, reg_eval in zip(all_arch_ids, all_reg_evals)]
+    arch_id_shortreg_evals = [(arch_id, shortreg_eval) for arch_id, shortreg_eval in zip(all_arch_ids, all_short_reg_evals)]
+
+    arch_id_reg_evals.sort(key=lambda x: x[1], reverse=True)
+    arch_id_shortreg_evals.sort(key=lambda x: x[1], reverse=True)
+
+    assert len(arch_id_reg_evals) == len(arch_id_shortreg_evals)
+    
+    top_percents = []
+    shortreg_ratio_common = []
+    for top_percent in top_percent_range:
+        top_percents.append(top_percent)
+        num_to_keep = int(ma.floor(len(arch_id_reg_evals) * top_percent * 0.01))
+        top_percent_arch_id_reg_evals = arch_id_reg_evals[:num_to_keep]
+        top_percent_arch_id_shortreg_evals = arch_id_shortreg_evals[:num_to_keep]
+        
+        # take the set of arch_ids in each method and find overlap with top archs
+        set_reg = set([x[0] for x in top_percent_arch_id_reg_evals])
+        set_ft = set([x[0] for x in top_percent_arch_id_shortreg_evals])
+        ft_num_common = len(set_reg.intersection(set_ft))
+        shortreg_ratio_common.append(ft_num_common/num_to_keep)
+
     # save raw data for other aggregate plots over experiments
     raw_data_dict = {}
     raw_data_dict['top_percents'] = top_percents
     raw_data_dict['spe_shortreg'] = spe_shortreg_top_percents
     raw_data_dict['shortreg_times_avg'] = top_percent_shortreg_times_avg
     raw_data_dict['shortreg_times_std'] = top_percent_shortreg_times_std
+    raw_data_dict['shortreg_ratio_common'] = shortreg_ratio_common
 
     savename = os.path.join(out_dir, 'raw_data.yaml')
     with open(savename, 'w') as f:

@@ -31,65 +31,10 @@ from collections import namedtuple
 
 from archai.common import utils
 from archai.common.ordereddict_logger import OrderedDictLogger
-from analysis_utils import epoch_nodes, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
+from analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
 
 import re
 
-
-def find_valid_log(subdir:str)->str:
-    # originally log should be in base folder of eval or search
-    logs_filepath_og = os.path.join(str(subdir), 'log.yaml')
-    if os.path.isfile(logs_filepath_og):
-        return logs_filepath_og
-    else:
-        # look in the 'dist' folder for any yaml file
-        dist_folder = os.path.join(str(subdir), 'dist')
-        for f in os.listdir(dist_folder):
-            if f.endswith(".yaml"):
-                return os.path.join(dist_folder, f)
-
-
-def parse_a_job(job_dir:str)->Dict:
-     if job_dir.is_dir():
-
-        storage = {}
-        for subdir in job_dir.iterdir():
-            if not subdir.is_dir():
-                continue
-            # currently we expect that each job was ExperimentRunner job which should have
-            # _search or _eval folders
-            if subdir.stem.endswith('_search'):
-                sub_job = 'search'
-            elif subdir.stem.endswith('_eval'):
-                sub_job = 'eval'
-            else:
-                raise RuntimeError(f'Sub directory "{subdir}" in job "{job_dir}" must '
-                                'end with either _search or _eval which '
-                                'should be the case if ExperimentRunner was used.')
-
-            logs_filepath = find_valid_log(subdir)
-            # if no valid logfile found, ignore this job as it probably 
-            # didn't finish or errored out or is yet to run
-            if not logs_filepath:
-                continue
-
-            config_used_filepath = os.path.join(subdir, 'config_used.yaml')
-
-            if os.path.isfile(logs_filepath):
-                fix_yaml(logs_filepath)
-                key = job_dir.name + subdir.name + ':' + sub_job
-                # parse log
-                with open(logs_filepath, 'r') as f:
-                    data = yaml.load(f, Loader=yaml.Loader)                    
-                # parse config used
-                with open(config_used_filepath, 'r') as f:
-                    confs = yaml.load(f, Loader=yaml.Loader)
-                storage[key] = (data, confs)
-            
-        return storage
-
-def myfunc(x):
-    return x*x
 
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
@@ -176,6 +121,8 @@ def main():
             logs.pop(key)
 
 
+    all_arch_ids = []
+
     all_reg_evals = []
     
     all_naswotrain_evals = []
@@ -242,9 +189,7 @@ def main():
                 all_freeze_time_last.append(freeze_duration + cond_duration)
                 all_cond_time_last.append(cond_duration)
                 all_partial_time_last.append(freeze_duration)
-
                 
-
                 # naswotrain
                 # --------------
                 naswotrain_top1 = logs[key]['naswotrain_evaluate']['eval_arch']['eval_train']['naswithouttraining']
@@ -254,6 +199,10 @@ def main():
                 # --------------------
                 reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
                 all_reg_evals.append(reg_eval_top1)
+
+                # record the arch id
+                # --------------------
+                all_arch_ids.append(confs[key]['nas']['eval']['natsbench']['arch_index'])
                     
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
@@ -275,6 +224,7 @@ def main():
     assert len(all_reg_evals) == len(all_freeze_flops_last)
     assert len(all_reg_evals) == len(all_cond_flops_last)
     assert len(all_reg_evals) == len(all_freeze_time_last)
+    assert len(all_reg_evals) == len(all_arch_ids)
     
     # Freeze training results at last epoch        
     freeze_tau, freeze_p_value = kendalltau(all_reg_evals, all_freeze_evals_last)
@@ -396,7 +346,8 @@ def main():
     spe_freeze_top_percents = []
     spe_naswot_top_percents = []
     top_percents = []
-    for top_percent in range(2, 101, 2):
+    top_percent_range = range(2, 101, 2)
+    for top_percent in top_percent_range:
         top_percents.append(top_percent)
         num_to_keep = int(ma.floor(len(reg_freezelast_naswot_evals) * top_percent * 0.01))
         top_percent_evals = reg_freezelast_naswot_evals[:num_to_keep]
@@ -433,6 +384,39 @@ def main():
     savename = os.path.join(out_dir, f'freeze_train_duration_top_archs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
+    # how much overlap in top x% of architectures between method and groundtruth
+    # ----------------------------------------------------------------------------
+    arch_id_reg_evals =  [(arch_id, reg_eval) for arch_id, reg_eval in zip(all_arch_ids, all_reg_evals)]
+    arch_id_freezetrain_evals = [(arch_id, freeze_eval) for arch_id, freeze_eval in zip(all_arch_ids, all_freeze_evals_last)]
+    arch_id_naswot_evals = [(arch_id, naswot_eval) for arch_id, naswot_eval in zip(all_arch_ids, all_naswotrain_evals)]
+
+    arch_id_reg_evals.sort(key=lambda x: x[1], reverse=True)
+    arch_id_freezetrain_evals.sort(key=lambda x: x[1], reverse=True)
+    arch_id_naswot_evals.sort(key=lambda x: x[1], reverse=True)
+
+    assert len(arch_id_reg_evals) == len(arch_id_freezetrain_evals)
+    assert len(arch_id_reg_evals) == len(arch_id_naswot_evals)
+
+    top_percents = []
+    freezetrain_ratio_common = []
+    naswot_ratio_common = []
+    for top_percent in top_percent_range:
+        top_percents.append(top_percent)
+        num_to_keep = int(ma.floor(len(arch_id_reg_evals) * top_percent * 0.01))
+        top_percent_arch_id_reg_evals = arch_id_reg_evals[:num_to_keep]
+        top_percent_arch_id_freezetrain_evals = arch_id_freezetrain_evals[:num_to_keep]
+        top_percent_arch_id_naswot_evals = arch_id_naswot_evals[:num_to_keep]
+
+        # take the set of arch_ids in each method and find overlap with top archs
+        set_reg = set([x[0] for x in top_percent_arch_id_reg_evals])
+        set_ft = set([x[0] for x in top_percent_arch_id_freezetrain_evals])
+        ft_num_common = len(set_reg.intersection(set_ft))
+        freezetrain_ratio_common.append(ft_num_common/num_to_keep)
+
+        set_naswot = set([x[0] for x in top_percent_arch_id_naswot_evals])
+        naswot_num_common = len(set_reg.intersection(set_naswot))
+        naswot_ratio_common.append(naswot_num_common/num_to_keep)
+    
     # save raw data for other aggregate plots over experiments
     raw_data_dict = {}
     raw_data_dict['top_percents'] = top_percents
@@ -440,6 +424,9 @@ def main():
     raw_data_dict['spe_naswot'] = spe_naswot_top_percents
     raw_data_dict['freeze_times_avg'] = top_percent_freeze_times_avg
     raw_data_dict['freeze_times_std'] = top_percent_freeze_times_std
+    raw_data_dict['freeze_ratio_common'] = freezetrain_ratio_common
+    raw_data_dict['naswot_ratio_common'] = naswot_ratio_common
+
 
     savename = os.path.join(out_dir, 'raw_data.yaml')
     with open(savename, 'w') as f:
