@@ -44,6 +44,8 @@ def main():
                 'ft_fb256_ftlr0.1_fte5_ct256_ftt0.6', \
                 'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6']
 
+    exp_list = master_exp_list
+
     # exp_list = ['ft_fb2048_ftlr1.5_fte5_ct256_ftt0.6', \
     #             'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.6', \
     #             'ft_fb2048_ftlr1.5_fte5_ct256_ftt0.5', \
@@ -67,10 +69,10 @@ def main():
     #             'ft_fb256_ftlr0.1_fte5_ct256_ftt0.6', \
     #             'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6']
 
-    exp_list = ['ft_fb2048_ftlr1.5_fte5_ct256_ftt0.6', \
-                'ft_fb256_ftlr1.5_fte5_ct256_ftt0.6', \
-                'ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6', \
-                'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6']
+    # exp_list = ['ft_fb2048_ftlr1.5_fte5_ct256_ftt0.6', \
+    #             'ft_fb256_ftlr1.5_fte5_ct256_ftt0.6', \
+    #             'ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6', \
+    #             'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6']
 
 
     shortreg_exp_list = ['nb_reg_b1024_e01', \
@@ -95,7 +97,8 @@ def main():
     cmap = plt.get_cmap('tab20')
     colors = [cmap(i) for i in np.linspace(0, 1, len(exp_list)*2)]
     linestyles = ['solid', 'dashdot', 'dotted', 'dashed']
-    markers = ['.', 'v', '^', '<', '>', '1', 's', 'p', '*', '+', 'x', 'X', 'D', 'd']
+    #markers = ['.', 'v', '^', '<', '>', '1', 's', 'p', '*', '+', 'x', 'X', 'D', 'd']
+    markers = ["$1$", "$2$", "$3$", "$4$", "$5$", "$6$", "$7$", "$8$", "$9$", "$10$", "$11$", "$12$", "$13$", "$14$", "$15$", "$16$", "$17$", "$18$", "$19$", "$20$", "$21$", "$22$", "$23$", "$24$", "$25$", "$26$", "$27$"]
     mathy_markers = ["$a$", "$b$", "$c$", "$d$", "$e$", "$f$", "$g$", "$h$", "$i$", "$j$", "$k$", "$l$", "$m$", "$n$", "$o$", "$p$", "$q$", "$r$", "$s$", "$t$", "$u$", "$v$", "$w$", "$x$", "$y$", "$z$"]
     
     cc = cycler(color=colors) * cycler(linestyle=linestyles) * cycler(marker=markers)
@@ -162,13 +165,13 @@ def main():
         for key in data.keys():            
             exp_name = key + '_freezetrain'
             assert tp == data[key]['top_percents'][i]
-            this_tp_info[exp_name] = (data[key]['freeze_times_avg'][i], data[key]['spe_freeze'][i])
+            this_tp_info[exp_name] = (data[key]['freeze_times_avg'][i], data[key]['spe_freeze'][i], data[key]['freeze_ratio_common'][i])
 
         # get only one naswot    
         for j, key in enumerate(data.keys()):
             exp_name = key + '_naswot'
             assert tp == data[key]['top_percents'][i]
-            this_tp_info[exp_name] = (0.0, data[key]['spe_naswot'][i])
+            this_tp_info[exp_name] = (0.0, data[key]['spe_naswot'][i], data[key]['naswot_ratio_common'][i])
             if j == 0:
                 break
 
@@ -176,13 +179,11 @@ def main():
         for key in shortreg_data.keys():
             exp_name = key
             assert tp == shortreg_data[key]['top_percents'][i]
-            this_tp_info[exp_name] = (shortreg_data[key]['shortreg_times_avg'][i], shortreg_data[key]['spe_shortreg'][i])
+            this_tp_info[exp_name] = (shortreg_data[key]['shortreg_times_avg'][i], shortreg_data[key]['spe_shortreg'][i], shortreg_data[key]['shortreg_ratio_common'][i])
 
         tp_info[tp] = this_tp_info
 
-    # now plot each top percent
-    # markers the same size as number of freezetrain experiments
-    
+    # now plot each top percent time vs. spe  
     fig, axs = plt.subplots(5, 10)
     handles = None
     labels = None
@@ -210,6 +211,38 @@ def main():
     
     handles, labels = axs.flat[-1].get_legend_handles_labels()
     fig.legend(handles, labels, loc='center right')
+
+
+    # now plot each top percent time vs. common ratio
+    fig, axs = plt.subplots(5, 10)
+    handles = None
+    labels = None
+    for tp_key, ax in zip(tp_info.keys(), axs.flat):
+        counter = 0
+        counter_reg = 0
+        for exp in tp_info[tp_key].keys():
+            duration = tp_info[tp_key][exp][0]
+            common_ratio = tp_info[tp_key][exp][2]
+
+            if 'ft_fb' in exp:
+                marker = markers[counter]
+                counter += 1
+            elif 'nb_reg' in exp:
+                marker = mathy_markers[counter_reg]
+                counter_reg += 1
+            else:
+                raise NotImplementedError
+
+            ax.scatter(duration, common_ratio, label=exp, marker=marker)
+            ax.set_title(str(tp_key))
+            #ax.set(xlabel='Duration (s)', ylabel='Common Ratio')
+            ax.set_ylim([0, 1])
+            
+    
+    handles, labels = axs.flat[-1].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='center right')
+
+
     
     plt.show()
 

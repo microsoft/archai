@@ -459,7 +459,6 @@ def main():
     raw_data_dict['freeze_ratio_common'] = freezetrain_ratio_common
     raw_data_dict['naswot_ratio_common'] = naswot_ratio_common
 
-
     savename = os.path.join(out_dir, 'raw_data.yaml')
     with open(savename, 'w') as f:
         yaml.dump(raw_data_dict, f)
