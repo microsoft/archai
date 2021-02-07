@@ -57,8 +57,8 @@ def optim_sched_orig(net, epochs):
 
 def optim_sched_paper(net, epochs):
     lr, momentum, weight_decay = 0.2, 0.9, 0.0001
-    optim = torch.optim.SGD(net.parameters(),
-                            lr, momentum=momentum, weight_decay=weight_decay)
+    optim = torch.optim.RMSprop(net.parameters(),
+                            lr=lr, momentum=momentum, weight_decay=weight_decay)
     logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
 
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, epochs)
@@ -290,8 +290,8 @@ def main():
     parser.add_argument('--model-name', '-m', default='5')
     parser.add_argument('--device', default='',
                         help='"cuda" or "cpu" or "" in which case use cuda if available')
-    parser.add_argument('--train-batch-size', '-b', type=int, default=128)
-    parser.add_argument('--test-batch-size', type=int, default=4096)
+    parser.add_argument('--train-batch-size', '-b', type=int, default=256)
+    parser.add_argument('--test-batch-size', type=int, default=256)
     parser.add_argument('--seed', '-s', type=float, default=42)
     parser.add_argument('--half', type=lambda x: x.lower() == 'true',
                         nargs='?', const=True, default=False)
@@ -345,7 +345,7 @@ def main():
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     nsds = Nasbench101Dataset(
-        os.path.join(nsds_dir, 'nasbench_ds', 'nasbench_full.tfrecord.pkl'))
+        os.path.join(nsds_dir, 'nasbench_ds', 'nasbench_full.pkl'))
 
     # load data just before train start so any errors so far is not delayed
     train_dl, val_dl, test_dl = get_data(datadir=datadir,
@@ -359,7 +359,7 @@ def main():
 
     net = create_model(nsds, model_id, device, args.half)
     crit = create_crit(device, args.half)
-    optim, sched, sched_on_epoch = optim_sched_cosine(net, epochs)
+    optim, sched, sched_on_epoch = optim_sched_paper(net, epochs)
 
     train_metrics = train(epochs, train_dl, val_dl, net, device, crit, optim,
                         sched, sched_on_epoch, args.half, False, grad_clip=args.grad_clip)
