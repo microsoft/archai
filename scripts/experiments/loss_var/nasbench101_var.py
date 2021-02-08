@@ -69,7 +69,7 @@ def optim_sched_paper(net, epochs):
     return optim, sched, sched_on_epoch
 
 def optim_sched_darts(net, epochs):
-    lr, momentum, weight_decay = 0.050, 0.9, 1.0e-4
+    lr, momentum, weight_decay = 0.025, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(),
                             lr, momentum=momentum, weight_decay=weight_decay)
     logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
@@ -237,14 +237,15 @@ class CutoutDefault:
         return img
 
 
-def log_metrics(expdir: str, filename: str, metrics, test_acc: float, args, perf_data:dict) -> None:
+def log_metrics(expdir: str, filename: str, metrics, test_acc: float, args,
+                nsds:Nasbench101Dataset, model_id:int) -> None:
     print(f'filename: {filename}',
           f'test_acc: {test_acc}',
-          f'nasbenc101_test_acc: {perf_data["avg_final_test_accuracy"]}',
+          f'nasbenc101_test_acc: {nsds.get_test_acc(model_id)}',
           metrics[-1])
     results = [
         ('test_acc', test_acc),
-        ('nasbenc101_test_acc', perf_data['avg_final_test_accuracy']),
+        ('nasbenc101_test_acc', nsds.get_test_acc(model_id)),
         ('val_acc', metrics[-1]['val_top1']),
         ('epochs', args.epochs),
         ('train_batch_size', args.train_batch_size),
@@ -264,7 +265,7 @@ def log_metrics(expdir: str, filename: str, metrics, test_acc: float, args, perf
     with open(os.path.join(expdir, f'{filename}_metrics.yaml'), 'w') as f:
         yaml.dump(metrics, f)
     with open(os.path.join(expdir, f'{filename}_nasbench101.yaml'), 'w') as f:
-        yaml.dump(perf_data, f)
+        yaml.dump(nsds[model_id], f)
 
 def create_crit(device, half):
     crit = nn.CrossEntropyLoss().to(device)
@@ -317,7 +318,7 @@ def main():
         args.outdir = os.environ.get('PT_OUTPUT_DIR', '')
         if not args.outdir:
             args.outdir = os.path.join(
-                '~/logdir', 'cifar_testbed', args.experiment_name)
+                '~/logdir', 'nasbench101', args.experiment_name)
     assert isinstance(nsds_dir, str)
 
     expdir = utils.full_path(args.outdir)
@@ -354,7 +355,6 @@ def main():
                                          cutout=args.cutout)
 
     model_id = int(args.model_name) # 5, 401, 4001, 40001, 400001
-    perf_data = nsds[model_id]
     epochs = args.epochs
 
     net = create_model(nsds, model_id, device, args.half)
@@ -364,7 +364,7 @@ def main():
     train_metrics = train(epochs, train_dl, val_dl, net, device, crit, optim,
                         sched, sched_on_epoch, args.half, False, grad_clip=args.grad_clip)
     test_acc = test(net, test_dl, device, args.half)
-    log_metrics(expdir, f'metrics_{model_id}', train_metrics, test_acc, args, perf_data)
+    log_metrics(expdir, f'metrics_{model_id}', train_metrics, test_acc, args, nsds, model_id)
 
 if __name__ == '__main__':
     main()
