@@ -41,7 +41,7 @@ def train(epochs, train_dl, val_dal, net, device, crit, optim,
     return metrics
 
 
-def optim_sched_orig(net, epochs):
+def optim_sched_resnet(net, epochs):
     lr, momentum, weight_decay = 0.1, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(),
                             lr, momentum=momentum, weight_decay=weight_decay)
@@ -68,8 +68,8 @@ def optim_sched_paper(net, epochs):
 
     return optim, sched, sched_on_epoch
 
-def optim_sched_cosine(net, epochs):
-    lr, momentum, weight_decay = 0.025, 0.9, 1.0e-4
+def optim_sched_darts(net, epochs):
+    lr, momentum, weight_decay = 0.050, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(),
                             lr, momentum=momentum, weight_decay=weight_decay)
     logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
@@ -81,9 +81,9 @@ def optim_sched_cosine(net, epochs):
 
     return optim, sched, sched_on_epoch
 
-def get_data(datadir: str, train_batch_size=128, test_batch_size=4096,
+def get_data(datadir: str, train_batch_size=256, test_batch_size=256,
              cutout=0, train_num_workers=-1, test_num_workers=-1,
-             val_percent=10.0)\
+             val_percent=20.0)\
         -> Tuple[DataLoader, Optional[DataLoader], DataLoader]:
     if utils.is_debugging():
         train_num_workers = test_num_workers = 0
@@ -359,7 +359,7 @@ def main():
 
     net = create_model(nsds, model_id, device, args.half)
     crit = create_crit(device, args.half)
-    optim, sched, sched_on_epoch = optim_sched_paper(net, epochs)
+    optim, sched, sched_on_epoch = optim_sched_darts(net, epochs)
 
     train_metrics = train(epochs, train_dl, val_dl, net, device, crit, optim,
                         sched, sched_on_epoch, args.half, False, grad_clip=args.grad_clip)
