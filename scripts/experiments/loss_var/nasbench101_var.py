@@ -69,7 +69,7 @@ def optim_sched_paper(net, epochs):
     return optim, sched, sched_on_epoch
 
 def optim_sched_darts(net, epochs):
-    lr, momentum, weight_decay = 0.025, 0.9, 1.0e-4
+    lr, momentum, weight_decay = 0.050, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(),
                             lr, momentum=momentum, weight_decay=weight_decay)
     logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
@@ -359,7 +359,7 @@ def main():
 
     net = create_model(nsds, model_id, device, args.half)
     crit = create_crit(device, args.half)
-    optim, sched, sched_on_epoch = optim_sched_darts(net, epochs)
+    optim, sched, sched_on_epoch = optim_sched_paper(net, epochs)
 
     train_metrics = train(epochs, train_dl, val_dl, net, device, crit, optim,
                         sched, sched_on_epoch, args.half, False, grad_clip=args.grad_clip)
