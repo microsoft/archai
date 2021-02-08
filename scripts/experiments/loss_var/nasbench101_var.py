@@ -359,7 +359,7 @@ def main():
 
     net = create_model(nsds, model_id, device, args.half)
     crit = create_crit(device, args.half)
-    optim, sched, sched_on_epoch = optim_sched_paper(net, epochs)
+    optim, sched, sched_on_epoch = optim_sched_darts(net, epochs) # optim_sched_darts optim_sched_paper
 
     train_metrics = train(epochs, train_dl, val_dl, net, device, crit, optim,
                         sched, sched_on_epoch, args.half, False, grad_clip=args.grad_clip)
