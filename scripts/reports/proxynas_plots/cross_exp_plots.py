@@ -42,7 +42,13 @@ def main():
                 'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6', \
                 'ft_fb512_ftlr0.1_fte10_ct256_ftt0.6', \
                 'ft_fb256_ftlr0.1_fte5_ct256_ftt0.6', \
-                'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6']
+                'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6', \
+                'ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c9', \
+                'ft_fb1024_ftlr0.1_fte10_ct256_ftt0.6_c9', \
+                'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6_c9', \
+                'ft_fb512_ftlr0.1_fte10_ct256_ftt0.6_c9', \
+                'ft_fb256_ftlr0.1_fte5_ct256_ftt0.6_c9', \
+                'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6_c9']
 
     exp_list = master_exp_list
 
@@ -88,7 +94,6 @@ def main():
                          'nb_reg_b512_e08', \
                          'nb_reg_b512_e10' ]
                         
-
     # parse raw data from all processed experiments
     data = parse_raw_data(exp_folder, exp_list)
     shortreg_data = parse_raw_data(exp_folder, shortreg_exp_list)
@@ -98,7 +103,7 @@ def main():
     colors = [cmap(i) for i in np.linspace(0, 1, len(exp_list)*2)]
     linestyles = ['solid', 'dashdot', 'dotted', 'dashed']
     #markers = ['.', 'v', '^', '<', '>', '1', 's', 'p', '*', '+', 'x', 'X', 'D', 'd']
-    markers = ["$1$", "$2$", "$3$", "$4$", "$5$", "$6$", "$7$", "$8$", "$9$", "$10$", "$11$", "$12$", "$13$", "$14$", "$15$", "$16$", "$17$", "$18$", "$19$", "$20$", "$21$", "$22$", "$23$", "$24$", "$25$", "$26$", "$27$"]
+    markers = ["$1$", "$2$", "$3$", "$4$", "$5$", "$6$", "$7$", "$8$", "$9$", "$10$", "$11$", "$12$", "$13$", "$14$", "$15$", "$16$", "$17$", "$18$", "$19$", "$20$", "$21$", "$22$", "$23$", "$24$", "$25$", "$26$", "$27$", "$28$"]
     mathy_markers = ["$a$", "$b$", "$c$", "$d$", "$e$", "$f$", "$g$", "$h$", "$i$", "$j$", "$k$", "$l$", "$m$", "$n$", "$o$", "$p$", "$q$", "$r$", "$s$", "$t$", "$u$", "$v$", "$w$", "$x$", "$y$", "$z$"]
     
     cc = cycler(color=colors) * cycler(linestyle=linestyles) * cycler(marker=markers)
