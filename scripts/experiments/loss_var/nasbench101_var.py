@@ -41,7 +41,7 @@ def train(epochs, train_dl, val_dal, net, device, crit, optim,
     return metrics
 
 
-def optim_sched_orig(net, epochs):
+def optim_sched_resnet(net, epochs):
     lr, momentum, weight_decay = 0.1, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(),
                             lr, momentum=momentum, weight_decay=weight_decay)
@@ -57,6 +57,19 @@ def optim_sched_orig(net, epochs):
 
 def optim_sched_paper(net, epochs):
     lr, momentum, weight_decay = 0.2, 0.9, 0.0001
+    optim = torch.optim.RMSprop(net.parameters(),
+                            lr=lr, momentum=momentum, weight_decay=weight_decay)
+    logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
+
+    sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, epochs)
+    sched_on_epoch = True
+
+    logging.info(f'sched_on_epoch={sched_on_epoch}, sched={str(sched)}')
+
+    return optim, sched, sched_on_epoch
+
+def optim_sched_darts(net, epochs):
+    lr, momentum, weight_decay = 0.050, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(),
                             lr, momentum=momentum, weight_decay=weight_decay)
     logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
@@ -68,22 +81,9 @@ def optim_sched_paper(net, epochs):
 
     return optim, sched, sched_on_epoch
 
-def optim_sched_cosine(net, epochs):
-    lr, momentum, weight_decay = 0.025, 0.9, 1.0e-4
-    optim = torch.optim.SGD(net.parameters(),
-                            lr, momentum=momentum, weight_decay=weight_decay)
-    logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
-
-    sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, epochs)
-    sched_on_epoch = True
-
-    logging.info(f'sched_on_epoch={sched_on_epoch}, sched={str(sched)}')
-
-    return optim, sched, sched_on_epoch
-
-def get_data(datadir: str, train_batch_size=128, test_batch_size=4096,
+def get_data(datadir: str, train_batch_size=256, test_batch_size=256,
              cutout=0, train_num_workers=-1, test_num_workers=-1,
-             val_percent=10.0)\
+             val_percent=20.0)\
         -> Tuple[DataLoader, Optional[DataLoader], DataLoader]:
     if utils.is_debugging():
         train_num_workers = test_num_workers = 0
@@ -237,14 +237,15 @@ class CutoutDefault:
         return img
 
 
-def log_metrics(expdir: str, filename: str, metrics, test_acc: float, args, perf_data:dict) -> None:
+def log_metrics(expdir: str, filename: str, metrics, test_acc: float, args,
+                nsds:Nasbench101Dataset, model_id:int) -> None:
     print(f'filename: {filename}',
           f'test_acc: {test_acc}',
-          f'nasbenc101_test_acc: {perf_data["avg_final_test_accuracy"]}',
+          f'nasbenc101_test_acc: {nsds.get_test_acc(model_id)}',
           metrics[-1])
     results = [
         ('test_acc', test_acc),
-        ('nasbenc101_test_acc', perf_data['avg_final_test_accuracy']),
+        ('nasbenc101_test_acc', nsds.get_test_acc(model_id)),
         ('val_acc', metrics[-1]['val_top1']),
         ('epochs', args.epochs),
         ('train_batch_size', args.train_batch_size),
@@ -264,7 +265,7 @@ def log_metrics(expdir: str, filename: str, metrics, test_acc: float, args, perf
     with open(os.path.join(expdir, f'{filename}_metrics.yaml'), 'w') as f:
         yaml.dump(metrics, f)
     with open(os.path.join(expdir, f'{filename}_nasbench101.yaml'), 'w') as f:
-        yaml.dump(perf_data, f)
+        yaml.dump(nsds[model_id], f)
 
 def create_crit(device, half):
     crit = nn.CrossEntropyLoss().to(device)
@@ -290,8 +291,8 @@ def main():
     parser.add_argument('--model-name', '-m', default='5')
     parser.add_argument('--device', default='',
                         help='"cuda" or "cpu" or "" in which case use cuda if available')
-    parser.add_argument('--train-batch-size', '-b', type=int, default=128)
-    parser.add_argument('--test-batch-size', type=int, default=4096)
+    parser.add_argument('--train-batch-size', '-b', type=int, default=256)
+    parser.add_argument('--test-batch-size', type=int, default=256)
     parser.add_argument('--seed', '-s', type=float, default=42)
     parser.add_argument('--half', type=lambda x: x.lower() == 'true',
                         nargs='?', const=True, default=False)
@@ -317,7 +318,7 @@ def main():
         args.outdir = os.environ.get('PT_OUTPUT_DIR', '')
         if not args.outdir:
             args.outdir = os.path.join(
-                '~/logdir', 'cifar_testbed', args.experiment_name)
+                '~/logdir', 'nasbench101', args.experiment_name)
     assert isinstance(nsds_dir, str)
 
     expdir = utils.full_path(args.outdir)
@@ -345,7 +346,7 @@ def main():
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     nsds = Nasbench101Dataset(
-        os.path.join(nsds_dir, 'nasbench_ds', 'nasbench_full.tfrecord.pkl'))
+        os.path.join(nsds_dir, 'nasbench_ds', 'nasbench_full.pkl'))
 
     # load data just before train start so any errors so far is not delayed
     train_dl, val_dl, test_dl = get_data(datadir=datadir,
@@ -354,17 +355,16 @@ def main():
                                          cutout=args.cutout)
 
     model_id = int(args.model_name) # 5, 401, 4001, 40001, 400001
-    perf_data = nsds[model_id]
     epochs = args.epochs
 
     net = create_model(nsds, model_id, device, args.half)
     crit = create_crit(device, args.half)
-    optim, sched, sched_on_epoch = optim_sched_cosine(net, epochs)
+    optim, sched, sched_on_epoch = optim_sched_darts(net, epochs) # optim_sched_darts optim_sched_paper
 
     train_metrics = train(epochs, train_dl, val_dl, net, device, crit, optim,
                         sched, sched_on_epoch, args.half, False, grad_clip=args.grad_clip)
     test_acc = test(net, test_dl, device, args.half)
-    log_metrics(expdir, f'metrics_{model_id}', train_metrics, test_acc, args, perf_data)
+    log_metrics(expdir, f'metrics_{model_id}', train_metrics, test_acc, args, nsds, model_id)
 
 if __name__ == '__main__':
     main()
