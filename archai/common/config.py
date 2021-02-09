@@ -142,8 +142,8 @@ class Config(UserDict):
                 section[key] = original_type(val)
             except Exception as e:
                 raise KeyError(
-                    f'Error occurred while setting key {key} to value {val}.'
-                    f'The originally key is set to {original_val} which is of type {original_type}.'
+                    f'The yaml key or command line argument "{key}" is likely not named correctly or value is of wrong data type. Error was occured when setting it to value "{val}".'
+                    f'Originally it is set to {original_val} which is of type {original_type}.'
                     f'Original exception: {e}')
             return 2 # path was found, increment arg pointer by 2 as we use up val
         else:
