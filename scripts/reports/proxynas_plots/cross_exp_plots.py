@@ -50,36 +50,14 @@ def main():
                 'ft_fb256_ftlr0.1_fte5_ct256_ftt0.6_c9', \
                 'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6_c9']
 
+    master_exp_list = ['ft_c100_fb1024_ftlr0.1_fte5_ct256_ftt0.3', \
+                       'ft_c100_fb1024_ftlr0.1_fte10_ct256_ftt0.3', \
+                       'ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3', \
+                       'ft_c100_fb512_ftlr0.1_fte10_ct256_ftt0.3', \
+                       'ft_c100_fb256_ftlr0.1_fte5_ct256_ftt0.3', \
+                       'ft_c100_fb256_ftlr0.1_fte10_ct256_ftt0.3']
+
     exp_list = master_exp_list
-
-    # exp_list = ['ft_fb2048_ftlr1.5_fte5_ct256_ftt0.6', \
-    #             'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.6', \
-    #             'ft_fb2048_ftlr1.5_fte5_ct256_ftt0.5', \
-    #             'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.5', \
-    #             'ft_fb2048_ftlr1.5_fte5_ct256_ftt0.4', \
-    #             'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.4', \
-    #             'ft_fb2048_ftlr1.5_fte5_ct256_ftt0.3', \
-    #             'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.3']
-
-    # exp_list = ['ft_fb1024_ftlr1.5_fte5_ct256_ftt0.6', \
-    #             'ft_fb1024_ftlr1.5_fte10_ct256_ftt0.6', \
-    #             'ft_fb512_ftlr1.5_fte5_ct256_ftt0.6', \
-    #             'ft_fb512_ftlr1.5_fte10_ct256_ftt0.6', \
-    #             'ft_fb256_ftlr1.5_fte5_ct256_ftt0.6', \
-    #             'ft_fb256_ftlr1.5_fte10_ct256_ftt0.6']
-
-    # exp_list = ['ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6', \
-    #             'ft_fb1024_ftlr0.1_fte10_ct256_ftt0.6', \
-    #             'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6', \
-    #             'ft_fb512_ftlr0.1_fte10_ct256_ftt0.6', \
-    #             'ft_fb256_ftlr0.1_fte5_ct256_ftt0.6', \
-    #             'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6']
-
-    # exp_list = ['ft_fb2048_ftlr1.5_fte5_ct256_ftt0.6', \
-    #             'ft_fb256_ftlr1.5_fte5_ct256_ftt0.6', \
-    #             'ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6', \
-    #             'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6']
-
 
     shortreg_exp_list = ['nb_reg_b1024_e01', \
                          'nb_reg_b1024_e02', \
@@ -93,6 +71,10 @@ def main():
                          'nb_reg_b512_e06', \
                          'nb_reg_b512_e08', \
                          'nb_reg_b512_e10' ]
+
+    shortreg_exp_list = ['nb_c100_reg_b256_e10', \
+                         'nb_c100_reg_b256_e20', \
+                         'nb_c100_reg_b256_e30']
                         
     # parse raw data from all processed experiments
     data = parse_raw_data(exp_folder, exp_list)
@@ -202,7 +184,13 @@ def main():
             if 'ft_fb' in exp:
                 marker = markers[counter]
                 counter += 1
+            elif 'ft_c100' in exp:
+                marker = markers[counter]
+                counter += 1
             elif 'nb_reg' in exp:
+                marker = mathy_markers[counter_reg]
+                counter_reg += 1
+            elif 'nb_c100_reg' in exp:
                 marker = mathy_markers[counter_reg]
                 counter_reg += 1
             else:
@@ -232,7 +220,13 @@ def main():
             if 'ft_fb' in exp:
                 marker = markers[counter]
                 counter += 1
+            elif 'ft_c100' in exp:
+                marker = markers[counter]
+                counter += 1
             elif 'nb_reg' in exp:
+                marker = mathy_markers[counter_reg]
+                counter_reg += 1
+            elif 'nb_c100_reg' in exp:
                 marker = mathy_markers[counter_reg]
                 counter_reg += 1
             else:
