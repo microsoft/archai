@@ -228,7 +228,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space"]
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "cifar100"]
         },
         {
             "name": "Proxynas-Natsbench-Space-Toy",

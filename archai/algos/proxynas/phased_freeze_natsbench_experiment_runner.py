@@ -42,18 +42,6 @@ class PhasedFreezeNatsbenchExperimentRunner(ExperimentRunner):
 
     @overrides
     def run_eval(self, conf_eval:Config)->EvalResult:
-        # without training architecture evaluation score
-        # ---------------------------------------
-        logger.pushd('naswotrain_evaluate')
-        naswotrain_evaler = NaswotrainNatsbenchEvaluater()
-        conf_eval_naswotrain = deepcopy(conf_eval)
-
-        if conf_eval_naswotrain['checkpoint'] is not None:
-            conf_eval_naswotrain['checkpoint']['filename'] = '$expdir/naswotrain_checkpoint.pth'
-
-        naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval_naswotrain, model_desc_builder=self.model_desc_builder())
-        logger.popd()
-
         # regular evaluation of the architecture
         # where we simply lookup the result
         # --------------------------------------
