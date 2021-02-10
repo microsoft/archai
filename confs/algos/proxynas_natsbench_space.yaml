@@ -18,10 +18,10 @@ nas:
       naswotrain:
         train_batch: 256 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 256 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
+        train_batch: 1024 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
     trainer:
       plotsdir: ''
-      train_top1_acc_threshold: 0.6 # after some accuracy we will shift into training only the last 'n' layers
+      train_top1_acc_threshold: 0.3 # after some accuracy we will shift into training only the last 'n' layers
       apex:
         _copy: '/common/apex'
       aux_weight: '_copy: /nas/eval/model_desc/aux_weight'
@@ -50,7 +50,7 @@ nas:
   
     freeze_trainer:
       plotsdir: ''
-      identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.16', 'cells.15', 'cells.14', 'cells.13', 'cells.12', 'cells.11', 'cells.10', 'cells.9'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling (doesn't get exposed as a named param though), classifier: linear layer
+      identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.16', 'cells.15', 'cells.14', 'cells.13'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling (doesn't get exposed as a named param though), classifier: linear layer
       apex:
         _copy: '/common/apex'
       aux_weight: 0.0 # very important that this is 0.0 for freeze training

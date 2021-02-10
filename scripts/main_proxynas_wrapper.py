@@ -14,6 +14,7 @@ def main():
     parser.add_argument('--train-top1-acc-threshold', type=float)
     parser.add_argument('--arch-list-index', type=int)
     parser.add_argument('--num-archs', type=int)
+    parser.add_argument('--datasets', type=str, default='cifar10')
     args, extra_args = parser.parse_known_args()
 
     # hard coded list of architectures to process
@@ -29,7 +30,7 @@ def main():
         command_list = ['python', 'scripts/main.py', '--full', '--algos', f'{args.algos}',\
                         '--common.seed', '36', '--nas.eval.natsbench.arch_index', f'{arch_id}',\
                         '--nas.eval.trainer.train_top1_acc_threshold', f'{args.train_top1_acc_threshold}',\
-                        '--exp-prefix', f'proxynas_{arch_id}']
+                        '--exp-prefix', f'proxynas_{arch_id}', '--datasets', f'{args.datasets}']
         
         print(command_list)
         ret = subprocess.run(command_list)

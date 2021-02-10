@@ -78,7 +78,6 @@ class PhasedFreezeNatsbenchEvaluater(Evaluater):
                     checkpoint:Optional[CheckPoint])->Metrics:
         conf_loader = conf_train['loader']
         conf_train_cond = conf_train['trainer']
-        conf_train_freeze = conf_train['freeze_trainer']
 
         # NOTE: we don't pass checkpoint to the trainers
         # as it creates complications and we don't need it
