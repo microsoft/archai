@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional, Callable, Type
+from typing import Optional, Callable, Type, List
 import os
 
 import torch
@@ -34,7 +34,7 @@ class PhasedFreezeTrainer(ArchTrainer, EnforceOverrides):
         super().__init__(conf_train, model, checkpoint)
 
         # region config vars specific to freeze trainer
-        self.phase_identifiers = self.conf_train['phase_identifiers']
+        self.phase_identifiers:List[List] = self.conf_train['phase_identifiers']
         self.num_epochs_per_phase = self.conf_train['num_epochs_per_phase']
         # end region
 
@@ -45,12 +45,18 @@ class PhasedFreezeTrainer(ArchTrainer, EnforceOverrides):
         self._terminate = False
 
 
+    @overrides
+    def _should_terminate(self):
+        if self._terminate:
+            return True
+
+
     @overrides 
     def post_epoch(self, data_loaders:data.DataLoaders)->None:
         super().post_epoch(data_loaders)
 
         # freeze all layers up to current phase
-        if self.epoch % self.num_epochs_per_phase == 0:
+        if self.epoch() % self.num_epochs_per_phase == 0:
             self._freeze_specific_layers(self.phase_identifiers[:self.phase_index])
             self.phase_index += 1
 
@@ -59,12 +65,13 @@ class PhasedFreezeTrainer(ArchTrainer, EnforceOverrides):
             self._terminate = True       
 
 
-    def _freeze_specific_layers(self, layer_identifiers:list)->None:
+    def _freeze_specific_layers(self, layer_identifiers:List[List])->None:
 
         for name, param in self.model.named_parameters():
-            for identifier in layer_identifiers:
-                if identifier in name:
-                    param.requires_grad = False
+            for id_list in layer_identifiers:
+                for identifier in id_list:
+                    if identifier in name:
+                        param.requires_grad = False
 
         for name, param in self.model.named_parameters():
             if not param.requires_grad:
