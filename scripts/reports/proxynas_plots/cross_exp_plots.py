@@ -7,6 +7,8 @@ from itertools import cycle
 from cycler import cycler
 from collections import OrderedDict
 import math as ma
+import yaml
+import argparse
 
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -23,62 +25,20 @@ def parse_raw_data(root_exp_folder:str, exp_list:List[str])->Dict:
     return data
 
 def main():
+    parser = argparse.ArgumentParser(description='Cross Experiment Plots')
+    parser.add_argument('--dataset', type=str, default='natsbench_cifar100',
+                        help='dataset on which experiments have been run')
+    parser.add_argument('--conf_location', type=str, default='scripts/reports/proxynas_plots/cross_exp_conf.yaml', 
+                        help='location of conf file')
+    args, extra_args = parser.parse_known_args()
 
-    
-    exp_folder = 'C:\\Users\\dedey\\archai_experiment_reports'
-    
-    master_exp_list = ['ft_fb2048_ftlr1.5_fte5_ct256_ftt0.6', \
-                'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.6', \
-                'ft_fb2048_ftlr1.5_fte5_ct256_ftt0.5', \
-                'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.5', \
-                'ft_fb2048_ftlr1.5_fte5_ct256_ftt0.4', \
-                'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.4', \
-                'ft_fb2048_ftlr1.5_fte5_ct256_ftt0.3', \
-                'ft_fb2048_ftlr1.5_fte10_ct256_ftt0.3', \
-                'ft_fb1024_ftlr1.5_fte5_ct256_ftt0.6', \
-                'ft_fb1024_ftlr1.5_fte10_ct256_ftt0.6', \
-                'ft_fb512_ftlr1.5_fte5_ct256_ftt0.6', \
-                'ft_fb512_ftlr1.5_fte10_ct256_ftt0.6', \
-                'ft_fb256_ftlr1.5_fte5_ct256_ftt0.6', \
-                'ft_fb256_ftlr1.5_fte10_ct256_ftt0.6', \
-                'ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6', \
-                'ft_fb1024_ftlr0.1_fte10_ct256_ftt0.6', \
-                'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6', \
-                'ft_fb512_ftlr0.1_fte10_ct256_ftt0.6', \
-                'ft_fb256_ftlr0.1_fte5_ct256_ftt0.6', \
-                'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6', \
-                'ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c9', \
-                'ft_fb1024_ftlr0.1_fte10_ct256_ftt0.6_c9', \
-                'ft_fb512_ftlr0.1_fte5_ct256_ftt0.6_c9', \
-                'ft_fb512_ftlr0.1_fte10_ct256_ftt0.6_c9', \
-                'ft_fb256_ftlr0.1_fte5_ct256_ftt0.6_c9', \
-                'ft_fb256_ftlr0.1_fte10_ct256_ftt0.6_c9']
+    with open(args.conf_location, 'r') as f:
+        conf_data = yaml.load(f, Loader=yaml.Loader)
 
-    master_exp_list = ['ft_c100_fb1024_ftlr0.1_fte5_ct256_ftt0.3', \
-                       'ft_c100_fb1024_ftlr0.1_fte10_ct256_ftt0.3', \
-                       'ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3', \
-                       'ft_c100_fb512_ftlr0.1_fte10_ct256_ftt0.3', \
-                       'ft_c100_fb256_ftlr0.1_fte5_ct256_ftt0.3', \
-                       'ft_c100_fb256_ftlr0.1_fte10_ct256_ftt0.3']
+    exp_folder = conf_data['exp_folder']
 
-    exp_list = master_exp_list
-
-    shortreg_exp_list = ['nb_reg_b1024_e01', \
-                         'nb_reg_b1024_e02', \
-                         'nb_reg_b1024_e04', \
-                         'nb_reg_b1024_e06', \
-                         'nb_reg_b1024_e08', \
-                         'nb_reg_b1024_e10', \
-                         'nb_reg_b512_e01', \
-                         'nb_reg_b512_e02', \
-                         'nb_reg_b512_e04', \
-                         'nb_reg_b512_e06', \
-                         'nb_reg_b512_e08', \
-                         'nb_reg_b512_e10' ]
-
-    shortreg_exp_list = ['nb_c100_reg_b256_e10', \
-                         'nb_c100_reg_b256_e20', \
-                         'nb_c100_reg_b256_e30']
+    exp_list = conf_data[args.dataset]['freezetrain']
+    shortreg_exp_list = conf_data[args.dataset]['shortreg']
                         
     # parse raw data from all processed experiments
     data = parse_raw_data(exp_folder, exp_list)
@@ -214,8 +174,15 @@ def main():
                         row=row_num, col=col_num)
 
     fig.update_layout(title_text="Duration vs. Spearman Rank Correlation vs. Top %")
+    savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_spe_vs_top_percent.html')
+    fig.write_html(savename)
     fig.show()
+    
+
+
     fig_cr.update_layout(title_text="Duration vs. Common Ratio vs. Top %")
+    savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_common_ratio_vs_top_percent.html')
+    fig_cr.write_html(savename)
     fig_cr.show()
 
 
@@ -228,6 +195,8 @@ def main():
                             visible=True), name=key)
                             )
     fig_time.update_layout(title="Duration vs. Top Percent of Architectures", xaxis_title='Top Percent of Architectures', yaxis_title='Avg. duration (s)')
+    savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_top_percent.html')
+    fig_time.write_html(savename)
     fig_time.show()
     
 
