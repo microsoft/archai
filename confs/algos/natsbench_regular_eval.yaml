@@ -12,7 +12,7 @@ nas:
     model_desc:
       num_edges_to_sample: 2
     loader:
-      train_batch: 256 # natsbench uses 256
+      train_batch: 2048 # natsbench uses 256
       aug: '' # random flip and crop are already there in default params
     trainer: # matching natsbench paper closely
       plotsdir: ''
