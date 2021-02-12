@@ -221,19 +221,15 @@ def main():
 
     # plot timing information vs. top percent of architectures
     # ------------------------------------------------------------
-    plt.clf()
-    time_legend_labels = []
+    fig_time = go.Figure()
     for key in data.keys():
-        plt.errorbar(data[key]['top_percents'], data[key]['freeze_times_avg'], yerr=np.array(data[key]['freeze_times_std'])/2, marker='*', mfc='red', ms=5)    
-        time_legend_labels.append(key + '_freezetrain')
-        
-    plt.xlabel('Top percent of architectures')
-    plt.ylabel('Avg. Duration (s)')
-    plt.legend(labels=time_legend_labels)
-    plt.grid()
-    #plt.show()
-    savename = os.path.join(exp_folder, f'aggregate_duration.png')
-    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+        fig_time.add_trace(go.Scatter(x=data[key]['top_percents'], y=data[key]['freeze_times_avg'], 
+                            error_y=dict(type='data', array=np.array(data[key]['freeze_times_std'])/2, 
+                            visible=True), name=key)
+                            )
+    fig_time.update_layout(title="Duration vs. Top Percent of Architectures", xaxis_title='Top Percent of Architectures', yaxis_title='Avg. duration (s)')
+    fig_time.show()
+    
 
 
 

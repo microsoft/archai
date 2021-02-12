@@ -8,8 +8,6 @@ from plotly.validators.scatter.marker import SymbolValidator
 def main():
 
 
-    symbols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-
     # subplot
     fig = make_subplots(rows=1, cols=2, subplot_titles=("Plot 1", "Plot 2"))
 
@@ -34,8 +32,11 @@ def main():
         row=1, col=2
     )
 
-
     fig.update_layout(height=600, width=800, title_text="Side By Side Subplots")
+    fig.show()
+
+    # errorbar
+    fig = px.scatter(x=[1, 2, 3], y=[1, 4, 9], error_y=[1, 1, 1])
     fig.show()
 
 
