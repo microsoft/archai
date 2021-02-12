@@ -85,7 +85,6 @@ def main():
             logs.pop(key)
 
     # remove all arch_ids which did not finish
-    # remove all arch_ids which did not finish
     for key in list(logs.keys()):
         to_delete = False
 
@@ -102,6 +101,11 @@ def main():
             continue
 
         if 'eval_train' not in list(logs[key]['eval_arch'].keys()):
+            print(f'arch id {key} did not finish. removing from calculations.')
+            logs.pop(key)
+            continue
+
+        if 'best_train' not in list(logs[key]['eval_arch']['eval_train'].keys()):
             print(f'arch id {key} did not finish. removing from calculations.')
             logs.pop(key)
             continue

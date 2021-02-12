@@ -82,3 +82,15 @@
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b256_e10 --out-dir C:\\Users\\dedey\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b256_e20 --out-dir C:\\Users\\dedey\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b256_e30 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b512_e10 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b512_e20 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b512_e30 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b1024_e10 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b1024_e20 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b1024_e30 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b2048_e10 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b2048_e20 --out-dir C:\\Users\\dedey\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_c100_reg_b2048_e30 --out-dir C:\\Users\\dedey\\archai_experiment_reports
