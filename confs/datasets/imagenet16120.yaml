@@ -1,0 +1,8 @@
+__include__: './dataroot.yaml' # default dataset settings are for cifar
+
+dataset:
+  name: 'ImageNet16-120'
+  n_classes: 120
+  channels: 3 # number of channels in image
+  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+  storage_name: 'imagenet16' # name of folder or tar file to copy from cloud storage

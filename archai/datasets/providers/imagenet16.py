@@ -30,9 +30,9 @@ def check_integrity(fpath, md5=None):
 
 
 class ImageNet16(data.Dataset):
-  # http://image-net.org/download-images
-  # A Downsampled Variant of ImageNet as an Alternative to the CIFAR datasets
-  # https://arxiv.org/pdf/1707.08819.pdf
+  '''http://image-net.org/download-images
+  A Downsampled Variant of ImageNet as an alternative to the CIFAR datasets
+  https://arxiv.org/pdf/1707.08819.pdf '''
   
   train_list = [
         ['train_data_batch_1', '27846dcaa50de8e21a7d1a35f30f0e91'],
