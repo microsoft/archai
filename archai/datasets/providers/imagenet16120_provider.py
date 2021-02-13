@@ -58,4 +58,4 @@ class ImageNet16120Provider(DatasetProvider):
 
         return train_transform, test_transform
 
-register_dataset_provider('imagenet16120', ImageNet16120Provider)
+register_dataset_provider('ImageNet16-120', ImageNet16120Provider)
