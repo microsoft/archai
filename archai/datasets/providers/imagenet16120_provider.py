@@ -26,12 +26,16 @@ class ImageNet16120Provider(DatasetProvider):
                      transform_train, transform_test)->TrainTestDatasets:
         trainset, testset = None, None
 
+        # the ImageNet16 class returns PIL images and we 
+        # want to have tensors for computing model stats in pre_fit
+        loader = transforms.Compose([transforms.ToTensor()])  
+
         if load_train:
             trainpath = os.path.join(self._dataroot, 'imagenet16')
-            trainset = ImageNet16(trainpath, True, None, 120)
+            trainset = ImageNet16(trainpath, True, loader, 120)
         if load_test:
             testpath = os.path.join(self._dataroot, 'imagenet16')
-            testset = ImageNet16(testpath, False, None, 120)
+            testset = ImageNet16(testpath, False, loader, 120)
 
         return trainset, testset
 
