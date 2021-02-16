@@ -26,7 +26,7 @@ def parse_raw_data(root_exp_folder:str, exp_list:List[str])->Dict:
 
 def main():
     parser = argparse.ArgumentParser(description='Cross Experiment Plots')
-    parser.add_argument('--dataset', type=str, default='natsbench_cifar100',
+    parser.add_argument('--dataset', type=str, default='natsbench_imagenet16-120',
                         help='dataset on which experiments have been run')
     parser.add_argument('--conf_location', type=str, default='scripts/reports/proxynas_plots/cross_exp_conf.yaml', 
                         help='location of conf file')
@@ -150,11 +150,11 @@ def main():
             spe = tp_info[tp_key][exp][1]
             cr = tp_info[tp_key][exp][2]
 
-            if 'ft_fb' in exp or 'ft_c100' in exp:
+            if 'ft_fb' in exp or 'ft_c100' in exp or 'ft_i6' in exp or 'ft_i16' in exp:
                 marker = counter
                 marker_color = 'red'
                 counter += 1
-            elif 'nb_reg' in exp or 'nb_c100_reg' in exp:
+            elif 'nb_reg' in exp or 'nb_c100_reg' in exp or 'nb_i6' in exp or 'nb_i16' in exp:
                 marker = counter_reg
                 marker_color = 'blue'
                 counter_reg += 1            

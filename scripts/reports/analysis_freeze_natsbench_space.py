@@ -68,7 +68,8 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    with Pool(18) as p:
+    num_workers = 12
+    with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
     for storage in a:
