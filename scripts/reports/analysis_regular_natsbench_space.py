@@ -67,7 +67,8 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    with Pool(18) as p:
+    num_workers = 12
+    with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
     for storage in a:
@@ -82,6 +83,12 @@ def main():
     # remove all search jobs
     for key in list(logs.keys()):
         if 'search' in key:
+            logs.pop(key)
+
+    # sometimes a job has not even written logs to yaml
+    for key in list(logs.keys()):
+        if not logs[key]:
+            print(f'arch id {key} did not finish. removing from calculations.')
             logs.pop(key)
 
     # remove all arch_ids which did not finish
