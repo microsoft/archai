@@ -228,7 +228,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "cifar100"]
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "ImageNet16-120"]
         },
         {
             "name": "Proxynas-Natsbench-Space-Toy",
@@ -539,8 +539,8 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_regular_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\nb_reg_b1024_e10",
-            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e30",
+            "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
             "name": "CurrentFile",
