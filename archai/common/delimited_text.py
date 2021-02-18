@@ -54,3 +54,6 @@ class DelimitedText:
                 f.write(delimiter.join(keys) + '\n')
             for vals in zip(*(self._data[key] for key in keys)):
                 f.write(delimiter.join(vals) + '\n')
+
+    def __len__(self)->int:
+        return len(self._data)

@@ -31,7 +31,7 @@ from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 
 
 def main():
-    default_dir=r'D:\GitHubSrc\archaiphilly\phillytools\nb_darts_lr0.025_2'
+    default_dir=r'D:\GitHubSrc\archaiphilly\phillytools\nasbench_darts_lr0.025_wd3_b128'
 
     parser = argparse.ArgumentParser(description='Pytorch cifar training')
     parser.add_argument('--in-dir', default=default_dir)
@@ -42,10 +42,14 @@ def main():
     parsed_metrics = delimited_text.DelimitedText()
 
     in_dir = pathlib.Path(utils.full_path(args.in_dir))
+    assert in_dir.exists(), f'Does not exist: {in_dir}'
     metrics_filepaths = in_dir.rglob('metrics*.tsv')
+
     for metrics_filepath in metrics_filepaths:
         text = metrics_filepath.read_text()
         parsed_metrics.add_from_text(text, has_header=True)
+
+    assert len(parsed_metrics)>=1
 
     model_nums = [int(r) for r in parsed_metrics.get_col('model_name')]
     nasbench_acc = [statistics.mean(literal_eval(r)) for r in parsed_metrics.get_col('nasbenc101_test_acc')]
