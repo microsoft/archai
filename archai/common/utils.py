@@ -374,3 +374,10 @@ def uri2path(file_uri:str, windows_non_standard:bool=False)->str:
     return os.path.normpath(
         os.path.join(host, url2pathname(unquote(parsed.path)))
     )
+
+def get_ranks(items:list, key=lambda v:v, reverse=False)->List[int]:
+    sorted_t = sorted(zip(items, range(len(items))),
+                      key=lambda t: key(t[0]),
+                      reverse=reverse)
+    sorted_map = dict((t[1], i) for i, t in enumerate(sorted_t))
+    return [sorted_map[i] for i in range(len(items))]
