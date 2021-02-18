@@ -11,7 +11,8 @@ class VisualFeaturesWithLinearNet(nn.Module):
         super(VisualFeaturesWithLinearNet, self).__init__()
         self.feature_len = feature_len
 
-        self.fc = nn.Linear(feature_len, n_classes)        
+        self.fc = nn.Linear(feature_len, n_classes)
+
 
     def _compute_features(self, x:Tensor)->Tensor:
         # compute image features on each image
@@ -36,6 +37,7 @@ class VisualFeaturesWithLinearNet(nn.Module):
         all_hog_feats.requires_grad = False
         all_hog_feats = all_hog_feats.cuda()
         return all_hog_feats    
+
 
     def forward(self, x):
         feats = self._compute_features(x)    
