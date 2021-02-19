@@ -4,6 +4,7 @@
 from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Sequence
 import  numpy as np
 import math
+import gc
 
 import  torch
 from torch import Tensor, nn
@@ -230,3 +231,12 @@ def channel_norm(dataset, channel_dim=1)->tuple:
     mean = torch.mean(l, dim=1) #size: [C]
     std = torch.std(l, dim=1) #size: [C]
     return mean, std
+
+def clear_gpu_memory():
+    gc.collect()
+    torch.cuda.empty_cache()
+    for obj in gc.get_objects():
+        if torch.is_tensor(obj):
+            obj.cpu()
+    gc.collect()
+    torch.cuda.empty_cache()

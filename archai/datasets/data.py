@@ -22,12 +22,12 @@ from filelock import FileLock
 
 from .augmentation import add_named_augs
 from archai.common import common
-from ..common.common import logger
-from ..common import utils, apex_utils
+from archai.common.common import logger
+from archai.common import utils, apex_utils
 from archai.datasets.dataset_provider import DatasetProvider, get_provider_type
-from ..common.config import Config
-from .limit_dataset import LimitDataset, DatasetLike
-from .distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.common.config import Config
+from archai.datasets.limit_dataset import LimitDataset, DatasetLike
+from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
 
 
 class DataLoaders:
