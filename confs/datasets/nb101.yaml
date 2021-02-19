@@ -1,0 +1,5 @@
+__include__: './dataroot.yaml' # default dataset settings are for cifar
+
+dataset:
+  name: 'nb101'
+  storage_name: 'nb101' # name of folder or tar file to copy from cloud storage
