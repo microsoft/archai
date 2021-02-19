@@ -9,7 +9,10 @@ from archai.common.utils import exec_shell_command
 
 def main():
     parser = argparse.ArgumentParser(description='Proxynas Wrapper Main')
-    parser.add_argument('--algos', type=str, default='darts,xnas,random,didarts,petridish,gs,manual,divnas,proxynas_manual,proxynas_darts_space,proxynas_natsbench_space,proxynas_nasbench101_space,naswot_conditional_natsbench_space,natsbench_regular_eval,phased_freezetrain_natsbench_space',
+    parser.add_argument('--algos', type=str, default='''
+                                                        proxynas_natsbench_space,                                                                                                                
+                                                        natsbench_regular_eval,                                                        
+                                                        phased_freezetrain_natsbench_space''',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--train-top1-acc-threshold', type=float)
     parser.add_argument('--arch-list-index', type=int)

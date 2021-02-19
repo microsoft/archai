@@ -335,12 +335,20 @@
             "args": ["--algos", "proxynas_manual", "--full"]
         },
         {
-            "name": "Main Proxynas Wrapper",
+            "name": "Main Proxynas Natsbench Wrapper",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main_proxynas_wrapper.py",
+            "program": "${cwd}/scripts/main_proxynas_nb_wrapper.py",
             "console": "integratedTerminal",
             "args": ["--algos", "proxynas_natsbench_space", "--arch-list-index", "0", "--num-archs", "20", "--train-top1-acc-threshold", "0.6"]
+        },
+        {
+            "name": "Main Proxynas Nb101 Wrapper",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main_proxynas_nb101_wrapper.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "nb101_regular_eval", "--arch-list-index", "0", "--num-archs", "20", "--train-top1-acc-threshold", "0.6"]
         },
         {
             "name": "Resnet-Toy",
@@ -555,7 +563,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_regular_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e30",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\deleteme",
             "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
