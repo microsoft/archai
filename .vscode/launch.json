@@ -301,6 +301,22 @@
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "natsbench_regular_eval"]
+        },
+        {
+            "name": "Nb101-Regular-Eval-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "nb101_regular_eval"]
+        },
+        {
+            "name": "Nb101-Regular-Eval-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "nb101_regular_eval"]
         },    
         {
             "name": "Proxynas-Manual-Toy",
