@@ -45,44 +45,45 @@ class FreezeNasbench101ExperimentRunner(ExperimentRunner):
     def run_eval(self, conf_eval:Config)->EvalResult:
         # without training architecture evaluation score
         # ---------------------------------------
-        # logger.pushd('naswotrain_evaluate')
-        # naswotrain_evaler = NaswotrainNasbench101Evaluater()
-        # conf_eval_naswotrain = deepcopy(conf_eval)
+        logger.pushd('naswotrain_evaluate')
+        naswotrain_evaler = NaswotrainNasbench101Evaluater()
+        conf_eval_naswotrain = deepcopy(conf_eval)
 
-        # if conf_eval_naswotrain['checkpoint'] is not None:
-        #     conf_eval_naswotrain['checkpoint']['filename'] = '$expdir/naswotrain_checkpoint.pth'
+        if conf_eval_naswotrain['checkpoint'] is not None:
+            conf_eval_naswotrain['checkpoint']['filename'] = '$expdir/naswotrain_checkpoint.pth'
 
-        # naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval_naswotrain, model_desc_builder=self.model_desc_builder())
-        # logger.popd()
+        naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval_naswotrain, model_desc_builder=self.model_desc_builder())
+        logger.popd()
 
-        # # regular evaluation of the architecture
-        # # where we simply lookup the result
-        # # --------------------------------------
-        # logger.pushd('regular_evaluate')
-        # arch_id = conf_eval['nasbench101']['arch_index']
-        # dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
-        # # assuming that nasbench101 has been 'installed' in the dataroot folder
-        # nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_only108.tfrecord.pkl')         
-        # dataset_name = conf_eval['loader']['dataset']['name']
+        # regular evaluation of the architecture
+        # where we simply lookup the result
+        # --------------------------------------
+        logger.pushd('regular_evaluate')
+        arch_id = conf_eval['nasbench101']['arch_index']
+        dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
+        # assuming that nasbench101 has been 'installed' in the dataroot folder
+        nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_full.pkl')         
+        dataset_name = conf_eval['loader']['dataset']['name']
 
-        # # create the nasbench101 api
-        # nsds = Nasbench101Dataset(nasbench101_location)
+        # create the nasbench101 api
+        nsds = Nasbench101Dataset(nasbench101_location)
 
-        # # there are 423624 architectures total
-        # if arch_id < 0 or arch_id > 423623:
-        #     logger.warn(f'architecture id {arch_id} is invalid ')
-        #     raise NotImplementedError()
+        # there are 423624 architectures total
+        if arch_id < 0 or arch_id > 423623:
+            logger.warn(f'architecture id {arch_id} is invalid ')
+            raise NotImplementedError()
 
-        # if dataset_name != 'cifar10':
-        #     logger.warn(f'dataset {dataset_name} is not part of nasbench101')
-        #     raise NotImplementedError()
+        if dataset_name != 'cifar10':
+            logger.warn(f'dataset {dataset_name} is not part of nasbench101')
+            raise NotImplementedError()
 
-        # data = nsds[arch_id]
-        # test_accuracy = data['avg_final_test_accuracy']
-
-        # logger.info(f'Regular training top1 test accuracy is {test_accuracy}')
-        # logger.info({'regtrainingtop1': float(test_accuracy)})
-        # logger.popd()
+        all_trials = nsds.get_test_acc(arch_id)
+        assert len(all_trials) > 0
+        test_accuracy = sum(all_trials) / len(all_trials)
+        
+        logger.info(f'Regular training top1 test accuracy is {test_accuracy}')
+        logger.info({'regtrainingtop1': float(test_accuracy)})
+        logger.popd()
             
 
         # freeze train evaluation of the architecture

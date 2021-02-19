@@ -64,7 +64,7 @@ nas:
         type: 'CrossEntropyLoss'
       optimizer:
         type: 'sgd'
-        lr: 1.5 # init learning rate
+        lr: 0.1 # init learning rate
         decay: 0.0 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: False # pytorch default is False
