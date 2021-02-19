@@ -62,7 +62,7 @@ class FreezeNasbench101ExperimentRunner(ExperimentRunner):
         arch_id = conf_eval['nasbench101']['arch_index']
         dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
         # assuming that nasbench101 has been 'installed' in the dataroot folder
-        nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_full.pkl')         
+        nasbench101_location = os.path.join(dataroot, 'nb101', 'nasbench_full.pkl')         
         dataset_name = conf_eval['loader']['dataset']['name']
 
         # create the nasbench101 api
@@ -80,7 +80,7 @@ class FreezeNasbench101ExperimentRunner(ExperimentRunner):
         all_trials = nsds.get_test_acc(arch_id)
         assert len(all_trials) > 0
         test_accuracy = sum(all_trials) / len(all_trials)
-        
+
         logger.info(f'Regular training top1 test accuracy is {test_accuracy}')
         logger.info({'regtrainingtop1': float(test_accuracy)})
         logger.popd()

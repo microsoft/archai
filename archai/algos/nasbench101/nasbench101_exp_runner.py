@@ -49,7 +49,7 @@ class Nb101RegularExperimentRunner(ExperimentRunner):
         arch_id = conf_eval['nasbench101']['arch_index']
         dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
         # assuming that nasbench101 has been 'installed' in the dataroot folder
-        nasbench101_location = os.path.join(dataroot, 'nasbench_ds', 'nasbench_full.pkl')         
+        nasbench101_location = os.path.join(dataroot, 'nb101', 'nasbench_full.pkl')         
         dataset_name = conf_eval['loader']['dataset']['name']
 
         # create the nasbench101 api
