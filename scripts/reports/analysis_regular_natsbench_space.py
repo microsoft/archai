@@ -67,7 +67,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 12
+    num_workers = 8
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -126,8 +126,7 @@ def main():
 
     for key in logs.keys():
         if 'eval' in key:
-            try:
-                
+            try:                
                 best_train = logs[key]['eval_arch']['eval_train']['best_train']['top1']
                 all_short_reg_evals.append(best_train)
             
@@ -145,7 +144,10 @@ def main():
 
                 # record the arch id
                 # --------------------
-                all_arch_ids.append(confs[key]['nas']['eval']['natsbench']['arch_index'])
+                if 'natsbench' in list(confs[key]['nas']['eval'].keys()):
+                    all_arch_ids.append(confs[key]['nas']['eval']['natsbench']['arch_index'])
+                elif 'nasbench101' in list(confs[key]['nas']['eval'].keys()):
+                    all_arch_ids.append(confs[key]['nas']['eval']['nasbench101']['arch_index'])
                                 
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
@@ -163,6 +165,7 @@ def main():
     short_reg_spe, short_reg_sp_value = spearmanr(all_reg_evals, all_short_reg_evals)
     print(f'Short reg Kendall Tau score: {short_reg_tau:3.03f}, p_value {short_reg_p_value:3.03f}')
     print(f'Short reg Spearman corr: {short_reg_spe:3.03f}, p_value {short_reg_sp_value:3.03f}')
+    print(f'Valid archs: {len(all_reg_evals)}')
     with open(results_savename, 'w') as f:
         f.write(f'Short reg Kendall Tau score: {short_reg_tau:3.03f}, p_value {short_reg_p_value:3.03f} \n')
         f.write(f'Short reg Spearman corr: {short_reg_spe:3.03f}, p_value {short_reg_sp_value:3.03f} \n')
