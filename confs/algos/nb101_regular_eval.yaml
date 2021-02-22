@@ -13,7 +13,7 @@ nas:
       num_edges_to_sample: 2
     loader:
       train_batch: 256
-      aug: '' # in natsbench paper they use random flip and crop, we are doing lot more here
+      aug: '' # in natsbench paper they use random flip and crop which is part of standard transforms
     trainer:
       plotsdir: ''
       apex:

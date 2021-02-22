@@ -17,7 +17,7 @@ nas:
       naswotrain:
         train_batch: 256 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 256 # batch size for freeze training. 256 works with 5gb usage on 2080Ti.
+        train_batch: 1024 # batch size for freeze training. 256 works with 5gb usage on 2080Ti.
     trainer:
       plotsdir: ''
       train_top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
@@ -35,7 +35,7 @@ nas:
         type: 'CrossEntropyLoss'
       optimizer:
         type: 'sgd'
-        lr: 0.1 # init learning rate
+        lr: 0.2 # init learning rate
         decay: 1.0e-4 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: False # pytorch default is False
@@ -64,7 +64,7 @@ nas:
         type: 'CrossEntropyLoss'
       optimizer:
         type: 'sgd'
-        lr: 0.1 # init learning rate
+        lr: 0.2 # init learning rate
         decay: 0.0 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: False # pytorch default is False
