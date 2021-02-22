@@ -200,10 +200,13 @@ def main():
                 # --------------------
                 reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
                 all_reg_evals.append(reg_eval_top1)
-
+                
                 # record the arch id
                 # --------------------
-                all_arch_ids.append(confs[key]['nas']['eval']['natsbench']['arch_index'])
+                if 'natsbench' in list(confs[key]['nas']['eval'].keys()):
+                    all_arch_ids.append(confs[key]['nas']['eval']['natsbench']['arch_index'])
+                elif 'nasbench101' in list(confs[key]['nas']['eval'].keys()):
+                    all_arch_ids.append(confs[key]['nas']['eval']['nasbench101']['arch_index'])
                     
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')

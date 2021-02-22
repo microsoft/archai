@@ -348,7 +348,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main_proxynas_nb101_wrapper.py",
             "console": "integratedTerminal",
-            "args": ["--algos", "nb101_regular_eval", "--arch-list-index", "0", "--num-archs", "20", "--train-top1-acc-threshold", "0.6"]
+            "args": ["--algos", "proxynas_nasbench101_space", "--arch-list-index", "0", "--num-archs", "20", "--train-top1-acc-threshold", "0.6"]
         },
         {
             "name": "Resnet-Toy",
@@ -409,7 +409,7 @@
             "program": "${cwd}/scripts/reports/analysis_aggregate.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxy_nb_hunt_cell13_2",
-            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+            "--out-dir", "D:\\dedey\\archai_experiment_reports"]
         },
         {
             "name": "Analysis Freeze Darts Space",
@@ -418,16 +418,16 @@
             "program": "${cwd}/scripts/reports/analysis_freeze_darts_space.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_regular_and_parameterless_thresh_0.75",
-            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+            "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
-            "name": "Analysis Freeze Natsbench Space",
+            "name": "Analysis Freeze Natsbench and Nb101 Space",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\ft_fb512_ftlr0.1_fte10_ct256_ftt0.6",
-            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_nb101_fb256_ftlr0.2_fte5_ct256_ftt0.2",
+            "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
             "name": "Analysis Naswot Conditional Natsbench Space",
@@ -436,7 +436,7 @@
             "program": "${cwd}/scripts/reports/analysis_naswot_cond_natsbench_space.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_naswotcond0.8",
-            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports"]
+            "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
             "name": "Analysis Regular Natsbench and Nb101 Space",
