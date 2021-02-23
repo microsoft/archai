@@ -101,7 +101,11 @@ nasbench101:
   freezetrain: [ft_nb101_fb256_ftlr0.2_fte5_ct256_ftt0.2,
                 ft_nb101_fb256_ftlr0.2_fte10_ct256_ftt0.2,
                 ft_nb101_fb1024_ftlr0.2_fte5_ct256_ftt0.2,
-                ft_nb101_fb1024_ftlr0.2_fte10_ct256_ftt0.2]
+                ft_nb101_fb1024_ftlr0.2_fte10_ct256_ftt0.2,
+                ft_nb101_fb2048_ftlr0.2_fte5_ct256_ftt0.6,
+                ft_nb101_fb2048_ftlr0.2_fte10_ct256_ftt0.6,
+                ft_nb101_fb2048_ftlr1.0_fte5_ct256_ftt0.6,
+                ft_nb101_fb2048_ftlr1.0_fte10_ct256_ftt0.6]
 
   shortreg: [nb101_reg_b256_e10, 
             nb101_reg_b256_e20, 

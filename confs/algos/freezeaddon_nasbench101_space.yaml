@@ -54,7 +54,6 @@ nas:
   
     freeze_trainer:
       plotsdir: ''
-      identifiers_to_unfreeze: ['classifier', 'layers.11', 'layers.10', 'layers.9'] # layers.11, layers.10, ....
       apex:
         _copy: '/common/apex'
       aux_weight: 0.0 # very important that this is 0.0 for freeze training
