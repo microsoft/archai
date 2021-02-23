@@ -93,7 +93,7 @@ class FreezeNasbench101ExperimentRunner(ExperimentRunner):
         # models to different names as well
         conf_eval['full_desc_filename'] = '$expdir/freeze_full_model_desc.yaml'
         conf_eval['metric_filename'] = '$expdir/freeze_eval_train_metrics.yaml'
-        conf_eval['model_filename'] = '$expdir/freeze_model.pt'
+        conf_eval['model_filename'] = None # speed up results download by not saving
         
         if conf_eval['checkpoint'] is not None:
             conf_eval['checkpoint']['filename'] = '$expdir/freeze_checkpoint.pth'
