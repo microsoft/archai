@@ -292,7 +292,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "ImageNet16-120"]
+            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "cifar10"]
         },
         {
             "name": "Natsbench-Regular-Eval-Toy",
