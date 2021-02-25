@@ -22,6 +22,7 @@ from archai.algos.naswotrain.naswotrain_natsbench_conditional_experiment_runner 
 from archai.algos.natsbench.natsbench_regular_experiment_runner import NatsbenchRegularExperimentRunner
 from archai.algos.nasbench101.nasbench101_exp_runner import Nb101RegularExperimentRunner
 from archai.algos.proxynas.phased_freeze_natsbench_experiment_runner import PhasedFreezeNatsbenchExperimentRunner
+from archai.algos.proxynas.freezeaddon_nasbench101_experiment_runner import FreezeAddonNasbench101ExperimentRunner
 
 
 def main():
@@ -41,7 +42,8 @@ def main():
         'naswot_conditional_natsbench_space': NaswotConditionalNatsbenchExperimentRunner,
         'natsbench_regular_eval': NatsbenchRegularExperimentRunner,
         'nb101_regular_eval': Nb101RegularExperimentRunner,
-        'phased_freezetrain_natsbench_space': PhasedFreezeNatsbenchExperimentRunner
+        'phased_freezetrain_natsbench_space': PhasedFreezeNatsbenchExperimentRunner,
+        'freezeaddon_nasbench101_space': FreezeAddonNasbench101ExperimentRunner
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
@@ -57,6 +59,7 @@ def main():
                                                         proxynas_darts_space,
                                                         proxynas_natsbench_space,
                                                         proxynas_nasbench101_space,
+                                                        freezeaddon_nasbench101_space,
                                                         naswot_conditional_natsbench_space,
                                                         natsbench_regular_eval,
                                                         nb101_regular_eval,

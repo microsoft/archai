@@ -12,6 +12,7 @@ def main():
     parser.add_argument('--algos', type=str, default='''
                                                         proxynas_nasbench101_space,                                                        
                                                         nb101_regular_eval,
+                                                        freezeaddon_nasbench101_space,
                                                         ''',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--train-top1-acc-threshold', type=float)

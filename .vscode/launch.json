@@ -271,6 +271,22 @@
             "args": ["--algos", "proxynas_nasbench101_space"]
         },
         {
+            "name": "Freezeaddon-Nasbench101-Space-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "freezeaddon_nasbench101_space"]
+        },
+        {
+            "name": "Freezeaddon-Nasbench101-Space-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "freezeaddon_nasbench101_space"]
+        },
+        {
             "name": "Naswot-Conditional-Natsbench-Space-Full",
             "type": "python",
             "request": "launch",
