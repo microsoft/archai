@@ -107,7 +107,12 @@ nasbench101:
                 ft_nb101_fb2048_ftlr1.0_fte5_ct256_ftt0.6,
                 ft_nb101_fb2048_ftlr1.0_fte10_ct256_ftt0.6]
 
-  shortreg: [nb101_reg_b256_e10, 
+  shortreg: [nb101_reg_b256_e01, 
+            nb101_reg_b256_e02, 
+            nb101_reg_b256_e04, 
+            nb101_reg_b256_e06, 
+            nb101_reg_b256_e08,
+            nb101_reg_b256_e10,
             nb101_reg_b256_e20, 
             nb101_reg_b256_e30]
 

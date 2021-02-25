@@ -201,6 +201,7 @@ class Trainer(EnforceOverrides):
         mega_madd = float(model_stats.MAdd)/1e6
 
         # log model stats
+        logger.info({'num_params': model_stats.parameters})
         logger.info({'mega_flops_per_batch': mega_flops * float(train_dl.batch_size)})
         logger.info({'mega_madd_per_batch': mega_madd * float(train_dl.batch_size)})
         logger.info({'num_batches': len(train_dl)})
