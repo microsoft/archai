@@ -73,11 +73,6 @@ class FreezeAddonNasbench101Evaluater(Evaluater):
         return model
 
 
-    def _addon_nn(self, model:nn.Module)->nn.Module:
-        feat_size = 64
-        return AddonNN(model, feat_size, num_classes=10)
-
-
     @overrides
     def train_model(self, conf_train:Config, model:nn.Module,
                     checkpoint:Optional[CheckPoint])->Metrics:
@@ -98,7 +93,7 @@ class FreezeAddonNasbench101Evaluater(Evaluater):
         logger.popd()
 
         # create addon network
-        addon_model = self._addon_nn(model)
+        addon_model = AddonNN(model, num_classes=10, stack_num=conf_train_freeze['stack_num'])
 
         # get data with new batch size for freeze training
         # NOTE: important to create copy and modify as otherwise get_data will return

@@ -16,6 +16,7 @@ from __future__ import print_function
 import numpy as np
 import math
 import logging
+from typing import List
 
 from .base_ops import *
 
@@ -58,6 +59,38 @@ class Network(nn.Module):
         self.classifier = nn.Linear(out_channels, num_labels)
 
         self._initialize_weights()
+
+
+    def forward_stack_1or2or3(self, x, stack_num:int=1)->torch.Tensor:
+        if stack_num == 1:
+            layer_num = 5
+        elif stack_num == 2:
+            layer_num = 9
+        elif stack_num == 3:
+            layer_num = 12
+        else:
+            raise ValueError(f'{stack_num} must be 1, 2 or 3')
+
+        layers_to_use = self.layers[:layer_num]
+        for _, layer in enumerate(layers_to_use):
+            x = layer(x)
+        return x
+
+    def forward_intermediate(self, x)->List[torch.Tensor]:
+        ''' Return all layers' activations. Uses too much memory '''
+        activations = []
+        for _, layer in enumerate(self.layers):
+            x = layer(x)
+            activations.append(x.detach())
+        return activations
+
+
+    def forward_last_cell(self, x)->torch.Tensor:
+        ''' Return the last cell's activations '''
+        for _, layer in enumerate(self.layers):
+            x = layer(x)
+        return x
+        
 
     def forward(self, x):
         for _, layer in enumerate(self.layers):
