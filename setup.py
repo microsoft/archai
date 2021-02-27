@@ -12,13 +12,9 @@ install_requires=[
     'tensorwatch>=0.9.1', 'tensorboard',
     'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib', 'psutil',
     'requests', 'seaborn', 'h5py', 'rarfile',
-    'gorilla', 'pyyaml', 'overrides==3.1.0', 'runstats', 'psutil', 'statopt',
+    'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt',
     'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash',
-    'transformers', 'pytorch_lightning', 'tokenizers', 'datasets',
-    'ftfy', # needed for text scoring, fixes text for you
-    # nvidia transformer-xl
-    'nv_dllogger', # needed for compatibility between pip and setuptools
-    'pytorch-transformers', 'sacremoses', 'pynvml'
+    'transformers', 'pytorch_lightning', 'tokenizers'
 ]
 
 setup(
