@@ -109,6 +109,7 @@ class Trainer(EnforceOverrides):
 
         if self._start_epoch >= self._epochs:
             logger.warn(f'fit done because start_epoch {self._start_epoch}>={self._epochs}')
+            logger.popd()
             return self.get_metrics() # we already finished the run, we might be checkpointed
 
         logger.pushd('epochs')
