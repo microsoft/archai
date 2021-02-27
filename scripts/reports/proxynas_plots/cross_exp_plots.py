@@ -150,7 +150,7 @@ def main():
             spe = tp_info[tp_key][exp][1]
             cr = tp_info[tp_key][exp][2]
 
-            if 'ft_fb' in exp or 'ft_c100' in exp or 'ft_i6' in exp or 'ft_i16' in exp or 'ft_nb101' in exp:
+            if 'ft_fb' in exp or 'ft_c100' in exp or 'ft_i6' in exp or 'ft_i16' in exp or 'ft_nb101' in exp or 'fa_nb1_s' in exp:
                 marker = counter
                 marker_color = 'red'
                 counter += 1

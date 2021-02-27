@@ -62,6 +62,7 @@ class Network(nn.Module):
 
 
     def forward_stack_1or2or3(self, x, stack_num:int=1)->torch.Tensor:
+        ''' returns activations at end of stack 1, 2 or 3 '''
         if stack_num == 1:
             layer_num = 5
         elif stack_num == 2:
@@ -75,6 +76,24 @@ class Network(nn.Module):
         for _, layer in enumerate(layers_to_use):
             x = layer(x)
         return x
+
+
+    def forward_stack_1and2and3(self, x)->torch.Tensor:
+        ''' returns activations at end of stack 1, 2 and 3 '''
+        layers_interest = set([4, 8, 11])
+
+        activations = []
+        for i, layer in enumerate(self.layers):
+            x = layer(x)
+            if i in layers_interest:
+                activations.append(x.detach())
+
+        # flatten all activations 
+        flattened = [torch.flatten(x, start_dim=1)  for x in activations]
+        feat = torch.cat(flattened, 0)
+        
+        return feat
+
 
     def forward_intermediate(self, x)->List[torch.Tensor]:
         ''' Return all layers' activations. Uses too much memory '''
