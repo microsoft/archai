@@ -14,7 +14,7 @@ install_requires=[
     'requests', 'seaborn', 'h5py', 'rarfile',
     'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt',
     'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash',
-    'transformers', 'pytorch_lightning', 'tokenizers'
+    'transformers', 'pytorch_lightning', 'tokenizers', 'datasets'
 ]
 
 setup(
