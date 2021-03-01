@@ -239,6 +239,11 @@ def main():
     fig.write_html(savename)
     fig.show()
 
+    fig = px.histogram(all_reg_evals, labels={'x': 'Test Accuracy', 'y': 'Counts'})
+    savename = os.path.join(out_dir, 'distribution_of_reg_evals.html')
+    fig.write_html(savename)
+    fig.show()
+
     # Freeze training results at last epoch        
     freeze_tau, freeze_p_value = kendalltau(all_reg_evals, all_freeze_evals_last)
     freeze_spe, freeze_sp_value = spearmanr(all_reg_evals, all_freeze_evals_last)

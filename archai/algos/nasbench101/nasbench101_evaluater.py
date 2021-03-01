@@ -49,7 +49,6 @@ class Nb101RegularEvaluater(Evaluater):
         nasbench101_location = os.path.join(dataroot, 'nb101', 'nasbench_full.pkl')
         # endregion
 
-        assert arch_index
         assert nasbench101_location
 
         return self._model_from_nasbench101(arch_index, dataset_name, nasbench101_location)

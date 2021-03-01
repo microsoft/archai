@@ -90,7 +90,7 @@ class Network(nn.Module):
 
         # flatten all activations 
         flattened = [torch.flatten(x, start_dim=1)  for x in activations]
-        feat = torch.cat(flattened, 0)
+        feat = torch.cat(flattened, 1)
         
         return feat
 
