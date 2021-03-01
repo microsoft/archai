@@ -560,7 +560,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\fa_nb1_se_fb256_ftlr0.001_fte5_ct256_ftt0.6",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_fb256_ftlr0.1_fte10_ct256_ftt0.6_c9",
             "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
