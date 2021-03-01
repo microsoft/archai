@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Sequence
+from collections import defaultdict, Counter, OrderedDict
 import  numpy as np
 import math
 import gc
@@ -165,11 +166,11 @@ def get_lossfn(conf_lossfn:Config)->_Loss:
     else:
         raise ValueError('criterian type "{}" is not supported'.format(type))
 
-def param_size(module:nn.Module):
+def param_size(module:nn.Module, ignore_aux=True, only_req_grad=False):
     """count all parameters excluding auxiliary"""
     return np.sum(v.numel() for name, v in module.named_parameters() \
-        if "auxiliary" not in name)
-
+        if (not ignore_aux or ("auxiliary" not in name)) \
+            and (not only_req_grad or v.requires_grad))
 
 def save_model(model, model_path):
     #logger.info('saved to model: {}'.format(model_path))
@@ -240,3 +241,24 @@ def clear_gpu_memory():
             obj.cpu()
     gc.collect()
     torch.cuda.empty_cache()
+
+def memory_allocated(device=None, max=False)->float:
+    """Returns allocated memory on device in MBs"""
+    if device:
+        device = torch.device(device)
+        if max:
+            alloc = torch.cuda.max_memory_allocated(device=device)
+        else:
+            alloc = torch.cuda.memory_allocated(device=device)
+        alloc /=  1024 ** 2
+        return alloc
+
+def print_memory_objects(device=None, max=False)->None:
+    numels = Counter()
+    for obj in gc.get_objects():
+        if torch.is_tensor(obj):
+            print(type(obj), obj.size())
+            numels[obj.device] += obj.numel()
+    print()
+    for device, numel in sorted(numels.items()):
+        print('%s: %s elements, %.3f MBs' % (str(device), numel, numel * 4 / 1024 ** 2))
