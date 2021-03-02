@@ -5,6 +5,5 @@
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
-    "cmake.configureOnOpen": false,
-    "python.pythonPath": "C:\\Users\\shitals\\Anaconda3\\python.exe",
+    "cmake.configureOnOpen": false
 }
