@@ -20,7 +20,7 @@ test = load_dataset('wikitext', 'wikitext-2-raw-v1', split='test', data_dir=data
 encodings = tokenizer('\n\n'.join(test['text']), return_tensors='pt')
 
 max_length = model.config.n_positions
-stride = 512
+stride = max_length // 2
 
 lls = []
 with torch.no_grad():

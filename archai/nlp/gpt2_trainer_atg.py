@@ -8,8 +8,9 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
-from transformers import GPT2LMHeadModel, GPT2Tokenizer, GPT2Config, AutoConfig
-from tokenizers import ByteLevelBPETokenizer
+from transformers import GPT2LMHeadModel, GPT2Config, AutoConfig, \
+    GPT2TokenizerFast, PreTrainedModel, PreTrainedTokenizerFast
+from tokenizers import ByteLevelBPETokenizer, Tokenizer
 import pytorch_lightning as pl
 
 from archai.common import ml_utils, utils, common
@@ -46,12 +47,10 @@ def train_tokenizer(files: Union[str, List[str]], token_config: TokenConfig,
                           merges_file=os.path.join(save_dir, save_prefix + '-merges.txt'))
 
 
-def create_models(tokenizer_files:TokenizerFiles, token_config: TokenConfig,
-                 vocab_size:int, n_embd=256, n_layer=8, n_head=8,
-
+def create_model(vocab_size:int, n_embd=256, n_layer=8, n_head=8,
                  max_length=32, # max seq length
                  dropout=0.0, fp16=False,
-                 bos_token_id=0, eos_token_id=0)->Tuple[GPT2LMHeadModel, GPT2Tokenizer]:
+                 bos_token_id=0, eos_token_id=0)->PreTrainedModel:
 
     config = GPT2Config(vocab_size=vocab_size,
                         # n_ctx is dimensionality of the causal mask (usually same as n_positions).
@@ -66,7 +65,10 @@ def create_models(tokenizer_files:TokenizerFiles, token_config: TokenConfig,
     if fp16:
         model = model.half()
 
-    tokenizer = GPT2Tokenizer(vocab_file=tokenizer_files.vocab_file,
+    return model
+
+def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig)->PreTrainedTokenizerFast:
+    tokenizer = GPT2TokenizerFast(vocab_file=tokenizer_files.vocab_file,
                               merges_file=tokenizer_files.merges_file,
                               eos_token=token_config.eos_token,
                               bos_token=token_config.bos_token,
@@ -74,8 +76,7 @@ def create_models(tokenizer_files:TokenizerFiles, token_config: TokenConfig,
                               pad_token=token_config.pad_token)
     tokenizer.padding_side = "left"
 
-    return model, tokenizer
-
+    return tokenizer
 
 def train_model(train_file:str, tokenizer_files:TokenizerFiles, token_config: TokenConfig,
         model:GPT2LMHeadModel, output_dir:str,
@@ -183,33 +184,43 @@ def generate(model, tokenizer, prompt:str,
 
     return gen_texts
 
-def evaluate(net:nn.Module, data_loader:DataLoader, apex:ApexUtils, device):
-    net.eval()
+def evaluate(eval_file:str, model:nn.Module, tokenizer:GPT2Tokenizer, device)->Tuple[float, float]:
+    text = utils.read_string(eval_file)
 
+    # below will be just one giant tensor of all tokens
+    encodings = tokenizer(text)
+
+    max_length = model.config.n_positions
+    context_len = max_length // 2
+
+    model.to(device)
+    model.eval()
+
+    lls = []
     with torch.no_grad():
-        pred_counts = []
-        losses:List[torch.Tensor] = []
-        prev_seg_state = None
+        for i in range(0, encodings.input_ids.size(1), context_len):
+            begin_loc = max(i + context_len - max_length, 0)
+            end_loc = min(i + context_len, encodings.input_ids.size(1))
+            trg_len = end_loc - i    # may be different from context_len on last loop
+            input_ids = encodings.input_ids[:,begin_loc:end_loc].to(device)
+            target_ids = input_ids.clone()
 
-        for inputs, labels in data_loader:
-            inputs, labels = inputs.to(device, non_blocking=True), labels.to(device, non_blocking=True)
+            # -100 is special number to indicate ignore in loss calculation
+            # token ids are otherwise >=0
+            target_ids[:,:-trg_len] = -100
 
-            preds = net.forward(inputs, labels, prev_seg_state=prev_seg_state)
-            prev_seg_state = preds['state']
-            losses.append(preds['loss'])
-            pred_counts.append(labels.size(0))
-        pred_counts = np.array(pred_counts)
-        pred_counts_normed = pred_counts / pred_counts.sum()
-        loss = sum(x * w for x, w in zip(losses, pred_counts_normed))
+            outputs = model(input_ids, labels=target_ids)
+            seg_loss = outputs[0] * trg_len # total loss = avg_loss per prediction * num_predictions
 
-    if apex.is_dist():
-        gathered_losses = [torch.zeros_like(loss) for _ in range(apex.world_size)]
-        torch.distributed.all_gather(gathered_losses, loss)
-        loss = sum(gathered_losses) / len(gathered_losses)
+            #print(begin_loc, end_loc, trg_len)
 
-    loss = loss.item()
-    perplexity = np.nan if loss > 5 else np.e ** loss
-    return dict(loss=loss, perplexity=perplexity)
+            lls.append(seg_loss)
+
+        avg_seg_loss = torch.stack(lls).sum() / end_loc
+        ppl = torch.exp(avg_seg_loss).item()
+
+    return avg_seg_loss.item(), ppl
+
 
 def main():
     parser = argparse.ArgumentParser(description='GPT2 trainer')
