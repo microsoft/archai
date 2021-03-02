@@ -137,7 +137,7 @@ def zero_file(filepath)->None:
 def write_string(filepath:str, content:str)->None:
     pathlib.Path(filepath).write_text(content)
 def read_string(filepath:str)->str:
-    return pathlib.Path(filepath).read_text()
+    return pathlib.Path(filepath).read_text(encoding='utf-8')
 
 def create_logger(filepath:Optional[str]=None,
                   name:Optional[str]=None,
