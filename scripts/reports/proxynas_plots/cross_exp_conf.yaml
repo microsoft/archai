@@ -140,6 +140,7 @@ nasbench101:
             nb101_reg_b256_e08,
             nb101_reg_b256_e10,
             nb101_reg_b256_e20, 
-            nb101_reg_b256_e30]
+            nb101_reg_b256_e30, 
+            nb101_reg_b256_e108]
 
 

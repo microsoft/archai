@@ -33,7 +33,7 @@ nas:
       lossfn:
         type: 'CrossEntropyLoss'
       optimizer:
-        type: 'sgd'
+        type: 'rmsprop'
         lr: 0.2 # init learning rate
         decay: 1.0e-4 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0

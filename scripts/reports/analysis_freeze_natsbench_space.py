@@ -352,6 +352,7 @@ def main():
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
 
     # Rank correlations at top n percent of architectures
+    #-----------------------------------------------------
     reg_freezelast_naswot_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_naswotrain_evals[i], all_freeze_time_last[i]) for i in range(len(all_reg_evals))]
 
     # sort in descending order of accuracy of regular evaluation

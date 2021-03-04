@@ -7,7 +7,7 @@ import math
 
 import  torch
 from torch import Tensor, nn
-from torch.optim import lr_scheduler, SGD, Adam
+from torch.optim import lr_scheduler, SGD, Adam, RMSprop
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.nn.modules.loss import _WeightedLoss, _Loss
@@ -51,6 +51,11 @@ def create_optimizer(conf_opt:Config, params)->Optimizer:
             lr=lr,
             betas=conf_opt['betas'],
             weight_decay=decay)
+    elif optim_type == 'rmsprop':
+        return RMSprop(params, 
+        lr=lr, 
+        weight_decay=decay, 
+        momentum=conf_opt['momentum'])
     elif optim_type == 'cocob':
         return CocobBackprop(params,
             alpha=conf_opt['alpha'])
