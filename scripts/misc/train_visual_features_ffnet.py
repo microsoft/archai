@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 import torch
-from archai.networks.visual_features_with_linear_net import VisualFeaturesWithLinearNet
+from archai.networks.visual_features_with_ff_net import VisualFeaturesWithFFNet
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import common_init
@@ -13,7 +13,7 @@ def train_test(conf_eval:Config):
     conf_trainer = conf_eval['trainer']
 
     # create model
-    Net = VisualFeaturesWithLinearNet
+    Net = VisualFeaturesWithFFNet
     feature_len = 324
     n_classes = 10
     model = Net(feature_len, n_classes).to(torch.device('cuda',  0))
@@ -27,7 +27,7 @@ def train_test(conf_eval:Config):
 
 
 if __name__ == '__main__':
-    conf = common_init(config_filepath='confs/algos/visual_features_linearnet.yaml')
+    conf = common_init(config_filepath='confs/algos/visual_features_ffnet.yaml')
     conf_eval = conf['nas']['eval']
 
     train_test(conf_eval)

@@ -14,6 +14,8 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
+ZERO_COST_MEASURES = ['fisher', 'grad_norm', 'grasp', 'jacob_cov', 'plain', 'snip', 'synflow', 'synflow_bn']
+
 
 def parse_raw_data(root_exp_folder:str, exp_list:List[str])->Dict:
     data = {}
@@ -26,7 +28,7 @@ def parse_raw_data(root_exp_folder:str, exp_list:List[str])->Dict:
 
 def main():
     parser = argparse.ArgumentParser(description='Cross Experiment Plots')
-    parser.add_argument('--dataset', type=str, default='nasbench101',
+    parser.add_argument('--dataset', type=str, default='natsbench_imagenet16-120',
                         help='dataset on which experiments have been run')
     parser.add_argument('--conf_location', type=str, default='scripts/reports/proxynas_plots/cross_exp_conf.yaml', 
                         help='location of conf file')
@@ -39,10 +41,12 @@ def main():
 
     exp_list = conf_data[args.dataset]['freezetrain']
     shortreg_exp_list = conf_data[args.dataset]['shortreg']
+    zero_cost_exp_list = conf_data[args.dataset]['zero_cost']
                         
     # parse raw data from all processed experiments
     data = parse_raw_data(exp_folder, exp_list)
     shortreg_data = parse_raw_data(exp_folder, shortreg_exp_list)
+    zero_cost_data = parse_raw_data(exp_folder, zero_cost_exp_list)
 
     # collect linestyles and colors to create distinguishable plots
     cmap = plt.get_cmap('tab20')
@@ -126,6 +130,15 @@ def main():
             if j == 0:
                 break
 
+        # get zero cost measures
+        for j, key in enumerate(zero_cost_data.keys()):
+            assert tp == zero_cost_data[key]['top_percents'][i]
+            for measure in ZERO_COST_MEASURES:
+                spe_name = measure + '_spe'
+                cr_name = measure + '_ratio_common'
+                this_tp_info['zero_cost_' + measure] = (0.0, zero_cost_data[key][spe_name][i], zero_cost_data[key][cr_name][i])
+
+
         # get shortreg
         for key in shortreg_data.keys():
             exp_name = key
@@ -145,6 +158,7 @@ def main():
     for ind, tp_key in enumerate(tp_info.keys()):
         counter = 0
         counter_reg = 0
+        counter_zero = 0
         for exp in tp_info[tp_key].keys():
             duration = tp_info[tp_key][exp][0]
             spe = tp_info[tp_key][exp][1]
@@ -157,7 +171,11 @@ def main():
             elif 'nb_reg' in exp or 'nb_c100_reg' in exp or 'nb_i6' in exp or 'nb_i16' in exp or 'nb101_reg' in exp:
                 marker = counter_reg
                 marker_color = 'blue'
-                counter_reg += 1            
+                counter_reg += 1
+            elif 'zero_cost' in exp:
+                marker = counter_zero
+                marker_color = 'green'
+                counter_zero += 1            
             else:
                 raise NotImplementedError
 

@@ -419,6 +419,14 @@
             ]
         },
         {
+            "name": "Train Visual Features FF Net",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/misc/train_visual_features_ffnet.py",
+            "console": "integratedTerminal",
+            "args": []
+        },
+        {
             "name": "Analysis Aggregate",
             "type": "python",
             "request": "launch",
