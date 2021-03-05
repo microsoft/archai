@@ -1,17 +1,22 @@
 import torch
 from torch.functional import Tensor
 import torch.nn as nn
+
 from skimage import feature
-import matplotlib.pyplot as plt
 
 
-
-class VisualFeaturesWithLinearNet(nn.Module):
+class VisualFeaturesWithFFNet(nn.Module):
     def __init__(self, feature_len:int, n_classes:int):
-        super(VisualFeaturesWithLinearNet, self).__init__()
+        super(VisualFeaturesWithFFNet, self).__init__()
         self.feature_len = feature_len
 
-        self.fc = nn.Linear(feature_len, n_classes)
+        self.net = nn.Sequential(nn.Linear(feature_len, 2048),
+                                nn.ReLU(),
+                                nn.Linear(2048, 2048),
+                                nn.ReLU(),
+                                nn.Linear(2048, n_classes))
+        
+        #self.fc = nn.Linear(feature_len, n_classes)
 
 
     def _compute_features(self, x:Tensor)->Tensor:
@@ -41,4 +46,4 @@ class VisualFeaturesWithLinearNet(nn.Module):
 
     def forward(self, x):
         feats = self._compute_features(x)    
-        return self.fc(feats.float())
+        return self.net(feats.float())
