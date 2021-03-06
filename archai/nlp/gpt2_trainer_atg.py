@@ -280,7 +280,8 @@ def main():
                         help='where to put results, default is ~/logdir')
 
     parser.add_argument('--dataset', default='wikitext-103')
-    parser.add_argument('--toy', default=utils.is_debugging(),
+    parser.add_argument('--toy',  type=lambda x: x.lower() == 'true',
+                        nargs='?', const=True, default=utils.is_debugging(),
                         help='if true then override dataset and number of iterations to run quick sanity check if code compiles')
     parser.add_argument('--gpt-config-name', type=str, default='gpt2_small')
     parser.add_argument('--num-steps', type=int, default=5000)
