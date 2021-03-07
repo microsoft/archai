@@ -3,10 +3,9 @@ import math
 import os
 import sys
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union, List
 
-from datasets import load_dataset
-from datasets.arrow_dataset import Dataset
+from datasets import load_dataset, DatasetDict, Dataset
 
 import transformers
 from transformers import (
@@ -20,11 +19,13 @@ from transformers import (
     TrainingArguments,
     default_data_collator,
     set_seed,
-    PretrainedConfig
+    PretrainedConfig, PreTrainedModel, PreTrainedTokenizerFast, PreTrainedTokenizerBase
 )
-from transformers.tokenization_utils import PreTrainedTokenizer
+from tokenizers import ByteLevelBPETokenizer
 from transformers.trainer_utils import get_last_checkpoint, is_main_process
 
+from archai.nlp.token_dataset import TokenConfig, TokenizerFiles
+from archai.common import utils
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +151,7 @@ def setup_logging(local_rank:int):
         transformers.utils.logging.enable_default_handler()
         transformers.utils.logging.enable_explicit_format()
 
-def dataset_from_files(train_file:Optional[str], validation_file:Optional[str])->Dataset:
+def dataset_from_files(train_file:Optional[str], validation_file:Optional[str])->DatasetDict:
     data_files = {}
     if train_file is not None:
         data_files["train"] = train_file
@@ -168,10 +169,11 @@ def dataset_from_files(train_file:Optional[str], validation_file:Optional[str])-
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
+    assert isinstance(datasets, DatasetDict)
     return datasets
 
 def dataset_from_name(dataset_name:str, dataset_config_name:Optional[str],
-                      data_dir:Optional[str], validation_split_percentage:Optional[int])->Dataset:
+                      data_dir:Optional[str], validation_split_percentage:Optional[int])->DatasetDict:
     # Get the datasets: you can either provide your own CSV/JSON/TXT training and evaluation files (see below)
     # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
     # (the dataset will be downloaded automatically from the datasets Hub).
@@ -185,6 +187,8 @@ def dataset_from_name(dataset_name:str, dataset_config_name:Optional[str],
     # Downloading and loading a dataset from the hub.
     datasets = load_dataset(dataset_name, dataset_config_name,
                             data_dir=data_dir)
+    assert isinstance(datasets, DatasetDict)
+
     if "validation" not in datasets.keys():
         datasets["validation"] = load_dataset(
             dataset_name,
@@ -198,6 +202,7 @@ def dataset_from_name(dataset_name:str, dataset_config_name:Optional[str],
             split=f"train[{validation_split_percentage}%:]",
             data_dir=data_dir
         )
+
     return datasets
 
 def model_from_pretrained(model_name_or_path:str, revision:str,
@@ -224,13 +229,12 @@ def model_from_config(model_config:PretrainedConfig)->PreTrainedModel:
     return AutoModelForCausalLM.from_config(model_config)
 
 def tokenizer_from_pretrained(model_name_or_path:str, revision:str, use_fast:bool,
-                          cache_dir:Optional[str], use_auth_token:Optional[bool])->PreTrainedTokenizerFast:
+                          cache_dir:Optional[str], use_auth_token:Optional[bool])->PreTrainedTokenizerBase:
     return AutoTokenizer.from_pretrained(model_name_or_path,
-        cache_dir=cache_dir,
-        revision=revision,
+        cache_dir=cache_dir, revision=revision,
         use_auth_token=use_auth_token, use_fast=use_fast)
 
-def create_lm_datasets(do_train:bool, datasets:Dataset, tokenizer:PreTrainedTokenizer,
+def create_lm_datasets(do_train:bool, datasets:DatasetDict, tokenizer:PreTrainedTokenizerBase,
                        preprocessing_num_workers:Optional[int], overwrite_cache:bool,
                        block_size:Optional[int])->Dataset:
     # Preprocessing the datasets.
@@ -301,11 +305,7 @@ def create_lm_datasets(do_train:bool, datasets:Dataset, tokenizer:PreTrainedToke
     return lm_datasets
 
 
-def train_model(training_args:TrainingArguments, data_args:DataTrainingArguments,
-               model_args:ModelArguments, model_config:Optional[PretrainedConfig]=None):
-    # Detecting last checkpoint.
-    last_checkpoint = get_checkpoint(training_args.output_dir, training_args.overwrite_output_dir) if training_args.do_train else None
-
+def get_datasets(data_args:DataTrainingArguments)->DatasetDict:
     if data_args.dataset_name is not None:
         datasets = dataset_from_name(data_args.dataset_name,
                                      data_args.dataset_config_name, data_args.data_dir,
@@ -315,13 +315,20 @@ def train_model(training_args:TrainingArguments, data_args:DataTrainingArguments
     else:
         raise ValueError('Either dataset_name or train_file must be provided')
 
+    assert datasets is DatasetDict
+    return datasets
+
+def create_tokenizer(model_args:ModelArguments)->PreTrainedTokenizerBase:
     tokenizer_name_or_path = model_args.tokenizer_name_or_path or model_args.model_name_or_path
     assert tokenizer_name_or_path
     tokenizer = tokenizer_from_pretrained(tokenizer_name_or_path,
         model_args.model_revision, model_args.use_fast_tokenizer,
         model_args.cache_dir,
         True if model_args.use_auth_token else None)
+    return tokenizer
 
+def create_model(model_args:ModelArguments, input_embedding_size:int,
+                 model_config:Optional[PretrainedConfig]=None)->PreTrainedModel:
     if model_args.model_name_or_path:
         model = model_from_pretrained(model_args.model_name_or_path,
                               model_args.model_revision,
@@ -332,11 +339,15 @@ def train_model(training_args:TrainingArguments, data_args:DataTrainingArguments
     else:
         raise ValueError('Either config_name or model_name_or_path or model_config must be provided')
     # if vocab size is not same as input token embedding size then resize input embedding
-    model.resize_token_embeddings(len(tokenizer))
+    model.resize_token_embeddings(input_embedding_size)
 
-    lm_datasets = create_lm_datasets(training_args.do_train, datasets, tokenizer,
-                                     data_args.preprocessing_num_workers,
-                                     data_args.overwrite_cache, data_args.block_size)
+    return model
+
+def train_model(lm_datasets, model:PreTrainedModel, tokenizer:PreTrainedTokenizerBase,
+               training_args:TrainingArguments,
+               model_args:ModelArguments):
+    # Detecting last checkpoint.
+    last_checkpoint = get_checkpoint(training_args.output_dir, training_args.overwrite_output_dir) if training_args.do_train else None
 
     # Initialize our Trainer
     trainer = Trainer(
@@ -384,16 +395,10 @@ def evaluate(lm_datasets, trainer:Trainer):
 
     return eval_output
 
-def train_tokenizer(files: Union[str, List[str]], token_config: TokenConfig,
+def train_tokenizer(dataset:Dataset, token_config: TokenConfig,
                     vocab_size: int, save_dir: str, save_prefix='tokenizer',
                     dropout: float = None, min_frequency: int = 2,
                     added_tokens: List[str] = []) -> TokenizerFiles:
-
-    assert isinstance(files, str) or isinstance(files, list ), "files must be a string or a list."
-    assert isinstance(added_tokens, list), "added_tokens must be a list."
-
-    if isinstance(files, str):
-        files = [files]
 
     tokenizer_out_files = TokenizerFiles(vocab_file=os.path.join(save_dir, save_prefix + '-vocab.json'),
                             merges_file=os.path.join(save_dir, save_prefix + '-merges.txt'))
@@ -401,9 +406,13 @@ def train_tokenizer(files: Union[str, List[str]], token_config: TokenConfig,
             and os.path.exists(tokenizer_out_files.merges_file):
         return tokenizer_out_files
 
-    tokenizer = ByteLevelBPETokenizer(dropout=dropout)
+    tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)
 
-    tokenizer.train(files=files,
+    def batch_iterator(batch_size=1000):
+        for i in range(0, len(dataset), batch_size):
+            yield dataset[i : i + batch_size]["text"]
+
+    tokenizer.train_from_iterator(batch_iterator,
         vocab_size=vocab_size-len(added_tokens), # original GPT2: 50257
         min_frequency=min_frequency,
         # for GPT2, pad token is not used: https://github.com/huggingface/transformers/issues/2630
@@ -421,13 +430,11 @@ def main():
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
-    if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
-        # If we pass only one argument to the script and it's the path to a json file,
-        # let's parse it to get our arguments.
-        model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
-    else:
-        model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments),
+                              description='GPT2 trainer')
+
+
+    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
     setup_logging(training_args.local_rank)
     logger.info("Training/evaluation parameters %s", training_args)
@@ -441,11 +448,18 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
-    train_main(training_args, data_args, model_args, model_config)
+    datasets = get_datasets(data_args)
 
-def _mp_fn(index):
-    # For xla_spawn (TPUs)
-    main()
+    tokenizer = create_tokenizer(model_args)
+
+    lm_datasets = create_lm_datasets(training_args.do_train, datasets, tokenizer,
+                                     data_args.preprocessing_num_workers,
+                                     data_args.overwrite_cache, data_args.block_size)
+
+    model = create_model(model_args, len(tokenizer), model_config)
+
+    train_main(lm_datasets, model, tokenizer, training_args, model_args)
+
 
 if __name__ == "__main__":
     main()
