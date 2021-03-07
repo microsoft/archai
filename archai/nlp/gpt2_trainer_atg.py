@@ -7,8 +7,6 @@ import textwrap
 from pytorch_lightning import callbacks
 
 import torch
-from torch import nn
-from torch.utils.data import DataLoader, Dataset
 
 from transformers import GPT2LMHeadModel, GPT2Config, GPT2TokenizerFast
 from transformers import PreTrainedModel, PreTrainedTokenizerFast
