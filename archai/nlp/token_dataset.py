@@ -4,10 +4,11 @@ import os
 import gzip
 from torch.utils.data import Dataset
 from typing import List
-from transformers import GPT2TokenizerFast
+from transformers import PreTrainedTokenizerFast
 import itertools
 import numpy as np
 
+from archai.common import utils
 
 class TokenConfig:
     def __init__(self, bos_token="<|endoftext|>", eos_token="<|endoftext|>",
@@ -22,19 +23,25 @@ class TokenizerFiles:
         self.vocab_file = vocab_file
         self.merges_file = merges_file
 
-class TokenDataset(Dataset):
-    def __init__(self, train_file:str, tokenizer_files:TokenizerFiles,
-                 token_config: TokenConfig, block_size: int = 1024,
-                 text_delim: str = "\n") -> None:
+class DatasetFiles:
+    def __init__(self, dataroot:str, dataset:str) -> None:
+        self._known_datasets ={
+            'wikitext-103': {'train_file': 'wiki.train.tokens',
+                             'valid_file': 'wiki.valid.tokens',
+                             'test_file': 'wiki.test.tokens'},
+            'wikitext-2': {'train_file': 'wiki.train.tokens',
+                             'valid_file': 'wiki.valid.tokens',
+                             'test_file': 'wiki.test.tokens'}
+        }
 
-        tokenizer = GPT2TokenizerFast(
-            vocab_file=tokenizer_files.vocab_file,
-            merges_file=tokenizer_files.merges_file,
-            bos_token=token_config.bos_token,
-            eos_token=token_config.eos_token,
-            unk_token=token_config.unk_token,
-            pad_token=token_config.pad_token,
-        )
+        dataset_paths = self._known_datasets[dataset]
+        self.train_file = os.path.join(dataroot, dataset, dataset_paths['train_file'])
+        self.valid_file = os.path.join(dataroot, dataset, dataset_paths['valid_file'])
+        self.test_file = os.path.join(dataroot, dataset, dataset_paths['test_file'])
+
+class TokenDataset(Dataset):
+    def __init__(self, train_file:str, tokenizer: PreTrainedTokenizerFast,
+                 block_size: int, text_delim: str = "\n") -> None:
 
         self.file_path = train_file
 
@@ -108,7 +115,7 @@ def get_dtype(vocab_size: int):
 
 
 def encode_tokens_from_file(file_path: str, eos_token: str,
-    tokenizer: GPT2TokenizerFast,newline: str,
+    tokenizer: PreTrainedTokenizerFast,newline: str,
     batch_size: int = 1024) -> List[int]:
     """
     Retrieves texts from a newline-delimited file/CSV and returns texts.

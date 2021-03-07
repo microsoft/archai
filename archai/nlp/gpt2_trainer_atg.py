@@ -2,19 +2,21 @@ import argparse
 from typing import Optional, Tuple, List, Union
 import os
 import logging
+import textwrap
+
 from pytorch_lightning import callbacks
 
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
-from transformers import GPT2LMHeadModel, GPT2Config, AutoConfig, \
-    GPT2TokenizerFast, PreTrainedModel, PreTrainedTokenizerFast
-from tokenizers import ByteLevelBPETokenizer, Tokenizer
+from transformers import GPT2LMHeadModel, GPT2Config, GPT2TokenizerFast
+from transformers import PreTrainedModel, PreTrainedTokenizerFast
+from tokenizers import ByteLevelBPETokenizer
 import pytorch_lightning as pl
 
 from archai.common import ml_utils, utils, common
-from archai.nlp.token_dataset import TokenDataset, TokenizerFiles, TokenConfig
+from archai.nlp.token_dataset import DatasetFiles, TokenDataset, TokenizerFiles, TokenConfig
 from archai.nlp.transformer_lightning import TransformerLightning
 from archai.nlp.trainer_callback import TrainerCallback
 
@@ -30,6 +32,12 @@ def train_tokenizer(files: Union[str, List[str]], token_config: TokenConfig,
     if isinstance(files, str):
         files = [files]
 
+    tokenizer_out_files = TokenizerFiles(vocab_file=os.path.join(save_dir, save_prefix + '-vocab.json'),
+                            merges_file=os.path.join(save_dir, save_prefix + '-merges.txt'))
+    if utils.is_debugging() and os.path.exists(tokenizer_out_files.vocab_file) \
+            and os.path.exists(tokenizer_out_files.merges_file):
+        return tokenizer_out_files
+
     tokenizer = ByteLevelBPETokenizer(dropout=dropout)
 
     tokenizer.train(files=files,
@@ -43,19 +51,37 @@ def train_tokenizer(files: Union[str, List[str]], token_config: TokenConfig,
     # generates save_prefix-vocab.json and save_prefix-merges.txt
     tokenizer.save_model(save_dir, save_prefix)
 
-    return TokenizerFiles(vocab_file=os.path.join(save_dir, save_prefix + '-vocab.json'),
-                          merges_file=os.path.join(save_dir, save_prefix + '-merges.txt'))
+    return tokenizer_out_files
 
 
-def create_model(vocab_size:int, n_embd=256, n_layer=8, n_head=8,
-                 max_length=32, # max seq length
+class GptConfig:
+    def __init__(self, n_embd=768, n_layer=12, n_head=12, max_length=1024, vocab_size:int=50257) -> None:
+        self.n_embd = n_embd
+        self.n_layer = n_layer
+        self.n_head = n_head
+        self.max_length = max_length
+        self.vocab_size = vocab_size
+
+known_gpt_configs = {
+    'gpt2_small': GptConfig(),
+    'gpt2_medium': GptConfig(n_embd=1024, n_head=16, n_layer=24),
+    'gpt2_large': GptConfig(n_embd=1280, n_head=20, n_layer=36),
+    'gpt2_xl': GptConfig(n_embd=1600, n_head=25, n_layer=48),
+    'gpt2_distill': GptConfig(n_layer=6),
+    'gpt2_tiny': GptConfig(n_embd=2, n_head=2, n_layer=2),
+    'gpt2_toy': GptConfig(n_embd=2, n_head=2, n_layer=2, vocab_size=1000, max_length=32),
+    'gpt1': GptConfig(vocab_size=40478, max_length=512),
+    'aitextgen': GptConfig(n_embd=256, n_head=8, n_layer=8, vocab_size=5000, max_length=32),
+}
+
+def create_model(gpt_config:GptConfig,
                  dropout=0.0, fp16=False,
-                 bos_token_id=0, eos_token_id=0)->PreTrainedModel:
+                 bos_token_id=0, eos_token_id=0)->GPT2LMHeadModel:
 
-    config = GPT2Config(vocab_size=vocab_size,
+    config = GPT2Config(vocab_size=gpt_config.vocab_size,
                         # n_ctx is dimensionality of the causal mask (usually same as n_positions).
-                        n_ctx=max_length, n_positions=max_length,
-                        n_embd=n_embd, n_layer=n_layer, n_head=n_head,
+                        n_ctx=gpt_config.max_length, n_positions=gpt_config.max_length,
+                        n_embd=gpt_config.n_embd, n_layer=gpt_config.n_layer, n_head=gpt_config.n_head,
                         bos_token_id=bos_token_id, eos_token_id=eos_token_id,
                         resid_pdrop=dropout, embd_pdrop=dropout,
                         attn_pdrop=dropout, summary_first_dropout=dropout
@@ -78,22 +104,21 @@ def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig)-
 
     return tokenizer
 
-def train_model(train_file:str, tokenizer_files:TokenizerFiles, token_config: TokenConfig,
-        model:GPT2LMHeadModel, output_dir:str,
-        num_steps = 5000, batch_size = 256,
+def train_model(dataset_files:DatasetFiles,
+        model:PreTrainedModel, tokenizer: PreTrainedTokenizerFast,
+        output_dir:str, num_steps = 5000, batch_size = 256,
         learning_rate = 1e-4, # reduce to 1e-3 if batch_size=1
         weight_decay = 0.05, adam_epsilon = 1e-8,
         max_grad_norm = 0.5, warmup_steps = 0, gradient_accumulation_steps = 1,
         save_every = 1000, generate_every = 1000,
         fp16: bool = False, fp16_opt_level: str = "O1",
-        n_generate = 1, loggers: List = None,
-        num_workers:Optional[int] = None, line_by_line=False,
-        benchmark: bool = True, avg_loss_smoothing = 0.01
+        loggers: List = None, n_gpus:int=-1, # -1==use all GPUs
+        num_workers:Optional[int] = None,
+        benchmark: bool = True
     ) -> None:
 
-        train_data = TokenDataset(train_file=train_file, tokenizer_files=tokenizer_files,
-                                  token_config=token_config,
-                                  block_size=model.config.n_positions)
+        train_data = TokenDataset(train_file=dataset_files.train_file,
+            tokenizer=tokenizer, block_size=model.config.n_positions)
 
         if num_workers is None:
             num_workers = os.cpu_count() * 2 if not utils.is_debugging() else 0
@@ -118,7 +143,7 @@ def train_model(train_file:str, tokenizer_files:TokenizerFiles, token_config: To
         train_params = dict(
             #accelerator='ddp',
             accumulate_grad_batches=gradient_accumulation_steps,
-            gpus=1 if utils.is_debugging() else -1, # use all GPUs
+            gpus=n_gpus,
             max_steps=num_steps,
             gradient_clip_val=max_grad_norm if not fp16 else 0,
             checkpoint_callback=False,
@@ -139,8 +164,9 @@ def train_model(train_file:str, tokenizer_files:TokenizerFiles, token_config: To
 
         model.save_pretrained(output_dir)
 
-def generate(model, tokenizer, prompt:str,
-             min_length: int = None, max_length: int = 256,
+
+def generate(model:PreTrainedModel, tokenizer:PreTrainedTokenizerFast, prompt:str,
+            min_length: int = None, max_length: int = 256,
             temperature: float = 0.7, do_sample: bool = True,
             top_k:Optional[int] = None, top_p: Optional[float] = None,
             num_return_sequences=1) -> List[str]:
@@ -163,7 +189,7 @@ def generate(model, tokenizer, prompt:str,
     #         len(prompt) < model.config.n_positions
     #     ), "The prompt is too large for the model."
 
-    prompt_tensors = tokenizer(text=prompt, return_tensors="pt")
+    prompt_tensors = tokenizer(text)
     input_ids = prompt_tensors["input_ids"].to(model.device)
 
     pad_token_id = tokenizer.pad_token_id
@@ -181,28 +207,42 @@ def generate(model, tokenizer, prompt:str,
     else:
         gen_texts = [tokenizer.decode(outputs[0], skip_special_tokens=True)]
 
-
     return gen_texts
 
-def evaluate(eval_file:str, model:nn.Module, tokenizer:GPT2Tokenizer, device)->Tuple[float, float]:
+
+def evaluate(eval_file:str, model:PreTrainedModel,
+        tokenizer:PreTrainedTokenizerFast, max_eval_len=-1)->Tuple[float, float]: # returns avg segment loss and perplexity
     text = utils.read_string(eval_file)
+    if max_eval_len >=0:
+        text = text[:max_eval_len] if len(text) > max_eval_len else text
 
     # below will be just one giant tensor of all tokens
-    encodings = tokenizer(text)
+    encodings = tokenizer(text, return_tensors='pt')
 
+    # max input segment length for the model
     max_length = model.config.n_positions
+    # on avg, context length is half of segment length
     context_len = max_length // 2
 
-    model.to(device)
     model.eval()
 
     lls = []
     with torch.no_grad():
+        # we use sliding window algorithm so that at each step input segment is
+        # i to i+max_len. We set target labels same as segment but ignore the
+        # loss calculation for first context_len tokens. In next step,
+        # i = i + context_len. This way we evaluate output label for each input
+        # label except for the first context_len. Also note that huggingface model
+        # shifts labels automatically by one which is why it is OK to set
+        # targer_ids same as input_ids. Further, note that autorgressive model
+        # can only see previous tokens in segment for each j-th token. This means
+        # we are making prediction for each token as if someone typed sequentially
+        # one after another in parallel in single forward call.
         for i in range(0, encodings.input_ids.size(1), context_len):
             begin_loc = max(i + context_len - max_length, 0)
             end_loc = min(i + context_len, encodings.input_ids.size(1))
             trg_len = end_loc - i    # may be different from context_len on last loop
-            input_ids = encodings.input_ids[:,begin_loc:end_loc].to(device)
+            input_ids = encodings.input_ids[:,begin_loc:end_loc].to(model.device)
             target_ids = input_ids.clone()
 
             # -100 is special number to indicate ignore in loss calculation
@@ -211,8 +251,6 @@ def evaluate(eval_file:str, model:nn.Module, tokenizer:GPT2Tokenizer, device)->T
 
             outputs = model(input_ids, labels=target_ids)
             seg_loss = outputs[0] * trg_len # total loss = avg_loss per prediction * num_predictions
-
-            #print(begin_loc, end_loc, trg_len)
 
             lls.append(seg_loss)
 
@@ -226,71 +264,107 @@ def main():
     parser = argparse.ArgumentParser(description='GPT2 trainer')
     parser.add_argument('--experiment-name', '-n', default='train_gpt2')
     parser.add_argument('--experiment-description', '-d', default='Train GPT2')
-    parser.add_argument('--epochs', '-e', type=int, default=108)
+
     parser.add_argument('--device', default='',
                         help='"cuda" or "cpu" or "" in which case use cuda if available')
+    parser.add_argument('--n_gpus', type=int, default=-1)
     parser.add_argument('--train-batch-size', '-b', type=int, default=256)
     parser.add_argument('--test-batch-size', type=int, default=256)
-    parser.add_argument('--seed', '-s', type=float, default=42)
-    parser.add_argument('--half', type=lambda x: x.lower() == 'true',
+    parser.add_argument('--seed', '-s', type=float, default=42.0)
+    parser.add_argument('--fp16', type=lambda x: x.lower() == 'true',
                         nargs='?', const=True, default=False)
 
     parser.add_argument('--datadir', default='',
-                        help='where to find dataset files, default is ~/torchvision_data_dir')
+                        help='where to find dataset files')
     parser.add_argument('--outdir', default='',
                         help='where to put results, default is ~/logdir')
 
-    parser.add_argument('--train-file', default='wiki.train.tokens', # 'tiny_shakespeare.txt'
-                        help='training text file')
-    parser.add_argument('--vocab-size', type=int, default=5000)
-    parser.add_argument('--num-steps', type=int, default=5000 if not utils.is_debugging() else 1)
+    parser.add_argument('--dataset', default='wikitext-103')
+    parser.add_argument('--toy',  type=lambda x: x.lower() == 'true',
+                        nargs='?', const=True, default=utils.is_debugging(),
+                        help='if true then override dataset and number of iterations to run quick sanity check if code compiles')
+    parser.add_argument('--gpt-config-name', type=str, default='gpt2_small')
+    parser.add_argument('--num-steps', type=int, default=5000)
+
 
     args = parser.parse_args()
 
+    dataset:str = args.dataset
+    num_steps:int = args.num_steps
+    seed:float = args.seed
+    fp16:bool = args.fp16
+    train_batch_size:int = args.train_batch_size
+    gpt_config_name = args.gpt_config_name
+    toy:bool = args.toy
+    max_eval_len = -1
+
+    if toy:
+        dataset = 'wikitext-2'
+        num_steps = 1
+        gpt_config_name = 'gpt2_toy'
+        max_eval_len = 10000
+
+
+    gpt_config = known_gpt_configs[gpt_config_name]
+
+    # create dataset and output dirs
     pt_data_dir, pt_output_dir = common.pt_dirs()
-    if not args.datadir:
-        args.datadir = common.default_dataroot()
-    if not args.outdir:
-        args.outdir = os.environ.get('PT_OUTPUT_DIR', '')
-        if not args.outdir:
-            args.outdir = os.path.join('~/logdir', 'gpt2_trainer', args.experiment_name)
-
-    expdir = utils.full_path(args.outdir)
-    os.makedirs(expdir, exist_ok=True)
-    outdir = utils.full_path(args.outdir)
-    datadir = pt_data_dir #utils.full_path(args.datadir)
-
-    utils.setup_cuda(args.seed)
-
-    utils.create_logger(filepath=os.path.join(expdir, 'logs.log'))
-
-    # log config for reference
-    logging.info(
-        f'exp_name="{args.experiment_name}", exp_desc="{args.experiment_description}"')
-    logging.info('seed={args.seed}, epochs={args.epochs}, half={args.half}')
-    logging.info(f'datadir="{datadir}"')
-    logging.info(f'pt_data_dir="{pt_data_dir}"')
-    logging.info(f'expdir="{expdir}"')
-    logging.info(f'train_batch_size={args.train_batch_size}')
-
+    dataroot = args.datadir or pt_data_dir or common.default_dataroot()
+    datadir = utils.full_path(os.path.join(dataroot, 'textpred'))
+    expdir =  utils.full_path(pt_output_dir or \
+                    os.path.join(args.outdir or '~/logdir', args.experiment_name)
+                , create=True)
     if args.device:
         device = torch.device(args.device)
     else:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+    n_gpus = 1 if utils.is_debugging() or utils.is_windows() else args.n_gpus
+
+    utils.setup_cuda(seed)
+    utils.create_logger(filepath=os.path.join(expdir, 'logs.log'))
+
+    # log config for reference
+    logging.info(f'toy={toy}, num_steps={num_steps}, n_gpus={n_gpus}, seed={seed}')
+    logging.info(f'dataset={dataset}, datadir="{datadir}"')
+    logging.info(f'expdir="{expdir}"')
+    logging.info(f'train_batch_size={train_batch_size}, fp16="{fp16}"')
+
+    # paths for dataset
+    dataset_files = DatasetFiles(datadir, dataset)
+
+    # train tokenizer
     token_config = TokenConfig()
-    train_file = os.path.join(datadir, 'textpred', 'wikitext-103', args.train_file)
-    num_steps = args.num_steps
-    vocab_size:int = args.vocab_size
-    tokenizer_files = train_tokenizer(files=train_file, token_config=token_config,
-                    vocab_size=vocab_size, save_dir=outdir)
+    tokenizer_files = train_tokenizer(files=dataset_files.train_file,
+        token_config=token_config, vocab_size=gpt_config.vocab_size, save_dir=expdir)
 
-    model, tokenizer = create_models(tokenizer_files, token_config, vocab_size)
+    # load tokenizer from trained files
+    tokenizer = create_tokenizer(tokenizer_files, token_config)
+
+    # create model
+    model = create_model(gpt_config=gpt_config, fp16=fp16)
+
+    logging.info(f'model_size={ml_utils.param_size(model)/1.0E6}M')
+
+    logging.info('training...')
+    train_model(dataset_files, model, tokenizer, expdir, n_gpus=n_gpus,
+                num_steps=num_steps, batch_size=train_batch_size)
+
+    logging.info(f'GPU alloc mem: {torch.cuda.memory_stats(device)["allocated_bytes.all.peak"]/1.0E6}MB')
+    logging.info(f'GPU resv mem: {torch.cuda.memory_stats(device)["reserved_bytes.all.peak"]/1.0E6}MB')
+
+    logging.info('evaluating...')
+    model.to('cpu')
+    ml_utils.clear_gpu_memory()
     model.to(device)
-    train_model(train_file, tokenizer_files, token_config, model, outdir,
-                num_steps=num_steps)
+    loss, ppl = evaluate(dataset_files.test_file, model, tokenizer,
+                         max_eval_len=max_eval_len)
 
-    print(generate(model, tokenizer, 'I wanted to write you this email because'))
+    logging.info(f'GPU alloc mem: {torch.cuda.memory_stats(device)["allocated_bytes.all.peak"]/1.0E6}MB')
+    logging.info(f'GPU resv mem: {torch.cuda.memory_stats(device)["reserved_bytes.all.peak"]/1.0E6}MB')
+
+    print('loss:', loss)
+    print('ppl:', ppl)
 
 if __name__ == '__main__':
     main()
