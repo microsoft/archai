@@ -139,6 +139,8 @@ nasbench101:
                 fa_nb1_s3_fb256_ftlr0.025_fte5_nocond,
                 fa_nb1_s3_fb256_ftlr0.025_fte10_nocond]
 
+  zero_cost: []
+
   shortreg: [nb101_reg_b256_e01, 
             nb101_reg_b256_e02, 
             nb101_reg_b256_e04, 
@@ -147,6 +149,7 @@ nasbench101:
             nb101_reg_b256_e10,
             nb101_reg_b256_e20, 
             nb101_reg_b256_e30, 
-            nb101_reg_b256_e108]
+            nb101_reg_b256_e108, 
+            nb101_reg_b256_e108_rms]
 
 

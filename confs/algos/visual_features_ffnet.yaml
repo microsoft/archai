@@ -12,6 +12,8 @@ common:
 
 nas:
   eval:
+    pixels_per_hog_cell: 4 # for ImageNet16-120: 4, for cifar10: 8
+    feature_len: 324 # for ImageNet16-120: 324, for cifar10: 324
     loader:
       train_batch: 1024
       test_batch: 4096
@@ -27,7 +29,7 @@ nas:
       aux_weight: 0.0
       optimizer:
         type: 'sgd'
-        lr: 0.1 # init learning rate
+        lr: 0.5 # init learning rate
         decay: 3.0e-4 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: False # pytorch default is False
