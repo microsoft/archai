@@ -9,7 +9,7 @@ def main():
     api = create('C:\\Users\\dedey\\dataroot\\natsbench\\NATS-sss-v1_0-50262-simple', 'sss', fast_mode=True, verbose=True)
 
     # slow mode (NOTE: uses up lots of RAM)
-    # api = create('C:\\Users\\dedey\\dataroot\\natsbench\\NATS-tss-v1_0-3ffb9.pickle.pbz2', 'tss', fast_mode=False, verbose=True)
+    # api = create('C:\\Users\\dedey\\dataroot\\natsbench\\NATS-sss-v1_0-50262.pickle.pbz2', 'tss', fast_mode=False, verbose=True)
     
     # Query the loss / accuracy / time for n-th candidate architecture on CIFAR-10
     # info is a dict, where you can easily figure out the meaning by key
