@@ -2,22 +2,22 @@ import torch
 from torch.functional import Tensor
 import torch.nn as nn
 
+from typing import Tuple
+
 from skimage import feature
 
 
 class VisualFeaturesWithFFNet(nn.Module):
-    def __init__(self, feature_len:int, n_classes:int):
+    def __init__(self, feature_len:int, n_classes:int, pixels_per_hog_cell:Tuple[int, int]=(8, 8)):
         super(VisualFeaturesWithFFNet, self).__init__()
         self.feature_len = feature_len
+        self.pixels_per_hog_cell = pixels_per_hog_cell
 
         self.net = nn.Sequential(nn.Linear(feature_len, 2048),
                                 nn.ReLU(),
                                 nn.Linear(2048, 2048),
                                 nn.ReLU(),
                                 nn.Linear(2048, n_classes))
-        
-        #self.fc = nn.Linear(feature_len, n_classes)
-
 
     def _compute_features(self, x:Tensor)->Tensor:
         # compute image features on each image
@@ -28,12 +28,8 @@ class VisualFeaturesWithFFNet(nn.Module):
             img = x[i, :, :, :]
             img = img.permute(1, 2, 0)
             img = img.cpu().numpy()
-            # if self.counter > 0:
-            #     plt.imshow(img)
-            #     plt.show()
-
-            hog_feat = feature.hog(img)
-            #hog_feat = torch.from_numpy(hog_feat).reshape(self.feature_len, 1)
+            
+            hog_feat = feature.hog(img, pixels_per_cell=self.pixels_per_hog_cell)
             hog_feat = torch.from_numpy(hog_feat)
             assert self.feature_len == hog_feat.shape[0]
             hog_feat_storage.append(hog_feat)

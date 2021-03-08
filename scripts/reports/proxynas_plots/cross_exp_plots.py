@@ -28,7 +28,7 @@ def parse_raw_data(root_exp_folder:str, exp_list:List[str])->Dict:
 
 def main():
     parser = argparse.ArgumentParser(description='Cross Experiment Plots')
-    parser.add_argument('--dataset', type=str, default='natsbench_imagenet16-120',
+    parser.add_argument('--dataset', type=str, default='nasbench101',
                         help='dataset on which experiments have been run')
     parser.add_argument('--conf_location', type=str, default='scripts/reports/proxynas_plots/cross_exp_conf.yaml', 
                         help='location of conf file')
