@@ -24,6 +24,8 @@ from transformers import (
 from tokenizers import ByteLevelBPETokenizer
 from transformers.trainer_utils import get_last_checkpoint, is_main_process
 
+import torch
+
 from archai.nlp.token_dataset import TokenConfig, TokenizerFiles
 from archai.common import utils
 
@@ -430,9 +432,11 @@ def main():
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
+    if utils.is_debugging() and torch.cuda.is_available():
+        os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
     parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments),
                               description='GPT2 trainer')
-
 
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
