@@ -199,3 +199,5 @@ python scripts/reports/analysis_freeze_natsbench_space.py --results-dir D:\\arch
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb101_reg_b256_e10 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb101_reg_b256_e20 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb101_reg_b256_e30 --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb101_reg_b256_e108 --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb101_reg_b256_e108_rms --out-dir D:\\archai_experiment_reports
