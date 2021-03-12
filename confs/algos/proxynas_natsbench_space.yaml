@@ -18,7 +18,7 @@ nas:
       naswotrain:
         train_batch: 256 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 256 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
+        train_batch: 2048 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
     trainer:
       plotsdir: ''
       train_top1_acc_threshold: 0.1 # after some accuracy we will shift into training only the last 'n' layers
@@ -65,7 +65,7 @@ nas:
         type: 'CrossEntropyLoss'
       optimizer:
         type: 'sgd'
-        lr: 0.1 # init learning rate
+        lr: 1.0 # init learning rate
         decay: 5.0e-4 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: True # pytorch default is False
