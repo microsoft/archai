@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 
 import math as ma
+from collections import defaultdict
+from tqdm import tqdm
 
 from archai.datasets.synthetic_gen.simple_nn import SimpleNN
 
@@ -10,9 +12,11 @@ def main():
     # conf
     img_shape = [32, 32, 3]
     n_classes = 10
-    n_examples = 60000
+    n_examples_to_gen = 60000
+    max_examples_per_class = 6000
     n_train = 50000
     seed = 42
+    out_dir = "C:\\Users\\dedey\\dataroot\\synthetic_cifar10"
     # end conf
 
     # make torch deterministic
@@ -28,8 +32,10 @@ def main():
     # a simple random neural network to 'label' images
     net = SimpleNN(num_classes = n_classes)
 
-    for i in range(n_examples):
-        
+    storage = defaultdict(list)
+
+    for i in tqdm(range(n_examples_to_gen)):
+ 
         # sample a gaussian image
         sampled_img = torch.normal(mean=mean, std=std).reshape(img_shape)
 
@@ -39,9 +45,18 @@ def main():
         # compute the groundtruth class for it
         gt_class = torch.argmax(logits)
 
-        print(f'Gt class {gt_class.item()}')
-
+        # only store examples if max threshold is not exceeded
+        if (len(storage[gt_class.item()]) < max_examples_per_class):
+            storage[gt_class.item()].append(sampled_img)
         
+    
+    # print class statistics
+    num_examples_all_classes = []
+    for key in storage.keys():
+        num_examples_this_class = len(storage[key])
+        num_examples_all_classes.append(num_examples_this_class)
+        print(f'class {key}: {num_examples_this_class}')
+
 
 
 
