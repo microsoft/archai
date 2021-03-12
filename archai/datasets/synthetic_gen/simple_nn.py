@@ -8,7 +8,7 @@ class SimpleNN(nn.Module):
 
         self.net = nn.Sequential(
                                 nn.Linear(32*32*3, 2048),
-                                nn.ReLU(),
+                                nn.ReLU(),                            
                                 nn.Linear(2048, 2048),
                                 nn.ReLU(),
                                 nn.Linear(2048, num_classes)
