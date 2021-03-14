@@ -5,6 +5,14 @@ import sys
 from dataclasses import dataclass, field
 from typing import Optional, Union, List
 
+# TODO: separate out torch dependencies from utils
+if 'pydevd' in sys.modules:
+    os.environ['vs_code_debugging'] = 'True'
+def is_debugging()->bool:
+    return 'vs_code_debugging' in os.environ and os.environ['vs_code_debugging']=='True'
+if is_debugging():
+    os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
 from datasets import load_dataset, DatasetDict, Dataset
 
 import transformers
@@ -16,9 +24,9 @@ from transformers import (
     AutoTokenizer,
     HfArgumentParser,
     Trainer,
-    TrainingArguments,
     default_data_collator,
     set_seed,
+    GPT2TokenizerFast, GPT2Config,
     PretrainedConfig, PreTrainedModel, PreTrainedTokenizerFast, PreTrainedTokenizerBase
 )
 from tokenizers import ByteLevelBPETokenizer
@@ -26,8 +34,10 @@ from transformers.trainer_utils import get_last_checkpoint, is_main_process
 
 import torch
 
+from archai.nlp.gpt_training_args import GptTrainingArguments
+
 from archai.nlp.token_dataset import TokenConfig, TokenizerFiles
-from archai.common import utils
+from archai.common import utils, common
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +77,13 @@ class ModelArguments:
         },
     )
 
+@dataclass
+class TransformerArguments:
+    n_embd=768
+    n_layer=12
+    n_head=12
+    max_length=1024
+    vocab_size:int=50257
 
 @dataclass
 class DataTrainingArguments:
@@ -112,7 +129,8 @@ class DataTrainingArguments:
 
     def __post_init__(self):
         if self.dataset_name is None and self.train_file is None and self.validation_file is None:
-            raise ValueError("Need either a dataset name or a training/validation file.")
+            #raise ValueError("Need either a dataset name or a training/validation file.")
+            pass
         else:
             if self.train_file is not None:
                 extension = self.train_file.split(".")[-1]
@@ -138,14 +156,8 @@ def get_checkpoint(output_dir:str, overwrite_output_dir:bool)->Optional[str]:
             )
     return last_checkpoint
 
-def setup_logging(local_rank:int):
-    # Setup logging
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        handlers=[logging.StreamHandler(sys.stdout)],
-    )
-    logger.setLevel(logging.INFO if is_main_process(local_rank) else logging.WARN)
+def setup_logging(local_rank:int, expdir:str):
+    utils.create_logger(filepath=os.path.join(expdir, 'logs.log'))
 
     # Set the verbosity to info of the Transformers logger (on main process only):
     if is_main_process(local_rank):
@@ -236,15 +248,15 @@ def tokenizer_from_pretrained(model_name_or_path:str, revision:str, use_fast:boo
         cache_dir=cache_dir, revision=revision,
         use_auth_token=use_auth_token, use_fast=use_fast)
 
-def create_lm_datasets(do_train:bool, datasets:DatasetDict, tokenizer:PreTrainedTokenizerBase,
+def create_lm_datasets(datasets:DatasetDict, tokenizer:PreTrainedTokenizerBase,
                        preprocessing_num_workers:Optional[int], overwrite_cache:bool,
                        block_size:Optional[int])->Dataset:
     # Preprocessing the datasets.
     # First we tokenize all the texts.
-    if do_train:
-        column_names = datasets["train"].column_names
-    else:
-        column_names = datasets["validation"].column_names
+    # we assume that train/test split has same column names
+    split = "train" if "train" in datasets else "test" if "test" in datasets else ""
+    assert split != "", "dataset doesn't contain known split of train or test"
+    column_names = datasets[split].column_names
     text_column_name = "text" if "text" in column_names else column_names[0]
 
     # bind function to column name
@@ -317,16 +329,29 @@ def get_datasets(data_args:DataTrainingArguments)->DatasetDict:
     else:
         raise ValueError('Either dataset_name or train_file must be provided')
 
-    assert datasets is DatasetDict
+    assert isinstance(datasets, DatasetDict)
     return datasets
 
-def create_tokenizer(model_args:ModelArguments)->PreTrainedTokenizerBase:
+def load_tokenizer(model_args:ModelArguments)->PreTrainedTokenizerBase:
     tokenizer_name_or_path = model_args.tokenizer_name_or_path or model_args.model_name_or_path
     assert tokenizer_name_or_path
     tokenizer = tokenizer_from_pretrained(tokenizer_name_or_path,
         model_args.model_revision, model_args.use_fast_tokenizer,
         model_args.cache_dir,
         True if model_args.use_auth_token else None)
+    return tokenizer
+
+def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig)->PreTrainedTokenizerFast:
+    tokenizer = GPT2TokenizerFast(vocab_file=tokenizer_files.vocab_file,
+                              merges_file=tokenizer_files.merges_file,
+                              eos_token=token_config.eos_token,
+                              bos_token=token_config.bos_token,
+                              unk_token=token_config.unk_token,
+                              pad_token=token_config.pad_token)
+
+    # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
+    #tokenizer.padding_side = "left"
+
     return tokenizer
 
 def create_model(model_args:ModelArguments, input_embedding_size:int,
@@ -345,46 +370,24 @@ def create_model(model_args:ModelArguments, input_embedding_size:int,
 
     return model
 
-def train_model(lm_datasets, model:PreTrainedModel, tokenizer:PreTrainedTokenizerBase,
-               training_args:TrainingArguments,
+def train_model(checkpoint:Optional[str], trainer:Trainer,
                model_args:ModelArguments):
-    # Detecting last checkpoint.
-    last_checkpoint = get_checkpoint(training_args.output_dir, training_args.overwrite_output_dir) if training_args.do_train else None
 
-    # Initialize our Trainer
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=lm_datasets["train"] if training_args.do_train else None,
-        eval_dataset=lm_datasets["validation"] if training_args.do_eval else None,
-        tokenizer=tokenizer,
-        # Data collator will default to DataCollatorWithPadding, so we change it.
-        data_collator=default_data_collator,
-    )
+    if checkpoint is None and model_args.model_name_or_path is not None and \
+            os.path.isdir(model_args.model_name_or_path):
+        checkpoint = model_args.model_name_or_path
 
-    # Training
-    if training_args.do_train:
-        if last_checkpoint is not None:
-            checkpoint = last_checkpoint
-        elif model_args.model_name_or_path is not None and os.path.isdir(model_args.model_name_or_path):
-            checkpoint = model_args.model_name_or_path
-        else:
-            checkpoint = None
-        train_result = trainer.train(resume_from_checkpoint=checkpoint)
-        trainer.save_model()  # Saves the tokenizer too for easy upload
+    train_result = trainer.train(resume_from_checkpoint=checkpoint)
+    trainer.save_model()  # Saves the tokenizer too for easy upload
 
-        metrics = train_result.metrics
+    metrics = train_result.metrics
 
-        trainer.log_metrics("train", metrics)
-        trainer.save_metrics("train", metrics)
-        trainer.save_state()
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+    trainer.save_state()
 
-    # Evaluation
-    if training_args.do_eval:
-        logger.info("*** Evaluate ***")
-        evaluate(lm_datasets, trainer)
 
-def evaluate(lm_datasets, trainer:Trainer):
+def evaluate_model(lm_datasets, trainer:Trainer):
     eval_dataset = lm_datasets['test'] if 'test' in lm_datasets else None # if none then use val set
     eval_output = trainer.evaluate(eval_dataset=eval_dataset)
 
@@ -414,7 +417,7 @@ def train_tokenizer(dataset:Dataset, token_config: TokenConfig,
         for i in range(0, len(dataset), batch_size):
             yield dataset[i : i + batch_size]["text"]
 
-    tokenizer.train_from_iterator(batch_iterator,
+    tokenizer.train_from_iterator(batch_iterator(),
         vocab_size=vocab_size-len(added_tokens), # original GPT2: 50257
         min_frequency=min_frequency,
         # for GPT2, pad token is not used: https://github.com/huggingface/transformers/issues/2630
@@ -427,21 +430,69 @@ def train_tokenizer(dataset:Dataset, token_config: TokenConfig,
 
     return tokenizer_out_files
 
+def create_model_config(transformer_args:TransformerArguments,
+        dropout=0.0, bos_token_id=0, eos_token_id=0)->PretrainedConfig:
+    config = GPT2Config(vocab_size=transformer_args.vocab_size,
+                        # n_ctx is dimensionality of the causal mask (usually same as n_positions).
+                        n_ctx=transformer_args.max_length, n_positions=transformer_args.max_length,
+                        n_embd=transformer_args.n_embd, n_layer=transformer_args.n_layer, n_head=transformer_args.n_head,
+                        bos_token_id=bos_token_id, eos_token_id=eos_token_id,
+                        resid_pdrop=dropout, embd_pdrop=dropout,
+                        attn_pdrop=dropout, summary_first_dropout=dropout
+                        )
+    return config
+
+def get_logdir(outdir:str) -> str:
+    import socket
+    from datetime import datetime
+
+    current_time = datetime.now().strftime("%b%d_%H-%M-%S")
+    return os.path.join(outdir, current_time + "_" + socket.gethostname())
+
 def main():
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    if utils.is_debugging() and torch.cuda.is_available():
-        os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments),
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, GptTrainingArguments, TransformerArguments),
                               description='GPT2 trainer')
 
-    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    model_args, data_args, training_args, transformer_args = parser.parse_args_into_dataclasses()
 
-    setup_logging(training_args.local_rank)
-    logger.info("Training/evaluation parameters %s", training_args)
+    # create dataset and output dirs
+    pt_data_dir, pt_output_dir = common.pt_dirs()
+    data_args.data_dir = data_args.data_dir or pt_data_dir or common.default_dataroot()
+    data_args.data_dir = utils.full_path(os.path.join(data_args.data_dir, 'textpred'))
+    training_args.output_dir =  utils.full_path(pt_output_dir or \
+                    os.path.join(training_args.output_dir or '~/logdir', training_args.experiment_name)
+                , create=True)
+    training_args.logging_dir = get_logdir(training_args.output_dir) if training_args.logging_dir is None else training_args.logging_dir
+    training_args.toy = utils.is_debugging() if training_args.toy is None else training_args.toy
+
+    # if not specified, overrite is False if not toy mode
+    training_args.overwrite_output_dir = training_args.overwrite_output_dir if \
+        training_args.overwrite_output_dir is not None else training_args.toy
+    if training_args.toy:
+        transformer_args.max_length = 128
+        #training_args.no_cuda = True
+
+    data_args.dataset_name = data_args.dataset_name if data_args.dataset_name is not None else 'wikitext'
+    if data_args.dataset_name == 'wikitext' and data_args.dataset_config_name is None:
+        data_args.dataset_config_name = 'wikitext-2-raw-v1' if training_args.toy else 'wikitext-103-raw-v1'
+
+    setup_logging(training_args.local_rank, training_args.output_dir)
+    logging.info(f'toy={training_args.toy}')
+    logging.info(f'num_steps={training_args.max_steps}, epochs={training_args.num_train_epochs}')
+    logging.info(f'n_gpus={training_args.n_gpu}, parallel_mode={training_args.parallel_mode}, device={training_args.device}, seed={training_args.seed}')
+    logging.info(f'dataset={data_args.dataset_name}, dataset_config_name={data_args.dataset_config_name}, datadir="{data_args.data_dir}"')
+    logging.info(f'expdir="{training_args.output_dir}"')
+    logging.info(f'train_batch_size={training_args.per_device_train_batch_size}, fp16="{training_args.fp16}"')
+
+    logger.info("transformer_args %s", transformer_args)
+    logger.info("training_args %s", training_args)
+    logger.info("data_args %s", data_args)
+    logger.info("model_args %s", model_args)
+
 
     # Log on each process the small summary:
     logger.warning(
@@ -454,16 +505,38 @@ def main():
 
     datasets = get_datasets(data_args)
 
-    tokenizer = create_tokenizer(model_args)
+    token_config = TokenConfig()
+    tokenizer_files = train_tokenizer(datasets["train"], token_config,
+        vocab_size=transformer_args.vocab_size, save_dir=training_args.output_dir)
+    tokenizer = create_tokenizer(tokenizer_files, token_config)
+    #tokenizer = load_tokenizer(model_args)
 
-    lm_datasets = create_lm_datasets(training_args.do_train, datasets, tokenizer,
+    lm_datasets = create_lm_datasets(datasets, tokenizer,
                                      data_args.preprocessing_num_workers,
                                      data_args.overwrite_cache, data_args.block_size)
 
-    model = create_model(model_args, len(tokenizer), model_config)
+    model_config = create_model_config(transformer_args)
+    model = create_model(model_args, len(tokenizer), model_config=model_config)
 
-    train_main(lm_datasets, model, tokenizer, training_args, model_args)
+    # Initialize our Trainer
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=lm_datasets["train"] if training_args.do_train else None,
+        eval_dataset=lm_datasets["validation"] if training_args.do_eval else None,
+        tokenizer=tokenizer,
+        # Data collator will default to DataCollatorWithPadding, so we change it.
+        data_collator=default_data_collator,
+    )
 
+    if training_args.do_train:
+        last_checkpoint = get_checkpoint(training_args.output_dir, training_args.overwrite_output_dir) if training_args.do_train else None
+
+        logger.info("*** Training ***")
+        train_model(last_checkpoint, trainer, model_args)
+    if training_args.do_test:
+        logger.info("*** Evaluate ***")
+        evaluate_model(lm_datasets, trainer)
 
 if __name__ == "__main__":
     main()

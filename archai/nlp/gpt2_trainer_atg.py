@@ -98,6 +98,8 @@ def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig)-
                               bos_token=token_config.bos_token,
                               unk_token=token_config.unk_token,
                               pad_token=token_config.pad_token)
+
+    # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
     tokenizer.padding_side = "left"
 
     return tokenizer

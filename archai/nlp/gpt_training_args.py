@@ -52,7 +52,7 @@ def default_logdir() -> str:
 
 
 @dataclass
-class TrainingArguments:
+class GptTrainingArguments:
     """
     TrainingArguments is the subset of the arguments we use in our example scripts **which relate to the training loop
     itself**.
@@ -289,13 +289,14 @@ class TrainingArguments:
     """
     experiment_name:str = field(default='train_gpt2_hf')
     experiment_description:str = field(default='Train GPT2')
+    toy:Optional[bool] = field(default=None)
 
     output_dir: str = field(
          default='',
         metadata={"help": "The output directory where the model predictions and checkpoints will be written."},
     )
-    overwrite_output_dir: bool = field(
-        default=False,
+    overwrite_output_dir: Optional[bool] = field(
+        default=None,
         metadata={
             "help": (
                 "Overwrite the content of the output directory."
@@ -304,11 +305,12 @@ class TrainingArguments:
         },
     )
 
-    do_train: bool = field(default=False, metadata={"help": "Whether to run training."})
-    do_eval: bool = field(default=None, metadata={"help": "Whether to run eval on the dev set."})
+    do_train: bool = field(default=True, metadata={"help": "Whether to run training."})
+    do_eval: bool = field(default=True, metadata={"help": "Whether to run validation during training."})
+    do_test: bool = field(default=True, metadata={"help": "Whether to run final eval on the test set."})
     do_predict: bool = field(default=False, metadata={"help": "Whether to run predictions on the test set."})
     evaluation_strategy: IntervalStrategy = field(
-        default="no",
+        default="steps",
         metadata={"help": "The evaluation strategy to use."},
     )
     prediction_loss_only: bool = field(
@@ -368,7 +370,7 @@ class TrainingArguments:
     )
     warmup_steps: int = field(default=0, metadata={"help": "Linear warmup over warmup_steps."})
 
-    logging_dir: Optional[str] = field(default_factory=default_logdir, metadata={"help": "Tensorboard log dir."})
+    logging_dir: Optional[str] = field(default=None, metadata={"help": "Tensorboard log dir."})
     logging_strategy: IntervalStrategy = field(
         default="steps",
         metadata={"help": "The logging strategy to use."},
@@ -549,7 +551,7 @@ class TrainingArguments:
             self.report_to = "all"
         if self.report_to == "all" or self.report_to == ["all"]:
             # Import at runtime to avoid a circular import.
-            from .integrations import get_available_reporting_integrations
+            from transformers.integrations import get_available_reporting_integrations
 
             self.report_to = get_available_reporting_integrations()
         elif self.report_to == "none" or self.report_to == ["none"]:
