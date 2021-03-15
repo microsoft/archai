@@ -14,11 +14,11 @@ def main():
     # conf
     img_shape = [32, 32, 3]
     n_classes = 10
-    n_examples_to_gen = 1000000
+    n_examples_to_gen = 400000
     max_examples_per_class = 6000
     n_examples_per_class_train = 5000
     seed = 42
-    out_dir = "C:\\Users\\dedey\\dataroot\\synthetic_cifar10"
+    out_dir = "C:\\Users\\dedey\\dataroot\\synthetic2_cifar10"
     # end conf
 
     # make torch deterministic
