@@ -308,7 +308,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "cifar10"]
+            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "synthetic_cifar10"]
         },
         {
             "name": "Natsbench-Regular-Eval-Toy",
