@@ -341,9 +341,10 @@ def load_tokenizer(model_args:ModelArguments)->PreTrainedTokenizerBase:
         True if model_args.use_auth_token else None)
     return tokenizer
 
-def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig)->PreTrainedTokenizerFast:
+def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length:int)->PreTrainedTokenizerFast:
     tokenizer = GPT2TokenizerFast(vocab_file=tokenizer_files.vocab_file,
                               merges_file=tokenizer_files.merges_file,
+                              model_max_length=max_length,
                               eos_token=token_config.eos_token,
                               bos_token=token_config.bos_token,
                               unk_token=token_config.unk_token,
@@ -474,7 +475,6 @@ def main():
         training_args.overwrite_output_dir is not None else training_args.toy
     if training_args.toy:
         transformer_args.max_length = 128
-        #training_args.no_cuda = True
 
     data_args.dataset_name = data_args.dataset_name if data_args.dataset_name is not None else 'wikitext'
     if data_args.dataset_name == 'wikitext' and data_args.dataset_config_name is None:
@@ -487,11 +487,15 @@ def main():
     logging.info(f'dataset={data_args.dataset_name}, dataset_config_name={data_args.dataset_config_name}, datadir="{data_args.data_dir}"')
     logging.info(f'expdir="{training_args.output_dir}"')
     logging.info(f'train_batch_size={training_args.per_device_train_batch_size}, fp16="{training_args.fp16}"')
+    logging.info('')
+    logging.info('')
 
     logger.info("transformer_args %s", transformer_args)
     logger.info("training_args %s", training_args)
     logger.info("data_args %s", data_args)
     logger.info("model_args %s", model_args)
+    logging.info('')
+    logging.info('')
 
 
     # Log on each process the small summary:
@@ -508,7 +512,7 @@ def main():
     token_config = TokenConfig()
     tokenizer_files = train_tokenizer(datasets["train"], token_config,
         vocab_size=transformer_args.vocab_size, save_dir=training_args.output_dir)
-    tokenizer = create_tokenizer(tokenizer_files, token_config)
+    tokenizer = create_tokenizer(tokenizer_files, token_config, transformer_args.max_length)
     #tokenizer = load_tokenizer(model_args)
 
     lm_datasets = create_lm_datasets(datasets, tokenizer,
