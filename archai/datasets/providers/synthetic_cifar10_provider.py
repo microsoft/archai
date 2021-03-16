@@ -5,8 +5,9 @@ from typing import List, Tuple, Union, Optional
 import os
 
 from overrides import overrides, EnforceOverrides
-from torch.utils.data.dataset import Dataset
 
+import torch
+from torch.utils.data.dataset import Dataset
 import torchvision
 from torchvision.transforms import transforms
 
@@ -27,17 +28,17 @@ class SyntheticCifar10Provider(DatasetProvider):
 
         if load_train:
             trainpath = os.path.join(self._dataroot, 'synthetic_cifar10', 'train')
-            trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
+            trainset = torchvision.datasets.DatasetFolder(trainpath, loader=torch.load, extensions='.pt' ,transform=None)
         if load_test:
             testpath = os.path.join(self._dataroot, 'synthetic_cifar10', 'test')
-            testset = torchvision.datasets.ImageFolder(testpath, transform=transform_test)
+            testset = torchvision.datasets.DatasetFolder(testpath, loader=torch.load, extensions='.pt', transform=None)
 
         return trainset, testset
 
     @overrides
     def get_transforms(self)->tuple:
-        MEAN = [0.0, 0.0, 0.0]
-        STD = [1.0, 1.0, 1.0]
+        MEAN = [0.4323, 0.4323, 0.4323]
+        STD = [0.3192, 0.3192, 0.3192]
         transf = [
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip()

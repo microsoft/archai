@@ -15,7 +15,7 @@ if __name__ == '__main__':
     if 'default_dataroot' not in os.environ:
         os.environ['default_dataroot'] = default_dataroot()
 
-    conf = Config(config_filepath='confs/datasets/flower102.yaml')
+    conf = Config(config_filepath='confs/datasets/synthetic_cifar10.yaml')
 
     conf_dataset = conf['dataset']
 
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     # you have to manually type in the transform here since you
     # don't know the STD and MEAN values
     train_ds, _ = ds_provider.get_datasets(True, False,
-        transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224), transforms.ToTensor()]),
+        transforms.Compose([transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor()]),
         transforms.Compose([]))
 
     print(channel_norm(train_ds))
