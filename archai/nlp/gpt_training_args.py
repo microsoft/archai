@@ -391,7 +391,7 @@ class GptTrainingArguments:
             )
         },
     )
-    no_cuda: bool = field(default=True, metadata={"help": "Do not use CUDA even when it is available"})
+    no_cuda: bool = field(default=False, metadata={"help": "Do not use CUDA even when it is available"})
     seed: int = field(default=42, metadata={"help": "Random seed that will be set at the beginning of training."})
 
     fp16: bool = field(
