@@ -7,7 +7,7 @@ from collections import defaultdict
 from tqdm import tqdm
 import os
 
-import scripts.datasets.synthetic_gen.simple_nn as simple_nn
+import simple_nn
 
 def main():
     
