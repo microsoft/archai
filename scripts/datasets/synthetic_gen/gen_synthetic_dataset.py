@@ -7,7 +7,7 @@ from collections import defaultdict
 from tqdm import tqdm
 import os
 
-from scripts.datasets.synthetic_gen.simple_nn import SimpleNN
+import scripts.datasets.synthetic_gen.simple_nn as simple_nn
 
 def main():
     
@@ -18,7 +18,7 @@ def main():
     max_examples_per_class = 6000
     n_examples_per_class_train = 5000
     seed = 42
-    out_dir = "C:\\Users\\dedey\\dataroot\\synthetic2_cifar10"
+    out_dir = "C:\\Users\\dedey\\dataroot\\synthetic_cifar10"
     # end conf
 
     # make torch deterministic
@@ -29,7 +29,7 @@ def main():
     # a simple random neural network to 'label' images
     net_storage = []
     for i in range(n_classes):
-        net_storage.append(SimpleNN(num_classes = n_classes))
+        net_storage.append(simple_nn.SimpleNN(num_classes = n_classes))
     
     storage = defaultdict(list)
 
@@ -60,23 +60,21 @@ def main():
         print(f'class {key}: {num_examples_this_class}')
 
 
-    # save the dataset to format that pytorch ImageFolder dataloader
+    # save the dataset to format that pytorch DatasetFolder dataloader
     # can easily plug and play with
-    to_pil = ToPILImage()
     for key in storage.keys():
         train_dir = os.path.join(out_dir, 'train', str(key))
         test_dir = os.path.join(out_dir, 'test', str(key))
         os.makedirs(train_dir, exist_ok=True)
         os.makedirs(test_dir, exist_ok=True)
         for i, img in enumerate(storage[key]):
-            pil_img = to_pil(img.permute(2, 0, 1))
+            # to turn it into CHW
+            img = img.permute(2, 0, 1)
             if i < n_examples_per_class_train:
-                savename = os.path.join(train_dir, str(i)+'.png')
+                savename = os.path.join(train_dir, str(i)+'.pt')
             else:
-                savename = os.path.join(test_dir, str(i)+'.png')
-            pil_img.save(savename)
-
-
+                savename = os.path.join(test_dir, str(i)+'.pt')
+            torch.save(img, savename)
 
 
 
