@@ -41,6 +41,9 @@ from archai.common import utils, common
 
 logger = logging.getLogger(__name__)
 
+"""
+GPT2 learning paramaeters:
+"""
 
 @dataclass
 class ModelArguments:
@@ -250,7 +253,7 @@ def tokenizer_from_pretrained(model_name_or_path:str, revision:str, use_fast:boo
 
 def create_lm_datasets(datasets:DatasetDict, tokenizer:PreTrainedTokenizerBase,
                        preprocessing_num_workers:Optional[int], overwrite_cache:bool,
-                       block_size:Optional[int])->Dataset:
+                       block_size:Optional[int])->DatasetDict:
     # Preprocessing the datasets.
     # First we tokenize all the texts.
     # we assume that train/test split has same column names
@@ -278,7 +281,7 @@ def create_lm_datasets(datasets:DatasetDict, tokenizer:PreTrainedTokenizerBase,
                 f"The tokenizer picked seems to have a very large `model_max_length` ({tokenizer.model_max_length}). "
                 "Picking 1024 instead. You can change that default value by passing --block_size xxx."
             )
-        block_size = 1024
+            block_size = 1024
     else:
         if block_size > tokenizer.model_max_length:
             logger.warn(
@@ -318,7 +321,6 @@ def create_lm_datasets(datasets:DatasetDict, tokenizer:PreTrainedTokenizerBase,
 
     return lm_datasets
 
-
 def get_datasets(data_args:DataTrainingArguments)->DatasetDict:
     if data_args.dataset_name is not None:
         datasets = dataset_from_name(data_args.dataset_name,
@@ -352,7 +354,6 @@ def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, 
 
     # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
     #tokenizer.padding_side = "left"
-
     return tokenizer
 
 def create_model(model_args:ModelArguments, input_embedding_size:int,
