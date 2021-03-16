@@ -7,18 +7,17 @@ from collections import defaultdict
 from tqdm import tqdm
 import os
 
-from scripts.datasets.synthetic_gen.simple_nn import SimpleNN
 
 def main():
     
     # conf
     img_shape = [32, 32, 3]
     n_classes = 10
-    n_examples_to_gen = 400000
+    n_examples_to_gen = 500000
     max_examples_per_class = 6000
     n_examples_per_class_train = 5000
     seed = 42
-    out_dir = "C:\\Users\\dedey\\dataroot\\synthetic2_cifar10"
+    out_dir = "C:\\Users\\dedey\\dataroot\\synthetic_cifar10"
     # end conf
 
     # make torch deterministic
@@ -26,26 +25,21 @@ def main():
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-    # a simple random neural network to 'label' images
-    net_storage = []
-    for i in range(n_classes):
-        net_storage.append(SimpleNN(num_classes = n_classes))
-    
+    # linear functions which will generate data labels
+    num_img_elements = ma.prod(img_shape)
+    ws = torch.randn((n_classes,  num_img_elements))
+
+    # linear function storage
     storage = defaultdict(list)
 
     for i in tqdm(range(n_examples_to_gen)):
  
         # sample a gaussian image
         sampled_img = torch.randn(img_shape)
-
-        # pass image through n randomly initialized networks
-        response_storage = []
-        for j in range(len(net_storage)):
-            response = net_storage[j](sampled_img.view(-1))
-            response_storage.append(response)
-
-        # compute the groundtruth class for it
-        gt_class = torch.argmax(torch.Tensor(response_storage))
+        
+        # find argmax
+        responses = torch.matmul(ws, sampled_img.view(-1, 1))
+        gt_class = torch.argmax(responses)
 
         # only store examples if max threshold is not exceeded
         if (len(storage[gt_class.item()]) < max_examples_per_class):
@@ -60,21 +54,21 @@ def main():
         print(f'class {key}: {num_examples_this_class}')
 
 
-    # save the dataset to format that pytorch ImageFolder dataloader
+    # save the dataset to format that pytorch DatasetFolder dataloader
     # can easily plug and play with
-    to_pil = ToPILImage()
     for key in storage.keys():
         train_dir = os.path.join(out_dir, 'train', str(key))
         test_dir = os.path.join(out_dir, 'test', str(key))
         os.makedirs(train_dir, exist_ok=True)
         os.makedirs(test_dir, exist_ok=True)
         for i, img in enumerate(storage[key]):
-            pil_img = to_pil(img.permute(2, 0, 1))
+            # to turn it into CHW
+            img = img.permute(2, 0, 1)
             if i < n_examples_per_class_train:
-                savename = os.path.join(train_dir, str(i)+'.png')
+                savename = os.path.join(train_dir, str(i)+'.pt')
             else:
-                savename = os.path.join(test_dir, str(i)+'.png')
-            pil_img.save(savename)
+                savename = os.path.join(test_dir, str(i)+'.pt')
+            torch.save(img, savename)
 
 
 
