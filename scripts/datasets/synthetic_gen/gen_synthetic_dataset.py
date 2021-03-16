@@ -14,7 +14,7 @@ def main():
     # conf
     img_shape = [32, 32, 3]
     n_classes = 10
-    n_examples_to_gen = 400000
+    n_examples_to_gen = 500000 * 2
     max_examples_per_class = 6000
     n_examples_per_class_train = 5000
     seed = 42
