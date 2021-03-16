@@ -7,9 +7,9 @@ class SimpleNN(nn.Module):
         super(SimpleNN, self).__init__()
 
         self.net = nn.Sequential(
-                                nn.Linear(32*32*3, 10),
+                                nn.Linear(32*32*3, 3072),
                                 nn.ReLU(),                                                                                        
-                                nn.Linear(10, 1)
+                                nn.Linear(3072, 1)
                             )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:        
