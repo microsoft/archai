@@ -77,11 +77,13 @@ class ZeroCostNatsbenchEvaluater(Evaluater):
     def train_model(self,  conf_train:Config, model:nn.Module,
                     checkpoint:Optional[CheckPoint])->Metrics:
         conf_loader = conf_train['loader']
+        conf_train = conf_train['trainer']
+        num_classes = conf_loader['dataset']['n_classes']
         
         # get data
         data_loaders = self.get_data(conf_loader)
 
         trainer = ZeroCostTrainer(conf_train, model, checkpoint)
-        train_metrics = trainer.fit(data_loaders)
+        train_metrics = trainer.fit(data_loaders, num_classes)
         return train_metrics
 
