@@ -59,4 +59,4 @@ class TinyNetwork(nn.Module):
     # logits, aux_logits
     # WARNING: what does this break?
     #return out, logits
-    return logits, None
+    return logits
