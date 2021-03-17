@@ -14,9 +14,7 @@ nas:
       num_edges_to_sample: 2
     loader:
       train_batch: 96
-      naswotrain:
-        train_batch: 256 # batch size for computing trainingless score    
     trainer:
       plotsdir: ''
       epochs: 200
-      val_top1_acc_threshold: 0.80 # after some accuracy we will shift into training only the last 'n' layers
+      train_top1_acc_threshold: 0.1 # after some accuracy we will shift into training only the last 'n' layers

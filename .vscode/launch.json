@@ -303,6 +303,22 @@
             "args": ["--algos", "naswot_conditional_natsbench_space"]
         },
         {
+            "name": "ZeroCost-Conditional-Natsbench-Space-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "zerocost_conditional_natsbench_space"]
+        },
+        {
+            "name": "ZeroCost-Conditional-Natsbench-Space-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "zerocost_conditional_natsbench_space"]
+        },
+        {
             "name": "Natsbench-Regular-Eval-Full",
             "type": "python",
             "request": "launch",

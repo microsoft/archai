@@ -32,7 +32,7 @@ import archai.algos.zero_cost_measures.pruners.predictive as predictive
 class ZeroCostTrainer(ArchTrainer, EnforceOverrides):
 
     @overrides
-    def fit(self, data_loaders:data.DataLoaders)->Metrics:
+    def fit(self, data_loaders:data.DataLoaders, num_classes:int)->Metrics:
         logger.pushd(self._title)
 
         self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
@@ -40,14 +40,15 @@ class ZeroCostTrainer(ArchTrainer, EnforceOverrides):
         # TODO: Move to conf/obtain from the right place
         dataload:str = 'random' # 'random or grasp supported'
         dataload_info = 1 # 'number of batches to use for random dataload or number of samples per class for grasp dataload'
-        num_classes = 10 # we have to get these from somewhere
 
         measures = predictive.find_measures(self.model, 
                                             data_loaders.train_dl, 
                                             (dataload, dataload_info, num_classes),
                                             self.get_device())
         
-        for k, v in measures:
+        for k, v in measures.items():
             logger.info({k:v})
 
         logger.popd()
+
+        return self._metrics

@@ -80,6 +80,8 @@ class ZeroCostNatsbenchConditionalEvaluater(Evaluater):
                     checkpoint:Optional[CheckPoint])->Metrics:
         conf_loader_cond = deepcopy(conf_train['loader'])
         conf_train_cond = deepcopy(conf_train['trainer'])
+        conf_train_zerocost = deepcopy(conf_train['trainer'])
+        num_classes = conf_loader_cond['dataset']['n_classes']
         
         # NOTE: we don't pass checkpoint to the trainers
         # as it creates complications and we don't need it
@@ -94,10 +96,10 @@ class ZeroCostNatsbenchConditionalEvaluater(Evaluater):
         cond_trainer_metrics = cond_trainer.fit(data_loaders)
         logger.popd()
 
-        # then run naswotrain once certain accuracy has been reached
-        logger.pushd('zero_cost')
-        trainer = ZeroCostTrainer(conf_train, model, checkpoint)
-        train_metrics = trainer.fit(data_loaders)
+        # then run zero cost measures
+        logger.pushd('zerocost')
+        trainer = ZeroCostTrainer(conf_train_zerocost, model, checkpoint)
+        train_metrics = trainer.fit(data_loaders, num_classes)
         logger.popd()
 
         return train_metrics
