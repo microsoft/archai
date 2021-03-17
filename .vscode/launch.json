@@ -488,6 +488,16 @@
             "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
+            "name": "Analysis Natsbench ZeroCost Synthetic vs Cifar10",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_natsbench_zerocost_synthetic_vs_cifar10.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\nb_reg_b256_e200_sc10",
+                "--zerocost_measures_file", "C:\\Users\\dedey\\Documents\\zero-cost-nas\\precomputed_results\\nasbench201_cifar10_subset_all_results.yaml",
+                "--out-dir", "D:\\archai_experiment_reports"]
+        }
+        {
             "name": "Analysis Regular Natsbench and Nb101 Space",
             "type": "python",
             "request": "launch",
