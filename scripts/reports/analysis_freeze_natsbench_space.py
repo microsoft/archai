@@ -45,6 +45,9 @@ def main():
                         help='folder with experiment results from pt')
     parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
                         help='folder to output reports')
+    parser.add_argument('--reg-evals-file', '-r', type=str, default=None,
+                        help='optional yaml file which contains full evaluation \
+                            of architectures on new datasets not part of natsbench')
     args, extra_args = parser.parse_known_args()
 
     # root dir where all results are stored
@@ -58,6 +61,11 @@ def main():
     out_dir = utils.full_path(os.path.join(args.out_dir, exp_name))
     print(f'out_dir: {out_dir}')
     os.makedirs(out_dir, exist_ok=True)
+
+    # if optional regular evaluation lookup file is provided
+    if args.reg_evals_file:
+        with open(args.reg_evals_file, 'r') as f:
+            reg_evals_data = yaml.load(f, Loader=yaml.Loader)
 
     # get list of all structured logs for each job
     logs = {}
@@ -152,7 +160,29 @@ def main():
                 train_end_cond = logs[key]['freeze_evaluate']['eval_arch']['conditional_training']['eval_train']['epochs'][last_cond_epoch_key]['train']['top1']
                 if train_end_cond < confs[key]['nas']['eval']['trainer']['train_top1_acc_threshold']:
                     num_archs_unmet_cond += 1
-                    continue                
+                    continue
+
+                # regular evaluation 
+                # important to get this first since if it is not 
+                # available for non-benchmark datasets we need to 
+                # remove it from consideration
+                # --------------------
+                if not args.reg_evals_file:
+                    reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
+                else:
+                    # lookup from the provided file since this dataset is not part of the 
+                    # benchmark and hence we have to provide the info separately
+                    if 'natsbench' in list(confs[key]['nas']['eval'].keys()):
+                        arch_id_in_bench = confs[key]['nas']['eval']['natsbench']['arch_index']
+                    elif 'nasbench101' in list(confs[key]['nas']['eval'].keys()):
+                        arch_id_in_bench = confs[key]['nas']['eval']['nasbench101']['arch_index']
+                    
+                    if arch_id_in_bench not in list(reg_evals_data.keys()):
+                        # if the dataset used is not part of the standard benchmark some of the architectures
+                        # may not have full evaluation accuracies available. Remove them from consideration.
+                        continue
+                    reg_eval_top1 = reg_evals_data[arch_id_in_bench]
+                all_reg_evals.append(reg_eval_top1)                
 
                 # freeze evaluation 
                 #--------------------
@@ -198,10 +228,7 @@ def main():
                 naswotrain_top1 = logs[key]['naswotrain_evaluate']['eval_arch']['eval_train']['naswithouttraining']
                 all_naswotrain_evals.append(naswotrain_top1)
 
-                # regular evaluation
-                # --------------------
-                reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
-                all_reg_evals.append(reg_eval_top1)
+                
                 
                 # record the arch id
                 # --------------------
@@ -218,10 +245,10 @@ def main():
     results_savename = os.path.join(out_dir, 'results.txt')
     with open(results_savename, 'w') as f:
         f.write(f'Number of archs which did not reach condition: {num_archs_unmet_cond} \n')
-        f.write(f'Total valid archs processed: f{len(logs) - num_archs_unmet_cond} \n')
+        f.write(f'Total valid archs processed: {len(all_reg_evals)} \n')
 
     print(f'Number of archs which did not reach condition: {num_archs_unmet_cond}')
-    print(f'Total valid archs processed: {len(logs) - num_archs_unmet_cond}')
+    print(f'Total valid archs processed: {len(all_reg_evals)}')
 
     # Sanity check
     assert len(all_reg_evals) == len(all_freeze_evals_last)

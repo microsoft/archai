@@ -8,7 +8,7 @@ nas:
 
   eval:
     natsbench:
-      arch_index: 6758
+      arch_index: 288
       natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
     model_desc:
       num_edges_to_sample: 2
@@ -18,10 +18,10 @@ nas:
       naswotrain:
         train_batch: 256 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 2048 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
+        train_batch: 1024 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
     trainer:
       plotsdir: ''
-      train_top1_acc_threshold: 0.1 # after some accuracy we will shift into training only the last 'n' layers
+      train_top1_acc_threshold: 0.15 # after some accuracy we will shift into training only the last 'n' layers
       apex:
         _copy: '/common/apex'
       aux_weight: '_copy: /nas/eval/model_desc/aux_weight'

@@ -30,7 +30,7 @@ def main():
     parser = argparse.ArgumentParser(description='Cross Experiment Plots')
     parser.add_argument('--dataset', type=str, default='nasbench101',
                         help='dataset on which experiments have been run')
-    parser.add_argument('--conf_location', type=str, default='scripts/reports/proxynas_plots/cross_exp_conf.yaml', 
+    parser.add_argument('--conf-location', type=str, default='scripts/reports/proxynas_plots/cross_exp_conf.yaml', 
                         help='location of conf file')
     args, extra_args = parser.parse_known_args()
 
@@ -41,20 +41,31 @@ def main():
 
     exp_list = conf_data[args.dataset]['freezetrain']
     shortreg_exp_list = conf_data[args.dataset]['shortreg']
-    zero_cost_exp_list = conf_data[args.dataset]['zero_cost']
-                        
+                            
     # parse raw data from all processed experiments
     data = parse_raw_data(exp_folder, exp_list)
     shortreg_data = parse_raw_data(exp_folder, shortreg_exp_list)
-    zero_cost_data = parse_raw_data(exp_folder, zero_cost_exp_list)
+
+    # optionally parse zero cost data if it exists
+    zero_cost_exp_list = None
+    zero_cost_data = None
+    try:
+        zero_cost_exp_list = conf_data[args.dataset]['zero_cost']
+        zero_cost_data = parse_raw_data(exp_folder, zero_cost_exp_list)
+    except:
+        print(f'zero cost data was not found for {args.dataset}')
 
     # collect linestyles and colors to create distinguishable plots
     cmap = plt.get_cmap('tab20')
     colors = [cmap(i) for i in np.linspace(0, 1, len(exp_list)*2)]
     linestyles = ['solid', 'dashdot', 'dotted', 'dashed']
     #markers = ['.', 'v', '^', '<', '>', '1', 's', 'p', '*', '+', 'x', 'X', 'D', 'd']
-    markers = ["$1$", "$2$", "$3$", "$4$", "$5$", "$6$", "$7$", "$8$", "$9$", "$10$", "$11$", "$12$", "$13$", "$14$", "$15$", "$16$", "$17$", "$18$", "$19$", "$20$", "$21$", "$22$", "$23$", "$24$", "$25$", "$26$", "$27$", "$28$"]
-    mathy_markers = ["$a$", "$b$", "$c$", "$d$", "$e$", "$f$", "$g$", "$h$", "$i$", "$j$", "$k$", "$l$", "$m$", "$n$", "$o$", "$p$", "$q$", "$r$", "$s$", "$t$", "$u$", "$v$", "$w$", "$x$", "$y$", "$z$"]
+    markers = ["$1$", "$2$", "$3$", "$4$", "$5$", "$6$", "$7$", "$8$", "$9$", "$10$", "$11$", 
+    "$12$", "$13$", "$14$", "$15$", "$16$", "$17$", "$18$", "$19$", "$20$", "$21$", "$22$", 
+    "$23$", "$24$", "$25$", "$26$", "$27$", "$28$"]
+    mathy_markers = ["$a$", "$b$", "$c$", "$d$", "$e$", "$f$", "$g$", "$h$", "$i$", 
+    "$j$", "$k$", "$l$", "$m$", "$n$", "$o$", "$p$", "$q$", "$r$", "$s$", "$t$", 
+    "$u$", "$v$", "$w$", "$x$", "$y$", "$z$"]
     
     cc = cycler(color=colors) * cycler(linestyle=linestyles) * cycler(marker=markers)
 
@@ -131,13 +142,13 @@ def main():
                 break
 
         # get zero cost measures
-        for j, key in enumerate(zero_cost_data.keys()):
-            assert tp == zero_cost_data[key]['top_percents'][i]
-            for measure in ZERO_COST_MEASURES:
-                spe_name = measure + '_spe'
-                cr_name = measure + '_ratio_common'
-                this_tp_info['zero_cost_' + measure] = (0.0, zero_cost_data[key][spe_name][i], zero_cost_data[key][cr_name][i])
-
+        if zero_cost_data:
+            for j, key in enumerate(zero_cost_data.keys()):
+                assert tp == zero_cost_data[key]['top_percents'][i]
+                for measure in ZERO_COST_MEASURES:
+                    spe_name = measure + '_spe'
+                    cr_name = measure + '_ratio_common'
+                    this_tp_info['zero_cost_' + measure] = (0.0, zero_cost_data[key][spe_name][i], zero_cost_data[key][cr_name][i])
 
         # get shortreg
         for key in shortreg_data.keys():
@@ -164,7 +175,7 @@ def main():
             spe = tp_info[tp_key][exp][1]
             cr = tp_info[tp_key][exp][2]
 
-            if 'ft_fb' in exp or 'ft_c100' in exp or 'ft_i6' in exp or 'ft_i16' in exp or 'ft_nb101' in exp or 'fa_nb1_s' in exp:
+            if 'ft_fb' in exp or 'ft_c100' in exp or 'ft_i6' in exp or 'ft_i16' in exp or 'ft_nb101' in exp or 'fa_nb1_s' in exp or 'ft_sc10':
                 marker = counter
                 marker_color = 'red'
                 counter += 1
@@ -196,7 +207,6 @@ def main():
     fig.write_html(savename)
     fig.show()
     
-
 
     fig_cr.update_layout(title_text="Duration vs. Common Ratio vs. Top %")
     savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_common_ratio_vs_top_percent.html')
