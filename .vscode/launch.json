@@ -228,7 +228,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "ImageNet16-120"]
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "synthetic_cifar10"]
         },
         {
             "name": "Proxynas-Natsbench-Space-Toy",
@@ -584,8 +584,9 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_fb256_ftlr0.1_fte10_ct256_ftt0.6_c9",
-            "--out-dir", "D:\\archai_experiment_reports"]
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_sc10_fb1024_ftlr0.1_fte5_ct256_ftt0.15",
+                    "--out-dir", "D:\\archai_experiment_reports", 
+                    "--reg-evals-file", "D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml"]
         },
         {
             "name": "Analysis Freeze Addon No Cond",
@@ -614,15 +615,25 @@
             "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\nb_reg_b256_e200_sc10",
                 "--zerocost_measures_file", "C:\\Users\\dedey\\Documents\\zero-cost-nas\\precomputed_results\\nasbench201_cifar10_subset_all_results.yaml",
                 "--out-dir", "D:\\archai_experiment_reports"]
-        }
+        },
         {
             "name": "Analysis Regular Natsbench and Nb101 Space",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_regular_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\nb101_reg_b256_e10",
-            "--out-dir", "D:\\archai_experiment_reports"]
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\nb_reg_b256_e30_sc10",
+            "--out-dir", "D:\\archai_experiment_reports",
+            "--reg-evals-file", "D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml"]
+        },
+        {
+            "name": "Analysis Cross Experiment Plots",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/proxynas_plots/cross_exp_plots.py",
+            "console": "integratedTerminal",
+            "args": ["--dataset", "natsbench_synthetic_cifar10",
+            "--conf-location", "scripts/reports/proxynas_plots/cross_exp_conf.yaml"]
         },
         {
             "name": "CurrentFile",
