@@ -42,6 +42,9 @@ def main():
                         help='folder with experiment results from pt')
     parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
                         help='folder to output reports')
+    parser.add_argument('--reg-evals-file', '-r', type=str, default=None,
+                        help='optional yaml file which contains full evaluation \
+                        of architectures on new datasets not part of natsbench')
     args, extra_args = parser.parse_known_args()
 
     # root dir where all results are stored
@@ -55,6 +58,11 @@ def main():
     out_dir = utils.full_path(os.path.join(args.out_dir, exp_name))
     print(f'out_dir: {out_dir}')
     os.makedirs(out_dir, exist_ok=True)
+
+    # if optional regular evaluation lookup file is provided
+    if args.reg_evals_file:
+        with open(args.reg_evals_file, 'r') as f:
+            reg_evals_data = yaml.load(f, Loader=yaml.Loader)
 
     # get list of all structured logs for each job
     logs = {}
@@ -127,6 +135,28 @@ def main():
     for key in logs.keys():
         if 'eval' in key:
             try:                
+                # regular evaluation 
+                # important to get this first since if it is not 
+                # available for non-benchmark datasets we need to 
+                # remove it from consideration
+                # --------------------
+                if not args.reg_evals_file:
+                    reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
+                else:
+                    # lookup from the provided file since this dataset is not part of the 
+                    # benchmark and hence we have to provide the info separately
+                    if 'natsbench' in list(confs[key]['nas']['eval'].keys()):
+                        arch_id_in_bench = confs[key]['nas']['eval']['natsbench']['arch_index']
+                    elif 'nasbench101' in list(confs[key]['nas']['eval'].keys()):
+                        arch_id_in_bench = confs[key]['nas']['eval']['nasbench101']['arch_index']
+                    
+                    if arch_id_in_bench not in list(reg_evals_data.keys()):
+                        # if the dataset used is not part of the standard benchmark some of the architectures
+                        # may not have full evaluation accuracies available. Remove them from consideration.
+                        continue
+                    reg_eval_top1 = reg_evals_data[arch_id_in_bench]
+                all_reg_evals.append(reg_eval_top1)
+
                 best_train = logs[key]['eval_arch']['eval_train']['best_train']['top1']
                 all_short_reg_evals.append(best_train)
             
@@ -137,10 +167,7 @@ def main():
 
                 all_short_reg_time.append(duration)
                 
-                # regular evaluation
-                # --------------------
-                reg_eval_top1 = logs[key]['regular_evaluate']['regtrainingtop1']
-                all_reg_evals.append(reg_eval_top1)
+                
 
                 # record the arch id
                 # --------------------

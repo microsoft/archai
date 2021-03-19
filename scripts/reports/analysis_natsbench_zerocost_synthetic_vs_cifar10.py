@@ -119,13 +119,19 @@ def main():
         arch_id_synflow[arch_id] = synflow
 
     # create a dict with arch_id: regular eval score as entries
+    # and save since synthetic cifar10 is not part of the benchmark
     arch_id_reg_eval = {}
     for key in logs.keys():
         arch_id = confs[key]['nas']['eval']['natsbench']['arch_index']
         reg_eval = logs[key]['eval_arch']['eval_train']['best_test']['top1']
         arch_id_reg_eval[arch_id] = reg_eval
 
+    savename = os.path.join(out_dir, 'arch_id_test_accuracy_synthetic_cifar10.yaml')
+    with open(savename, 'w') as f:
+        yaml.dump(arch_id_reg_eval, f)
+
     # now create a list of regular evaluation and corresponding synflow scores
+    # to compute spearman's correlation
     all_reg_evals = []
     all_synflow = []
     for arch_id in arch_id_reg_eval.keys():
@@ -137,6 +143,24 @@ def main():
     print(f'num valid architectures used for analysis {len(logs)}')
     print(f'synflow spearman on synthetic cifar10 is {synflow_spe}')
 
+    # plot histogram of regular evaluation scores
+    fig = px.histogram(all_reg_evals, labels={'x': 'Test Accuracy', 'y': 'Counts'})
+    savename = os.path.join(out_dir, 'distribution_of_test_accuracies.html')
+    fig.write_html(savename)
+    fig.show()
+
+    # plot histogram of training scores
+    all_train_accs = []
+    for key in logs.keys():
+        train_acc = logs[key]['eval_arch']['eval_train']['best_train']['top1']
+        all_train_accs.append(train_acc)
+
+    fig1 = px.histogram(all_train_accs, labels={'x': 'Train Accuracy', 'y': 'Counts'})
+    savename = os.path.join(out_dir, 'distribution_of_train_accuracies.html')
+    fig1.write_html(savename)
+    fig1.show()
+
+    
 
 
 

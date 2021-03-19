@@ -103,6 +103,15 @@ natsbench_imagenet16-120:
             nb_i6_reg_b2048_e20,
             nb_i6_reg_b2048_e30]
 
+natsbench_synthetic_cifar10:
+  freezetrain: [ft_sc10_fb1024_ftlr0.1_fte5_ct256_ftt0.15,
+                ft_sc10_fb1024_ftlr0.1_fte10_ct256_ftt0.15]
+          
+  shortreg: [nb_reg_b256_e10_sc10,
+            nb_reg_b256_e20_sc10,
+            nb_reg_b256_e30_sc10]
+
+
 nasbench101:
   freezetrain: [ft_nb101_fb256_ftlr0.2_fte5_ct256_ftt0.2,
                 ft_nb101_fb256_ftlr0.2_fte10_ct256_ftt0.2,
