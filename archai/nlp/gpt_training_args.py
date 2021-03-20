@@ -35,6 +35,8 @@ if is_torch_available():
 
 if is_torch_tpu_available():
     import torch_xla.core.xla_model as xm
+if is_sagemaker_distributed_available():
+    import smdistributed.dataparallel.torch.distributed as sm_dist
 
 
 logger = logging.get_logger(__name__)
@@ -260,9 +262,10 @@ class GptTrainingArguments:
 
             If a string is passed, it will be split on space. If a bool is passed, it will be converted to an empty
             list for :obj:`False` and :obj:`["simple"]` for :obj:`True`.
-        deepspeed (:obj:`str`, `optional`):
+        deepspeed (:obj:`str` or :obj:`dict`, `optional`):
             Use `Deepspeed <https://github.com/microsoft/deepspeed>`__. This is an experimental feature and its API may
-            evolve in the future. The value is the location of its json config file (usually ``ds_config.json``).
+            evolve in the future. The value is either the location of DeepSpeed json config file (e.g.,
+            ``ds_config.json``) or an already loaded json file as a :obj:`dict`"
         label_smoothing_factor (:obj:`float`, `optional`, defaults to 0.0):
             The label smoothing factor to use. Zero means no label smoothing, otherwise the underlying onehot-encoded
             labels are changed from 0s and 1s to :obj:`label_smoothing_factor/num_labels` and :obj:`1 -
@@ -287,16 +290,16 @@ class GptTrainingArguments:
             Whether to skip adding of memory profiler reports to metrics. Defaults to :obj:`False`.
 
     """
-    experiment_name:str = field(default='train_gpt2_hf')
+    experiment_name:str = field(default='train_gpt2_hf')  # CHANGE: added new fields
     experiment_description:str = field(default='Train GPT2')
     toy:Optional[bool] = field(default=None)
 
     output_dir: str = field(
-         default='',
+         default='',   # CHANGE: added default
         metadata={"help": "The output directory where the model predictions and checkpoints will be written."},
     )
-    overwrite_output_dir: Optional[bool] = field(
-        default=None,
+    overwrite_output_dir: Optional[bool] = field(  # CHANGE: change to Optional[bool]
+        default=True, # CHANGE: default    # CHANGE: default
         metadata={
             "help": (
                 "Overwrite the content of the output directory."
@@ -305,12 +308,12 @@ class GptTrainingArguments:
         },
     )
 
-    do_train: bool = field(default=True, metadata={"help": "Whether to run training."})
-    do_eval: bool = field(default=True, metadata={"help": "Whether to run validation during training."})
-    do_test: bool = field(default=True, metadata={"help": "Whether to run final eval on the test set."})
+    do_train: bool = field(default=True, metadata={"help": "Whether to run training."})  # CHANGE: default
+    do_eval: bool = field(default=True, metadata={"help": "Whether to run validation during training."}) # CHANGE: default
+    do_test: bool = field(default=True, metadata={"help": "Whether to run final eval on the test set."}) # CHANGE: added
     do_predict: bool = field(default=False, metadata={"help": "Whether to run predictions on the test set."})
     evaluation_strategy: IntervalStrategy = field(
-        default="steps",
+        default="steps", # CHANGE: from "no"
         metadata={"help": "The evaluation strategy to use."},
     )
     prediction_loss_only: bool = field(
@@ -319,10 +322,10 @@ class GptTrainingArguments:
     )
 
     per_device_train_batch_size: int = field(
-        default=8, metadata={"help": "Batch size per GPU/TPU core/CPU for training."}
+        default=4, metadata={"help": "Batch size per GPU/TPU core/CPU for training."}  # CHANGE: from 8
     )
     per_device_eval_batch_size: int = field(
-        default=8, metadata={"help": "Batch size per GPU/TPU core/CPU for evaluation."}
+        default=4, metadata={"help": "Batch size per GPU/TPU core/CPU for evaluation."}  # CHANGE: from 8
     )
 
     per_gpu_train_batch_size: Optional[int] = field(
@@ -356,7 +359,7 @@ class GptTrainingArguments:
     adam_epsilon: float = field(default=1e-8, metadata={"help": "Epsilon for AdamW optimizer."})
     max_grad_norm: float = field(default=1.0, metadata={"help": "Max gradient norm."})
 
-    num_train_epochs: float = field(default=3.0, metadata={"help": "Total number of training epochs to perform."})
+    num_train_epochs: float = field(default=8.0, metadata={"help": "Total number of training epochs to perform."}) # CHANGE: from 3.0
     max_steps: int = field(
         default=-1,
         metadata={"help": "If > 0: set total number of training steps to perform. Override num_train_epochs."},
@@ -370,12 +373,12 @@ class GptTrainingArguments:
     )
     warmup_steps: int = field(default=0, metadata={"help": "Linear warmup over warmup_steps."})
 
-    logging_dir: Optional[str] = field(default=None, metadata={"help": "Tensorboard log dir."})
+    logging_dir: Optional[str] = field(default=None, metadata={"help": "Tensorboard log dir."}) # CHANGE: from factory function
     logging_strategy: IntervalStrategy = field(
         default="steps",
         metadata={"help": "The logging strategy to use."},
     )
-    logging_first_step: bool = field(default=False, metadata={"help": "Log the first global_step"})
+    logging_first_step: bool = field(default=True, metadata={"help": "Log the first global_step"})  # CHANGE: default
     logging_steps: int = field(default=500, metadata={"help": "Log every X updates steps."})
     save_strategy: IntervalStrategy = field(
         default="steps",
@@ -446,7 +449,7 @@ class GptTrainingArguments:
         default=None, metadata={"help": "An optional descriptor for the run. Notably used for wandb logging."}
     )
     disable_tqdm: Optional[bool] = field(
-        default=None, metadata={"help": "Whether or not to disable the tqdm progress bars."}
+        default=True, metadata={"help": "Whether or not to disable the tqdm progress bars."} # CHANGE: default from None
     )
 
     remove_unused_columns: Optional[bool] = field(
@@ -475,15 +478,17 @@ class GptTrainingArguments:
     sharded_ddp: str = field(
         default="",
         metadata={
-            "choices": ["simple", "zero_dp_2", "zero_dp_3", "zero_dp_2 offload", "zero_dp_3 offload"],
             "help": "Whether or not to use sharded DDP training (in distributed training only). The base option "
             "should be `simple`, `zero_dp_2` or `zero_dp_3` and you can add CPU-offload to `zero_dp_2` or `zero_dp_3` "
-            "like this: zero_dp_2 offload` or `zero_dp_3 offload`",
+            "like this: zero_dp_2 offload` or `zero_dp_3 offload`. You can add auto-wrap to `zero_dp_2` or "
+            "with the same syntax: zero_dp_2 auto_wrap` or `zero_dp_3 auto_wrap`.",
         },
     )
     deepspeed: Optional[str] = field(
         default=None,
-        metadata={"help": "Enable deepspeed and pass the path to deepspeed json config file (e.g. ds_config.json)"},
+        metadata={
+            "help": "Enable deepspeed and pass the path to deepspeed json config file (e.g. ds_config.json) or an already loaded json file as a dict"
+        },
     )
     label_smoothing_factor: float = field(
         default=0.0, metadata={"help": "The label smoothing epsilon to apply (zero means no label smoothing)."}
@@ -512,7 +517,8 @@ class GptTrainingArguments:
     _n_gpu: int = field(init=False, repr=False, default=-1)
 
     def __post_init__(self):
-        if self.disable_tqdm is None:
+        # CHANGE: don't set output_dir or logging_dir if None
+		if self.disable_tqdm is None:
             self.disable_tqdm = logger.getEffectiveLevel() > logging.WARN
 
         if isinstance(self.evaluation_strategy, EvaluationStrategy):
@@ -520,6 +526,7 @@ class GptTrainingArguments:
                 "using `EvaluationStrategy` for `evaluation_strategy` is deprecated and will be removed in version 5 of 🤗 Transformers. Use `IntervalStrategy` instead",
                 FutureWarning,
             )
+            self.evaluation_strategy = self.evaluation_strategy.value
 
         self.evaluation_strategy = IntervalStrategy(self.evaluation_strategy)
         self.logging_strategy = IntervalStrategy(self.logging_strategy)
@@ -551,7 +558,7 @@ class GptTrainingArguments:
             self.report_to = "all"
         if self.report_to == "all" or self.report_to == ["all"]:
             # Import at runtime to avoid a circular import.
-            from transformers.integrations import get_available_reporting_integrations
+            from transformers.integrations import get_available_reporting_integrations # CHANGE: import from transformers
 
             self.report_to = get_available_reporting_integrations()
         elif self.report_to == "none" or self.report_to == ["none"]:
@@ -575,7 +582,7 @@ class GptTrainingArguments:
                 "`--sharded_ddp offload` can't work on its own. It needs to be added to `--sharded_ddp zero_dp_2` or "
                 '`--sharded_ddp zero_dp_3`. For example, `--sharded_ddp "zero_dp_2 offload"`.'
             )
-        elif len(self.sharded_ddp) > 1 and ShardedDDPOption.Simple in self.sharded_ddp:
+        elif len(self.sharded_ddp) > 1 and ShardedDDPOption.SIMPLE in self.sharded_ddp:
             raise ValueError("`--sharded_ddp simple` is not compatible with any other option.")
         elif ShardedDDPOption.ZERO_DP_2 in self.sharded_ddp and ShardedDDPOption.ZERO_DP_3 in self.sharded_ddp:
             raise ValueError("`--sharded_ddp zero_dp_2` is not compatible with `--sharded_ddp zero_dp_3`.")
@@ -628,10 +635,9 @@ class GptTrainingArguments:
             device = xm.xla_device()
             self._n_gpu = 0
         elif is_sagemaker_distributed_available():
-            import smdistributed.dataparallel.torch.distributed as dist
 
-            dist.init_process_group()
-            self.local_rank = dist.get_local_rank()
+            sm_dist.init_process_group()
+            self.local_rank = sm_dist.get_local_rank()
             device = torch.device("cuda", self.local_rank)
             self._n_gpu = 1
         elif self.deepspeed:
@@ -722,6 +728,32 @@ class GptTrainingArguments:
         else:
             return ParallelMode.NOT_PARALLEL
 
+    @property
+    @torch_required
+    def world_size(self):
+        """
+        The number of processes used in parallel.
+        """
+        if is_torch_tpu_available():
+            return xm.xrt_world_size()
+        elif is_sagemaker_distributed_available():
+            return sm_dist.get_world_size()
+        elif self.local_rank != -1:
+            return torch.distributed.get_world_size()
+        return 1
+    @property
+    @torch_required
+    def process_index(self):
+        """
+        The number of processes used in parallel.
+        """
+        if is_torch_tpu_available():
+            return xm.get_ordinal()
+        elif is_sagemaker_distributed_available():
+            return sm_dist.get_rank()
+        elif self.local_rank != -1:
+            return torch.distributed.get_rank()
+        return 0
     @property
     def place_model_on_device(self):
         """

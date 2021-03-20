@@ -11,7 +11,7 @@ if 'pydevd' in sys.modules:
 def is_debugging()->bool:
     return 'vs_code_debugging' in os.environ and os.environ['vs_code_debugging']=='True'
 if is_debugging():
-    os.environ['CUDA_VISIBLE_DEVICES'] = ''
+    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 from datasets import load_dataset, DatasetDict, Dataset
 
@@ -42,7 +42,20 @@ from archai.common import utils, common
 logger = logging.getLogger(__name__)
 
 """
-GPT2 learning paramaeters:
+HF learning paramaeters (block_size==256, batch size==8) WikiText-2:
+    - len(datasets['train']) == 36718 # number of examples == number of lines
+    - lm_dataset['train'] == 8501 # number blocks
+    - total steps: 2331
+    - update steps/epoch == 1063 # number of blocks/batch size/grad_acc_steps
+    - max_steps == total optimization steps == epochs * update steps/epoch == 3189
+OpenAI:
+    steps: 800K
+    batch size: 512
+    epochs: 60
+    run time = 160hr on 128 TPU cores
+    LR=6E-4 (GPT-3/125M, it reduces as model gets bigger)
+    Train set: 26GB, 7B tokens
+    Val set: 300MB, 900M tokens
 """
 
 @dataclass
@@ -82,11 +95,26 @@ class ModelArguments:
 
 @dataclass
 class TransformerArguments:
-    n_embd=768
-    n_layer=12
-    n_head=12
-    max_length=1024
+    n_embd:int=768
+    n_layer:int=12
+    n_head:int=12
+    max_length:int=1024
     vocab_size:int=50257
+    gpt_config_name:str=''
+
+known_gpt_configs = {
+    'gpt2_small': TransformerArguments(gpt_config_name='gpt2_small'),
+    'gpt2_medium': TransformerArguments(n_embd=1024, n_head=16, n_layer=24, gpt_config_name='gpt2_medium'),
+    'gpt2_large': TransformerArguments(n_embd=1280, n_head=20, n_layer=36, gpt_config_name='gpt2_large'),
+    'gpt2_xl': TransformerArguments(n_embd=1600, n_head=25, n_layer=48, gpt_config_name='gpt2_xl'),
+    'gpt2_distill': TransformerArguments(n_layer=6, gpt_config_name='gpt2_distill'),
+    'gpt2_tiny': TransformerArguments(n_embd=2, n_head=2, n_layer=2, gpt_config_name='gpt2_tiny'),
+    'gpt2_toy': TransformerArguments(n_embd=2, n_head=2, n_layer=2, vocab_size=1000, max_length=32,
+                                     gpt_config_name='gpt2_toy'),
+    'gpt1': TransformerArguments(vocab_size=40478, max_length=512, gpt_config_name='gpt1'),
+    'aitextgen': TransformerArguments(n_embd=256, n_head=8, n_layer=8, vocab_size=5000, max_length=32,
+                                      gpt_config_name='aitextgen'),
+}
 
 @dataclass
 class DataTrainingArguments:
@@ -203,7 +231,7 @@ def dataset_from_name(dataset_name:str, dataset_config_name:Optional[str],
 
     # Downloading and loading a dataset from the hub.
     datasets = load_dataset(dataset_name, dataset_config_name,
-                            data_dir=data_dir)
+                            cache_dir=data_dir)
     assert isinstance(datasets, DatasetDict)
 
     if "validation" not in datasets.keys():
@@ -211,13 +239,13 @@ def dataset_from_name(dataset_name:str, dataset_config_name:Optional[str],
             dataset_name,
             dataset_config_name,
             split=f"train[:{validation_split_percentage}%]",
-            data_dir=data_dir
+            cache_dir=data_dir
         )
         datasets["train"] = load_dataset(
             dataset_name,
             dataset_config_name,
             split=f"train[{validation_split_percentage}%:]",
-            data_dir=data_dir
+            cache_dir=data_dir
         )
 
     return datasets
@@ -294,7 +322,7 @@ def create_lm_datasets(datasets:DatasetDict, tokenizer:PreTrainedTokenizerBase,
     def group_texts(examples):
         # Concatenate all texts.
         concatenated_examples = {k: sum(examples[k], []) for k in examples.keys()}
-        total_length = len(concatenated_examples[list(examples.keys())[0]])
+        total_length = len(concatenated_examples['input_ids']) # list(examples.keys())[0]
         # We drop the small remainder, we could add padding if the model supported it instead of this drop, you can
         # customize this part to your needs.
         total_length = (total_length // block_size) * block_size
@@ -404,7 +432,7 @@ def evaluate_model(lm_datasets, trainer:Trainer):
 
 def train_tokenizer(dataset:Dataset, token_config: TokenConfig,
                     vocab_size: int, save_dir: str, save_prefix='tokenizer',
-                    dropout: float = None, min_frequency: int = 2,
+                    dropout: float = None, min_frequency: int = 0, show_progress=False,
                     added_tokens: List[str] = []) -> TokenizerFiles:
 
     tokenizer_out_files = TokenizerFiles(vocab_file=os.path.join(save_dir, save_prefix + '-vocab.json'),
@@ -413,6 +441,7 @@ def train_tokenizer(dataset:Dataset, token_config: TokenConfig,
             and os.path.exists(tokenizer_out_files.merges_file):
         return tokenizer_out_files
 
+    # TODO: remove dropout
     tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)
 
     def batch_iterator(batch_size=1000):
@@ -421,6 +450,7 @@ def train_tokenizer(dataset:Dataset, token_config: TokenConfig,
 
     tokenizer.train_from_iterator(batch_iterator(),
         vocab_size=vocab_size-len(added_tokens), # original GPT2: 50257
+        show_progress=show_progress,
         min_frequency=min_frequency,
         # for GPT2, pad token is not used: https://github.com/huggingface/transformers/issues/2630
         special_tokens=[token_config.bos_token, token_config.eos_token, token_config.unk_token])
@@ -464,25 +494,33 @@ def main():
     # create dataset and output dirs
     pt_data_dir, pt_output_dir = common.pt_dirs()
     data_args.data_dir = data_args.data_dir or pt_data_dir or common.default_dataroot()
-    data_args.data_dir = utils.full_path(os.path.join(data_args.data_dir, 'textpred'))
+    data_args.data_dir = utils.full_path(os.path.join(data_args.data_dir, 'textpred', 'huggingface', 'datasets'))
     training_args.output_dir =  utils.full_path(pt_output_dir or \
                     os.path.join(training_args.output_dir or '~/logdir', training_args.experiment_name)
                 , create=True)
     training_args.logging_dir = get_logdir(training_args.output_dir) if training_args.logging_dir is None else training_args.logging_dir
     training_args.toy = utils.is_debugging() if training_args.toy is None else training_args.toy
 
+    if transformer_args.gpt_config_name:
+        transformer_args = known_gpt_configs[transformer_args.gpt_config_name]
+
+    gpu_mem = torch.cuda.get_device_properties(0).total_memory / 1.0e9
+    gb3_blocks = int(gpu_mem/4) # 3gb blocks
+
     # if not specified, overrite is False if not toy mode
     training_args.overwrite_output_dir = training_args.overwrite_output_dir if \
         training_args.overwrite_output_dir is not None else training_args.toy
     if training_args.toy:
-        transformer_args.max_length = 128
+        # adjust for current GPU RAM on dev machine for batch size = 4
+        transformer_args.max_length = min(256*gb3_blocks, transformer_args.max_length)
 
     data_args.dataset_name = data_args.dataset_name if data_args.dataset_name is not None else 'wikitext'
     if data_args.dataset_name == 'wikitext' and data_args.dataset_config_name is None:
         data_args.dataset_config_name = 'wikitext-2-raw-v1' if training_args.toy else 'wikitext-103-raw-v1'
 
     setup_logging(training_args.local_rank, training_args.output_dir)
-    logging.info(f'toy={training_args.toy}')
+    logging.info(f'toy={training_args.toy}, fp16={training_args.fp16}')
+    logging.info(f'gpt_config_name={transformer_args.gpt_config_name}, n_embd={transformer_args.n_embd}, n_layer={transformer_args.n_layer}, n_embd={transformer_args.n_embd}, n_head={transformer_args.n_head}, max_length={transformer_args.max_length}, vocab_size={transformer_args.vocab_size}')
     logging.info(f'num_steps={training_args.max_steps}, epochs={training_args.num_train_epochs}')
     logging.info(f'n_gpus={training_args.n_gpu}, parallel_mode={training_args.parallel_mode}, device={training_args.device}, seed={training_args.seed}')
     logging.info(f'dataset={data_args.dataset_name}, dataset_config_name={data_args.dataset_config_name}, datadir="{data_args.data_dir}"')
@@ -511,8 +549,11 @@ def main():
     datasets = get_datasets(data_args)
 
     token_config = TokenConfig()
+    logger.info("*** Start Training Tokenizer***")
     tokenizer_files = train_tokenizer(datasets["train"], token_config,
+        show_progress=not training_args.disable_tqdm,
         vocab_size=transformer_args.vocab_size, save_dir=training_args.output_dir)
+    logger.info("*** End Training Tokenizer***")
     tokenizer = create_tokenizer(tokenizer_files, token_config, transformer_args.max_length)
     #tokenizer = load_tokenizer(model_args)
 
