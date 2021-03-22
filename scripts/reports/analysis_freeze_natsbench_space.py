@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import sys
 import argparse
 from typing import Dict, List, Type, Iterator, Tuple
 import glob
@@ -239,6 +240,7 @@ def main():
                     
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
+                sys.exit()
 
 
     # Store some key numbers in results.txt
