@@ -23,6 +23,7 @@ from archai.algos.natsbench.natsbench_regular_experiment_runner import Natsbench
 from archai.algos.nasbench101.nasbench101_exp_runner import Nb101RegularExperimentRunner
 from archai.algos.proxynas.phased_freeze_natsbench_experiment_runner import PhasedFreezeNatsbenchExperimentRunner
 from archai.algos.proxynas.freezeaddon_nasbench101_experiment_runner import FreezeAddonNasbench101ExperimentRunner
+from archai.algos.zero_cost_measures.zero_cost_natsbench_experiment_runner import ZeroCostNatsbenchExperimentRunner
 from archai.algos.zero_cost_measures.zero_cost_natsbench_conditional_experiment_runner import ZeroCostConditionalNatsbenchExperimentRunner
 
 
@@ -41,6 +42,7 @@ def main():
         'proxynas_nasbench101_space': FreezeNasbench101ExperimentRunner,
         'proxynas_manual': ManualFreezeExperimentRunner,
         'naswot_conditional_natsbench_space': NaswotConditionalNatsbenchExperimentRunner,
+        'zerocost_natsbench_space': ZeroCostNatsbenchExperimentRunner,
         'zerocost_conditional_natsbench_space': ZeroCostConditionalNatsbenchExperimentRunner,
         'natsbench_regular_eval': NatsbenchRegularExperimentRunner,
         'nb101_regular_eval': Nb101RegularExperimentRunner,
@@ -63,6 +65,7 @@ def main():
                                                         proxynas_nasbench101_space,
                                                         freezeaddon_nasbench101_space,
                                                         naswot_conditional_natsbench_space,
+                                                        zerocost_natsbench_space,
                                                         zerocost_conditional_natsbench_space,
                                                         natsbench_regular_eval,
                                                         nb101_regular_eval,
