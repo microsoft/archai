@@ -62,8 +62,8 @@ class ZeroCostNatsbenchEvaluater(Evaluater):
             logger.warn(f'architecture id {arch_index} is invalid ')
 
         if dataset_name not in {'cifar10', 'cifar100', 'ImageNet16-120'}:
-            logger.warn(f'dataset {dataset_name} is not part of natsbench')
-            raise NotImplementedError()
+            logger.warn(f'dataset {dataset_name} is not part of natsbench. Fooling natsbench to think this is cifar10')
+            dataset_name = 'cifar10'
 
         config = api.get_net_config(arch_index, dataset_name)
         # network is a nn.Module subclass. the last few modules have names
