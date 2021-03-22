@@ -55,30 +55,32 @@ class ZeroCostConditionalNatsbenchExperimentRunner(ExperimentRunner):
         zerocost_eval_result = zerocost_evaler.evaluate(conf_eval_zerocost, model_desc_builder=self.model_desc_builder())
         logger.popd()
 
+            
         # regular evaluation of the architecture
         # where we simply lookup the result
         # --------------------------------------
-        logger.pushd('regular_evaluate')
-        arch_id = conf_eval['natsbench']['arch_index']
-        dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
-        natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])        
         dataset_name = conf_eval['loader']['dataset']['name']
 
-        api = create(natsbench_location, 'tss', fast_mode=True, verbose=True)
-        
-        if arch_id > 15625 or arch_id < 0:
-            logger.warn(f'architecture id {arch_id} is invalid ')
-        
-        if dataset_name not in {'cifar10', 'cifar100', 'ImageNet16-120'}:
-            logger.warn(f'dataset {dataset_name} is not part of natsbench')
-            raise NotImplementedError()
-        
-        info = api.get_more_info(arch_id, dataset_name, hp=200, is_random=False)
-        test_accuracy = info['test-accuracy']
-        logger.info(f'Regular training top1 test accuracy is {test_accuracy}')
-        logger.info({'regtrainingtop1': float(test_accuracy)})
-        logger.popd()
+        logger.pushd('regular_evaluate')   
+        if dataset_name in {'cifar10', 'cifar100', 'ImageNet16-120'}:            
+            arch_id = conf_eval['natsbench']['arch_index']
+            dataroot = utils.full_path(conf_eval['loader']['dataset']['dataroot'])    
+            natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_tss_fast'])
+            logger.info(natsbench_location)        
             
+            api = create(natsbench_location, 'tss', fast_mode=True, verbose=True)
+            
+            if arch_id > 15625 or arch_id < 0:
+                logger.warn(f'architecture id {arch_id} is invalid ')
+                        
+            info = api.get_more_info(arch_id, dataset_name, hp=200, is_random=False)
+            test_accuracy = info['test-accuracy']
+            logger.info(f'Regular training top1 test accuracy is {test_accuracy}')
+            logger.info({'regtrainingtop1': float(test_accuracy)})
+        else:
+            logger.info({'regtrainingtop1': -1})
+        logger.popd()
+        
 
         # conditional zerocost evaluation
         # here we train regularly until a certain threshold accuracy is hit

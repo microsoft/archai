@@ -62,7 +62,7 @@ class NatsbenchRegularExperimentRunner(ExperimentRunner):
             test_accuracy = info['test-accuracy']
             logger.info(f'Regular training top1 test accuracy is {test_accuracy}')
             logger.info({'regtrainingtop1': float(test_accuracy)})
-        elif dataset_name =='synthetic_cifar10':
+        else:
             logger.info({'regtrainingtop1': -1})
         logger.popd()
 

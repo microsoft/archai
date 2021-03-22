@@ -648,8 +648,17 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/proxynas_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_synthetic_cifar10",
+            "args": ["--dataset", "natsbench_cifar10",
             "--conf-location", "scripts/reports/proxynas_plots/cross_exp_conf.yaml"]
+        },
+        {
+            "name": "Analysis Zero Cost Conditional Natsbench Experiments",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_natsbench_conditional_zerocost.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_cond_b256_ftt0.6",
+                "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
             "name": "CurrentFile",
