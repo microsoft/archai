@@ -308,7 +308,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_conditional_natsbench_space"]
+            "args": ["--full", "--algos", "zerocost_conditional_natsbench_space", "--datasets", "synthetic_cifar10"]
         },
         {
             "name": "ZeroCost-Conditional-Natsbench-Space-Toy",
@@ -317,6 +317,22 @@
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "zerocost_conditional_natsbench_space"]
+        },
+        {
+            "name": "ZeroCost-Natsbench-Space-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "zerocost_natsbench_space", "--datasets", "synthetic_cifar10"]
+        },
+        {
+            "name": "ZeroCost-Natsbench-Space-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "zerocost_natsbench_space"]
         },
         {
             "name": "Natsbench-Regular-Eval-Full",
