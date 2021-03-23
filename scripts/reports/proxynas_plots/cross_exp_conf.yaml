@@ -97,9 +97,25 @@ natsbench_imagenet16-120:
                 ft_i6_fb1024_ftlr0.1_fte10_ct256_ftt0.2,
                 ft_i6_fb512_ftlr0.1_fte5_ct256_ftt0.2,
                 ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2,
-                ft_i6_fb256_ftlr0.1_fte5_ct256_ftt0.2]
+                ft_i6_fb256_ftlr0.1_fte5_ct256_ftt0.2,
+                ft_i6_fb256_ftlr0.5_fte5_ct256_ftt0.2,
+                ft_i6_fb256_ftlr0.5_fte10_ct256_ftt0.2,
+                ft_i6_fb512_ftlr0.5_fte5_ct256_ftt0.2,
+                ft_i6_fb512_ftlr0.5_fte10_ct256_ftt0.2,
+                ft_i6_fb1024_ftlr0.5_fte5_ct256_ftt0.2,
+                ft_i6_fb1024_ftlr0.5_fte10_ct256_ftt0.2,
+                ft_i6_fb2048_ftlr0.5_fte5_ct256_ftt0.2,
+                ft_i6_fb2048_ftlr0.5_fte10_ct256_ftt0.2,
+                ft_i6_fb256_ftlr1.0_fte5_ct256_ftt0.2,
+                ft_i6_fb256_ftlr1.0_fte10_ct256_ftt0.2,
+                ft_i6_fb512_ftlr1.0_fte5_ct256_ftt0.2,
+                ft_i6_fb512_ftlr1.0_fte10_ct256_ftt0.2,
+                ft_i6_fb1024_ftlr1.0_fte5_ct256_ftt0.2,
+                ft_i6_fb1024_ftlr1.0_fte10_ct256_ftt0.2,  
+                ft_i6_fb2048_ftlr1.0_fte5_ct256_ftt0.2,
+                ft_i6_fb2048_ftlr1.0_fte10_ct256_ftt0.2]
 
-  zero_cost: []
+  zero_cost: [zc_imagenet16-120]
 
   shortreg: [nb_i16_reg_b256_e10,
             nb_i16_reg_b256_e20,
