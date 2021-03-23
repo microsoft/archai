@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
+from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union, Dict
 import  numpy as np
 import logging
 import csv
@@ -381,3 +381,36 @@ def get_ranks(items:list, key=lambda v:v, reverse=False)->List[int]:
                       reverse=reverse)
     sorted_map = dict((t[1], i) for i, t in enumerate(sorted_t))
     return [sorted_map[i] for i in range(len(items))]
+
+
+def search_space_dataset_error_cdf(arch_err_data:List[float])->List[Tuple[float, float]]:
+    ''' Computes error cdf of architectures sampled from some search space 
+    on some dataset. Assumed arch_err_data is a list of error [0-1] 
+    on dataset. '''
+
+    # sanity check
+    for v in arch_err_data:
+        assert v >= 0.0 and v <= 1.0
+
+    total_archs = len(arch_err_data)
+    arch_err_data.sort()
+
+    ecdf_storage = []
+    for i in range(0, 101, 10):
+        threshold = i / 100.0
+        count = 0
+        for err in arch_err_data:
+            if err < threshold:
+                count += 1
+        ratio = count / total_archs
+        ecdf_storage.append((threshold, ratio))
+
+    return ecdf_storage
+
+    
+
+
+
+    
+
+    
