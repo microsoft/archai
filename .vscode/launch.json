@@ -684,7 +684,15 @@
             "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_cond_b256_ftt0.6",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
-        
+        {
+            "name": "Analysis Hog FFNet",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_hog_ffnet.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\hog_synthetic_cifar10_search",
+                "--out-dir", "D:\\archai_experiment_reports"]
+        },
         {
             "name": "CurrentFile",
             "type": "python",
