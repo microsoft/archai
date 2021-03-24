@@ -1,18 +1,40 @@
 __include__: 'darts.yaml' # just use darts defaults
 
+# dataset:
+#   name: 'cifar10'
+#   n_classes: 10
+#   channels: 3 # number of channels in image
+#   max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+#   storage_name: 'cifar-10-batches-py' # name of folder or tar file to copy from cloud storage
+
+# dataset:
+#   name: 'cifar100'
+#   n_classes: 100
+#   channels: 3 # number of channels in image
+#   max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+#   storage_name: 'cifar-100-python' # name of folder or tar file to copy from cloud storage
+
+# dataset:
+#   name: 'ImageNet16-120'
+#   n_classes: 120
+#   channels: 3 # number of channels in image
+#   max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+#   storage_name: 'imagenet16' # name of folder or tar file to copy from cloud storage
+
 dataset:
-  name: 'ImageNet16-120'
-  n_classes: 120
+  name: 'synthetic_cifar10'
+  n_classes: 10
   channels: 3 # number of channels in image
   max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
-  storage_name: 'imagenet16' # name of folder or tar file to copy from cloud storage
+  storage_name: 'synthetic_cifar10' # name of folder or tar file to copy from cloud storage
+
 
 common:
   experiment_name: 'VisualFeaturesWithLinearNet'
 
 nas:
   eval:
-    pixels_per_hog_cell: 4 # for ImageNet16-120: 4, for cifar10: 8
+    pixels_per_hog_cell: 8 # for ImageNet16-120: 4, for cifar10: 8
     feature_len: 324 # for ImageNet16-120: 324, for cifar10: 324
     loader:
       train_batch: 1024

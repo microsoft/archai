@@ -4,7 +4,6 @@ from nats_bench import create
 from archai.common.utils import search_space_dataset_error_cdf
 
 import os
-import plotly.express as px
 import plotly.graph_objects as go
 
 def main():
