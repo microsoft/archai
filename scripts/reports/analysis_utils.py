@@ -315,8 +315,9 @@ def find_valid_log(subdir:str)->str:
                 return os.path.join(dist_folder, f)
 
 
-def parse_a_job(job_dir:str)->Dict:
-     if job_dir.is_dir():
+def parse_a_job(job_dir:pathlib.Path)->Dict:
+    ''' parses an ExperimentRunner job '''
+    if job_dir.is_dir():
 
         storage = {}
         for subdir in job_dir.iterdir():
@@ -353,3 +354,36 @@ def parse_a_job(job_dir:str)->Dict:
                 storage[key] = (data, confs)
             
         return storage
+
+
+def parse_a_nonexprunner_job(job_dir:pathlib.Path)->Dict:
+    ''' parses a non ExperimentRunner job '''
+    if job_dir.is_dir():
+
+        storage = {}
+        for subdir in job_dir.iterdir():
+            if not subdir.is_dir():
+                continue
+            
+            logs_filepath = find_valid_log(subdir)
+            # if no valid logfile found, ignore this job as it probably 
+            # didn't finish or errored out or is yet to run
+            if not logs_filepath:
+                continue
+
+            config_used_filepath = os.path.join(subdir, 'config_used.yaml')
+
+            if os.path.isfile(logs_filepath):
+                fix_yaml(logs_filepath)
+                key = job_dir.name + subdir.name
+                # parse log
+                with open(logs_filepath, 'r') as f:
+                    data = yaml.load(f, Loader=yaml.Loader)                    
+                # parse config used
+                with open(config_used_filepath, 'r') as f:
+                    confs = yaml.load(f, Loader=yaml.Loader)
+                storage[key] = (data, confs)
+            
+        return storage
+
+
