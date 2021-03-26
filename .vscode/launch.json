@@ -487,6 +487,15 @@
                     "--reg-evals-file", "D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml"]
         },
         {
+            "name": "NEW Analysis Freeze Natsbench and Nb101 Space NEW",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space_new.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_i6_fb1024_ftlr0.5_fte5_ct256_ftt0.1_val",
+                    "--out-dir", "D:\\archai_experiment_reports"]
+        },
+        {
             "name": "Analysis Freeze Addon No Cond",
             "type": "python",
             "request": "launch",
