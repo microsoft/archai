@@ -84,7 +84,8 @@ natsbench_cifar100:
 
 natsbench_imagenet16-120:
   freezetrain: [ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.2,
-                ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.1_val]
+                ft_i6_fb2048_ftlr0.1_fte15_ct256_ftt0.2,
+                ft_i6_fb2048_ftlr0.1_fte30_ct256_ftt0.2]
     
     # [ft_i6_fb2048_ftlr0.1_fte5_ct256_ftt0.1, 
     #             ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.1,
