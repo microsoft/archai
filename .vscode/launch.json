@@ -492,7 +492,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space_new.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_i6_fb1024_ftlr0.5_fte5_ct256_ftt0.1_val",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.1_val",
                     "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
@@ -547,7 +547,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_natsbench_zerocost.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_synthetic_cifar10",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_cifar100",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
