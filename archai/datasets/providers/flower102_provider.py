@@ -41,9 +41,9 @@ class Flower102Provider(DatasetProvider):
         STD = [0.2972, 0.2488, 0.2847]
 
         # transformations match that in
-        # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
+        img_size = 64
         train_transf = [
-            transforms.RandomResizedCrop(224),
+            transforms.Resize((img_size, img_size)),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(
                 brightness=0.4,
@@ -52,7 +52,7 @@ class Flower102Provider(DatasetProvider):
                 hue=0.2)
         ]
 
-        test_transf = [transforms.Resize(256), transforms.CenterCrop(224)]
+        test_transf = [transforms.Resize((img_size, img_size))]
 
         normalize = [
             transforms.ToTensor(),
