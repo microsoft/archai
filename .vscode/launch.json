@@ -228,7 +228,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "intel_image_classification"]
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "flower102"]
         },
         {
             "name": "Proxynas-Natsbench-Space-Toy",
@@ -340,7 +340,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "synthetic_cifar10"]
+            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "flower102"]
         },
         {
             "name": "Natsbench-Regular-Eval-Toy",
