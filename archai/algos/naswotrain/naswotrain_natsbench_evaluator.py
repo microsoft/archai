@@ -61,13 +61,10 @@ class NaswotrainNatsbenchEvaluater(Evaluater):
         if arch_index > 15625 or arch_index < 0:
             logger.warn(f'architecture id {arch_index} is invalid ')
 
-        if dataset_name not in {'cifar10', 'cifar100', 'ImageNet16-120', 'synthetic_cifar10'}:
-            logger.warn(f'dataset {dataset_name} is not part of natsbench')
-            raise NotImplementedError()
-
+    
         # force natsbench to use cifar10 archs
         # since it doesn't know about synthetic_cifar10
-        if dataset_name == 'synthetic_cifar10':
+        if dataset_name == 'synthetic_cifar10' or dataset_name == 'intel_image_classification':
             dataset_name = 'cifar10'
 
         config = api.get_net_config(arch_index, dataset_name)

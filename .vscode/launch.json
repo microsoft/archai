@@ -228,7 +228,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "ImageNet16-120"]
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "intel_image_classification"]
         },
         {
             "name": "Proxynas-Natsbench-Space-Toy",
