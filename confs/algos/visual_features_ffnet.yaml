@@ -21,12 +21,19 @@ __include__: 'darts.yaml' # just use darts defaults
 #   max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
 #   storage_name: 'imagenet16' # name of folder or tar file to copy from cloud storage
 
+# dataset:
+#   name: 'synthetic_cifar10'
+#   n_classes: 10
+#   channels: 3 # number of channels in image
+#   max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+#   storage_name: 'synthetic_cifar10' # name of folder or tar file to copy from cloud storage
+
 dataset:
-  name: 'synthetic_cifar10'
-  n_classes: 10
+  name: 'flower102'
+  n_classes: 102
   channels: 3 # number of channels in image
   max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
-  storage_name: 'synthetic_cifar10' # name of folder or tar file to copy from cloud storage
+  storage_name: 'flower102' # name of folder or tar file to copy from cloud storage
 
 
 common:
@@ -35,7 +42,7 @@ common:
 nas:
   eval:
     pixels_per_hog_cell: 8 # for ImageNet16-120: 4, for cifar10: 8
-    feature_len: 324 # for ImageNet16-120: 324, for cifar10: 324
+    feature_len: 2916 # for ImageNet16-120: 324, for cifar10: 324, for flower102: 2916 (assuming 64x64 images loaded)
     loader:
       train_batch: 1024
       test_batch: 4096
