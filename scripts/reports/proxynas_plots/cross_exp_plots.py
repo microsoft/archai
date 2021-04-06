@@ -153,11 +153,17 @@ def main():
     # ----------------------------------------------------------------------------
     num_plots = 6
     num_plots_per_row = 6
-    num_plots_per_col = 1
+    num_plots_per_col = 2
     keys_to_plot = [10, 20, 30, 40, 50, 100]
-    subplot_titles = [f'Top {x} %' for x in keys_to_plot]
-    fig_paper = make_subplots(rows=num_plots_per_row, cols=num_plots_per_col, subplot_titles=subplot_titles, shared_yaxes=True)
-    fig_cr_paper = make_subplots(rows=num_plots_per_row, cols=num_plots_per_col, subplot_titles=subplot_titles, shared_yaxes=True)
+
+    subplot_titles = []
+    for x in keys_to_plot:
+        title = f'Top {x} %'
+        for rep in range(2):
+            subplot_titles.append(title)
+
+    fig_paper = make_subplots(rows=num_plots_per_row, cols=num_plots_per_col, subplot_titles=subplot_titles, shared_yaxes=False)
+    #fig_cr_paper = make_subplots(rows=num_plots_per_row, cols=num_plots_per_col, subplot_titles=subplot_titles, shared_yaxes=True)
 
     for ind, tp_key in enumerate(keys_to_plot):
         counter = 0
@@ -193,23 +199,20 @@ def main():
                         row=row_num, col=col_num)
             #fig.update_xaxes(title_text="Duration (s)", row=row_num, col=col_num)
             #fig.update_yaxes(title_text="SPE", row=row_num, col=col_num)
-            fig_cr_paper.add_trace(go.Scatter(x=[duration], y=[cr], mode='markers', name=legend_text, 
+
+            col_num = 2
+            showlegend = False
+            fig_paper.add_trace(go.Scatter(x=[duration], y=[cr], mode='markers', name=legend_text, 
                             marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
                         row=row_num, col=col_num)
 
-    fig_paper.update_layout(title_text="Duration vs. Spearman Rank Correlation vs. Top %")
-    savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_spe_vs_top_percent_PAPER.html')
-    fig_paper.write_html(savename)
+    savename_html = os.path.join(exp_folder, f'{args.dataset}_duration_vs_spe_vs_cr_vs_top_percent_PAPER.html')
+    fig_paper.write_html(savename_html)
+
+    savename_pdf = os.path.join(exp_folder, f'{args.dataset}_duration_vs_spe_vs_cr_vs_top_percent_PAPER.pdf')
+    fig_paper.write_image(savename_pdf, engine="kaleido", width=1200, height=1500, scale=1)
     fig_paper.show()
     
-
-    fig_cr_paper.update_layout(title_text="Duration vs. Common Ratio vs. Top %")
-    savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_common_ratio_vs_top_percent_PAPER.html')
-    fig_cr_paper.write_html(savename)
-    fig_cr_paper.show()
-
-
-
     # plot timing information vs. top percent of architectures
     # ------------------------------------------------------------
     fig_time = go.Figure()
