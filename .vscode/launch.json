@@ -340,7 +340,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "flower102"]
+            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "cifar10"]
         },
         {
             "name": "Natsbench-Regular-Eval-Toy",
@@ -646,9 +646,8 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_regular_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\nb_reg_b256_e30_sc10",
-            "--out-dir", "D:\\archai_experiment_reports",
-            "--reg-evals-file", "D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml"]
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\nb_reg_b1024_e30",
+            "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
             "name": "Analysis Cross Experiment Plots",
@@ -656,7 +655,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/proxynas_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_imagenet16-120",
+            "args": ["--dataset", "natsbench_cifar10",
             "--conf-location", "scripts/reports/proxynas_plots/cross_exp_conf.yaml"]
         },
         {
