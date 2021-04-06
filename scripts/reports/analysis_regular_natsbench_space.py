@@ -166,9 +166,7 @@ def main():
                     duration += logs[key]['eval_arch']['eval_train']['epochs'][epoch_key]['train']['duration']
 
                 all_short_reg_time.append(duration)
-                
-                
-
+                                
                 # record the arch id
                 # --------------------
                 if 'natsbench' in list(confs[key]['nas']['eval'].keys()):
