@@ -359,7 +359,7 @@ class GptTrainingArguments:
     adam_epsilon: float = field(default=1e-8, metadata={"help": "Epsilon for AdamW optimizer."})
     max_grad_norm: float = field(default=1.0, metadata={"help": "Max gradient norm."})
 
-    num_train_epochs: float = field(default=8.0, metadata={"help": "Total number of training epochs to perform."}) # CHANGE: from 3.0
+    num_train_epochs: float = field(default=-1.0, metadata={"help": "Total number of training epochs to perform."}) # CHANGE: from 3.0
     max_steps: int = field(
         default=-1,
         metadata={"help": "If > 0: set total number of training steps to perform. Override num_train_epochs."},
@@ -518,7 +518,7 @@ class GptTrainingArguments:
 
     def __post_init__(self):
         # CHANGE: don't set output_dir or logging_dir if None
-		if self.disable_tqdm is None:
+        if self.disable_tqdm is None:
             self.disable_tqdm = logger.getEffectiveLevel() > logging.WARN
 
         if isinstance(self.evaluation_strategy, EvaluationStrategy):

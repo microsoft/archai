@@ -431,6 +431,8 @@ def main():
     if training_args.toy:
         # adjust for current GPU RAM on dev machine for batch size = 4
         transformer_args.max_length = min(256*gb3_blocks, transformer_args.max_length)
+    if training_args.num_train_epochs == -1.0:
+        training_args.num_train_epochs = 1.0 if training_args.toy else 8.0
 
     data_args.dataset_name = data_args.dataset_name if data_args.dataset_name is not None else 'wikitext'
     if data_args.dataset_name == 'wikitext' and data_args.dataset_config_name is None:
