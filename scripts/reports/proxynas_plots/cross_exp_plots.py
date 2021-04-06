@@ -39,8 +39,8 @@ def main():
 
     exp_folder = conf_data['exp_folder']
 
-    exp_list = conf_data[args.dataset]['freezetrain']
-    shortreg_exp_list = conf_data[args.dataset]['shortreg']
+    exp_list = list(conf_data[args.dataset]['freezetrain'].keys())
+    shortreg_exp_list = list(conf_data[args.dataset]['shortreg'].keys())
                             
     # parse raw data from all processed experiments
     data = parse_raw_data(exp_folder, exp_list)
@@ -50,7 +50,7 @@ def main():
     zero_cost_exp_list = None
     zero_cost_data = None
     try:
-        zero_cost_exp_list = conf_data[args.dataset]['zero_cost']
+        zero_cost_exp_list = list(conf_data[args.dataset]['zero_cost'].keys())
         zero_cost_data = parse_raw_data(exp_folder, zero_cost_exp_list)
     except:
         print(f'zero cost data was not found for {args.dataset}')
@@ -78,9 +78,10 @@ def main():
             for j, key in enumerate(zero_cost_data.keys()):
                 assert tp == zero_cost_data[key]['top_percents'][i]
                 for measure in ZERO_COST_MEASURES:
+                    basename = conf_data[args.dataset]['zero_cost'][key]
                     spe_name = measure + '_spe'
                     cr_name = measure + '_ratio_common'
-                    this_tp_info[key + '_' + measure] = (0.0, zero_cost_data[key][spe_name][i], zero_cost_data[key][cr_name][i])
+                    this_tp_info[basename + ' ' + measure] = (0.0, zero_cost_data[key][spe_name][i], zero_cost_data[key][cr_name][i])
 
         # get shortreg
         for key in shortreg_data.keys():
@@ -91,6 +92,7 @@ def main():
         tp_info[tp] = this_tp_info
 
     # now plot each top percent time vs. spe and common ratio
+    #---------------------------------------------------------
     num_plots = len(tp_info)
     num_plots_per_row = 5
     num_plots_per_col = ma.ceil(num_plots / num_plots_per_row)
@@ -110,25 +112,29 @@ def main():
             if exp in exp_list:
                 marker = counter
                 marker_color = conf_data[args.dataset]['colors']['freezetrain']
+                legend_text = conf_data[args.dataset]['freezetrain'][exp]
                 counter += 1
             elif exp in shortreg_exp_list:
                 marker = counter_reg
                 marker_color = conf_data[args.dataset]['colors']['shortreg']
+                legend_text = conf_data[args.dataset]['shortreg'][exp]
                 counter_reg += 1
             else:
+                # we modify the exp name for zero cost as it has many measures in it
                 marker = counter_zero
+                marker_color = conf_data[args.dataset]['colors']['zero_cost']
+                legend_text = exp
                 counter_zero += 1
-                marker_color = 'green'
-
+                
             row_num = ma.floor(ind/num_plots_per_col) + 1
             col_num = ind % num_plots_per_col + 1
             showlegend = True if ind == 0 else False
-            fig.add_trace(go.Scatter(x=[duration], y=[spe], mode='markers', name=exp, 
+            fig.add_trace(go.Scatter(x=[duration], y=[spe], mode='markers', name=legend_text, 
                             marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
                         row=row_num, col=col_num)
             #fig.update_xaxes(title_text="Duration (s)", row=row_num, col=col_num)
             #fig.update_yaxes(title_text="SPE", row=row_num, col=col_num)
-            fig_cr.add_trace(go.Scatter(x=[duration], y=[cr], mode='markers', name=exp, 
+            fig_cr.add_trace(go.Scatter(x=[duration], y=[cr], mode='markers', name=legend_text, 
                             marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
                         row=row_num, col=col_num)
 
@@ -142,6 +148,66 @@ def main():
     savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_common_ratio_vs_top_percent.html')
     fig_cr.write_html(savename)
     fig_cr.show()
+
+    # now plot each top percent time vs. spe and common ratio (for publication)
+    # ----------------------------------------------------------------------------
+    num_plots = 6
+    num_plots_per_row = 6
+    num_plots_per_col = 1
+    keys_to_plot = [10, 20, 30, 40, 50, 100]
+    subplot_titles = [f'Top {x} %' for x in keys_to_plot]
+    fig_paper = make_subplots(rows=num_plots_per_row, cols=num_plots_per_col, subplot_titles=subplot_titles, shared_yaxes=True)
+    fig_cr_paper = make_subplots(rows=num_plots_per_row, cols=num_plots_per_col, subplot_titles=subplot_titles, shared_yaxes=True)
+
+    for ind, tp_key in enumerate(keys_to_plot):
+        counter = 0
+        counter_reg = 0
+        counter_zero = 0
+        for exp in tp_info[tp_key].keys():
+            duration = tp_info[tp_key][exp][0]
+            spe = tp_info[tp_key][exp][1]
+            cr = tp_info[tp_key][exp][2]
+
+            if exp in exp_list:
+                marker = counter
+                marker_color = conf_data[args.dataset]['colors']['freezetrain']
+                legend_text = conf_data[args.dataset]['freezetrain'][exp]
+                counter += 1
+            elif exp in shortreg_exp_list:
+                marker = counter_reg
+                marker_color = conf_data[args.dataset]['colors']['shortreg']
+                legend_text = conf_data[args.dataset]['shortreg'][exp]
+                counter_reg += 1
+            else:
+                # we modify the exp name for zero cost as it has many measures in it
+                marker = counter_zero
+                marker_color = conf_data[args.dataset]['colors']['zero_cost']
+                legend_text = exp
+                counter_zero += 1
+
+            row_num = ind + 1
+            col_num = 1
+            showlegend = True if ind == 0 else False
+            fig_paper.add_trace(go.Scatter(x=[duration], y=[spe], mode='markers', name=legend_text, 
+                            marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
+                        row=row_num, col=col_num)
+            #fig.update_xaxes(title_text="Duration (s)", row=row_num, col=col_num)
+            #fig.update_yaxes(title_text="SPE", row=row_num, col=col_num)
+            fig_cr_paper.add_trace(go.Scatter(x=[duration], y=[cr], mode='markers', name=legend_text, 
+                            marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
+                        row=row_num, col=col_num)
+
+    fig_paper.update_layout(title_text="Duration vs. Spearman Rank Correlation vs. Top %")
+    savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_spe_vs_top_percent_PAPER.html')
+    fig_paper.write_html(savename)
+    fig_paper.show()
+    
+
+    fig_cr_paper.update_layout(title_text="Duration vs. Common Ratio vs. Top %")
+    savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_common_ratio_vs_top_percent_PAPER.html')
+    fig_cr_paper.write_html(savename)
+    fig_cr_paper.show()
+
 
 
     # plot timing information vs. top percent of architectures
