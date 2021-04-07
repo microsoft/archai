@@ -15,7 +15,7 @@ from tqdm import tqdm
 import seaborn as sns
 import math as ma
 
-from scipy.stats import kendalltau, spearmanr
+from scipy.stats import kendalltau, spearmanr, sem
 
 from runstats import Statistics
 
@@ -211,6 +211,7 @@ def main():
 
     top_percent_shortreg_times_avg = []
     top_percent_shortreg_times_std = []
+    top_percent_shortreg_times_stderr = []
 
     spe_shortreg_top_percents = []
     top_percents = []
@@ -224,7 +225,8 @@ def main():
         top_percent_shortreg_times = [x[2] for x in top_percent_evals]
 
         top_percent_shortreg_times_avg.append(np.mean(np.array(top_percent_shortreg_times)))
-        top_percent_shortreg_times_std.append(np.std(np.array(top_percent_shortreg_times)))    
+        top_percent_shortreg_times_std.append(np.std(np.array(top_percent_shortreg_times)))
+        top_percent_shortreg_times_stderr.append(sem(np.array(top_percent_shortreg_times)))        
 
         spe_shortreg, _ = spearmanr(top_percent_reg, top_percent_shortreg)
         spe_shortreg_top_percents.append(spe_shortreg)
@@ -286,6 +288,7 @@ def main():
     raw_data_dict['spe_shortreg'] = spe_shortreg_top_percents
     raw_data_dict['shortreg_times_avg'] = top_percent_shortreg_times_avg
     raw_data_dict['shortreg_times_std'] = top_percent_shortreg_times_std
+    raw_data_dict['shortreg_times_stderr'] = top_percent_shortreg_times_stderr
     raw_data_dict['shortreg_ratio_common'] = shortreg_ratio_common
 
     savename = os.path.join(out_dir, 'raw_data.yaml')
