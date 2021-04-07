@@ -19,7 +19,7 @@ nas:
       naswotrain:
         train_batch: 256 # batch size for computing trainingless score
       freeze_loader:
-        train_batch: 1024 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
+        train_batch: 512 # batch size for freeze training. 2048 works reliably on V100 with cell13 onwards unfrozen
     trainer:
       plotsdir: ''
       use_val: False
@@ -61,7 +61,7 @@ nas:
       l1_alphas: 0.0  # weight to be applied to sum(abs(alphas)) to loss term
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger
       title: 'eval_train'
-      epochs: 30
+      epochs: 15
       batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
       lossfn:
         type: 'CrossEntropyLoss'

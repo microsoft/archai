@@ -39,6 +39,7 @@ class ZeroCostNatsbenchEvaluater(Evaluater):
                       final_desc_filename=None, full_desc_filename=None)->nn.Module:
         # region conf vars
         dataset_name = conf_eval['loader']['dataset']['name']
+        self.num_classes = conf_eval['loader']['dataset']['n_classes']
 
         # if explicitly passed in then don't get from conf
         if not final_desc_filename:
@@ -61,13 +62,22 @@ class ZeroCostNatsbenchEvaluater(Evaluater):
         if arch_index > 15625 or arch_index < 0:
             logger.warn(f'architecture id {arch_index} is invalid ')
 
-        if dataset_name not in {'cifar10', 'cifar100', 'ImageNet16-120'}:
-            logger.warn(f'dataset {dataset_name} is not part of natsbench. Fooling natsbench to think this is cifar10')
+        supported_datasets = {'cifar10', 'cifar100', 'ImageNet16-120'}
+        
+        # force natsbench to use cifar10 archs
+        # since it doesn't know about other datasets
+        if dataset_name not in supported_datasets:
             dataset_name = 'cifar10'
 
         config = api.get_net_config(arch_index, dataset_name)
+
+        # fill in the num classes from conf again
+        # to account for unsupported datasets may 
+        # have number of classes different from cifar10
+        config['num_classes'] = self.num_classes
+        
         # network is a nn.Module subclass. the last few modules have names
-        # lastact, lastact.0, lastact.1, global_pooling, classifier
+        # lastact, lastact.0, lastact.1, global_pooling, classifier 
         # which we can freeze train as usual
         model = get_cell_based_tiny_net(config)
 

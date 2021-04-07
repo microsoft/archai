@@ -324,7 +324,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_natsbench_space", "--datasets", "synthetic_cifar10"]
+            "args": ["--full", "--algos", "zerocost_natsbench_space", "--datasets", "flower102"]
         },
         {
             "name": "ZeroCost-Natsbench-Space-Toy",
@@ -340,7 +340,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "cifar10"]
+            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "ImageNet16-120"]
         },
         {
             "name": "Natsbench-Regular-Eval-Toy",
@@ -671,7 +671,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/proxynas_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_cifar10",
+            "args": ["--dataset", "natsbench_flower102",
             "--conf-location", "scripts/reports/proxynas_plots/cross_exp_conf.yaml"]
         },
         {

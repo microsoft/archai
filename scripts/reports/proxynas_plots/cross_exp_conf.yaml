@@ -102,45 +102,45 @@ natsbench_cifar100:
 
 natsbench_imagenet16-120:
   freezetrain:     
-    ft_i6_fb2048_ftlr0.1_fte5_ct256_ftt0.1: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1'
+    #ft_i6_fb2048_ftlr0.1_fte5_ct256_ftt0.1: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1'
     ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.1: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1'
-    ft_i6_fb1024_ftlr0.1_fte5_ct256_ftt0.1: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1'
-    ft_i6_fb1024_ftlr0.1_fte10_ct256_ftt0.1: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1'
-    ft_i6_fb512_ftlr0.1_fte5_ct256_ftt0.1: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1'
-    ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.1: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1'
-    ft_i6_fb256_ftlr0.1_fte5_ct256_ftt0.1: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1'
-    ft_i6_fb256_ftlr0.1_fte10_ct256_ftt0.1: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1'
-    ft_i6_fb2048_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb1024_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb1024_ftlr0.1_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb512_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb256_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb256_ftlr0.5_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb256_ftlr0.5_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb512_ftlr0.5_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb512_ftlr0.5_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb1024_ftlr0.5_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb1024_ftlr0.5_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb2048_ftlr0.5_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb2048_ftlr0.5_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb256_ftlr1.0_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb256_ftlr1.0_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb512_ftlr1.0_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb512_ftlr1.0_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb1024_ftlr1.0_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb1024_ftlr1.0_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb2048_ftlr1.0_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb2048_ftlr1.0_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.2'
-    ft_i6_fb1024_ftlr0.5_fte5_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 1024, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.1 val'
-    ft_i6_fb1024_ftlr0.5_fte10_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 1024, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
-    ft_i6_fb2048_ftlr0.5_fte5_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 2048, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.1 val'
-    ft_i6_fb2048_ftlr0.5_fte10_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 2048, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
-    ft_i6_fb1024_ftlr1.0_fte5_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 1024, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.1 val'
-    ft_i6_fb1024_ftlr1.0_fte10_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 1024, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
-    ft_i6_fb2048_ftlr1.0_fte5_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 2048, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.1 val'
-    ft_i6_fb2048_ftlr1.0_fte10_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 2048, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
+    # ft_i6_fb1024_ftlr0.1_fte5_ct256_ftt0.1: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1'
+    # ft_i6_fb1024_ftlr0.1_fte10_ct256_ftt0.1: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1'
+    # ft_i6_fb512_ftlr0.1_fte5_ct256_ftt0.1: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1'
+    # ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.1: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1'
+    # ft_i6_fb256_ftlr0.1_fte5_ct256_ftt0.1: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1'
+    # ft_i6_fb256_ftlr0.1_fte10_ct256_ftt0.1: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1'
+    # ft_i6_fb2048_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb1024_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb1024_ftlr0.1_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb512_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb256_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb256_ftlr0.5_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb256_ftlr0.5_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb512_ftlr0.5_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb512_ftlr0.5_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb1024_ftlr0.5_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb1024_ftlr0.5_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb2048_ftlr0.5_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb2048_ftlr0.5_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb256_ftlr1.0_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb256_ftlr1.0_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 256, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb512_ftlr1.0_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb512_ftlr1.0_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 512, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb1024_ftlr1.0_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb1024_ftlr1.0_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb2048_ftlr1.0_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb2048_ftlr1.0_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    # ft_i6_fb1024_ftlr0.5_fte5_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 1024, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.1 val'
+    # ft_i6_fb1024_ftlr0.5_fte10_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 1024, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
+    # ft_i6_fb2048_ftlr0.5_fte5_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 2048, lr 0.5, <br> epochs 5, stage 1: batch 256, thresh 0.1 val'
+    # ft_i6_fb2048_ftlr0.5_fte10_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 2048, lr 0.5, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
+    # ft_i6_fb1024_ftlr1.0_fte5_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 1024, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.1 val'
+    # ft_i6_fb1024_ftlr1.0_fte10_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 1024, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
+    # ft_i6_fb2048_ftlr1.0_fte5_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 2048, lr 1.0, <br> epochs 5, stage 1: batch 256, thresh 0.1 val'
+    # ft_i6_fb2048_ftlr1.0_fte10_ct256_ftt0.1_val: 'fastarchrank stage 2: batch 2048, lr 1.0, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
 
   zero_cost: 
     zc_imagenet16-120: 'zero cost score at initialization'
@@ -164,9 +164,32 @@ natsbench_imagenet16-120:
     zero_cost: 'green'
     shortreg: 'blue'
 
+
+natsbench_flower102:
+  freezetrain:
+    ft_f102_fb2048_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    ft_f102_fb2048_ftlr0.1_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    ft_f102_fb2048_ftlr0.1_fte15_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 15, stage 1: batch 256, thresh 0.2'
+    ft_f102_fb2048_ftlr0.1_fte30_ct256_ftt0.2: 'fastarchrank stage 2: batch 2048, lr 0.1, <br> epochs 30, stage 1: batch 256, thresh 0.2'
+    ft_f102_fb1024_ftlr0.1_fte5_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.2'
+    ft_f102_fb1024_ftlr0.1_fte10_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.2'
+    ft_f102_fb1024_ftlr0.1_fte15_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 15, stage 1: batch 256, thresh 0.2'
+    ft_f102_fb1024_ftlr0.1_fte30_ct256_ftt0.2: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 30, stage 1: batch 256, thresh 0.2'
+  
+  shortreg: 
+    nb_f102_reg_b256_e10: 'regular train: batch 2048 epochs 10'
+    nb_f102_reg_b256_e20: 'regular train: batch 2048 epochs 20'
+    nb_f102_reg_b256_e30: 'regular train: batch 2048 epochs 30'
+
+  colors:
+    freezetrain: 'red'
+    zero_cost: 'green'
+    shortreg: 'blue'
+
 natsbench_synthetic_cifar10:
-  freezetrain: [ft_sc10_fb1024_ftlr0.1_fte5_ct256_ftt0.15,
-                ft_sc10_fb1024_ftlr0.1_fte10_ct256_ftt0.15]
+  freezetrain: 
+    ft_sc10_fb1024_ftlr0.1_fte5_ct256_ftt0.15: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.15'
+    ft_sc10_fb1024_ftlr0.1_fte10_ct256_ftt0.15: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.15'
 
   zero_cost: []
           
