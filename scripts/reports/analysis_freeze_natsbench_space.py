@@ -19,7 +19,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-from scipy.stats import kendalltau, spearmanr
+from scipy.stats import kendalltau, spearmanr, sem
 
 from runstats import Statistics
 
@@ -389,6 +389,7 @@ def main():
 
     top_percent_freeze_times_avg = []
     top_percent_freeze_times_std = []
+    top_percent_freeze_times_stderr = []
 
     spe_freeze_top_percents = []
     spe_naswot_top_percents = []
@@ -404,7 +405,8 @@ def main():
         top_percent_freeze_times = [x[3] for x in top_percent_evals]
 
         top_percent_freeze_times_avg.append(np.mean(np.array(top_percent_freeze_times)))
-        top_percent_freeze_times_std.append(np.std(np.array(top_percent_freeze_times)))    
+        top_percent_freeze_times_std.append(np.std(np.array(top_percent_freeze_times)))
+        top_percent_freeze_times_stderr.append(sem(np.array(top_percent_freeze_times)))    
 
         spe_freeze, _ = spearmanr(top_percent_reg, top_percent_freeze)
         spe_freeze_top_percents.append(spe_freeze)
@@ -471,6 +473,7 @@ def main():
     raw_data_dict['spe_naswot'] = spe_naswot_top_percents
     raw_data_dict['freeze_times_avg'] = top_percent_freeze_times_avg
     raw_data_dict['freeze_times_std'] = top_percent_freeze_times_std
+    raw_data_dict['freeze_times_stderr'] = top_percent_freeze_times_stderr
     raw_data_dict['freeze_ratio_common'] = freezetrain_ratio_common
     raw_data_dict['naswot_ratio_common'] = naswot_ratio_common
 
