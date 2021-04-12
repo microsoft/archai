@@ -228,7 +228,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "flower102"]
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "ImageNet16-120"]
         },
         {
             "name": "Proxynas-Natsbench-Space-Toy",
@@ -671,7 +671,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/proxynas_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_flower102",
+            "args": ["--dataset", "natsbench_cifar10",
             "--conf-location", "scripts/reports/proxynas_plots/cross_exp_conf.yaml"]
         },
         {
@@ -680,8 +680,8 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_natsbench_zerocost.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_cifar100",
-                "--out-dir", "D:\\archai_experiment_reports"]
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_flower102",
+                "--out-dir", "D:\\archai_experiment_reports", "--reg-evals-file", "D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml"]
         },
         {
             "name": "Analysis Zero Cost Conditional Natsbench Experiments",

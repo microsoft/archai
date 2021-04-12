@@ -53,6 +53,16 @@
 
 @REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb256_ftlr0.1_fte15_ct256_ftt0.6 --out-dir D:\\archai_experiment_reports
 
+python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb1024_ftlr1.5_fte5_ct256_ftt0.6_scu --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb1024_ftlr1.5_fte10_ct256_ftt0.6_scu --out-dir D:\\archai_experiment_reports
+
+python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_scu --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte10_ct256_ftt0.6_scu --out-dir D:\\archai_experiment_reports
+
+python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb512_ftlr0.1_fte5_ct256_ftt0.6_scu --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb512_ftlr0.1_fte10_ct256_ftt0.6_scu --out-dir D:\\archai_experiment_reports
+
+
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e01 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e02 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e04 --out-dir D:\\archai_experiment_reports
@@ -73,6 +83,25 @@
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e06 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e08 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e10 --out-dir D:\\archai_experiment_reports
+
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e01_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e02_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e04_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e06_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e08_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e10_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e20_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e30_scu --out-dir D:\\archai_experiment_reports
+
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e01_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e02_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e04_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e06_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e08_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e10_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e20_scu --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b256_e30_scu --out-dir D:\\archai_experiment_reports
+
 
 @REM cifar100
 
@@ -190,24 +219,22 @@
 
 @REM Flower 102
 
-@REM ft_f102_fb2048_ftlr0.1_fte5_ct256_ftt0.2
-@REM ft_f102_fb2048_ftlr0.1_fte10_ct256_ftt0.2
-@REM ft_f102_fb2048_ftlr0.1_fte15_ct256_ftt0.2
-@REM ft_f102_fb2048_ftlr0.1_fte30_ct256_ftt0.2
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb2048_ftlr0.1_fte5_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb2048_ftlr0.1_fte10_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb2048_ftlr0.1_fte15_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb2048_ftlr0.1_fte30_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb1024_ftlr0.1_fte5_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb1024_ftlr0.1_fte10_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb1024_ftlr0.1_fte15_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb1024_ftlr0.1_fte30_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
 
-@REM ft_f102_fb1024_ftlr0.1_fte5_ct256_ftt0.2
-@REM ft_f102_fb1024_ftlr0.1_fte10_ct256_ftt0.2
-@REM ft_f102_fb1024_ftlr0.1_fte15_ct256_ftt0.2
-@REM ft_f102_fb1024_ftlr0.1_fte30_ct256_ftt0.2
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb512_ftlr0.1_fte5_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb512_ftlr0.1_fte10_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb512_ftlr0.1_fte15_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
 
-python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb2048_ftlr0.1_fte5_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
-python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb2048_ftlr0.1_fte10_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
-python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb2048_ftlr0.1_fte15_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
-python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb2048_ftlr0.1_fte30_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
-python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb1024_ftlr0.1_fte5_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
-python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb1024_ftlr0.1_fte10_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
-python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb1024_ftlr0.1_fte15_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
-python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb1024_ftlr0.1_fte30_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb256_ftlr0.1_fte5_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb256_ftlr0.1_fte10_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb256_ftlr0.1_fte15_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
 
 @REM Nasbench 101
 
