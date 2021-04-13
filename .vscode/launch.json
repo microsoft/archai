@@ -655,7 +655,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/proxynas_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_cifar10",
+            "args": ["--dataset", "natsbench_cifar100",
             "--conf-location", "scripts/reports/proxynas_plots/cross_exp_conf.yaml"]
         },
         {
