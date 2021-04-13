@@ -15,6 +15,7 @@ from overrides import overrides, EnforceOverrides
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import logger
+from archai.nas.model import Model
 
 from nats_bench import create
 from nats_bench.api_size import NATSsize

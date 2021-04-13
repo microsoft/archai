@@ -25,6 +25,7 @@ from archai.algos.proxynas.phased_freeze_natsbench_experiment_runner import Phas
 from archai.algos.proxynas.freezeaddon_nasbench101_experiment_runner import FreezeAddonNasbench101ExperimentRunner
 from archai.algos.zero_cost_measures.zero_cost_natsbench_experiment_runner import ZeroCostNatsbenchExperimentRunner
 from archai.algos.zero_cost_measures.zero_cost_natsbench_conditional_experiment_runner import ZeroCostConditionalNatsbenchExperimentRunner
+from archai.algos.random_natsbench.random_natsbench_tss_far_exp_runner import RandomNatsbenchTssFarExpRunner
 
 
 def main():
@@ -47,7 +48,8 @@ def main():
         'natsbench_regular_eval': NatsbenchRegularExperimentRunner,
         'nb101_regular_eval': Nb101RegularExperimentRunner,
         'phased_freezetrain_natsbench_space': PhasedFreezeNatsbenchExperimentRunner,
-        'freezeaddon_nasbench101_space': FreezeAddonNasbench101ExperimentRunner
+        'freezeaddon_nasbench101_space': FreezeAddonNasbench101ExperimentRunner,
+        'random_natsbench_tss_far': RandomNatsbenchTssFarExpRunner
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
@@ -69,7 +71,8 @@ def main():
                                                         zerocost_conditional_natsbench_space,
                                                         natsbench_regular_eval,
                                                         nb101_regular_eval,
-                                                        phased_freezetrain_natsbench_space''',
+                                                        phased_freezetrain_natsbench_space,
+                                                        random_natsbench_tss_far''',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
                         help='datasets to use, separated by comma')
