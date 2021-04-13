@@ -27,8 +27,6 @@ from archai.common.metrics import EpochMetrics, Metrics
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
 from archai.nas.evaluater import Evaluater
-from archai.algos.proxynas.freeze_trainer import FreezeTrainer
-from archai.algos.proxynas.conditional_trainer import ConditionalTrainer
 
 from nats_bench import create
 from archai.algos.natsbench.lib.models import get_cell_based_tiny_net

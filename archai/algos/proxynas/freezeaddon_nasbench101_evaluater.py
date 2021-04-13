@@ -88,7 +88,7 @@ class FreezeAddonNasbench101Evaluater(Evaluater):
         logger.pushd('conditional_training')
         data_loaders = self.get_data(conf_loader)
         # first regular train until certain accuracy is achieved
-        cond_trainer = ConditionalTrainer(conf_train_cond, model, checkpoint)
+        cond_trainer = ConditionalTrainer(conf_train_cond, model, checkpoint, None)
         cond_trainer_metrics = cond_trainer.fit(data_loaders)
         logger.popd()
 

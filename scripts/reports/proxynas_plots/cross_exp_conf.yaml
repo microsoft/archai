@@ -94,12 +94,17 @@ natsbench_cifar10:
 
 natsbench_cifar100:
   freezetrain: 
-    #ft_c100_fb1024_ftlr0.1_fte5_ct256_ftt0.3: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
-    ft_c100_fb1024_ftlr0.1_fte10_ct256_ftt0.3: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb1024_ftlr0.1_fte5_ct256_ftt0.3: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb1024_ftlr0.1_fte10_ct256_ftt0.3: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
+    ft_c100_fb1024_ftlr0.1_fte5_ct256_ftt0.3_scu: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3 scu'
+    ft_c100_fb1024_ftlr0.1_fte10_ct256_ftt0.3_scu: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3 scu'
     #ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
     #ft_c100_fb512_ftlr0.1_fte10_ct256_ftt0.3: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
-    #ft_c100_fb256_ftlr0.1_fte5_ct256_ftt0.3: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
-    #ft_c100_fb256_ftlr0.1_fte10_ct256_ftt0.3: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
+    ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_scu: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3 scu'
+    ft_c100_fb512_ftlr0.1_fte10_ct256_ftt0.3_scu: 'fastarchrank stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3 scu'
+    ft_c100_fb256_ftlr0.1_fte5_ct256_ftt0.3: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    ft_c100_fb256_ftlr0.1_fte10_ct256_ftt0.3: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
+    
 
   zero_cost: 
     zc_cifar100: 'zero cost score at initialization'

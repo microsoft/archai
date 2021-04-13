@@ -43,7 +43,7 @@ class FreezeEvaluator(Evaluater, EnforceOverrides):
         # get data
         data_loaders = self.get_data(conf_loader)
         # first regular train until certain accuracy is achieved
-        cond_trainer = ConditionalTrainer(conf_train_cond, model, checkpoint)
+        cond_trainer = ConditionalTrainer(conf_train_cond, model, checkpoint, None)
         cond_trainer_metrics = cond_trainer.fit(data_loaders)
         logger.popd()
 
