@@ -4,6 +4,8 @@ import os
 import random
 from copy import deepcopy
 
+from overrides import overrides
+
 from archai.nas.searcher import Searcher, SearchResult
 from archai.common.config import Config
 from archai.common.common import logger
@@ -22,7 +24,9 @@ from archai.algos.natsbench.natsbench_utils import create_natsbench_tss_api, mod
 
 
 
-class RandomNatsbenchTssSearcher(Searcher):
+class RandomNatsbenchTssFarSearcher(Searcher):
+
+    @overrides
     def search(self, conf_search:Config)->SearchResult:
 
         # region config vars
@@ -44,6 +48,7 @@ class RandomNatsbenchTssSearcher(Searcher):
         random_archids = random.sample(range(api), k=max_num_models)
 
         best_trains = [(-1, -ma.Inf)]
+        best_tests = [(-1, -ma.Inf)]
         fastest_cond_train = ma.Inf
         
         for archid in random_archids:
@@ -88,6 +93,12 @@ class RandomNatsbenchTssSearcher(Searcher):
             this_arch_top1 = freeze_train_metrics.best_train_top1()    
             if this_arch_top1 > best_trains[-1][1]:
                 best_trains.append((archid, this_arch_top1))
+
+                # get the full evaluation result from natsbench
+                info = api.get_more_info(archid, dataset_name, hp=200, is_random=False)
+                this_arch_top1_test = info['test-accuracy']
+
+                best_tests.append((archid, this_arch_top1_test))
 
 
         
