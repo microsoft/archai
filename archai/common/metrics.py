@@ -256,7 +256,7 @@ class Metrics:
         return test_epoch_metrics.top1.avg if test_epoch_metrics is not None else math.nan
 
     def total_training_time(self)->float:
-        self.run_metrics.total_train_time()
+        return self.run_metrics.total_train_time()
 
 class Accumulator:
     # TODO: replace this with Metrics class
