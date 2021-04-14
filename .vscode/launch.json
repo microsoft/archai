@@ -661,10 +661,10 @@
             "name": "Analysis Cross Experiment Plots",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/proxynas_plots/cross_exp_plots.py",
+            "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
             "args": ["--dataset", "natsbench_cifar100",
-            "--conf-location", "scripts/reports/proxynas_plots/cross_exp_conf.yaml"]
+            "--conf-location", "scripts/reports/fastarchrank_plots/cross_exp_conf.yaml"]
         },
         {
             "name": "Analysis Zero Cost Natsbench Experiments",
