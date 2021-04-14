@@ -1,4 +1,5 @@
 import math as ma
+from time import time
 from typing import Set
 import os
 import random
@@ -32,7 +33,6 @@ class RandomNatsbenchTssFarSearcher(Searcher):
         # region config vars
         max_num_models = conf_search['max_num_models']
         ratio_fastest_duration = conf_search['ratio_fastest_duration']
-        top1_acc_threshold = conf_search['top1_acc_threshold']
         dataroot = utils.full_path(conf_search['loader']['dataset']['dataroot'])
         dataset_name = conf_search['loader']['dataset']['name']
         natsbench_location = os.path.join(dataroot, 'natsbench', conf_search['natsbench']['natsbench_tss_fast'])
@@ -42,14 +42,14 @@ class RandomNatsbenchTssFarSearcher(Searcher):
         # endregion
 
         # create the natsbench api
-        api = create_natsbench_tss_api(natsbench_location, 'tss', fast_mode=True, verbose=True)
+        api = create_natsbench_tss_api(natsbench_location)
 
         # presample max number of archids without replacement
-        random_archids = random.sample(range(api), k=max_num_models)
+        random_archids = random.sample(range(len(api)), k=max_num_models)
 
-        best_trains = [(-1, -ma.Inf)]
-        best_tests = [(-1, -ma.Inf)]
-        fastest_cond_train = ma.Inf
+        best_trains = [(-1, -ma.inf)]
+        best_tests = [(-1, -ma.inf)]
+        fastest_cond_train = ma.inf
         
         for archid in random_archids:
             # get model
@@ -64,14 +64,22 @@ class RandomNatsbenchTssFarSearcher(Searcher):
             # starts exceeding fastest time to
             # reach threshold by a ratio then early
             # terminate it
-            logger.pushd('conditional training')
+            logger.pushd(f'conditional_training_{archid}')
+            
             data_loaders = self.get_data(conf_loader)
             time_allowed = ratio_fastest_duration * fastest_cond_train
             cond_trainer = ConditionalTrainer(conf_train, model, checkpoint, time_allowed) 
             cond_trainer_metrics = cond_trainer.fit(data_loaders)
             cond_train_time = cond_trainer_metrics.total_training_time()
+
+            if cond_train_time >= time_allowed:
+                # this arch exceeded time to reach threshold
+                # cut losses and move to next one
+                continue
+
             if  cond_train_time < fastest_cond_train:
                 fastest_cond_train = cond_train_time
+                logger.info(f'fastest condition train till now: {fastest_cond_train} seconds!')
             logger.popd()
 
             # if we did not early terminate in conditional 
@@ -82,7 +90,7 @@ class RandomNatsbenchTssFarSearcher(Searcher):
             conf_loader_freeze = deepcopy(conf_loader)
             conf_loader_freeze['train_batch'] = conf_loader['freeze_loader']['train_batch'] 
 
-            logger.pushd('freeze_training')
+            logger.pushd(f'freeze_training_{archid}')
             data_loaders = self.get_data(conf_loader_freeze)
             # now just finetune the last few layers
             checkpoint = None
@@ -100,7 +108,6 @@ class RandomNatsbenchTssFarSearcher(Searcher):
 
                 best_tests.append((archid, this_arch_top1_test))
 
+            # dump important things to log
+            logger.info({'best_trains':best_trains, 'best_tests':best_tests})
 
-        
-
-        
