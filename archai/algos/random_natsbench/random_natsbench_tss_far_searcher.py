@@ -109,5 +109,7 @@ class RandomNatsbenchTssFarSearcher(Searcher):
                 best_tests.append((archid, this_arch_top1_test))
 
             # dump important things to log
+            logger.pushd(f'best_trains_tests_{archid}')
             logger.info({'best_trains':best_trains, 'best_tests':best_tests})
+            logger.popd()
 
