@@ -107,7 +107,6 @@ class RandomNatsbenchTssFarSearcher(Searcher):
                 # get the full evaluation result from natsbench
                 info = api.get_more_info(archid, dataset_name, hp=200, is_random=False)
                 this_arch_top1_test = info['test-accuracy']
-
                 best_tests.append((archid, this_arch_top1_test))
 
             # dump important things to log
