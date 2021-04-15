@@ -467,6 +467,14 @@
             "args": ["--full", "--algos", "random_natsbench_tss_far", "--datasets", "cifar10", "--no-eval"]
         },
         {
+            "name": "Random Natsbench Tss Reg Search",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "random_natsbench_tss_reg", "--datasets", "cifar10", "--no-eval"]
+        },
+        {
             "name": "Analysis Aggregate",
             "type": "python",
             "request": "launch",
