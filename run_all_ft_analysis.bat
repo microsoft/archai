@@ -135,6 +135,10 @@
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_c100_reg_b2048_e20 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_c100_reg_b2048_e30 --out-dir D:\\archai_experiment_reports
 
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_c100_reg_b1024_e10_scu --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_c100_reg_b1024_e20_scu --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_c100_reg_b1024_e30_scu --out-dir D:\\archai_experiment_reports
+
 @REM ImageNet16-120
 
 python scripts/reports/analysis_freeze_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb256_ftlr0.5_fte5_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports
