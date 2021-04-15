@@ -13,30 +13,26 @@ from archai.common.common import logger
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.common.trainer import Trainer
-from archai.nas.model_desc import CellType, ModelDesc
-from archai.datasets import data
-from archai.nas.model import Model
-from archai.common.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.algos.proxynas.conditional_trainer import ConditionalTrainer
 from archai.algos.proxynas.freeze_trainer import FreezeTrainer
 from archai.algos.natsbench.natsbench_utils import create_natsbench_tss_api, model_from_natsbench_tss
 
-class RandomNatsbenchTssFarSearcher(Searcher):
+
+
+class RandomNatsbenchTssRegSearcher(Searcher):
 
     @overrides
     def search(self, conf_search:Config)->SearchResult:
 
         # region config vars
         max_num_models = conf_search['max_num_models']
-        ratio_fastest_duration = conf_search['ratio_fastest_duration']
         dataroot = utils.full_path(conf_search['loader']['dataset']['dataroot'])
         dataset_name = conf_search['loader']['dataset']['name']
         natsbench_location = os.path.join(dataroot, 'natsbench', conf_search['natsbench']['natsbench_tss_fast'])
         conf_train = conf_search['trainer']
         conf_loader = conf_search['loader']
-        conf_train_freeze = conf_search['freeze_trainer']
         # endregion
 
         # create the natsbench api
@@ -47,7 +43,6 @@ class RandomNatsbenchTssFarSearcher(Searcher):
 
         best_trains = [(-1, -ma.inf)]
         best_tests = [(-1, -ma.inf)]
-        fastest_cond_train = ma.inf
         
         for archid in random_archids:
             # get model
@@ -62,43 +57,15 @@ class RandomNatsbenchTssFarSearcher(Searcher):
             # starts exceeding fastest time to
             # reach threshold by a ratio then early
             # terminate it
-            logger.pushd(f'conditional_training_{archid}')
+            logger.pushd(f'regular_training_{archid}')
             
             data_loaders = self.get_data(conf_loader)
-            time_allowed = ratio_fastest_duration * fastest_cond_train
-            cond_trainer = ConditionalTrainer(conf_train, model, checkpoint, time_allowed) 
-            cond_trainer_metrics = cond_trainer.fit(data_loaders)
-            cond_train_time = cond_trainer_metrics.total_training_time()
-
-            if cond_train_time >= time_allowed:
-                # this arch exceeded time to reach threshold
-                # cut losses and move to next one
-                logger.info(f'{archid} exceeded time allowed. Terminating and ignoring.')
-                logger.popd()
-                continue
-
-            if  cond_train_time < fastest_cond_train:
-                fastest_cond_train = cond_train_time
-                logger.info(f'fastest condition train till now: {fastest_cond_train} seconds!')
+            trainer = Trainer(conf_train, model, checkpoint) 
+            trainer_metrics = trainer.fit(data_loaders)
+            train_time = trainer_metrics.total_training_time()
             logger.popd()
 
-            # if we did not early terminate in conditional 
-            # training then freeze train
-            # get data with new batch size for freeze training
-            # NOTE: important to create copy and modify as otherwise get_data will return
-            # a cached data loader by hashing the id of conf_loader
-            conf_loader_freeze = deepcopy(conf_loader)
-            conf_loader_freeze['train_batch'] = conf_loader['freeze_loader']['train_batch'] 
-
-            logger.pushd(f'freeze_training_{archid}')
-            data_loaders = self.get_data(conf_loader_freeze)
-            # now just finetune the last few layers
-            checkpoint = None
-            trainer = FreezeTrainer(conf_train_freeze, model, checkpoint)
-            freeze_train_metrics = trainer.fit(data_loaders)
-            logger.popd()
-
-            this_arch_top1 = freeze_train_metrics.best_train_top1()    
+            this_arch_top1 = trainer_metrics.best_train_top1()    
             if this_arch_top1 > best_trains[-1][1]:
                 best_trains.append((archid, this_arch_top1))
 
