@@ -60,7 +60,7 @@ class ConditionalTrainer(ArchTrainer, EnforceOverrides):
         if self._max_duration_secs:
             total_train_time = self._metrics.total_training_time()
             if total_train_time >= self._max_duration_secs:
-                logger.info(f'max duration of training time {total_train_time} exceeded')
+                logger.info(f'max duration {self._max_duration_secs} seconds exceeded at {total_train_time} seconds.')
                 logger.info('----------terminating regular training---------')
                 should_terminate = True
                         

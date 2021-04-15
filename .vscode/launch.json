@@ -464,7 +464,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "random_natsbench_tss_far", "--datasets", "cifar10"]
+            "args": ["--full", "--algos", "random_natsbench_tss_far", "--datasets", "cifar10", "--no-eval"]
         },
         {
             "name": "Analysis Aggregate",
@@ -582,6 +582,15 @@
             "program": "${cwd}/scripts/reports/analysis_hog_ffnet.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\hog_flower102_search",
+                "--out-dir", "D:\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Random Search Natsbench TSS Far",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_ftt0.6_max50_ratio1.2",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
