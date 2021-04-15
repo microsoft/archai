@@ -47,5 +47,8 @@ class RandomNatsbenchTssFarExpRunner(ExperimentRunner):
     def evaluater(self)->Evaluater:
         return None
 
+    @overrides
+    def copy_search_to_eval(self) -> None:
+        return None
     
 

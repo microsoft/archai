@@ -75,6 +75,8 @@ class RandomNatsbenchTssFarSearcher(Searcher):
             if cond_train_time >= time_allowed:
                 # this arch exceeded time to reach threshold
                 # cut losses and move to next one
+                logger.info(f'{archid} exceeded time allowed. Terminating and ignoring.')
+                logger.popd()
                 continue
 
             if  cond_train_time < fastest_cond_train:
