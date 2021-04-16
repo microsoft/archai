@@ -1,0 +1,19 @@
+
+
+
+exp_folder: 'D:\\archai_experiment_reports'
+
+
+natsbench_cifar10: 
+
+  fastarchrank:
+    rs_far_ftt0.6_max50_ratio1.2: 'rs_far_ftt0.6_max50_ratio1.2'
+
+  regular:
+    rs_reg_max50_b1024_e10: 'rs_reg_max50_b1024_e10'
+
+  colors:
+    fastarchrank: 'green'
+    regular: 'red'
+    
+
