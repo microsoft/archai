@@ -48,26 +48,38 @@ def main():
     for key in far_data.keys():
         legend_name = conf_data[args.dataset]['fastarchrank'][key]
         marker_color = conf_data[args.dataset]['colors']['fastarchrank']
-        fig.add_trace(go.Scatter(x=[far_data[key]['avg_duration']], 
-                            y=[far_data[key]['avg_max_acc']], 
+        error_x = dict(type='data', array=[far_data[key]['stderr_duration']], visible=True)
+        error_y = dict(type='data', array=[far_data[key]['stderr_max_acc']], visible=True)
+        fig.add_trace(go.Scatter(x=[far_data[key]['avg_duration']],
+                            error_x=error_x,
+                            y=[far_data[key]['avg_max_acc']],
+                            error_y=error_y,
                             name=legend_name, mode='markers', 
                             marker_color=marker_color,
                             showlegend=True))
     for key in reg_data.keys():
         legend_name = conf_data[args.dataset]['regular'][key]
-        marker_color = conf_data[args.dataset]['colors']['regular']    
-        fig.add_trace(go.Scatter(x=[reg_data[key]['avg_duration']], 
-                            y=[reg_data[key]['avg_max_acc']], 
+        marker_color = conf_data[args.dataset]['colors']['regular']
+        error_x = dict(type='data', array=[reg_data[key]['stderr_duration']], visible=True)
+        error_y = dict(type='data', array=[reg_data[key]['stderr_max_acc']], visible=True)    
+        fig.add_trace(go.Scatter(x=[reg_data[key]['avg_duration']],
+                            error_x=error_x,     
+                            y=[reg_data[key]['avg_max_acc']],
+                            error_y=error_y,
                             name=legend_name, mode='markers', 
                             marker_color=marker_color,
                             showlegend=True))
 
-    fig.update_layout(title_text="Duration vs. Max. Accuracy Random Search")
+    fig.update_yaxes(range=[0,100])
+    fig.update_layout(title_text="Duration vs. Max. Accuracy Random Search", 
+                    xaxis_title="Duration (s)", 
+                    yaxis_title='Avg. Top-1 Max Accuracy')
+
+    savename_html = os.path.join(exp_folder, f'{args.dataset}_random_search.html')
+    fig.write_html(savename_html)
+
     fig.show()
     
-
-    print('dummy')
-
 
 if __name__ == '__main__':
     main()
