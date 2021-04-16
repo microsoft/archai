@@ -84,8 +84,6 @@ natsbench_cifar10:
     nb_reg_b256_e20_scu: 'regular train: batch 256 epochs 20 scu'
     nb_reg_b256_e30_scu: 'regular train: batch 256 epochs 30 scu'
 
-
-
   colors:
     freezetrain: 'red'
     zero_cost: 'green'
