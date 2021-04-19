@@ -464,7 +464,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "random_natsbench_tss_far", "--datasets", "cifar10", "--no-eval"]
+            "args": ["--full", "--algos", "random_natsbench_tss_far", "--datasets", "cifar100", "--no-eval"]
         },
         {
             "name": "Random Natsbench Tss Reg Search",
@@ -472,7 +472,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "random_natsbench_tss_reg", "--datasets", "cifar10", "--no-eval"]
+            "args": ["--full", "--algos", "random_natsbench_tss_reg", "--datasets", "cifar100", "--no-eval"]
         },
         {
             "name": "Analysis Aggregate",
@@ -553,7 +553,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_cifar100",
+            "args": ["--dataset", "natsbench_imagenet16-120",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_exp_conf.yaml"]
         },
         {
@@ -562,7 +562,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_random_search.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_cifar10",
+            "args": ["--dataset", "natsbench_cifar100",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_random_search.yaml"]
         },
         {
@@ -607,7 +607,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_ftt0.6_max50_ratio1.2",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_c100_ftt0.1_max50_ratio1.0",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
@@ -616,7 +616,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_reg.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_reg_max50_b1024_e10",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_reg_c100_max50_b1024_e08",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
