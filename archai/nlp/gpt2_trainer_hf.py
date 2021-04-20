@@ -5,6 +5,9 @@ import sys
 from dataclasses import dataclass, field
 from typing import Optional, Union, List
 
+# The is_debugging() function is copied from utils because utils currently
+# has torch dependencies which we need to move to ml_utils. Because this
+# we cannot set CUDA_VISIBLE_DEVICES which must be before torch import.
 # TODO: separate out torch dependencies from utils
 if 'pydevd' in sys.modules:
     os.environ['vs_code_debugging'] = 'True'
@@ -13,6 +16,7 @@ def is_debugging()->bool:
 if is_debugging():
     os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
+# huggingface datasets
 from datasets import load_dataset, DatasetDict, Dataset
 
 import transformers
@@ -35,47 +39,14 @@ from transformers.trainer_utils import get_last_checkpoint, is_main_process
 import torch
 
 from archai.nlp.gpt_training_args import GptTrainingArguments
+from archai.nlp.data_training_arguments import DataTrainingArguments
+from archai.nlp.model_arguments import ModelArguments
 
 from archai.nlp.token_dataset import TokenConfig, TokenizerFiles
 from archai.common import utils, common
 
 logger = logging.getLogger(__name__)
 
-
-@dataclass
-class ModelArguments:
-    model_name_or_path: Optional[str] = field(
-        default=None,
-        metadata={
-            "help": "The model checkpoint for weights initialization."
-            "Don't set if you want to train a model from scratch."
-        },
-    )
-    tokenizer_name_or_path: Optional[str] = field(
-        default=None,
-        metadata={
-            "help": "Tokenizer name or path"
-        },
-    )
-    cache_dir: Optional[str] = field(
-        default=None,
-        metadata={"help": "Where do you want to store the pretrained models downloaded from huggingface.co"},
-    )
-    use_fast_tokenizer: bool = field(
-        default=True,
-        metadata={"help": "Whether to use one of the fast tokenizer (backed by the tokenizers library) or not."},
-    )
-    model_revision: str = field(
-        default="main",
-        metadata={"help": "The specific model version to use (can be a branch name, tag name or commit id)."},
-    )
-    use_auth_token: bool = field(
-        default=False,
-        metadata={
-            "help": "Will use the token generated when running `transformers-cli login` (necessary to use this script "
-            "with private models)."
-        },
-    )
 
 @dataclass
 class TransformerArguments:
@@ -85,59 +56,6 @@ class TransformerArguments:
     max_length=1024
     vocab_size:int=50257
 
-@dataclass
-class DataTrainingArguments:
-    """
-    Arguments pertaining to what data we are going to input our model for training and eval.
-    """
-
-    dataset_name: Optional[str] = field(
-        default=None, metadata={"help": "The name of the dataset to use (via the datasets library), ex. 'wikitext'"}
-    )
-    dataset_config_name: Optional[str] = field(
-        default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library), ex. 'wikitext-103-raw-v1'"}
-    )
-    train_file: Optional[str] = field(default=None, metadata={"help": "The input training data file (a text file)."})
-    validation_file: Optional[str] = field(
-        default=None,
-        metadata={"help": "An optional input evaluation data file to evaluate the perplexity on (a text file)."},
-    )
-    block_size: Optional[int] = field(
-        default=None,
-        metadata={
-            "help": "Optional input sequence length after tokenization."
-            "The training dataset will be truncated in block of this size for training."
-            "Default to the model max input length for single sentence inputs (take into account special tokens)."
-        },
-    )
-    overwrite_cache: bool = field(
-        default=False, metadata={"help": "Overwrite the cached training and evaluation sets"}
-    )
-    validation_split_percentage: Optional[int] = field(
-        default=5,
-        metadata={
-            "help": "The percentage of the train set used as validation set in case there's no validation split"
-        },
-    )
-    preprocessing_num_workers: Optional[int] = field(
-        default=None,
-        metadata={"help": "The number of processes to use for the preprocessing."},
-    )
-    data_dir: Optional[str] = field(
-        default=None, metadata={"help": "Cache directory to store downloaded dataset"}
-    )
-
-    def __post_init__(self):
-        if self.dataset_name is None and self.train_file is None and self.validation_file is None:
-            #raise ValueError("Need either a dataset name or a training/validation file.")
-            pass
-        else:
-            if self.train_file is not None:
-                extension = self.train_file.split(".")[-1]
-                assert extension in ["csv", "json", "txt"], "`train_file` should be a csv, a json or a txt file."
-            if self.validation_file is not None:
-                extension = self.validation_file.split(".")[-1]
-                assert extension in ["csv", "json", "txt"], "`validation_file` should be a csv, a json or a txt file."
 
 def get_checkpoint(output_dir:str, overwrite_output_dir:bool)->Optional[str]:
     # Detecting last checkpoint.
@@ -463,7 +381,8 @@ def main():
     # create dataset and output dirs
     pt_data_dir, pt_output_dir = common.pt_dirs()
     data_args.data_dir = data_args.data_dir or pt_data_dir or common.default_dataroot()
-    data_args.data_dir = utils.full_path(os.path.join(data_args.data_dir, 'textpred'))
+    data_args.data_dir = utils.full_path(os.path.join(data_args.data_dir,
+                                                      'textpred', 'huggingface', 'datasets'))
     training_args.output_dir =  utils.full_path(pt_output_dir or \
                     os.path.join(training_args.output_dir or '~/logdir', training_args.experiment_name)
                 , create=True)
