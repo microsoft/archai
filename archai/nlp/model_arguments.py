@@ -1,6 +1,13 @@
 from dataclasses import dataclass, field
 from typing import Optional, Union, List
 
+from transformers import (
+    MODEL_FOR_CAUSAL_LM_MAPPING # len=23, {<class 'transformers.models.gpt_neo.configuration_gpt_neo.GPTNeoConfig'>: <class 'transformers.models.gpt_neo.modeling_gpt_neo.GPTNeoForCausalLM'>}
+)
+
+MODEL_CONFIG_CLASSES = list(MODEL_FOR_CAUSAL_LM_MAPPING.keys())
+MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES) # [''gpt_neo', ''big_bird', ''camembert', ...]
+
 @dataclass
 class ModelArguments:
     model_name_or_path: Optional[str] = field(
@@ -10,11 +17,15 @@ class ModelArguments:
             "Don't set if you want to train a model from scratch."
         },
     )
-    tokenizer_name_or_path: Optional[str] = field(
+    model_type: Optional[str] = field(
         default=None,
-        metadata={
-            "help": "Tokenizer name or path"
-        },
+        metadata={"help": "If training from scratch, pass a model type from the list: " + ", ".join(MODEL_TYPES)},
+    )
+    config_name: Optional[str] = field(
+        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
+    )
+    tokenizer_name: Optional[str] = field(
+        default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
     )
     cache_dir: Optional[str] = field(
         default=None,

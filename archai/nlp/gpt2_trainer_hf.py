@@ -21,7 +21,7 @@ from datasets import load_dataset, DatasetDict, Dataset
 
 import transformers
 from transformers import (
-    CONFIG_MAPPING,
+    CONFIG_MAPPING, # OrderedDict {'albert': <class 'transformers.models.albert.configuration_albert.AlbertConfig'>, ...}
     MODEL_FOR_CAUSAL_LM_MAPPING,
     AutoConfig,
     AutoModelForCausalLM,
@@ -127,7 +127,7 @@ def dataset_from_files(train_file:Optional[str], validation_file:Optional[str])-
     )
     if extension == "txt":
         extension = "text"
-    datasets = load_dataset(extension, data_files=data_files)
+    datasets = load_dataset(extension, cache_dir=data_files)
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
@@ -440,10 +440,11 @@ def main():
         data_args.dataset_config_name = 'wikitext-2-raw-v1' if training_args.toy else 'wikitext-103-raw-v1'
 
     setup_logging(training_args.local_rank, training_args.output_dir)
+
     logging.info(f'toy={training_args.toy}, fp16={training_args.fp16}')
     logging.info(f'gpt_config_name={transformer_args.gpt_config_name}, n_embd={transformer_args.n_embd}, n_layer={transformer_args.n_layer}, n_embd={transformer_args.n_embd}, n_head={transformer_args.n_head}, max_length={transformer_args.max_length}, vocab_size={transformer_args.vocab_size}')
     logging.info(f'num_steps={training_args.max_steps}, epochs={training_args.num_train_epochs}')
-    logging.info(f'n_gpus={training_args.n_gpu}, parallel_mode={training_args.parallel_mode}, device={training_args.device}, seed={training_args.seed}')
+    logging.info(f'local_rank={training_args.local_rank}, n_gpus={training_args.n_gpu}, parallel_mode={training_args.parallel_mode}, device={training_args.device}, seed={training_args.seed}')
     logging.info(f'dataset={data_args.dataset_name}, dataset_config_name={data_args.dataset_config_name}, datadir="{data_args.data_dir}"')
     logging.info(f'expdir="{training_args.output_dir}"')
     logging.info(f'train_batch_size={training_args.per_device_train_batch_size}, fp16="{training_args.fp16}"')
@@ -456,13 +457,6 @@ def main():
     logger.info("model_args %s", model_args)
     logging.info('')
     logging.info('')
-
-
-    # Log on each process the small summary:
-    logger.warning(
-        f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu}"
-        + f"distributed training: {bool(training_args.local_rank != -1)}, 16-bits training: {training_args.fp16}"
-    )
 
     # Set seed before initializing model.
     set_seed(training_args.seed)

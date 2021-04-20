@@ -20,6 +20,21 @@ class DataTrainingArguments:
         default=None,
         metadata={"help": "An optional input evaluation data file to evaluate the perplexity on (a text file)."},
     )
+    max_train_samples: Optional[int] = field(
+        default=None,
+        metadata={
+            "help": "For debugging purposes or quicker training, truncate the number of training examples to this "
+            "value if set."
+        },
+    )
+    max_val_samples: Optional[int] = field(
+        default=None,
+        metadata={
+            "help": "For debugging purposes or quicker training, truncate the number of validation examples to this "
+            "value if set."
+        },
+    )
+
     block_size: Optional[int] = field(
         default=None,
         metadata={
@@ -47,6 +62,7 @@ class DataTrainingArguments:
 
     def __post_init__(self):
         if self.dataset_name is None and self.train_file is None and self.validation_file is None:
+            # we will set dataset to wikitext version depending on if we are in toy mode
             #raise ValueError("Need either a dataset name or a training/validation file.")
             pass
         else:
