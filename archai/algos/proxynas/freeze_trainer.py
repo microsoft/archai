@@ -23,6 +23,7 @@ from archai.nas.vis_model_desc import draw_model_desc
 from archai.common.checkpoint import CheckPoint
 from archai.common.ml_utils import set_optim_lr
 from archai.datasets import data
+from archai.nas.nas_utils import get_model_stats
 
 TFreezeTrainer = Optional[Type['FreezeTrainer']]
 
@@ -39,6 +40,26 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
     @overrides
     def pre_fit(self, data_loaders:data.DataLoaders) -> None:
         super().pre_fit(data_loaders)
+
+        train_dl = data_loaders.train_dl
+        assert train_dl is not None
+
+        # compute model stats per minibatch of training data
+        data_iterator = iter(train_dl)
+        x, target = next(data_iterator)
+        x_shape = list(x.shape)
+        x_shape[0] = 1 # to prevent overflow errors with large batch size we will use a batch size of 1
+        model_stats = get_model_stats(self.model, input_tensor_shape=x_shape, clone_model=True)
+
+        # addup parameters which are not frozen
+        num_frozen_params = 0
+        for l in model_stats.layer_stats:
+            for identifier in self.conf_train['identifiers_to_unfreeze']:
+                if identifier in l.name:
+                    num_frozen_params += l.parameters
+        
+        ratio_unfrozen = num_frozen_params / model_stats.parameters 
+        logger.info(f'unfrozen parameters ratio {ratio_unfrozen}')
 
         # freeze everything other than the last layer
         self._freeze_but_last_layer()
