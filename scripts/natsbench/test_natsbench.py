@@ -16,7 +16,7 @@ def main():
     info = api.get_more_info(100, 'cifar10')
 
     # Query the flops, params, latency. info is a dict.
-    cost_info = api.get_cost_info(12, 'cifar10')
+    cost_info = api.get_cost_info(2000, 'cifar10')
 
     # Show information of an architecture index
     # api.show(100)
