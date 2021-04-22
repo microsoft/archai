@@ -241,7 +241,5 @@ def save_data(spe_top_percents:List[float], cr_top_percents:List[float], savefol
 
 
 
-
-
 if __name__ == '__main__':
     main()
