@@ -1,6 +1,3 @@
-
-
-
 exp_folder: 'D:\\archai_experiment_reports'
 
 
@@ -246,11 +243,13 @@ natsbench_synthetic_cifar10:
     ft_sc10_fb1024_ftlr0.1_fte5_ct256_ftt0.15: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.15'
     ft_sc10_fb1024_ftlr0.1_fte10_ct256_ftt0.15: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.15'
 
-  zero_cost: []
+  zero_cost:
+    zc_synthetic_cifar10: 'zero cost score at initialization'
           
-  shortreg: [nb_reg_b256_e10_sc10,
-            nb_reg_b256_e20_sc10,
-            nb_reg_b256_e30_sc10]
+  shortreg: 
+    nb_reg_b256_e10_sc10: 'regular train: batch 256 epochs 10'
+    nb_reg_b256_e20_sc10: 'regular train: batch 256 epochs 20'
+    nb_reg_b256_e30_sc10: 'regular train: batch 256 epochs 30'
 
   colors:
     freezetrain: 'red'

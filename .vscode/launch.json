@@ -228,7 +228,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "ImageNet16-120"],
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "synthetic_cifar10"],
             "justMyCode": false
         },
         {
@@ -325,7 +325,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_natsbench_space", "--datasets", "flower102"]
+            "args": ["--full", "--algos", "zerocost_natsbench_space", "--datasets", "synthetic_cifar10"]
         },
         {
             "name": "ZeroCost-Natsbench-Space-Toy",
@@ -688,7 +688,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_imagenet16-120",
+            "args": ["--dataset", "natsbench_synthetic_cifar10",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_exp_conf.yaml"]
         },
         {
@@ -706,8 +706,8 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_natsbench_zerocost.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_flower102",
-                "--out-dir", "D:\\archai_experiment_reports", "--reg-evals-file", "D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml"]
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_synthetic_cifar10",
+                "--out-dir", "D:\\archai_experiment_reports", "--reg-evals-file", "D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml"]
         },
         {
             "name": "Analysis Zero Cost Conditional Natsbench Experiments",
