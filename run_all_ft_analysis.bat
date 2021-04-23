@@ -196,6 +196,11 @@
 @REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.5_fte5_ct256_ftt0.2_scu --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.5_fte10_ct256_ftt0.2_scu --out-dir D:\\archai_experiment_reports
 
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c14 --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c15 --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c16 --out-dir D:\\archai_experiment_reports
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_lastact --out-dir D:\\archai_experiment_reports
+
 @REM python scripts/reports/analysis_freeze_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb2048_ftlr0.1_fte5_ct256_ftt0.1 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_freeze_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.1 --out-dir D:\\archai_experiment_reports
 
@@ -241,6 +246,10 @@
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e04_scu --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e06_scu --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e08_scu --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e12 --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e14 --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e16 --out-dir D:\\archai_experiment_reports
+python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b256_e18 --out-dir D:\\archai_experiment_reports
 
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b512_e10_scu --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b512_e20_scu --out-dir D:\\archai_experiment_reports
