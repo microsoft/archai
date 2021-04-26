@@ -6,6 +6,7 @@ import importlib
 import sys
 import string
 import os
+from copy import deepcopy
 
 from overrides import overrides
 
@@ -30,10 +31,11 @@ from archai.algos.proxynas.freeze_trainer import FreezeTrainer
 
 from nats_bench import create
 from archai.algos.natsbench.lib.models import get_cell_based_tiny_net
+from archai.algos.proxynas.conditional_trainer import ConditionalTrainer
 
 from .zero_cost_trainer import ZeroCostTrainer
 
-class ZeroCostNatsbenchEvaluater(Evaluater):
+class ZeroCostNatsbenchEpochsEvaluater(Evaluater):
     @overrides
     def create_model(self, conf_eval:Config, model_desc_builder:ModelDescBuilder,
                       final_desc_filename=None, full_desc_filename=None)->nn.Module:
@@ -86,13 +88,35 @@ class ZeroCostNatsbenchEvaluater(Evaluater):
     @overrides
     def train_model(self,  conf_train:Config, model:nn.Module,
                     checkpoint:Optional[CheckPoint])->Metrics:
-        conf_loader = conf_train['loader']
-        conf_train = conf_train['trainer']
-        
-        # get data
-        data_loaders = self.get_data(conf_loader)
+        conf_loader = deepcopy(conf_train['loader'])
+        conf_train = deepcopy(conf_train['trainer'])
+        conf_train_zerocost = deepcopy(conf_train)
+        num_classes = conf_loader['dataset']['n_classes']
 
-        trainer = ZeroCostTrainer(conf_train, model, checkpoint)
-        train_metrics = trainer.fit(data_loaders, self.num_classes)
+        total_epochs = conf_train['total_epochs']
+        assert conf_train['epochs'] == 1
+
+        # NOTE: we don't pass checkpoint to the trainers
+        # as it creates complications and we don't need it
+        # as these trainers are quite fast
+        checkpoint = None
+
+        for i in range(total_epochs):
+
+            # first run regular training for one epoch (in conf file)
+            title = f'regular_training_{i}'
+            logger.pushd(title)
+            data_loaders = self.get_data(conf_loader)
+            trainer = Trainer(conf_train, model, checkpoint)
+            train_metrics = trainer.fit(data_loaders)
+            logger.popd()
+
+            # then run zero cost measures
+            title = f'zerocost_{i}'
+            logger.pushd(title)
+            trainer = ZeroCostTrainer(conf_train_zerocost, model, checkpoint)
+            train_metrics = trainer.fit(data_loaders, num_classes)
+            logger.popd()
+
         return train_metrics
 

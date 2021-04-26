@@ -336,6 +336,22 @@
             "args": ["--algos", "zerocost_natsbench_space"]
         },
         {
+            "name": "ZeroCost-Natsbench-Epochs-Space-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "zerocost_natsbench_epochs_space", "--datasets", "cifar10"]
+        },
+        {
+            "name": "ZeroCost-Natsbench-Epochs-Space-Toy",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--algos", "zerocost_natsbench_epochs_space"]
+        },
+        {
             "name": "Natsbench-Regular-Eval-Full",
             "type": "python",
             "request": "launch",
@@ -672,7 +688,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_imagenet16-120",
+            "args": ["--dataset", "natsbench_synthetic_cifar10",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_exp_conf.yaml"]
         },
         {
