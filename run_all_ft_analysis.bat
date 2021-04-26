@@ -285,6 +285,13 @@
 @REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb256_ftlr0.1_fte10_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
 @REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_f102_fb256_ftlr0.1_fte15_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_f102_b256_reg200\\archid_testacc.yaml
 
+@REM Synthetic Cifar 10
+
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_sc10_fb256_ftlr0.1_fte10_ct256_ftt0.15 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_sc10_fb256_ftlr0.1_fte10_ct256_ftt0.15_c14 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_sc10_fb256_ftlr0.1_fte10_ct256_ftt0.15_c15 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml
+@REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_sc10_fb256_ftlr0.1_fte10_ct256_ftt0.15_c16 --out-dir D:\\archai_experiment_reports --reg-evals-file D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml
+
 @REM Nasbench 101
 
 @REM python scripts/reports/analysis_freeze_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\ft_nb101_fb256_ftlr0.2_fte5_ct256_ftt0.2 --out-dir D:\\archai_experiment_reports

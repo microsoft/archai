@@ -17,12 +17,12 @@ from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.evaluater import EvalResult
 from archai.common.common import get_expdir, logger
 from archai.algos.proxynas.freeze_manual_searcher import ManualFreezeSearcher
-from archai.algos.zero_cost_measures.zero_cost_natsbench_evaluator import ZeroCostNatsbenchEvaluater
+from archai.algos.zero_cost_measures.zero_cost_natsbench_epochs_evaluator import ZeroCostNatsbenchEpochsEvaluater
 
 from nats_bench import create
 
-class ZeroCostNatsbenchExperimentRunner(ExperimentRunner):
-    """Runs zero cost measures on architectures from natsbench"""
+class ZeroCostNatsbenchEpochsExperimentRunner(ExperimentRunner):
+    """Runs zero cost on architectures from natsbench after every epoch"""
 
     @overrides
     def model_desc_builder(self)->Optional[ModelDescBuilder]:
@@ -45,7 +45,7 @@ class ZeroCostNatsbenchExperimentRunner(ExperimentRunner):
         # without training architecture evaluation score
         # ---------------------------------------
         logger.pushd('zerocost_evaluate')
-        zerocost_evaler = ZeroCostNatsbenchEvaluater()
+        zerocost_evaler = ZeroCostNatsbenchEpochsEvaluater()
         conf_eval_zerocost = deepcopy(conf_eval)
 
         if conf_eval_zerocost['checkpoint'] is not None:

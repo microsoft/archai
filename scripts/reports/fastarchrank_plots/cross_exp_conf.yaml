@@ -259,6 +259,10 @@ natsbench_synthetic_cifar10:
   freezetrain: 
     ft_sc10_fb1024_ftlr0.1_fte5_ct256_ftt0.15: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.15'
     ft_sc10_fb1024_ftlr0.1_fte10_ct256_ftt0.15: 'fastarchrank stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.15'
+    ft_sc10_fb256_ftlr0.1_fte10_ct256_ftt0.15: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.15'
+    ft_sc10_fb256_ftlr0.1_fte10_ct256_ftt0.15_c14: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.15 c14'
+    ft_sc10_fb256_ftlr0.1_fte10_ct256_ftt0.15_c15: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.15 c15'
+    ft_sc10_fb256_ftlr0.1_fte10_ct256_ftt0.15_c16: 'fastarchrank stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.15 c16'
 
   zero_cost:
     zc_synthetic_cifar10: 'zero cost score at initialization'
