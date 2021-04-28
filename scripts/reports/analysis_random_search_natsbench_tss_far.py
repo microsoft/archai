@@ -88,6 +88,7 @@ def main():
         best_tests = None
         best_trains = None
 
+        archs_touched_counter = 0
         for skey in logs[key].keys():
             if 'conditional' in skey or 'freeze' in skey:
                 if 'conditional' in skey:
@@ -97,6 +98,7 @@ def main():
                 for ekey in logs[key][skey][train_key]['epochs'].keys():
                     eduration = logs[key][skey][train_key]['epochs'][ekey]['train']['duration']
                     duration += eduration
+                archs_touched_counter += 1
 
             # Get the last best_trains_tests
             if 'best_trains_tests' in skey:

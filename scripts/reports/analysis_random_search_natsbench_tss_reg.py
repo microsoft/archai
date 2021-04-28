@@ -88,11 +88,13 @@ def main():
         best_tests = None
         best_trains = None
 
+        archs_touched_counter = 0
         for skey in logs[key].keys():
             if 'regular_training' in skey:
                 for ekey in logs[key][skey]['arch_train']['epochs'].keys():
                     eduration = logs[key][skey]['arch_train']['epochs'][ekey]['train']['duration']
                     duration += eduration
+                archs_touched_counter += 1
 
             # Get the last best_trains_tests
             if 'best_trains_tests' in skey:
