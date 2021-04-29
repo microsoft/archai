@@ -36,6 +36,18 @@ from analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part,
 import re
 
 
+def find_best_test_sofar(best_tests:List[Tuple[int, float]], arch_ids_so_far:List[int])->float:
+    arch_ids_in_best_test = [x[0] for x in best_tests]
+
+    # go through ids so far in reverse order
+    # until you find a hit in best_tests
+    for id in reversed(arch_ids_so_far):
+        if id in arch_ids_in_best_test:
+            for aid, test in best_tests:
+                if aid == id:
+                    return test
+            
+
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
     parser.add_argument('--results-dir', '-d', type=str,
@@ -81,12 +93,15 @@ def main():
 
     for key in logs.keys():
         # Get total duration of the run
-        # which is the sum of all conditional and freeze
-        # trainings over all architectures
+        # which is the sum of all regular trainings 
+        # for each architecture
         duration = 0.0
 
         best_tests = None
         best_trains = None
+
+        duration_best_after_each_model = []
+        arch_ids_touched = []
 
         archs_touched_counter = 0
         for skey in logs[key].keys():
@@ -94,21 +109,34 @@ def main():
                 for ekey in logs[key][skey]['arch_train']['epochs'].keys():
                     eduration = logs[key][skey]['arch_train']['epochs'][ekey]['train']['duration']
                     duration += eduration
-                archs_touched_counter += 1
+                arch_id = int(skey.split('_')[-1])
+                if arch_id not in arch_ids_touched:
+                    archs_touched_counter += 1
+                    arch_ids_touched.append(arch_id)
+                    # after touching this model record the
+                    # time taken so far and the test accuracy of 
+                    # the best model found so far by random search
+                    if best_tests is not None:
+                        best_test_sofar = find_best_test_sofar(best_tests, arch_ids_touched)
+                        duration_best_after_each_model.append((duration, best_test_sofar))
 
             # Get the last best_trains_tests
+            # NOTE: that due to references being logged
+            # the entire run's data is logged after every
+            # architecture. So this is redundant but for safety.
             if 'best_trains_tests' in skey:
                 best_trains = logs[key][skey]['best_trains']
                 best_tests = logs[key][skey]['best_tests']
                 assert len(best_trains) == len(best_tests)
-
-        # find the test error of the best train 
+        
+        # find the test error of the best train at the end
         best_test = best_tests[-1][1]
 
-        raw_data[key] = (duration, best_test)
+        raw_data[key] = (duration, best_test, duration_best_after_each_model)
 
     run_durations = [raw_data[key][0] for key in raw_data.keys()]
     max_accs = [raw_data[key][1] for key in raw_data.keys()]
+    trajs = [raw_data[key][2] for key in raw_data.keys()]
 
     avg_duration = statistics.mean(run_durations)
     stderr_duration = sem(np.array(run_durations))
@@ -121,6 +149,7 @@ def main():
     data_to_save['stderr_duration'] = stderr_duration
     data_to_save['avg_max_acc'] = avg_max_acc
     data_to_save['stderr_max_acc'] = stderr_max_acc
+    data_to_save['trajs'] = trajs
 
     savename = os.path.join(out_dir, 'raw_data.yaml')
     with open(savename, 'w') as f:

@@ -77,9 +77,42 @@ def main():
 
     savename_html = os.path.join(exp_folder, f'{args.dataset}_random_search.html')
     fig.write_html(savename_html)
-
     fig.show()
-    
+
+    fig_detail = go.Figure()
+    for key in far_data.keys():
+        legend_name = conf_data[args.dataset]['fastarchrank'][key]
+        marker_color = conf_data[args.dataset]['colors']['fastarchrank']
+        for i in range(len(far_data[key]['trajs'])):
+            xs = [duration for duration, test_acc in far_data[key]['trajs'][i]]
+            ys = [test_acc for duration, test_acc in far_data[key]['trajs'][i]]
+            fig_detail.add_trace(go.Scatter(x=xs, 
+                                            y=ys, 
+                                            name=legend_name, 
+                                            mode='lines',
+                                            showlegend=True))
+            fig_detail.update_yaxes(range=[0,100])
+
+    for key in reg_data.keys():
+        legend_name = conf_data[args.dataset]['regular'][key]
+        marker_color = conf_data[args.dataset]['colors']['regular']
+        for i in range(len(reg_data[key]['trajs'])):
+            xs = [duration for duration, test_acc in reg_data[key]['trajs'][i]]
+            ys = [test_acc for duration, test_acc in reg_data[key]['trajs'][i]]
+            fig_detail.add_trace(go.Scatter(x=xs, 
+                                            y=ys, 
+                                            name=legend_name, 
+                                            mode='lines',
+                                            showlegend=True))
+            fig_detail.update_yaxes(range=[0,100])
+     
+
+    fig_detail.update_layout(title_text="Duration vs. Max. Accuracy Random Search", 
+                    xaxis_title="Duration (s)", 
+                    yaxis_title='Avg. Top-1 Max Accuracy')
+    savename_html = os.path.join(exp_folder, f'{args.dataset}_random_search_detail.html')
+    fig_detail.write_html(savename_html)
+    fig_detail.show()
 
 if __name__ == '__main__':
     main()

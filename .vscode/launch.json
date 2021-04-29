@@ -742,7 +742,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_c100_ftt0.3_max1000_ratio1.2_seed1.0",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_c100_ftt0.3_max1000_ratio1.2",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
