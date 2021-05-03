@@ -758,7 +758,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_c100_ftt0.3_max1000_ratio1.2",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_c100_ftt0.3_max500_ratio2.0_fixedseeds",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
@@ -767,7 +767,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_reg.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_reg_c100_max1000_b1024_e08_seed1.0",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_reg_c100_max500_b1024_e08_fixedseeds",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {

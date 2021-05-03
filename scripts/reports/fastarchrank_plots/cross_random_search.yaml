@@ -7,21 +7,23 @@ exp_folder: 'D:\\archai_experiment_reports'
 natsbench_cifar10: 
 
   fastarchrank:
-    rs_far_ftt0.6_max50_ratio1.2: 'rs_far_ftt0.6_max50_ratio1.2'
-    rs_far_ftt0.6_max50_ratio1.0: 'rs_far_ftt0.6_max50_ratio1.0'
-    rs_far_ftt0.3_max50_ratio1.2: 'rs_far_ftt0.3_max50_ratio1.2'
-    rs_far_ftt0.3_max50_ratio1.0: 'rs_far_ftt0.3_max50_ratio1.0'
-    rs_far_ftt0.15_max50_ratio1.2: 'rs_far_ftt0.15_max50_ratio1.2'
-    rs_far_ftt0.15_max50_ratio1.0: 'rs_far_ftt0.15_max50_ratio1.0'
-
+    # rs_far_ftt0.6_max50_ratio1.2: 'rs_far_ftt0.6_max50_ratio1.2'
+    # rs_far_ftt0.6_max50_ratio1.0: 'rs_far_ftt0.6_max50_ratio1.0'
+    # rs_far_ftt0.3_max50_ratio1.2: 'rs_far_ftt0.3_max50_ratio1.2'
+    # rs_far_ftt0.3_max50_ratio1.0: 'rs_far_ftt0.3_max50_ratio1.0'
+    # rs_far_ftt0.15_max50_ratio1.2: 'rs_far_ftt0.15_max50_ratio1.2'
+    # rs_far_ftt0.15_max50_ratio1.0: 'rs_far_ftt0.15_max50_ratio1.0'
+    rs_far_ftt0.6_max500_ratio1.2_fixedseeds: 'rs_far_ftt0.6_max500_ratio1.2_fixedseeds'
+    rs_far_ftt0.6_max500_ratio2.0_fixedseeds: 'rs_far_ftt0.6_max500_ratio2.0_fixedseeds'
 
   regular:
-    rs_reg_max50_b1024_e01: 'rs_reg_max50_b1024_e01'
-    rs_reg_max50_b1024_e02: 'rs_reg_max50_b1024_e02'
-    rs_reg_max50_b1024_e04: 'rs_reg_max50_b1024_e04'
-    rs_reg_max50_b1024_e06: 'rs_reg_max50_b1024_e06'
-    rs_reg_max50_b1024_e08: 'rs_reg_max50_b1024_e08'
-    rs_reg_max50_b1024_e10: 'rs_reg_max50_b1024_e10'
+    # rs_reg_max50_b1024_e01: 'rs_reg_max50_b1024_e01'
+    # rs_reg_max50_b1024_e02: 'rs_reg_max50_b1024_e02'
+    # rs_reg_max50_b1024_e04: 'rs_reg_max50_b1024_e04'
+    # rs_reg_max50_b1024_e06: 'rs_reg_max50_b1024_e06'
+    # rs_reg_max50_b1024_e08: 'rs_reg_max50_b1024_e08'
+    # rs_reg_max50_b1024_e10: 'rs_reg_max50_b1024_e10'
+    rs_reg_max500_b1024_e10_fixedseeds: 'rs_reg_max500_b1024_e10_fixedseeds'
 
   colors:
     fastarchrank: 'green'
@@ -31,12 +33,16 @@ natsbench_cifar10:
 natsbench_cifar100: 
 
   fastarchrank:
-    rs_far_c100_ftt0.3_max1000_ratio1.2_seed1.0: 'rs_far_c100_ftt0.3_max1000_ratio1.2_seed1.0'
-    rs_far_c100_ftt0.3_max1000_ratio1.2: 'rs_far_c100_ftt0.3_max1000_ratio1.2'
+    # rs_far_c100_ftt0.3_max1000_ratio1.2_seed1.0: 'rs_far_c100_ftt0.3_max1000_ratio1.2_seed1.0'
+    # rs_far_c100_ftt0.3_max1000_ratio1.2: 'rs_far_c100_ftt0.3_max1000_ratio1.2'
+    rs_far_c100_ftt0.3_max500_ratio1.2_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio1.2_fixedseeds'
+    rs_far_c100_ftt0.3_max500_ratio2.0_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio2.0_fixedseeds'
 
   regular:
-    rs_reg_c100_max1000_b1024_e08_seed1.0: 'rs_reg_c100_max1000_b1024_e08_seed1.0'
-    
+    # rs_reg_c100_max1000_b1024_e08_seed1.0: 'rs_reg_c100_max1000_b1024_e08_seed1.0'
+    # rs_reg_c100_max1000_b1024_e08: 'rs_reg_c100_max1000_b1024_e08'
+    rs_reg_c100_max500_b1024_e08_fixedseeds: 'rs_reg_c100_max500_b1024_e08_fixedseeds'
+
 
   colors:
     fastarchrank: 'green'
