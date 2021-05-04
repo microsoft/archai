@@ -36,6 +36,9 @@ natsbench_cifar100:
     # rs_far_c100_ftt0.3_max1000_ratio1.2_seed1.0: 'rs_far_c100_ftt0.3_max1000_ratio1.2_seed1.0'
     # rs_far_c100_ftt0.3_max1000_ratio1.2: 'rs_far_c100_ftt0.3_max1000_ratio1.2'
     rs_far_c100_ftt0.3_max500_ratio1.2_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio1.2_fixedseeds'
+    rs_far_c100_ftt0.3_max500_ratio1.4_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio1.4_fixedseeds'
+    rs_far_c100_ftt0.3_max500_ratio1.6_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio1.6_fixedseeds'
+    rs_far_c100_ftt0.3_max500_ratio1.8_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio1.8_fixedseeds'
     rs_far_c100_ftt0.3_max500_ratio2.0_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio2.0_fixedseeds'
 
   regular:

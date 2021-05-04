@@ -688,7 +688,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_synthetic_cifar10",
+            "args": ["--dataset", "natsbench_cifar100",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_exp_conf.yaml"]
         },
         {
@@ -742,7 +742,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_c100_ftt0.3_max500_ratio2.0_fixedseeds",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_c100_ftt0.3_max500_ratio1.8_fixedseeds",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {

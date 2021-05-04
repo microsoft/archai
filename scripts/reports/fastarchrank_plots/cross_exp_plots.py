@@ -71,7 +71,7 @@ def main():
         for key in data.keys():            
             exp_name = key
             assert tp == data[key]['top_percents'][i]
-            this_tp_info[exp_name] = (data[key]['freeze_times_avg'][i], data[key]['spe_freeze'][i], data[key]['freeze_ratio_common'][i])
+            this_tp_info[exp_name] = (data[key]['freeze_times_avg'][i], data[key]['spe_freeze'][i], data[key]['freeze_ratio_common'][i], data[key]['freeze_times_stderr'][i])
 
         # get zero cost measures
         if zero_cost_data:
@@ -87,7 +87,7 @@ def main():
         for key in shortreg_data.keys():
             exp_name = key
             assert tp == shortreg_data[key]['top_percents'][i]
-            this_tp_info[exp_name] = (shortreg_data[key]['shortreg_times_avg'][i], shortreg_data[key]['spe_shortreg'][i], shortreg_data[key]['shortreg_ratio_common'][i])
+            this_tp_info[exp_name] = (shortreg_data[key]['shortreg_times_avg'][i], shortreg_data[key]['spe_shortreg'][i], shortreg_data[key]['shortreg_ratio_common'][i], shortreg_data[key]['shortreg_times_stderr'][i])
 
         tp_info[tp] = this_tp_info
 
@@ -109,6 +109,12 @@ def main():
             spe = tp_info[tp_key][exp][1]
             cr = tp_info[tp_key][exp][2]
 
+            # stderr info for durations
+            error_x = None
+            if len(tp_info[tp_key][exp]) > 3:
+                duration_stderr = tp_info[tp_key][exp][3]
+                error_x = dict(type='data', array=[duration_stderr], visible=True, thickness=1, width=0)
+
             if exp in exp_list:
                 marker = counter
                 marker_color = conf_data[args.dataset]['colors']['freezetrain']
@@ -129,12 +135,12 @@ def main():
             row_num = ma.floor(ind/num_plots_per_col) + 1
             col_num = ind % num_plots_per_col + 1
             showlegend = True if ind == 0 else False
-            fig.add_trace(go.Scatter(x=[duration], y=[spe], mode='markers', name=legend_text, 
+            
+            fig.add_trace(go.Scatter(x=[duration], error_x=error_x, y=[spe], mode='markers', name=legend_text, 
                             marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
                         row=row_num, col=col_num)
-            #fig.update_xaxes(title_text="Duration (s)", row=row_num, col=col_num)
-            #fig.update_yaxes(title_text="SPE", row=row_num, col=col_num)
-            fig_cr.add_trace(go.Scatter(x=[duration], y=[cr], mode='markers', name=legend_text, 
+            
+            fig_cr.add_trace(go.Scatter(x=[duration], error_x=error_x, y=[cr], mode='markers', name=legend_text, 
                             marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
                         row=row_num, col=col_num)
 
@@ -174,6 +180,12 @@ def main():
             spe = tp_info[tp_key][exp][1]
             cr = tp_info[tp_key][exp][2]
 
+            # stderr info for durations
+            error_x = None
+            if len(tp_info[tp_key][exp]) > 3:
+                duration_stderr = tp_info[tp_key][exp][3]
+                error_x = dict(type='data', array=[duration_stderr], visible=True, thickness=1, width=0)
+
             if exp in exp_list:
                 marker = counter
                 marker_color = conf_data[args.dataset]['colors']['freezetrain']
@@ -194,7 +206,7 @@ def main():
             row_num = ind + 1
             col_num = 1
             showlegend = True if ind == 0 else False
-            fig_paper.add_trace(go.Scatter(x=[duration], y=[spe], mode='markers', name=legend_text, 
+            fig_paper.add_trace(go.Scatter(x=[duration], error_x=error_x, y=[spe], mode='markers', name=legend_text, 
                             marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
                         row=row_num, col=col_num)
             #fig.update_xaxes(title_text="Duration (s)", row=row_num, col=col_num)
@@ -202,10 +214,17 @@ def main():
 
             col_num = 2
             showlegend = False
-            fig_paper.add_trace(go.Scatter(x=[duration], y=[cr], mode='markers', name=legend_text, 
+            fig_paper.add_trace(go.Scatter(x=[duration], error_x=error_x, y=[cr], mode='markers', name=legend_text, 
                             marker_symbol=marker, marker_color=marker_color, showlegend=showlegend, text=exp),  
                         row=row_num, col=col_num)
 
+    # Update each subplot's x and y axes labels
+    fig_paper.update_xaxes(title_text="Duration (s)", row=6, col=1)
+    fig_paper.update_xaxes(title_text="Duration (s)", row=6, col=2)
+
+    fig_paper.update_yaxes(title_text="Spearman's Corr.", row=1, col=1)
+    fig_paper.update_yaxes(title_text="Common Ratio", row=1, col=2)
+    
     savename_html = os.path.join(exp_folder, f'{args.dataset}_duration_vs_spe_vs_cr_vs_top_percent_PAPER.html')
     fig_paper.write_html(savename_html)
 
