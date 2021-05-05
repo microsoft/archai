@@ -51,3 +51,20 @@ natsbench_cifar100:
     fastarchrank: 'green'
     regular: 'red'
 
+
+natsbench_imagenet16-120: 
+
+  fastarchrank:
+    rs_far_i16_ftt0.2_max500_ratio1.2_fixedseeds: 'rs_far_i16_ftt0.2_max500_ratio1.2_fixedseeds'
+    
+
+  regular:
+    rs_reg_i16_max500_b512_e22_fixedseeds: 'rs_reg_i16_max500_b512_e22_fixedseeds'
+
+
+  colors:
+    fastarchrank: 'green'
+    regular: 'red'
+
+
+
