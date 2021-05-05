@@ -80,7 +80,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 4
+    num_workers = 12
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -270,11 +270,20 @@ def main():
     assert len(all_reg_evals) == len(all_arch_ids)
 
     # scatter plot between time to threshold accuracy and regular evaluation
-    fig = px.scatter(x=all_cond_time_last, y=all_reg_evals, labels={'x': 'Time to reach threshold accuracy (s)', 'y': 'Final Accuracy'})
+    fig = px.scatter(x=all_cond_time_last, y=all_reg_evals, labels={'x': 'Time to reach threshold train accuracy (s)', 'y': 'Final Accuracy'})
+    fig.update_layout(font=dict(
+        size=32,
+    ))
+
     savename = os.path.join(out_dir, 'cond_time_vs_final_acc.html')
     fig.write_html(savename)
+
+    savename_pdf = os.path.join(out_dir, 'cond_time_vs_final_acc.pdf')
+    fig.write_image(savename_pdf, engine="kaleido", width=1500, height=1500, scale=1)
+
     fig.show()
 
+    # histogram of training accuracies
     fig = px.histogram(all_reg_evals, labels={'x': 'Test Accuracy', 'y': 'Counts'})
     savename = os.path.join(out_dir, 'distribution_of_reg_evals.html')
     fig.write_html(savename)
