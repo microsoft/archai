@@ -659,7 +659,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space_new.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.1_val",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c15",
                     "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
@@ -713,7 +713,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_random_search.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_cifar100",
+            "args": ["--dataset", "natsbench_imagenet16-120",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_random_search.yaml"]
         },
         {
@@ -758,7 +758,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_c100_ftt0.3_max500_ratio1.8_fixedseeds",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_i16_ftt0.2_max500_ratio1.2_fixedseeds",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
@@ -767,7 +767,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_reg.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_reg_c100_max500_b1024_e08_fixedseeds",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_reg_i16_max500_b512_e22_fixedseeds",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
