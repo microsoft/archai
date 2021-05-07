@@ -77,7 +77,7 @@ class RandomNatsbenchTssFarSearcher(Searcher):
                 logger.popd()
                 continue
 
-            if  cond_train_time < fastest_cond_train:
+            if cond_train_time < fastest_cond_train:
                 fastest_cond_train = cond_train_time
                 logger.info(f'fastest condition train till now: {fastest_cond_train} seconds!')
             logger.popd()

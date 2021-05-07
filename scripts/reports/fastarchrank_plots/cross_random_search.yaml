@@ -23,6 +23,10 @@ natsbench_cifar10:
     # rs_reg_max50_b1024_e06: 'rs_reg_max50_b1024_e06'
     # rs_reg_max50_b1024_e08: 'rs_reg_max50_b1024_e08'
     # rs_reg_max50_b1024_e10: 'rs_reg_max50_b1024_e10'
+    rs_reg_max500_b1024_e02_fixedseeds: 'rs_reg_max500_b1024_e02_fixedseeds'
+    rs_reg_max500_b1024_e04_fixedseeds: 'rs_reg_max500_b1024_e04_fixedseeds'
+    rs_reg_max500_b1024_e06_fixedseeds: 'rs_reg_max500_b1024_e06_fixedseeds'
+    rs_reg_max500_b1024_e08_fixedseeds: 'rs_reg_max500_b1024_e08_fixedseeds'
     rs_reg_max500_b1024_e10_fixedseeds: 'rs_reg_max500_b1024_e10_fixedseeds'
 
   colors:
@@ -44,6 +48,9 @@ natsbench_cifar100:
   regular:
     # rs_reg_c100_max1000_b1024_e08_seed1.0: 'rs_reg_c100_max1000_b1024_e08_seed1.0'
     # rs_reg_c100_max1000_b1024_e08: 'rs_reg_c100_max1000_b1024_e08'
+    rs_reg_c100_max500_b1024_e02_fixedseeds: 'rs_reg_c100_max500_b1024_e02_fixedseeds'
+    rs_reg_c100_max500_b1024_e04_fixedseeds: 'rs_reg_c100_max500_b1024_e04_fixedseeds'
+    rs_reg_c100_max500_b1024_e06_fixedseeds: 'rs_reg_c100_max500_b1024_e06_fixedseeds'
     rs_reg_c100_max500_b1024_e08_fixedseeds: 'rs_reg_c100_max500_b1024_e08_fixedseeds'
 
 
@@ -56,7 +63,7 @@ natsbench_imagenet16-120:
 
   fastarchrank:
     rs_far_i16_ftt0.2_max500_ratio1.2_fixedseeds: 'rs_far_i16_ftt0.2_max500_ratio1.2_fixedseeds'
-    
+    rs_far_i16_ftt0.2_max500_ratio2.0_fixedseeds: 'rs_far_i16_ftt0.2_max500_ratio2.0_fixedseeds'
 
   regular:
     rs_reg_i16_max500_b512_e22_fixedseeds: 'rs_reg_i16_max500_b512_e22_fixedseeds'
