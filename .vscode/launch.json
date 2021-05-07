@@ -570,7 +570,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_cifar100",
+            "args": ["--dataset", "natsbench_cifar10",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_exp_conf.yaml"]
         },
         {
@@ -579,7 +579,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_random_search.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_imagenet16-120",
+            "args": ["--dataset", "natsbench_cifar100",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_random_search.yaml"]
         },
         {
@@ -590,6 +590,15 @@
             "console": "integratedTerminal",
             "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_synthetic_cifar10",
                 "--out-dir", "D:\\archai_experiment_reports", "--reg-evals-file", "D:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml"]
+        },
+        {
+            "name": "Analysis Zero Cost Natsbench Epochs Experiments",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_natsbench_zerocost_epochs.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\zc_eachepoch_c10_TOY",
+                "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
             "name": "Analysis Zero Cost Conditional Natsbench Experiments",
@@ -624,7 +633,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_i16_ftt0.2_max500_ratio1.2_fixedseeds",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_i16_ftt0.2_max500_ratio2.0_fixedseeds",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
@@ -633,7 +642,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_reg.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_reg_i16_max500_b512_e22_fixedseeds",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_reg_c100_max500_b1024_e06_fixedseeds",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
