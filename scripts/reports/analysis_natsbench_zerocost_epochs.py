@@ -95,6 +95,7 @@ def main():
 
     all_arch_ids = []
     all_reg_evals = []
+    # arch_id -> epoch_num -> measure -> score
     all_zerocost_evals = dict()
 
     for key in logs.keys():
@@ -132,7 +133,7 @@ def main():
                     arch_id = confs[key]['nas']['eval']['nasbench101']['arch_index']
                     all_arch_ids.append(arch_id)
 
-                # zerocost initial scores
+                # zerocost scores
                 #-------------------------------
                 epoch_num_measures = OrderedDict()
                 for tkey in logs[key]['zerocost_evaluate']['eval_arch'].keys():
@@ -141,6 +142,9 @@ def main():
                         this_epoch_measures = OrderedDict()
                         for measure in ZEROCOST_MEASURES:
                             score = logs[key]['zerocost_evaluate']['eval_arch'][tkey]['eval_train'][measure]
+                            # jacob_cov tends to produce nans sometimes
+                            if ma.isnan(score):
+                                score = 0.0
                             this_epoch_measures[measure] = score
                         epoch_num_measures[epoch_num] = this_epoch_measures
                 all_zerocost_evals[arch_id] = epoch_num_measures
@@ -169,6 +173,7 @@ def main():
 
     # for each epoch num compute Spearman's correlation
     # for each measure
+    # measure -> epoch_num -> spe
     measures_res = OrderedDict()
     for measure in ZEROCOST_MEASURES:
         epoch_num_spe = OrderedDict()
@@ -188,15 +193,19 @@ def main():
     for measure in ZEROCOST_MEASURES:
         xs = [key for key in measures_res[measure].keys()]
         ys = [measures_res[measure][epoch_num] for epoch_num in measures_res[measure].keys()]
-
+        
         fig.add_trace(go.Scatter(x=xs, y=ys, name=measure, mode='markers+lines', showlegend=True))
         
-    fig.update_layout(title_text="Zero-Cost Measures Ranking Performance over Epochs of Training",
-                        xaxis_title='Epochs',
-                        yaxis_title='Spearman Corr.')
+    fig.update_layout(xaxis_title='Epochs',
+                    yaxis_title='Spearman Corr.')
+    fig.update_layout(font=dict(size=48))
 
     savename_html = os.path.join(out_dir, 'zerocost_epochs_vs_spe.html')
     fig.write_html(savename_html)
+
+    savename_pdf = os.path.join(out_dir, 'zerocost_epochs_vs_spe.pdf')
+    fig.write_image(savename_pdf, engine="kaleido", width=1500, height=750, scale=1)
+
     fig.show()
 
 

@@ -224,12 +224,16 @@ def main():
 
     fig_paper.update_yaxes(title_text="Spearman's Corr.", row=1, col=1)
     fig_paper.update_yaxes(title_text="Common Ratio", row=1, col=2)
+
+    fig_paper.update_layout(font=dict(
+        size=16,
+    ))
     
     savename_html = os.path.join(exp_folder, f'{args.dataset}_duration_vs_spe_vs_cr_vs_top_percent_PAPER.html')
     fig_paper.write_html(savename_html)
 
     savename_pdf = os.path.join(exp_folder, f'{args.dataset}_duration_vs_spe_vs_cr_vs_top_percent_PAPER.pdf')
-    fig_paper.write_image(savename_pdf, engine="kaleido", width=1200, height=1500, scale=1)
+    fig_paper.write_image(savename_pdf, engine="kaleido", width=1500, height=1500, scale=1)
     fig_paper.show()
     
     # plot timing information vs. top percent of architectures
@@ -240,7 +244,9 @@ def main():
                             error_y=dict(type='data', array=np.array(data[key]['freeze_times_std'])/2, 
                             visible=True), name=key)
                             )
-    fig_time.update_layout(title="Duration vs. Top Percent of Architectures", xaxis_title='Top Percent of Architectures', yaxis_title='Avg. duration (s)')
+    fig_time.update_layout(title="Duration vs. Top Percent of Architectures", 
+                            xaxis_title='Top Percent of Architectures', 
+                            yaxis_title='Avg. duration (s)')
     savename = os.path.join(exp_folder, f'{args.dataset}_duration_vs_top_percent.html')
     fig_time.write_html(savename)
     fig_time.show()
