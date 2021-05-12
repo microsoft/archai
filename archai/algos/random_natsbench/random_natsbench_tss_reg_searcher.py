@@ -53,12 +53,7 @@ class RandomNatsbenchTssRegSearcher(Searcher):
             # as these trainers are quite fast
             checkpoint = None
 
-            # if during conditional training it
-            # starts exceeding fastest time to
-            # reach threshold by a ratio then early
-            # terminate it
-            logger.pushd(f'regular_training_{archid}')
-            
+            logger.pushd(f'regular_training_{archid}')            
             data_loaders = self.get_data(conf_loader)
             trainer = Trainer(conf_train, model, checkpoint) 
             trainer_metrics = trainer.fit(data_loaders)

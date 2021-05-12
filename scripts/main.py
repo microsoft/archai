@@ -27,6 +27,7 @@ from archai.algos.zero_cost_measures.zero_cost_natsbench_experiment_runner impor
 from archai.algos.zero_cost_measures.zero_cost_natsbench_conditional_experiment_runner import ZeroCostConditionalNatsbenchExperimentRunner
 from archai.algos.zero_cost_measures.zero_cost_natsbench_epochs_experiment_runner import ZeroCostNatsbenchEpochsExperimentRunner
 from archai.algos.random_natsbench.random_natsbench_tss_far_exp_runner import RandomNatsbenchTssFarExpRunner
+from archai.algos.random_natsbench.random_natsbench_tss_far_post_exp_runner import RandomNatsbenchTssFarPostExpRunner
 from archai.algos.random_natsbench.random_natsbench_tss_reg_exp_runner import RandomNatsbenchTssRegExpRunner
 
 def main():
@@ -52,6 +53,7 @@ def main():
         'phased_freezetrain_natsbench_space': PhasedFreezeNatsbenchExperimentRunner,
         'freezeaddon_nasbench101_space': FreezeAddonNasbench101ExperimentRunner,
         'random_natsbench_tss_far': RandomNatsbenchTssFarExpRunner,
+        'random_natsbench_tss_far_post': RandomNatsbenchTssFarPostExpRunner,
         'random_natsbench_tss_reg': RandomNatsbenchTssRegExpRunner
     }
 
