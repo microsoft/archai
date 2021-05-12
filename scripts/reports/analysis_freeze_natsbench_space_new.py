@@ -272,7 +272,7 @@ def main():
     # scatter plot between time to threshold accuracy and regular evaluation
     fig = px.scatter(x=all_cond_time_last, y=all_reg_evals, labels={'x': 'Time to reach threshold train accuracy (s)', 'y': 'Final Accuracy'})
     fig.update_layout(font=dict(
-        size=32,
+        size=48,
     ))
 
     savename = os.path.join(out_dir, 'cond_time_vs_final_acc.html')

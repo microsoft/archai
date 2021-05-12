@@ -23,7 +23,7 @@ from archai.algos.proxynas.conditional_trainer import ConditionalTrainer
 from archai.algos.proxynas.freeze_trainer import FreezeTrainer
 from archai.algos.natsbench.natsbench_utils import create_natsbench_tss_api, model_from_natsbench_tss
 
-class RandomNatsbenchTssFarSearcher(Searcher):
+class RandomNatsbenchTssFarPostSearcher(Searcher):
 
     @overrides
     def search(self, conf_search:Config)->SearchResult:
@@ -37,6 +37,7 @@ class RandomNatsbenchTssFarSearcher(Searcher):
         conf_train = conf_search['trainer']
         conf_loader = conf_search['loader']
         conf_train_freeze = conf_search['freeze_trainer']
+        conf_train_post = conf_search['post_trainer']
         # endregion
 
         # create the natsbench api
@@ -112,5 +113,37 @@ class RandomNatsbenchTssFarSearcher(Searcher):
             logger.info({'best_trains':best_trains, 'best_tests':best_tests})
             logger.popd()
 
+            post_best_tests = self._post_train_top(best_trains, dataset_name, api, conf_loader, conf_train_post)
+            logger.pushd(f'post_best_tests')
+            logger.info({'post_best_tests':post_best_tests})
+            best_test = max(post_best_tests, key=lambda x:x[1])
+            logger.info({'best_test_overall':best_test})
+            logger.popd()
 
+    def _post_train_top(self, best_trains, dataset_name:str, api, conf_loader, conf_train_post):
+        # take the list of best train archs and 
+        # choose amongst them
+        checkpoint = None
+        post_best_trains = [(-1, -ma.inf)]
+        post_best_tests = [(-1, -ma.inf)]
+        for arch_id, _ in best_trains:
+            if arch_id > 0:
+                # get model
+                model = model_from_natsbench_tss(arch_id, dataset_name, api)
 
+                # regular train              
+                logger.pushd(f'post_training_{arch_id}')            
+                data_loaders = self.get_data(conf_loader)
+                post_trainer = Trainer(conf_train_post, model, checkpoint) 
+                post_train_metrics = post_trainer.fit(data_loaders)
+                logger.popd()
+
+                this_arch_top1 = post_train_metrics.best_train_top1()    
+                if this_arch_top1 > post_best_trains[-1][1]:
+                    post_best_trains.append((arch_id, this_arch_top1))
+                    # get the full evaluation result from natsbench
+                    info = api.get_more_info(arch_id, dataset_name, hp=200, is_random=False)
+                    this_arch_top1_test = info['test-accuracy']
+                    post_best_tests.append((arch_id, this_arch_top1_test))
+
+        return post_best_tests
