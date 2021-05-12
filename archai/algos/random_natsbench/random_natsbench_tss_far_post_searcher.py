@@ -113,37 +113,40 @@ class RandomNatsbenchTssFarPostSearcher(Searcher):
             logger.info({'best_trains':best_trains, 'best_tests':best_tests})
             logger.popd()
 
-            post_best_tests = self._post_train_top(best_trains, dataset_name, api, conf_loader, conf_train_post)
-            logger.pushd(f'post_best_tests')
-            logger.info({'post_best_tests':post_best_tests})
-            best_test = max(post_best_tests, key=lambda x:x[1])
-            logger.info({'best_test_overall':best_test})
-            logger.popd()
+
+        # remove the fake entries
+        best_trains.pop(0)
+        best_tests.pop(0)
+
+        # now just take the top ones by training error and train them all
+        # and pick the argmax
+        best_test = self._post_train_top(best_trains, dataset_name, api, conf_loader, conf_train_post)
+        logger.info({'best_test_overall':best_test})
 
     def _post_train_top(self, best_trains, dataset_name:str, api, conf_loader, conf_train_post):
         # take the list of best train archs and 
         # choose amongst them
         checkpoint = None
         post_best_trains = [(-1, -ma.inf)]
-        post_best_tests = [(-1, -ma.inf)]
         for arch_id, _ in best_trains:
-            if arch_id > 0:
-                # get model
-                model = model_from_natsbench_tss(arch_id, dataset_name, api)
+            
+            # get model
+            model = model_from_natsbench_tss(arch_id, dataset_name, api)
 
-                # regular train              
-                logger.pushd(f'post_training_{arch_id}')            
-                data_loaders = self.get_data(conf_loader)
-                post_trainer = Trainer(conf_train_post, model, checkpoint) 
-                post_train_metrics = post_trainer.fit(data_loaders)
-                logger.popd()
+            # regular train              
+            logger.pushd(f'post_training_{arch_id}')            
+            data_loaders = self.get_data(conf_loader)
+            post_trainer = Trainer(conf_train_post, model, checkpoint) 
+            post_train_metrics = post_trainer.fit(data_loaders)
+            logger.popd()
 
-                this_arch_top1 = post_train_metrics.best_train_top1()    
-                if this_arch_top1 > post_best_trains[-1][1]:
-                    post_best_trains.append((arch_id, this_arch_top1))
-                    # get the full evaluation result from natsbench
-                    info = api.get_more_info(arch_id, dataset_name, hp=200, is_random=False)
-                    this_arch_top1_test = info['test-accuracy']
-                    post_best_tests.append((arch_id, this_arch_top1_test))
+            this_arch_top1 = post_train_metrics.best_train_top1()    
+            if this_arch_top1 > post_best_trains[-1][1]:
+                post_best_trains.append((arch_id, this_arch_top1))
 
-        return post_best_tests
+        post_best_trains.pop(0)
+        best_arch_id = max(post_best_trains, key=lambda x: x[1])[0]
+        # get the full evaluation result from natsbench
+        info = api.get_more_info(best_arch_id, dataset_name, hp=200, is_random=False)
+        this_arch_top1_test = info['test-accuracy']
+        return this_arch_top1_test
