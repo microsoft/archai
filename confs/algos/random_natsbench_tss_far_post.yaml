@@ -63,7 +63,7 @@ nas:
       load_train: True # load train split of dataset
       train_batch: 256
       freeze_loader:
-        train_batch: 1024 # batch size for freeze training.
+        train_batch: 512 # batch size for freeze training.
       train_workers: 4 # if null then gpu_count*4
       test_workers: '_copy: ../train_workers' # if null then 4
       load_test: False # load test split of dataset
@@ -122,7 +122,7 @@ nas:
       l1_alphas: 0.0  # weight to be applied to sum(abs(alphas)) to loss term
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger
       title: 'eval_train'
-      epochs: 5
+      epochs: 10
       batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
       lossfn:
         type: 'CrossEntropyLoss'

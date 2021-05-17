@@ -721,7 +721,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_random_search.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_imagenet16-120",
+            "args": ["--dataset", "natsbench_cifar100",
             "--conf-location", "scripts/reports/fastarchrank_plots/cross_random_search.yaml"]
         },
         {
@@ -776,6 +776,15 @@
             "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_far_i16_ftt0.2_max500_ratio2.0_fixedseeds",
+                "--out-dir", "D:\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Random Search Natsbench TSS Far Post",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far_post.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "D:\\archaiphilly\\phillytools\\rs_farpost_c100_ftt0.3_max500_ratio2.0_fixedseeds",
                 "--out-dir", "D:\\archai_experiment_reports"]
         },
         {
