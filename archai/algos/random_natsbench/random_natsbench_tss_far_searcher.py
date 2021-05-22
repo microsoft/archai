@@ -85,13 +85,11 @@ class RandomNatsbenchTssFarSearcher(Searcher):
             # if we did not early terminate in conditional 
             # training then freeze train
             # get data with new batch size for freeze training
-            # NOTE: important to create copy and modify as otherwise get_data will return
-            # a cached data loader by hashing the id of conf_loader
             conf_loader_freeze = deepcopy(conf_loader)
             conf_loader_freeze['train_batch'] = conf_loader['freeze_loader']['train_batch'] 
 
             logger.pushd(f'freeze_training_{archid}')
-            data_loaders = self.get_data(conf_loader_freeze)
+            data_loaders = self.get_data(conf_loader_freeze, to_cache=False)
             # now just finetune the last few layers
             checkpoint = None
             trainer = FreezeTrainer(conf_train_freeze, model, checkpoint)
