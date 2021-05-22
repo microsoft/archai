@@ -99,7 +99,7 @@ class Searcher(EnforceOverrides):
 
         return model_desc
 
-    def get_data(self, conf_loader:Config)->data.DataLoaders:
+    def get_data(self, conf_loader:Config, to_cache=True)->data.DataLoaders:
 
         # this dict caches the dataset objects per dataset config so we don't have to reload
         # the reason we do dynamic attribute is so that any dependent methods
@@ -107,12 +107,14 @@ class Searcher(EnforceOverrides):
         if not hasattr(self, '_data_cache'):
             self._data_cache:Dict[int, data.DataLoaders] = {}
 
-        # first get from cache
-        if id(conf_loader) in self._data_cache:
+        # first try to get from cache if enabled
+        if id(conf_loader) in self._data_cache and to_cache:
             data_loaders = self._data_cache[id(conf_loader)]
         else:
             data_loaders = data.get_data(conf_loader)
-            self._data_cache[id(conf_loader)] = data_loaders
+            # cache only if enabled
+            if to_cache:
+                self._data_cache[id(conf_loader)] = data_loaders
 
         return data_loaders
 
