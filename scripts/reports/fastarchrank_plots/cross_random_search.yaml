@@ -1,7 +1,7 @@
 
 
 
-exp_folder: 'D:\\archai_experiment_reports'
+exp_folder: 'F:\\archai_experiment_reports'
 
 
 natsbench_cifar10: 
@@ -44,6 +44,14 @@ natsbench_cifar100:
     rs_far_c100_ftt0.3_max500_ratio1.6_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio1.6_fixedseeds'
     rs_far_c100_ftt0.3_max500_ratio1.8_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio1.8_fixedseeds'
     rs_far_c100_ftt0.3_max500_ratio2.0_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio2.0_fixedseeds'
+<<<<<<< HEAD
+=======
+    rs_far_c100_ftt0.3_max500_ratio4.0_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio4.0_fixedseeds'
+    rs_far_c100_ftt0.3_max500_ratio8.0_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio8.0_fixedseeds'
+    rs_far_c100_ftt0.3_max500_ratio2M_fixedseeds: 'rs_far_c100_ftt0.3_max500_ratio2M_fixedseeds'
+    rs_farpost_c100_ftt0.3_max500_ratio1.2_fixedseeds: 'rs_farpost_c100_ftt0.3_max500_ratio1.2_fixedseeds'
+    rs_farpost_c100_ftt0.3_max500_ratio2.0_fixedseeds: 'rs_farpost_c100_ftt0.3_max500_ratio2.0_fixedseeds'
+>>>>>>> f9883b2e (Fixed the dataloader caching issue which causes OOM error on long discrete searcher jobs.)
 
   regular:
     # rs_reg_c100_max1000_b1024_e08_seed1.0: 'rs_reg_c100_max1000_b1024_e08_seed1.0'
@@ -52,7 +60,7 @@ natsbench_cifar100:
     rs_reg_c100_max500_b1024_e04_fixedseeds: 'rs_reg_c100_max500_b1024_e04_fixedseeds'
     rs_reg_c100_max500_b1024_e06_fixedseeds: 'rs_reg_c100_max500_b1024_e06_fixedseeds'
     rs_reg_c100_max500_b1024_e08_fixedseeds: 'rs_reg_c100_max500_b1024_e08_fixedseeds'
-
+    rs_reg_c100_max500_b1024_e50_fixedseeds: 'rs_reg_c100_max500_b1024_e50_fixedseeds'
 
   colors:
     fastarchrank: 'green'
