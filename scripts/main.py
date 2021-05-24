@@ -29,6 +29,7 @@ from archai.algos.zero_cost_measures.zero_cost_natsbench_epochs_experiment_runne
 from archai.algos.random_natsbench.random_natsbench_tss_far_exp_runner import RandomNatsbenchTssFarExpRunner
 from archai.algos.random_natsbench.random_natsbench_tss_far_post_exp_runner import RandomNatsbenchTssFarPostExpRunner
 from archai.algos.random_natsbench.random_natsbench_tss_reg_exp_runner import RandomNatsbenchTssRegExpRunner
+from archai.algos.local_search_natsbench.local_natsbench_tss_far_exp_runner import LocalNatsbenchTssFarExpRunner
 
 def main():
     runner_types:Dict[str, Type[ExperimentRunner]] = {
@@ -54,7 +55,8 @@ def main():
         'freezeaddon_nasbench101_space': FreezeAddonNasbench101ExperimentRunner,
         'random_natsbench_tss_far': RandomNatsbenchTssFarExpRunner,
         'random_natsbench_tss_far_post': RandomNatsbenchTssFarPostExpRunner,
-        'random_natsbench_tss_reg': RandomNatsbenchTssRegExpRunner
+        'random_natsbench_tss_reg': RandomNatsbenchTssRegExpRunner,
+        'local_natsbench_tss_far': LocalNatsbenchTssFarExpRunner
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
@@ -78,7 +80,10 @@ def main():
                                                         natsbench_regular_eval,
                                                         nb101_regular_eval,
                                                         phased_freezetrain_natsbench_space,
-                                                        random_natsbench_tss_far''',
+                                                        random_natsbench_tss_far,
+                                                        random_natsbench_tss_far_post,
+                                                        random_natsbench_tss_reg,
+                                                        local_natsbench_tss_far''',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
                         help='datasets to use, separated by comma')
