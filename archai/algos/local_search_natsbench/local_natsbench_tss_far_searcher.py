@@ -1,6 +1,6 @@
 import math as ma
 from time import time
-from typing import Set
+from typing import Set, List, Optional
 import os
 import random
 from copy import deepcopy
@@ -39,12 +39,19 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         self.conf_train_freeze = conf_search['freeze_trainer']
         # endregion
 
+        # Natsbench Tss ops bag
+        self.OPS = ['avg_pool_3x3', 'nor_conv_1x1', 'nor_conv_3x3', 'none', 'skip_connect']
+
         # create the natsbench api
         self.api = create_natsbench_tss_api(self.natsbench_location)
 
         # sanitize
         assert self.max_num_models <= len(self.api)
         assert self.ratio_fastest_duration >= 1.0
+
+        # keep track of the fastest to train to 
+        # threshold train/val accuracy
+        self.fastest_cond_train = ma.inf
 
         # counter for models evaluated
         num_evaluated = 0
@@ -65,13 +72,13 @@ class LocalNatsbenchTssFarSearcher(Searcher):
 
         while curr_acc >= prev_acc:
             # get neighborhood of current model
-            nbrhd_ids = self.get_neighbors(curr_archid)
+            nbrhd_ids = self._get_neighbors(curr_archid)
 
             # evaluate neighborhood
             nbrhd_ids_accs = []
             for id in nbrhd_ids:
                 if num_evaluated < self.max_num_models:
-                    id_acc = self.fear_evaluate(id)
+                    id_acc = self._fear_evaluate(id)
                     nbrhd_ids.append(id, id_acc)
                     archids_touched.append(id)
                     num_evaluated += 1
@@ -107,83 +114,79 @@ class LocalNatsbenchTssFarSearcher(Searcher):
 
                     
                             
-            
+    def _get_neighbors(self, curr_archid:int)->List[int]:
+        # first get the string representation of the current architecture
+        config = self.api.get_net_config(curr_archid, self.dataset_name)
+        string_rep = config.arch_str
+        nbhd_strs = []
+        ops = self._get_op_list(string_rep)
+        for i in range(len(ops)):
+            available = [op for op in self.OPS if op != ops[i]]
+            for op in available:
+                new_ops = ops.copy()
+                new_ops[i] = op
+                new_arch_str = {'string':self.get_string_from_ops(new_ops)}
+                nbhd_strs.append(new_arch_str)
 
+        # convert the arch strings to architecture ids
+        # ind = self.api.archstr2index[config['arch_str']]
+        nbhd_ids = []
+        for arch_str in nbhd_strs:
+            id = self.api.archstr2index[arch_str]
+            nbhd_ids.append(id)
+        return nbhd_ids
+    
+    def _get_op_list(self, string:str)->List[str]:
+        # given a string, get the list of operations
+        tokens = self.string.split('|')
+        ops = [t.split('~')[0] for i,t in enumerate(tokens) if i not in [0,2,5,9]]
+        return ops
 
+    def _fear_evaluate(self, archid:int)->Optional[float]:
+        model = model_from_natsbench_tss(archid, self.dataset_name, self.api)
 
+        # NOTE: we don't pass checkpoint to the trainers
+        # as it creates complications and we don't need it
+        # as these trainers are quite fast
+        checkpoint = None
 
-            
+        # if during conditional training it
+        # starts exceeding fastest time to
+        # reach threshold by a ratio then early
+        # terminate it
+        logger.pushd(f'conditional_training_{archid}')
 
+        data_loaders = self.get_data(self.conf_loader)
+        time_allowed = self.ratio_fastest_duration * self.fastest_cond_train
+        cond_trainer = ConditionalTrainer(self.conf_train, model, checkpoint, time_allowed) 
+        cond_trainer_metrics = cond_trainer.fit(data_loaders)
+        cond_train_time = cond_trainer_metrics.total_training_time()
 
-        best_trains = [(-1, -ma.inf)]
-        best_tests = [(-1, -ma.inf)]
-        fastest_cond_train = ma.inf
-        
-        while 
-
-
-
-
-        for archid in random_archids:
-            # get model
-            model = model_from_natsbench_tss(archid, dataset_name, api)
-
-            # NOTE: we don't pass checkpoint to the trainers
-            # as it creates complications and we don't need it
-            # as these trainers are quite fast
-            checkpoint = None
-
-            # if during conditional training it
-            # starts exceeding fastest time to
-            # reach threshold by a ratio then early
-            # terminate it
-            logger.pushd(f'conditional_training_{archid}')
-            
-            data_loaders = self.get_data(conf_loader)
-            time_allowed = ratio_fastest_duration * fastest_cond_train
-            cond_trainer = ConditionalTrainer(conf_train, model, checkpoint, time_allowed) 
-            cond_trainer_metrics = cond_trainer.fit(data_loaders)
-            cond_train_time = cond_trainer_metrics.total_training_time()
-
-            if cond_train_time >= time_allowed:
-                # this arch exceeded time to reach threshold
-                # cut losses and move to next one
-                logger.info(f'{archid} exceeded time allowed. Terminating and ignoring.')
-                logger.popd()
-                continue
-
-            if cond_train_time < fastest_cond_train:
-                fastest_cond_train = cond_train_time
-                logger.info(f'fastest condition train till now: {fastest_cond_train} seconds!')
+        if cond_train_time >= time_allowed:
+            # this arch exceeded time to reach threshold
+            # cut losses and move to next one
+            logger.info(f'{archid} exceeded time allowed. Terminating and ignoring.')
             logger.popd()
+            return
 
-            # if we did not early terminate in conditional 
-            # training then freeze train
-            # get data with new batch size for freeze training
-            conf_loader_freeze = deepcopy(conf_loader)
-            conf_loader_freeze['train_batch'] = conf_loader['freeze_loader']['train_batch'] 
+        if cond_train_time < self.fastest_cond_train:
+            self.fastest_cond_train = cond_train_time
+            logger.info(f'fastest condition train till now: {self.fastest_cond_train} seconds!')
+        logger.popd()
 
-            logger.pushd(f'freeze_training_{archid}')
-            data_loaders = self.get_data(conf_loader_freeze, to_cache=False)
-            # now just finetune the last few layers
-            checkpoint = None
-            trainer = FreezeTrainer(conf_train_freeze, model, checkpoint)
-            freeze_train_metrics = trainer.fit(data_loaders)
-            logger.popd()
+        # if we did not early terminate in conditional 
+        # training then freeze train
+        # get data with new batch size for freeze training
+        conf_loader_freeze = deepcopy(self.conf_loader)
+        conf_loader_freeze['train_batch'] = self.conf_loader['freeze_loader']['train_batch'] 
 
-            this_arch_top1 = freeze_train_metrics.best_train_top1()    
-            if this_arch_top1 > best_trains[-1][1]:
-                best_trains.append((archid, this_arch_top1))
+        logger.pushd(f'freeze_training_{archid}')
+        data_loaders = self.get_data(conf_loader_freeze, to_cache=False)
+        # now just finetune the last few layers
+        checkpoint = None
+        trainer = FreezeTrainer(self.conf_train_freeze, model, checkpoint)
+        freeze_train_metrics = trainer.fit(data_loaders)
+        logger.popd()
 
-                # get the full evaluation result from natsbench
-                info = api.get_more_info(archid, dataset_name, hp=200, is_random=False)
-                this_arch_top1_test = info['test-accuracy']
-                best_tests.append((archid, this_arch_top1_test))
-
-            # dump important things to log
-            logger.pushd(f'best_trains_tests_{archid}')
-            logger.info({'best_trains':best_trains, 'best_tests':best_tests})
-            logger.popd()
-
-
-
+        return freeze_train_metrics.best_train_top1()
+            
