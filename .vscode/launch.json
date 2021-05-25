@@ -500,6 +500,14 @@
             "args": ["--full", "--algos", "random_natsbench_tss_reg", "--datasets", "cifar100", "--no-eval"]
         },
         {
+            "name": "Local Natsbench Tss Far Search",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "local_natsbench_tss_far", "--datasets", "cifar10", "--no-eval"]
+        },
+        {
             "name": "Analysis Aggregate",
             "type": "python",
             "request": "launch",
