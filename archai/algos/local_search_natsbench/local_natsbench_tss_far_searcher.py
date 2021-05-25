@@ -53,6 +53,9 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         # threshold train/val accuracy
         self.fastest_cond_train = ma.inf
 
+        # cache fear evaluation results
+        self.fear_eval_cache = dict()
+
         # counter for models evaluated
         num_evaluated = 0
 
@@ -61,17 +64,19 @@ class LocalNatsbenchTssFarSearcher(Searcher):
 
         # sample an architecture at uniform random to 
         # initialize the search 
-        prev_archid = -1
         prev_acc = -ma.inf
-        curr_archid = random.sample(range(len(self.api)), k=1)
+        curr_archid = random.sample(range(len(self.api)), k=1)[0]
 
         # fear evaluate current archid
-        curr_acc = self.fear_evaluate(curr_archid)
+        curr_acc = self._fear_evaluate(curr_archid)
         archids_touched.append(curr_archid)
         num_evaluated += 1
+        
+        to_restart_search = False
 
         while curr_acc >= prev_acc:
             # get neighborhood of current model
+            logger.info(f'current model {curr_archid}')
             nbrhd_ids = self._get_neighbors(curr_archid)
 
             # evaluate neighborhood
@@ -79,45 +84,67 @@ class LocalNatsbenchTssFarSearcher(Searcher):
             for id in nbrhd_ids:
                 if num_evaluated < self.max_num_models:
                     id_acc = self._fear_evaluate(id)
-                    nbrhd_ids.append(id, id_acc)
                     archids_touched.append(id)
                     num_evaluated += 1
+                    if id_acc:
+                        nbrhd_ids_accs.append((id, id_acc))
                 else:
                     break
 
             # check if improved
-            # NOTE: got to check that it can handle None values properly
-            nbrhd_max_acc = max(nbrhd_ids_accs, key=lambda x: x[1])
-            
-            if nbrhd_max_acc >= curr_acc:
-                prev_acc = curr_acc
-                curr_acc = nbrhd_max_acc
-                prev_archid = curr_archid
-                curr_archid = [id_acc[1] for id_acc in nbrhd_ids_accs].index(nbrhd_max_acc)
+            if not nbrhd_ids_accs:
+                logger.info('All neighbors got early rejected! FEAR thinks this is a local minima!')
+                self._log_local_minima(curr_archid, curr_acc, num_evaluated)
+                to_restart_search = True
             else:
-                # didn't improve! this is a local minima
-                # get the full evaluation result from natsbench
-                info = self.api.get_more_info(curr_archid, self.dataset_name, hp=200, is_random=False)
-                curr_test_acc = info['test-accuracy']
-                logger.info({'output': (curr_archid, curr_acc, curr_test_acc)})
-                # TODO: implement restarting search from another random point if budget 
-                # is not exhausted
-                if num_evaluated < self.max_num_models:
-                    prev_archid = -1
-                    prev_acc = -ma.inf
-                    # sample an architecture not touched till now
-                    curr_archid = None
-                    while not curr_archid:
-                        sampled_id = random.sample(range(len(self.api)), k=1)
-                        if sampled_id not in archids_touched:
-                            curr_archid = sampled_id
+                nbrhd_max_id_acc = max(nbrhd_ids_accs, key=lambda x: x[1])
+                nbrhd_max_id = nbrhd_max_id_acc[0]
+                nbrhd_max_acc = nbrhd_max_id_acc[1]
+                if nbrhd_max_acc >= curr_acc:
+                    # update current
+                    prev_acc = curr_acc
+                    curr_acc = nbrhd_max_acc
+                    curr_archid = nbrhd_max_id
+                    to_restart_search = False
+                else:
+                    # didn't improve! this is a local minima
+                    # get the full evaluation result from natsbench
+                    self._log_local_minima(curr_archid, curr_acc, num_evaluated)
+                    to_restart_search = True
 
-                    
+            # restarting search from another random point 
+            # if budget is not exhausted
+            if num_evaluated < self.max_num_models and to_restart_search:
+                to_restart_search = False
+                prev_acc = -ma.inf
+                curr_archid = None
+                # sample an architecture not touched till now
+                while not curr_archid:
+                    sampled_id = random.sample(range(len(self.api)), k=1)[0]
+                    if sampled_id not in archids_touched:
+                        curr_archid = sampled_id
+                        curr_acc = self._fear_evaluate(curr_archid)
+                        archids_touched.append(curr_archid)
+                        num_evaluated += 1
+                        logger.info(f'restarting search with archid {curr_archid}')
+            elif num_evaluated >= self.max_num_models:
+                logger.info('terminating local search')
+                break
+
+
+
+    def _log_local_minima(self, curr_archid:int, curr_acc:float, num_evaluated:int)->None:
+        logger.pushd(f'local_minima_{num_evaluated}')
+        info = self.api.get_more_info(curr_archid, self.dataset_name, hp=200, is_random=False)
+        curr_test_acc = info['test-accuracy']
+        logger.info({'output': (curr_archid, curr_acc, curr_test_acc)})
+        logger.popd()
+
                             
     def _get_neighbors(self, curr_archid:int)->List[int]:
+        ''' Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py '''
         # first get the string representation of the current architecture
-        config = self.api.get_net_config(curr_archid, self.dataset_name)
-        string_rep = config.arch_str
+        string_rep = self.api.get_net_config(curr_archid, self.dataset_name)['arch_str']
         nbhd_strs = []
         ops = self._get_op_list(string_rep)
         for i in range(len(ops)):
@@ -125,11 +152,10 @@ class LocalNatsbenchTssFarSearcher(Searcher):
             for op in available:
                 new_ops = ops.copy()
                 new_ops[i] = op
-                new_arch_str = {'string':self.get_string_from_ops(new_ops)}
+                new_arch_str = self._get_string_from_ops(new_ops)
                 nbhd_strs.append(new_arch_str)
 
         # convert the arch strings to architecture ids
-        # ind = self.api.archstr2index[config['arch_str']]
         nbhd_ids = []
         for arch_str in nbhd_strs:
             id = self.api.archstr2index[arch_str]
@@ -137,12 +163,22 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         return nbhd_ids
     
     def _get_op_list(self, string:str)->List[str]:
+        ''' Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py '''
         # given a string, get the list of operations
-        tokens = self.string.split('|')
+        tokens = string.split('|')
         ops = [t.split('~')[0] for i,t in enumerate(tokens) if i not in [0,2,5,9]]
         return ops
 
     def _fear_evaluate(self, archid:int)->Optional[float]:
+        # # DEBUG
+        # return random.random()
+
+        # see if we have visited this architecture before
+        if archid in self.fear_eval_cache.keys():
+            logger.info(f"{archid} is in cache! Returning from cache.")
+            return self.fear_eval_cache[archid]
+        
+        # if not in cache actually evaluate it
         model = model_from_natsbench_tss(archid, self.dataset_name, self.api)
 
         # NOTE: we don't pass checkpoint to the trainers
@@ -188,5 +224,18 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         freeze_train_metrics = trainer.fit(data_loaders)
         logger.popd()
 
-        return freeze_train_metrics.best_train_top1()
-            
+        train_top1 = freeze_train_metrics.best_train_top1()
+        # cache it
+        self.fear_eval_cache[archid] = train_top1
+        return train_top1
+
+    
+    def _get_string_from_ops(self, ops):
+        # given a list of operations, get the string
+        strings = ['|']
+        nodes = [0, 0, 1, 0, 1, 2]
+        for i, op in enumerate(ops):
+            strings.append(op+'~{}|'.format(nodes[i]))
+            if i < len(nodes) - 1 and nodes[i+1] == 0:
+                strings.append('+|')
+        return ''.join(strings)
