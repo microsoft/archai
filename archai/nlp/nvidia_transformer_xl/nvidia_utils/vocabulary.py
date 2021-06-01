@@ -18,8 +18,7 @@ from collections import Counter
 from collections import OrderedDict
 
 import torch
-
-import utils
+from . import distributed as nv_distributed
 
 
 class Vocab(object):
@@ -52,7 +51,7 @@ class Vocab(object):
         else:
             return symbols
 
-    def count_file(self, path, verbose=False, add_eos=False):
+    def count_file(self, path, verbose=True, add_eos=False):
         if verbose:
             print('counting file {} ...'.format(path))
         assert os.path.exists(path)
@@ -111,7 +110,7 @@ class Vocab(object):
             print('final vocab size {} from {} unique tokens'.format(
                 len(self), len(self.counter)))
 
-    def encode_file(self, path, ordered=False, verbose=False, add_eos=True,
+    def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
                     add_double_eos=False):
         if verbose:
             print('encoding file {} ...'.format(path))
@@ -130,7 +129,7 @@ class Vocab(object):
 
         return encoded
 
-    def encode_sents(self, sents, ordered=False, verbose=False):
+    def encode_sents(self, sents, ordered=False, verbose=True):
         if verbose:
             print('encoding {} sents ...'.format(len(sents)))
         encoded = []
@@ -225,7 +224,7 @@ class OpenAIVocab(Vocab):
             # Suppress warnings about length.
             with open(os.devnull, "w") as devnull, contextlib.redirect_stderr(devnull):
                 out = torch.LongTensor(self.tokenizer.encode(f.read()) + [self.EOT])
-                with utils.distributed.sync_workers() as rank:
+                with nv_distributed.sync_workers() as rank:
                     if rank == 0:
                         torch.save(out, cached)
                 return out

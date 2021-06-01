@@ -16,9 +16,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils.log_uniform_sampler import LogUniformSampler
-from utils.log_uniform_sampler import sample_logits
-from utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from .nvidia_utils.log_uniform_sampler import LogUniformSampler
+from .nvidia_utils.log_uniform_sampler import sample_logits
+from .nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 
 @torch.jit.script
