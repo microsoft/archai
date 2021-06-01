@@ -31,7 +31,7 @@ from multiprocessing import Pool
 
 from archai.common import utils
 from archai.common.ordereddict_logger import OrderedDictLogger
-from analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
+from archai.common.analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
 
 import re
 
@@ -46,7 +46,7 @@ def find_best_test_sofar(best_tests:List[Tuple[int, float]], arch_ids_so_far:Lis
             for aid, test in best_tests:
                 if aid == id:
                     return test
-
+            
 
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
@@ -80,7 +80,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 8
+    num_workers = 12
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -93,8 +93,8 @@ def main():
 
     for key in logs.keys():
         # Get total duration of the run
-        # which is the sum of all conditional and freeze
-        # trainings over all architectures
+        # which is the sum of all regular trainings 
+        # for each architecture
         duration = 0.0
 
         best_tests = None
@@ -105,13 +105,9 @@ def main():
 
         archs_touched_counter = 0
         for skey in logs[key].keys():
-            if 'conditional' in skey or 'freeze' in skey:
-                if 'conditional' in skey:
-                    train_key = 'arch_train'
-                else:
-                    train_key = 'eval_train'
-                for ekey in logs[key][skey][train_key]['epochs'].keys():
-                    eduration = logs[key][skey][train_key]['epochs'][ekey]['train']['duration']
+            if 'regular_training' in skey:
+                for ekey in logs[key][skey]['arch_train']['epochs'].keys():
+                    eduration = logs[key][skey]['arch_train']['epochs'][ekey]['train']['duration']
                     duration += eduration
                 arch_id = int(skey.split('_')[-1])
                 if arch_id not in arch_ids_touched:
@@ -132,8 +128,8 @@ def main():
                 best_trains = logs[key][skey]['best_trains']
                 best_tests = logs[key][skey]['best_tests']
                 assert len(best_trains) == len(best_tests)
-
-        # find the test error of the best train 
+        
+        # find the test error of the best train at the end
         best_test = best_tests[-1][1]
 
         raw_data[key] = (duration, best_test, duration_best_after_each_model)

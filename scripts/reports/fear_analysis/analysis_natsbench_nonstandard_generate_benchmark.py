@@ -10,10 +10,13 @@ from collections import OrderedDict, defaultdict
 from scipy.stats.stats import _two_sample_transform
 import yaml
 from inspect import getsourcefile
-import re
-from tqdm import tqdm
 import seaborn as sns
 import math as ma
+
+
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 from scipy.stats import kendalltau, spearmanr
 
@@ -24,16 +27,15 @@ from runstats import Statistics
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
-import multiprocessing
 from multiprocessing import Pool
+from collections import namedtuple
+
 
 from archai.common import utils
 from archai.common.ordereddict_logger import OrderedDictLogger
-from analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
+from archai.common.analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
 
 import re
-
 
 def main():
     parser = argparse.ArgumentParser(description='Report creator')
@@ -75,79 +77,73 @@ def main():
         for key, val in storage.items():
             logs[key] = val[0]
             confs[key] = val[1]
-                   
-    # examples of accessing logs
-    # best_test = logs[key]['eval_arch']['eval_train']['best_test']['top1']
-    # best_train = logs[key]['eval_arch']['eval_train']['best_train']['top1']
 
     # remove all search jobs
     for key in list(logs.keys()):
         if 'search' in key:
             logs.pop(key)
 
-    # sometimes a job has not even written logs to yaml
-    for key in list(logs.keys()):
-        if not logs[key]:
-            print(f'arch id {key} did not finish. removing from calculations.')
-            logs.pop(key)
-
     # remove all arch_ids which did not finish
     for key in list(logs.keys()):
         to_delete = False
 
-        # it might have died early
         if 'eval_arch' not in list(logs[key].keys()):
             to_delete = True
- 
-        if 'regular_evaluate' not in list(logs[key].keys()):
-            to_delete = True
-        
+
         if to_delete:
             print(f'arch id {key} did not finish. removing from calculations.')
             logs.pop(key)
             continue
 
-        if 'eval_train' not in list(logs[key]['eval_arch'].keys()):
+        # eval_arch may not have finished
+        num_epochs = confs[key]['nas']['eval']['trainer']['epochs']
+        last_epoch_key = int(list(logs[key]['eval_arch']['eval_train']['epochs'].keys())[-1])
+        if last_epoch_key != num_epochs - 1:
             print(f'arch id {key} did not finish. removing from calculations.')
             logs.pop(key)
-            continue
 
-        if 'best_train' not in list(logs[key]['eval_arch']['eval_train'].keys()):
-            print(f'arch id {key} did not finish. removing from calculations.')
-            logs.pop(key)
-            continue
-
-
-    archid_testacc = {}
     
+    # create a dict with arch_id: regular eval score as entries
+    # and save since synthetic cifar10 is not part of the benchmark
+    arch_id_reg_eval = {}
     for key in logs.keys():
-        if 'eval' in key:
-            try:                
-                best_test = logs[key]['eval_arch']['eval_train']['best_test']['top1']
-                            
-                # record the arch id
-                # --------------------
-                if 'natsbench' in list(confs[key]['nas']['eval'].keys()):
-                    archid = confs[key]['nas']['eval']['natsbench']['arch_index']                    
-                elif 'nasbench101' in list(confs[key]['nas']['eval'].keys()):
-                    archid = confs[key]['nas']['eval']['nasbench101']['arch_index']
+        arch_id = confs[key]['nas']['eval']['natsbench']['arch_index']
+        reg_eval = logs[key]['eval_arch']['eval_train']['best_test']['top1']
+        arch_id_reg_eval[arch_id] = reg_eval
 
-                archid_testacc[archid] = best_test
-                                
-            except KeyError as err:
-                print(f'KeyError {err} not in {key}!')
-
-    # dump to yaml
-    savename = os.path.join(out_dir, 'archid_testacc.yaml')
+    savename = os.path.join(out_dir, 'arch_id_test_accuracy_synthetic_cifar10.yaml')
     with open(savename, 'w') as f:
-        yaml.dump(archid_testacc, f)
+        yaml.dump(arch_id_reg_eval, f)
 
-    print(f'Wrote benchmark file with {len(archid_testacc)} archs')
+    # now create a list of regular evaluation and corresponding synflow scores
+    # to compute spearman's correlation
+    all_reg_evals = []
+    all_synflow = []
+    for arch_id in arch_id_reg_eval.keys():
+        all_reg_evals.append(arch_id_reg_eval[arch_id])
+        
+    print(f'num valid architectures used for analysis {len(logs)}')
+
+    # plot histogram of regular evaluation scores
+    fig = px.histogram(all_reg_evals, labels={'x': 'Test Accuracy', 'y': 'Counts'})
+    savename = os.path.join(out_dir, 'distribution_of_test_accuracies.html')
+    fig.write_html(savename)
+    fig.show()
+
+    # plot histogram of training scores
+    all_train_accs = []
+    for key in logs.keys():
+        train_acc = logs[key]['eval_arch']['eval_train']['best_train']['top1']
+        all_train_accs.append(train_acc)
+
+    fig1 = px.histogram(all_train_accs, labels={'x': 'Train Accuracy', 'y': 'Counts'})
+    savename = os.path.join(out_dir, 'distribution_of_train_accuracies.html')
+    fig1.write_html(savename)
+    fig1.show()
 
     
 
-    
-    
+
 
 if __name__ == '__main__':
     main()
