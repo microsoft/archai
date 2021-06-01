@@ -15,6 +15,8 @@ natsbench_cifar10:
     # rs_far_ftt0.15_max50_ratio1.0: 'rs_far_ftt0.15_max50_ratio1.0'
     rs_far_ftt0.6_max500_ratio1.2_fixedseeds: 'rs_far_ftt0.6_max500_ratio1.2_fixedseeds'
     rs_far_ftt0.6_max500_ratio2.0_fixedseeds: 'rs_far_ftt0.6_max500_ratio2.0_fixedseeds'
+    rs_far_ftt0.6_max500_ratio4.0_fixedseeds: 'rs_far_ftt0.6_max500_ratio4.0_fixedseeds'
+    rs_far_ftt0.6_max500_ratio8.0_fixedseeds: 'rs_far_ftt0.6_max500_ratio8.0_fixedseeds'
 
   regular:
     # rs_reg_max50_b1024_e01: 'rs_reg_max50_b1024_e01'
@@ -69,12 +71,13 @@ natsbench_imagenet16-120:
   fastarchrank:
     rs_far_i16_ftt0.2_max500_ratio1.2_fixedseeds: 'rs_far_i16_ftt0.2_max500_ratio1.2_fixedseeds'
     rs_far_i16_ftt0.2_max500_ratio2.0_fixedseeds: 'rs_far_i16_ftt0.2_max500_ratio2.0_fixedseeds'
+    rs_far_i16_ftt0.2_max500_ratio4.0_fixedseeds: 'rs_far_i16_ftt0.2_max500_ratio4.0_fixedseeds'
 
   regular:
     rs_reg_i16_max500_b512_e08_fixedseeds: 'rs_reg_i16_max500_b512_e08_fixedseeds'
     rs_reg_i16_max500_b512_e16_fixedseeds: 'rs_reg_i16_max500_b512_e16_fixedseeds'
     rs_reg_i16_max500_b512_e22_fixedseeds: 'rs_reg_i16_max500_b512_e22_fixedseeds'
-
+    rs_reg_i16_max500_b512_e50_fixedseeds: 'rs_reg_i16_max500_b512_e50_fixedseeds'
 
   colors:
     fastarchrank: 'green'
