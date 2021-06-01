@@ -14,6 +14,7 @@ import re
 from tqdm import tqdm
 import seaborn as sns
 import math as ma
+import pprint
 
 from scipy.stats import kendalltau, spearmanr
 
@@ -30,7 +31,7 @@ from multiprocessing import Pool
 
 from archai.common import utils
 from archai.common.ordereddict_logger import OrderedDictLogger
-from analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
+from archai.common.analysis_utils import parse_a_nonexprunner_job
 
 import re
 
@@ -64,26 +65,17 @@ def main():
     # # test single job parsing for debugging
     # # WARNING: very slow, just use for debugging
     # for job_dir in job_dirs:
-    #     a = parse_a_job(job_dir)
+    #     a = parse_a_nonexprunner_job(job_dir)
 
     # parallel parsing of yaml logs
     num_workers = 12
     with Pool(num_workers) as p:
-        a = p.map(parse_a_job, job_dirs)
+        a = p.map(parse_a_nonexprunner_job, job_dirs)
 
     for storage in a:
         for key, val in storage.items():
             logs[key] = val[0]
             confs[key] = val[1]
-                   
-    # examples of accessing logs
-    # best_test = logs[key]['eval_arch']['eval_train']['best_test']['top1']
-    # best_train = logs[key]['eval_arch']['eval_train']['best_train']['top1']
-
-    # remove all search jobs
-    for key in list(logs.keys()):
-        if 'search' in key:
-            logs.pop(key)
 
     # sometimes a job has not even written logs to yaml
     for key in list(logs.keys()):
@@ -96,10 +88,7 @@ def main():
         to_delete = False
 
         # it might have died early
-        if 'eval_arch' not in list(logs[key].keys()):
-            to_delete = True
- 
-        if 'regular_evaluate' not in list(logs[key].keys()):
+        if 'eval_train' not in list(logs[key].keys()):
             to_delete = True
         
         if to_delete:
@@ -107,47 +96,29 @@ def main():
             logs.pop(key)
             continue
 
-        if 'eval_train' not in list(logs[key]['eval_arch'].keys()):
-            print(f'arch id {key} did not finish. removing from calculations.')
-            logs.pop(key)
-            continue
-
-        if 'best_train' not in list(logs[key]['eval_arch']['eval_train'].keys()):
+        if 'best_train' not in list(logs[key]['eval_train'].keys()):
             print(f'arch id {key} did not finish. removing from calculations.')
             logs.pop(key)
             continue
 
 
-    archid_testacc = {}
-    
+    lr_bs_best_trains = []
     for key in logs.keys():
-        if 'eval' in key:
-            try:                
-                best_test = logs[key]['eval_arch']['eval_train']['best_test']['top1']
-                            
-                # record the arch id
-                # --------------------
-                if 'natsbench' in list(confs[key]['nas']['eval'].keys()):
-                    archid = confs[key]['nas']['eval']['natsbench']['arch_index']                    
-                elif 'nasbench101' in list(confs[key]['nas']['eval'].keys()):
-                    archid = confs[key]['nas']['eval']['nasbench101']['arch_index']
+        try:
+            lr = confs[key]['nas']['eval']['trainer']['optimizer']['lr']
+            bs = confs[key]['nas']['eval']['loader']['train_batch']
+            best_train = logs[key]['eval_train']['best_train']['top1']
+            best_test = logs[key]['eval_train']['best_test']['top1']
+            lr_bs_best_trains.append((lr, bs, best_train, best_test))
+        except KeyError as err:
+            print(f'KeyError {err} not in {key}')
 
-                archid_testacc[archid] = best_test
-                                
-            except KeyError as err:
-                print(f'KeyError {err} not in {key}!')
+    pprint.pprint(lr_bs_best_trains)
+        
 
-    # dump to yaml
-    savename = os.path.join(out_dir, 'archid_testacc.yaml')
-    with open(savename, 'w') as f:
-        yaml.dump(archid_testacc, f)
 
-    print(f'Wrote benchmark file with {len(archid_testacc)} archs')
 
-    
 
-    
-    
 
 if __name__ == '__main__':
     main()

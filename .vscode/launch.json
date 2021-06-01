@@ -511,7 +511,7 @@
             "name": "Analysis Aggregate",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_aggregate.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_aggregate.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\hog_imagenet16_search",
             "--out-dir", "F:\\dedey\\archai_experiment_reports"]
@@ -520,7 +520,7 @@
             "name": "Analysis Freeze Darts Space",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_freeze_darts_space.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_darts_space.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_regular_and_parameterless_thresh_0.75",
             "--out-dir", "F:\\archai_experiment_reports"]
@@ -529,7 +529,7 @@
             "name": "Analysis Freeze Natsbench and Nb101 Space",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_natsbench_space.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_sc10_fb1024_ftlr0.1_fte5_ct256_ftt0.15",
                     "--out-dir", "F:\\archai_experiment_reports", 
@@ -539,7 +539,7 @@
             "name": "NEW Analysis Freeze Natsbench and Nb101 Space NEW",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_freeze_natsbench_space_new.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte10_ct256_ftt0.6_scu",
                     "--out-dir", "F:\\archai_experiment_reports"]
@@ -548,7 +548,7 @@
             "name": "Analysis Freeze Addon No Cond",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_freezeaddon_nocond.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_freezeaddon_nocond.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\fa_nb1_s3_fb256_ftlr0.001_fte5_nocond",
             "--out-dir", "F:\\archai_experiment_reports"]
@@ -557,7 +557,7 @@
             "name": "Analysis Naswot Conditional Natsbench Space",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_naswot_cond_natsbench_space.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_naswot_cond_natsbench_space.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_naswotcond0.8",
             "--out-dir", "F:\\archai_experiment_reports"]
@@ -566,7 +566,7 @@
             "name": "Analysis Natsbench Nonstandard Generate Benchmark",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_natsbench_nonstandard_generate_benchmark.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_nonstandard_generate_benchmark.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\nb_reg_b256_e200_sc10",
                 "--out-dir", "F:\\archai_experiment_reports"]
@@ -575,7 +575,7 @@
             "name": "Analysis Regular Natsbench and Nb101 Space",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_regular_natsbench_space.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_regular_natsbench_space.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\nb_reg_b1024_e30",
             "--out-dir", "F:\\archai_experiment_reports"]
@@ -584,25 +584,25 @@
             "name": "Analysis Cross Experiment Plots",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_exp_plots.py",
+            "program": "${cwd}/scripts/reports/fear_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
             "args": ["--dataset", "natsbench_imagenet16-120",
-            "--conf-location", "scripts/reports/fastarchrank_plots/cross_exp_conf.yaml"]
+            "--conf-location", "scripts/reports/fear_plots/cross_exp_conf.yaml"]
         },
         {
             "name": "Analysis Cross Random Search Plots",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/fastarchrank_plots/cross_random_search.py",
+            "program": "${cwd}/scripts/reports/fear_plots/cross_random_search.py",
             "console": "integratedTerminal",
             "args": ["--dataset", "natsbench_cifar10",
-            "--conf-location", "scripts/reports/fastarchrank_plots/cross_random_search.yaml"]
+            "--conf-location", "scripts/reports/fear_plots/cross_random_search.yaml"]
         },
         {
             "name": "Analysis Zero Cost Natsbench Experiments",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_natsbench_zerocost.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_zerocost.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\zc_synthetic_cifar10",
                 "--out-dir", "F:\\archai_experiment_reports", "--reg-evals-file", "F:\\archai_experiment_reports\\nb_reg_b256_e200_sc10\\arch_id_test_accuracy_synthetic_cifar10.yaml"]
@@ -611,7 +611,7 @@
             "name": "Analysis Zero Cost Natsbench Epochs Experiments",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_natsbench_zerocost_epochs.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_zerocost_epochs.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\zc_eachepoch_c10",
                 "--out-dir", "F:\\archai_experiment_reports"]
@@ -620,7 +620,7 @@
             "name": "Analysis Zero Cost Conditional Natsbench Experiments",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_natsbench_conditional_zerocost.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_conditional_zerocost.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\zc_cond_b256_ftt0.6",
                 "--out-dir", "F:\\archai_experiment_reports"]
@@ -629,7 +629,7 @@
             "name": "Analysis Generate ArchId Test Accuracy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_generate_archid_test_acc.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_generate_archid_test_acc.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\nb_f102_b256_reg200",
                 "--out-dir", "F:\\archai_experiment_reports"]
@@ -638,7 +638,7 @@
             "name": "Analysis Hog FFNet",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_hog_ffnet.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_hog_ffnet.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\hog_flower102_search",
                 "--out-dir", "F:\\archai_experiment_reports"]
@@ -647,7 +647,7 @@
             "name": "Analysis Random Search Natsbench TSS Far",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_natsbench_tss_far.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_far_ftt0.6_max500_ratio8.0_fixedseeds",
                 "--out-dir", "F:\\archai_experiment_reports"]
@@ -656,7 +656,7 @@
             "name": "Analysis Random Search Natsbench TSS Far Post",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_far_post.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_natsbench_tss_far_post.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_farpost_c100_ftt0.3_max500_ratio2.0_fixedseeds",
                 "--out-dir", "F:\\archai_experiment_reports"]
@@ -665,7 +665,7 @@
             "name": "Analysis Random Search Natsbench TSS Reg",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/analysis_random_search_natsbench_tss_reg.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_natsbench_tss_reg.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_reg_i16_max500_b512_e50_fixedseeds",
                 "--out-dir", "F:\\archai_experiment_reports"]
