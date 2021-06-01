@@ -14,7 +14,10 @@ install_requires=[
     'requests', 'seaborn', 'h5py', 'rarfile',
     'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt',
     'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash',
-    'transformers', 'pytorch_lightning', 'tokenizers', 'datasets'
+    'transformers', 'pytorch_lightning', 'tokenizers', 'datasets',
+    # nvidia transformer-xl
+    'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
+    'pytorch-transformers', 'sacremoses', 'pynvml'
 ]
 
 setuptools.setup(
