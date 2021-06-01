@@ -56,6 +56,9 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         # cache fear evaluation results
         self.fear_eval_cache = dict()
 
+        # cache of fear early rejects
+        self.fear_early_rejects = set()
+
         # counter for models evaluated
         num_evaluated = 0
 
@@ -118,12 +121,14 @@ class LocalNatsbenchTssFarSearcher(Searcher):
                 to_restart_search = False
                 prev_acc = -ma.inf
                 curr_archid = None
+                curr_acc = None
                 # sample an architecture not touched till now
-                while not curr_archid:
+                while not curr_archid and curr_acc:
                     sampled_id = random.sample(range(len(self.api)), k=1)[0]
                     if sampled_id not in archids_touched:
                         curr_archid = sampled_id
-                        curr_acc = self._fear_evaluate(curr_archid)
+                        # NOTE: fear evaluating could early reject!
+                        curr_acc = self._fear_evaluate(curr_archid) 
                         archids_touched.append(curr_archid)
                         num_evaluated += 1
                         logger.info(f'restarting search with archid {curr_archid}')
@@ -170,13 +175,15 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         return ops
 
     def _fear_evaluate(self, archid:int)->Optional[float]:
-        # # DEBUG
-        # return random.random()
 
         # see if we have visited this architecture before
         if archid in self.fear_eval_cache.keys():
             logger.info(f"{archid} is in cache! Returning from cache.")
             return self.fear_eval_cache[archid]
+
+        if archid in self.fear_early_rejects:
+            logger.info(f"{archid} has already been early rejected!")
+            return
         
         # if not in cache actually evaluate it
         model = model_from_natsbench_tss(archid, self.dataset_name, self.api)
@@ -202,6 +209,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
             # this arch exceeded time to reach threshold
             # cut losses and move to next one
             logger.info(f'{archid} exceeded time allowed. Terminating and ignoring.')
+            self.fear_early_rejects.add(archid)
             logger.popd()
             return
 

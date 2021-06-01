@@ -63,7 +63,7 @@ nas:
       load_train: True # load train split of dataset
       train_batch: 256
       freeze_loader:
-        train_batch: 512 # batch size for freeze training.
+        train_batch: 1024 # batch size for freeze training.
       train_workers: 4 # if null then gpu_count*4
       test_workers: '_copy: ../train_workers' # if null then 4
       load_test: False # load test split of dataset
