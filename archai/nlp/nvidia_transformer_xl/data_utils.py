@@ -21,9 +21,9 @@ import numpy as np
 import sacremoses
 import torch
 
-import utils
-from utils.vocabulary import OpenAIVocab
-from utils.vocabulary import Vocab
+from . import nvidia_utils as utils
+from .nvidia_utils.vocabulary import OpenAIVocab
+from .nvidia_utils.vocabulary import Vocab
 
 
 class LMOrderedIterator(object):
@@ -239,12 +239,17 @@ class Corpus(object):
         else:
             raise RuntimeError('Unsupported vocab')
 
+        train_filename, test_filename, valid_filename = 'train.txt', 'test.txt', 'valid.txt'
+        if self.dataset in ['wt2', 'wt103']:
+            train_filename, test_filename, valid_filename = 'wiki.train.tokens', 'wiki.test.tokens', 'wiki.valid.tokens'
+
+
         if self.dataset in ['ptb', 'wt2', 'enwik8', 'text8']:
-            self.vocab.count_file(os.path.join(path, 'train.txt'))
-            self.vocab.count_file(os.path.join(path, 'valid.txt'))
-            self.vocab.count_file(os.path.join(path, 'test.txt'))
+            self.vocab.count_file(os.path.join(path, train_filename))
+            self.vocab.count_file(os.path.join(path, valid_filename))
+            self.vocab.count_file(os.path.join(path, test_filename))
         elif self.dataset == 'wt103':
-            self.vocab.count_file(os.path.join(path, 'train.txt'))
+            self.vocab.count_file(os.path.join(path, train_filename))
         elif self.dataset == 'lm1b':
             train_path_pattern = os.path.join(
                 path, '1-billion-word-language-modeling-benchmark-r13output',
@@ -256,24 +261,24 @@ class Corpus(object):
 
         if self.dataset in ['ptb', 'wt2', 'wt103']:
             self.train = self.vocab.encode_file(
-                os.path.join(path, 'train.txt'), ordered=True)
+                os.path.join(path, train_filename), ordered=True)
             self.valid = self.vocab.encode_file(
-                os.path.join(path, 'valid.txt'), ordered=True)
+                os.path.join(path, valid_filename), ordered=True)
             self.test = self.vocab.encode_file(
-                os.path.join(path, 'test.txt'), ordered=True)
+                os.path.join(path, test_filename), ordered=True)
         elif self.dataset in ['enwik8', 'text8']:
             self.train = self.vocab.encode_file(
-                os.path.join(path, 'train.txt'), ordered=True, add_eos=False)
+                os.path.join(path, train_filename), ordered=True, add_eos=False)
             self.valid = self.vocab.encode_file(
-                os.path.join(path, 'valid.txt'), ordered=True, add_eos=False)
+                os.path.join(path, valid_filename), ordered=True, add_eos=False)
             self.test = self.vocab.encode_file(
-                os.path.join(path, 'test.txt'), ordered=True, add_eos=False)
+                os.path.join(path, test_filename), ordered=True, add_eos=False)
         elif self.dataset == 'lm1b':
             self.train = train_paths
             self.valid = self.vocab.encode_file(
-                os.path.join(path, 'valid.txt'), ordered=False, add_double_eos=True)
+                os.path.join(path, valid_filename), ordered=False, add_double_eos=True)
             self.test = self.vocab.encode_file(
-                os.path.join(path, 'test.txt'), ordered=False, add_double_eos=True)
+                os.path.join(path, test_filename), ordered=False, add_double_eos=True)
 
     def get_iterator(self, split, *args, **kwargs):
         if split == 'train':

@@ -24,8 +24,9 @@ import time
 import dllogger
 import torch.utils.collect_env
 
-import utils
+from . import distributed as nv_distributed
 
+from archai.common import utils
 
 class AverageMeter:
     """
@@ -145,7 +146,7 @@ def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
             else:
                 return (self.rank == 0)
 
-    rank = utils.distributed.get_rank()
+    rank = nv_distributed.get_rank()
     rank_filter = RankFilter(rank, log_all_ranks)
 
     if log_all_ranks:
@@ -176,7 +177,7 @@ def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
 
 
 def setup_dllogger(enabled=True, filename=os.devnull):
-    rank = utils.distributed.get_rank()
+    rank = nv_distributed.get_rank()
 
     if enabled and rank == 0:
         backends = [
@@ -191,9 +192,6 @@ def setup_dllogger(enabled=True, filename=os.devnull):
 
 
 def create_exp_dir(dir_path, scripts_to_save=None, debug=False):
-    if debug:
-        return
-
     os.makedirs(dir_path, exist_ok=True)
 
     print('Experiment dir : {}'.format(dir_path))
@@ -211,7 +209,7 @@ def build_work_dir_name(work_dir, dataset, append_dataset, append_time):
 
     if append_time:
         now = int(time.time())
-        now_max = utils.distributed.all_reduce_item(now, op='max')
+        now_max = nv_distributed.all_reduce_item(now, op='max')
         now_str = datetime.datetime.fromtimestamp(now_max).strftime('%Y%m%d-%H%M%S')
 
         work_dir = os.path.join(work_dir, now_str)
@@ -219,10 +217,11 @@ def build_work_dir_name(work_dir, dataset, append_dataset, append_time):
 
 
 def l2_promote():
-    _libcudart = ctypes.CDLL('libcudart.so')
-    # Set device limit on the current device
-    # cudaLimitMaxL2FetchGranularity = 0x05
-    pValue = ctypes.cast((ctypes.c_int*1)(), ctypes.POINTER(ctypes.c_int))
-    _libcudart.cudaDeviceSetLimit(ctypes.c_int(0x05), ctypes.c_int(128))
-    _libcudart.cudaDeviceGetLimit(pValue, ctypes.c_int(0x05))
-    assert pValue.contents.value == 128
+    if not utils.is_windows():
+        _libcudart = ctypes.CDLL('libcudart.so')
+        # Set device limit on the current device
+        # cudaLimitMaxL2FetchGranularity = 0x05
+        pValue = ctypes.cast((ctypes.c_int*1)(), ctypes.POINTER(ctypes.c_int))
+        _libcudart.cudaDeviceSetLimit(ctypes.c_int(0x05), ctypes.c_int(128))
+        _libcudart.cudaDeviceGetLimit(pValue, ctypes.c_int(0x05))
+        assert pValue.contents.value == 128

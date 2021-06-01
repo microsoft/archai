@@ -1,19 +1,3 @@
-# coding: utf-8
-
-# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import argparse
 import functools
 import itertools
@@ -35,25 +19,26 @@ try:
     from apex import amp
 except ModuleNotFoundError:
     warnings.warn('APEX AMP is unavailable')
-try:
-    import pyprof
-except ModuleNotFoundError:
-    warnings.warn('PyProf is unavailable')
+
 
 from torch.nn.parallel import DistributedDataParallel
 
-import lamb
-import utils
-from data_utils import get_lm_corpus
-from mem_transformer import MemTransformerLM
-from utils.data_parallel import BalancedDataParallel
-from utils.exp_utils import AverageMeter
-from utils.exp_utils import TimeoutHandler
-from utils.exp_utils import benchmark
-from utils.exp_utils import create_exp_dir
-from utils.exp_utils import l2_promote
-from utils.exp_utils import log_env_info
-from utils.exp_utils import register_ignoring_timeout_handler
+from archai.nlp.nvidia_transformer_xl import lamb
+from archai.nlp.nvidia_transformer_xl.data_utils import get_lm_corpus
+from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
+from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.data_parallel import BalancedDataParallel
+from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
+# from archai.nlp.nvidia_transformer_xl.nvidia_utils import gpu_affinity
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import AverageMeter
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import TimeoutHandler
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import benchmark
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import create_exp_dir
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import l2_promote
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import log_env_info
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import register_ignoring_timeout_handler
+
+from archai.common import utils, common
 
 
 def parse_args():
@@ -66,19 +51,22 @@ def parse_args():
     parser = argparse.ArgumentParser(parents=[parent_parser], add_help=True)
     cfg_parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
 
-    cfg_parser.add_argument('--config', default='default')
-    cfg_parser.add_argument('--config_file', default=None)
+    cfg_parser.add_argument('--config', default='default') # use 'dgx1_8gpu_fp16' for V100 16GB node
+    cfg_parser.add_argument('--config_file', default='wt103_base.yaml')
 
     config_args, _ = cfg_parser.parse_known_args()
 
     if config_args.config is not None and config_args.config_file is not None:
-        with open(config_args.config_file) as f:
+        config_file_path = utils.full_path(os.path.join('.', 'archai', 'nlp', 'nvidia_transformer_xl', config_args.config_file))
+        with open(config_file_path) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)[config_args.config]['train']
     else:
         config = {}
 
     general = parser.add_argument_group('general setup')
-    general.add_argument('--work_dir', default='LM-TFM', type=str,
+    general.add_argument('--work_dir', default='~/logdir', type=str,
+                         help='Directory for the results')
+    general.add_argument('--experiment_name', default='nv_xformer_xl', type=str,
                          help='Directory for the results')
     general.add_argument('--append_dataset', action='store_true',
                          help='Automatically append dataset name to work_dir')
@@ -90,7 +78,7 @@ def parse_args():
                          help='Run training in fp16/mixed precision')
     general.add_argument('--restart', type=str, default='',
                          help='Restart training from the saved checkpoint')
-    general.add_argument('--debug', action='store_true',
+    general.add_argument('--debug', action='store_true', default=None,
                          help='Run in debug mode (do not create exp dir)')
     general.add_argument('--log_all_ranks', action='store_true',
                          help='Enable logging from all distributed ranks')
@@ -100,7 +88,7 @@ def parse_args():
                          help='Name of the txt log file')
     general.add_argument('--save_all', action='store_true',
                          help='Save all checkpoints')
-    general.add_argument('--no_env', action='store_true',
+    general.add_argument('--no_env', action='store_false',
                          help='Do not print info on execution env')
     general.add_argument('--no_eval', action='store_true',
                          help='Disable model evaluation')
@@ -122,26 +110,24 @@ def parse_args():
                                   'socket_unique_continuous',
                                   'disabled'],
                          help='type of CPU affinity')
-    general.add_argument('--profile', action='store_true',
-                         help='Enable profiling with DLProf')
 
     dataset = parser.add_argument_group('dataset setup')
-    dataset.add_argument('--data', type=str, default='../data/wikitext-103',
+    dataset.add_argument('--data', type=str, default=None,
                          help='Location of the data corpus')
     dataset.add_argument('--dataset', type=str, default='wt103',
-                         choices=['wt103', 'lm1b', 'enwik8', 'text8'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe'],
                          help='Type of vocabulary')
 
-    model = parser.add_argument_group('model setup')
+    model = parser.add_argument_group('model setup - defaults are for base model')
     model.add_argument('--n_layer', type=int, default=16,
                        help='Number of total layers')
     model.add_argument('--n_head', type=int, default=8,
                        help='Number of heads')
     model.add_argument('--d_head', type=int, default=64,
                        help='Head dimension')
-    model.add_argument('--d_embed', type=int, default=-1,
+    model.add_argument('--d_embed', type=int, default=-1, # will be set from d_model
                        help='Embedding dimension')
     model.add_argument('--d_model', type=int, default=512,
                        help='Model dimension')
@@ -220,7 +206,7 @@ def parse_args():
                           to local_batch_size * world_size')
     training.add_argument('--batch_chunk', type=int, default=1,
                           help='Split batch into chunks and train with '
-                          'gradient accumulation')
+                          'gradient accumulation. 16GB V100 FP16 requires 1 chunk, FP32 requires 2 chunks')
     training.add_argument('--roll', action='store_true',
                           help='Enable random shifts within each data stream')
     training.add_argument('--tgt_len', type=int, default=192,
@@ -228,7 +214,7 @@ def parse_args():
     training.add_argument('--ext_len', type=int, default=0,
                           help='Length of the extended context')
     training.add_argument('--mem_len', type=int, default=192,
-                          help='Length of the retained previous heads')
+                          help='Length of the retained previous heads, number of tokens cached from previous iterations during training')
     training.add_argument('--seed', type=int, default=1111,
                           help='Random seed')
     training.add_argument('--multi_gpu', default=None, type=str,
@@ -269,6 +255,7 @@ def parse_args():
     if args.ext_len < 0:
         raise RuntimeError('Extended context length must be non-negative')
 
+    # default mem_len==192, eval_tgt_len==192, tgt_len==192
     if args.mem_len == 0:
         if args.eval_tgt_len > args.ext_len + args.tgt_len:
             raise RuntimeError('eval_tgt_len should be <= tgt_len + ext_len; '
@@ -290,6 +277,9 @@ def parse_args():
             'APEX AMP unavailable, install APEX or switch to pytorch AMP'
         )
 
+    if args.debug is None:
+        args.debug = utils.is_debugging()
+
     return args
 
 
@@ -301,6 +291,8 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
             amp_state = scaler.state_dict()
         elif args.amp == 'apex':
             amp_state = amp.state_dict()
+        else:
+            raise RuntimeError(f'args.amp should be pytorch or apex but was "{args.amp}"')
     else:
         amp_state = None
 
@@ -321,7 +313,7 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
 
     last_chkpt_fname = 'checkpoint_last.pt'
 
-    with utils.distributed.sync_workers() as rank:
+    with nv_distributed.sync_workers() as rank:
         last_chkpt_path = os.path.join(work_dir, last_chkpt_fname)
         if rank == 0:
             # always save last checkpoint
@@ -354,9 +346,10 @@ def load_checkpoint(path):
 
 
 def init_weight(weight, args):
+    """Intialize given parameters using specified strategy"""
     if args.init == 'uniform':
         nn.init.uniform_(weight, -args.init_range, args.init_range)
-    elif args.init == 'normal':
+    elif args.init == 'normal': # default
         nn.init.normal_(weight, 0.0, args.init_std)
 
 
@@ -365,6 +358,7 @@ def init_bias(bias):
 
 
 def weights_init(m, args):
+    """Initialize weights of module using specified strategy"""
     classname = m.__class__.__name__
     if classname.find('Linear') != -1:
         if hasattr(m, 'weight') and m.weight is not None:
@@ -426,6 +420,7 @@ def evaluate(eval_iter, model, args):
 
     # If the model does not use memory at all, make the ext_len longer.
     # Otherwise, make the mem_len longer and keep the ext_len the same.
+    # default mem_len==192, eval_tgt_len==192, tgt_len==192
     if args.mem_len == 0:
         model.reset_length(tgt_len=args.eval_tgt_len,
                            ext_len=args.ext_len + args.tgt_len - args.eval_tgt_len,
@@ -463,6 +458,7 @@ def evaluate(eval_iter, model, args):
 
 def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
                     optimizer, device, delay_unscale, args):
+    # trains a given chunk
     cpu = torch.device('cpu')
     data_i = data_chunks[i].contiguous()
     target_i = target_chunks[i].contiguous()
@@ -484,6 +480,8 @@ def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
         elif args.amp == 'apex':
             with amp.scale_loss(loss, optimizer, delay_unscale=delay_unscale) as scaled_loss:
                 scaled_loss.backward()
+        else:
+            raise RuntimeError(f'args.amp should be pytorch or apex but was "{args.amp}"')
     else:
         loss.backward()
 
@@ -494,7 +492,7 @@ def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
 def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
           optimizer_sparse, scheduler, scheduler_sparse, scaler, vocab, epoch,
           last_batch, last_iter, train_step, best_val_loss, meters,
-          timeout_handler, device, args):
+          device, args):
     # Turn on training mode which enables dropout.
     model.train()
 
@@ -516,10 +514,12 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
         for param in model.parameters():
             param.grad = None
 
+        # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
         data_chunks = torch.chunk(data, args.batch_chunk, 1)
         target_chunks = torch.chunk(target, args.batch_chunk, 1)
 
         for i in range(args.batch_chunk):
+            # if this is last chunk and distribued mode then use delay_unscale=True for amp
             if i < args.batch_chunk - 1 and isinstance(para_model, DistributedDataParallel):
                 with para_model.no_sync():
                     train_loss_chunk = train_iteration(
@@ -572,18 +572,18 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
         if train_step % args.log_interval == 0:
             cur_loss = train_loss / log_step
-            cur_loss = utils.distributed.all_reduce_item(cur_loss, op='mean')
+            cur_loss = nv_distributed.all_reduce_item(cur_loss, op='mean')
             train_loss = 0
 
             elapsed = time.time() - log_start_time
             avg_elapsed = elapsed / log_step
-            avg_elapsed = utils.distributed.all_reduce_item(avg_elapsed, op='max')
+            avg_elapsed = nv_distributed.all_reduce_item(avg_elapsed, op='max')
             log_start_time = time.time()
             log_step = 0
 
             lr = optimizer.param_groups[0]['lr']
             throughput = target_tokens / elapsed
-            throughput = utils.distributed.all_reduce_item(throughput, op='sum')
+            throughput = nv_distributed.all_reduce_item(throughput, op='sum')
             meters['train_throughput'].update(throughput)
             target_tokens = 0
 
@@ -620,12 +620,12 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
         do_periodic_eval = train_step % args.eval_interval == 0
         is_final_step = train_step == args.max_step
-        interrupted = timeout_handler.interrupted
+        interrupted = False #timeout_handler.interrupted
 
         if (do_periodic_eval or is_final_step or interrupted) and not args.no_eval:
             eval_start_time = time.time()
             val_loss = evaluate(va_iter, model, args)
-            val_loss = utils.distributed.all_reduce_item(val_loss, op='mean')
+            val_loss = nv_distributed.all_reduce_item(val_loss, op='mean')
 
             logging.info('-' * 100)
             log_str = '| Eval {:3d} at step {:>8d} | time: {:5.2f}s ' \
@@ -659,11 +659,10 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
                 best_val_loss = val_loss
                 is_best = True
 
-            if not args.debug:
-                save_checkpoint(args, model, model_config, optimizer, scheduler,
-                                scaler, vocab, epoch, batch, last_iter,
-                                train_step, best_val_loss, is_best,
-                                args.work_dir)
+            save_checkpoint(args, model, model_config, optimizer, scheduler,
+                            scaler, vocab, epoch, batch, last_iter,
+                            train_step, best_val_loss, is_best,
+                            args.work_dir)
 
             # dev-performance based learning rate annealing
             if args.scheduler == 'dev_perf':
@@ -682,75 +681,84 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
             break
     return train_step, best_val_loss
 
+def dataset_dir_name(dataset:str)->str:
+    if dataset=='wt103':
+        return 'wikitext-103'
+    if dataset=='wt2':
+        return 'wikitext-2'
+    if dataset=='lm1b':
+        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
+    if dataset=='enwik8':
+        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
+    if dataset=='text8':
+        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
+    raise RuntimeError(f'dataset "{dataset}" is not known')
 
 def main():
     args = parse_args()
-    if args.affinity != 'disabled':
-        nproc_per_node = torch.cuda.device_count()
-        affinity = utils.gpu_affinity.set_affinity(
-            args.local_rank,
-            nproc_per_node,
-            args.affinity
-        )
-        print(f'{args.local_rank}: thread affinity: {affinity}')
+
+    # TODO: below is commented out because nvlm installation issues on Windows
+    # if args.affinity != 'disabled':
+    #     nproc_per_node = torch.cuda.device_count()
+    #     affinity = gpu_affinity.set_affinity(
+    #         args.local_rank,
+    #         nproc_per_node,
+    #         args.affinity
+    #     )
+    #     print(f'{args.local_rank}: thread affinity: {affinity}')
 
     # Initialize device and distributed backend
     torch.cuda.set_device(args.local_rank)
     l2_promote()
     device = torch.device('cuda' if args.cuda else 'cpu')
-    utils.distributed.init_distributed(args.cuda)
+    nv_distributed.init_distributed(args.cuda)
 
-    args.work_dir = utils.exp_utils.build_work_dir_name(args.work_dir,
-                                                        args.dataset,
-                                                        args.append_dataset,
-                                                        args.append_time,
-                                                        )
+    pt_data_dir, pt_output_dir = common.pt_dirs()
+    args.data = args.data or pt_data_dir or common.default_dataroot()
+    args.data = utils.full_path(os.path.join(args.data,'textpred', dataset_dir_name(args.dataset)))
+    args.work_dir =  utils.full_path(pt_output_dir or \
+                        os.path.join(args.work_dir, args.experiment_name)
+                    , create=True)
 
-    with utils.distributed.sync_workers() as rank:
+    with nv_distributed.sync_workers() as rank:
         if rank == 0:
             create_exp_dir(args.work_dir,
-                           scripts_to_save=['train.py', 'mem_transformer.py'],
+                           scripts_to_save=[], #['train.py', 'mem_transformer.py'],
                            debug=args.debug)
 
     # Setup logging
     if args.log_all_ranks:
-        log_file = f'train_log_rank_{utils.distributed.get_rank()}.log'
+        log_file = f'train_log_rank_{nv_distributed.get_rank()}.log'
     else:
         log_file = args.txtlog_file
     dllog_file = args.dllog_file
     log_file = os.path.join(args.work_dir, log_file)
     dllog_file = os.path.join(args.work_dir, dllog_file)
 
-    if args.debug:
-        log_file = os.devnull
-        dllog_file = os.devnull
+    # if args.debug:
+    #     log_file = os.devnull
+    #     dllog_file = os.devnull
 
-    utils.exp_utils.setup_logging(log_all_ranks=args.log_all_ranks,
+    exp_utils.setup_logging(log_all_ranks=args.log_all_ranks,
                                   filename=log_file,
                                   )
-    utils.exp_utils.setup_dllogger(enabled=True, filename=dllog_file)
+    exp_utils.setup_dllogger(enabled=True, filename=dllog_file)
 
-    if args.local_batch_size is not None:
-        world_size = utils.distributed.get_world_size()
+    if args.local_batch_size is not None: # default is None
+        world_size = nv_distributed.get_world_size()
         args.batch_size = world_size * args.local_batch_size
         logging.info(f'--local_batch_size was set, adjusting global batch size'
                      f' to {args.batch_size} (local_batch_size * world_size)')
 
-    if args.profile:
-        try:
-            pyprof.init(enable_function_stack=True)
-        except NameError:
-            warnings.warn('Called pyprof.init() but pyprof is not available')
-
     logging.info(args)
     dllogger.log(step='PARAMETER', data=vars(args))
 
-    logging.info(f'world size: {utils.distributed.get_world_size()}')
+    logging.info(f'world size: {nv_distributed.get_world_size()}')
 
-    if not args.no_env:
+    if not args.debug and not args.no_env:
         log_env_info()
 
-    register_ignoring_timeout_handler()
+    #register_ignoring_timeout_handler()
 
     # Set the random seed manually for reproducibility.
     np.random.seed(args.seed)
@@ -764,7 +772,7 @@ def main():
     vocab = corpus.vocab
     args.n_token = ntokens
 
-    if args.mem_len == 0:
+    if args.mem_len == 0: # default is 192
         eval_mem_len = 0
     else:
         eval_mem_len = args.mem_len + args.tgt_len - args.eval_tgt_len
@@ -781,8 +789,8 @@ def main():
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [False]
     if args.adaptive:
-        assert args.dataset in ['wt103', 'lm1b']
-        if args.dataset == 'wt103':
+        assert args.dataset in ['wt103', 'wt2', 'lm1b']
+        if args.dataset in ['wt103', 'wt2']:
             cutoffs = [19997, 39997, 199997]
             tie_projs += [True] * len(cutoffs)
         elif args.dataset == 'lm1b':
@@ -881,6 +889,11 @@ def main():
                 opt_level=args.apex_amp_opt_level,
                 )
 
+    # by default this argument is not used, instead we spawn multiple instances
+    # using command line:
+    # python -m torch.distributed.launch --nproc_per_node="$2" train.py \
+    #         --config_file wt103_base.yaml \
+    #         "${@:3}"
     if args.multi_gpu == 'ddp' and torch.distributed.is_initialized():
         para_model = DistributedDataParallel(model,
                                              device_ids=[args.local_rank],
@@ -995,30 +1008,28 @@ def main():
     # Loop over epochs.
     # At any point you can hit Ctrl + C to break out of training early.
     start_time = time.time()
-    with torch.autograd.profiler.emit_nvtx(enabled=args.profile):
-        with TimeoutHandler() as timeout_handler:
-            try:
-                for epoch in itertools.count(start=start_epoch):
-                    if args.roll:
-                        tr_iter.roll(seed=args.seed + epoch)
-                    train_step, best_val_loss = train(
-                        tr_iter, va_iter, model, para_model, model_config,
-                        optimizer, optimizer_sparse, scheduler,
-                        scheduler_sparse, scaler, vocab, epoch, last_batch,
-                        last_iter, train_step, best_val_loss, meters,
-                        timeout_handler, device, args
-                        )
+    try:
+        for epoch in itertools.count(start=start_epoch):
+            if args.roll: # enable random shifts in datasets
+                tr_iter.roll(seed=args.seed + epoch)
+            train_step, best_val_loss = train(
+                tr_iter, va_iter, model, para_model, model_config,
+                optimizer, optimizer_sparse, scheduler,
+                scheduler_sparse, scaler, vocab, epoch, last_batch,
+                last_iter, train_step, best_val_loss, meters,
+                device, args
+                )
 
-                    last_batch = 0
-                    last_iter = 0
+            last_batch = 0
+            last_iter = 0
 
-                    if train_step == args.max_step:
-                        logging.info('-' * 100)
-                        logging.info('End of training')
-                        break
-            except KeyboardInterrupt:
+            if train_step == args.max_step:
                 logging.info('-' * 100)
-                logging.info('Exiting from training early')
+                logging.info('End of training')
+                break
+    except KeyboardInterrupt:
+        logging.info('-' * 100)
+        logging.info('Exiting from training early')
     elapsed = time.time() - start_time
 
     ###########################################################################
@@ -1026,16 +1037,15 @@ def main():
     ###########################################################################
     summary = {}
     test_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
-    if not args.debug and not args.no_eval and os.path.exists(test_path):
+    if not args.no_eval and os.path.exists(test_path):
         # Load the best saved model.
         checkpoint = load_checkpoint(test_path)
         model.load_state_dict(checkpoint['model_state'])
 
         # Run on test data.
         test_start_time = time.time()
-        with torch.autograd.profiler.emit_nvtx(enabled=args.profile):
-            test_loss = evaluate(te_iter, model, args)
-            test_loss = utils.distributed.all_reduce_item(test_loss, 'mean')
+        test_loss = evaluate(te_iter, model, args)
+        test_loss = nv_distributed.all_reduce_item(test_loss, 'mean')
         test_elapsed = time.time() - test_start_time
 
         logging.info('=' * 100)

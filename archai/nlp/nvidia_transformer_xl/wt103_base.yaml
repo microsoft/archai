@@ -1,7 +1,7 @@
 # Base
 wt103: &wt103
    dataset: wt103
-   data: ../data/wikitext-103/
+   data: null # dataroot
 
 train: &train
    <<: *wt103
