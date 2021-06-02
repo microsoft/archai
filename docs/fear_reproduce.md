@@ -13,7 +13,9 @@ experiments in this work. Please follow the
 provided by the authors of the framework to install the latest version. 
 
 ## Download datasets
-Make a directory named `~/dataroot`
+Make a directory named `~/dataroot`.
+Download [cifar10](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) 
+and [cifar100](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) from 
 
 
 ## Reproducing figures 3, 6, 7, 8
