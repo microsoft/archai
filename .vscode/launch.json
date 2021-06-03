@@ -667,7 +667,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_natsbench_tss_reg.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_reg_i16_max500_b512_e50_fixedseeds",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_reg_max500_b1024_e50_fixedseeds",
                 "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
