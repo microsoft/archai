@@ -263,6 +263,24 @@ plots comparing all the methods can be generated using the same
 process and scripts as for benchmark datasets like 
 CIFAR10, CIFAR100 detailed above.
 
+## Reproducing Figure 4
+
+```
+python scripts/main.py \
+--full \
+--algos zerocost_natsbench_epochs_space \
+--nas.eval.natsbench.arch_index <arch_id> \
+--datasets cifar10
+```
+to produce the logs of running `zero-cost` measures after every epoch of training for 200 epochs
+on each of the 1000 architectures.
+
+then point the analysis script to the folder of results for analysis
+```
+python scripts/reports/fear_analysis/analysis_natsbench_zerocost_epochs.py \
+--results-dir /path/to/results \
+--out-dir /path/to/save/dir
+```
 
 ## Reproducing Random Search Results
 

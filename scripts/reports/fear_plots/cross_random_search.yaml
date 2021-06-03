@@ -30,7 +30,8 @@ natsbench_cifar10:
     rs_reg_max500_b1024_e06_fixedseeds: 'rs_reg_max500_b1024_e06_fixedseeds'
     rs_reg_max500_b1024_e08_fixedseeds: 'rs_reg_max500_b1024_e08_fixedseeds'
     rs_reg_max500_b1024_e10_fixedseeds: 'rs_reg_max500_b1024_e10_fixedseeds'
-
+    rs_reg_max500_b1024_e50_fixedseeds: 'rs_reg_max500_b1024_e50_fixedseeds'
+    
   colors:
     fastarchrank: 'green'
     regular: 'red'
