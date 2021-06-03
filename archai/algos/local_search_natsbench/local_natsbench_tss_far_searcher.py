@@ -123,7 +123,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
                 curr_archid = None
                 curr_acc = None
                 # sample an architecture not touched till now
-                while not curr_archid and curr_acc:
+                while not curr_archid or not curr_acc:
                     sampled_id = random.sample(range(len(self.api)), k=1)[0]
                     if sampled_id not in archids_touched:
                         curr_archid = sampled_id
@@ -239,6 +239,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
 
     
     def _get_string_from_ops(self, ops):
+        ''' Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py '''
         # given a list of operations, get the string
         strings = ['|']
         nodes = [0, 0, 1, 0, 1, 2]
