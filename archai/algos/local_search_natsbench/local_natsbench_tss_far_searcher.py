@@ -1,6 +1,6 @@
 import math as ma
 from time import time
-from typing import Set, List, Optional
+from typing import Set, List, Optional, Tuple
 import os
 import random
 from copy import deepcopy
@@ -52,6 +52,9 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         # keep track of the fastest to train to 
         # threshold train/val accuracy
         self.fastest_cond_train = ma.inf
+
+        # store all local minima
+        self.local_minima = []
 
         # cache fear evaluation results
         self.fear_eval_cache = dict()
@@ -134,16 +137,25 @@ class LocalNatsbenchTssFarSearcher(Searcher):
                         logger.info(f'restarting search with archid {curr_archid}')
             elif num_evaluated >= self.max_num_models:
                 logger.info('terminating local search')
+                best_minimum = self._find_best_minimum()
+                logger.info({'best_minimum': best_minimum})
+                logger.info({'all_minima': self.local_minima})
                 break
 
-
+        logger.info('terminating search outside while loop')
 
     def _log_local_minima(self, curr_archid:int, curr_acc:float, num_evaluated:int)->None:
         logger.pushd(f'local_minima_{num_evaluated}')
         info = self.api.get_more_info(curr_archid, self.dataset_name, hp=200, is_random=False)
         curr_test_acc = info['test-accuracy']
-        logger.info({'output': (curr_archid, curr_acc, curr_test_acc)})
+        local_minimum = (curr_archid, curr_acc, curr_test_acc)
+        logger.info({'output': local_minimum})
+        self.local_minima.append(local_minimum)
         logger.popd()
+
+    def _find_best_minimum(self)->Tuple[int, float, float]:
+        best_minimum = max(self.local_minima, key=lambda x:x[1])
+        return best_minimum
 
                             
     def _get_neighbors(self, curr_archid:int)->List[int]:
@@ -175,6 +187,19 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         return ops
 
     def _fear_evaluate(self, archid:int)->Optional[float]:
+
+        # # DEBUG
+        # # simulate fear evaluation
+        # acc = random.random()
+        # if self.fastest_cond_train == ma.inf:
+        #     self.fastest_cond_train = random.random() * 1000
+        #     return acc
+        # elif acc > 0.7:
+        #     self.fastest_cond_train = random.random() * 1000
+        #     return None
+        # else:
+        #     self.fastest_cond_train = random.random() * 1000
+        #     return acc
 
         # see if we have visited this architecture before
         if archid in self.fear_eval_cache.keys():
