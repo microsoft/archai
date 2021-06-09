@@ -44,7 +44,7 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   search:
-    max_num_models: 55
+    max_num_models: 300
     ratio_fastest_duration: 1.2
     natsbench:
       natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
