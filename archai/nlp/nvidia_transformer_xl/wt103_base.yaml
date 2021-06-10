@@ -115,6 +115,14 @@ dgx1_1gpu_fp32: &dgx1_1gpu_fp32
    eval:
       <<: *eval
 
+toy: &toy
+   train:
+      <<: *train
+      batch_chunk: 64
+      max_step: 20
+   eval:
+      <<: *eval
+
 # Full training configs for NVIDIA DGX-2H (16x NVIDIA V100 32GB GPU)
 dgx2_16gpu_fp16: &dgx2_16gpu_fp16
    train:

@@ -51,7 +51,7 @@ def parse_args():
     parser = argparse.ArgumentParser(parents=[parent_parser], add_help=True)
     cfg_parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
 
-    cfg_parser.add_argument('--config', default='default') # use 'dgx1_8gpu_fp16' for V100 16GB node
+    cfg_parser.add_argument('--config', default='toy') # use 'dgx1_8gpu_fp16' for V100 16GB, dgx1_1gpu_fp16, default
     cfg_parser.add_argument('--config_file', default='wt103_base.yaml')
 
     config_args, _ = cfg_parser.parse_known_args()
