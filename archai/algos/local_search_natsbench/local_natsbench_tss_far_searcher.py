@@ -37,6 +37,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         self.conf_train = conf_search['trainer']
         self.conf_loader = conf_search['loader']
         self.conf_train_freeze = conf_search['freeze_trainer']
+        self.use_fear = conf_search['use_fear']
         # endregion
 
         # Natsbench Tss ops bag
@@ -57,7 +58,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         self.local_minima = []
 
         # cache fear evaluation results
-        self.fear_eval_cache = dict()
+        self.eval_cache = dict()
 
         # cache of fear early rejects
         self.fear_early_rejects = set()
@@ -74,7 +75,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         curr_archid = random.sample(range(len(self.api)), k=1)[0]
 
         # fear evaluate current archid
-        curr_acc = self._fear_evaluate(curr_archid)
+        curr_acc = self._evaluate_arch(curr_archid)
         archids_touched.append(curr_archid)
         num_evaluated += 1
         
@@ -89,7 +90,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
             nbrhd_ids_accs = []
             for id in nbrhd_ids:
                 if num_evaluated < self.max_num_models:
-                    id_acc = self._fear_evaluate(id)
+                    id_acc = self._evaluate_arch(id)
                     archids_touched.append(id)
                     num_evaluated += 1
                     if id_acc:
@@ -131,7 +132,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
                     if sampled_id not in archids_touched:
                         curr_archid = sampled_id
                         # NOTE: fear evaluating could early reject!
-                        curr_acc = self._fear_evaluate(curr_archid) 
+                        curr_acc = self._evaluate_arch(curr_archid) 
                         archids_touched.append(curr_archid)
                         num_evaluated += 1
                         logger.info(f'restarting search with archid {curr_archid}')
@@ -178,6 +179,7 @@ class LocalNatsbenchTssFarSearcher(Searcher):
             id = self.api.archstr2index[arch_str]
             nbhd_ids.append(id)
         return nbhd_ids
+
     
     def _get_op_list(self, string:str)->List[str]:
         ''' Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py '''
@@ -185,6 +187,39 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         tokens = string.split('|')
         ops = [t.split('~')[0] for i,t in enumerate(tokens) if i not in [0,2,5,9]]
         return ops
+
+
+    def _reg_evaluate(self, archid:int)->float:
+
+        # see if we have visited this architecture before
+        if archid in self.eval_cache.keys():
+            logger.info(f"{archid} is in cache! Returning from cache.")
+            return self.eval_cache[archid]
+
+        if archid in self.fear_early_rejects:
+            logger.info(f"{archid} has already been early rejected!")
+            return
+
+        # if not in cache actually evaluate it
+        model = model_from_natsbench_tss(archid, self.dataset_name, self.api)
+
+        # NOTE: we don't pass checkpoint to the trainers
+        # as it creates complications and we don't need it
+        # as these trainers are quite fast
+        checkpoint = None
+
+        logger.pushd(f'regular_training_{archid}')            
+        data_loaders = self.get_data(self.conf_loader)
+        trainer = Trainer(self.conf_train, model, checkpoint) 
+        trainer_metrics = trainer.fit(data_loaders)
+        train_time = trainer_metrics.total_training_time()
+        logger.popd()
+
+        train_top1 = trainer_metrics.best_train_top1()
+        # cache it
+        self.eval_cache[archid] = train_top1
+        return train_top1    
+
 
     def _fear_evaluate(self, archid:int)->Optional[float]:
 
@@ -202,9 +237,9 @@ class LocalNatsbenchTssFarSearcher(Searcher):
         #     return acc
 
         # see if we have visited this architecture before
-        if archid in self.fear_eval_cache.keys():
+        if archid in self.eval_cache.keys():
             logger.info(f"{archid} is in cache! Returning from cache.")
-            return self.fear_eval_cache[archid]
+            return self.eval_cache[archid]
 
         if archid in self.fear_early_rejects:
             logger.info(f"{archid} has already been early rejected!")
@@ -259,8 +294,16 @@ class LocalNatsbenchTssFarSearcher(Searcher):
 
         train_top1 = freeze_train_metrics.best_train_top1()
         # cache it
-        self.fear_eval_cache[archid] = train_top1
+        self.eval_cache[archid] = train_top1
         return train_top1
+
+
+    def _evaluate_arch(self, archid:int)->Optional[float]:
+        if self.use_fear:
+            curr_acc = self._fear_evaluate(archid)
+        else:
+            curr_acc = self._reg_evaluate(archid)
+        return curr_acc
 
     
     def _get_string_from_ops(self, ops):
