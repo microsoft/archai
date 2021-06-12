@@ -191,6 +191,11 @@ class LocalNatsbenchTssFarSearcher(Searcher):
 
     def _reg_evaluate(self, archid:int)->float:
 
+        # # DEBUG
+        # # simulate regular evaluation
+        # acc = random.random()
+        # return acc
+
         # see if we have visited this architecture before
         if archid in self.eval_cache.keys():
             logger.info(f"{archid} is in cache! Returning from cache.")
