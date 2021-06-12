@@ -717,6 +717,15 @@
             "--conf-location", "scripts/reports/fear_plots/cross_random_search.yaml"]
         },
         {
+            "name": "Analysis Cross Local Search Plots",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_plots/cross_local_search.py",
+            "console": "integratedTerminal",
+            "args": ["--dataset", "natsbench_cifar10",
+            "--conf-location", "scripts/reports/fear_plots/cross_local_search.yaml"]
+        },
+        {
             "name": "Analysis Zero Cost Natsbench Experiments",
             "type": "python",
             "request": "launch",
@@ -786,6 +795,15 @@
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_natsbench_tss_reg.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_reg_max500_b1024_e50_fixedseeds",
+                "--out-dir", "F:\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Local Search Natsbench TSS",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_local_search_natsbench_tss.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ls_far_ftt0.6_max300_ratio2.0_fixedseeds",
                 "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
