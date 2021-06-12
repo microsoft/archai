@@ -1,0 +1,16 @@
+
+exp_folder: 'F:\\archai_experiment_reports'
+
+
+natsbench_cifar10: 
+
+  fastarchrank:
+    ls_far_ftt0.6_max300_ratio2.0_fixedseeds: 'ls_far_ftt0.6_max300_ratio2.0_fixedseeds'
+    
+  regular:
+    ls_reg_max300_b1024_e02_fixedseeds: 'ls_reg_max300_b1024_e02_fixedseeds'
+    
+  colors:
+    fastarchrank: 'green'
+    regular: 'red'
+    
