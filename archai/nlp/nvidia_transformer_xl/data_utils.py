@@ -230,10 +230,10 @@ class LMMultiFileIterator(LMShuffledIterator):
 
 
 class Corpus(object):
-    def __init__(self, path, dataset, vocab, *args, **kwargs): # by default no args and kwargs are passed
+    def __init__(self, path, dataset, vocab, *args, max_size=None, **kwargs): # by default no args and kwargs are passed
         self.dataset = dataset
         if vocab == 'word':
-            self.vocab = Vocab(*args, **kwargs)
+            self.vocab = Vocab(*args, max_size=max_size, **kwargs)
         elif vocab == 'bpe':
             self.vocab = OpenAIVocab()
         else:
@@ -297,7 +297,7 @@ class Corpus(object):
         return data_iter
 
 
-def get_lm_corpus(datadir, dataset, vocab):
+def get_lm_corpus(datadir, dataset, vocab, max_size=None):
     if vocab == 'word':
         fn = os.path.join(datadir, 'cache.pt')
     elif vocab == 'bpe':
@@ -324,7 +324,7 @@ def get_lm_corpus(datadir, dataset, vocab):
         elif dataset in ['enwik8', 'text8']:
             pass
 
-        corpus = Corpus(datadir, dataset, vocab, **kwargs)
+        corpus = Corpus(datadir, dataset, vocab, max_size=max_size, **kwargs)
         with utils.distributed.sync_workers() as rank:
             if rank == 0:
                 torch.save(corpus, fn)
