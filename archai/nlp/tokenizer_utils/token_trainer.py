@@ -1,11 +1,13 @@
 from typing import Optional, Union, List
 import os
+import argparse
 
 from tokenizers import ByteLevelBPETokenizer
 from transformers import PreTrainedTokenizerFast, PreTrainedTokenizerBase, GPT2TokenizerFast
 
-from archai.common import utils
+from archai.common import utils, common
 from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
+from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
 
 def train_tokenizer(lines:List[str], token_config: TokenConfig,
                     vocab_size: int, save_dir: str, save_prefix='tokenizer',
@@ -39,7 +41,7 @@ def train_tokenizer(lines:List[str], token_config: TokenConfig,
 
     return tokenizer_out_files
 
-def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length:int)->PreTrainedTokenizerFast:
+def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length=1024)->PreTrainedTokenizerFast:
     tokenizer = GPT2TokenizerFast(vocab_file=tokenizer_files.vocab_file,
                               merges_file=tokenizer_files.merges_file,
                               model_max_length=max_length,
@@ -53,10 +55,30 @@ def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, 
     return tokenizer
 
 def main():
+    parser = argparse.ArgumentParser(description='PyTorch Transformer-XL Language Model')
+    parser.add_argument('--data', type=str, default=None,
+                         help='Location of the data corpus')
+    parser.add_argument('--dataset', type=str, default='wt103',
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
+                         help='Dataset name')
+    parser.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe'],
+                         help='Type of vocabulary')
+    parser.add_argument('--vocab_size', type=int, default=5000,
+                         help='Size of vocabulary')
+    args, _ = parser.parse_known_args()
+
+    pt_data_dir, pt_output_dir = common.pt_dirs()
+    args.data = args.data or pt_data_dir or common.default_dataroot()
+    args.data = utils.full_path(os.path.join(args.data, 'textpred', exp_utils.dataset_dir_name(args.dataset)))
+
+    save_path = os.path.join(args.data,'textpred', 'wikitext-103-bpe-vocab')
+
+    train_filepath = os.path.join(args.data, 'wiki.train.tokens')
+    with open(train_filepath, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
     token_config = TokenConfig()
-    lines = [l["text"] for l in datasets["train"]]
     tokenizer_files = train_tokenizer(lines, token_config,
-        show_progress=not training_args.disable_tqdm,
-        vocab_size=transformer_args.vocab_size, save_dir=training_args.output_dir)
-    logger.info("*** End Training Tokenizer***")
-    tokenizer = create_tokenizer(tokenizer_files, token_config, transformer_args.max_length)
+        vocab_size=args.vocab_size, save_dir=save_path)
+    tokenizer = create_tokenizer(tokenizer_files, token_config)
+    print(len(tokenizer))

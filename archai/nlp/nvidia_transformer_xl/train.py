@@ -119,6 +119,8 @@ def parse_args():
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe'],
                          help='Type of vocabulary')
+    dataset.add_argument('--vocab_size', type=int, default=None,
+                         help='Size of vocabulary')
 
     model = parser.add_argument_group('model setup - defaults are for base model')
     model.add_argument('--n_layer', type=int, default=16,
@@ -681,19 +683,6 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
             break
     return train_step, best_val_loss
 
-def dataset_dir_name(dataset:str)->str:
-    if dataset=='wt103':
-        return 'wikitext-103'
-    if dataset=='wt2':
-        return 'wikitext-2'
-    if dataset=='lm1b':
-        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
-    if dataset=='enwik8':
-        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
-    if dataset=='text8':
-        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
-    raise RuntimeError(f'dataset "{dataset}" is not known')
-
 def main():
     args = parse_args()
 
@@ -715,7 +704,7 @@ def main():
 
     pt_data_dir, pt_output_dir = common.pt_dirs()
     args.data = args.data or pt_data_dir or common.default_dataroot()
-    args.data = utils.full_path(os.path.join(args.data,'textpred', dataset_dir_name(args.dataset)))
+    args.data = utils.full_path(os.path.join(args.data,'textpred', exp_utils.dataset_dir_name(args.dataset)))
     args.work_dir =  utils.full_path(pt_output_dir or \
                         os.path.join(args.work_dir, args.experiment_name)
                     , create=True)
@@ -767,7 +756,7 @@ def main():
     ###########################################################################
     # Load data
     ###########################################################################
-    corpus = get_lm_corpus(args.data, args.dataset, args.vocab)
+    corpus = get_lm_corpus(args.data, args.dataset, args.vocab, max_size=args.vocab_size)
     ntokens = len(corpus.vocab)
     vocab = corpus.vocab
     args.n_token = ntokens

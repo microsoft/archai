@@ -225,3 +225,16 @@ def l2_promote():
         _libcudart.cudaDeviceSetLimit(ctypes.c_int(0x05), ctypes.c_int(128))
         _libcudart.cudaDeviceGetLimit(pValue, ctypes.c_int(0x05))
         assert pValue.contents.value == 128
+
+def dataset_dir_name(dataset:str)->str:
+    if dataset=='wt103':
+        return 'wikitext-103'
+    if dataset=='wt2':
+        return 'wikitext-2'
+    if dataset=='lm1b':
+        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
+    if dataset=='enwik8':
+        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
+    if dataset=='text8':
+        raise RuntimeError(f'dataset "{dataset}" is not supported yet')
+    raise RuntimeError(f'dataset "{dataset}" is not known')
