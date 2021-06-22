@@ -14,7 +14,7 @@ from tokenizers import ByteLevelBPETokenizer
 import pytorch_lightning as pl
 
 from archai.common import ml_utils, utils, common
-from archai.nlp.token_dataset import DatasetFiles, TokenDataset, TokenizerFiles, TokenConfig
+from archai.nlp.tokenizer_utils.token_dataset import DatasetFiles, TokenDataset, TokenizerFiles, TokenConfig
 from archai.nlp.transformer_lightning import TransformerLightning
 from archai.nlp.trainer_callback import TrainerCallback
 
