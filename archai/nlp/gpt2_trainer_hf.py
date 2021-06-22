@@ -1,9 +1,9 @@
+from typing import Optional, Union, List
 import logging
 import math
 import os
 import sys
 from dataclasses import dataclass, field
-from typing import Optional, Union, List
 
 # The is_debugging() function is copied from utils because utils currently
 # has torch dependencies which we need to move to ml_utils. Because this
@@ -33,7 +33,6 @@ from transformers import (
     GPT2TokenizerFast, GPT2Config,
     PretrainedConfig, PreTrainedModel, PreTrainedTokenizerFast, PreTrainedTokenizerBase
 )
-from tokenizers import ByteLevelBPETokenizer
 from transformers.trainer_utils import get_last_checkpoint, is_main_process
 
 import torch
@@ -42,7 +41,9 @@ from archai.nlp.gpt_training_args import GptTrainingArguments
 from archai.nlp.data_training_arguments import DataTrainingArguments
 from archai.nlp.model_arguments import ModelArguments
 
-from archai.nlp.token_dataset import TokenConfig, TokenizerFiles
+from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
+from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
+
 from archai.common import utils, common
 
 logger = logging.getLogger(__name__)
@@ -289,19 +290,6 @@ def load_tokenizer(model_args:ModelArguments)->PreTrainedTokenizerBase:
         True if model_args.use_auth_token else None)
     return tokenizer
 
-def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length:int)->PreTrainedTokenizerFast:
-    tokenizer = GPT2TokenizerFast(vocab_file=tokenizer_files.vocab_file,
-                              merges_file=tokenizer_files.merges_file,
-                              model_max_length=max_length,
-                              eos_token=token_config.eos_token,
-                              bos_token=token_config.bos_token,
-                              unk_token=token_config.unk_token,
-                              pad_token=token_config.pad_token)
-
-    # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
-    #tokenizer.padding_side = "left"
-    return tokenizer
-
 def create_model(model_args:ModelArguments, input_embedding_size:int,
                  model_config:Optional[PretrainedConfig]=None)->PreTrainedModel:
     if model_args.model_name_or_path:
@@ -347,38 +335,6 @@ def evaluate_model(lm_datasets, trainer:Trainer):
     trainer.save_metrics("eval", eval_output)
 
     return eval_output
-
-def train_tokenizer(dataset:Dataset, token_config: TokenConfig,
-                    vocab_size: int, save_dir: str, save_prefix='tokenizer',
-                    dropout: float = None, min_frequency: int = 0, show_progress=False,
-                    added_tokens: List[str] = []) -> TokenizerFiles:
-
-    tokenizer_out_files = TokenizerFiles(vocab_file=os.path.join(save_dir, save_prefix + '-vocab.json'),
-                            merges_file=os.path.join(save_dir, save_prefix + '-merges.txt'))
-    if utils.is_debugging() and os.path.exists(tokenizer_out_files.vocab_file) \
-            and os.path.exists(tokenizer_out_files.merges_file):
-        return tokenizer_out_files
-
-    # TODO: remove dropout
-    tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)
-
-    def batch_iterator(batch_size=1000):
-        for i in range(0, len(dataset), batch_size):
-            yield dataset[i : i + batch_size]["text"]
-
-    tokenizer.train_from_iterator(batch_iterator(),
-        vocab_size=vocab_size-len(added_tokens), # original GPT2: 50257
-        show_progress=show_progress,
-        min_frequency=min_frequency,
-        # for GPT2, pad token is not used: https://github.com/huggingface/transformers/issues/2630
-        special_tokens=[token_config.bos_token, token_config.eos_token, token_config.unk_token])
-
-    tokenizer.add_tokens(added_tokens)
-
-    # generates save_prefix-vocab.json and save_prefix-merges.txt
-    tokenizer.save_model(save_dir, save_prefix)
-
-    return tokenizer_out_files
 
 def create_model_config(transformer_args:TransformerArguments,
         dropout=0.0, bos_token_id=0, eos_token_id=0)->PretrainedConfig:
@@ -464,7 +420,8 @@ def main():
 
     token_config = TokenConfig()
     logger.info("*** Start Training Tokenizer***")
-    tokenizer_files = train_tokenizer(datasets["train"], token_config,
+    lines = [l["text"] for l in datasets["train"]]
+    tokenizer_files = train_tokenizer(lines, token_config,
         show_progress=not training_args.disable_tqdm,
         vocab_size=transformer_args.vocab_size, save_dir=training_args.output_dir)
     logger.info("*** End Training Tokenizer***")

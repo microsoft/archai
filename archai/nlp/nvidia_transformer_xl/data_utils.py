@@ -230,7 +230,7 @@ class LMMultiFileIterator(LMShuffledIterator):
 
 
 class Corpus(object):
-    def __init__(self, path, dataset, vocab, *args, **kwargs):
+    def __init__(self, path, dataset, vocab, *args, **kwargs): # by default no args and kwargs are passed
         self.dataset = dataset
         if vocab == 'word':
             self.vocab = Vocab(*args, **kwargs)

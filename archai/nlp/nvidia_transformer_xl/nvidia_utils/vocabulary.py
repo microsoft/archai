@@ -30,9 +30,10 @@ class Vocab(object):
         self.max_size = max_size
         self.lower_case = lower_case
         self.delimiter = delimiter
-        self.vocab_file = vocab_file
+        self.vocab_file = vocab_file # cached vocab file
 
     def tokenize(self, line, add_eos=False, add_double_eos=False):
+        """Tokenize given line, add_eos: add special to end, add_double_eos: add special to begin and end"""
         line = line.strip()
         # convert to lower case
         if self.lower_case:
@@ -52,6 +53,7 @@ class Vocab(object):
             return symbols
 
     def count_file(self, path, verbose=True, add_eos=False):
+        """Setup counter with frequencies, return tokens for the entir file"""
         if verbose:
             print('counting file {} ...'.format(path))
         assert os.path.exists(path)
@@ -79,7 +81,8 @@ class Vocab(object):
             self.counter.update(symbols)
 
     def _build_from_file(self, vocab_file):
-        self.idx2sym = []
+        """Load previously cached vocab file"""
+        self.idx2sym = [] # clear out existing symbols
         self.sym2idx = OrderedDict()
 
         with open(vocab_file, 'r', encoding='utf-8') as f:
@@ -89,6 +92,7 @@ class Vocab(object):
         self.unk_idx = self.sym2idx['<UNK>']
 
     def build_vocab(self):
+        """Build the vocab by creating indices"""
         if self.vocab_file:
             print('building vocab from {}'.format(self.vocab_file))
             self._build_from_file(self.vocab_file)
