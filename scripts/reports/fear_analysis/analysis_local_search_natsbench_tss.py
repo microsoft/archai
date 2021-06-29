@@ -30,7 +30,7 @@ import multiprocessing
 from multiprocessing import Pool
 
 from archai.common import utils
-from archai.common.ordereddict_logger import OrderedDictLogger
+from archai.algos.natsbench.natsbench_utils import create_natsbench_tss_api
 from archai.common.analysis_utils import epoch_nodes, parse_a_job, fix_yaml, remove_seed_part, group_multi_runs, collect_epoch_nodes, EpochStats, FoldStats, stat2str, get_epoch_stats, get_summary_text, get_details_text, plot_epochs, write_report
 
 import re
@@ -43,6 +43,10 @@ def main():
                         help='folder with experiment results from pt')
     parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
                         help='folder to output reports')
+    parser.add_argument('--natsbench_loc', '-n', type=str, 
+                        help='location of natsbench')
+    parser.add_argument('--dataset', type=str, 
+                        help='dataset name')
     args, extra_args = parser.parse_known_args()
 
     # root dir where all results are stored
@@ -77,6 +81,11 @@ def main():
             logs[key] = val[0]
             confs[key] = val[1]
 
+    # create the natsbench api
+    api = create_natsbench_tss_api(args.natsbench_loc)
+
+    ds_name = args.dataset
+
     raw_data = {}
 
 
@@ -84,9 +93,14 @@ def main():
         # Get total duration of the run
         # which is the sum of all conditional and freeze
         # trainings over all architectures
+        # or all regular runs if it is shortened regular evaluation
         duration = 0.0
         
         arch_ids_touched = []
+
+        # best test accuracy as function of time
+        best_train_till_now = -ma.inf
+        best_test_duration_storage = []
 
         archs_touched_counter = 0
         for skey in logs[key].keys():
@@ -98,11 +112,28 @@ def main():
                 for ekey in logs[key][skey][train_key]['epochs'].keys():
                     eduration = logs[key][skey][train_key]['epochs'][ekey]['train']['duration']
                     duration += eduration
+
+                train_acc = logs[key][skey][train_key]['best_train']['top1']
+                if train_acc >= best_train_till_now:
+                    best_train_till_now = train_acc
+                    arch_id = int(skey.split('_')[-1])
+                    info = api.get_more_info(arch_id, ds_name, hp=200, is_random=False)
+                    test_acc = info['test-accuracy']
+                    best_test_duration_storage.append((duration, test_acc, train_acc))
+
             elif 'regular_training' in skey:
                 for ekey in logs[key][skey]['arch_train']['epochs'].keys():
                     eduration = logs[key][skey]['arch_train']['epochs'][ekey]['train']['duration']
                     duration += eduration
-    
+
+                train_acc = logs[key][skey]['arch_train']['best_train']['top1']
+                if train_acc >= best_train_till_now:
+                    best_train_till_now = train_acc
+                    arch_id = int(skey.split('_')[-1])
+                    info = api.get_more_info(arch_id, ds_name, hp=200, is_random=False)
+                    test_acc = info['test-accuracy']
+                    best_test_duration_storage.append((duration, test_acc, train_acc))
+
             if 'conditional' in skey or 'freeze' in skey or 'regular_training' in skey:
                 arch_id = int(skey.split('_')[-1])
                 if arch_id not in arch_ids_touched:
@@ -111,9 +142,9 @@ def main():
 
 
         # find the test error of the best local minima (by train error)
-        best_test = logs[key]['best_minimum'][2]
-
-        raw_data[key] = (duration, best_test)
+        best_test_local = logs[key]['best_minimum'][2]
+        best_test = best_test_duration_storage[-1][1]
+        raw_data[key] = (duration, best_test, best_test_duration_storage)
                     
     run_durations = [raw_data[key][0] for key in raw_data.keys()]
     max_accs = [raw_data[key][1] for key in raw_data.keys()]
@@ -124,11 +155,15 @@ def main():
     avg_max_acc = statistics.mean(max_accs)
     stderr_max_acc = sem(np.array(max_accs))
 
+    trajs = [raw_data[x][2] for x in raw_data.keys()]
+
     data_to_save = {}
     data_to_save['avg_duration'] = avg_duration
     data_to_save['stderr_duration'] = stderr_duration
     data_to_save['avg_max_acc'] = avg_max_acc
     data_to_save['stderr_max_acc'] = stderr_max_acc
+    data_to_save['trajs'] = trajs
+    
 
     savename = os.path.join(out_dir, 'raw_data.yaml')
     with open(savename, 'w') as f:
