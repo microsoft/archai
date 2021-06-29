@@ -685,8 +685,9 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_local_search_natsbench_tss.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ls_far_ftt0.6_max300_ratio2.0_fixedseeds",
-                "--out-dir", "F:\\archai_experiment_reports"]
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ls_far_c100_ftt0.3_max300_ratio4.0_fixedseeds",
+                "--out-dir", "F:\\archai_experiment_reports", "--natsbench_loc", "C:\\Users\\dedey\\dataroot\\natsbench\\NATS-tss-v1_0-3ffb9-simple",
+                "--dataset", "cifar100"]
         },
         {
             "name": "CurrentFile",

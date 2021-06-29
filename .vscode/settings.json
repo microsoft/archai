@@ -5,6 +5,6 @@
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.pythonPath": "C:\\Users\\dedey\\Anaconda3\\python.exe",
+    "python.pythonPath": "C:\\Users\\dedey\\Anaconda3\\envs\\archai\\python.exe",
     "jupyter.jupyterServerType": "local",
 }
