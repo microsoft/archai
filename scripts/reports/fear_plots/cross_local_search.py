@@ -78,7 +78,43 @@ def main():
     fig.write_html(savename_html)
     fig.show()
 
-    
+    # plot the trajectories
+    fig_traj = go.Figure()
+    for key in far_data.keys():
+        legend_name = conf_data[args.dataset]['fastarchrank'][key]
+        marker_color = conf_data[args.dataset]['colors']['fastarchrank']
+        trajs = far_data[key]['trajs']
+        first_traj = trajs[0]
+        durations = [d for d, test, train in first_traj]
+        test_accs = [test for d, test, train in first_traj]
+        fig_traj.add_trace(go.Scatter(x=durations, 
+                                y=test_accs, 
+                                name=legend_name, 
+                                marker_color=marker_color, 
+                                showlegend=True))
+
+    for key in reg_data.keys():
+        legend_name = conf_data[args.dataset]['regular'][key]
+        marker_color = conf_data[args.dataset]['colors']['regular']
+        trajs = reg_data[key]['trajs']
+        for traj in trajs:
+            durations = [d for d, test, train in traj]
+            test_accs = [test for d, test, train in traj]
+            fig_traj.add_trace(go.Scatter(x=durations, 
+                                    y=test_accs, 
+                                    name=legend_name, 
+                                    marker_color=marker_color, 
+                                    showlegend=True))
+
+    fig_traj.update_layout(title_text = "Duration vs. Best Test Accuracy",
+                            xaxis_title="Duration (s)",
+                            yaxis_title="Best Test Top-1 Accuracy")
+    fig_traj.show()
+        
+
+
+
+
 if __name__ == '__main__':
     main()
 
