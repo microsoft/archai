@@ -24,6 +24,11 @@ class TokenizerFiles:
         self.vocab_file = vocab_file
         self.merges_file = merges_file
 
+    @staticmethod
+    def from_path(save_dir:str, save_prefix='tokenizer')->'TokenizerFiles':
+        return TokenizerFiles(vocab_file=os.path.join(save_dir, save_prefix + '-vocab.json'),
+                            merges_file=os.path.join(save_dir, save_prefix + '-merges.txt'))
+
 class DatasetFiles:
     def __init__(self, dataroot:str, dataset:str) -> None:
         self._known_datasets ={
