@@ -14,8 +14,7 @@ def train_tokenizer(lines:List[str], token_config: TokenConfig,
                     dropout: float = None, min_frequency: int = 0, show_progress=False,
                     added_tokens: List[str] = []) -> TokenizerFiles:
 
-    tokenizer_out_files = TokenizerFiles(vocab_file=os.path.join(save_dir, save_prefix + '-vocab.json'),
-                            merges_file=os.path.join(save_dir, save_prefix + '-merges.txt'))
+    tokenizer_out_files = TokenizerFiles.from_path(save_dir=save_dir)
     if utils.is_debugging() and os.path.exists(tokenizer_out_files.vocab_file) \
             and os.path.exists(tokenizer_out_files.merges_file):
         return tokenizer_out_files
@@ -63,7 +62,7 @@ def main():
                          help='Dataset name')
     parser.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe'],
                          help='Type of vocabulary')
-    parser.add_argument('--vocab_size', type=int, default=5000,
+    parser.add_argument('--vocab_size', type=int, default=10000,
                          help='Size of vocabulary')
     args, _ = parser.parse_known_args()
 
@@ -71,14 +70,22 @@ def main():
     args.data = args.data or pt_data_dir or common.default_dataroot()
     args.data = utils.full_path(os.path.join(args.data, 'textpred', exp_utils.dataset_dir_name(args.dataset)))
 
-    save_path = os.path.join(args.data,'textpred', 'wikitext-103-bpe-vocab')
+    save_path = utils.full_path(os.path.join(args.data, 'wikitext-103-bpe-vocab', str(args.vocab_size)), create=True)
 
     train_filepath = os.path.join(args.data, 'wiki.train.tokens')
     with open(train_filepath, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
     token_config = TokenConfig()
+
     tokenizer_files = train_tokenizer(lines, token_config,
         vocab_size=args.vocab_size, save_dir=save_path)
+
     tokenizer = create_tokenizer(tokenizer_files, token_config)
-    print(len(tokenizer))
+
+    print('tokenizer len', len(tokenizer))
+    print('merges_file', tokenizer_files.merges_file)
+    print('vocab_file', tokenizer_files.vocab_file)
+
+if __name__ == "__main__":
+    main()

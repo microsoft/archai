@@ -235,7 +235,8 @@ class Corpus(object):
         if vocab == 'word':
             self.vocab = Vocab(*args, max_size=max_size, **kwargs)
         elif vocab == 'bpe':
-            self.vocab = OpenAIVocab()
+            vocab_dir = os.path.join(path, 'wikitext-103-bpe-vocab', str(max_size))
+            self.vocab = OpenAIVocab(max_size=max_size, vocab_dir=vocab_dir)
         else:
             raise RuntimeError('Unsupported vocab')
 
@@ -301,7 +302,7 @@ def get_lm_corpus(datadir, dataset, vocab, max_size=None):
     if vocab == 'word':
         fn = os.path.join(datadir, 'cache.pt')
     elif vocab == 'bpe':
-        fn = os.path.join(datadir, 'cache.pt.bpe')
+        fn = os.path.join(datadir, 'cache.pt.'+ str(max_size) +'.bpe')
     else:
         raise RuntimeError('Unsupported vocab')
 

@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 import contextlib
 import os
 from collections import Counter
 from collections import OrderedDict
+from typing import Optional
 
 import torch
 from . import distributed as nv_distributed
 
+from archai.nlp.tokenizer_utils.token_trainer import create_tokenizer
 
 class Vocab(object):
     def __init__(self, special=[], min_freq=0, max_size=None, lower_case=True,
@@ -193,12 +196,17 @@ class Vocab(object):
 # Class OpenAIVocab has been adapted from
 # https://github.com/cybertronai/transformer-xl/blob/master/utils/vocabulary.py
 class OpenAIVocab(Vocab):
-    def __init__(self, max_size=None, vocab_file=None):
+    def __init__(self, max_size=None, vocab_dir:Optional[str]=None):
         from pytorch_transformers import GPT2Tokenizer
-        self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+
+        if vocab_dir is None:
+            self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+        else:
+            tokenizer_files = TokenizerFiles.from_path(save_dir=vocab_dir)
+            self.tokenizer = create_tokenizer(tokenizer_files, TokenConfig())
+
         self.EOT = self.tokenizer.encoder['<|endoftext|>']
         self.max_size = max_size
-        self.vocab_file = vocab_file
 
         pad = 8
         vocab_size = len(self.tokenizer)
