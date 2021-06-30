@@ -7,6 +7,7 @@ import glob
 import os
 import pathlib
 from collections import OrderedDict, defaultdict
+from numpy.core.numeric import NaN
 from scipy.stats.stats import _two_sample_transform
 import yaml
 from inspect import getsourcefile
@@ -141,9 +142,11 @@ def main():
                     arch_ids_touched.append(arch_id)
 
 
-        # find the test error of the best local minima (by train error)
-        best_test_local = logs[key]['best_minimum'][2]
+        # Make sure to add the end duration point along with
+        # the best test till then
         best_test = best_test_duration_storage[-1][1]
+        best_test_duration_storage.append((duration, best_test, NaN))
+
         raw_data[key] = (duration, best_test, best_test_duration_storage)
                     
     run_durations = [raw_data[key][0] for key in raw_data.keys()]
