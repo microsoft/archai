@@ -690,6 +690,15 @@
                 "--dataset", "cifar100"]
         },
         {
+            "name": "Analysis Nasbench301 Time-to-thresh vs. Test Acc",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_nasbench301_timetothresh.py",
+            "console": "integratedTerminal",
+            "args": ["--nb301-logs-dir", "C:\\Users\\dedey\\dataroot\\nasbench301\\nasbench301_full_data\\nb_301_v13_lc_iclr_final\\rs",
+                "--out-dir", "F:\\archai_experiment_reports"]
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",
