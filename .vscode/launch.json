@@ -62,6 +62,14 @@
             "args": ["--full", "--algos", "darts", "--datasets", "imagenet", "--no-search", "--nas.eval.final_desc_filename", "models/darts/final_model_desc1.yaml"]
         },
         {
+            "name": "Darts-Eval-Particular-Arch",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "darts", "--datasets", "cifar10", "--no-search", "--nas.eval.final_desc_filename", "models/darts_random_samples/final_model_desc_000001.yaml"]
+        },
+        {
             "name": "DiDarts-E2E-Toy",
             "type": "python",
             "request": "launch",

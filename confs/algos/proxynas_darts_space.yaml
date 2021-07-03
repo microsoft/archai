@@ -12,21 +12,21 @@ nas:
   eval:
     model_desc:
       num_edges_to_sample: 2
+      n_cells: 8
     loader:
+      val_ratio: 0.0
       train_batch: 96
-      naswotrain:
-        train_batch: 128 # batch size for computing trainingless score
       freeze_loader:
         train_batch: 2048 # batch size for freeze training  
     trainer:
       plotsdir: ''
-      epochs: 2
-      train_top1_acc_threshold: 0.10 # after some accuracy we will shift into training only the last 'n' layers
-      train_regular: False # if False the full regular training of the architecture will be bypassed
+      epochs: 1
+      train_top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
+      train_regular: True # if False the full regular training of the architecture will be bypassed
       
     freeze_trainer:
       plotsdir: ''
-      identifiers_to_unfreeze: ['logits_op._op', 'cells.19'] # last few layer names in DARTS space are 'logits_op._op': Linear, 'cells.19': prefix for all cell 19 parameters
+      identifiers_to_unfreeze: ['logits_op._op', 'cells.7', 'cells.6'] # last few layer names in DARTS space are 'logits_op._op': Linear, 'cells.19': prefix for all cell 19 parameters
       apex:
         _copy: '/common/apex'
       aux_weight: 0.0 # very important that this is 0.0 for freeze training
