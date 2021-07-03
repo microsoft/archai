@@ -14,7 +14,7 @@ from archai.algos.xnas.xnas_exp_runner import XnasExperimentRunner
 from archai.algos.gumbelsoftmax.gs_exp_runner import GsExperimentRunner
 from archai.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
 from archai.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
-from archai.algos.proxynas.freeze_dartsspace_experiment_runner import FreezeDartsspaceExperimentRunner
+from archai.algos.proxynas.freeze_darts_space_experiment_runner import FreezeDartsSpaceExperimentRunner
 from archai.algos.proxynas.freeze_natsbench_experiment_runner import FreezeNatsbenchExperimentRunner
 from archai.algos.proxynas.freeze_nasbench101_experiment_runner import FreezeNasbench101ExperimentRunner
 from archai.algos.proxynas.freeze_manual_experiment_runner import ManualFreezeExperimentRunner
@@ -41,7 +41,7 @@ def main():
         'gs': GsExperimentRunner,
         'divnas': DivnasExperimentRunner,
         'didarts': DiDartsExperimentRunner,
-        'proxynas_darts_space': FreezeDartsspaceExperimentRunner,
+        'proxynas_darts_space': FreezeDartsSpaceExperimentRunner,
         'proxynas_natsbench_space': FreezeNatsbenchExperimentRunner,
         'proxynas_nasbench101_space': FreezeNasbench101ExperimentRunner,
         'proxynas_manual': ManualFreezeExperimentRunner,

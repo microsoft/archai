@@ -16,11 +16,10 @@ from archai.nas.evaluater import Evaluater, EvalResult
 from archai.common.common import get_expdir, logger
 
 from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
-from archai.algos.naswotrain.naswotrain_evaluator import NaswotrainEvaluator
-from .freeze_evaluator import FreezeEvaluator
+from .freeze_darts_space_evaluater import FreezeDartsSpaceEvaluater
 
-class FreezeDartsspaceExperimentRunner(ExperimentRunner):
-    ''' Samples a random architecture from DARTS search space and freeze trains it '''
+class FreezeDartsSpaceExperimentRunner(ExperimentRunner):
+    ''' Samples a reproducible random architecture from DARTS search space and freeze trains it '''
     
     @overrides
     def model_desc_builder(self)->RandomModelDescBuilder:
@@ -32,18 +31,7 @@ class FreezeDartsspaceExperimentRunner(ExperimentRunner):
 
     @overrides
     def run_eval(self, conf_eval:Config)->EvalResult:
-        # without training architecture evaluation score
-        # ---------------------------------------
-        logger.pushd('naswotrain_evaluate')
-        naswotrain_evaler = NaswotrainEvaluator()
-        conf_eval_naswotrain = deepcopy(conf_eval)
-
-        if conf_eval_naswotrain['checkpoint'] is not None:
-            conf_eval_naswotrain['checkpoint']['filename'] = '$expdir/naswotrain_checkpoint.pth'
-
-        naswotrain_eval_result = naswotrain_evaler.evaluate(conf_eval_naswotrain, model_desc_builder=self.model_desc_builder())
-        logger.popd()
-
+        
         # regular evaluation of the architecture
         # this is expensive 
         # --------------------------------------
@@ -68,7 +56,7 @@ class FreezeDartsspaceExperimentRunner(ExperimentRunner):
             conf_eval['checkpoint']['filename'] = '$expdir/freeze_checkpoint.pth'
 
         logger.pushd('freeze_evaluate')
-        freeze_evaler = FreezeEvaluator()
+        freeze_evaler = FreezeDartsSpaceEvaluater()
         conf_eval_freeze = deepcopy(conf_eval)
         freeze_eval_result = freeze_evaler.evaluate(conf_eval_freeze, model_desc_builder=self.model_desc_builder())
         logger.popd()

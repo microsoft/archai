@@ -9,7 +9,7 @@ from overrides import overrides
 
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
-                                  EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc
+                                  EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc, ModelDesc
 from archai.common.config import Config
 from archai.common import common
 
@@ -27,30 +27,68 @@ class RandOps:
         # 'none'  # this must be at the end so top1 doesn't choose it
     ]
 
-    def __init__(self, n_nodes:int, max_edges:int) -> None:
+    def __init__(self, n_nodes:int, max_edges:int, seed:int=None) -> None:
 
         # get list of primitives either from conf or use default list
         conf = common.get_conf()
         primitives = conf.get_val('primitives', RandOps.PRIMITIVES)
 
+        # use separate instance of random class 
+        # generator to avoid sharing state with the 
+        # rest of the code
+        self._random = random.Random()
+        if seed:
+            self._random.seed(seed)
+
         self.ops_and_ins:List[Tuple[List[str], List[int]]] = []
         for i in range(n_nodes):
-            op_names = random.choices(primitives, k=max_edges)
-            to_states = random.sample(list(range(i+2)), k=max_edges)
+            op_names = self._random.choices(primitives, k=max_edges)
+            to_states = self._random.sample(list(range(i+2)), k=max_edges)
             self.ops_and_ins.append((op_names, to_states))
 
 
 class RandomModelDescBuilder(ModelDescBuilder):
+
     @overrides
-    def build_cells(self, in_shapes:TensorShapesList, conf_model_desc:Config)\
+    def build(self, conf_model_desc: Config,
+                 template:Optional[ModelDesc]=None, seed:Optional[int]=None)->ModelDesc:
+        """main entry point for the class. we are overriding as we need the optional seed argument"""
+
+        self._init_build(conf_model_desc, template)
+
+        self.pre_build(conf_model_desc)
+
+        # input shape for the stem has same channels as channels in image
+        # -1 indicates, actual dimensions are not known
+        ds_ch = self.get_conf_dataset()['channels']
+        in_shapes = [[[ds_ch, -1, -1, -1]]]
+
+        # create model stems
+        model_stems = self.build_model_stems(in_shapes, conf_model_desc)
+
+        # create cell descriptions
+        cell_descs, aux_tower_descs = self.build_cells(in_shapes, conf_model_desc, seed=seed)
+
+        model_pool_op = self.build_model_pool(in_shapes, conf_model_desc)
+
+        logits_op = self.build_logits_op(in_shapes, conf_model_desc)
+
+        return ModelDesc(conf_model_desc, model_stems, model_pool_op, cell_descs,
+                         aux_tower_descs, logits_op)
+
+
+
+
+    @overrides
+    def build_cells(self, in_shapes:TensorShapesList, conf_model_desc:Config, seed:int=None)\
             ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
 
         max_edges = conf_model_desc['num_edges_to_sample']
         node_count = self.get_node_count(0)
 
         # create two sets of random ops, one for each cell type
-        self._normal_ops = RandOps(node_count, max_edges)
-        self._reduction_ops = RandOps(node_count, max_edges)
+        self._normal_ops = RandOps(node_count, max_edges, seed=seed)
+        self._reduction_ops = RandOps(node_count, max_edges, seed=seed)
 
         return super().build_cells(in_shapes, conf_model_desc)
 

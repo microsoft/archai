@@ -9,3 +9,6 @@ nas:
   eval:
     model_desc:
       num_edges_to_sample: 2
+      n_cells: 8
+    trainer:
+      epochs: 1
