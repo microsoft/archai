@@ -16,6 +16,7 @@ from archai.nas.evaluater import Evaluater, EvalResult
 from archai.common.common import get_expdir, logger
 
 from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.proxynas.freeze_manual_searcher import ManualFreezeSearcher
 from .freeze_darts_space_evaluater import FreezeDartsSpaceEvaluater
 
 class FreezeDartsSpaceExperimentRunner(ExperimentRunner):
@@ -28,6 +29,14 @@ class FreezeDartsSpaceExperimentRunner(ExperimentRunner):
     @overrides
     def trainer_class(self)->TArchTrainer:
         return None
+
+    @overrides
+    def searcher(self)->ManualFreezeSearcher:
+        return ManualFreezeSearcher() # no searcher basically
+
+    @overrides
+    def copy_search_to_eval(self)->None:
+        pass
 
     @overrides
     def run_eval(self, conf_eval:Config)->EvalResult:
