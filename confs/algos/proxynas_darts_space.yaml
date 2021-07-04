@@ -1,15 +1,13 @@
 __include__: 'darts.yaml' # just use darts defaults
 
-primitives: ['max_pool_3x3', 'avg_pool_3x3', 'skip_connect', 'sep_conv_3x3', 'sep_conv_5x5', 'dil_conv_3x3', 'dil_conv_5x5']
-
-#primitives: ['max_pool_3x3', 'avg_pool_3x3', 'skip_connect']
-
 nas:
   search:
     model_desc:
       num_edges_to_sample: 2 # number of edges each node will take input from
 
   eval:
+    dartsspace:
+      arch_index: 66
     model_desc:
       num_edges_to_sample: 2
       n_cells: 8
@@ -19,10 +17,11 @@ nas:
       freeze_loader:
         train_batch: 2048 # batch size for freeze training  
     trainer:
+      use_val: False
       plotsdir: ''
-      epochs: 1
-      train_top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
-      train_regular: True # if False the full regular training of the architecture will be bypassed
+      epochs: 100
+      top1_acc_threshold: 0.10 # after some accuracy we will shift into training only the last 'n' layers
+      train_regular: False # if False the full regular training of the architecture will be bypassed
       
     freeze_trainer:
       plotsdir: ''
@@ -41,7 +40,7 @@ nas:
         type: 'CrossEntropyLoss'
       optimizer:
         type: 'sgd'
-        lr: 0.1 # init learning rate
+        lr: 0.025 # init learning rate
         decay: 3.0e-4 # pytorch default is 0.0
         momentum: 0.9 # pytorch default is 0.0
         nesterov: False # pytorch default is False
