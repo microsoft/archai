@@ -16,9 +16,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .nvidia_utils.log_uniform_sampler import LogUniformSampler
-from .nvidia_utils.log_uniform_sampler import sample_logits
-from .nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import LogUniformSampler
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 
 @torch.jit.script
@@ -826,7 +826,7 @@ if __name__ == '__main__':
     data_len = tgt_len * 20
     args.n_token = 10000
 
-    import data_utils
+    from archai.nlp.nvidia_transformer_xl import data_utils
 
     data = torch.LongTensor(data_len*B).random_(0, args.n_token).to(device)
     diter = data_utils.LMOrderedIterator(data, B, tgt_len, device=device, ext_len=ext_len)
