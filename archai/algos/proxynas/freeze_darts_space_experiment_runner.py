@@ -17,6 +17,7 @@ from archai.common.common import get_expdir, logger
 
 from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
 from archai.algos.proxynas.freeze_manual_searcher import ManualFreezeSearcher
+from .darts_space_evaluater import DartsSpaceEvaluater
 from .freeze_darts_space_evaluater import FreezeDartsSpaceEvaluater
 
 class FreezeDartsSpaceExperimentRunner(ExperimentRunner):
@@ -47,7 +48,7 @@ class FreezeDartsSpaceExperimentRunner(ExperimentRunner):
         logger.pushd('regular_evaluate')
         reg_eval_result = None
         if conf_eval['trainer']['train_regular']:
-            evaler = self.evaluater()
+            evaler = DartsSpaceEvaluater()
             conf_eval_reg = deepcopy(conf_eval)
             reg_eval_result = evaler.evaluate(conf_eval_reg, model_desc_builder=self.model_desc_builder())
         logger.popd()
