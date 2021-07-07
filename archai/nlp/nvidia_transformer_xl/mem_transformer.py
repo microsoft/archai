@@ -806,7 +806,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='unit test')
 
     parser.add_argument('--n_layer', type=int, default=16, help='')
-    parser.add_argument('--n_token', type=int, default=200000, help='')
+    parser.add_argument('--n_token', type=int, default=267735, help='')
     parser.add_argument('--n_head', type=int, default=8, help='')
     parser.add_argument('--d_head', type=int, default=64, help='')
     parser.add_argument('--d_model', type=int, default=512, help='')
@@ -821,7 +821,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     tgt_len, mem_len, ext_len = 192, 192, 0
-    cutoffs = [args.n_token // 2]
+    cutoffs = [19997, 39997, 199997] #[args.n_token // 2]
     tie_projs = [False] + [True] * len(cutoffs)
 
     model = MemTransformerLM(args.n_token, args.n_layer, args.n_head,
@@ -834,7 +834,9 @@ if __name__ == '__main__':
                                 cutoffs=cutoffs, attn_type=0,
                                 dtype=None)
 
-    print('# params', sum(p.numel() for p in model.parameters()))
+    print('# total params', sum(p.numel() for p in model.parameters()))
+    print('# embd params', sum(p.numel() for p in model.word_emb.parameters()))
+    print('# layer params', sum(p.numel() for p in model.layers[0].parameters()))
 
     # sample run
 
