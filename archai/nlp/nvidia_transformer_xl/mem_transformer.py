@@ -805,50 +805,50 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='unit test')
 
-    parser.add_argument('--n_layer', type=int, default=4, help='')
-    parser.add_argument('--n_rel_layer', type=int, default=4, help='')
-    parser.add_argument('--n_head', type=int, default=2, help='')
-    parser.add_argument('--d_head', type=int, default=2, help='')
-    parser.add_argument('--d_model', type=int, default=200, help='')
-    parser.add_argument('--d_embed', type=int, default=200, help='')
-    parser.add_argument('--d_inner', type=int, default=200, help='')
-    parser.add_argument('--dropout', type=float, default=0.0, help='')
+    parser.add_argument('--n_layer', type=int, default=16, help='')
+    parser.add_argument('--n_token', type=int, default=200000, help='')
+    parser.add_argument('--n_head', type=int, default=8, help='')
+    parser.add_argument('--d_head', type=int, default=64, help='')
+    parser.add_argument('--d_model', type=int, default=512, help='')
+    parser.add_argument('--d_embed', type=int, default=512, help='')
+    parser.add_argument('--d_inner', type=int, default=2048, help='')
+    parser.add_argument('--div_val', type=int, default=1, help='') # Dividend value for adaptive input and softmax
+    parser.add_argument('--dropout', type=float, default=0.1, help='')
     parser.add_argument('--cuda', action='store_true', help='')
-    parser.add_argument('--seed', type=int, default=1111, help='')
+    parser.add_argument('--seed', type=int, default=42, help='')
     parser.add_argument('--multi_gpu', action='store_true', help='')
 
     args = parser.parse_args()
 
-    device = torch.device("cuda" if args.cuda else "cpu")
-
-    B = 4
-    tgt_len, mem_len, ext_len = 36, 36, 0
-    data_len = tgt_len * 20
-    args.n_token = 10000
-
-    from archai.nlp.nvidia_transformer_xl import data_utils
-
-    data = torch.LongTensor(data_len*B).random_(0, args.n_token).to(device)
-    diter = data_utils.LMOrderedIterator(data, B, tgt_len, device=device, ext_len=ext_len)
-
+    tgt_len, mem_len, ext_len = 192, 192, 0
     cutoffs = [args.n_token // 2]
     tie_projs = [False] + [True] * len(cutoffs)
 
-    for div_val in [1, 2]:
-        for d_embed in [200, 100]:
-            model = MemTransformerLM(args.n_token, args.n_layer, args.n_head,
-                                     args.d_model, args.d_head, args.d_inner,
-                                     args.dropout, dropatt=args.dropout,
-                                     tie_weight=True, d_embed=d_embed,
-                                     div_val=div_val, tie_projs=tie_projs,
-                                     pre_lnorm=True, tgt_len=tgt_len,
-                                     ext_len=ext_len, mem_len=mem_len,
-                                     cutoffs=cutoffs, attn_type=0,
-                                     dtype=None).to(device)
+    model = MemTransformerLM(args.n_token, args.n_layer, args.n_head,
+                                args.d_model, args.d_head, args.d_inner,
+                                args.dropout, dropatt=args.dropout,
+                                tie_weight=True, d_embed=args.d_embed,
+                                div_val=args.div_val, tie_projs=tie_projs,
+                                pre_lnorm=True, tgt_len=tgt_len,
+                                ext_len=ext_len, mem_len=mem_len,
+                                cutoffs=cutoffs, attn_type=0,
+                                dtype=None)
 
-            print(sum(p.numel() for p in model.parameters()))
+    print('# params', sum(p.numel() for p in model.parameters()))
 
-            mems = None
-            for idx, (inp, tgt, seqlen, _) in enumerate(diter):
-                print('batch {}'.format(idx))
-                _, mems = model(inp, tgt, mems)
+    # sample run
+
+    # from archai.nlp.nvidia_transformer_xl import data_utils
+
+    # device = torch.device("cuda" if args.cuda else "cpu")
+    # model.to(device)
+
+    # B = 4 # bytes per data element
+    # data_len = tgt_len * 20
+    # data = torch.LongTensor(data_len*B).random_(0, args.n_token).to(device)
+    # diter = data_utils.LMOrderedIterator(data, B, tgt_len, device=device, ext_len=ext_len)
+
+    # mems = None
+    # for idx, (inp, tgt, seqlen, _) in enumerate(diter):
+    #     print('batch {}'.format(idx))
+    #     _, mems = model(inp, tgt, mems)
