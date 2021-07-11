@@ -310,7 +310,20 @@ def find_valid_log(subdir:str)->str:
     else:
         # look in the 'dist' folder for any yaml file
         dist_folder = os.path.join(str(subdir), 'dist')
-        for f in os.listdir(dist_folder):
+
+        # sometimes some job may have been run multiple times
+        # resulting in multiple log files. here we take the 
+        # earliest one.
+
+        # get list of files
+        list_of_files = filter(lambda x: os.path.isfile(os.path.join(dist_folder, x)),
+                        os.listdir(dist_folder))
+        
+        # sort in ascending order of time
+        list_of_files = sorted(list_of_files, 
+                        key = lambda x: os.path.getmtime(os.path.join(dist_folder, x)))
+
+        for f in list_of_files:
             if f.endswith(".yaml"):
                 return os.path.join(dist_folder, f)
 
