@@ -525,12 +525,12 @@
             "--out-dir", "F:\\dedey\\archai_experiment_reports"]
         },
         {
-            "name": "Analysis Freeze Darts Space",
+            "name": "Analysis Create Darts Space Benchmark",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_darts_space.py",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_create_darts_space_benchmark.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\proxynas_regular_and_parameterless_thresh_0.75",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_dt_fb96_ftlr0.025_fte10_ct96_ftt0.6",
             "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
