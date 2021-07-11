@@ -89,17 +89,55 @@ def main():
         if 'best_test' not in logs[key]['regular_evaluate']['eval_arch']['eval_train']:
             print(f'problem in {key}')
 
-
+    archid_testacc = {}
+    archid_params = {}
     for key in logs.keys():
         if 'eval' in key:
             try:
                 test_acc = logs[key]['regular_evaluate']['eval_arch']['eval_train']['best_test']['top1']
                 arch_id = confs[key]['nas']['eval']['dartsspace']['arch_index']
                 print(f'arch_index {arch_id}, test_acc {test_acc}')
+                archid_testacc[arch_id] = test_acc
+
+                # get the number of params if in logs (most have it unless the early part is missing)
+                if 'num_params' in logs[key]['regular_evaluate']['eval_arch']['eval_train']:
+                    num_params = logs[key]['regular_evaluate']['eval_arch']['eval_train']['num_params']
+                    archid_params[arch_id] = num_params
 
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
                 sys.exit()    
+
+    savename = os.path.join(out_dir, 'darts_benchmark.yaml')
+    with open(savename, 'w') as f:
+        yaml.dump(archid_testacc, f)
+
+    # plot test accuracy vs. number of params 
+    # to see how the distribution looks
+    testaccs = []
+    params = []
+    for archid in archid_params.keys():
+        num_params = archid_params[archid]
+        test_acc = archid_testacc[archid]
+        testaccs.append(test_acc)
+        params.append(num_params)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=params, y=testaccs, mode='markers'))
+    fig.update_layout(title_text="Test accuracy vs. number of params on Darts Space Samples",
+                    xaxis_title="Params", 
+                    yaxis_title="Test Accuracy")
+
+    savename_html = os.path.join(out_dir, 'darts_space_params_vs_test_acc.html')
+    fig.write_html(savename_html)
+    fig.show()
+
+    # compute spearman correlation of #params vs. test accuracy
+    param_spe, param_sp_value = spearmanr(testaccs, params)
+    print(f'Spearman correlation of #params vs. test accuracy is {param_spe}')
+
+    
+
 
 
 
