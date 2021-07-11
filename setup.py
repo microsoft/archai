@@ -13,7 +13,7 @@ install_requires=[
     'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib', 'psutil',
     'requests', 'seaborn', 'h5py', 'rarfile',
     'gorilla', 'pyyaml', 'overrides<4.0.0', 'runstats', 'psutil', 'statopt',
-    'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash', 'nats_bench'
+    'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash', 'nats_bench', 'kaleido'
 ]
 
 setuptools.setup(

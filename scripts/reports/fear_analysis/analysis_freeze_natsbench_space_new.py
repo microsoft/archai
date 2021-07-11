@@ -44,7 +44,7 @@ def main():
     parser = argparse.ArgumentParser(description='Report creator')
     parser.add_argument('--results-dir', '-d', type=str,
                         default=r'~/logdir/proxynas_test_0001',
-                        help='folder with experiment results from pt')
+                        help='folder with experiment results')
     parser.add_argument('--out-dir', '-o', type=str, default=r'~/logdir/reports',
                         help='folder to output reports')
     parser.add_argument('--reg-evals-file', '-r', type=str, default=None,
