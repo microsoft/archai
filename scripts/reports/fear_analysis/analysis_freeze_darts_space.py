@@ -100,6 +100,8 @@ def main():
     all_cond_time_last = []
     all_partial_time_last = []
 
+    all_arch_ids = []
+
     num_archs_unmet_cond = 0
 
     for key in logs.keys():
@@ -149,6 +151,10 @@ def main():
                 all_freeze_time_last.append(freeze_duration + cond_duration)
                 all_cond_time_last.append(cond_duration)
                 all_partial_time_last.append(freeze_duration)
+
+                # record the arch id
+                # ----------------------
+                all_arch_ids.append(confs[key]['nas']['eval']['dartsspace']['arch_index'])
 
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
@@ -203,6 +209,93 @@ def main():
     plt.grid()
     savename = os.path.join(out_dir, 'proxynas_freeze_training_epochs.png')
     plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    # Rank correlations at top n percent of architectures
+    #-----------------------------------------------------
+    reg_freezelast_evals = [(all_reg_evals[i], all_freeze_evals_last[i], all_freeze_time_last[i]) for i in range(len(all_reg_evals))]
+
+    # sort in descending order of accuracy of regular evaluation
+    reg_freezelast_evals.sort(key=lambda x: x[0], reverse=True)
+
+    top_percent_freeze_times_avg = []
+    top_percent_freeze_times_std = []
+    top_percent_freeze_times_stderr = []
+
+    spe_freeze_top_percents = []
+    top_percents = []
+    top_percent_range = range(2, 101, 2)
+    for top_percent in top_percent_range:
+        top_percents.append(top_percent)
+        num_to_keep = int(ma.floor(len(reg_freezelast_evals) * top_percent * 0.01))
+        top_percent_evals = reg_freezelast_evals[:num_to_keep]
+        top_percent_reg = [x[0] for x in top_percent_evals] 
+        top_percent_freeze = [x[1] for x in top_percent_evals]
+        top_percent_freeze_times = [x[2] for x in top_percent_evals]
+
+        top_percent_freeze_times_avg.append(np.mean(np.array(top_percent_freeze_times)))
+        top_percent_freeze_times_std.append(np.std(np.array(top_percent_freeze_times)))
+        top_percent_freeze_times_stderr.append(sem(np.array(top_percent_freeze_times)))    
+
+        spe_freeze, _ = spearmanr(top_percent_reg, top_percent_freeze)
+        spe_freeze_top_percents.append(spe_freeze)
+
+    plt.clf()
+    sns.scatterplot(top_percents, spe_freeze_top_percents)
+    plt.legend(labels=['Freeze Train', 'Naswot'])
+    plt.ylim((-1.0, 1.0))
+    plt.xlabel('Top percent of architectures')
+    plt.ylabel('Spearman Correlation')
+    plt.grid()
+    savename = os.path.join(out_dir, f'spe_top_archs.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+    
+    plt.clf()
+    plt.errorbar(top_percents, top_percent_freeze_times_avg, yerr=np.array(top_percent_freeze_times_std)/2, marker='s', mfc='red', ms=10, mew=4)
+    plt.xlabel('Top percent of architectures')
+    plt.ylabel('Avg. time (s)')
+    plt.yticks(np.arange(0,600, step=50))
+    plt.grid()
+    savename = os.path.join(out_dir, f'freeze_train_duration_top_archs.png')
+    plt.savefig(savename, dpi=plt.gcf().dpi, bbox_inches='tight')
+
+    # how much overlap in top x% of architectures between method and groundtruth
+    # ----------------------------------------------------------------------------
+    arch_id_reg_evals =  [(arch_id, reg_eval) for arch_id, reg_eval in zip(all_arch_ids, all_reg_evals)]
+    arch_id_freezetrain_evals = [(arch_id, freeze_eval) for arch_id, freeze_eval in zip(all_arch_ids, all_freeze_evals_last)]
+
+    arch_id_reg_evals.sort(key=lambda x: x[1], reverse=True)
+    arch_id_freezetrain_evals.sort(key=lambda x: x[1], reverse=True)
+
+    assert len(arch_id_reg_evals) == len(arch_id_freezetrain_evals)
+
+    top_percents = []
+    freezetrain_ratio_common = []
+    for top_percent in top_percent_range:
+        top_percents.append(top_percent)
+        num_to_keep = int(ma.floor(len(arch_id_reg_evals) * top_percent * 0.01))
+        top_percent_arch_id_reg_evals = arch_id_reg_evals[:num_to_keep]
+        top_percent_arch_id_freezetrain_evals = arch_id_freezetrain_evals[:num_to_keep]
+
+        # take the set of arch_ids in each method and find overlap with top archs
+        set_reg = set([x[0] for x in top_percent_arch_id_reg_evals])
+        set_ft = set([x[0] for x in top_percent_arch_id_freezetrain_evals])
+        ft_num_common = len(set_reg.intersection(set_ft))
+        freezetrain_ratio_common.append(ft_num_common/num_to_keep)
+
+    
+    # save raw data for other aggregate plots over experiments
+    raw_data_dict = {}
+    raw_data_dict['top_percents'] = top_percents
+    raw_data_dict['spe_freeze'] = spe_freeze_top_percents
+    raw_data_dict['freeze_times_avg'] = top_percent_freeze_times_avg
+    raw_data_dict['freeze_times_std'] = top_percent_freeze_times_std
+    raw_data_dict['freeze_times_stderr'] = top_percent_freeze_times_stderr
+    raw_data_dict['freeze_ratio_common'] = freezetrain_ratio_common
+
+    savename = os.path.join(out_dir, 'raw_data.yaml')
+    with open(savename, 'w') as f:
+        yaml.dump(raw_data_dict, f)
+
 
 
 if __name__ == '__main__':
