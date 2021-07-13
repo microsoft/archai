@@ -252,7 +252,7 @@ class Corpus(object):
                                vocab_file=vocab_file)
         elif vocab == 'bpe':
             vocab_dir = os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size))
-            self.vocab = GptVocab(max_size=max_size, vocab_dir=vocab_dir)
+            self.vocab = GptVocab(max_size=max_size or 50000, vocab_dir=vocab_dir)
         else:
             raise RuntimeError('Unsupported vocab')
 
