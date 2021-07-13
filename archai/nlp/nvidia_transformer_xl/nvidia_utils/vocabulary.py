@@ -27,6 +27,17 @@ from archai.nlp.tokenizer_utils.token_trainer import create_tokenizer
 class Vocab: # Word vocab is the default
     def __init__(self, special=[], min_freq=0, max_size=None, lower_case=True,
                  delimiter=None, vocab_file=None):
+        """
+        APIs:
+            1. count_file -> count tokens
+            2. build_vocab -> assign IDs to tokens
+            3. encode_file -> convert file to IDs
+
+        internal:
+            tokenize -> split to tokens
+            count_sents -> count freq from parsed sentenses
+
+        """
         self.counter = Counter()
         self.special = special
         self.min_freq = min_freq
@@ -84,8 +95,8 @@ class Vocab: # Word vocab is the default
                 print('    line {}'.format(idx))
             self.counter.update(symbols)
 
-    def _build_from_file(self, vocab_file):
-        """Load previously cached vocab file"""
+    def _load_from_file(self, vocab_file):
+        """[This is not used] Load previously cached vocab file"""
         self.idx2sym = [] # clear out existing symbols
         self.sym2idx = OrderedDict()
 
@@ -93,13 +104,13 @@ class Vocab: # Word vocab is the default
             for line in f:
                 symb = line.strip().split()[0]
                 self.add_symbol(symb)
-        self.unk_idx = self.sym2idx['<UNK>']
+        self.unk_idx = self.sym2idx['<unk>']
 
     def build_vocab(self):
-        """Build the vocab by creating indices"""
+        """Build the vocab by creating indices from the counter"""
         if self.vocab_file:
             print('Loading vocab from {}'.format(self.vocab_file))
-            self._build_from_file(self.vocab_file)
+            self._load_from_file(self.vocab_file)
             print('Final vocab size {}'.format(len(self)))
         else:
             print('Building vocab with min_freq={}, max_size={}'.format(
@@ -115,7 +126,7 @@ class Vocab: # Word vocab is the default
                     break
                 self.add_symbol(sym)
 
-            print('final vocab size {} from {} unique tokens'.format(
+            print('final vocab size is {}, unique tokens are {}'.format(
                 len(self), len(self.counter)))
 
     def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
@@ -228,27 +239,16 @@ class OpenAIVocab(Vocab):
         return len(self.tokenizer)
 
     def count_file(self, path, verbose=False, add_eos=False):
-        # TODO: train from scratch, respect self.max_size
-        pass
+        raise RuntimeError('count_file should not be called in OpenAIVocab')
 
     def build_vocab(self):
         pass
 
     def encode_file(self, path, ordered=False, verbose=False, add_eos=True, add_double_eos=False) -> torch.LongTensor:
-        cached = path + '.bpe'
-        if os.path.exists(cached):
-            return torch.load(cached)
-        print(f'encoding file {path} ...')
-        assert os.path.exists(path), f"{path} doesn't exist"
-
-        with open(path, encoding='utf-8') as f:
-            # Suppress warnings about length.
-            with open(os.devnull, "w") as devnull, contextlib.redirect_stderr(devnull):
-                out = torch.LongTensor(self.tokenizer.encode(f.read()) + [self.EOT])
-                with nv_distributed.sync_workers() as rank:
-                    if rank == 0:
-                        torch.save(out, cached)
-                return out
+        # Suppress warnings about length.
+        with open(os.devnull, "w") as devnull, contextlib.redirect_stderr(devnull):
+            out = torch.LongTensor(self.tokenizer.encode(f.read()) + [self.EOT])
+            return out
 
     def tokenize(self, line, add_eos=False, add_double_eos=False):
         return self.tokenizer.encode(line)

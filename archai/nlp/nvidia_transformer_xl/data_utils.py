@@ -230,12 +230,28 @@ class LMMultiFileIterator(LMShuffledIterator):
 
 
 class Corpus(object):
-    def __init__(self, path, dataset, vocab, *args, max_size=None, **kwargs): # by default no args and kwargs are passed
+    def __init__(self, datadir, dataset, vocab, max_size=None): # by default no args and kwargs are passed
         self.dataset = dataset
         if vocab == 'word':
-            self.vocab = Vocab(*args, max_size=max_size, **kwargs)
+            special, lower_case, vocab_file = [], True, None
+            if dataset in ['wt103', 'wt2']:
+                special, lower_case = ['<eos>'], False
+            elif dataset == 'ptb':
+                special, lower_case = ['<eos>'], True
+            elif dataset == 'lm1b':
+                special, lower_case, vocab_file = [], False, os.path.join(datadir, '1b_word_vocab.txt')
+            elif dataset in ['enwik8', 'text8']:
+                pass
+            else:
+                raise RuntimeError(f'dataset {dataset} is not recognized to produce vocab')
+
+            special += ['<S>', '<unk>'] # '<S>' is added for dounle eos and <unk> is rare token in corpus with freq < 3
+            self.vocab = Vocab(max_size=max_size,
+                               special=special,
+                               lower_case=lower_case,
+                               vocab_file=vocab_file)
         elif vocab == 'bpe':
-            vocab_dir = os.path.join(path, 'wikitext-103-bpe-vocab', str(max_size))
+            vocab_dir = os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size))
             self.vocab = OpenAIVocab(max_size=max_size, vocab_dir=vocab_dir)
         else:
             raise RuntimeError('Unsupported vocab')
@@ -244,16 +260,15 @@ class Corpus(object):
         if self.dataset in ['wt2', 'wt103']:
             train_filename, test_filename, valid_filename = 'wiki.train.tokens', 'wiki.test.tokens', 'wiki.valid.tokens'
 
-
         if self.dataset in ['ptb', 'wt2', 'enwik8', 'text8']:
-            self.vocab.count_file(os.path.join(path, train_filename))
-            self.vocab.count_file(os.path.join(path, valid_filename))
-            self.vocab.count_file(os.path.join(path, test_filename))
+            self.vocab.count_file(os.path.join(datadir, train_filename))
+            self.vocab.count_file(os.path.join(datadir, valid_filename))
+            self.vocab.count_file(os.path.join(datadir, test_filename))
         elif self.dataset == 'wt103':
-            self.vocab.count_file(os.path.join(path, train_filename))
+            self.vocab.count_file(os.path.join(datadir, train_filename))
         elif self.dataset == 'lm1b':
             train_path_pattern = os.path.join(
-                path, '1-billion-word-language-modeling-benchmark-r13output',
+                datadir, '1-billion-word-language-modeling-benchmark-r13output',
                 'training-monolingual.tokenized.shuffled', 'news.en-*')
             train_paths = glob.glob(train_path_pattern)
             # the vocab will load from file when build_vocab() is called
@@ -262,24 +277,24 @@ class Corpus(object):
 
         if self.dataset in ['ptb', 'wt2', 'wt103']:
             self.train = self.vocab.encode_file(
-                os.path.join(path, train_filename), ordered=True)
+                os.path.join(datadir, train_filename), ordered=True)
             self.valid = self.vocab.encode_file(
-                os.path.join(path, valid_filename), ordered=True)
+                os.path.join(datadir, valid_filename), ordered=True)
             self.test = self.vocab.encode_file(
-                os.path.join(path, test_filename), ordered=True)
+                os.path.join(datadir, test_filename), ordered=True)
         elif self.dataset in ['enwik8', 'text8']:
             self.train = self.vocab.encode_file(
-                os.path.join(path, train_filename), ordered=True, add_eos=False)
+                os.path.join(datadir, train_filename), ordered=True, add_eos=False)
             self.valid = self.vocab.encode_file(
-                os.path.join(path, valid_filename), ordered=True, add_eos=False)
+                os.path.join(datadir, valid_filename), ordered=True, add_eos=False)
             self.test = self.vocab.encode_file(
-                os.path.join(path, test_filename), ordered=True, add_eos=False)
+                os.path.join(datadir, test_filename), ordered=True, add_eos=False)
         elif self.dataset == 'lm1b':
             self.train = train_paths
             self.valid = self.vocab.encode_file(
-                os.path.join(path, valid_filename), ordered=False, add_double_eos=True)
+                os.path.join(datadir, valid_filename), ordered=False, add_double_eos=True)
             self.test = self.vocab.encode_file(
-                os.path.join(path, test_filename), ordered=False, add_double_eos=True)
+                os.path.join(datadir, test_filename), ordered=False, add_double_eos=True)
 
     def get_iterator(self, split, *args, **kwargs):
         if split == 'train':
@@ -311,21 +326,7 @@ def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None):
         corpus = torch.load(fn)
     else:
         logging.info('Producing dataset {}...'.format(dataset))
-        kwargs = {}
-        if dataset in ['wt103', 'wt2']:
-            kwargs['special'] = ['<eos>']
-            kwargs['lower_case'] = False
-        elif dataset == 'ptb':
-            kwargs['special'] = ['<eos>']
-            kwargs['lower_case'] = True
-        elif dataset == 'lm1b':
-            kwargs['special'] = []
-            kwargs['lower_case'] = False
-            kwargs['vocab_file'] = os.path.join(datadir, '1b_word_vocab.txt')
-        elif dataset in ['enwik8', 'text8']:
-            pass
-
-        corpus = Corpus(datadir, dataset, vocab, max_size=max_size, **kwargs)
+        corpus = Corpus(datadir, dataset, vocab, max_size=max_size)
         with utils.distributed.sync_workers() as rank:
             if rank == 0:
                 torch.save(corpus, fn)
