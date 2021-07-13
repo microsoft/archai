@@ -29,7 +29,7 @@ class GptVocab(Vocab):
         self._filepaths = []
 
     def _finalize_tokenizer(self):
-        self.EOT = self.tokenizer.encoder['<|endoftext|>']
+        self.EOT = self.tokenizer.bos_token_id # .encoder['<|endoftext|>']
 
         pad = 8
         vocab_size = len(self.tokenizer)
@@ -75,6 +75,7 @@ class GptVocab(Vocab):
             with open(os.devnull, "w") as devnull, contextlib.redirect_stderr(devnull):
                 out = torch.LongTensor(self.tokenizer.encode(f.read()) + [self.EOT])
                 return out
+        print('Encoding files done.')
 
     def tokenize(self, line, add_eos=False, add_double_eos=False):
         return self.tokenizer.encode(line)
