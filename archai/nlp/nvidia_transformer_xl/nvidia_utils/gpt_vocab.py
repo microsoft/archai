@@ -50,6 +50,7 @@ class GptVocab(Vocab):
         else:
             token_config = TokenConfig()
             if not TokenizerFiles.files_exists(self.vocab_dir):
+                print('Creating GPT vocab...')
                 lines = []
                 for filepath in self._filepaths:
                     with open(filepath, 'r', encoding='utf-8') as f:
@@ -69,9 +70,11 @@ class GptVocab(Vocab):
 
     def encode_file(self, path, ordered=False, verbose=False, add_eos=True, add_double_eos=False) -> torch.LongTensor:
         # Suppress warnings about length.
-        with open(os.devnull, "w") as devnull, contextlib.redirect_stderr(devnull):
-            out = torch.LongTensor(self.tokenizer.encode(f.read()) + [self.EOT])
-            return out
+        print('Encoding files...')
+        with open(path, encoding='utf-8') as f:
+            with open(os.devnull, "w") as devnull, contextlib.redirect_stderr(devnull):
+                out = torch.LongTensor(self.tokenizer.encode(f.read()) + [self.EOT])
+                return out
 
     def tokenize(self, line, add_eos=False, add_double_eos=False):
         return self.tokenizer.encode(line)

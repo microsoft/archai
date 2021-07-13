@@ -121,7 +121,7 @@ def parse_args():
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe'],
                          help='Type of vocabulary')
-    dataset.add_argument('--vocab_size', type=int, default=None,
+    dataset.add_argument('--vocab_size', type=int, default=5000,
                          help='Size of vocabulary')
 
     model = parser.add_argument_group('model setup - defaults are for base model')
