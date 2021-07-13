@@ -806,7 +806,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='unit test')
 
     parser.add_argument('--n_layer', type=int, default=16, help='')
-    parser.add_argument('--n_token', type=int, default=267735, help='')
+    parser.add_argument('--n_token', type=int, default=267735, help='') # 267735
     parser.add_argument('--n_head', type=int, default=8, help='')
     parser.add_argument('--d_head', type=int, default=64, help='')
     parser.add_argument('--d_model', type=int, default=512, help='')
@@ -821,7 +821,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     tgt_len, mem_len, ext_len = 192, 192, 0
-    cutoffs = [19997, 39997, 199997] #[args.n_token // 2]
+    cutoffs =  [args.n_token//8, args.n_token//4, args.n_token // 2] # [19997, 39997, 199997]
     tie_projs = [False] + [True] * len(cutoffs)
 
     model = MemTransformerLM(args.n_token, args.n_layer, args.n_head,
