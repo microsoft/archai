@@ -20,11 +20,11 @@ from collections import OrderedDict
 from typing import Optional
 
 import torch
-from . import distributed as nv_distributed
+from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
 
 from archai.nlp.tokenizer_utils.token_trainer import create_tokenizer
 
-class Vocab(object):
+class Vocab: # Word vocab is the default
     def __init__(self, special=[], min_freq=0, max_size=None, lower_case=True,
                  delimiter=None, vocab_file=None):
         self.counter = Counter()
@@ -36,7 +36,7 @@ class Vocab(object):
         self.vocab_file = vocab_file # cached vocab file
 
     def tokenize(self, line, add_eos=False, add_double_eos=False):
-        """Tokenize given line, add_eos: add special to end, add_double_eos: add special to begin and end"""
+        """Split line into tokens, add_eos: add special to end, add_double_eos: add special to begin and end"""
         line = line.strip()
         # convert to lower case
         if self.lower_case:
@@ -61,7 +61,8 @@ class Vocab(object):
             print('counting file {} ...'.format(path))
         assert os.path.exists(path)
 
-        sents = []
+        # read lines, count frequencies of tokens, convert to tokens
+        sents = [] # will contain all parsed tokens
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
@@ -97,11 +98,11 @@ class Vocab(object):
     def build_vocab(self):
         """Build the vocab by creating indices"""
         if self.vocab_file:
-            print('building vocab from {}'.format(self.vocab_file))
+            print('Loading vocab from {}'.format(self.vocab_file))
             self._build_from_file(self.vocab_file)
-            print('final vocab size {}'.format(len(self)))
+            print('Final vocab size {}'.format(len(self)))
         else:
-            print('building vocab with min_freq={}, max_size={}'.format(
+            print('Building vocab with min_freq={}, max_size={}'.format(
                 self.min_freq, self.max_size))
             self.idx2sym = []
             self.sym2idx = OrderedDict()
@@ -199,6 +200,14 @@ class OpenAIVocab(Vocab):
     def __init__(self, max_size=None, vocab_dir:Optional[str]=None):
         from pytorch_transformers import GPT2Tokenizer
 
+        # GPT2Tokenizer
+        # vocab_size: 50257
+        # bos = eos = unk = '<|endoftext|>'
+        # sep_token = None
+        # max_model_input_sizes: {'gpt2': 1024, 'gpt2-medium': 1024, 'gpt2-large': 1024}
+        # max_len = max_len_sentence_pair = max_len_single_sentence = 1024
+        # mask_token = None
+
         if vocab_dir is None:
             self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         else:
@@ -246,3 +255,5 @@ class OpenAIVocab(Vocab):
 
     def convert_to_tensor(self, symbols):
         return torch.LongTensor(symbols)
+
+
