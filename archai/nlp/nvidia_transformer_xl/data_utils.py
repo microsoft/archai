@@ -21,9 +21,9 @@ import numpy as np
 import sacremoses
 import torch
 
-from . import nvidia_utils as utils
-from .nvidia_utils.vocabulary import OpenAIVocab
-from .nvidia_utils.vocabulary import Vocab
+from archai.nlp.nvidia_transformer_xl import nvidia_utils as utils
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocabulary import Vocab
 
 
 class LMOrderedIterator(object):
@@ -252,7 +252,7 @@ class Corpus(object):
                                vocab_file=vocab_file)
         elif vocab == 'bpe':
             vocab_dir = os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size))
-            self.vocab = OpenAIVocab(max_size=max_size, vocab_dir=vocab_dir)
+            self.vocab = GptVocab(max_size=max_size, vocab_dir=vocab_dir)
         else:
             raise RuntimeError('Unsupported vocab')
 
