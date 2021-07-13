@@ -26,7 +26,6 @@ train: &train
    multi_gpu: ddp
    log_interval: 10
    eval_interval: 5000
-   vocab: word
    adaptive: true
 
 eval: &eval

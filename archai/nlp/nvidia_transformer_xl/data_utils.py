@@ -24,7 +24,7 @@ import torch
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as utils
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocabulary import Vocab
-
+from archai.common import utils
 
 class LMOrderedIterator(object):
     def __init__(self, data, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True):
@@ -251,7 +251,7 @@ class Corpus(object):
                                lower_case=lower_case,
                                vocab_file=vocab_file)
         elif vocab == 'bpe':
-            vocab_dir = os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size))
+            vocab_dir = utils.full_path(os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size)), create=True)
             self.vocab = GptVocab(max_size=max_size or 50000, vocab_dir=vocab_dir)
         else:
             raise RuntimeError('Unsupported vocab')

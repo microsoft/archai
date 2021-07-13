@@ -3,7 +3,7 @@ import os
 import argparse
 
 from tokenizers import ByteLevelBPETokenizer
-from transformers import PreTrainedTokenizerFast, PreTrainedTokenizerBase, GPT2TokenizerFast
+from transformers import PreTrainedTokenizerFast, PreTrainedTokenizerBase, GPT2TokenizerFast, GPT2Tokenizer, PreTrainedTokenizer
 
 from archai.common import utils, common
 from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
@@ -40,8 +40,8 @@ def train_tokenizer(lines:List[str], token_config: TokenConfig,
 
     return tokenizer_out_files
 
-def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length=1024)->PreTrainedTokenizerFast:
-    tokenizer = GPT2TokenizerFast(vocab_file=tokenizer_files.vocab_file,
+def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length=1024)->PreTrainedTokenizer:
+    tokenizer = GPT2Tokenizer(vocab_file=tokenizer_files.vocab_file,
                               merges_file=tokenizer_files.merges_file,
                               model_max_length=max_length,
                               eos_token=token_config.eos_token,
