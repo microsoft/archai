@@ -31,15 +31,16 @@ try:
 except ModuleNotFoundError:
     warnings.warn('PyProf is unavailable')
 
-import data_utils
-import utils
-from data_utils import get_lm_corpus
-from data_utils import tokenize_raw
-from utils.exp_utils import AverageMeter
-from utils.exp_utils import benchmark
-from utils.exp_utils import create_exp_dir
-from utils.exp_utils import l2_promote
-from utils.exp_utils import log_env_info
+from archai.nlp.nvidia_transformer_xl import data_utils
+from archai.nlp.nvidia_transformer_xl import nvidia_utils
+from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
+from archai.nlp.nvidia_transformer_xl.data_utils import get_lm_corpus
+from archai.nlp.nvidia_transformer_xl.data_utils import tokenize_raw
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import AverageMeter
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import benchmark
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import create_exp_dir
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import l2_promote
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import log_env_info
 
 
 def parse_args():
@@ -63,12 +64,15 @@ def parse_args():
     else:
         config = {}
 
-    parser.add_argument('--work_dir', default='LM-TFM', type=str,
-                        help='experiment directory')
+    parser.add_argument('--work_dir', default='~/logdir', type=str,
+                         help='Directory for the results')
     parser.add_argument('--debug', action='store_true',
                         help='run in debug mode (do not create exp dir)')
-    parser.add_argument('--data', type=str, default='../data/wikitext-103',
-                        help='location of the data corpus')
+    parser.add_argument('--data', type=str, default=None,
+                         help='Location of the data corpus')
+    parser.add_argument('--cache_dir', default=None, type=str,
+                         help='Directory to store dataset cache, if None then use data dir as parent')
+
     parser.add_argument('--manual', type=str, default=None, nargs='+',
                         help='run model on raw input data')
     parser.add_argument('--dataset', type=str, default='wt103',
@@ -209,7 +213,7 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1):
 
                 target_tokens = target.numel()
                 throughput = target_tokens / elapsed
-                throughput = utils.distributed.all_reduce_item(throughput, op='sum')
+                throughput = nvidia_utils.distributed.all_reduce_item(throughput, op='sum')
                 meters['eval_throughput'].update(throughput)
                 log_throughput += throughput
 
@@ -243,14 +247,14 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1):
                     log_latency = 0
                     log_loss = 0
 
-    utils.distributed.barrier()
+    nvidia_utils.distributed.barrier()
     torch.cuda.synchronize()
     total_time = time.time() - start_time
     logging.info('Time : {:.2f}s, {:.2f}ms/segment'.format(
             total_time, 1000 * total_time / (idx+1)))
 
     avg_loss = total_loss / total_len
-    avg_loss = utils.distributed.all_reduce_item(avg_loss, op='mean')
+    avg_loss = nvidia_utils.distributed.all_reduce_item(avg_loss, op='mean')
     return avg_loss
 
 
@@ -271,7 +275,7 @@ def main():
     args = parse_args()
     if args.affinity != 'disabled':
         nproc_per_node = torch.cuda.device_count()
-        affinity = utils.gpu_affinity.set_affinity(
+        affinity = nvidia_utils.gpu_affinity.set_affinity(
             args.local_rank,
             nproc_per_node,
             args.affinity
@@ -286,15 +290,19 @@ def main():
     torch.cuda.set_device(args.local_rank)
     l2_promote()
     device = torch.device('cuda' if args.cuda else 'cpu')
-    utils.distributed.init_distributed(args.cuda)
+    nvidia_utils.distributed.init_distributed(args.cuda)
 
-    with utils.distributed.sync_workers() as rank:
+    args.data, args.work_dir, args.cache_dir = \
+        exp_utils.get_create_dirs(args.data, args.dataset, args.experiment_name,
+                                  args.work_dir, args.cache_dir)
+
+    with nvidia_utils.distributed.sync_workers() as rank:
         if rank == 0:
             create_exp_dir(args.work_dir, debug=args.debug)
 
     # Setup logging
     if args.log_all_ranks:
-        log_file = f'eval_log_rank_{utils.distributed.get_rank()}.log'
+        log_file = f'eval_log_rank_{nvidia_utils.distributed.get_rank()}.log'
     else:
         log_file = f'eval_log.log'
 
@@ -305,11 +313,11 @@ def main():
         log_file = os.devnull
         dllog_file = os.devnull
 
-    utils.exp_utils.setup_logging(log_all_ranks=args.log_all_ranks,
+    archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils.setup_logging(log_all_ranks=args.log_all_ranks,
                                   filename=log_file,
                                   filemode='a',
                                   )
-    utils.exp_utils.setup_dllogger(enabled=True, filename=dllog_file)
+    archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils.setup_dllogger(enabled=True, filename=dllog_file)
 
     if args.profile:
         try:
@@ -357,7 +365,7 @@ def main():
                                             ext_len=args.ext_len, warmup=False)
     else:
         # Load dataset
-        corpus = get_lm_corpus(args.data, args.dataset, vocab_type)
+        corpus = get_lm_corpus(args.data, args.cachedir, args.dataset, vocab_type)
 
         if args.split == 'valid' or args.split == 'test':
             iter = corpus.get_iterator(args.split, args.batch_size, args.tgt_len,

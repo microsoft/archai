@@ -114,6 +114,8 @@ def parse_args():
     dataset = parser.add_argument_group('dataset setup')
     dataset.add_argument('--data', type=str, default=None,
                          help='Location of the data corpus')
+    general.add_argument('--cache_dir', default=None, type=str,
+                         help='Directory to store dataset cache, if None then use data dir as parent')
     dataset.add_argument('--dataset', type=str, default='wt103',
                          choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
                          help='Dataset name')
@@ -702,12 +704,9 @@ def main():
     device = torch.device('cuda' if args.cuda else 'cpu')
     nv_distributed.init_distributed(args.cuda)
 
-    pt_data_dir, pt_output_dir = common.pt_dirs()
-    args.data = args.data or pt_data_dir or common.default_dataroot()
-    args.data = utils.full_path(os.path.join(args.data,'textpred', exp_utils.dataset_dir_name(args.dataset)))
-    args.work_dir =  utils.full_path(pt_output_dir or \
-                        os.path.join(args.work_dir, args.experiment_name)
-                    , create=True)
+    args.data, args.work_dir, args.cache_dir = \
+        exp_utils.get_create_dirs(args.data, args.dataset, args.experiment_name,
+                                  args.work_dir, args.cache_dir)
 
     with nv_distributed.sync_workers() as rank:
         if rank == 0:
@@ -756,7 +755,7 @@ def main():
     ###########################################################################
     # Load data
     ###########################################################################
-    corpus = get_lm_corpus(args.data, args.dataset, args.vocab, max_size=args.vocab_size)
+    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, max_size=args.vocab_size)
     ntokens = len(corpus.vocab)
     vocab = corpus.vocab
     args.n_token = ntokens

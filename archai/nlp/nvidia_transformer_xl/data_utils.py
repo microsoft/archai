@@ -298,11 +298,11 @@ class Corpus(object):
         return data_iter
 
 
-def get_lm_corpus(datadir, dataset, vocab, max_size=None):
+def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None):
     if vocab == 'word':
-        fn = os.path.join(datadir, 'cache.pt')
+        fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.word.v1.pt')
     elif vocab == 'bpe':
-        fn = os.path.join(datadir, 'cache.pt.'+ str(max_size) +'.bpe')
+        fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.bpe.v1.pt')
     else:
         raise RuntimeError('Unsupported vocab')
 
@@ -349,6 +349,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='unit test')
     parser.add_argument('--datadir', type=str, default='../data/text8',
                         help='location of the data corpus')
+    parser.add_argument('--cachedir', type=str, default='~/logdir/data/text8',
+                        help='location of the data corpus')
     parser.add_argument('--dataset', type=str, default='text8',
                         choices=['ptb', 'wt2', 'wt103', 'lm1b', 'enwik8', 'text8'],
                         help='dataset name')
@@ -356,5 +358,5 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
 
-    corpus = get_lm_corpus(args.datadir, args.dataset, vocab='word')
+    corpus = get_lm_corpus(args.datadir, args.cachedir, args.dataset, vocab='word')
     logging.info('Vocab size : {}'.format(len(corpus.vocab.idx2sym)))
