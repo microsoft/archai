@@ -77,8 +77,6 @@ class RandomModelDescBuilder(ModelDescBuilder):
                          aux_tower_descs, logits_op)
 
 
-
-
     @overrides
     def build_cells(self, in_shapes:TensorShapesList, conf_model_desc:Config, seed:int=None)\
             ->Tuple[List[CellDesc], List[Optional[AuxTowerDesc]]]:
