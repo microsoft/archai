@@ -87,8 +87,10 @@ class RandomModelDescBuilder(ModelDescBuilder):
         node_count = self.get_node_count(0)
 
         # create two sets of random ops, one for each cell type
-        self._normal_ops = RandOps(node_count, max_edges, seed=seed)
-        self._reduction_ops = RandOps(node_count, max_edges, seed=seed)
+        self._normal_ops = RandOps(node_count, max_edges, seed=seed) 
+        # important to deterministically change the seed so that the reduction
+        # cell makeup is not identical to normal cell
+        self._reduction_ops = RandOps(node_count, max_edges, seed=seed+1)
 
         return super().build_cells(in_shapes, conf_model_desc)
 
