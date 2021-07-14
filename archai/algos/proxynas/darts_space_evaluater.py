@@ -21,6 +21,7 @@ from archai.common.common import logger
 from archai.datasets import data
 from archai.nas.model_desc import ModelDesc
 from archai.nas.model_desc_builder import ModelDescBuilder
+from archai.nas.nas_utils import create_nb301_genotype_from_desc
 from archai.nas import nas_utils
 from archai.common import ml_utils, utils
 from archai.common.metrics import EpochMetrics, Metrics
@@ -61,6 +62,10 @@ class DartsSpaceEvaluater(Evaluater):
         # as we are creating model based on arch_index
         model_desc = model_desc_builder.build(conf_model_desc, 
                                             seed=random_seed_for_model_construction)
+
+        # convert from ModelDesc to Genotype for use with nasbench301
+        genotype = create_nb301_genotype_from_desc(model_desc)
+        print(genotype)
 
         # save desc for reference
         model_desc.save(full_desc_filename)
