@@ -15,6 +15,7 @@ from archai.nas.arch_trainer import TArchTrainer
 from archai.common.trainer import Trainer
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
+from archai.nas.model import Model
 from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
 
 
@@ -48,8 +49,7 @@ class RandomDartsSpaceRegSearcher(Searcher):
             # as we are creating model based on seed
             model_desc = model_desc_builder.build(conf_model_desc, 
                                                 seed=seed_for_arch_generation)
-            model = self.model_from_desc(model_desc)
-            
+            model = Model(model_desc, droppath=True, affine=True)            
 
             checkpoint = None
 
