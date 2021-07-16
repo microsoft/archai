@@ -524,6 +524,14 @@
             "args": ["--full", "--algos", "random_natsbench_tss_reg", "--datasets", "cifar100", "--no-eval"]
         },
         {
+            "name": "Random Darts Space Reg Search",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "random_dartsspace_reg", "--no-eval"]
+        },
+        {
             "name": "Local Natsbench Tss Far Search",
             "type": "python",
             "request": "launch",

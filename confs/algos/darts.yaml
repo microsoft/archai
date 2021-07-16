@@ -60,7 +60,7 @@ nas:
     resume: '_copy: /common/resume'
     model_desc:
       n_reductions: 2 # number of reductions to be applied
-      n_cells: 8 # number of cells
+      n_cells: 20 # number of cells
       dataset:
         _copy: '/dataset'
       max_final_edges: 2 # max edge that can be in final arch per node
