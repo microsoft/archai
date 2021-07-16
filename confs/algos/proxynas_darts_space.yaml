@@ -11,8 +11,6 @@ nas:
     model_desc:
       num_edges_to_sample: 2
       n_cells: 8
-      model_stems:
-        init_node_ch: 32
     loader:
       val_ratio: 0.0
       train_batch: 96
