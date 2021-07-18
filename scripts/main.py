@@ -30,6 +30,7 @@ from archai.algos.random_natsbench.random_natsbench_tss_far_exp_runner import Ra
 from archai.algos.random_natsbench.random_natsbench_tss_far_post_exp_runner import RandomNatsbenchTssFarPostExpRunner
 from archai.algos.random_natsbench.random_natsbench_tss_reg_exp_runner import RandomNatsbenchTssRegExpRunner
 from archai.algos.random_darts.random_dartsspace_reg_exp_runner import RandomDartsSpaceRegExpRunner
+from archai.algos.random_darts.random_dartsspace_far_exp_runner import RandomDartsSpaceFarExpRunner
 from archai.algos.local_search_natsbench.local_natsbench_tss_far_exp_runner import LocalNatsbenchTssFarExpRunner
 
 def main():
@@ -58,6 +59,7 @@ def main():
         'random_natsbench_tss_far_post': RandomNatsbenchTssFarPostExpRunner,
         'random_natsbench_tss_reg': RandomNatsbenchTssRegExpRunner,
         'random_dartsspace_reg': RandomDartsSpaceRegExpRunner,
+        'random_dartsspace_far': RandomDartsSpaceFarExpRunner,
         'local_natsbench_tss_far': LocalNatsbenchTssFarExpRunner
     }
 
@@ -86,6 +88,7 @@ def main():
                                                         random_natsbench_tss_far_post,
                                                         random_natsbench_tss_reg,
                                                         random_dartsspace_reg,
+                                                        random_dartsspace_far,
                                                         local_natsbench_tss_far''',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
