@@ -44,7 +44,8 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   search:
-    max_num_models: 300
+    max_num_models: 3
+    ratio_fastest_duration: 0.2
     finalizer: 'default' # options are 'random' or 'default'
     data_parallel: False
     checkpoint:
@@ -73,11 +74,13 @@ nas:
         cell_post_op: 'concate_channels'
     loader:
       apex:
-        _copy: '../../trainer/apex'
+        _copy: '../../trainer_full/apex'
       aug: '' # additional augmentations to use
       cutout: 16 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
       train_batch: 96
+      freeze_loader:
+        train_batch: 96
       train_workers: 4 # if null then gpu_count*4
       test_workers: '_copy: ../train_workers' # if null then 4
       load_test: True # load test split of dataset
@@ -87,7 +90,8 @@ nas:
       cv_num: 5 # total number of folds available
       dataset:
         _copy: '/dataset'
-    trainer:
+    freeze_trainer:  
+      identifiers_to_unfreeze: ['logits_op._op', 'cells.7', 'cells.6'] # last few layer names in DARTS space are 'logits_op._op': Linear, 'cells.19': prefix for all cell 19 parameters
       apex:
         _copy: '/common/apex'
       aux_weight: '_copy: /nas/search/model_desc/aux_weight'
@@ -95,7 +99,7 @@ nas:
       grad_clip: 5.0 # grads above this value is clipped
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger
       title: 'arch_train'
-      epochs: 15
+      epochs: 1
       batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
       # additional vals for the derived class
       plotsdir: '' #empty string means no plots, other wise plots are generated for each epoch in this dir
@@ -121,6 +125,8 @@ nas:
         lossfn:
           type: 'CrossEntropyLoss'
     trainer_full:
+      top1_acc_threshold: 0.1
+      use_val: False
       apex:
         _copy: '/common/apex'
       aux_weight: '_copy: /nas/search/model_desc/aux_weight'
@@ -128,7 +134,7 @@ nas:
       grad_clip: 5.0 # grads above this value is clipped
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger
       title: 'arch_train'
-      epochs: 100
+      epochs: 10
       batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
       # additional vals for the derived class
       plotsdir: '' #empty string means no plots, other wise plots are generated for each epoch in this dir
