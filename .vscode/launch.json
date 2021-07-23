@@ -629,7 +629,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_plots/cross_random_search.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_cifar10",
+            "args": ["--dataset", "darts_cifar10",
             "--conf-location", "scripts/reports/fear_plots/cross_random_search.yaml"]
         },
         {
@@ -711,6 +711,24 @@
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_natsbench_tss_reg.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_reg_max500_b1024_e50_fixedseeds",
+                "--out-dir", "F:\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Random Search DARTS Reg",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_darts_reg.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_darts_reg_e5",
+                "--out-dir", "F:\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Random Search DARTS Far",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_darts_far.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_darts_far_ftt0.6_fte10_ratio_4.0",
                 "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
