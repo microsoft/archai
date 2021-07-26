@@ -24,7 +24,7 @@ import torch
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as utils
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocabulary import Vocab
-from archai.common import utils
+#from archai.common import utils
 
 class LMOrderedIterator(object):
     def __init__(self, data, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True):
@@ -253,6 +253,16 @@ class Corpus(object):
         elif vocab == 'bpe':
             vocab_dir = utils.full_path(os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size)), create=True)
             self.vocab = GptVocab(max_size=max_size or 50000, vocab_dir=vocab_dir)
+        elif vocab == 'char':
+            special, lower_case, vocab_file = [], True, None
+            if dataset in ['wt103']: # "wt2"
+                special, lower_case = ['<eos>'], False
+
+            special += ['<S>', '<unk>'] # '<S>' is added for dounle eos and <unk> is rare token in corpus with freq < 3
+            self.vocab = Vocab(max_size=max_size,
+                               special=special,
+                               lower_case=lower_case,
+                               vocab_file=vocab_file, delimiter = "")
         else:
             raise RuntimeError('Unsupported vocab')
 
@@ -262,8 +272,8 @@ class Corpus(object):
 
         if self.dataset in ['ptb', 'wt2', 'enwik8', 'text8']:
             self.vocab.count_file(os.path.join(datadir, train_filename))
-            self.vocab.count_file(os.path.join(datadir, valid_filename))
-            self.vocab.count_file(os.path.join(datadir, test_filename))
+            #self.vocab.count_file(os.path.join(datadir, valid_filename))
+            #self.vocab.count_file(os.path.join(datadir, test_filename))
         elif self.dataset == 'wt103':
             self.vocab.count_file(os.path.join(datadir, train_filename))
         elif self.dataset == 'lm1b':
@@ -275,14 +285,14 @@ class Corpus(object):
 
         self.vocab.build_vocab()
 
-        if self.dataset in ['ptb', 'wt2', 'wt103']:
+        if self.dataset in ['ptb', 'wt103']:
             self.train = self.vocab.encode_file(
                 os.path.join(datadir, train_filename), ordered=True)
             self.valid = self.vocab.encode_file(
                 os.path.join(datadir, valid_filename), ordered=True)
             self.test = self.vocab.encode_file(
                 os.path.join(datadir, test_filename), ordered=True)
-        elif self.dataset in ['enwik8', 'text8']:
+        elif self.dataset in ['enwik8', 'text8', 'wt2']:
             self.train = self.vocab.encode_file(
                 os.path.join(datadir, train_filename), ordered=True, add_eos=False)
             self.valid = self.vocab.encode_file(
@@ -318,6 +328,8 @@ def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None):
         fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.word.v1.pt')
     elif vocab == 'bpe':
         fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.bpe.v1.pt')
+    elif vocab == 'char':
+        fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.char.v1.pt')
     else:
         raise RuntimeError('Unsupported vocab')
 

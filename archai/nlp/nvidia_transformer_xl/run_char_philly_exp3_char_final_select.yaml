@@ -1,0 +1,204 @@
+description: run big scripts
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :v1corrected :v1corrected_1 :v1corrected_2 :v1corrected_3 :v1corrected_4 transxl_char_exp2_randsearch --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/trial_char.yaml transxl_char 
+# amlt status mingpt_experiment
+# amlt target info amlk8s
+# amlt logs -f transxl_char_sample :opt1
+# amlt results transxl_char_exp2_randsearch :v1corrected
+# amlt abort transxl_char_exp2_randsearch :full
+# amlt remove mingpt_experiment :full
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :finetune transxl_char_exp2_randsearch :v1corrected
+
+target:
+  service: amlk8s
+  # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
+  name: itplabrr1cl1 # itplabrr1cl1, ms-shared
+  vc: resrchvc
+
+environment:
+  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+  registry: docker.io # any public registry can be specified here
+  setup:
+    - set -e -o xtrace
+    - sudo apt-get -y install git
+    - pip install --user tensorboard
+
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: /home/t-gjawahar/archai
+
+data:
+  #storage_id: 'us_east'
+  #remote_dir: dataroot
+  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char
+  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char
+
+# list of jobs to run, we run 2 jobs in this example
+jobs:
+- name: previous
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 5000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 512 --tgt_len 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name  transxl_char_exp3_wikifull_select_previous --config_file char_no_fp.yaml
+- name: opt1
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 5000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 256 --tgt_len 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name  transxl_char_exp3_wikifull_select_opt1 --config_file char_no_fp.yaml --fp16
+- name: opt2
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 5000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 768 --tgt_len 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_opt2 --config_file char_no_fp.yaml
+- name: opt3
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 5000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 1024 --tgt_len 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name  transxl_char_exp3_wikifull_select_opt3 --config_file char_no_fp.yaml
+- name: previous_nvidia_optim
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 5000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 512 --tgt_len 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name  transxl_char_exp3_wikifull_select_previous --config_file char_no_fp.yaml --optim jitlamb --lr 0.01 --warmup_step 10000
+- name: previous_nvidia_optim_low_lr
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 5000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 512 --tgt_len 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name  transxl_char_exp3_wikifull_select_previous --config_file char_no_fp.yaml --optim jitlamb --lr 0.001 --warmup_step 10000
+- name: previous_nvidia_optim_low_lr_2
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 5000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 512 --tgt_len 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name  transxl_char_exp3_wikifull_select_previous --config_file char_no_fp.yaml --optim jitlamb --lr 0.0001 --warmup_step 10000
+- name: v1corrected # expect oom; update 1; steps doubled
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  # - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_v1corrected --config_file char_no_fp.yaml --eval_tgt_len 1024
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 800000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_v1corrected_800K --config_file char_no_fp.yaml --eval_tgt_len 1024 --restart $$AMLT_OUTPUT_DIR/checkpoint_last.pt # finetune-v1corrected
+- name: v1corrected_1 # lesser layers
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_v1corrected_1 --config_file char_no_fp.yaml --eval_tgt_len 1024
+- name: v1corrected_2 # lesser d_inner
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 256 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_v1corrected_2 --config_file char_no_fp.yaml --eval_tgt_len 1024
+- name: v1corrected_3 # lesser d_model
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 256 --d_inner 1024 --mem_len 512 --tgt_len 512 --d_model 256 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_v1corrected_3 --config_file char_no_fp.yaml --eval_tgt_len 1024
+- name: v1corrected_4 # lesser layers, d_inner, d_model (gradient explosion)
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 4 --n_head 8 --d_head 32 --d_embed 256 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 256 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_v1corrected_4 --config_file char_no_fp.yaml --eval_tgt_len 1024
+- name: results_2_1 # top model 1 
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 6 --d_head 32 --d_embed 128 --d_inner 2048 --mem_len 256 --tgt_len 1024 --d_model 128 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_results_2_1 --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 16
+- name: results_2_2 # top model 2 (gradient problem - change apex level)
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 8 --n_head 6 --d_head 64 --d_embed 128 --d_inner 512 --mem_len 512 --tgt_len 1024 --d_model 128 --dropout 0.1 --config dgx1_8gpu_fp16 --experiment_name transxl_char_exp3_wikifull_select_results_2_2 --config_file char_no_fp.yaml --eval_tgt_len 1024 --apex_amp_opt_level O1
+- name: transxl_char_base # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_base.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 512 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64
+- name: transxl_char_large # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_large.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 24 --n_head 8 --d_head 128 --d_embed 1024 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 1024 --dropout 0.15 -dropatt 0.15 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024  --batch_size 64
+- name: transxl_char_base_warmup_bsize # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_base.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 512 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_warmup_bsize --config_file char_no_fp.yaml --eval_tgt_len 1024
+- name: transxl_char_large_warmup_bsize # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_large.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 10000 --n_layer 24 --n_head 8 --d_head 128 --d_embed 1024 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 1024 --dropout 0.15 -dropatt 0.15 --config dgx1_8gpu_fp16 --experiment_name transxl_char_large_warmup_bsize --config_file char_no_fp.yaml --eval_tgt_len 1024
+- name: transxl_char_large_lr_0p1 # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_large.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 24 --n_head 8 --d_head 128 --d_embed 1024 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 1024 --dropout 0.15 -dropatt 0.15 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024  --batch_size 64 --lr 0.1
+- name: transxl_char_large_lr_0p001 # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_large.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 24 --n_head 8 --d_head 128 --d_embed 1024 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 1024 --dropout 0.15 -dropatt 0.15 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024  --batch_size 64 --lr 0.001
+- name: transxl_char_large_lr_0p001_layer28 # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_large.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 28 --n_head 8 --d_head 128 --d_embed 1024 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 1024 --dropout 0.15 -dropatt 0.15 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024  --batch_size 64 --lr 0.001
+- name: transxl_char_large_lr_0p001_layer32 # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_large.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 32 --n_head 8 --d_head 128 --d_embed 1024 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 1024 --dropout 0.15 -dropatt 0.15 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024  --batch_size 64 --lr 0.001
+- name: transxl_char_large_lr_0p001_layer36 # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_large.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 36 --n_head 8 --d_head 128 --d_embed 1024 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 1024 --dropout 0.15 -dropatt 0.15 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024  --batch_size 64 --lr 0.001  
+- name: finetune # continued pretraining
+  sku: G8
+  command:
+  - ./finetune --pretrained-model $$AMLT_MAP_INPUT_DIR/checkpoint_last.pt --output $$AMLT_OUTPUT_DIR/checkpoint_last.pt

@@ -1,0 +1,42 @@
+description: Trans-XL char
+# amlt project checkout --create transxl_char archai --output-dir outdir
+# amlt run archai/nlp/nvidia_transformer_xl/run_char.yaml transxl_char --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/run_char.yaml :config1 transxl_char
+# amlt target info amlk8s
+# amlt status transxl_char
+# amlt logs -f transxl_char
+# amlt results transxl_char
+# amlt abort transxl_char :config1
+# amlt remove transxl_char :config1
+
+target:
+  service: amlk8s
+  # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
+  name: itpeastusv100cl2 #itplabrr1cl1
+  vc: resrchvc
+
+environment:
+  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+  registry: docker.io # any public registry can be specified here
+  setup:
+    - set -e -o xtrace
+    - sudo apt-get -y install git
+    - pip install --user tensorboard
+
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: $CONFIG_DIR
+
+#data:
+#  data upload is not required for this example
+#  local_dir: /home/t-gjawahar/object_dir/sample-transxl-wikidata
+#  remote_dir: /dataroot/wikidata-chars
+
+# list of jobs to run, we run 2 jobs in this example
+jobs:
+- name: testconfig
+  sku: G1
+  command:
+  - python archai/nlp/nvidia_transformer_xl/metrics.py 
+  #- python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --max_step 10 --config_file char_base.yaml --config dgx1_1gpu_fp16 --data /dataroot/wikidata-chars --work_dir . --experiment_name chartrans_trial

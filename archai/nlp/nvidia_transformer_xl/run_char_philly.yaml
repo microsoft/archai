@@ -1,0 +1,56 @@
+description: Train Transformer XL
+# amlt project checkout --create transxl_char_sample archai --output-dir outdir
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly.yaml transxl_char_sample --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/run_char.yaml :config1 transxl_char
+# amlt run archai/nlp/nvidia_transformer_xl/run_char.yaml :config1 transxl_char
+# amlt target info amlk8s
+# amlt status transxl_char_sample :xlchar_exp1_dgx1_1gpu_fp16_8_4_32_512_1024_1024_128
+# amlt logs -f transxl_char_sample  :xlchar_exp1_dgx1_1gpu_fp16_2_2_64_512_2048_128_256
+# amlt results transxl_char
+# amlt abort transxl_char_sample :config1
+# amlt remove transxl_char_sample :config1
+
+target:
+  service: amlk8s
+  name: itpeastusv100cl2 # itpeastusv100cl2 (1 gpu), ms-shared-v100, itpscusv100cl  itpseasiav100cl  itplabrr1cl1  itpscusv100cl itpwus2v100cl
+  vc: resrchvc
+
+environment:
+  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+  setup:
+    - set -e -o xtrace
+    - sudo apt-get -y install git
+    - pip install --user tensorboard
+
+#storage:
+#  us_east:
+#    storage_account_name: 'archaieast'
+#    container_name: 'amulet' #'phillytools'
+
+code:
+  local_dir: /home/t-gjawahar/archai
+
+data:
+  #storage_id: 'us_east'
+  #remote_dir: dataroot
+  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char
+  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char
+
+search:
+  job_template:
+    name: 'train_xxl_char_vocab_{config}'
+    sku: G1
+    command:
+      - set -e -o xtrace
+      - bash scripts/apex_install.sh
+      - pip install --user -e .
+      - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --config {config} --experiment_name dummy_{config} --max_step 10000 --config_file char_base.yaml
+  type: grid
+  max_trials: 1
+
+  params:
+    - name: config
+      spec: discrete
+      values: ['dgx1_1gpu_fp16'] # dgx1_8gpu_fp16, dgx1_1gpu_fp16, toy, default, dgx1_4gpu_fp16
+
+

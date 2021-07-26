@@ -685,7 +685,7 @@ class MemTransformerLM(nn.Module):
         qlen, bsz = dec_inp.size()
 
         word_emb = self.word_emb(dec_inp)
-        mlen = mems[0].size(0) if mems is not None else 0
+        mlen = mems[0].size(0) if mems is not None else 0 #  and len(mems)!=0
         klen = mlen + qlen
         if self.same_length:
             all_ones = word_emb.new_ones(qlen, klen)
@@ -714,7 +714,7 @@ class MemTransformerLM(nn.Module):
 
             for i, layer in enumerate(self.layers):
                 hids.append(core_out.detach())
-                mems_i = None if mems is None else mems[i]
+                mems_i = None if mems is None or len(mems) == 0 else mems[i]
                 core_out = layer(core_out, pos_emb, self.r_w_bias,
                                  self.r_r_bias, dec_attn_mask=dec_attn_mask,
                                  mems=mems_i)
@@ -784,6 +784,11 @@ class MemTransformerLM(nn.Module):
             mems = self.init_mems()
 
         hidden, new_mems = self._forward(data, mems=mems)
+        
+        # reference: https://github.com/lopuhin/transformer-xl/blob/fb11489ca4c6000573d27d5eaca3a641057c0a6a/pytorch/mem_transformer.py
+        if target is None:
+            log_probs = self.crit(hidden.squeeze(1), target=None)
+            return log_probs, new_mems
 
         tgt_len = target.size(0)
         pred_hid = hidden[-tgt_len:]

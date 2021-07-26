@@ -134,13 +134,15 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             target :: [len*bsz]
         '''
 
-        if hidden.size(0) != target.size(0):
+        if target is not None and hidden.size(0) != target.size(0):
             raise RuntimeError('Input and target should have the same size '
                                'in the batch dimension.')
 
         if self.n_clusters == 0:
             logit = self._compute_logit(hidden, self.out_layers_weights[0],
                                         self.out_layers_biases[0], self.get_out_proj(0))
+            if target is None:
+                return F.log_softmax(logit, dim=-1)
             nll = -F.log_softmax(logit, dim=-1) \
                     .gather(1, target.unsqueeze(1)).squeeze(1)
         else:

@@ -1,0 +1,37 @@
+description: run small scripts
+# amlt run archai/nlp/nvidia_transformer_xl/run_metrics.yaml :full transxl_char_sample --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/trial_char.yaml transxl_char 
+# amlt status transxl_char_exp1_randsearch
+# amlt logs -f transxl_char_sample :full
+# amlt results transxl_char_sample :full
+# amlt abort mingpt_experiment :full
+# amlt remove mingpt_experiment :full
+
+target:
+  service: amlk8s
+  # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
+  name: ms-shared # itpeastusv100cl2 # itplabrr1cl1
+  vc: resrchvc
+
+environment:
+  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+  registry: docker.io # any public registry can be specified here
+  setup:
+    - set -e -o xtrace
+    - sudo apt-get -y install git
+    #- pip install --user tensorboard
+
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: /home/t-gjawahar/archai
+
+# list of jobs to run, we run 2 jobs in this example
+jobs:
+- name: full
+  sku: G1
+  command:
+  #- set -e -o xtrace
+  #- bash scripts/apex_install.sh
+  #- pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/metrics.py

@@ -116,10 +116,10 @@ def parse_args():
                          help='Location of the data corpus')
     general.add_argument('--cache_dir', default=None, type=str,
                          help='Directory to store dataset cache, if None then use data dir as parent')
-    dataset.add_argument('--dataset', type=str, default='wt103',
+    dataset.add_argument('--dataset', type=str, default='wt2',
                          choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
                          help='Dataset name')
-    dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe'],
+    dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe', 'char'],
                          help='Type of vocabulary')
     dataset.add_argument('--vocab_size', type=int, default=5000,
                          help='Size of vocabulary')
@@ -251,6 +251,8 @@ def parse_args():
     parser.set_defaults(**config)
     args, _ = parser.parse_known_args()
 
+    #args.eval_tgt_len = args.tgt_len
+
     args.tied = not args.not_tied
 
     if args.d_embed < 0:
@@ -272,7 +274,7 @@ def parse_args():
                                f'eval_tgt_len: {args.eval_tgt_len}, '
                                f'tgt_len: {args.tgt_len}, '
                                f'mem_len: {args.mem_len}')
-
+    
     if args.batch_size % args.batch_chunk != 0:
         raise RuntimeError('Batch size needs to be divisible by batch chunk')
 
@@ -704,7 +706,7 @@ def main():
     l2_promote()
     device = torch.device('cuda' if args.cuda else 'cpu')
     nv_distributed.init_distributed(args.cuda)
-
+    
     args.data, args.work_dir, args.cache_dir = \
         exp_utils.get_create_dirs(args.data, args.dataset, args.experiment_name,
                                   args.work_dir, args.cache_dir)
@@ -760,6 +762,7 @@ def main():
     ntokens = len(corpus.vocab)
     vocab = corpus.vocab
     args.n_token = ntokens
+    #args.d_model = args.d_embed
 
     if args.mem_len == 0: # default is 192
         eval_mem_len = 0
@@ -850,8 +853,8 @@ def main():
             optimizer = optim.Adam(dense_params, lr=args.lr,
                                    weight_decay=args.weight_decay)
         else:
-            optimizer = optim.Adam(model.parameters(), lr=args.lr,
-                                   weight_decay=args.weight_decay)
+            optimizer = optim.Adam(model.parameters())#, lr=args.lr,
+                                   #weight_decay=args.weight_decay)
             optimizer_sparse = None
     elif args.optim.lower() == 'adagrad':
         optimizer = optim.Adagrad(model.parameters(), lr=args.lr)

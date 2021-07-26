@@ -1,0 +1,85 @@
+description: Train Transformer XL
+# amlt project checkout --create transxl_char_exp2_randsearch archai --output-dir outdir
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp2_char_final.yaml transxl_char_sample  --upload-data 
+# amlt run archai/nlp/nvidia_transformer_xl/run_char.yaml :config1 transxl_char_exp1
+# amlt run archai/nlp/nvidia_transformer_xl/run_char.yaml :config1 transxl_char_exp1
+# amlt target info amlk8s
+# amlt status transxl_char_sample :transxl_char_exp2_wikifull_dgx1_8gpu_fp16_8_6_32_256_2048_1536_512_0.1 
+# amlt logs -f  transxl_char_sample :transxl_char_exp2_wikifull_orig_dgx1_8gpu_fp16_12_8_64_512_2048_512_512_0.1
+# amlt results transxl_char_sample
+# amlt abort transxl_char_sample :config1
+# amlt remove transxl_char_exp1 :config1
+# 2nd exp - optim removed dropout added --warmup_step 200  --max_step 1000 --eval_interval 200 50 trials  transxl_char_exp1_2_randsearch_1000max_200eval_50trial_200warmup  
+# 3rd exp -  transxl_char_exp1_randsearch -  same as 2nd exp but on full wiktext --warmup_step 1000  --max_step 10000 --eval_interval 1000 50 trials  transxl_char_exp1_3_randsearch_1000max_200eval_50trial_200warmup_wikifull 
+
+target:
+  service: amlk8s
+  name: ms-shared # itpeastusv100cl2 (1 gpu), ms-shared-v100, itpscusv100cl  itpseasiav100cl  itplabrr1cl1  itpscusv100cl itpwus2v100cl
+  vc: resrchvc
+
+environment:
+  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+  setup:
+    - set -e -o xtrace
+    - sudo apt-get -y install git
+    - pip install --user tensorboard
+
+#storage:
+#  us_east:
+#    storage_account_name: 'archaieast'
+#    container_name: 'phillytools'
+
+code:
+  local_dir: /home/t-gjawahar/archai
+
+#data:
+#  storage_id: 'us_east'
+#  remote_dir: dataroot
+
+data:
+  #storage_id: 'us_east'
+  #remote_dir: dataroot
+  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char
+  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char
+
+search:
+  job_template:
+    name: 'transxl_char_exp2_wikifull_orig_{config}_{n_layer}_{n_head}_{d_head}_{d_embed}_{d_inner}_{mem_len}_{tgt_len}_{dropout}'
+    sku: G8
+    command:
+      - set -e -o xtrace
+      - bash scripts/apex_install.sh
+      - pip install --user -e .
+      - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 400000 --eval_interval 5000 --n_layer {n_layer} --n_head {n_head} --d_head {d_head} --d_embed {d_embed} --d_inner {d_inner} --mem_len {mem_len} --tgt_len {tgt_len} --dropout {dropout} --config {config} --experiment_name  transxl_char_exp2_wikifull_orig_{config}_{n_layer}_{n_head}_{d_head}_{d_embed}_{d_inner}_{mem_len}_{tgt_len}_{dropout} --config_file char_base.yaml
+  type: random
+  max_trials: 1
+
+  params:
+    - name: config
+      spec: discrete
+      values: ['dgx1_8gpu_fp16'] # dgx1_8gpu_fp16, dgx1_1gpu_fp16, toy, default, dgx1_4gpu_fp16
+    - name: n_layer
+      spec: discrete
+      values: ['4'] 
+    - name: n_head
+      spec: discrete
+      values: ['8']
+    - name: d_head
+      spec: discrete
+      values: ['32']
+    - name: d_embed
+      spec: discrete
+      values: ['256']
+    - name: d_inner
+      spec: discrete
+      values: ['1024']
+    - name: mem_len
+      spec: discrete
+      values: ['512']
+    - name: tgt_len
+      spec: discrete
+      values: ['512']
+    - name: dropout
+      spec: discrete
+      values: ['0.1']
+       

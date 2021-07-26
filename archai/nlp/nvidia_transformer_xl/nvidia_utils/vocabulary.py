@@ -51,7 +51,7 @@ class Vocab: # Word vocab is the default
 
         # empty delimiter '' will evaluate False
         if self.delimiter == '':
-            symbols = line
+            symbols = list(line)
         else:
             symbols = line.split(self.delimiter)
 
@@ -61,6 +61,7 @@ class Vocab: # Word vocab is the default
             return symbols + ['<eos>']
         else:
             return symbols
+        print(symbols)
 
     def count_file(self, path, verbose=True, add_eos=False):
         """Setup counter with frequencies, return tokens for the entir file"""
@@ -124,6 +125,16 @@ class Vocab: # Word vocab is the default
 
             print('final vocab size is {}, unique tokens are {}'.format(
                 len(self), len(self.counter)))
+        '''
+        for i in range(26):
+            if chr(97+i) not in self.sym2idx:
+                print(chr(97+i))
+            if chr(65+i) not in self.sym2idx:
+                print(chr(65+i))
+        for i in range(10):
+            if str(i) not in self.sym2idx:
+                print(str(i))
+        '''
 
     def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
                     add_double_eos=False):
@@ -177,7 +188,6 @@ class Vocab: # Word vocab is the default
         if sym in self.sym2idx:
             return self.sym2idx[sym]
         else:
-            # print('encounter unk {}'.format(sym))
             assert '<eos>' not in sym
             assert hasattr(self, 'unk_idx')
             return self.sym2idx.get(sym, self.unk_idx)
@@ -199,4 +209,3 @@ class Vocab: # Word vocab is the default
 
     def __len__(self):
         return len(self.idx2sym)
-
