@@ -846,7 +846,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_darts_far.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_darts_far_ftt0.6_fte10_ratio_4.0",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_darts_far_ftt0.6_fte10_ratio_2.0",
                 "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
