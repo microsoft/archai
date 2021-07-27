@@ -16,6 +16,7 @@ from archai.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
 from archai.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
 from archai.algos.proxynas.freeze_darts_space_experiment_runner import FreezeDartsSpaceExperimentRunner
 from archai.algos.proxynas.freeze_natsbench_experiment_runner import FreezeNatsbenchExperimentRunner
+from archai.algos.proxynas.freeze_natsbench_sss_experiment_runner import FreezeNatsbenchSSSExperimentRunner
 from archai.algos.proxynas.freeze_nasbench101_experiment_runner import FreezeNasbench101ExperimentRunner
 from archai.algos.proxynas.freeze_manual_experiment_runner import ManualFreezeExperimentRunner
 from archai.algos.naswotrain.naswotrain_natsbench_conditional_experiment_runner import NaswotConditionalNatsbenchExperimentRunner
@@ -45,6 +46,7 @@ def main():
         'didarts': DiDartsExperimentRunner,
         'proxynas_darts_space': FreezeDartsSpaceExperimentRunner,
         'proxynas_natsbench_space': FreezeNatsbenchExperimentRunner,
+        'proxynas_natsbench_sss_space': FreezeNatsbenchSSSExperimentRunner,
         'proxynas_nasbench101_space': FreezeNasbench101ExperimentRunner,
         'proxynas_manual': ManualFreezeExperimentRunner,
         'naswot_conditional_natsbench_space': NaswotConditionalNatsbenchExperimentRunner,
@@ -75,6 +77,7 @@ def main():
                                                         proxynas_manual,
                                                         proxynas_darts_space,
                                                         proxynas_natsbench_space,
+                                                        proxynas_natsbench_sss_space,
                                                         proxynas_nasbench101_space,
                                                         freezeaddon_nasbench101_space,
                                                         naswot_conditional_natsbench_space,
