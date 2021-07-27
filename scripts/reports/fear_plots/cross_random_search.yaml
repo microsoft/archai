@@ -13,7 +13,9 @@ darts_cifar10:
 
   regular:
     rs_darts_far_ftt0.6_fte10_ratio_1.2: 'rs_darts_far_ftt0.6_fte10_ratio_1.2'
+    rs_darts_far_ftt0.6_fte10_ratio_2.0: 'rs_darts_far_ftt0.6_fte10_ratio_2.0'
     rs_darts_far_ftt0.6_fte10_ratio_4.0: 'rs_darts_far_ftt0.6_fte10_ratio_4.0'
+    rs_darts_far_ftt0.6_fte10_ratio_8.0: 'rs_darts_far_ftt0.6_fte10_ratio_8.0'
 
   colors:
     fastarchrank: 'green'
