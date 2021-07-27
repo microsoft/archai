@@ -188,7 +188,7 @@ def format_log(loss, split, args):
     return log_str
 
 
-def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1, num_characters=1, num_tokens=1):
+def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1, num_characters=1, num_tokens=1, vocab_type="char"):
     total_len, total_loss = 0, 0.
     eval_step = 0
 
@@ -266,9 +266,13 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1, nu
 
     avg_loss = total_loss / total_len
     avg_loss = nvidia_utils.distributed.all_reduce_item(avg_loss, op='mean')
-    bpc = avg_loss / math.log(2)
-    word_ppl = math.pow(2, bpc * (num_characters / num_tokens))
-    print("Loss = %.2f BPC = %.2f Word-PPL = %.2f Num-Chars = %d Num-Tokens = %d"%(avg_loss, bpc, word_ppl, num_characters, num_tokens))
+    if vocab_type == "char":
+        bpc = avg_loss / math.log(2)
+        word_ppl = math.pow(2, bpc * (num_characters / num_tokens))
+        print("Loss = %.2f BPC = %.2f Word-PPL = %.2f Num-Chars = %d Num-Tokens = %d"%(avg_loss, bpc, word_ppl, num_characters, num_tokens))
+    elif vocab_type == "word":
+        word_ppl = math.exp(avg_loss)
+        print("Loss = %.2f Word-PPL = %.2f"%(avg_loss, word_ppl))
     return avg_loss
 
 # reference: https://github.com/lopuhin/transformer-xl/blob/fb11489ca4c6000573d27d5eaca3a641057c0a6a/pytorch/inference.py#L99
@@ -302,7 +306,7 @@ def get_prefix_overlap_len(string_a, string_b):
             return float(num_match/len(string_b))
     return float(num_match/len(string_b)) 
 
-def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_size, topp, topk, prompt_context_percent):
+def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_size, topp, topk, prompt_context_percent, vocab_type):
     exact_matches = Counter()
     total = Counter()
     partial_matches = Counter()
@@ -311,7 +315,8 @@ def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_siz
         idx = 0
         for prompt_tensor, prompt_tokens, target_tokens in encoded:
             generated_text = []
-            while len("".join(generated_text).split()) < 4 and len(generated_text) < 100:
+            #while len("".join(generated_text).split()) < 4 and len(generated_text) < 100:
+            while len(vocab.convert_to_sent(generated_text).split()) < 4 and len(generated_text) < 100:
                 # get log probs
                 log_probs = get_log_probs(prompt_tensor, model, device, tgt_len)[-1]
                 top_indices = torch.argsort(log_probs)[-topk:]
@@ -323,10 +328,11 @@ def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_siz
                 next_token_tensor = torch.IntTensor(1)
                 next_token_tensor[0] = sampled_idx
                 prompt_tensor = torch.cat((prompt_tensor, next_token_tensor))
-                generated_text.append(next_token)
+                generated_text.append(sampled_idx)
 
             # compute match metrics
-            generated_tokens = "".join(generated_text).split()
+            #generated_tokens = "".join(generated_text).split()
+            generated_tokens = vocab.convert_to_sent(generated_text).split()
             for suggestion_len in range(0, min(3, len(target_tokens))):
                 exact_match = True
                 for token_i in range(0, suggestion_len+1):
@@ -339,7 +345,7 @@ def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_siz
                     #    sys.exit(0)
                 partial_matches[suggestion_len+1] += get_prefix_overlap_len(" ".join(generated_tokens[0:suggestion_len+1]), " ".join(target_tokens[0:suggestion_len+1]))
                 total[suggestion_len+1] += 1
-            print("Index: %d\nPrompt: %s\nGenerated Text: %s\nTarget Text: %s\n\n"%(idx, " ".join(prompt_tokens), "".join(generated_text), " ".join(target_tokens)))
+            print("Index: %d\nPrompt: %s\nGenerated Text: %s\nTarget Text: %s\n\n"%(idx, " ".join(prompt_tokens), vocab.convert_to_sent(generated_text), " ".join(target_tokens)))
             #pbar.update(1)
             idx += 1
             #if idx > 5:
@@ -560,9 +566,9 @@ def main():
     with torch.autograd.profiler.emit_nvtx(enabled=args.profile):
         if args.prompt_context_percent <= 0.0:
             loss = evaluate(iter, model, meters, args.log_interval, args.max_size,
-                        args.repeat, num_characters=num_characters, num_tokens=num_tokens)
+                        args.repeat, num_characters=num_characters, num_tokens=num_tokens, vocab_type=vocab_type)
         else:
-            generate(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent)
+            generate(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type)
 
     #perplexity = math.exp(loss)
     #log_str = format_log(loss, args.split, args)

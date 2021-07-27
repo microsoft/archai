@@ -170,6 +170,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
 
             head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj)
             head_logprob = F.log_softmax(head_logit, dim=1)
+            if target is None:
+                return head_logprob
 
             nll = torch.zeros_like(target, dtype=hidden.dtype, device=hidden.device)
 

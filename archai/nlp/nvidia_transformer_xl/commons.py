@@ -36,6 +36,9 @@ def reformer_check():
     model = ReformerModelWithLMHead.from_pretrained("google/reformer-enwik8")
     encoded, attention_masks = encode(["In 1965, Brooks left IBM to found the Department of", "this is cool"])
     print(decode(model.generate(encoded, do_sample=True, max_length=150)))
+    print(sum(p.numel() for p in model.parameters()))
+reformer_check()
+sys.exit(0)
 
 def read_data(prompt_context_percent):
     encoded = []

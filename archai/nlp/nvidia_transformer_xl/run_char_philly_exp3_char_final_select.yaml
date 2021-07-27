@@ -1,18 +1,19 @@
 description: run big scripts
 # amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :v1corrected :v1corrected_1 :v1corrected_2 :v1corrected_3 :v1corrected_4 transxl_char_exp2_randsearch --upload-data
 # amlt run archai/nlp/nvidia_transformer_xl/trial_char.yaml transxl_char 
-# amlt status mingpt_experiment
+# amlt status finetune-transxl_char_exp2_randsearch
 # amlt target info amlk8s
 # amlt logs -f transxl_char_sample :opt1
 # amlt results transxl_char_exp2_randsearch :v1corrected
 # amlt abort transxl_char_exp2_randsearch :full
 # amlt remove mingpt_experiment :full
-# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :finetune transxl_char_exp2_randsearch :v1corrected
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :finetune transxl_char_exp2_randsearch :v1corrected finetune-transxl_char_exp2_randsearch
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :transxl_char_base_lr_0p1 :transxl_char_base_lr_0p001 transxl_char_exp2_randsearch
 
 target:
   service: amlk8s
   # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
-  name: itplabrr1cl1 # itplabrr1cl1, ms-shared
+  name: ms-shared # itplabrr1cl1, ms-shared
   vc: resrchvc
 
 environment:
@@ -202,3 +203,17 @@ jobs:
   sku: G8
   command:
   - ./finetune --pretrained-model $$AMLT_MAP_INPUT_DIR/checkpoint_last.pt --output $$AMLT_OUTPUT_DIR/checkpoint_last.pt
+- name: transxl_char_base_lr_0p1 # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_base.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 512 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64  --lr 0.1
+- name: transxl_char_base_lr_0p001 # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_base.sh
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 512 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
