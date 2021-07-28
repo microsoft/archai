@@ -236,7 +236,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "synthetic_cifar10"],
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "cifar10"],
             "justMyCode": true
         },
         {
@@ -254,7 +254,7 @@
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "proxynas_natsbench_sss_space", "--datasets", "cifar10"],
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Proxynas-Phased-FT-Natsbench-Space-Full",
