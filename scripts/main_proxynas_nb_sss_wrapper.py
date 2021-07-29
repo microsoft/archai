@@ -11,7 +11,8 @@ from archai.common.utils import exec_shell_command
 def main():
     parser = argparse.ArgumentParser(description='Proxynas SSS Wrapper Main')
     parser.add_argument('--algos', type=str, default='''
-                                                        proxynas_natsbench_sss_space,                                                                                                                
+                                                        proxynas_natsbench_sss_space,
+                                                        natsbench_sss_regular_eval,                                                                                                                
                                                     ''',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--top1-acc-threshold', type=float)
