@@ -21,6 +21,7 @@ from archai.algos.proxynas.freeze_nasbench101_experiment_runner import FreezeNas
 from archai.algos.proxynas.freeze_manual_experiment_runner import ManualFreezeExperimentRunner
 from archai.algos.naswotrain.naswotrain_natsbench_conditional_experiment_runner import NaswotConditionalNatsbenchExperimentRunner
 from archai.algos.natsbench.natsbench_regular_experiment_runner import NatsbenchRegularExperimentRunner
+from archai.algos.natsbench.natsbench_sss_regular_experiment_runner import NatsbenchSSSRegularExperimentRunner
 from archai.algos.nasbench101.nasbench101_exp_runner import Nb101RegularExperimentRunner
 from archai.algos.proxynas.phased_freeze_natsbench_experiment_runner import PhasedFreezeNatsbenchExperimentRunner
 from archai.algos.proxynas.freezeaddon_nasbench101_experiment_runner import FreezeAddonNasbench101ExperimentRunner
@@ -54,6 +55,7 @@ def main():
         'zerocost_conditional_natsbench_space': ZeroCostConditionalNatsbenchExperimentRunner,
         'zerocost_natsbench_epochs_space': ZeroCostNatsbenchEpochsExperimentRunner,
         'natsbench_regular_eval': NatsbenchRegularExperimentRunner,
+        'natsbench_sss_regular_eval': NatsbenchSSSRegularExperimentRunner,
         'nb101_regular_eval': Nb101RegularExperimentRunner,
         'phased_freezetrain_natsbench_space': PhasedFreezeNatsbenchExperimentRunner,
         'freezeaddon_nasbench101_space': FreezeAddonNasbench101ExperimentRunner,
@@ -85,6 +87,7 @@ def main():
                                                         zerocost_conditional_natsbench_space,
                                                         zerocost_natsbench_epochs_space,
                                                         natsbench_regular_eval,
+                                                        natsbench_sss_regular_eval,
                                                         nb101_regular_eval,
                                                         phased_freezetrain_natsbench_space,
                                                         random_natsbench_tss_far,

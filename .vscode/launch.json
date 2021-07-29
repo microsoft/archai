@@ -385,6 +385,14 @@
             "args": ["--algos", "natsbench_regular_eval"]
         },
         {
+            "name": "Natsbench-Regular-SSS-Eval-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "natsbench_sss_regular_eval", "--datasets", "cifar10"]
+        },
+        {
             "name": "Nb101-Regular-Eval-Full",
             "type": "python",
             "request": "launch",
@@ -422,7 +430,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main_proxynas_nb_wrapper.py",
             "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_natsbench_space", "--arch-list-index", "0", "--num-archs", "20", "--top1-acc-threshold", "0.6"]
+            "args": ["--algos", "proxynas_natsbench_space", "--arch-list-index", "0", "--num-archs", "50", "--top1-acc-threshold", "0.6"]
         },
         {
             "name": "Main Proxynas Natsbench SSS Wrapper",
@@ -430,7 +438,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main_proxynas_nb_sss_wrapper.py",
             "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_natsbench_sss_space", "--arch-list-index", "0", "--num-archs", "20", "--top1-acc-threshold", "0.6"]
+            "args": ["--algos", "natsbench_sss_regular_eval", "--arch-list-index", "0", "--num-archs", "50", "--top1-acc-threshold", "0.6"]
         },
         {
             "name": "Main Proxynas Nb101 Wrapper",
@@ -438,7 +446,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main_proxynas_nb101_wrapper.py",
             "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_nasbench101_space", "--arch-list-index", "0", "--num-archs", "20", "--top1-acc-threshold", "0.6"]
+            "args": ["--algos", "proxynas_nasbench101_space", "--arch-list-index", "0", "--num-archs", "50", "--top1-acc-threshold", "0.6"]
         },
         {
             "name": "Resnet-Toy",
@@ -711,6 +719,15 @@
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte10_ct256_ftt0.6_scu",
+                    "--out-dir", "F:\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Freeze Natsbench SSS Space",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_natsbench_sss.py",
+            "console": "integratedTerminal",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\nb_sss_c4_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6",
                     "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
