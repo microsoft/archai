@@ -50,7 +50,7 @@ nas:
   
     freeze_trainer:
       plotsdir: ''
-      identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.4'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling (doesn't get exposed as a named param though), classifier: linear layer
+      identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.4', 'cells.3', 'cells.2', 'cells.1'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling (doesn't get exposed as a named param though), classifier: linear layer
       apex:
         _copy: '/common/apex'
       aux_weight: 0.0 # very important that this is 0.0 for freeze training

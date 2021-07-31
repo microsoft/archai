@@ -774,12 +774,12 @@
                 "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
-            "name": "Analysis Regular Natsbench and Nb101 Space",
+            "name": "Analysis Regular Natsbench TSS, SSS and Nb101 Space",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_regular_natsbench_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\nb_reg_b1024_e30",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\nb_sss_reg_b256_e20",
             "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
@@ -788,7 +788,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_cifar100",
+            "args": ["--dataset", "natsbench_sss_cifar10",
             "--conf-location", "scripts/reports/fear_plots/cross_exp_conf.yaml"]
         },
         {

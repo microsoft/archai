@@ -1,6 +1,23 @@
 exp_folder: 'F:\\archai_experiment_reports'
 
 
+natsbench_sss_cifar10:
+  freezetrain:
+    nb_sss_c4_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6: 'nb_sss_c4_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6'
+
+  shortreg:
+    nb_sss_reg_b256_e5: 'nb_sss_reg_b256_e5'
+    nb_sss_reg_b256_e10: 'nb_sss_reg_b256_e10'
+    nb_sss_reg_b256_e15: 'nb_sss_reg_b256_e15'
+    nb_sss_reg_b256_e20: 'nb_sss_reg_b256_e20'
+
+  colors:
+    freezetrain: 'red'
+    zero_cost: 'green'
+    shortreg: 'blue' 
+
+
+
 natsbench_cifar10: 
 
   freezetrain:
