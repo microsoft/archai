@@ -8,7 +8,7 @@ nas:
 
   eval:
     natsbench:
-      arch_index: 23000
+      arch_index: 32767
       natsbench_sss_fast: 'NATS-sss-v1_0-50262-simple' # folder name in dataroot/natsbench that contains the sss fast mode folder
     model_desc:
       num_edges_to_sample: 2
@@ -50,7 +50,10 @@ nas:
   
     freeze_trainer:
       plotsdir: ''
-      identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.4', 'cells.3', 'cells.2', 'cells.1'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling (doesn't get exposed as a named param though), classifier: linear layer
+      use_ratio: True
+      layer_basenames: ['classifier', 'lastact', 'cells.4', 'cells.3', 'cells.2', 'cells.1'] # used when use_ratio is True. Important that this is from output layer to input layer order.
+      desired_ratio_unfreeze: 0.1 # used when use_ratio is True
+      identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.4', 'cells.3', 'cells.2', 'cells.1'] # used when use_ratio is False
       apex:
         _copy: '/common/apex'
       aux_weight: 0.0 # very important that this is 0.0 for freeze training
