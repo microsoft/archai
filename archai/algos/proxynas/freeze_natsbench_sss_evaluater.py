@@ -28,6 +28,7 @@ from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
 from archai.nas.evaluater import Evaluater
 from archai.algos.proxynas.freeze_trainer import FreezeTrainer
+from archai.algos.proxynas.freeze_ratio_trainer import FreezeRatioTrainer
 from archai.algos.proxynas.conditional_trainer import ConditionalTrainer
 
 from nats_bench import create
@@ -50,7 +51,6 @@ class FreezeNatsbenchSSSEvaluater(Evaluater):
         natsbench_location = os.path.join(dataroot, 'natsbench', conf_eval['natsbench']['natsbench_sss_fast'])
         # endregion
 
-        assert arch_index
         assert natsbench_location
 
         return self._model_from_natsbench(arch_index, dataset_name, natsbench_location)
@@ -113,7 +113,11 @@ class FreezeNatsbenchSSSEvaluater(Evaluater):
         data_loaders = self.get_data(conf_loader_freeze)
         # now just finetune the last few layers
         checkpoint = None
-        trainer = FreezeTrainer(conf_train_freeze, model, checkpoint)
+
+        if conf_train_freeze['use_ratio']:
+            trainer = FreezeRatioTrainer(conf_train_freeze, model, checkpoint)
+        else:
+            trainer = FreezeTrainer(conf_train_freeze, model, checkpoint)
         freeze_train_metrics = trainer.fit(data_loaders)
         logger.popd()
 

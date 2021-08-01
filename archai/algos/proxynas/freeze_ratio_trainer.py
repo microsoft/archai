@@ -53,7 +53,7 @@ class FreezeRatioTrainer(ArchTrainer, EnforceOverrides):
         layer_basenames = self.conf_train['layer_basenames']
         layer_numparams = [0] * len(layer_basenames)
         for l in model_stats.layer_stats:
-            for lb, j in enumerate(layer_basenames):
+            for j, lb in enumerate(layer_basenames):
                 if lb in l.name:
                     layer_numparams[j] += l.parameters
 
@@ -63,7 +63,7 @@ class FreezeRatioTrainer(ArchTrainer, EnforceOverrides):
         num_params_unfreeze = self.conf_train['desired_ratio_unfreeze'] * model_stats.parameters
         identifiers_to_unfreeze = []
         runsum = 0
-        for i in range(len(layer_basenames)-1, -1, -1):
+        for i in range(len(layer_basenames)):
             runsum += layer_numparams[i]
             identifiers_to_unfreeze.append(layer_basenames[i])
             if runsum >= num_params_unfreeze:
@@ -79,15 +79,17 @@ class FreezeRatioTrainer(ArchTrainer, EnforceOverrides):
 
     def _freeze_but_last_layer(self, identifiers_to_unfreeze:List[str]) -> None:
 
-        # Do it via parameters
+        # First freeze all parameters
         for param in self.model.parameters():
             param.requires_grad = False
 
+        # Unfreeze the desired ones
         for name, param in self.model.named_parameters():
             for identifier in identifiers_to_unfreeze:
                 if identifier in name:
                     param.requires_grad = True
 
+        # Print some diagnostics
         for name, param in self.model.named_parameters():
             if param.requires_grad:
                 logger.info(f'{name} requires grad')
