@@ -254,7 +254,7 @@
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "proxynas_natsbench_sss_space", "--datasets", "cifar10"],
-            "justMyCode": false
+            "justMyCode": true
         },
         {
             "name": "Proxynas-Phased-FT-Natsbench-Space-Full",
@@ -743,7 +743,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_natsbench_sss.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\nb_sss_c4_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\nb_sss_r0.2_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6",
                     "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
