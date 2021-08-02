@@ -59,6 +59,7 @@ natsbench_cifar10:
     # ft_fb512_ftlr0.1_fte10_ct256_ftt0.6_c9: 'fear stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.6, frozen till: cell 9'
     # ft_fb256_ftlr0.1_fte5_ct256_ftt0.6_c9: 'fear stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.6, frozen till: cell 9'
     # ft_fb256_ftlr0.1_fte10_ct256_ftt0.6_c9: 'fear stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.6, frozen till: cell 9'
+    ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_nofreeze: 'ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_nofreeze'
 
 
   zero_cost:
