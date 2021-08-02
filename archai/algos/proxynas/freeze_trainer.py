@@ -59,25 +59,12 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
         logger.info(f'unfrozen parameters ratio {ratio_unfrozen}')
 
         # freeze everything other than the last layer
-        self._freeze_but_last_layer()
+        if not self.conf_train['bypass_freeze']:
+            logger.info('no freezing!')
+            self._freeze_but_last_layer()
 
 
     def _freeze_but_last_layer(self) -> None:
-
-        # # Freezing via module names
-        # for module in self.model.modules():
-        #     module.requires_grad = False
-
-        # # Unfreeze only some
-        # for name, module in self.model.named_modules():
-        #     for identifier in self.conf_train['identifiers_to_unfreeze']:
-        #         if identifier in name:
-        #             print('we are hitting this')
-        #             module.requires_grad = True
-
-        # for name, module in self.model.named_modules():
-        #     if module.requires_grad:
-        #         logger.info(f'{name} requires grad')
 
         # Do it via parameters
         for param in self.model.parameters():
