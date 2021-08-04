@@ -1,58 +1,59 @@
 # Python package
 
 # Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# Add steps that analyze code, save the dist with the build record,
+# publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: "windows-latest"
 strategy:
   matrix:
     # Python36:
-    #   python.version: '3.6'
+    #   python.version: "3.6"
     Python37:
-      python.version: '3.7'
+      python.version: "3.7"
 
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+    versionSpec: "$(python.version)"
+  displayName: "Use Python $(python.version)"
 
 # - script: |
 #     python -m pip install --upgrade pip
 #     pip install -e .
-#   displayName: 'Install dependencies'
+#   displayName: "Install dependencies"
 
 # - script: |
 #     pip install pytest pytest-azurepipelines
 #     pytest
-#   displayName: 'pytest'
+#   displayName: "pytest"
 
 - task: CredScan@3
 
 - task: ComponentGovernanceComponentDetection@0
   inputs:
-    scanType: 'Register'
-    verbosity: 'Verbose'
-    alertWarningLevel: 'High'
+    scanType: "Register"
+    verbosity: "Verbose"
+    alertWarningLevel: "High"
 
-# TODO: below was working before but it doesn't now
+# TODO: below was working before but it doesn"t now
 # - task: uploadScanResults@1
 #   inputs:
-#     uploadUrl: '$(UploadUrl)'
-#     areaPathParent: 'archai'
+#     uploadUrl: "$(UploadUrl)"
+#     areaPathParent: "archai"
 #   env:
 #     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
 # - task: corygehr.air-autoassess.uploadScanResults.uploadScanResults@1
-#   displayName: 'Upload Scan Results for Analysis'
+#   displayName: "Upload Scan Results for Analysis"
 #   inputs:
-#     areaPathParent: '{Insert Area Path for Work Items}'
-#     areaPathChild: '{Optionally, enter a child area path from the parent above}'
-#     uploadUrl: 'https://airbuildscan.azurewebsites.net/api/Upload'
+#     areaPathParent: "{Insert Area Path for Work Items}"
+#     areaPathChild: "{Optionally, enter a child area path from the parent above}"
+#     uploadUrl: "https://airbuildscan.azurewebsites.net/api/Upload"
 #   env:
 #     SYSTEM_ACCESSTOKEN: $(System.AccessToken)

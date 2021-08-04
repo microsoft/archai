@@ -1,0 +1,7 @@
+# Unused folders
+# Note that version 8.0.0 introduces .amltignore instead of .ptignore
+tests/
+tools/
+archived/
+dockers/
+docs/
