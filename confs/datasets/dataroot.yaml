@@ -1,5 +1,9 @@
 dataset:
-  dataroot: '$default_dataroot' # folder where directory for each dataset exist, empty string means chose default based on OS which is typically ~/dataroot
+  # Folder where directory for each dataset exist,
+  # empty string means chose default based on OS which is typically ~/dataroot
+  dataroot: "$default_dataroot"
 
 dataset_eval:
-  dataroot: '$default_dataroot' #folder where directory for each dataset exist, empty string means chose default based on OS which is typically ~/dataroot
+  # Folder where directory for each dataset exist,
+  # empty string means chose default based on OS which is typically ~/dataroot
+  dataroot: "$default_dataroot"

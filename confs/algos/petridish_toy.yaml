@@ -1,6 +1,6 @@
-# in toy mode, load the config for algo and then override with common settings for toy mode
-# any additional algo specific toy mode settings will go in this file
-__include__: ['petridish.yaml', 'toy_common.yaml']
+# In toy mode, load the config for algo and then override with common settings for toy mode
+# Any additional algo specific toy mode settings will go in this file
+__include__: ["petridish.yaml", "toy_common.yaml"]
 
 nas:
   search:

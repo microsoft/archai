@@ -1,4 +1,5 @@
-__include__: 'darts.yaml' # defaults are loaded from this file
+# Defaults are loaded from this file
+__include__: "darts.yaml"
 
 nas:
   eval:
@@ -11,13 +12,15 @@ nas:
       aux_weight: 0.0
       optimizer:
         type: "sgd"
-        lr: 0.016 # init learning rate
+        # Initial learning rate
+        lr: 0.016
         decay: 0.0
-        momentum: 0.9 # pytorch default is 0
+        # PyTorch default is 0.0
+        momentum: 0.9
         nesterov: False
         warmup: null
       lr_schedule:
-        type: 'one_cycle'
+        type: "one_cycle"
         max_lr: 0.5
         decay: 0.064
         momentum: 0.9

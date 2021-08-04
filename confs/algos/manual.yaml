@@ -1,29 +1,37 @@
-__include__: 'darts.yaml' # just use darts defaults
-
+# Use darts defaults
+__include__: "darts.yaml"
 
 nas:
   eval:
-    model_factory_spec: 'resnet18'
+    model_factory_spec: "resnet18"
 
-    #darts loader/trainer
+    # Darts loader/trainer
     loader:
-      train_batch: 128 #96
+      # Alternative value: 96
+      train_batch: 128
       cutout: 0
     trainer:
       aux_weight: 0.0
       grad_clip: 0.0
-      drop_path_prob: 0.0 # probability that given edge will be dropped
+      # Probability that given edge will be dropped
+      drop_path_prob: 0.0
       epochs: 200
       optimizer:
-        type: 'sgd'
-        lr: 0.0333 #0.025 # init learning rate
-        decay: 3.0e-4 # pytorch default is 0.0
-        momentum: 0.9 # pytorch default is 0.0
-        nesterov: False # pytorch default is False
+        type: "sgd"
+        # Initial learning rate
+        # Alternative value: 0.025
+        lr: 0.0333
+        # PyTorch default is 0.0
+        decay: 3.0e-4
+        # PyTorch default is 0.0
+        momentum: 0.9
+        # PyTorch default is False
+        nesterov: False
         warmup: null
       lr_schedule:
-        type: 'cosine'
-        min_lr: 0.001 # min learning rate to se bet in eta_min param of scheduler
+        type: "cosine"
+        # Minimum learning rate to be set in eta_min param of scheduler
+        min_lr: 0.001
 
     # WRN schedule
     # loader:
@@ -35,17 +43,14 @@ nas:
     #   drop_path_prob: 0.0 # probability that given edge will be dropped
     #   epochs: 200
     #   optimizer:
-    #     type: 'sgd'
+    #     type: "sgd"
     #     lr: 0.1 # init learning rate
     #     decay: 5.0e-4 # pytorch default is 0.0
     #     momentum: 0.9 # pytorch default is 0.0
     #   lr_schedule:
-    #     type: 'multi_step'
+    #     type: "multi_step"
     #     milestones: [60, 120, 160]
     #     gamma: 0.2
-
-
-
 
     # Multi-step LR notes:
     # rule of thumb is decay by 10 at 50% and 75% of epochs as in densenet

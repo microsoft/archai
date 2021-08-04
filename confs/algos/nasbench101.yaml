@@ -1,44 +1,73 @@
-__include__: "darts.yaml" # just use darts defaults
+# Use darts defaults
+__include__: "darts.yaml"
 
 common:
-  log_level: 20 # logging.INFO
-
+  # Defaults to logging.INFO value
+  log_level: 20
 
 nas:
   eval:
     model_desc:
       params: {
-        'cell_matrix' : [[0, 1, 1, 1, 0, 1, 0],
-          [0, 0, 0, 0, 0, 0, 1],
-          [0, 0, 0, 0, 0, 0, 1],
-          [0, 0, 0, 0, 1, 0, 0],
-          [0, 0, 0, 0, 0, 0, 1],
-          [0, 0, 0, 0, 0, 0, 1],
-          [0, 0, 0, 0, 0, 0, 0]],
-        'vertex_ops': ['input', 'conv1x1-bn-relu', 'conv3x3-bn-relu', 'conv3x3-bn-relu', 'conv3x3-bn-relu', 'maxpool3x3', 'output'],
-        'num_stacks': 3 # Number of stacks, each contains identical cells
-      }
+          "cell_matrix":
+            [
+              [0, 1, 1, 1, 0, 1, 0],
+              [0, 0, 0, 0, 0, 0, 1],
+              [0, 0, 0, 0, 0, 0, 1],
+              [0, 0, 0, 0, 1, 0, 0],
+              [0, 0, 0, 0, 0, 0, 1],
+              [0, 0, 0, 0, 0, 0, 1],
+              [0, 0, 0, 0, 0, 0, 0],
+            ],
+          "vertex_ops":
+            [
+              "input",
+              "conv1x1-bn-relu",
+              "conv3x3-bn-relu",
+              "conv3x3-bn-relu",
+              "conv3x3-bn-relu",
+              "maxpool3x3",
+              "output",
+            ],
+          # Number of stacks, where each contains identical cells
+          "num_stacks": 3,
+        }
       model_stems:
-        ops: ['stem_conv3x3Relu', 'stem_conv3x3Relu']
-        stem_multiplier: 1 # output channels for stem = 128
-        init_node_ch: 128 # num of input/output channels for nodes in 1st cell
-      model_post_op: 'pool_mean_tensor'
-      n_cells: 9 # 3 stacks, each stack with 3 cells
+        ops: ["stem_conv3x3Relu", "stem_conv3x3Relu"]
+        # Output channels for stem = 128
+        stem_multiplier: 1
+        # Number of input/output channels for nodes in 1st cell
+        init_node_ch: 128
+      model_post_op: "pool_mean_tensor"
+      # 3 stacks, where each stack has 3 cells
+      n_cells: 9
     loader:
-      aug: '' # additional augmentations to use, for ex, fa_reduced_cifar10, arsaug, autoaug_cifar10, autoaug_extend
-      cutout: 0 # cutout length, use cutout augmentation when > 0
-      train_batch: 128 # 96 is too aggressive for 1080Ti, better set it to 68
+      # Additional augmentations to use
+      # Example: fa_reduced_cifar10, arsaug, autoaug_cifar10 and autoaug_extend
+      aug: ""
+      # Cutout length
+      # Use cutout augmentation when > 0
+      cutout: 0
+      # 96 is too aggressive for 1080Ti, better set it to 68
+      train_batch: 128
     trainer:
       aux_weight: 0.0
-      drop_path_prob: 0.0 # probability that given edge will be dropped
-      grad_clip: 5.0 # grads above this value is clipped
+      # Probability that given edge will be dropped
+      drop_path_prob: 0.0
+      # Gradients above this value is clipped
+      grad_clip: 5.0
       epochs: 108
       optimizer:
-        type: 'sgd'
-        lr: 0.025 # init learning rate
-        decay: 1.0e-4 # pytorch default is 0.0
-        momentum: 0.9 # pytorch default is 0.0
-        nesterov: False # pytorch default is False
+        type: "sgd"
+        # Initial learning rate
+        lr: 0.025
+        # PyTorch default is 0.0
+        decay: 1.0e-4
+        # PyTorch default is 0.0
+        momentum: 0.9
+        # PyTorch default is False
+        nesterov: False
       lr_schedule:
-        type: 'cosine'
-        min_lr: 0.0 # min learning rate to se bet in eta_min param of scheduler
+        type: "cosine"
+        # Minimum learning rate to be set in eta_min param of scheduler
+        min_lr: 0.0

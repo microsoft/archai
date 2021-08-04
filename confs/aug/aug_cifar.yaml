@@ -1,1 +1,2 @@
-__include__: 'darts.yaml' # just use darts defaults
+# Use darts defaults
+__include__: "darts.yaml"

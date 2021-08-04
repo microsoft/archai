@@ -1,13 +1,15 @@
-# in toy mode, load the confif for algo and then override with common settings for toy mode
-# any additional algo specific toy mode settings will go in this file
-__include__: ['gs.yaml', 'toy_common.yaml']
+# In toy mode, load the config for algo and then override with common settings for toy mode
+# Any additional algo specific toy mode settings will go in this file
+__include__: ["gs.yaml", "toy_common.yaml"]
 
-# disable seed train and post train by setting the epochs to 0
+# Disable seed train and post train by setting the epochs to 0
 nas:
   search:
     seed_train:
       trainer:
-        epochs: 0 # number of epochs model will be trained before search
+        # Number of epochs that model will be trained before search
+        epochs: 0
     post_train:
       trainer:
-        epochs: 0 # number of epochs model will be trained after search
+        # Number of epochs that model will be trained after search
+        epochs: 0
