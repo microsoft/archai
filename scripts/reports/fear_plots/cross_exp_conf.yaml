@@ -10,6 +10,7 @@ natsbench_sss_cifar10:
 
     nb_sss_r0.1_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6: 'nb_sss_r0.1_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6'
     nb_sss_r0.2_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6: 'nb_sss_r0.2_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6'
+    nb_sss_r1.0_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6: 'nb_sss_r1.0_ft_fb256_ftlr0.1_fte10_ct256_ftt0.6'
 
   shortreg:
     nb_sss_reg_b256_e5: 'nb_sss_reg_b256_e5'
@@ -123,7 +124,7 @@ natsbench_cifar100:
     # ft_c100_fb512_ftlr0.1_fte10_ct256_ftt0.3_scu: 'fear stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
     # ft_c100_fb256_ftlr0.1_fte5_ct256_ftt0.3: 'fear stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
     # ft_c100_fb256_ftlr0.1_fte10_ct256_ftt0.3: 'fear stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
-    
+    ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_nofreeze: 'ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_nofreeze'
 
   zero_cost: 
     zc_cifar100: 'zero cost score at initialization'
@@ -208,7 +209,7 @@ natsbench_imagenet16-120:
     # ft_i6_fb2048_ftlr0.1_fte10_ct256_ftt0.1_scu: 'fear stage 2: batch 2048, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1 val scu'
     # ft_i6_fb1024_ftlr0.1_fte5_ct256_ftt0.1_scu: 'fear stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1 val scu'
     # ft_i6_fb1024_ftlr0.1_fte10_ct256_ftt0.1_scu: 'fear stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
-
+    ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_nofreeze: 'ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_nofreeze'
 
   zero_cost: 
     zc_imagenet16-120: 'zero cost score at initialization'
