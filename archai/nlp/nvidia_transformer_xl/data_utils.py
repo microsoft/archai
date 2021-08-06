@@ -21,7 +21,7 @@ import numpy as np
 import sacremoses
 import torch
 
-from archai.nlp.nvidia_transformer_xl import nvidia_utils as utils
+from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocabulary import Vocab
 from archai.common import utils
@@ -56,8 +56,8 @@ class LMOrderedIterator(object):
             self.data = torch.cat((warmup_data, self.data))
 
         # Partition data for DistributedDataParallel
-        world_size = utils.distributed.get_world_size()
-        rank = utils.distributed.get_rank()
+        world_size = nv_utils.distributed.get_world_size()
+        rank = nv_utils.distributed.get_rank()
         self.data = self.data.chunk(world_size, dim=1)[rank]
 
         # Number of mini-batches
@@ -327,7 +327,7 @@ def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None):
     else:
         logging.info('Producing dataset {}...'.format(dataset))
         corpus = Corpus(datadir, dataset, vocab, max_size=max_size)
-        with utils.distributed.sync_workers() as rank:
+        with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
                 torch.save(corpus, fn)
 
