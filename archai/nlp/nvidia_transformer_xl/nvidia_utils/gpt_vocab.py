@@ -77,9 +77,9 @@ class GptVocab(Vocab):
                 return out
         print('Encoding files done.')
 
-    def get_symbols(self, line, add_eos=False, add_double_eos=False):
+    def _get_symbols(self, line, add_eos=False, add_double_eos=False):
         return self.tokenizer.encode(line)
 
-    def convert_to_tensor(self, symbols):
+    def _convert_to_tensor(self, symbols):
         return torch.LongTensor(symbols)
 
