@@ -356,8 +356,8 @@ def main():
             vocab.unk_idx = vocab.sym2idx['<unk>']
 
         text = " ".join(args.manual)
-        tokenized = tokenize_raw(text)
-        symbols = vocab.tokenize(tokenized, add_eos=True)
+        tokenized = tokenize_raw(text) # text cleanup and transforms
+        symbols = vocab.get_symbols(tokenized, add_eos=True)
         tensor = vocab.convert_to_tensor(symbols)
 
         iter = data_utils.LMOrderedIterator(tensor, bsz=args.batch_size,
