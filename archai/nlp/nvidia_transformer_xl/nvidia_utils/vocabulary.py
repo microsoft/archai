@@ -15,7 +15,7 @@
 import os
 from collections import Counter
 from collections import OrderedDict
-from typing import Optional
+from typing import List, Optional
 
 import torch
 
@@ -30,7 +30,7 @@ class Vocab: # Word vocab is the default
             3. tokenize_file -> convert file to IDs
 
         internal:
-            tokenize -> split to tokens
+            _get_symbols -> split to symbols
             _count_sents -> count freq from parsed sentenses
 
         """
@@ -42,7 +42,7 @@ class Vocab: # Word vocab is the default
         self.delimiter = delimiter
         self.vocab_file = vocab_file # cached vocab file
 
-    def get_symbols(self, line, add_eos=False, add_double_eos=False):
+    def _get_symbols(self, line, add_eos=False, add_double_eos=False)->List[str]:
         """Tokenize line, split on space, add_eos: add special to end, add_double_eos: add special to begin and end"""
         line = line.strip()
         # convert to lower case
@@ -62,23 +62,19 @@ class Vocab: # Word vocab is the default
         else:
             return symbols
 
-    def add_file(self, path, verbose=True, add_eos=False):
+    def add_file(self, path, verbose=True, add_eos=False)->None:
         """Setup counter with frequencies, return tokens for the entir file"""
         if verbose:
             print('counting file {} ...'.format(path))
         assert os.path.exists(path)
 
         # read lines, count frequencies of tokens, convert to tokens
-        sents = [] # will contain all parsed tokens
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     print('    line {}'.format(idx))
-                symbols = self.get_symbols(line, add_eos=add_eos)
+                symbols = self._get_symbols(line, add_eos=add_eos)
                 self.counter.update(symbols)
-                sents.append(symbols)
-
-        return sents
 
     def _count_sents(self, sents, verbose=False):
         """
@@ -135,14 +131,18 @@ class Vocab: # Word vocab is the default
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     print('    line {}'.format(idx))
-                symbols = self.get_symbols(line, add_eos=add_eos,
+                tokens = self.tokenize_line(line, add_eos=add_eos,
                                         add_double_eos=add_double_eos)
-                encoded.append(self.convert_to_tensor(symbols))
+                encoded.append(tokens)
 
         if ordered:
             encoded = torch.cat(encoded)
 
         return encoded
+
+    def tokenize_line(self, line, add_eos=True, add_double_eos=False):
+        symbols = self._get_symbols(line, add_eos=add_eos, add_double_eos=add_double_eos)
+        return self._convert_to_tensor(symbols)
 
     def _encode_sents(self, sents, ordered=False, verbose=True):
         if verbose:
@@ -151,7 +151,7 @@ class Vocab: # Word vocab is the default
         for idx, symbols in enumerate(sents):
             if verbose and idx > 0 and idx % 500000 == 0:
                 print('    line {}'.format(idx))
-            encoded.append(self.convert_to_tensor(symbols))
+            encoded.append(self._convert_to_tensor(symbols))
 
         if ordered:
             encoded = torch.cat(encoded)
@@ -182,13 +182,13 @@ class Vocab: # Word vocab is the default
             assert hasattr(self, 'unk_idx')
             return self.sym2idx.get(sym, self.unk_idx)
 
-    def _get_symbols(self, indices):
+    def _inices2symbols(self, indices):
         return [self._get_sym(idx) for idx in indices]
 
     def _get_indices(self, symbols):
         return [self._get_idx(sym) for sym in symbols]
 
-    def convert_to_tensor(self, symbols):
+    def _convert_to_tensor(self, symbols):
         return torch.LongTensor(self._get_indices(symbols))
 
     def _convert_to_sent(self, indices, exclude=None):
