@@ -68,7 +68,7 @@ class GptVocab(Vocab):
         print('merges_file', tokenizer_files.merges_file)
         print('vocab_file', tokenizer_files.vocab_file)
 
-    def tokenize_file(self, path, ordered=False, verbose=False, add_eos=True, add_double_eos=False) -> torch.LongTensor:
+    def encode_file(self, path, ordered=False, verbose=False, add_eos=True, add_double_eos=False) -> torch.LongTensor:
         # Suppress warnings about length.
         print('Encoding files...')
         with open(path, encoding='utf-8') as f:
@@ -77,7 +77,7 @@ class GptVocab(Vocab):
                 return out
         print('Encoding files done.')
 
-    def _get_symbols(self, line, add_eos=False, add_double_eos=False):
+    def _tokenize_line(self, line, add_eos=False, add_double_eos=False):
         return self.tokenizer.encode(line)
 
     def _convert_to_tensor(self, symbols):

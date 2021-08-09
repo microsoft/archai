@@ -11,11 +11,11 @@ from archai.common import utils
 class Corpus:
     def __init__(self, word2idx, path):
         self.word2idx = word2idx
-        self.train = self.tokenize_file(path % 'train')
-        self.valid = self.tokenize_file(path % 'valid')
-        self.test = self.tokenize_file(path % 'test')
+        self.train = self.encode_file(path % 'train')
+        self.valid = self.encode_file(path % 'valid')
+        self.test = self.encode_file(path % 'test')
 
-    def tokenize_file(self, path):
+    def encode_file(self, path):
         tokens = []
         with open(path, 'r', encoding='utf-8') as f:
             for line in f:

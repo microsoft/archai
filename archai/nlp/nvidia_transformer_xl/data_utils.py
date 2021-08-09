@@ -211,7 +211,7 @@ class LMMultiFileIterator(LMShuffledIterator):
         self.shuffle = shuffle
 
     def get_sent_stream(self, path):
-        sents = self.vocab.tokenize_file(path, add_double_eos=True)
+        sents = self.vocab.encode_file(path, add_double_eos=True)
         if self.shuffle:
             np.random.shuffle(sents)
         sent_stream = iter(sents)
@@ -276,24 +276,24 @@ class Corpus(object):
         self.vocab.build_vocab()
 
         if self.dataset in ['ptb', 'wt2', 'wt103']:
-            self.train = self.vocab.tokenize_file(
+            self.train = self.vocab.encode_file(
                 os.path.join(datadir, train_filename), ordered=True)
-            self.valid = self.vocab.tokenize_file(
+            self.valid = self.vocab.encode_file(
                 os.path.join(datadir, valid_filename), ordered=True)
-            self.test = self.vocab.tokenize_file(
+            self.test = self.vocab.encode_file(
                 os.path.join(datadir, test_filename), ordered=True)
         elif self.dataset in ['enwik8', 'text8']:
-            self.train = self.vocab.tokenize_file(
+            self.train = self.vocab.encode_file(
                 os.path.join(datadir, train_filename), ordered=True, add_eos=False)
-            self.valid = self.vocab.tokenize_file(
+            self.valid = self.vocab.encode_file(
                 os.path.join(datadir, valid_filename), ordered=True, add_eos=False)
-            self.test = self.vocab.tokenize_file(
+            self.test = self.vocab.encode_file(
                 os.path.join(datadir, test_filename), ordered=True, add_eos=False)
         elif self.dataset == 'lm1b':
             self.train = train_paths
-            self.valid = self.vocab.tokenize_file(
+            self.valid = self.vocab.encode_file(
                 os.path.join(datadir, valid_filename), ordered=False, add_double_eos=True)
-            self.test = self.vocab.tokenize_file(
+            self.test = self.vocab.encode_file(
                 os.path.join(datadir, test_filename), ordered=False, add_double_eos=True)
 
     def get_iterator(self, split, *args, **kwargs):
