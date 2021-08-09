@@ -25,13 +25,13 @@ class Vocab: # Word vocab is the default
                  delimiter=None, vocab_file=None):
         """
         APIs:
-            1. count_file -> count tokens
+            1. add_file -> count tokens
             2. build_vocab -> assign IDs to tokens
-            3. encode_file -> convert file to IDs
+            3. tokenize_file -> convert file to IDs
 
         internal:
             tokenize -> split to tokens
-            count_sents -> count freq from parsed sentenses
+            _count_sents -> count freq from parsed sentenses
 
         """
         self.counter = Counter()
@@ -42,8 +42,8 @@ class Vocab: # Word vocab is the default
         self.delimiter = delimiter
         self.vocab_file = vocab_file # cached vocab file
 
-    def tokenize(self, line, add_eos=False, add_double_eos=False):
-        """Split line into tokens, add_eos: add special to end, add_double_eos: add special to begin and end"""
+    def get_symbols(self, line, add_eos=False, add_double_eos=False):
+        """Tokenize line, split on space, add_eos: add special to end, add_double_eos: add special to begin and end"""
         line = line.strip()
         # convert to lower case
         if self.lower_case:
@@ -62,7 +62,7 @@ class Vocab: # Word vocab is the default
         else:
             return symbols
 
-    def count_file(self, path, verbose=True, add_eos=False):
+    def add_file(self, path, verbose=True, add_eos=False):
         """Setup counter with frequencies, return tokens for the entir file"""
         if verbose:
             print('counting file {} ...'.format(path))
@@ -74,13 +74,13 @@ class Vocab: # Word vocab is the default
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     print('    line {}'.format(idx))
-                symbols = self.tokenize(line, add_eos=add_eos)
+                symbols = self.get_symbols(line, add_eos=add_eos)
                 self.counter.update(symbols)
                 sents.append(symbols)
 
         return sents
 
-    def count_sents(self, sents, verbose=False):
+    def _count_sents(self, sents, verbose=False):
         """
             sents : a list of sentences, each a list of tokenized symbols
         """
@@ -99,11 +99,11 @@ class Vocab: # Word vocab is the default
         with open(vocab_file, 'r', encoding='utf-8') as f:
             for line in f:
                 symb = line.strip().split()[0]
-                self.add_symbol(symb)
+                self._add_symbol(symb)
         self.unk_idx = self.sym2idx['<unk>']
 
     def build_vocab(self):
-        """Build the vocab by creating indices from the counter"""
+        """Build the vocab by creating indices from the current counter"""
         if self.vocab_file:
             print('Loading vocab from {}'.format(self.vocab_file))
             self._load_from_file(self.vocab_file)
@@ -115,17 +115,17 @@ class Vocab: # Word vocab is the default
             self.sym2idx = OrderedDict()
 
             for sym in self.special:
-                self.add_special(sym)
+                self._add_special(sym)
 
             for sym, cnt in self.counter.most_common(self.max_size):
                 if cnt < self.min_freq:
                     break
-                self.add_symbol(sym)
+                self._add_symbol(sym)
 
             print('final vocab size is {}, unique tokens are {}'.format(
                 len(self), len(self.counter)))
 
-    def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
+    def tokenize_file(self, path, ordered=False, verbose=True, add_eos=True,
                     add_double_eos=False):
         if verbose:
             print('encoding file {} ...'.format(path))
@@ -135,7 +135,7 @@ class Vocab: # Word vocab is the default
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     print('    line {}'.format(idx))
-                symbols = self.tokenize(line, add_eos=add_eos,
+                symbols = self.get_symbols(line, add_eos=add_eos,
                                         add_double_eos=add_double_eos)
                 encoded.append(self.convert_to_tensor(symbols))
 
@@ -144,7 +144,7 @@ class Vocab: # Word vocab is the default
 
         return encoded
 
-    def encode_sents(self, sents, ordered=False, verbose=True):
+    def _encode_sents(self, sents, ordered=False, verbose=True):
         if verbose:
             print('encoding {} sents ...'.format(len(sents)))
         encoded = []
@@ -158,22 +158,22 @@ class Vocab: # Word vocab is the default
 
         return encoded
 
-    def add_special(self, sym):
+    def _add_special(self, sym):
         if sym not in self.sym2idx:
             self.idx2sym.append(sym)
             self.sym2idx[sym] = len(self.idx2sym) - 1
             setattr(self, '{}_idx'.format(sym.strip('<>')), self.sym2idx[sym])
 
-    def add_symbol(self, sym):
+    def _add_symbol(self, sym):
         if sym not in self.sym2idx:
             self.idx2sym.append(sym)
             self.sym2idx[sym] = len(self.idx2sym) - 1
 
-    def get_sym(self, idx):
+    def _get_sym(self, idx):
         assert 0 <= idx < len(self), 'Index {} out of range'.format(idx)
         return self.idx2sym[idx]
 
-    def get_idx(self, sym):
+    def _get_idx(self, sym):
         if sym in self.sym2idx:
             return self.sym2idx[sym]
         else:
@@ -182,20 +182,20 @@ class Vocab: # Word vocab is the default
             assert hasattr(self, 'unk_idx')
             return self.sym2idx.get(sym, self.unk_idx)
 
-    def get_symbols(self, indices):
-        return [self.get_sym(idx) for idx in indices]
+    def _get_symbols(self, indices):
+        return [self._get_sym(idx) for idx in indices]
 
-    def get_indices(self, symbols):
-        return [self.get_idx(sym) for sym in symbols]
+    def _get_indices(self, symbols):
+        return [self._get_idx(sym) for sym in symbols]
 
     def convert_to_tensor(self, symbols):
-        return torch.LongTensor(self.get_indices(symbols))
+        return torch.LongTensor(self._get_indices(symbols))
 
-    def convert_to_sent(self, indices, exclude=None):
+    def _convert_to_sent(self, indices, exclude=None):
         if exclude is None:
-            return ' '.join([self.get_sym(idx) for idx in indices])
+            return ' '.join([self._get_sym(idx) for idx in indices])
         else:
-            return ' '.join([self.get_sym(idx) for idx in indices if idx not in exclude])
+            return ' '.join([self._get_sym(idx) for idx in indices if idx not in exclude])
 
     def __len__(self):
         return len(self.idx2sym)

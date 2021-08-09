@@ -211,7 +211,7 @@ class LMMultiFileIterator(LMShuffledIterator):
         self.shuffle = shuffle
 
     def get_sent_stream(self, path):
-        sents = self.vocab.encode_file(path, add_double_eos=True)
+        sents = self.vocab.tokenize_file(path, add_double_eos=True)
         if self.shuffle:
             np.random.shuffle(sents)
         sent_stream = iter(sents)
@@ -261,11 +261,11 @@ class Corpus(object):
             train_filename, test_filename, valid_filename = 'wiki.train.tokens', 'wiki.test.tokens', 'wiki.valid.tokens'
 
         if self.dataset in ['ptb', 'wt2', 'enwik8', 'text8']:
-            self.vocab.count_file(os.path.join(datadir, train_filename))
-            self.vocab.count_file(os.path.join(datadir, valid_filename))
-            self.vocab.count_file(os.path.join(datadir, test_filename))
+            self.vocab.add_file(os.path.join(datadir, train_filename))
+            self.vocab.add_file(os.path.join(datadir, valid_filename))
+            self.vocab.add_file(os.path.join(datadir, test_filename))
         elif self.dataset == 'wt103':
-            self.vocab.count_file(os.path.join(datadir, train_filename))
+            self.vocab.add_file(os.path.join(datadir, train_filename))
         elif self.dataset == 'lm1b':
             train_path_pattern = os.path.join(
                 datadir, '1-billion-word-language-modeling-benchmark-r13output',
@@ -276,24 +276,24 @@ class Corpus(object):
         self.vocab.build_vocab()
 
         if self.dataset in ['ptb', 'wt2', 'wt103']:
-            self.train = self.vocab.encode_file(
+            self.train = self.vocab.tokenize_file(
                 os.path.join(datadir, train_filename), ordered=True)
-            self.valid = self.vocab.encode_file(
+            self.valid = self.vocab.tokenize_file(
                 os.path.join(datadir, valid_filename), ordered=True)
-            self.test = self.vocab.encode_file(
+            self.test = self.vocab.tokenize_file(
                 os.path.join(datadir, test_filename), ordered=True)
         elif self.dataset in ['enwik8', 'text8']:
-            self.train = self.vocab.encode_file(
+            self.train = self.vocab.tokenize_file(
                 os.path.join(datadir, train_filename), ordered=True, add_eos=False)
-            self.valid = self.vocab.encode_file(
+            self.valid = self.vocab.tokenize_file(
                 os.path.join(datadir, valid_filename), ordered=True, add_eos=False)
-            self.test = self.vocab.encode_file(
+            self.test = self.vocab.tokenize_file(
                 os.path.join(datadir, test_filename), ordered=True, add_eos=False)
         elif self.dataset == 'lm1b':
             self.train = train_paths
-            self.valid = self.vocab.encode_file(
+            self.valid = self.vocab.tokenize_file(
                 os.path.join(datadir, valid_filename), ordered=False, add_double_eos=True)
-            self.test = self.vocab.encode_file(
+            self.test = self.vocab.tokenize_file(
                 os.path.join(datadir, test_filename), ordered=False, add_double_eos=True)
 
     def get_iterator(self, split, *args, **kwargs):
