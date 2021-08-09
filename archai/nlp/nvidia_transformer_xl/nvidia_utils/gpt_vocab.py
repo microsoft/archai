@@ -7,14 +7,14 @@ import torch
 
 from pytorch_transformers import GPT2Tokenizer
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocabulary import Vocab
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocab import Vocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
 from archai.nlp.tokenizer_utils.token_trainer import create_tokenizer
 from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
 
 # Class GptVocab has been adapted from
-# https://github.com/cybertronai/transformer-xl/blob/master/utils/vocabulary.py
+# https://github.com/cybertronai/transformer-xl/blob/master/utils/vocab.py
 class GptVocab(Vocab):
     def __init__(self, max_size:int, vocab_dir:str):
         # GPT2Tokenizer
