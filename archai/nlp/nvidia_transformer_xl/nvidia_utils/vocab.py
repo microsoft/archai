@@ -13,10 +13,10 @@ class Vocab: # Word vocab is the default
         APIs:
             1. add_file -> count tokens
             2. build_vocab -> assign IDs to tokens
-            3. tokenize_file -> convert file to IDs
+            3. encode_file -> convert file to IDs
 
         internal:
-            _get_symbols -> split to symbols
+            _tokenize_line -> split to symbols
             _count_sents -> count freq from parsed sentenses
 
         """
@@ -28,7 +28,7 @@ class Vocab: # Word vocab is the default
         self.delimiter = delimiter
         self.vocab_file = vocab_file # cached vocab file
 
-    def _get_symbols(self, line, add_eos=False, add_double_eos=False)->List[str]:
+    def _tokenize_line(self, line, add_eos=False, add_double_eos=False)->List[str]:
         """Tokenize line, split on space, add_eos: add special to end, add_double_eos: add special to begin and end"""
         line = line.strip()
         # convert to lower case
@@ -59,7 +59,7 @@ class Vocab: # Word vocab is the default
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     print('    line {}'.format(idx))
-                symbols = self._get_symbols(line, add_eos=add_eos)
+                symbols = self._tokenize_line(line, add_eos=add_eos)
                 self.counter.update(symbols)
 
     def _count_sents(self, sents, verbose=False):
@@ -107,7 +107,7 @@ class Vocab: # Word vocab is the default
             print('final vocab size is {}, unique tokens are {}'.format(
                 len(self), len(self.counter)))
 
-    def tokenize_file(self, path, ordered=False, verbose=True, add_eos=True,
+    def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
                     add_double_eos=False):
         if verbose:
             print('encoding file {} ...'.format(path))
@@ -117,7 +117,7 @@ class Vocab: # Word vocab is the default
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     print('    line {}'.format(idx))
-                tokens = self.tokenize_line(line, add_eos=add_eos,
+                tokens = self.encode_line(line, add_eos=add_eos,
                                         add_double_eos=add_double_eos)
                 encoded.append(tokens)
 
@@ -126,8 +126,8 @@ class Vocab: # Word vocab is the default
 
         return encoded
 
-    def tokenize_line(self, line, add_eos=True, add_double_eos=False):
-        symbols = self._get_symbols(line, add_eos=add_eos, add_double_eos=add_double_eos)
+    def encode_line(self, line, add_eos=True, add_double_eos=False):
+        symbols = self._tokenize_line(line, add_eos=add_eos, add_double_eos=add_double_eos)
         return self._convert_to_tensor(symbols)
 
     def _encode_sents(self, sents, ordered=False, verbose=True):
@@ -159,7 +159,7 @@ class Vocab: # Word vocab is the default
         assert 0 <= idx < len(self), 'Index {} out of range'.format(idx)
         return self.idx2sym[idx]
 
-    def _get_idx(self, sym):
+    def _get_idx(self, sym)->int:
         if sym in self.sym2idx:
             return self.sym2idx[sym]
         else:
@@ -168,13 +168,13 @@ class Vocab: # Word vocab is the default
             assert hasattr(self, 'unk_idx')
             return self.sym2idx.get(sym, self.unk_idx)
 
-    def _inices2symbols(self, indices):
+    def _inices2symbols(self, indices)-List[str]:
         return [self._get_sym(idx) for idx in indices]
 
-    def _get_indices(self, symbols):
+    def _get_indices(self, symbols)->List[int]:
         return [self._get_idx(sym) for sym in symbols]
 
-    def _convert_to_tensor(self, symbols):
+    def _convert_to_tensor(self, symbols)->torch.LongTensor:
         return torch.LongTensor(self._get_indices(symbols))
 
     def _convert_to_sent(self, indices, exclude=None):
