@@ -109,6 +109,9 @@ class Vocab: # Word vocab is the default
 
     def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
                     add_double_eos=False):
+        # ordered = True - returns one tensor of ints for all tokens
+        # ordered=False - returns list of LongTensor, one for each line
+
         if verbose:
             print('encoding file {} ...'.format(path))
         assert os.path.exists(path)
@@ -168,7 +171,7 @@ class Vocab: # Word vocab is the default
             assert hasattr(self, 'unk_idx')
             return self.sym2idx.get(sym, self.unk_idx)
 
-    def _inices2symbols(self, indices)-List[str]:
+    def _indices2symbols(self, indices)->List[str]:
         return [self._get_sym(idx) for idx in indices]
 
     def _get_indices(self, symbols)->List[int]:
