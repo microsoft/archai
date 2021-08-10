@@ -2,33 +2,29 @@ import os
 from collections import Counter
 from collections import OrderedDict
 from typing import List, Optional
+import pathlib
 
 import torch
 
+from overrides import overrides
 
-class Vocab: # Word vocab is the default
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocab_base import VocabBase
+from archai.common import utils
+from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
+
+class WordVocab(VocabBase): # Word vocab is the default
     def __init__(self, special=[], min_freq=0, max_size=None, lower_case=True,
-                 delimiter=None, vocab_file=None):
-        """
-        APIs:
-            1. add_file -> count tokens
-            2. build_vocab -> assign IDs to tokens
-            3. encode_file -> convert file to IDs
-
-        internal:
-            _tokenize_line -> split to symbols
-            _count_sents -> count freq from parsed sentenses
-
-        """
+                 delimiter=None, add_eos=False, add_double_eos=False):
         self.counter = Counter()
         self.special = special
         self.min_freq = min_freq
         self.max_size = max_size
         self.lower_case = lower_case
         self.delimiter = delimiter
-        self.vocab_file = vocab_file # cached vocab file
+        self.add_eos = add_eos
+        self.add_double_eos = add_double_eos
 
-    def _tokenize_line(self, line, add_eos=False, add_double_eos=False)->List[str]:
+    def _tokenize_line(self, line)->List[str]:
         """Tokenize line, split on space, add_eos: add special to end, add_double_eos: add special to begin and end"""
         line = line.strip()
         # convert to lower case
@@ -41,14 +37,14 @@ class Vocab: # Word vocab is the default
         else:
             symbols = line.split(self.delimiter)
 
-        if add_double_eos:  # lm1b
+        if self.add_double_eos:  # lm1b
             return ['<S>'] + symbols + ['<S>']
-        elif add_eos:
+        elif self.add_eos:
             return symbols + ['<eos>']
         else:
             return symbols
 
-    def add_file(self, path, verbose=True, add_eos=False)->None:
+    def _add_file(self, path, verbose=True)->None:
         """Setup counter with frequencies, return tokens for the entir file"""
         if verbose:
             print('counting file {} ...'.format(path))
@@ -58,8 +54,8 @@ class Vocab: # Word vocab is the default
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
-                    print('    line {}'.format(idx))
-                symbols = self._tokenize_line(line, add_eos=add_eos)
+                    print('    file line {}'.format(idx))
+                symbols = self._tokenize_line(line)
                 self.counter.update(symbols)
 
     def _count_sents(self, sents, verbose=False):
@@ -70,67 +66,64 @@ class Vocab: # Word vocab is the default
             print('counting {} sents ...'.format(len(sents)))
         for idx, symbols in enumerate(sents):
             if verbose and idx > 0 and idx % 500000 == 0:
-                print('    line {}'.format(idx))
+                print('    file line {}'.format(idx))
             self.counter.update(symbols)
 
-    def _load_from_file(self, vocab_file):
-        """[This is not used] Load previously cached vocab file"""
-        self.idx2sym = [] # clear out existing symbols
-        self.sym2idx = OrderedDict()
+    def _erase(self):
+        self.idx2sym:List[str] = [] # clear out existing symbols
+        self.sym2idx:OrderedDict[str, int] = OrderedDict()
 
-        with open(vocab_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                symb = line.strip().split()[0]
-                self._add_symbol(symb)
-        self.unk_idx = self.sym2idx['<unk>']
+    @overrides
+    def load(self, path:str)->bool:
+        """Load previously cached vocab file"""
 
-    def build_vocab(self):
-        """Build the vocab by creating indices from the current counter"""
-        if self.vocab_file:
-            print('Loading vocab from {}'.format(self.vocab_file))
-            self._load_from_file(self.vocab_file)
-            print('Final vocab size {}'.format(len(self)))
+        cach_filepath = utils.full_path(os.path.join(path, 'vocab.txt'))
+        if os.path.exists(cach_filepath):
+            self._erase() # clear out existing symbols
+
+            with open(cach_filepath, 'r', encoding='utf-8') as f:
+                for line in f:
+                    symb = line.strip().split()[0]
+                    self._add_symbol(symb)
+            self.unk_idx = self.sym2idx['<unk>']
+            return True
         else:
-            print('Building vocab with min_freq={}, max_size={}'.format(
-                self.min_freq, self.max_size))
-            self.idx2sym = []
-            self.sym2idx = OrderedDict()
+            return False
 
-            for sym in self.special:
-                self._add_special(sym)
+    def _save(self, path:str)->None:
+        path = utils.full_path(path, create=True)
+        cach_filepath = os.path.join(path, 'vocab.txt')
+        with open(cach_filepath, 'w', encoding='utf-8') as f:
+            f.write("\n".join(self.idx2sym))
 
-            for sym, cnt in self.counter.most_common(self.max_size):
-                if cnt < self.min_freq:
-                    break
-                self._add_symbol(sym)
+    @overrides
+    def train(self, filepaths:List[str], save_dir:str)->None:
+        print('Building word vocab with min_freq={}, max_size={}'.format(
+            self.min_freq, self.max_size))
 
-            print('final vocab size is {}, unique tokens are {}'.format(
-                len(self), len(self.counter)))
+        self._erase()
 
-    def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
-                    add_double_eos=False):
-        # ordered = True - returns one tensor of ints for all tokens
-        # ordered=False - returns list of LongTensor, one for each line
+        for filepath in filepaths:
+            self._add_file(filepath)
 
-        if verbose:
-            print('encoding file {} ...'.format(path))
-        assert os.path.exists(path)
-        encoded = []
-        with open(path, 'r', encoding='utf-8') as f:
-            for idx, line in enumerate(f):
-                if verbose and idx > 0 and idx % 500000 == 0:
-                    print('    line {}'.format(idx))
-                tokens = self.encode_line(line, add_eos=add_eos,
-                                        add_double_eos=add_double_eos)
-                encoded.append(tokens)
+        for sym in self.special:
+            self._add_special(sym)
 
-        if ordered:
-            encoded = torch.cat(encoded)
+        for sym, cnt in self.counter.most_common(self.max_size):
+            if cnt < self.min_freq:
+                break
+            self._add_symbol(sym)
 
-        return encoded
+        with nv_utils.distributed.sync_workers() as rank:
+            if rank == 0:
+                self._save(save_dir)
 
-    def encode_line(self, line, add_eos=True, add_double_eos=False):
-        symbols = self._tokenize_line(line, add_eos=add_eos, add_double_eos=add_double_eos)
+        print('final vocab size is {}, unique tokens are {}'.format(
+            len(self), len(self.counter)))
+
+    @overrides
+    def encode_line(self, line):
+        symbols = self._tokenize_line(line)
         return self._convert_to_tensor(symbols)
 
     def _encode_sents(self, sents, ordered=False, verbose=True):
@@ -186,6 +179,7 @@ class Vocab: # Word vocab is the default
         else:
             return ' '.join([self._get_sym(idx) for idx in indices if idx not in exclude])
 
+    @overrides
     def __len__(self):
         return len(self.idx2sym)
 

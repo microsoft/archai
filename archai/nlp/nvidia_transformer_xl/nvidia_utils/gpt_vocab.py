@@ -1,22 +1,26 @@
+from torch.nn.modules.loss import TripletMarginLoss
 from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 import contextlib
 import os
-from typing import Optional
+from typing import List, Optional
 
 import torch
 
+from overrides import overrides
+
 from pytorch_transformers import GPT2Tokenizer
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocab import Vocab
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocab_base import VocabBase
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
 from archai.nlp.tokenizer_utils.token_trainer import create_tokenizer
 from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
+from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 
 # Class GptVocab has been adapted from
 # https://github.com/cybertronai/transformer-xl/blob/master/utils/vocab.py
-class GptVocab(Vocab):
-    def __init__(self, max_size:int, vocab_dir:str):
+class GptVocab(VocabBase):
+    def __init__(self, max_size:int):
         # GPT2Tokenizer
         # vocab_size: 50257
         # bos = eos = unk = '<|endoftext|>'
@@ -25,11 +29,51 @@ class GptVocab(Vocab):
         # max_len = max_len_sentence_pair = max_len_single_sentence = 1024
         # mask_token = None
 
-        self.max_size, self.vocab_dir = max_size, vocab_dir
-        self._filepaths = []
+        self.max_size = max_size
+        self.tokenizer = None
+
+    @overrides
+    def load(self, path:str)->bool:
+        if TokenizerFiles.files_exists(path):
+            token_config = TokenConfig()
+            tokenizer_files = TokenizerFiles.from_path(path)
+
+            self.tokenizer = create_tokenizer(tokenizer_files, token_config)
+            self._finalize_tokenizer()
+
+
+            print('tokenizer len', len(self.tokenizer))
+            print('merges_file', tokenizer_files.merges_file)
+            print('vocab_file', tokenizer_files.vocab_file)
+
+            return True
+        else:
+            return False
+
+    @overrides
+    def train(self, filepaths:List[str], save_dir:str)->None:
+        token_config = TokenConfig()
+
+        print('Creating GPT vocab...')
+        lines = []
+        for filepath in filepaths:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                lines.extend(f.readlines())
+
+        with nv_utils.distributed.sync_workers() as rank:
+            if rank == 0:
+                train_tokenizer(lines, token_config,
+                    vocab_size=self.max_size, save_dir=save_dir)
+
+        self.load(save_dir)
+
+    @overrides
+    def encode_line(self, line)->torch.Tensor:
+        return torch.LongTensor(self.tokenizer.encode(line).ids)
 
     def _finalize_tokenizer(self):
-        self.EOT = self.tokenizer.bos_token_id # .encoder['<|endoftext|>']
+        # TODO: EOT is supposed to be added at the end of the file but currently its not done
+        # self.EOT = self.tokenizer.bos_token_id # .encoder['<|endoftext|>']
 
         pad = 8
         vocab_size = len(self.tokenizer)
@@ -38,48 +82,6 @@ class GptVocab(Vocab):
             token = f'madeupword{i:09d}'
             self.tokenizer.add_tokens([token])
 
+    @overrides
     def __len__(self):
         return len(self.tokenizer)
-
-    def add_file(self, path, verbose=False, add_eos=False):
-        self._filepaths.append(path)
-
-    def build_vocab(self):
-        if not self.vocab_dir:
-            self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-        else:
-            token_config = TokenConfig()
-            if not TokenizerFiles.files_exists(self.vocab_dir):
-                print('Creating GPT vocab...')
-                lines = []
-                for filepath in self._filepaths:
-                    with open(filepath, 'r', encoding='utf-8') as f:
-                        lines.extend(f.readlines())
-
-                tokenizer_files = train_tokenizer(lines, token_config,
-                    vocab_size=self.max_size, save_dir=self.vocab_dir)
-            else:
-                tokenizer_files = TokenizerFiles.from_path(self.vocab_dir)
-
-            self.tokenizer = create_tokenizer(tokenizer_files, token_config)
-            self._finalize_tokenizer()
-
-        print('tokenizer len', len(self.tokenizer))
-        print('merges_file', tokenizer_files.merges_file)
-        print('vocab_file', tokenizer_files.vocab_file)
-
-    def encode_file(self, path, ordered=False, verbose=False, add_eos=True, add_double_eos=False) -> torch.LongTensor:
-        # Suppress warnings about length.
-        print('Encoding files...')
-        with open(path, encoding='utf-8') as f:
-            with open(os.devnull, "w") as devnull, contextlib.redirect_stderr(devnull):
-                out = torch.LongTensor(self.tokenizer.encode(f.read()) + [self.EOT])
-                return out
-        print('Encoding files done.')
-
-    def _tokenize_line(self, line, add_eos=False, add_double_eos=False):
-        return self.tokenizer.encode(line)
-
-    def _convert_to_tensor(self, symbols):
-        return torch.LongTensor(symbols)
-
