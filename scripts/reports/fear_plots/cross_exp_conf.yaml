@@ -120,11 +120,29 @@ natsbench_cifar100:
     # ft_c100_fb1024_ftlr0.1_fte10_ct256_ftt0.3_scu: 'fear stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3 scu'
     # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3: 'fear stage 2: batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
     # ft_c100_fb512_ftlr0.1_fte10_ct256_ftt0.3: 'fear stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
-    ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_scu: 'fear stage 2: batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
     # ft_c100_fb512_ftlr0.1_fte10_ct256_ftt0.3_scu: 'fear stage 2: batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
     # ft_c100_fb256_ftlr0.1_fte5_ct256_ftt0.3: 'fear stage 2: batch 256, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
     # ft_c100_fb256_ftlr0.1_fte10_ct256_ftt0.3: 'fear stage 2: batch 256, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
-    ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_nofreeze: 'ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_nofreeze'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_nofreeze: 'fear stage 2: nofreeze, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_classifier: 'fear stage 2: last layer, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_c16: 'fear stage 2: c16 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_c15: 'fear stage 2: c15 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_c14: 'fear stage 2: c14 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_scu: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_c12: 'fear stage 2: c12 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_c11: 'fear stage 2: c11 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_c10: 'fear stage 2: c10 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.3_c9: 'fear stage 2: c9 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.3'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.25_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.25'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.20_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.20'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.15_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.15'
+    # ft_c100_fb512_ftlr0.1_fte5_ct256_ftt0.10_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.10'
+    ft_c100_fb512_ftlr0.1_fte10_ct256_ftt0.3_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.3'
+    ft_c100_fb512_ftlr0.1_fte15_ct256_ftt0.3_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 15, stage 1: batch 256, thresh 0.3'
+    ft_c100_fb512_ftlr0.1_fte20_ct256_ftt0.3_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 20, stage 1: batch 256, thresh 0.3'
+    ft_c100_fb512_ftlr0.1_fte25_ct256_ftt0.3_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 25, stage 1: batch 256, thresh 0.3'
+    ft_c100_fb512_ftlr0.1_fte30_ct256_ftt0.3_c13: 'fear stage 2: c13 onwards, batch 512, lr 0.1, <br> epochs 30, stage 1: batch 256, thresh 0.3'
+
 
   zero_cost: 
     zc_cifar100: 'zero cost score at initialization'
@@ -210,6 +228,7 @@ natsbench_imagenet16-120:
     # ft_i6_fb1024_ftlr0.1_fte5_ct256_ftt0.1_scu: 'fear stage 2: batch 1024, lr 0.1, <br> epochs 5, stage 1: batch 256, thresh 0.1 val scu'
     # ft_i6_fb1024_ftlr0.1_fte10_ct256_ftt0.1_scu: 'fear stage 2: batch 1024, lr 0.1, <br> epochs 10, stage 1: batch 256, thresh 0.1 val'
     ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_nofreeze: 'ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_nofreeze'
+    
 
   zero_cost: 
     zc_imagenet16-120: 'zero cost score at initialization'

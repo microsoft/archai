@@ -654,7 +654,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_sss_cifar10",
+            "args": ["--dataset", "natsbench_cifar100",
             "--conf-location", "scripts/reports/fear_plots/cross_exp_conf.yaml"]
         },
         {
@@ -753,7 +753,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_darts_reg.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_darts_reg_e5",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_darts_reg_e50",
                 "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
