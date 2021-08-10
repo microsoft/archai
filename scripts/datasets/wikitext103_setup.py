@@ -8,7 +8,7 @@ from archai.common import utils
 
 """Creates sorted version of wikitext103 dataset"""
 
-class Corpus:
+class _Corpus:
     def __init__(self, word2idx, path):
         self.word2idx = word2idx
         self.train = self.encode_file(path % 'train')
@@ -40,7 +40,7 @@ def main():
     word2idx = {w: i for i, w in enumerate(idx2word)}
     assert len(word2idx) == 267735
     # Might take 5-10 minutes to run
-    corpus = Corpus(word2idx, os.path.join(args.datadir, 'wiki.%s.tokens'))
+    corpus = _Corpus(word2idx, os.path.join(args.datadir, 'wiki.%s.tokens'))
 
     train_counts = Counter(corpus.train)
     for i, (token, count) in enumerate(train_counts.most_common()): # Check that our vocab is indeed sorted
