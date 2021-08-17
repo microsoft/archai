@@ -7,6 +7,9 @@ description: run small scripts
 # amlt abort mingpt_experiment :full
 # amlt remove mingpt_experiment :full
 
+# amlt run archai/nlp/nvidia_transformer_xl/run_metrics.yaml :full param_imp_char
+# amlt results param_imp_char :full
+
 target:
   service: amlk8s
   # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
@@ -34,4 +37,5 @@ jobs:
   #- set -e -o xtrace
   #- bash scripts/apex_install.sh
   #- pip install --user -e .
-  - python archai/nlp/nvidia_transformer_xl/metrics.py
+  #- python archai/nlp/nvidia_transformer_xl/metrics.py
+  - python archai/nlp/nvidia_transformer_xl/commons.py

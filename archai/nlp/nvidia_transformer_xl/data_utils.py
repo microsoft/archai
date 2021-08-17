@@ -22,12 +22,12 @@ import sacremoses
 import torch
 
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as utils
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab, BPEVocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocabulary import Vocab
 #from archai.common import utils
 
 class LMOrderedIterator(object):
-    def __init__(self, data, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True):
+    def __init__(self, data, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True, model_ext=None):
         """
             data -- LongTensor -- the LongTensor is strictly ordered
         """
@@ -91,6 +91,114 @@ class LMOrderedIterator(object):
         else:
             warm = True
 
+        return data, target, seq_len, warm
+
+    def get_fixlen_iter(self, start=0):
+        if start != 0:
+            start += self.bptt
+        for i in range(start, self.data.size(0) - 1, self.bptt):
+            self.last_iter = i
+            yield self.get_batch(i)
+
+    def get_varlen_iter(self, start=0, std=5, min_len=5, max_deviation=3):
+        max_len = self.bptt + max_deviation * std
+        i = start
+        while True:
+            bptt = self.bptt if np.random.random() < 0.95 else self.bptt / 2.
+            bptt = min(max_len, max(min_len, int(np.random.normal(bptt, std))))
+            data, target, seq_len = self.get_batch(i, bptt)
+            i += seq_len
+            yield data, target, seq_len
+            if i >= self.data.size(0) - 2:
+                break
+
+    def __iter__(self):
+        return self.get_fixlen_iter()
+
+class LMOrderedIteratorExt(object):
+    def __init__(self, data, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True, model_ext=None):
+        """
+            data -- LongTensor -- the LongTensor is strictly ordered
+        """
+        self.bsz = bsz
+        self.bptt = bptt
+        self.ext_len = ext_len if ext_len is not None else 0
+        self.mem_len = mem_len
+        self.warmup = warmup
+        self.model_ext = model_ext
+
+        self.device = device
+
+        # Work out how cleanly we can divide the dataset into bsz parts.
+        if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+            data, word_segment = data
+            n_step = data.size(0) // bsz
+        else:
+            n_step = data.size(0) // bsz
+
+        # Trim off any extra elements that wouldn't cleanly fit (remainders).
+        data = data[:n_step * bsz]
+        if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+            word_segment = word_segment[:n_step * bsz]
+
+        # Evenly divide the data across the bsz batches.
+        self.data = data.view(bsz, -1).t().contiguous().pin_memory()
+        if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+            self.word_segment = word_segment.view(bsz, -1).t().contiguous().pin_memory()
+
+        if mem_len and warmup:
+            self.warmup_batches = (mem_len + bptt - 1) // bptt
+            self.warmup_elems = self.warmup_batches * bptt
+
+            warmup_data = self.data.roll((self.warmup_elems, 1), (0, 1))[:self.warmup_elems]
+            self.data = torch.cat((warmup_data, self.data))
+
+        # Partition data for DistributedDataParallel
+        world_size = utils.distributed.get_world_size()
+        rank = utils.distributed.get_rank()
+        self.data = self.data.chunk(world_size, dim=1)[rank]
+        if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+            self.word_segment = self.word_segment.chunk(world_size, dim=1)[rank]
+            
+        # Number of mini-batches
+        self.n_batch = (self.data.size(0) + self.bptt - 1) // self.bptt
+
+        self.last_iter = None
+
+    def roll(self, seed):
+        rng = torch.Generator()
+        rng.manual_seed(seed)
+        for i in range(self.data.size(1)):
+            row = self.data[:, i]
+            shift = torch.randint(0, self.data.size(0), (1,), generator=rng)
+            row = torch.cat((row[shift:], row[:shift]))
+            self.data[:, i] = row
+            if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
+                row = self.word_segment[:, i]
+                row = torch.cat((row[shift:], row[:shift]))
+                self.word_segment[:, i] = row
+                
+    def get_batch(self, i, bptt=None):
+        if bptt is None:
+            bptt = self.bptt
+
+        seq_len = min(bptt, self.data.size(0) - 1 - i)
+
+        end_idx = i + seq_len
+        beg_idx = max(0, i - self.ext_len)
+
+        data = self.data[beg_idx:end_idx].to(self.device, non_blocking=True)
+        target = self.data[i+1:i+1+seq_len].to(self.device, non_blocking=True)
+        if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
+            word_segment = self.word_segment[beg_idx:end_idx].to(self.device, non_blocking=True)
+
+        if self.mem_len and self.warmup:
+            warm = i >= self.warmup_elems
+        else:
+            warm = True
+        
+        if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
+            return data, target, seq_len, warm, word_segment
         return data, target, seq_len, warm
 
     def get_fixlen_iter(self, start=0):
@@ -230,11 +338,12 @@ class LMMultiFileIterator(LMShuffledIterator):
 
 
 class Corpus(object):
-    def __init__(self, datadir, dataset, vocab, max_size=None): # by default no args and kwargs are passed
+    def __init__(self, datadir, dataset, vocab, max_size=None, model_ext=None): # by default no args and kwargs are passed
         self.dataset = dataset
+        self.model_ext = model_ext
         if vocab == 'word':
             special, lower_case, vocab_file = [], True, None
-            if dataset in ['wt103', 'wt2']:
+            if dataset in ['wt103', 'wt2', 'enron', "reddit"]:
                 special, lower_case = ['<eos>'], False
             elif dataset == 'ptb':
                 special, lower_case = ['<eos>'], True
@@ -251,8 +360,11 @@ class Corpus(object):
                                lower_case=lower_case,
                                vocab_file=vocab_file)
         elif vocab == 'bpe':
-            vocab_dir = utils.full_path(os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size)), create=True)
-            self.vocab = GptVocab(max_size=max_size or 50000, vocab_dir=vocab_dir)
+            #vocab_dir = utils.full_path(os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size)), create=True)
+            #self.vocab = GptVocab(max_size=max_size or 50000, vocab_dir)
+            vocab_dir = os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size))
+            print("vocab path = %s"%vocab_dir)
+            self.vocab = BPEVocab(max_size=max_size or 50000, vocab_dir=vocab_dir)
         elif vocab == 'char':
             special, lower_case, vocab_file = [], True, None
             if dataset in ['wt103']: # "wt2"
@@ -262,15 +374,15 @@ class Corpus(object):
             self.vocab = Vocab(max_size=max_size,
                                special=special,
                                lower_case=lower_case,
-                               vocab_file=vocab_file, delimiter = "")
+                               vocab_file=vocab_file, delimiter = "", model_ext=self.model_ext)
         else:
             raise RuntimeError('Unsupported vocab')
 
         train_filename, test_filename, valid_filename = 'train.txt', 'test.txt', 'valid.txt'
-        if self.dataset in ['wt2', 'wt103']:
+        if self.dataset in ['wt2', 'wt103', 'enron', "reddit"]:
             train_filename, test_filename, valid_filename = 'wiki.train.tokens', 'wiki.test.tokens', 'wiki.valid.tokens'
 
-        if self.dataset in ['ptb', 'wt2', 'enwik8', 'text8']:
+        if self.dataset in ['ptb', 'wt2', 'enwik8', 'text8', 'enron', "reddit"]:
             self.vocab.count_file(os.path.join(datadir, train_filename))
             #self.vocab.count_file(os.path.join(datadir, valid_filename))
             #self.vocab.count_file(os.path.join(datadir, test_filename))
@@ -281,7 +393,7 @@ class Corpus(object):
                 datadir, '1-billion-word-language-modeling-benchmark-r13output',
                 'training-monolingual.tokenized.shuffled', 'news.en-*')
             train_paths = glob.glob(train_path_pattern)
-            # the vocab will load from file when build_vocab() is called
+            # the vocab will load fcrom file when build_vocab() is called
 
         self.vocab.build_vocab()
 
@@ -292,13 +404,13 @@ class Corpus(object):
                 os.path.join(datadir, valid_filename), ordered=True)
             self.test = self.vocab.encode_file(
                 os.path.join(datadir, test_filename), ordered=True)
-        elif self.dataset in ['enwik8', 'text8', 'wt2']:
+        elif self.dataset in ['enwik8', 'text8', 'wt2', 'enron', "reddit"]:
             self.train = self.vocab.encode_file(
-                os.path.join(datadir, train_filename), ordered=True, add_eos=False)
+                os.path.join(datadir, train_filename), ordered=True, add_eos=False, model_ext=self.model_ext)
             self.valid = self.vocab.encode_file(
-                os.path.join(datadir, valid_filename), ordered=True, add_eos=False)
+                os.path.join(datadir, valid_filename), ordered=True, add_eos=False, model_ext=self.model_ext)
             self.test = self.vocab.encode_file(
-                os.path.join(datadir, test_filename), ordered=True, add_eos=False)
+                os.path.join(datadir, test_filename), ordered=True, add_eos=False, model_ext=self.model_ext)
         elif self.dataset == 'lm1b':
             self.train = train_paths
             self.valid = self.vocab.encode_file(
@@ -308,22 +420,28 @@ class Corpus(object):
 
     def get_iterator(self, split, *args, **kwargs):
         if split == 'train':
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8']:
-                data_iter = LMOrderedIterator(self.train, *args, **kwargs)
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'enron', "reddit"]:
+                if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
+                    data_iter = LMOrderedIteratorExt(self.train, *args, **kwargs)
+                else:
+                    data_iter = LMOrderedIterator(self.train, *args, **kwargs)
             elif self.dataset == 'lm1b':
                 kwargs['shuffle'] = True
                 data_iter = LMMultiFileIterator(self.train, self.vocab, *args, **kwargs)
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8']:
-                data_iter = LMOrderedIterator(data, *args, **kwargs)
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'enron', "reddit"]:
+                if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
+                    data_iter = LMOrderedIteratorExt(self.train, *args, **kwargs)
+                else:
+                    data_iter = LMOrderedIterator(data, *args, **kwargs)
             elif self.dataset == 'lm1b':
                 data_iter = LMShuffledIterator(data, *args, **kwargs)
 
         return data_iter
 
 
-def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None):
+def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None, model_ext=None):
     if vocab == 'word':
         fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.word.v1.pt')
     elif vocab == 'bpe':
@@ -333,15 +451,16 @@ def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None):
     else:
         raise RuntimeError('Unsupported vocab')
 
-    if os.path.exists(fn):
-        logging.info('Loading cached dataset...')
+    if os.path.exists(fn) and not model_ext and vocab != "bpe":
+        logging.info('Loading cached dataset...'+fn)
         corpus = torch.load(fn)
     else:
         logging.info('Producing dataset {}...'.format(dataset))
-        corpus = Corpus(datadir, dataset, vocab, max_size=max_size)
+        corpus = Corpus(datadir, dataset, vocab, max_size=max_size, model_ext=model_ext)
         with utils.distributed.sync_workers() as rank:
             if rank == 0:
-                torch.save(corpus, fn)
+                if not model_ext: # save vocab for default trans-xl model only
+                    torch.save(corpus, fn)
 
     return corpus
 

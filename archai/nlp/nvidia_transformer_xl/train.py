@@ -117,11 +117,11 @@ def parse_args():
     general.add_argument('--cache_dir', default=None, type=str,
                          help='Directory to store dataset cache, if None then use data dir as parent')
     dataset.add_argument('--dataset', type=str, default='wt2',
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'enron', 'reddit'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe', 'char'],
                          help='Type of vocabulary')
-    dataset.add_argument('--vocab_size', type=int, default=5000,
+    dataset.add_argument('--vocab_size', type=int, default=None,
                          help='Size of vocabulary')
 
     model = parser.add_argument_group('model setup - defaults are for base model')
@@ -232,6 +232,10 @@ def parse_args():
                           help='Use variable length')
     training.add_argument('--swap_mem', action='store_true',
                           help='Swap memory tensors to cpu')
+    training.add_argument('--model_ext', type=str, default=None,
+                        help='extensions to trans-xl model') # bert_style_word_segment, char_emb_from_word  # clean_vocab
+    training.add_argument('--char_pooling', type=str, default="mean",
+                        help='type of pooling for obtaining word embeddings from character embeddings') # char_emb_from_word  sum, mean, max
 
     val = parser.add_argument_group('validation setup')
     val.add_argument('--eval_tgt_len', type=int, default=192,
@@ -247,6 +251,8 @@ def parse_args():
     dist.add_argument('--local_rank',  type=int,
                       default=os.getenv('LOCAL_RANK', 0),
                       help='Used for multi-process training.')
+
+                      
 
     parser.set_defaults(**config)
     args, _ = parser.parse_known_args()
@@ -442,10 +448,18 @@ def evaluate(eval_iter, model, args):
     total_len, total_loss = 0, 0.
     with torch.no_grad():
         mems = None
-        for i, (data, target, seq_len, warm) in enumerate(eval_iter):
+        for i, batch_items in enumerate(eval_iter):
+            if args.model_ext == "bert_style_word_segment" or args.model_ext == "char_emb_from_word":
+                (data, target, seq_len, warm, word_segment) = batch_items
+            else:
+                (data, target, seq_len, warm) = batch_items
             if args.eval_max_steps > 0 and i >= args.eval_max_steps:
-                break
-            loss, mems = model(data, target, mems)
+                break  
+            
+            if args.model_ext == "bert_style_word_segment" or args.model_ext == "char_emb_from_word":
+                loss, mems = model(data, target, mems, word_segment)
+            else:
+                loss, mems = model(data, target, mems)
             loss = loss.float().mean()
             if warm:
                 # assert (mems is None) or mems.size(1) == model.mem_len
@@ -463,18 +477,23 @@ def evaluate(eval_iter, model, args):
 
 
 def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
-                    optimizer, device, delay_unscale, args):
+                    optimizer, device, delay_unscale, args, word_segment_chunks):
     # trains a given chunk
     cpu = torch.device('cpu')
     data_i = data_chunks[i].contiguous()
     target_i = target_chunks[i].contiguous()
+    if args.model_ext == "bert_style_word_segment" or args.model_ext == "char_emb_from_word":
+        word_segment_chunks_i = word_segment_chunks[i].contiguous()
 
     if args.swap_mem and mems[i] is not None:
         mems[i] = mems[i].to(device, non_blocking=True)
 
     enable_autocast = args.fp16 and args.amp == 'pytorch'
     with torch.cuda.amp.autocast(enable_autocast):
-        loss, mems[i] = model(data_i, target_i, mems[i])
+        if args.model_ext == "bert_style_word_segment" or args.model_ext == "char_emb_from_word":
+            loss, mems[i] = model(data_i, target_i, mems[i], word_segment_chunks_i)
+        else:
+            loss, mems[i] = model(data_i, target_i, mems[i])
         loss = loss.float().mean().type_as(loss) / args.batch_chunk
 
     if args.swap_mem and mems[i] is not None:
@@ -514,7 +533,11 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
         train_iter = tr_iter.get_fixlen_iter(start=last_iter)
 
     print('Starting training...')
-    for batch, (data, target, seq_len, _) in enumerate(train_iter, start=last_batch+1):
+    for batch, batch_items in enumerate(train_iter, start=last_batch+1):
+        if args.model_ext == "bert_style_word_segment" or args.model_ext == "char_emb_from_word":
+            (data, target, seq_len, _, word_segment) = batch_items
+        else:
+            (data, target, seq_len, _) = batch_items
         log_step += 1
         target_tokens += target.numel()
 
@@ -524,6 +547,9 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
         # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
         data_chunks = torch.chunk(data, args.batch_chunk, 1)
         target_chunks = torch.chunk(target, args.batch_chunk, 1)
+        word_segment_chunks = None
+        if args.model_ext == "bert_style_word_segment" or args.model_ext == "char_emb_from_word":
+            word_segment_chunks = torch.chunk(word_segment, args.batch_chunk, 1)
 
         for i in range(args.batch_chunk):
             # if this is last chunk and distribued mode then use delay_unscale=True for amp
@@ -531,12 +557,12 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
                 with para_model.no_sync():
                     train_loss_chunk = train_iteration(
                         para_model, i, mems, data_chunks, target_chunks, scaler,
-                        optimizer, device, True, args
+                        optimizer, device, True, args, word_segment_chunks = word_segment_chunks
                     )
             else:
                 train_loss_chunk = train_iteration(
                     para_model, i, mems, data_chunks, target_chunks, scaler,
-                    optimizer, device, False, args
+                    optimizer, device, False, args, word_segment_chunks = word_segment_chunks
                 )
 
             train_loss += train_loss_chunk
@@ -636,7 +662,7 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
             logging.info('-' * 100)
             log_str = '| Eval {:3d} at step {:>8d} | time: {:5.2f}s ' \
-                      '| valid loss {:5.2f}'.format(
+                      '| valid loss {:5.10f}'.format(
                           train_step // args.eval_interval,
                           train_step,
                           (time.time() - eval_start_time),
@@ -758,7 +784,7 @@ def main():
     ###########################################################################
     # Load data
     ###########################################################################
-    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, max_size=args.vocab_size)
+    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, max_size=args.vocab_size, model_ext=args.model_ext)
     ntokens = len(corpus.vocab)
     vocab = corpus.vocab
     args.n_token = ntokens
@@ -770,19 +796,19 @@ def main():
         eval_mem_len = args.mem_len + args.tgt_len - args.eval_tgt_len
 
     tr_iter = corpus.get_iterator('train', args.batch_size, args.tgt_len,
-                                  device=device, ext_len=args.ext_len)
+                                  device=device, ext_len=args.ext_len, model_ext=args.model_ext)
     va_iter = corpus.get_iterator('valid', args.eval_batch_size,
                                   args.eval_tgt_len, device=device,
-                                  mem_len=eval_mem_len, ext_len=args.ext_len)
+                                  mem_len=eval_mem_len, ext_len=args.ext_len, model_ext=args.model_ext)
     te_iter = corpus.get_iterator('test', args.eval_batch_size,
                                   args.eval_tgt_len, device=device,
-                                  mem_len=eval_mem_len, ext_len=args.ext_len)
+                                  mem_len=eval_mem_len, ext_len=args.ext_len, model_ext=args.model_ext)
 
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [False]
     if args.adaptive:
-        assert args.dataset in ['wt103', 'wt2', 'lm1b']
-        if args.dataset in ['wt103', 'wt2']:
+        assert args.dataset in ['wt103', 'wt2', 'lm1b', 'enron', 'reddit']
+        if args.dataset in ['wt103', 'wt2', 'enron']:
             cutoffs = [19997, 39997, 199997]
             tie_projs += [True] * len(cutoffs)
         elif args.dataset == 'lm1b':
@@ -815,6 +841,9 @@ def main():
         'attn_type': args.attn_type,
         'clamp_len': args.clamp_len,
         'sample_softmax': args.sample_softmax,
+        'model_ext': args.model_ext,
+        'space_char_idx': vocab.get_idx(" "),
+        'char_pooling': args.char_pooling
         }
 
     model = MemTransformerLM(**model_config)
@@ -955,7 +984,7 @@ def main():
     logging.info('=' * 100)
     logging.info('#params = {}'.format(args.n_all_param))
     logging.info('#non emb params = {}'.format(args.n_nonemb_param))
-
+    
     train_step = 0
     start_epoch = 1
     last_batch = 0
@@ -1028,6 +1057,7 @@ def main():
     # Test
     ###########################################################################
     summary = {}
+    #args.work_dir = "/home/t-gjawahar/archai/amlt/word_train/word5M"
     test_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
     if not args.no_eval and os.path.exists(test_path):
         # Load the best saved model.

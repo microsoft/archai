@@ -20,6 +20,7 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import Lo
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
+from nvidia_utils.exp_utils import memstat_utils
 
 @torch.jit.script
 def add_and_scale(tensor1, tensor2, alpha: float):
@@ -520,7 +521,7 @@ class MemTransformerLM(nn.Module):
                  tgt_len=None, ext_len=None, mem_len=None,
                  cutoffs=[], adapt_inp=False,
                  same_length=False, attn_type=0, clamp_len=-1,
-                 sample_softmax=-1):
+                 sample_softmax=-1, model_ext=None, space_char_idx=None, char_pooling=None):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token
 
@@ -532,6 +533,9 @@ class MemTransformerLM(nn.Module):
 
         self.word_emb = AdaptiveEmbedding(n_token, d_embed, d_model, cutoffs,
                                           div_val=div_val)
+        self.model_ext = model_ext
+        self.space_char_idx = space_char_idx
+        self.char_pooling = char_pooling
 
         self.drop = nn.Dropout(dropout)
 
@@ -613,6 +617,8 @@ class MemTransformerLM(nn.Module):
             self.pos_emb = PositionalEmbedding(self.d_model)
             self.r_w_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
             self.r_r_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
+            if self.model_ext == "bert_style_word_segment":
+                self.word_segment_emb = nn.Embedding(600, self.d_embed)
         # learnable
         elif self.attn_type == 1:
             self.r_emb = nn.Parameter(torch.Tensor(
@@ -681,10 +687,15 @@ class MemTransformerLM(nn.Module):
 
         return new_mems
 
-    def _forward(self, dec_inp, mems=None):
+    def _forward(self, dec_inp, mems=None, word_segment_chunks=None, memstat=None):
         qlen, bsz = dec_inp.size()
 
+        if memstat:
+            memstat_utils("word_emb_start")
         word_emb = self.word_emb(dec_inp)
+        if memstat:
+            memstat_utils("word_emb_end")
+
         mlen = mems[0].size(0) if mems is not None else 0 #  and len(mems)!=0
         klen = mlen + qlen
         if self.same_length:
@@ -707,17 +718,59 @@ class MemTransformerLM(nn.Module):
                                    dtype=word_emb.dtype)
             if self.clamp_len > 0:
                 pos_seq.clamp_(max=self.clamp_len)
+
+            if self.model_ext == "bert_style_word_segment":
+                for cur_i in range(word_segment_chunks.size(1)):
+                    prev_wid = 1
+                    for j in range(word_segment_chunks.size(0)):
+                        if word_segment_chunks[j, cur_i] == 0 and j!=0:
+                            prev_wid += 1
+                        elif word_segment_chunks[j, cur_i] != 0:
+                            word_segment_chunks[j, cur_i] = prev_wid # word_segment_chunks.size(0)-j-1
+
             pos_emb = self.pos_emb(pos_seq)
+            if self.model_ext == "bert_style_word_segment":
+                word_segment_emb = self.word_segment_emb(word_segment_chunks)
+                word_segment_emb = self.drop(word_segment_emb)
+            elif self.model_ext == "char_emb_from_word":
+                word_segment_emb = []
+                for batch_idx in range(0, dec_inp.size(1)):
+                    cur_seq, prev_items = [], None
+                    for seq_idx in range(0, dec_inp.size(0)):
+                        if dec_inp[seq_idx, batch_idx] == self.space_char_idx:
+                            cur_seq.append(word_emb[seq_idx, batch_idx, :])
+                            prev_items = None
+                            continue
+                        if prev_items == None:
+                            cur_seq.append(word_emb[seq_idx, batch_idx, :])
+                            if dec_inp[seq_idx, batch_idx] != self.space_char_idx:
+                                prev_items = [word_emb[seq_idx, batch_idx, :]]
+                            continue
+                        prev_items.append(word_emb[seq_idx, batch_idx, :])
+                        if self.char_pooling == "mean":
+                            cur_seq.append(torch.mean(torch.stack(prev_items), dim=0))
+                        elif self.char_pooling == "max":
+                            cur_seq.append(torch.max(torch.stack(prev_items), dim=0)[0])
+                    cur_seq = torch.stack(cur_seq)
+                    word_segment_emb.append(cur_seq.unsqueeze(1))
+                word_segment_emb = torch.cat(word_segment_emb, dim=1)
 
             core_out = self.drop(word_emb)
             pos_emb = self.drop(pos_emb)
+            
+            if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
+                core_out = word_segment_emb + core_out
 
             for i, layer in enumerate(self.layers):
+                if memstat:
+                    memstat_utils("layer_%d_start"%i)
                 hids.append(core_out.detach())
                 mems_i = None if mems is None or len(mems) == 0 else mems[i]
                 core_out = layer(core_out, pos_emb, self.r_w_bias,
                                  self.r_r_bias, dec_attn_mask=dec_attn_mask,
                                  mems=mems_i)
+                if memstat:
+                    memstat_utils("layer_%d_end"%i)
         # learnable
         elif self.attn_type == 1:
             core_out = self.drop(word_emb)
@@ -775,7 +828,7 @@ class MemTransformerLM(nn.Module):
 
         return core_out, new_mems
 
-    def forward(self, data, target, mems):
+    def forward(self, data, target, mems, word_segment_chunks=None, memstat=None):
         # nn.DataParallel does not allow size(0) tensors to be broadcasted.
         # So, have to initialize size(0) mems inside the model forward.
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
@@ -783,11 +836,20 @@ class MemTransformerLM(nn.Module):
         if mems is None:
             mems = self.init_mems()
 
-        hidden, new_mems = self._forward(data, mems=mems)
+        
+        if memstat:
+            memstat_utils("model_forward_start")
+        hidden, new_mems = self._forward(data, mems=mems, word_segment_chunks=word_segment_chunks,memstat=memstat)
+        if memstat:
+            memstat_utils("model_forward_end")
         
         # reference: https://github.com/lopuhin/transformer-xl/blob/fb11489ca4c6000573d27d5eaca3a641057c0a6a/pytorch/mem_transformer.py
         if target is None:
+            if memstat:
+                memstat_utils("criterion_start")
             log_probs = self.crit(hidden.squeeze(1), target=None)
+            if memstat:
+                memstat_utils("criterion_end")
             return log_probs, new_mems
 
         tgt_len = target.size(0)

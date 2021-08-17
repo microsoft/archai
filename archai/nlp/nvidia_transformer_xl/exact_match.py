@@ -26,6 +26,8 @@ try:
 except ModuleNotFoundError:
     warnings.warn('PyProf is unavailable')
 
+from nvidia_utils.exp_utils import memstat_utils
+
 from archai.nlp.nvidia_transformer_xl import data_utils
 from archai.nlp.nvidia_transformer_xl import nvidia_utils
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
@@ -88,7 +90,7 @@ def parse_args():
     parser.add_argument('--type', type=str, default='pytorch',
                         choices=['pytorch', 'torchscript'],
                         help='type of runtime to use')
-    parser.add_argument('--batch_size', type=int, default=16,
+    parser.add_argument('--batch_size', type=int, default=4,
                         help='batch size')
     parser.add_argument('--tgt_len', type=int, default=64,
                         help='number of tokens to predict')
@@ -152,8 +154,25 @@ def parse_args():
                         help='Beam size')
     parser.add_argument('--topp', type=float, default=0.92,
                         help='p value for top-p (or nucleus) sampling')
-    parser.add_argument('--topk', type=int, default=40,
+    parser.add_argument('--topk', type=int, default=1,
                         help='k for top-k sampling')
+    parser.add_argument('--num_prompts', type=int, default=500,
+                        help='# prompts')
+    parser.add_argument('--num_chars_generate', type=int, default=-1,
+                        help='number of chars to generate')
+    parser.add_argument('--prefix_len', type=int, default=-1,
+                        help='length of prefix')
+
+    # char model extensions
+    #parser.add_argument('--model_ext', type=str, default="bert_style_word_segment",
+    #                    help='extensions to trans-xl model')
+    parser.add_argument('--suggestion_length', type=int, default=3,
+                        help='suggestion length in terms of words')
+    parser.add_argument('--exposure_num_prompt_tokens', type=int, default=10,
+                        help='number of prompt tokens for quantifying exposure bias')
+    parser.add_argument('--exposure_num_generation_tokens', type=int, default=10,
+                        help='number of generation tokens for quantifying exposure bias')
+    parser.add_argument('--memstat', action='store_true', help='call memstat')
 
     parser.set_defaults(**config)
     args, _ = parser.parse_known_args()
@@ -171,8 +190,8 @@ def parse_args():
     return args
 
 
-def load_checkpoint(path):
-    dst = f'cuda:{torch.cuda.current_device()}'
+def load_checkpoint(path, cuda):
+    dst = f'cuda:{torch.cuda.current_device()}' if cuda else torch.device('cpu')
     logging.info(f'Loading checkpoint from {path}')
     checkpoint = torch.load(path, map_location=dst)
     return checkpoint
@@ -188,7 +207,7 @@ def format_log(loss, split, args):
     return log_str
 
 
-def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1, num_characters=1, num_tokens=1, vocab_type="char"):
+def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1, num_characters=1, num_tokens=1, vocab_type="char", model_ext=None):
     total_len, total_loss = 0, 0.
     eval_step = 0
 
@@ -202,14 +221,21 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1, nu
     with torch.no_grad():
         mems = None
         for _ in range(repeat):
-            for idx, (data, target, seq_len, warm) in enumerate(eval_iter):
+            for idx, batch_items in enumerate(eval_iter):
+                if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+                    (data, target, seq_len, warm, word_segment) = batch_items
+                else:
+                    (data, target, seq_len, warm) = batch_items
                 if max_size and idx >= max_size:
                     break
                 eval_step += 1
 
                 torch.cuda.synchronize()
                 start_iter = time.time()
-                loss, mems = model(data, target, mems)
+                if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+                    loss, mems = model(data, target, mems, word_segment)
+                else:
+                    loss, mems = model(data, target, mems)
                 torch.cuda.synchronize()
                 elapsed = time.time() - start_iter
 
@@ -276,7 +302,7 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1, nu
     return avg_loss
 
 # reference: https://github.com/lopuhin/transformer-xl/blob/fb11489ca4c6000573d27d5eaca3a641057c0a6a/pytorch/inference.py#L99
-def get_log_probs(all_xs, model, device, tgt_len):
+def get_log_probs(all_xs, model, device, tgt_len, model_ext=None, space_char_idx=None, memstat=None):
     """ Return log probabilities for next tokens.
     Shape of returned tensor is len(tokens) x len(self.vocab),
     where the first element contains log probabilities for tokens
@@ -292,7 +318,23 @@ def get_log_probs(all_xs, model, device, tgt_len):
             xs = xs.to(device=device)
             batch_dim = 1  # batch size dimension is 1
             xs = xs.unsqueeze(batch_dim)
-            log_probs, mems = model(xs, None, mems)
+            if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+                word_segment = torch.full_like(xs, 0)
+                word_idx = 1
+                for j in range(word_segment.size(0)):
+                    if xs[j,0] == space_char_idx:
+                        word_segment[j,0] = 0
+                        if j!=0:
+                            word_idx += 1
+                    else:
+                        word_segment[j,0] = word_idx
+                log_probs, mems = model(xs, None, mems, word_segment)
+            else:
+                if memstat:
+                    memstat_utils("model_call_start")
+                log_probs, mems = model(xs, None, mems, None, memstat=memstat)
+                if memstat:
+                    memstat_utils("model_call_end")
             log_probs = log_probs.squeeze(batch_dim).data.cpu()
             all_log_probs.append(log_probs)
     return torch.cat(all_log_probs)
@@ -306,19 +348,20 @@ def get_prefix_overlap_len(string_a, string_b):
             return float(num_match/len(string_b))
     return float(num_match/len(string_b)) 
 
-def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_size, topp, topk, prompt_context_percent, vocab_type):
+def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_size, topp, topk, prompt_context_percent, vocab_type, model_ext, suggestion_length=None):
     exact_matches = Counter()
     total = Counter()
     partial_matches = Counter()
+    start_time = time.time()
     with torch.no_grad():
         #pbar = tqdm(total=len(encoded))
         idx = 0
         for prompt_tensor, prompt_tokens, target_tokens in encoded:
             generated_text = []
             #while len("".join(generated_text).split()) < 4 and len(generated_text) < 100:
-            while len(vocab.convert_to_sent(generated_text).split()) < 4 and len(generated_text) < 100:
+            while len(vocab.convert_to_text(generated_text, vocab_type).split()) < 4 and len(generated_text) < 100:
                 # get log probs
-                log_probs = get_log_probs(prompt_tensor, model, device, tgt_len)[-1]
+                log_probs = get_log_probs(prompt_tensor, model, device, tgt_len, model_ext=model_ext, space_char_idx=vocab.get_idx(" "))[-1]
                 top_indices = torch.argsort(log_probs)[-topk:]
                 top_probs = log_probs[top_indices].double().exp()
                 sampled_idx = top_indices[torch.multinomial(top_probs, 1).item()].item()
@@ -331,12 +374,12 @@ def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_siz
                 generated_text.append(sampled_idx)
 
             # compute match metrics
-            #generated_tokens = "".join(generated_text).split()
-            generated_tokens = vocab.convert_to_sent(generated_text).split()
-            for suggestion_len in range(0, min(3, len(target_tokens))):
+            # generated_tokens = "".join(generated_text).split()
+            generated_tokens = vocab.convert_to_text(generated_text, vocab_type).split()
+            for suggestion_len in range(0, min(suggestion_length, len(target_tokens))):
                 exact_match = True
                 for token_i in range(0, suggestion_len+1):
-                    if len(generated_tokens) < token_i + 1 or generated_tokens[token_i] != target_tokens[token_i]:
+                    if len(generated_tokens) < token_i + 1 or generated_tokens[token_i].lower() != target_tokens[token_i].lower():
                         exact_match = False
                         break
                 if exact_match:
@@ -345,7 +388,7 @@ def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_siz
                     #    sys.exit(0)
                 partial_matches[suggestion_len+1] += get_prefix_overlap_len(" ".join(generated_tokens[0:suggestion_len+1]), " ".join(target_tokens[0:suggestion_len+1]))
                 total[suggestion_len+1] += 1
-            print("Index: %d\nPrompt: %s\nGenerated Text: %s\nTarget Text: %s\n\n"%(idx, " ".join(prompt_tokens), vocab.convert_to_sent(generated_text), " ".join(target_tokens)))
+            print("Index: %d\nPrompt: %s\nGenerated Text: %s\nTarget Text: %s\n\n"%(idx, " ".join(prompt_tokens), vocab.convert_to_text(generated_text, vocab_type), " ".join(target_tokens)))
             #pbar.update(1)
             idx += 1
             #if idx > 5:
@@ -359,16 +402,142 @@ def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_siz
     for suggestion_len in range(1, len(total)+1):
         res += "%d: %.2f (%d/%d),"%(suggestion_len, float(partial_matches[suggestion_len])/total[suggestion_len] if total[suggestion_len]!= 0 else 0, partial_matches[suggestion_len], total[suggestion_len])
     print("context=%.2f %s"%(prompt_context_percent, res))
+    end_time = time.time()
+    print("Time = "+str(end_time-start_time))
 
+def inference_latency(encoded, model, device, vocab, tgt_len, generation_method, beam_size, topp, topk, prompt_context_percent, vocab_type, num_chars_generate, suggestion_length, memstat=False):
+    exact_matches = Counter()
+    total = Counter()
+    partial_matches = Counter()
+    start_time = time.time()
+    if memstat:
+        memstat_utils("code_begin")
+    with torch.no_grad():
+        pbar = tqdm(total=len(encoded))
+        idx = 0
+        for prompt_tensor, prompt_tokens, target_tokens in encoded:
+            if memstat:
+                memstat_utils("sample_start")
+            generated_text = []
+            #while len("".join(generated_text).split()) < 4 and len(generated_text) < 100:
+            while len(vocab.convert_to_text(generated_text, vocab_type)) < num_chars_generate and len(generated_text) < num_chars_generate:
+                if memstat:
+                    memstat_utils("timestep_start")
+                # get log probs
+                if memstat:
+                    memstat_utils("get_log_probs_start")
+                log_probs = get_log_probs(prompt_tensor, model, device, tgt_len, memstat=memstat)[-1]
+                if memstat:
+                    memstat_utils("get_log_probs_end")
+                top_indices = torch.argsort(log_probs)[-topk:]
+                top_probs = log_probs[top_indices].double().exp()
+                sampled_idx = top_indices[torch.multinomial(top_probs, 1).item()].item()
+                next_token = vocab.idx2sym[sampled_idx]
+
+                # add to prompt_tensor
+                next_token_tensor = torch.IntTensor(1)
+                next_token_tensor[0] = sampled_idx
+                prompt_tensor = torch.cat((prompt_tensor, next_token_tensor))
+                generated_text.append(sampled_idx)
+                if memstat:
+                    memstat_utils("timestep_end")
+            pbar.update(1)
+            idx += 1
+            if memstat:
+                memstat_utils("sample_end")
+            #if idx > 5:
+            #    break
+        pbar.close()
+    end_time = time.time()
+    if memstat:
+        memstat_utils("code_end")
+    if not memstat:
+        print("Time = "+str(end_time-start_time)+" # prompts = "+str(len(encoded))+ " num_chars_generate = "+str(num_chars_generate))
+
+def exposure_ebm(encoded, model, device, vocab, tgt_len, generation_method, beam_size, topp, topk, prompt_context_percent, vocab_type, num_chars_generate, prefix_len, exposure_num_prompt_tokens=None, exposure_num_generation_tokens=None):
+    with torch.no_grad():
+        pbar = tqdm(total=len(encoded))
+        idx = 0
+        dp_generated_text = []
+        mp_generated_text = []
+        gold_generated_text = []
+        for prompt_tensor, prompt_tokens, target_tokens, model_prefix_prompt_tensor, num_pref_tokens in encoded:
+            data_prefix_generated_text = []
+            while len(data_prefix_generated_text) < 100 and len(vocab.convert_to_text(data_prefix_generated_text, vocab_type).split()) < exposure_num_generation_tokens+1:
+                # get log probs
+                log_probs = get_log_probs(prompt_tensor, model, device, tgt_len)[-1]
+                top_indices = torch.argsort(log_probs)[-topk:]
+                top_probs = log_probs[top_indices].double().exp()
+                sampled_idx = top_indices[torch.multinomial(top_probs, 1).item()].item()
+                next_token = vocab.idx2sym[sampled_idx]
+
+                # add to prompt_tensor
+                next_token_tensor = torch.IntTensor(1)
+                next_token_tensor[0] = sampled_idx
+                prompt_tensor = torch.cat((prompt_tensor, next_token_tensor))
+                data_prefix_generated_text.append(sampled_idx)
+            data_prefix_generated_text = " ".join(vocab.convert_to_text(data_prefix_generated_text, vocab_type).split()[0:exposure_num_generation_tokens])
+
+            model_prefix_prompt_tensor = prompt_tensor
+            while len(model_prefix_prompt_tensor) < len(prompt_tensor) + num_pref_tokens:
+                # get log probs
+                log_probs = get_log_probs(model_prefix_prompt_tensor, model, device, tgt_len)[-1]
+                top_indices = torch.argsort(log_probs)[-topk:]
+                top_probs = log_probs[top_indices].double().exp()
+                sampled_idx = top_indices[torch.multinomial(top_probs, 1).item()].item()
+                next_token = vocab.idx2sym[sampled_idx]
+
+                # add to prompt_tensor
+                next_token_tensor = torch.IntTensor(1)
+                next_token_tensor[0] = sampled_idx
+                model_prefix_prompt_tensor = torch.cat((model_prefix_prompt_tensor, next_token_tensor))
+
+            model_prefix_generated_text = []
+            prompt_tensor = model_prefix_prompt_tensor
+            while len(model_prefix_generated_text) < 100  and len(vocab.convert_to_text(model_prefix_generated_text, vocab_type).split()) < exposure_num_generation_tokens+1:
+                # get log probs
+                log_probs = get_log_probs(prompt_tensor, model, device, tgt_len)[-1]
+                top_indices = torch.argsort(log_probs)[-topk:]
+                top_probs = log_probs[top_indices].double().exp()
+                sampled_idx = top_indices[torch.multinomial(top_probs, 1).item()].item()
+                next_token = vocab.idx2sym[sampled_idx]
+
+                # add to prompt_tensor
+                next_token_tensor = torch.IntTensor(1)
+                next_token_tensor[0] = sampled_idx
+                prompt_tensor = torch.cat((prompt_tensor, next_token_tensor))
+                model_prefix_generated_text.append(sampled_idx)
+            model_prefix_generated_text = " ".join(vocab.convert_to_text(model_prefix_generated_text, vocab_type).split()[0:exposure_num_generation_tokens])
+            
+            dp_generated_text.append(data_prefix_generated_text.strip())
+            mp_generated_text.append(model_prefix_generated_text.strip())
+            gold_generated_text.append(" ".join(target_tokens).strip())
+
+            print(idx)
+            print(data_prefix_generated_text.strip())
+            print(model_prefix_generated_text.strip())
+            print(" ".join(target_tokens).strip())
+
+            pbar.update(1)
+            idx += 1
+            #if idx > 5:
+            #    break
+        pbar.close()
+        import sacrebleu
+        print(sacrebleu.corpus_bleu(dp_generated_text, [gold_generated_text]), len(gold_generated_text))
+        print(sacrebleu.corpus_bleu(mp_generated_text, [gold_generated_text]), len(gold_generated_text))
 
 def main():
     args = parse_args()
+    if args.memstat:
+        memstat_utils("program_start")
 
     if args.type == 'pytorch':
         from mem_transformer_inference import MemTransformerLM
 
-    torch.cuda.set_device(args.local_rank)
-    l2_promote()
+    if args.cuda:
+        torch.cuda.set_device(args.local_rank)
+        l2_promote()
     device = torch.device('cuda' if args.cuda else 'cpu')
     nvidia_utils.distributed.init_distributed(args.cuda)
 
@@ -423,7 +592,7 @@ def main():
         raise RuntimeError('Specify path to checkpoint using --model or --work_dir')
 
     if True: #not args.manual_config:
-        checkpoint = load_checkpoint(model_path)
+        checkpoint = load_checkpoint(model_path, args.cuda)
         vocab_type = checkpoint['args'].vocab
     else:
         checkpoint = None
@@ -450,6 +619,8 @@ def main():
         # process test file
         if args.prompt_context_percent <= 0.0:
             encoded = []
+            if 'model_ext' in checkpoint['model_config'] and (checkpoint['model_config']['model_ext'] == "bert_style_word_segment" or checkpoint['model_config']['model_ext'] == "char_emb_from_word"):
+                word_segment = []
             num_characters, num_tokens = 0, 0
             with open(args.data + "/wiki.test.tokens", 'r', encoding='utf-8') as f:
                 for idx, line in enumerate(f):
@@ -458,31 +629,78 @@ def main():
                     symbols = vocab.tokenize(line, add_eos=False,
                                             add_double_eos=False)
                     encoded.append(vocab.convert_to_tensor(symbols))
+                    if 'model_ext' in checkpoint['model_config'] and (checkpoint['model_config']['model_ext'] == "bert_style_word_segment"  or checkpoint['model_config']['model_ext'] == "char_emb_from_word"):
+                        word_segment.append(vocab.convert_to_bert_style_segment(symbols))
             encoded = torch.cat(encoded)
-            iter = data_utils.LMOrderedIterator(encoded, bsz=args.batch_size,
+            if 'model_ext' in checkpoint['model_config'] and (checkpoint['model_config']['model_ext'] == "bert_style_word_segment"  or checkpoint['model_config']['model_ext'] == "char_emb_from_word"):
+                word_segment = torch.cat(word_segment)
+                iter = data_utils.LMOrderedIteratorExt((encoded, word_segment), bsz=args.batch_size,
+                                                bptt=args.tgt_len, device=device,
+                                                ext_len=args.ext_len, warmup=False, model_ext=checkpoint['model_config']['model_ext'])
+            else:
+                iter = data_utils.LMOrderedIterator(encoded, bsz=args.batch_size,
                                                 bptt=args.tgt_len, device=device,
                                                 ext_len=args.ext_len, warmup=False)
         else:
-            print('preparing prompts....')
+            print('preparing prompts from %s/wiki.test.tokens'%(args.data))
             encoded = []
-            with open(args.data + "/wiki.test.tokens", 'r', encoding='utf-8') as f:
-                for idx, line in enumerate(f):
-                    line = line.strip()
-                    if len(line) == 0 or len(line.split()) <= 1:
-                        continue
-                    tokens = line.split()
-                    num_ptokens = int(args.prompt_context_percent * len(tokens))
-                    prompt_tokens = tokens[0:num_ptokens]
-                    target_tokens = tokens[num_ptokens:]
-                    target_tokens = target_tokens[0:3]
-                    if len(prompt_tokens) == 0 or len(target_tokens) == 0:
-                        continue
-                    prompt_symbols = vocab.tokenize(" ".join(prompt_tokens) + " ", add_eos=False,
-                                            add_double_eos=False)
-                    encoded.append((vocab.convert_to_tensor(prompt_symbols), prompt_tokens, target_tokens))
-                    if len(encoded) == 500:
-                        break
-            
+            #'''
+            if args.prefix_len != -1:
+                prompt_cache = {}
+                with open(args.data + "/wiki.test.tokens", 'r', encoding='utf-8') as f:
+                    for idx, line in enumerate(f):
+                        line = line.strip()
+                        if len(line) == 0 or len(line.split()) <= 1:
+                            continue
+                        tokens = line.split()
+                        if tokens[0] == "=":
+                            continue
+                        num_ptokens = args.exposure_num_prompt_tokens
+                        prompt_tokens = tokens[0:num_ptokens]
+                        if len(prompt_tokens) != num_ptokens:
+                            continue
+                        if " ".join(prompt_tokens) in prompt_cache:
+                            continue
+                        prompt_cache[" ".join(prompt_tokens)] = True
+                        prefix_tokens = tokens[num_ptokens:num_ptokens+args.prefix_len]
+                        if len(prefix_tokens) != args.prefix_len:
+                            continue
+                        target_tokens = tokens[num_ptokens+args.prefix_len:]
+                        if len(target_tokens) == 0:
+                            continue
+                        target_tokens = tokens[num_ptokens:]
+                        target_tokens = target_tokens[0:args.exposure_num_generation_tokens]
+                        prompt_symbols = vocab.tokenize(" ".join(prompt_tokens + prefix_tokens) + " ", add_eos=False, add_double_eos=False)
+                        prompt_tensor = vocab.convert_to_tensor(prompt_symbols)
+                        model_prefix_prompt_tensor = vocab.convert_to_tensor( vocab.tokenize(" ".join(prompt_tokens) + " ", add_eos=False, add_double_eos=False))
+                        encoded.append((prompt_tensor, prompt_tokens, target_tokens, model_prefix_prompt_tensor,  prompt_tensor.size(0) - model_prefix_prompt_tensor.size(0)))
+                        if len(encoded) == args.num_prompts:
+                            break
+            else:
+                prompt_cache = {}
+                #with open(args.data + "/wiki.test.tokens", 'r', encoding='utf-8') as f:
+                with open("/home/t-gjawahar/object_dir/WordData20210110/gan/tokenized_test.txt", 'r', encoding='utf-8') as f:
+                    for idx, line in enumerate(f):
+                        line = line.strip()
+                        if len(line) == 0 or len(line.split()) <= 1:
+                            continue
+                        tokens = line.split()
+                        if tokens[0] == "=":
+                            continue
+                        num_ptokens = int(args.prompt_context_percent * len(tokens))
+                        prompt_tokens = tokens[0:num_ptokens]
+                        if " ".join(prompt_tokens) in prompt_cache:
+                            continue
+                        prompt_cache[" ".join(prompt_tokens)] = True
+                        target_tokens = tokens[num_ptokens:]
+                        target_tokens = target_tokens[0:args.suggestion_length]
+                        if len(prompt_tokens) == 0 or len(target_tokens) == 0:
+                            continue
+                        prompt_symbols = vocab.tokenize(" ".join(prompt_tokens) + " ", add_eos=False,
+                                                add_double_eos=False)
+                        encoded.append((vocab.convert_to_tensor(prompt_symbols), prompt_tokens, target_tokens))
+                        if len(encoded) == args.num_prompts:
+                            break
             '''
             prompts = []
             # world knowledge
@@ -498,14 +716,20 @@ def main():
             prompts.append(("Pokiri ( English : Rogue ) is a 2006 Indian Telugu @-@ language action film , written and directed by Puri Jagannadh .", "")) # present in training data
             prompts.append(("Gilchrist 's autobiography True Colours , published in 2008 , was the subject of much controversy . Gilchrist questioned the integrity of leading Indian batsman Sachin Tendulkar in relation to the evidence he presented in the Monkeygate dispute , which was about allegations of racism against Harbhajan Singh .", "")) # present in training data
             prompts.append(("Bradman 's Test batting average of 99 @.@ 94 has become one of cricket 's most famous , iconic statistics . No other player who has played more than 20 Test match innings has finished with a Test average of more than 61 . Bradman scored centuries at a rate better than one every three innings — in 80 Test innings", "")) # present in training data
+            #prompts = [prompts[0]]
 
             for prompt_tokens, target_tokens in prompts:
                 prompt_tokens = prompt_tokens.split()
                 target_tokens = target_tokens.split()
-                prompt_symbols = vocab.tokenize(" " + " ".join(prompt_tokens), add_eos=False,
+                prompt_symbols = None
+                if vocab_type == "word":
+                    prompt_symbols = vocab.tokenize(" ".join(prompt_tokens), add_eos=False,
+                                            add_double_eos=False)
+                elif vocab_type == "char":
+                    prompt_symbols =  ['<S>'] + vocab.tokenize(" " + " ".join(prompt_tokens), add_eos=False,
                                             add_double_eos=False)
                 encoded.append((vocab.convert_to_tensor(prompt_symbols), prompt_tokens, target_tokens))
-            '''
+            #'''
     else:
         # Load dataset
         corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, vocab_type)
@@ -566,12 +790,18 @@ def main():
     with torch.autograd.profiler.emit_nvtx(enabled=args.profile):
         if args.prompt_context_percent <= 0.0:
             loss = evaluate(iter, model, meters, args.log_interval, args.max_size,
-                        args.repeat, num_characters=num_characters, num_tokens=num_tokens, vocab_type=vocab_type)
+                        args.repeat, num_characters=num_characters, num_tokens=num_tokens, vocab_type=vocab_type, model_ext=checkpoint['model_config']['model_ext'] if 'model_ext' in checkpoint['model_config'] else None)
+        elif args.num_chars_generate != -1:
+            inference_latency(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type, num_chars_generate=args.num_chars_generate, suggestion_length=args.suggestion_length, memstat=args.memstat)
+        elif args.prefix_len != -1:
+            exposure_ebm(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type, num_chars_generate=args.num_chars_generate, prefix_len=args.prefix_len, exposure_num_prompt_tokens=args.exposure_num_prompt_tokens, exposure_num_generation_tokens=args.exposure_num_generation_tokens)
         else:
-            generate(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type)
+            generate(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type, model_ext=checkpoint['model_config']['model_ext'] if 'model_ext' in checkpoint['model_config'] else None, suggestion_length=args.suggestion_length)
 
     #perplexity = math.exp(loss)
     #log_str = format_log(loss, args.split, args)
+    if args.memstat:
+        memstat_utils("program_end")
 
 if __name__ == "__main__":
     # Disable profiling executor

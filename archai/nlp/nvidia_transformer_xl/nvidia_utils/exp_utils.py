@@ -29,6 +29,10 @@ from . import distributed as nv_distributed
 
 from archai.common import utils, common
 
+from subprocess import Popen, PIPE
+import os
+PROCESS_ID = os.getpid()
+
 class AverageMeter:
     """
     Computes and stores the average and current value
@@ -226,6 +230,19 @@ def l2_promote():
         _libcudart.cudaDeviceSetLimit(ctypes.c_int(0x05), ctypes.c_int(128))
         _libcudart.cudaDeviceGetLimit(pValue, ctypes.c_int(0x05))
         assert pValue.contents.value == 128
+
+def memstat_utils(message):
+    process = Popen(["memstat"], stdout=PIPE)
+    (output, err) = process.communicate()
+    memory = 0
+    lines = []
+    for line in str(output).split("\\n"):
+        if "PID %d"%PROCESS_ID in " ".join(line.strip().split()):
+            memory += int(line.strip().split(": PID")[0][0:-1])
+            lines.append(line)
+            print(line)
+    print(lines)
+    print("memstat output of %d at %s: %d"%(PROCESS_ID, message, memory/1000.0))
 
 def dataset_dir_name(dataset:str)->str:
     if dataset=='wt103':

@@ -105,7 +105,6 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                     self.out_layers_weights.append(
                         nn.Parameter(torch.zeros(r_idx - l_idx, d_emb_i))
                         )
-
         self.keep_order = keep_order
 
     def _compute_logit(self, hidden, weight, bias, proj):
@@ -162,7 +161,6 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                         [weight_i, self.cluster_weight], dim=0)
                     bias_i = torch.cat(
                         [bias_i, self.cluster_bias], dim=0)
-
                 weights.append(weight_i)
                 biases.append(bias_i)
 
@@ -171,7 +169,18 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj)
             head_logprob = F.log_softmax(head_logit, dim=1)
             if target is None:
-                return head_logprob
+                # reference https://pytorch.org/docs/stable/_modules/torch/nn/modules/adaptive.html#AdaptiveLogSoftmaxWithLoss
+                out = hidden.new_empty((hidden.size(0), self.n_token))
+                out[:, 0:self.shortlist_size] = head_logprob[:, 0:self.shortlist_size]
+                start_idx = self.shortlist_size
+                for i in range(1, len(self.cutoffs)):
+                    cluster_output = self._compute_logit(hidden, weights[i], biases[i], None)
+                    cluster_logprob = F.log_softmax(cluster_output, dim=1)
+                    end_idx = start_idx + cluster_logprob.size(1)
+                    output_logprob = cluster_logprob + head_logprob[:, -i].repeat(cluster_logprob.size(1),1).transpose(0, 1)
+                    out[:, start_idx:end_idx] = output_logprob
+                    start_idx = end_idx
+                return out
 
             nll = torch.zeros_like(target, dtype=hidden.dtype, device=hidden.device)
 

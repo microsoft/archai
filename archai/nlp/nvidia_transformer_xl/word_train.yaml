@@ -1,0 +1,346 @@
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :wt103_base word_train  --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :word5M :word10M :word20M :word30M :word40M :word50M :word80M word_train 
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :word5M_nofp :word10M_nofp :word20M_nofp :word30M_nofp :word40M_nofp :word50M_nofp :word80M_nofp :word100M_nofp :word200M_nofp word_train 
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :word100M :word200M word_train 
+# amlt status word_train
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :word80M_nofp_enron :char80M_nofp_enron word_train --upload-data
+# amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :inference_word_model_metrics word_train :word5M_nofp inference_word
+# amlt results transxl_char_exp2_randsearch :v1corrected :transxl_char_base_lr_0p001 :transxl_char_params_80M :transxl_char_large_lr_0p001 :transxl_char_large_lr_0p001_layer28 :transxl_char_large_lr_0p001_layer32 :transxl_char_params_100M :transxl_char_params_200M :transxl_char_params_5M :transxl_char_params_50M
+# amlt results word_train :word40M_nofp :word50M_nofp :word80M_nofp
+# amlt results word_train :char80M_nofp_enron :word80M_nofp_enron
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :char80M_nofp_reddit_g4 :word80M_nofp_reddit_g4 word_train --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :char80M_nofp_reddit :word80M_nofp_reddit word_train --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :subword_nofp_reddit_g4_default word_train
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :subword_nofp_reddit_g4_100 :subword_nofp_reddit_g4_500 :subword_nofp_reddit_g4_1K :subword_nofp_reddit_g4_5K :subword_nofp_reddit_g4_10K :subword_nofp_reddit_g4_25K :subword_nofp_reddit_g4_52K word_train
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :subword_nofp_wt103_g4_52K :subword_nofp_wt103_g4_25K :subword_nofp_wt103_g4_10K :subword_nofp_wt103_g4_5K :subword_nofp_wt103_g4_1K word_train
+# amlt results word_train :char80M_nofp_enron :word80M_nofp_enron
+
+# 8/15
+# amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :inference_word_model_metrics word_train :word80M_nofp_reddit_g4 inference_word
+# amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :inference_char_model_metrics word_train :char80M_nofp_reddit_g4 inference_word
+
+# 8/16
+# amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :inference_word_model_metrics word_train :subword_nofp_reddit_g4_100 :subword_nofp_reddit_g4_25K :subword_nofp_reddit_g4_52K :subword_nofp_reddit_g4_1K :subword_nofp_reddit_g4_10K :subword_nofp_reddit_g4_5K :subword_nofp_reddit_g4_500 inference_word
+# amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :inference_word_model_metrics word_train :subword_nofp_wt103_g4_52K :subword_nofp_wt103_g4_10K :subword_nofp_wt103_g4_5K :subword_nofp_wt103_g4_1K :subword_nofp_wt103_g4_25K inference_word
+# amlt results word_train :subword_nofp_wt103_g4_1K
+
+description: run big scripts
+
+target:
+  service: amlk8s
+  # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
+  name: ms-shared # itplabrr1cl1, ms-shared
+  vc: resrchvc
+
+environment:
+  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+  registry: docker.io # any public registry can be specified here
+  setup:
+    - set -e -o xtrace
+    - sudo apt-get -y install git
+    - pip install --user tensorboard
+
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: /home/t-gjawahar/archai
+
+data:
+  #storage_id: 'us_east'
+  #remote_dir: dataroot
+  local_dir: /home/t-gjawahar/object_dir/wikitext-103
+  remote_dir: dataroot/textpred/wikitext-103
+  #local_dir: /home/t-gjawahar/object_dir/enron-char
+  #remote_dir: dataroot/textpred/enron-char
+  #local_dir: /home/t-gjawahar/object_dir/reddit_non_offensive
+  #remote_dir: dataroot/textpred/reddit
+
+# list of jobs to run, we run 2 jobs in this example
+jobs:
+- name: wt103_base #80M
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --config dgx1_1gpu_fp16 --config_file wt103_base.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 40000
+- name: word80M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all 
+- name: word40M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --max_step 200000 --save_all
+- name: word5M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 3 --n_head 4 --d_model 18 --d_head 24 --d_inner 60 --max_step 200000 --save_all
+- name: word10M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 4 --n_head 4 --d_model 36 --d_head 24 --d_inner 150 --max_step 200000 --save_all
+- name: word20M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 6 --n_head 8 --d_model 74 --d_head 32 --d_inner 200 --max_step 200000 --save_all
+- name: word30M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 12 --n_head 8 --d_model 100 --d_head 32 --d_inner 768 --max_step 200000 --save_all
+- name: word50M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 16 --n_head 8 --d_model 160 --d_head 32 --d_inner 800 --max_step 200000 --save_all 
+- name: word100M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 18 --n_head 16 --d_model 256 --d_head 64 --d_inner 900 --max_step 200000 --save_all
+- name: word200M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 18 --n_head 16 --d_model 512 --d_head 64 --d_inner 825 --max_step 200000 --save_all
+- name: word80M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all 
+- name: word40M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --max_step 200000 --save_all
+- name: word5M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 3 --n_head 4 --d_model 18 --d_head 24 --d_inner 60 --max_step 200000 --save_all
+- name: word10M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 4 --n_head 4 --d_model 36 --d_head 24 --d_inner 150 --max_step 200000 --save_all
+- name: word20M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 6 --n_head 8 --d_model 74 --d_head 32 --d_inner 200 --max_step 200000 --save_all
+- name: word30M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 12 --n_head 8 --d_model 100 --d_head 32 --d_inner 768 --max_step 200000 --save_all
+- name: word50M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 160 --d_head 32 --d_inner 800 --max_step 200000 --save_all 
+- name: word100M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 18 --n_head 16 --d_model 256 --d_head 64 --d_inner 900 --max_step 200000 --save_all
+- name: word200M_nofp
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 18 --n_head 16 --d_model 512 --d_head 64 --d_inner 825 --max_step 200000 --save_all
+- name: word80M_nofp_enron
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all --dataset enron --vocab_size 267735
+- name: char80M_nofp_enron
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset enron --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name char80M_nofp_enron --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: inference_word_model_metrics
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 192 --mem_len 192 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_word_model_metrics --prompt_context_percent 0.5 --cuda # accuracy
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 192 --mem_len 192 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_40000.pt --experiment_name inference_word_model_metrics --prompt_context_percent 0.5 --cuda # accuracy
+  #- CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR  --tgt_len 192 --mem_len 192 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_word_model_metrics --batch_size 1 --prompt_context_percent 0.5 --num_prompts 100 --num_chars_generate 100 # latency
+  #- memstat
+  #- CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 192 --mem_len 192 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_word_model_metrics --batch_size 1 --prompt_context_percent 0.5 --num_prompts 5 --num_chars_generate 100 --memstat # memutil
+- name: inference_char_model_metrics
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_char_model_metrics --prompt_context_percent 0.5 --cuda # accuracy
+  - CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR  --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_char_model_metrics --batch_size 1 --prompt_context_percent 0.5 --num_prompts 100 --num_chars_generate 100 # latency
+  - memstat
+  - CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_char_model_metrics --batch_size 1 --prompt_context_percent 0.5 --num_prompts 5 --num_chars_generate 100 --memstat # memutil
+- name: word80M_nofp_reddit
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_8gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all --dataset reddit --vocab_size 267735
+- name: char80M_nofp_reddit
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset reddit --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name char80M_nofp_reddit --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: word80M_nofp_reddit_g4 # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all --dataset reddit --vocab_size 267735 --batch_size 32
+- name: char80M_nofp_reddit_g4 # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset reddit --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name char80M_nofp_reddit --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: subword_nofp_reddit_g4_default # ms-shared
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --config dgx1_1gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all --dataset reddit --vocab_size 1000 --vocab bpe
+- name: subword_nofp_reddit_g4_52K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 40000 --save_all --dataset reddit --vocab_size 52000 --vocab bpe
+- name: subword_nofp_reddit_g4_25K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 40000 --save_all --dataset reddit --vocab_size 25000 --vocab bpe
+- name: subword_nofp_reddit_g4_10K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 40000 --save_all --dataset reddit --vocab_size 10000 --vocab bpe
+- name: subword_nofp_reddit_g4_5K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 40000 --save_all --dataset reddit --vocab_size 5000 --vocab bpe
+- name: subword_nofp_reddit_g4_1K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 40000 --save_all --dataset reddit --vocab_size 1000 --vocab bpe
+- name: subword_nofp_reddit_g4_500 # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 40000 --save_all --dataset reddit --vocab_size 500 --vocab bpe
+- name: subword_nofp_reddit_g4_100 # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 40000 --save_all --dataset reddit --vocab_size 100 --vocab bpe
+- name: subword_nofp_wt103_g4_52K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all  --vocab_size 52000 --vocab bpe
+- name: subword_nofp_wt103_g4_25K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all  --vocab_size 25000 --vocab bpe
+- name: subword_nofp_wt103_g4_10K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all  --vocab_size 10000 --vocab bpe
+- name: subword_nofp_wt103_g4_5K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all  --vocab_size 5000 --vocab bpe
+- name: subword_nofp_wt103_g4_1K # ms-shared
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python  -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all  --vocab_size 1000 --vocab bpe

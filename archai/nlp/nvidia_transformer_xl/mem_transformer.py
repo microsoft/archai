@@ -15,6 +15,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import time, sys
 
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import LogUniformSampler
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
@@ -234,7 +235,7 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
 
     def forward(self, w, r, r_w_bias, r_r_bias, attn_mask=None, mems=None):
         qlen, rlen, bsz = w.size(0), r.size(0), w.size(1)
-
+        
         if mems is not None:
             cat = torch.cat([mems, w], 0)
             if self.pre_lnorm:
@@ -441,7 +442,6 @@ class RelPartialLearnableDecoderLayer(nn.Module):
                                      pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r, r_w_bias, r_r_bias, dec_attn_mask=None, mems=None):
-
         output = self.dec_attn(dec_inp, r, r_w_bias, r_r_bias,
                                attn_mask=dec_attn_mask,
                                mems=mems)
@@ -520,7 +520,7 @@ class MemTransformerLM(nn.Module):
                  tgt_len=None, ext_len=None, mem_len=None,
                  cutoffs=[], adapt_inp=False,
                  same_length=False, attn_type=0, clamp_len=-1,
-                 sample_softmax=-1):
+                 sample_softmax=-1, model_ext=None, space_char_idx=None, char_pooling=None):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token
 
@@ -532,6 +532,9 @@ class MemTransformerLM(nn.Module):
 
         self.word_emb = AdaptiveEmbedding(n_token, d_embed, d_model, cutoffs,
                                           div_val=div_val)
+        self.model_ext = model_ext
+        self.space_char_idx = space_char_idx
+        self.char_pooling = char_pooling
 
         self.drop = nn.Dropout(dropout)
 
@@ -613,6 +616,11 @@ class MemTransformerLM(nn.Module):
             self.pos_emb = PositionalEmbedding(self.d_model)
             self.r_w_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
             self.r_r_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
+            if self.model_ext == "bert_style_word_segment":
+                self.word_segment_emb = nn.Embedding(600, self.d_embed)
+            elif self.model_ext == "char_emb_from_word":
+                #self.word_segment_emb = nn.Embedding(self.n_token, self.d_embed)
+                self.word_segment_emb = nn.EmbeddingBag(self.n_token, self.d_embed, mode=self.char_pooling)
         # learnable
         elif self.attn_type == 1:
             self.r_emb = nn.Parameter(torch.Tensor(
@@ -681,7 +689,7 @@ class MemTransformerLM(nn.Module):
 
         return new_mems
 
-    def _forward(self, dec_inp, mems=None):
+    def _forward(self, dec_inp, mems=None, word_segment_chunks=None):
         qlen, bsz = dec_inp.size()
 
         word_emb = self.word_emb(dec_inp)
@@ -707,10 +715,97 @@ class MemTransformerLM(nn.Module):
                                    dtype=word_emb.dtype)
             if self.clamp_len > 0:
                 pos_seq.clamp_(max=self.clamp_len)
+
             pos_emb = self.pos_emb(pos_seq)
+            if self.model_ext == "bert_style_word_segment":
+                #start_time = time.time()
+                for cur_i in range(word_segment_chunks.size(1)):
+                    prev_wid = 1
+                    for j in range(word_segment_chunks.size(0)):
+                        if word_segment_chunks[j, cur_i] == 0 and j!=0:
+                            prev_wid += 1
+                        elif word_segment_chunks[j, cur_i] != 0:
+                            word_segment_chunks[j, cur_i] = prev_wid # word_segment_chunks.size(0)-j-1
+                word_segment_emb = self.word_segment_emb(word_segment_chunks)
+                word_segment_emb = self.drop(word_segment_emb)
+                #print("--- %s seconds ---" % (time.time() - start_time))
+            elif self.model_ext == "char_emb_from_word":
+                '''
+                start_time = time.time()
+                word_segment_emb = []
+                for batch_idx in range(0, dec_inp.size(1)):
+                    cur_seq, prev_items = [], None
+                    for seq_idx in range(0, dec_inp.size(0)):
+                        if dec_inp[seq_idx, batch_idx] == self.space_char_idx:
+                            cur_seq.append(word_emb[seq_idx, batch_idx, :])
+                            prev_items = None
+                            continue
+                        if prev_items == None:
+                            cur_seq.append(word_emb[seq_idx, batch_idx, :])
+                            if dec_inp[seq_idx, batch_idx] != self.space_char_idx:
+                                prev_items = [word_emb[seq_idx, batch_idx, :]]
+                            continue
+                        prev_items.append(word_emb[seq_idx, batch_idx, :])
+                        if self.char_pooling == "mean":
+                            cur_seq.append(torch.mean(torch.stack(prev_items), dim=0))
+                        elif self.char_pooling == "max":
+                            cur_seq.append(torch.max(torch.stack(prev_items), dim=0)[0])
+                    cur_seq = torch.stack(cur_seq)
+                    word_segment_emb.append(cur_seq.unsqueeze(1))
+                word_segment_emba = torch.cat(word_segment_emb, dim=1)
+                print("--- %s seconds ---" % (time.time() - start_time))
+                # fast approach
+                word_segment_emb = word_emb #self.word_segment_emb(dec_inp)
+                start_time = time.time()
+                #print(word_emb.size(), dec_inp.size(), word_segment_emb.size())
+                for batch_idx in range(0, dec_inp.size(1)):
+                    cur_emb = None
+                    for seq_idx in range(0, dec_inp.size(0)):
+                        if dec_inp[seq_idx, batch_idx] == self.space_char_idx:
+                            cur_emb = None
+                            continue
+                        if cur_emb == None:
+                            cur_emb = word_segment_emb[seq_idx, batch_idx]
+                            continue
+                        if self.char_pooling == "max":
+                            word_segment_emb[seq_idx, batch_idx] = torch.max(word_segment_emb[seq_idx, batch_idx], word_segment_emb[seq_idx-1, batch_idx])
+                '''
+                start_time = time.time()
+                input, offsets = [], []
+                offset_idx = 0
+                batchidx2cur_emb = {}
+                for seq_idx in range(0, dec_inp.size(0)):
+                    for batch_idx in range(0, dec_inp.size(1)):
+                        if batch_idx not in batchidx2cur_emb:
+                            batchidx2cur_emb[batch_idx] = []
+                        if dec_inp[seq_idx, batch_idx] == self.space_char_idx:
+                            input.append(self.space_char_idx)
+                            offsets.append(offset_idx)
+                            offset_idx += 1
+                            batchidx2cur_emb[batch_idx] = []
+                            continue
+                        if len(batchidx2cur_emb[batch_idx]) == 0:
+                            input.append(dec_inp[seq_idx, batch_idx].item())
+                            offsets.append(offset_idx)
+                            offset_idx += 1
+                            batchidx2cur_emb[batch_idx] = [dec_inp[seq_idx, batch_idx].item()]
+                            continue
+                        offsets.append(offset_idx)
+                        batchidx2cur_emb[batch_idx].append(dec_inp[seq_idx, batch_idx].item())
+                        for item in batchidx2cur_emb[batch_idx]:
+                            input.append(item)
+                            offset_idx += 1
+                del batchidx2cur_emb
+                word_segment_emb = self.word_segment_emb(torch.tensor(input, dtype=torch.long, device=dec_inp.device), torch.tensor(offsets, dtype=torch.long, device=dec_inp.device))
+                word_segment_emb = word_segment_emb.view(word_emb.size(0), word_emb.size(1), word_emb.size(2))
+                word_segment_emb = self.drop(word_segment_emb)
+                del input, offsets
 
             core_out = self.drop(word_emb)
             pos_emb = self.drop(pos_emb)
+
+            if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
+                core_out = word_segment_emb + core_out
 
             for i, layer in enumerate(self.layers):
                 hids.append(core_out.detach())
@@ -773,9 +868,10 @@ class MemTransformerLM(nn.Module):
 
         new_mems = self._update_mems(hids, mems, qlen, mlen)
 
+
         return core_out, new_mems
 
-    def forward(self, data, target, mems):
+    def forward(self, data, target, mems, word_segment_chunks=None):
         # nn.DataParallel does not allow size(0) tensors to be broadcasted.
         # So, have to initialize size(0) mems inside the model forward.
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
@@ -783,7 +879,7 @@ class MemTransformerLM(nn.Module):
         if mems is None:
             mems = self.init_mems()
 
-        hidden, new_mems = self._forward(data, mems=mems)
+        hidden, new_mems = self._forward(data, mems=mems, word_segment_chunks=word_segment_chunks)
 
         tgt_len = target.size(0)
         pred_hid = hidden[-tgt_len:]

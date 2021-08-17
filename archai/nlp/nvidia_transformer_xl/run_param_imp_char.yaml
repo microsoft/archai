@@ -1,0 +1,198 @@
+# amlt run archai/nlp/nvidia_transformer_xl/run_param_imp_char.yaml :transxl_char_params_80M :transxl_char_params_80M_layer14 :transxl_char_params_80M_layer12 :transxl_char_params_80M_layer18 :transxl_char_params_80M_layer20 :transxl_char_params_80M_nhead4 :transxl_char_params_80M_nhead2 :transxl_char_params_80M_nhead12 :transxl_char_params_80M_nhead16 :transxl_char_params_80M_dhead32 :transxl_char_params_80M_dhead128 :transxl_char_params_80M_dembed500 :transxl_char_params_80M_dembed1000 :transxl_char_params_80M_dmodel500 :transxl_char_params_80M_dmodel1000 :transxl_char_params_80M_dinner512 :transxl_char_params_80M_dinner1024 :transxl_char_params_80M_dinner3072 :transxl_char_params_80M_m256_t768 :transxl_char_params_80M_m768_t256 :transxl_char_params_80M_m256_t1024 :transxl_char_params_80M_m1024_t256 param_imp_char --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/run_param_imp_char.yaml :transxl_char_params_80M_m768_t256 :transxl_char_params_80M_dembed1000 :transxl_char_params_80M_nhead2 :transxl_char_params_80M_dembed500 :transxl_char_params_80M :transxl_char_params_80M_layer18 :transxl_char_params_80M_layer20 :transxl_char_params_80M_dhead32 :transxl_char_params_80M_m256_t768 :transxl_char_params_80M_layer14 :transxl_char_params_80M_nhead4 :transxl_char_params_80M_m256_t1024 param_imp_char 
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :word5M :word10M :word20M :word30M :word40M :word50M :word80M word_train 
+# amlt run archai/nlp/nvidia_transformer_xl/word_train.yaml :word100M :word200M word_train 
+# amlt abort param_imp_char
+# amlt map archai/nlp/nvidia_transformer_xl/run_param_imp_char.yaml :inference_char param_imp_char :transxl_char_params_80M :transxl_char_params_80M_layer14 :transxl_char_params_80M_layer12 :transxl_char_params_80M_layer18 :transxl_char_params_80M_layer20 :transxl_char_params_80M_nhead4 :transxl_char_params_80M_nhead2 :transxl_char_params_80M_nhead12 :transxl_char_params_80M_nhead16 :transxl_char_params_80M_dhead32 :transxl_char_params_80M_dhead128 :transxl_char_params_80M_dembed500 :transxl_char_params_80M_dembed1000 :transxl_char_params_80M_dmodel500 :transxl_char_params_80M_dmodel1000 :transxl_char_params_80M_dinner512 :transxl_char_params_80M_dinner1024 :transxl_char_params_80M_dinner3072 :transxl_char_params_80M_m256_t768 :transxl_char_params_80M_m768_t256 :transxl_char_params_80M_m256_t1024 :transxl_char_params_80M_m1024_t256 inference_transxl_char
+
+description: run big scripts
+
+target:
+  service: amlk8s
+  # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
+  name: ms-shared # itplabrr1cl1, ms-shared
+  vc: resrchvc
+
+environment:
+  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+  registry: docker.io # any public registry can be specified here
+  setup:
+    - set -e -o xtrace
+    - sudo apt-get -y install git
+    - pip install --user tensorboard
+
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: /home/t-gjawahar/archai
+
+data:
+  #storage_id: 'us_east'
+  #remote_dir: dataroot
+  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char
+  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char
+
+# list of jobs to run, we run 2 jobs in this example
+jobs:
+- name: transxl_char_params_80M
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_layer14
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 14 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_layer12
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_layer18
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 18 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_layer20
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 20 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_nhead4
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 4 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_nhead2
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 2 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_nhead12
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 12 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_nhead16
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 16 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dhead32
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 32 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dhead128
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 128 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dembed500
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 500 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dembed1000
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 1000 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dmodel500
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 500 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dmodel1000
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 1000 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dinner512
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dinner1024
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 1024 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_dinner3072
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_m256_t768
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 256 --tgt_len 768 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_m768_t256
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 768 --tgt_len 256 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_m256_t1024
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 256 --tgt_len 1024 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: transxl_char_params_80M_m1024_t256
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 1024 --tgt_len 256 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all 
+- name: inference_char
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_char_8_14 --prompt_context_percent 0.5 --cuda
+

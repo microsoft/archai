@@ -4,16 +4,32 @@ description: run big scripts
 # amlt status finetune-transxl_char_exp2_randsearch
 # amlt target info amlk8s
 # amlt logs -f transxl_char_sample :opt1
-# amlt results transxl_char_exp2_randsearch :v1corrected
-# amlt abort transxl_char_exp2_randsearch :full
+# amlt results transxl_char_exp2_randsearch :v1corrected :transxl_char_base_lr_0p001 :transxl_char_params_80M :transxl_char_large_lr_0p001 :transxl_char_large_lr_0p001_layer28 :transxl_char_large_lr_0p001_layer32 :transxl_char_params_100M :transxl_char_params_200M :transxl_char_params_5M :transxl_char_params_50M 
+# amlt abort transxl_char_exp2_randsearch :transxl_char_params_100M :transxl_char_params_200M
 # amlt remove mingpt_experiment :full
 # amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :finetune transxl_char_exp2_randsearch :v1corrected finetune-transxl_char_exp2_randsearch
 # amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :transxl_char_base_lr_0p1 :transxl_char_base_lr_0p001 transxl_char_exp2_randsearch
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :transxl_char_params_100M :transxl_char_params_200M transxl_char_exp2_randsearch
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_latency transxl_char_exp2_randsearch :v1corrected :transxl_char_base_lr_0p001 :transxl_char_params_80M :transxl_char_large_lr_0p001 :transxl_char_large_lr_0p001_layer28 :transxl_char_large_lr_0p001_layer32 :transxl_char_params_100M :transxl_char_params_200M :transxl_char_params_5M :transxl_char_params_50M inference_transxl
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference transxl_char_exp2_randsearch :v1corrected :transxl_char_large_lr_0p001 :transxl_char_large_lr_0p001_layer28 :transxl_char_large_lr_0p001_layer32 :transxl_char_params_5M inference_transxl
+# "inference_transxl"
+# amlt map <yaml file> <name of job> <name of parent experiment> <name of parent job> <name you want to give your map experiment>
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_sampling_methods transxl_char_exp2_randsearch :transxl_char_base_lr_0p001 :transxl_char_params_80M inference_transxl
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml 
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_latency transxl_char_exp2_randsearch :v1corrected :transxl_char_base_lr_0p001 :transxl_char_params_80M :transxl_char_large_lr_0p001 :transxl_char_large_lr_0p001_layer28 :transxl_char_large_lr_0p001_layer32 :transxl_char_params_100M :transxl_char_params_200M :transxl_char_params_5M :transxl_char_params_50M inference_transxl
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :transxl_char_params_80M_bertstyle_lr0p001_8g :transxl_char_params_80M_saveall transxl_char_exp2_randsearch
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :transxl_char_params_80M_bertstyle_lr0p0001 :transxl_char_params_80M_bertstyle_lr0p01_restart_10K :transxl_char_params_80M_bertstyle_lr0p01 transxl_char_exp2_randsearch
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :transxl_char_params_80M_char_emb_from_word_max_lr0p001 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001 :transxl_char_params_80M_char_emb_from_word_sum_lr0p001 transxl_char_exp2_randsearch
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 transxl_char_exp2_randsearch
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_word_latency word_train :word10M :word30M :word50M :word40M :word20M :word80M :word5M :word100M :word200M inference_transxl
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char transxl_char_exp2_randsearch :transxl_char_params_80M_bertstyle_lr0p001 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001 :transxl_char_params_80M_bertstyle_lr0p01_restart_10K :transxl_char_params_80M_char_emb_from_word_max_lr0p001 :transxl_char_params_80M_clean_vocab inference_transxl
+# amlt results transxl_char_exp2_randsearch :transxl_char_params_80M :transxl_char_params_50M :transxl_char_base
+# amlt abort mingpt_experiment :pl_full_100M :pl_full_80M_512sl :pl_full_200M :pl_full_80M :pl_full
 
 target:
   service: amlk8s
   # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
-  name: ms-shared # itplabrr1cl1, ms-shared
+  name: ms-shared # itplabrr1cl1, ms-shared, 
   vc: resrchvc
 
 environment:
@@ -34,6 +50,8 @@ data:
   #remote_dir: dataroot
   local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char
   remote_dir: dataroot/textpred/wikitext-2-raw-v1-char
+  #local_dir: /home/t-gjawahar/object_dir/enron-char
+  #remote_dir: dataroot/textpred/enron-char
 
 # list of jobs to run, we run 2 jobs in this example
 jobs:
@@ -199,10 +217,62 @@ jobs:
   - bash scripts/apex_install.sh
   - pip install --user -e .
   - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 36 --n_head 8 --d_head 128 --d_embed 1024 --d_inner 3072 --mem_len 512 --tgt_len 512 --d_model 1024 --dropout 0.15 -dropatt 0.15 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024  --batch_size 64 --lr 0.001  
-- name: finetune # continued pretraining
-  sku: G8
+- name: inference_char
+  sku: G1
   command:
-  - ./finetune --pretrained-model $$AMLT_MAP_INPUT_DIR/checkpoint_last.pt --output $$AMLT_OUTPUT_DIR/checkpoint_last.pt
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent -1 --cuda
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --cuda
+  #- CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --batch_size 1 --prompt_context_percent 0.5 --num_prompts 200 --num_chars_generate 25
+  #- CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --batch_size 1 --prompt_context_percent 0.5 --num_prompts 200 --num_chars_generate 50
+  #- CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --batch_size 1 --prompt_context_percent 0.5 --num_prompts 200 --num_chars_generate 100
+- name: inference_word_match
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 192 --mem_len 192 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_word_match --prompt_context_percent -1 --cuda
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 192 --mem_len 1000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_word_match --prompt_context_percent 0.5 --cuda
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 192 --mem_len 192 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_word_match --prompt_context_percent 0.5 --cuda
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --tgt_len 192 --mem_len 500 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_word_match --prompt_context_percent 0.5 --cuda
+- name: inference_word_latency
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR  --tgt_len 192 --mem_len 1000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_word_latency --batch_size 1 --prompt_context_percent 0.5 --num_prompts 200 --num_chars_generate 100
+- name: inference_sampling_methods
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --topk 1 --cuda
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --topk 10 --seed 123 --cuda
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --topk 40 --seed 123 --cuda
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --topk 10 --seed 456 --cuda
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --topk 40 --seed 456 --cuda
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --topk 10 --seed 789 --cuda
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --topk 40 --seed 789 --cuda
+- name: inference_latency
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --batch_size 1 --prompt_context_percent 0.5 --num_prompts 200 --num_chars_generate 100
+- name: inference_exposure_bias
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - pip install sacrebleu
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --cuda --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name transxl_char_exp3_wikifull_select_v1corrected --batch_size 64 --prompt_context_percent 0.5 --prefix_len 20 --topk 1 --num_prompts 5000 --suggestion_length 3 --exposure_num_prompt_tokens 10 --exposure_num_generation_tokens 10
 - name: transxl_char_base_lr_0p1 # https://github.com/kimiyoung/transformer-xl/blob/master/pytorch/run_enwik8_base.sh
   sku: G8
   command:
@@ -217,3 +287,174 @@ jobs:
   - bash scripts/apex_install.sh
   - pip install --user -e .
   - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 512 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_80M # extension of transxl_char_base_lr_0p001
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: wt103_base 
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/train.py --config_file wt103_base.yaml --d_model 50 --d_inner 50 --d_embed 50 --config dgx1_1gpu_fp16
+  #- python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --config_file wt103_base.yaml --d_model 50 --d_inner 50 --d_embed 50 --config dgx1_1gpu_fp16
+- name: transxl_char_params_80M_copy # copy of transxl_char_params_80M
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_80M_saveall # copy of transxl_char_params_80M
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all
+- name: transxl_char_params_100M # extending transxl_char_params_80M_copy
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 20 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_200M # extending transxl_char_params_80M_copy
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 24 --n_head 8 --d_head 128 --d_embed 900 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 900 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_5M # extending transxl_char_params_80M_copy
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 4 --n_head 8 --d_head 64 --d_embed 256 --d_inner 450 --mem_len 512 --tgt_len 512 --d_model 350 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_10M # extending transxl_char_params_80M_copy
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 5 --n_head 8 --d_head 64 --d_embed 512 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 525 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_25M # extending transxl_char_params_80M_copy
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 10 --n_head 8 --d_head 64 --d_embed 580 --d_inner 1024 --mem_len 512 --tgt_len 512 --d_model 525 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_50M # extending transxl_char_params_80M_copy
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 10 --n_head 8 --d_head 64 --d_embed 512 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_75M # extending transxl_char_params_80M_copy
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 950 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 915 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: transxl_char_params_80M_bertstyle # extending transxl_char_params_80M
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  #- python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext bert_style_word_segment
+  - python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 1000 --eval_interval 100 --n_layer 2 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_1gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext bert_style_word_segment
+- name: transxl_char_params_80M_bertstyle_lr0p001 #(corrected)
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext bert_style_word_segment
+- name: transxl_char_params_80M_bertstyle_lr0p001_8g #(corrected)
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext bert_style_word_segment --save_all
+- name: transxl_char_params_80M_bertstyle_lr0p01 #(corrected)
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.01 --model_ext bert_style_word_segment
+- name: transxl_char_params_80M_bertstyle_lr0p0001 #(corrected)
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.0001 --model_ext bert_style_word_segment
+- name: transxl_char_params_80M_char_emb_from_word_mean_lr0p001
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling mean --save_all
+- name: transxl_char_params_80M_char_emb_from_word_max_lr0p001
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling max --save_all
+- name: transxl_char_params_80M_char_emb_from_word_sum_lr0p001
+  sku: G8
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling sum --save_all
+- name: transxl_char_params_80M_bertstyle_lr0p01_restart_10K  #(corrected)
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 10000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.01 --model_ext bert_style_word_segment
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 390000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext bert_style_word_segment --restart $$AMLT_OUTPUT_DIR/checkpoint_last.pt
+- name: transxl_char_params_80M_clean_vocab
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext clean_vocab
+- name: transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling mean --save_all
+- name: transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling max --save_all
+- name: transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling sum --save_all

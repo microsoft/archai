@@ -19,10 +19,12 @@ from typing import Optional
 
 import torch
 
+import string
+
 
 class Vocab: # Word vocab is the default
     def __init__(self, special=[], min_freq=0, max_size=None, lower_case=True,
-                 delimiter=None, vocab_file=None):
+                 delimiter=None, vocab_file=None, model_ext=None):
         """
         APIs:
             1. count_file -> count tokens
@@ -41,6 +43,7 @@ class Vocab: # Word vocab is the default
         self.lower_case = lower_case
         self.delimiter = delimiter
         self.vocab_file = vocab_file # cached vocab file
+        self.model_ext = model_ext
 
     def tokenize(self, line, add_eos=False, add_double_eos=False):
         """Split line into tokens, add_eos: add special to end, add_double_eos: add special to begin and end"""
@@ -51,7 +54,15 @@ class Vocab: # Word vocab is the default
 
         # empty delimiter '' will evaluate False
         if self.delimiter == '':
-            symbols = list(line)
+            if hasattr(self, 'model_ext') and self.model_ext == "clean_vocab":
+                symbols = []
+                for symb in line:
+                    if '0' <= symb <= '9' or 'a' <= symb <= 'z' or 'A' <= symb <= 'Z' or symb == ' ' or symb in string.punctuation:
+                        symbols.append(symb)
+                    else:
+                        symbols.append('<unk>')
+            else:
+                symbols = list(line)
         else:
             symbols = line.split(self.delimiter)
 
@@ -61,7 +72,6 @@ class Vocab: # Word vocab is the default
             return symbols + ['<eos>']
         else:
             return symbols
-        print(symbols)
 
     def count_file(self, path, verbose=True, add_eos=False):
         """Setup counter with frequencies, return tokens for the entir file"""
@@ -122,26 +132,18 @@ class Vocab: # Word vocab is the default
                 if cnt < self.min_freq:
                     break
                 self.add_symbol(sym)
-
+            
             print('final vocab size is {}, unique tokens are {}'.format(
                 len(self), len(self.counter)))
-        '''
-        for i in range(26):
-            if chr(97+i) not in self.sym2idx:
-                print(chr(97+i))
-            if chr(65+i) not in self.sym2idx:
-                print(chr(65+i))
-        for i in range(10):
-            if str(i) not in self.sym2idx:
-                print(str(i))
-        '''
 
     def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
-                    add_double_eos=False):
+                    add_double_eos=False, model_ext=None):
         if verbose:
             print('encoding file {} ...'.format(path))
         assert os.path.exists(path)
         encoded = []
+        if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+            word_segment = []
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
@@ -149,9 +151,15 @@ class Vocab: # Word vocab is the default
                 symbols = self.tokenize(line, add_eos=add_eos,
                                         add_double_eos=add_double_eos)
                 encoded.append(self.convert_to_tensor(symbols))
+                if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+                    word_segment.append(self.convert_to_bert_style_segment(symbols))
 
         if ordered:
             encoded = torch.cat(encoded)
+            if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
+                word_segment = torch.cat(word_segment)
+                return encoded, word_segment
+            return encoded
 
         return encoded
 
@@ -200,6 +208,17 @@ class Vocab: # Word vocab is the default
 
     def convert_to_tensor(self, symbols):
         return torch.LongTensor(self.get_indices(symbols))
+    
+    def convert_to_bert_style_segment(self, symbols):
+        items = []
+        wi = 1
+        for sym in symbols:
+            if sym == " ":
+                items.append(0)
+                wi += 1
+            else:
+                items.append(wi)
+        return torch.LongTensor(items)
 
     def convert_to_sent(self, indices, exclude=None):
         if exclude is None:
@@ -209,3 +228,9 @@ class Vocab: # Word vocab is the default
 
     def __len__(self):
         return len(self.idx2sym)
+    
+    def convert_to_text(self, indices, vocab_type):
+        if vocab_type == "word":
+            return ' '.join([self.get_sym(idx) for idx in indices]).replace("<eos>", "")#.strip()
+        if vocab_type == "char":
+            return ''.join([self.get_sym(idx) for idx in indices]).replace("<eos>", "")#.strip()
