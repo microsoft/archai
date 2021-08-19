@@ -13,12 +13,12 @@ from archai.common import utils
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 
 class WordVocab(VocabBase): # Word vocab is the default
-    def __init__(self, special=[], min_freq=0, max_size=None, lower_case=True,
+    def __init__(self, special=[], min_freq=0, vocab_size=None, lower_case=True,
                  delimiter=None, add_eos=False, add_double_eos=False):
         self.counter = Counter()
         self.special = special
         self.min_freq = min_freq
-        self.max_size = max_size
+        self.vocab_size = vocab_size
         self.lower_case = lower_case
         self.delimiter = delimiter
         self.add_eos = add_eos
@@ -98,8 +98,8 @@ class WordVocab(VocabBase): # Word vocab is the default
 
     @overrides
     def train(self, filepaths:List[str], save_dir:str)->None:
-        print('Building word vocab with min_freq={}, max_size={}'.format(
-            self.min_freq, self.max_size))
+        print('Building word vocab with min_freq={}, vocab_size={}'.format(
+            self.min_freq, self.vocab_size))
 
         self._erase()
 
@@ -109,7 +109,7 @@ class WordVocab(VocabBase): # Word vocab is the default
         for sym in self.special:
             self._add_special(sym)
 
-        for sym, cnt in self.counter.most_common(self.max_size):
+        for sym, cnt in self.counter.most_common(self.vocab_size):
             if cnt < self.min_freq:
                 break
             self._add_symbol(sym)

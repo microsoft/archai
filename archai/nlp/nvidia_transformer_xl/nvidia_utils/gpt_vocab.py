@@ -20,7 +20,7 @@ from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 # Class GptVocab has been adapted from
 # https://github.com/cybertronai/transformer-xl/blob/master/utils/vocab.py
 class GptVocab(VocabBase):
-    def __init__(self, max_size:int):
+    def __init__(self, vocab_size:int):
         # GPT2Tokenizer
         # vocab_size: 50257
         # bos = eos = unk = '<|endoftext|>'
@@ -29,7 +29,7 @@ class GptVocab(VocabBase):
         # max_len = max_len_sentence_pair = max_len_single_sentence = 1024
         # mask_token = None
 
-        self.max_size = max_size
+        self.vocab_size = vocab_size
         self.tokenizer = None
 
     @overrides
@@ -63,7 +63,7 @@ class GptVocab(VocabBase):
         with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
                 train_tokenizer(lines, token_config,
-                    vocab_size=self.max_size, save_dir=save_dir)
+                    vocab_size=self.vocab_size, save_dir=save_dir)
 
         self.load(save_dir)
 

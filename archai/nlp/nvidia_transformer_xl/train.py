@@ -756,7 +756,7 @@ def main():
     ###########################################################################
     # Load data
     ###########################################################################
-    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, max_size=args.vocab_size)
+    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, vocab_size=args.vocab_size)
     ntokens = len(corpus.vocab)
     vocab = corpus.vocab
     args.n_token = ntokens
