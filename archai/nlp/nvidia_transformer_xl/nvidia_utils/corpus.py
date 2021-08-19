@@ -13,31 +13,36 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.lm_iterators import LMMultiFi
 
 class Corpus:
     def __init__(self, datadir:str, dataset:str, vocab_type:str, cachedir:str,
-                 max_size:Optional[int]=None):
+                 vocab_size:Optional[int]=None):
         self.datadir = datadir
         self.dataset = dataset
         self.vocab_type = vocab_type
-        self.max_size =  max_size
+        self.vocab_size =  vocab_size
 
+        # where we maintain the cache for the corpus based on dataset+vocab_type+vocab_size
         self.corpus_cache_dir = cachedir or os.path.join(datadir, 'cache')
-        self.corpus_cache_dir = utils.full_path(os.path.join(self.corpus_cache_dir, f'{dataset}',f'{vocab_type}',f'{max_size}'), create=True)
+        self.corpus_cache_dir = utils.full_path(os.path.join(self.corpus_cache_dir, f'{dataset}',f'{vocab_type}',f'{vocab_size}'), create=True)
 
+        # where dataset npy files are cached
         self.train_cache_filepath = os.path.join(self.corpus_cache_dir, 'train.npy')
         self.valid_cache_filepath = os.path.join(self.corpus_cache_dir, 'valid.npy')
         self.test_cache_filepath = os.path.join(self.corpus_cache_dir, 'test.npy')
 
+        # where tokenizer files will be cached
         self._vocab_cache_dir = os.path.join(self.corpus_cache_dir, 'vocab')
 
     def train_and_encode(self):
             self.vocab = self._create_train_vocab(self.datadir, self.dataset, self.vocab_type,
-                                             self._vocab_cache_dir, self.max_size)
+                                             self._vocab_cache_dir, self.vocab_size)
 
             self.train, self.valid, self.test = self._get_encoded_files(
                 self.vocab, self.datadir, self.dataset)
 
     def load(self):
+        # if files for all dataset npy exist then we have corpus cache
         if os.path.exists(self.train_cache_filepath) and os.path.exists(self.valid_cache_filepath) and os.path.exists(self.test_cache_filepath):
-            self.vocab = Corpus._create_vocab(self.datadir, self.dataset, self.vocab_type, self.max_size)
+            # ensure that we have tokenizer cache as well
+            self.vocab = Corpus._create_vocab(self.datadir, self.dataset, self.vocab_type, self.vocab_size)
             vocab_exist = self.vocab.load(self._vocab_cache_dir)
             assert vocab_exist
 
@@ -47,18 +52,19 @@ class Corpus:
 
             return True
         else:
-            return False
+            return False # no cache exists
 
     def save(self):
-            np.save(self.train_cache_filepath, self.train.numpy())
-            np.save(self.valid_cache_filepath, self.valid.numpy())
-            np.save(self.test_cache_filepath, self.test.numpy())
+        # save dataset cache
+        np.save(self.train_cache_filepath, self.train.numpy())
+        np.save(self.valid_cache_filepath, self.valid.numpy())
+        np.save(self.test_cache_filepath, self.test.numpy())
 
     @staticmethod
     def _create_train_vocab(datadir:str, dataset:str, vocab_type:str, vocab_cache_dir:str,
-                      max_size:Optional[int]=None)->VocabBase:
-        vocab = Corpus._create_vocab(datadir, dataset, vocab_type, max_size)
-        Corpus._train_vocab(vocab, datadir, dataset, vocab_type, vocab_cache_dir, max_size)
+                      vocab_size:Optional[int]=None)->VocabBase:
+        vocab = Corpus._create_vocab(datadir, dataset, vocab_type, vocab_size)
+        Corpus._train_vocab(vocab, datadir, dataset, vocab_type, vocab_cache_dir, vocab_size)
 
         return vocab
 
@@ -77,7 +83,7 @@ class Corpus:
 
     @staticmethod
     def _create_vocab(datadir:str, dataset:str, vocab_type:str,
-                      max_size:Optional[int]=None)->VocabBase:
+                      vocab_size:Optional[int]=None)->VocabBase:
         if vocab_type == 'word':
             special, lower_case, vocab_file = [], True, None # vocab file is text file of symbols, one per line
             if dataset in ['wt103', 'wt2']:
@@ -93,9 +99,9 @@ class Corpus:
 
             special += ['<S>', '<unk>'] # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
             add_eos = dataset in ['ptb', 'wt2', 'wt103', 'lm1b']
-            vocab = WordVocab(max_size=max_size, special=special, lower_case=lower_case, add_eos=add_eos)
+            vocab = WordVocab(vocab_size=vocab_size, special=special, lower_case=lower_case, add_eos=add_eos)
         elif vocab_type == 'bpe':
-            vocab = GptVocab(max_size=max_size or 50000)
+            vocab = GptVocab(vocab_size=vocab_size or 50000)
         else:
             raise RuntimeError(f'Unsupported vocab type: {vocab_type}')
 
@@ -110,7 +116,7 @@ class Corpus:
 
     @staticmethod
     def _train_vocab(vocab:VocabBase, datadir:str, dataset:str, vocab_type:str,
-                    vocab_cache_dir:str, max_size:Optional[int]=None)->None:
+                    vocab_cache_dir:str, vocab_size:Optional[int]=None)->None:
 
         if not vocab.load(vocab_cache_dir):
             train_filename, test_filename, valid_filename = \
