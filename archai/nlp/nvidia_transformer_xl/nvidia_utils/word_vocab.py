@@ -1,4 +1,5 @@
 import os
+import logging
 from collections import Counter
 from collections import OrderedDict
 from typing import List, Optional
@@ -47,14 +48,14 @@ class WordVocab(VocabBase): # Word vocab is the default
     def _add_file(self, path, verbose=True)->None:
         """Setup counter with frequencies, return tokens for the entir file"""
         if verbose:
-            print('counting file {} ...'.format(path))
+            logging.info('counting file {} ...'.format(path))
         assert os.path.exists(path)
 
         # read lines, count frequencies of tokens, convert to tokens
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
-                    print('    file line {}'.format(idx))
+                    logging.info('    file line {}'.format(idx))
                 symbols = self._tokenize_line(line)
                 self.counter.update(symbols)
 
@@ -63,23 +64,21 @@ class WordVocab(VocabBase): # Word vocab is the default
             sents : a list of sentences, each a list of tokenized symbols
         """
         if verbose:
-            print('counting {} sents ...'.format(len(sents)))
+            logging.info('counting {} sents ...'.format(len(sents)))
         for idx, symbols in enumerate(sents):
             if verbose and idx > 0 and idx % 500000 == 0:
-                print('    file line {}'.format(idx))
+                logging.info('    file line {}'.format(idx))
             self.counter.update(symbols)
 
-    def _erase(self):
+    def _clear(self):
         self.idx2sym:List[str] = [] # clear out existing symbols
         self.sym2idx:OrderedDict[str, int] = OrderedDict()
 
     @overrides
     def load(self, path:str)->bool:
         """Load previously cached vocab file"""
-
-        cach_filepath = utils.full_path(os.path.join(path, 'vocab.txt'))
-        if os.path.exists(cach_filepath):
-            self._erase() # clear out existing symbols
+        if self.exists(path):
+            self._clear() # clear out existing symbols
 
             with open(cach_filepath, 'r', encoding='utf-8') as f:
                 for line in f:
@@ -97,29 +96,36 @@ class WordVocab(VocabBase): # Word vocab is the default
             f.write("\n".join(self.idx2sym))
 
     @overrides
-    def train(self, filepaths:List[str], save_dir:str)->None:
-        print('Building word vocab with min_freq={}, vocab_size={}'.format(
-            self.min_freq, self.vocab_size))
+    def exists(self, path)->bool:
+        cach_filepath = utils.full_path(os.path.join(path, 'vocab.txt'))
+        return os.path.exists(cach_filepath)
 
-        self._erase()
+    @overrides
+    def train(self, filepaths:List[str], save_dir:str)->None:
+        logging.info(f'Building word vocab with min_freq={self.min_freq}, vocab_size={self.vocab_size} using {len(filepaths)} training file(s) at {save_dir}')
+
+        assert len(filepaths)
+
+        self._clear()
 
         for filepath in filepaths:
             self._add_file(filepath)
 
+        # add specials regardless of vocab_size
         for sym in self.special:
             self._add_special(sym)
 
-        for sym, cnt in self.counter.most_common(self.vocab_size):
+        remaining_len = self.vocab_size - len(self) if self.vocab_size is not None else None
+        for sym, cnt in self.counter.most_common(remaining_len):
             if cnt < self.min_freq:
-                break
+                break # don't add rare words
             self._add_symbol(sym)
 
         with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
                 self._save(save_dir)
 
-        print('final vocab size is {}, unique tokens are {}'.format(
-            len(self), len(self.counter)))
+        logging.info(f'Final word vocab size is {len(self)}, unique tokens are {len(self.counter)}')
 
     @overrides
     def encode_line(self, line):
@@ -128,11 +134,11 @@ class WordVocab(VocabBase): # Word vocab is the default
 
     def _encode_sents(self, sents, ordered=False, verbose=True):
         if verbose:
-            print('encoding {} sents ...'.format(len(sents)))
+            logging.info('encoding {} sents ...'.format(len(sents)))
         encoded = []
         for idx, symbols in enumerate(sents):
             if verbose and idx > 0 and idx % 500000 == 0:
-                print('    line {}'.format(idx))
+                logging.info('    line {}'.format(idx))
             encoded.append(self._convert_to_tensor(symbols))
 
         if ordered:
@@ -159,7 +165,7 @@ class WordVocab(VocabBase): # Word vocab is the default
         if sym in self.sym2idx:
             return self.sym2idx[sym]
         else:
-            # print('encounter unk {}'.format(sym))
+            # logging.info('encounter unk {}'.format(sym))
             assert '<eos>' not in sym
             assert hasattr(self, 'unk_idx')
             return self.sym2idx.get(sym, self.unk_idx)

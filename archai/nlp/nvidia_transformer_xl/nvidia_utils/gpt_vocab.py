@@ -1,8 +1,7 @@
-from torch.nn.modules.loss import TripletMarginLoss
-from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 import contextlib
 import os
 from typing import List, Optional
+import logging
 
 import torch
 
@@ -16,6 +15,7 @@ from archai.nlp.tokenizer_utils.token_trainer import create_tokenizer
 from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
+from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 
 # Class GptVocab has been adapted from
 # https://github.com/cybertronai/transformer-xl/blob/master/utils/vocab.py
@@ -30,11 +30,11 @@ class GptVocab(VocabBase):
         # mask_token = None
 
         self.vocab_size = vocab_size
-        self.tokenizer = None
+        self.tokenizer = None # to be created later
 
     @overrides
     def load(self, path:str)->bool:
-        if TokenizerFiles.files_exists(path):
+        if self.exists(path):
             token_config = TokenConfig()
             tokenizer_files = TokenizerFiles.from_path(path)
 
@@ -42,28 +42,30 @@ class GptVocab(VocabBase):
             self._finalize_tokenizer()
 
 
-            print('tokenizer len', len(self.tokenizer))
-            print('merges_file', tokenizer_files.merges_file)
-            print('vocab_file', tokenizer_files.vocab_file)
+            logging.info(f'tokenizer len: {len(self.tokenizer)}')
+            logging.info(f'merges_file: {tokenizer_files.merges_file}')
+            logging.info(f'vocab_file: {tokenizer_files.vocab_file}')
 
             return True
         else:
             return False
 
     @overrides
+    def exists(self, path)->bool:
+        return TokenizerFiles.files_exists(path)
+
+    @overrides
     def train(self, filepaths:List[str], save_dir:str)->None:
-        token_config = TokenConfig()
-
-        print('Creating GPT vocab...')
-        lines = []
-        for filepath in filepaths:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                lines.extend(f.readlines())
-
         with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
-                train_tokenizer(lines, token_config,
-                    vocab_size=self.vocab_size, save_dir=save_dir)
+                token_config = TokenConfig()
+                logging.info(f'Training BBPE Vocab for size {self.vocab_size} at "{save_dir}" ...')
+                lines = []
+                for filepath in filepaths:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        lines.extend(f.readlines())
+
+                train_tokenizer(lines, token_config, vocab_size=self.vocab_size, save_dir=save_dir)
 
         self.load(save_dir)
 
