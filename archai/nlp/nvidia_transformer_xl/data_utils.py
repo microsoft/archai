@@ -25,7 +25,6 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.corpus import Corpus
 def get_lm_corpus(datadir, cachedir, dataset, vocab_type, vocab_size=None):
     corpus = Corpus(datadir, dataset, vocab_type, cachedir, vocab_size=vocab_size)
     if not corpus.load(): # if cached version doesn't exist
-        logging.info(f'Producing corpus cache for dataset {dataset}, vocab_type{vocab_type}, vocab_size {vocab_size}...')
         corpus.train_and_encode()
         with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
