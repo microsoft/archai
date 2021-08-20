@@ -268,6 +268,14 @@
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports", "--collate"]
         },
         {
+            "name": "Train Transformer XL",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/archai/nlp/nvidia_transformer_xl/train.py",
+            "console": "integratedTerminal",
+            "args": ["--config", "dgx1_1gpu_fp16", "--config_file", "wt103_base.yaml", "--attn_type", "2", "--n_layer", "16", "--n_head", "8", "--d_model", "256", "--d_head", "32", "--d_inner", "768", "--log_interval", "10"]
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",
