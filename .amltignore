@@ -1,0 +1,6 @@
+# Folders to be ignored when using Amulet
+tests/
+tools/
+archived/
+dockers/
+docs/
