@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath('../archai'))
 # -- Project information -----------------------------------------------------
 
 project = 'Archai'
-copyright = '2020, Microsoft'
+copyright = '2021, Microsoft'
 author = ''
 
 

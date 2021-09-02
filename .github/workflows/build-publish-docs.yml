@@ -1,9 +1,9 @@
-name: Sphinx Builder and Publisher
+name: Build and Publish Documentation
 
 on:
-  push:
+  pull_request:
     branches:
-      - gderosa/github_workflows
+      - master
 
 jobs:
   build-publish:
@@ -18,7 +18,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.7
-          activate-environment: archai_nlp
+          activate-environment: archai
       - name: Installs the requirements
         shell: bash -l {0}
         run: |
