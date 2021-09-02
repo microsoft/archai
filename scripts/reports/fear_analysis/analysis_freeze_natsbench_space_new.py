@@ -80,7 +80,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 8
+    num_workers = 6
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -282,6 +282,22 @@ def main():
     fig.write_image(savename_pdf, engine="kaleido", width=1500, height=1500, scale=1)
 
     fig.show()
+
+    # scatter plot between time to threshold accuracy and fear evaluation
+    all_freeze_evals_last_scaled = [x*100.0 for x in all_freeze_evals_last]
+    fig = px.scatter(x=all_cond_time_last, y=all_freeze_evals_last_scaled, labels={'x': 'Time to reach threshold train accuracy (s)', 'y': 'FEAR Accuracy'})
+    fig.update_layout(font=dict(
+        size=48,
+    ))
+
+    savename = os.path.join(out_dir, 'cond_time_vs_fear_acc.html')
+    fig.write_html(savename)
+
+    savename_pdf = os.path.join(out_dir, 'cond_time_vs_fear_acc.pdf')
+    fig.write_image(savename_pdf, engine="kaleido", width=1500, height=1500, scale=1)
+
+    fig.show()
+
 
     # histogram of training accuracies
     fig = px.histogram(all_reg_evals, labels={'x': 'Test Accuracy', 'y': 'Counts'})

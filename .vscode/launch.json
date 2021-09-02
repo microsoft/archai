@@ -236,7 +236,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "cifar100"],
+            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "cifar10"],
             "justMyCode": true
         },
         {
@@ -718,7 +718,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_nofreeze",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_scu",
                     "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
@@ -772,7 +772,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_sss_cifar10",
+            "args": ["--dataset", "natsbench_imagenet16-120",
             "--conf-location", "scripts/reports/fear_plots/cross_exp_conf.yaml"]
         },
         {
