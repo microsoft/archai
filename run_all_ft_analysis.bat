@@ -62,6 +62,26 @@
 @REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb512_ftlr0.1_fte5_ct256_ftt0.6_scu --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_freeze_natsbench_space_new.py --results-dir D:\\archaiphilly\\phillytools\\ft_fb512_ftlr0.1_fte10_ct256_ftt0.6_scu --out-dir D:\\archai_experiment_reports
 
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_classifier --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c16 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c15 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c14 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c12 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c11 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c10 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.6_c9 --out-dir F:\\archai_experiment_reports
+
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.55_c13 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.50_c13 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.45_c13 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte5_ct256_ftt0.40_c13 --out-dir F:\\archai_experiment_reports
+
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte10_ct256_ftt0.6_c13 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte15_ct256_ftt0.6_c13 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte20_ct256_ftt0.6_c13 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte25_ct256_ftt0.6_c13 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_fb1024_ftlr0.1_fte30_ct256_ftt0.6_c13 --out-dir F:\\archai_experiment_reports
+
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e01 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e02 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_reg_b1024_e04 --out-dir D:\\archai_experiment_reports
@@ -136,7 +156,7 @@
 @REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_c100_fb512_ftlr0.1_fte15_ct256_ftt0.3_c13 --out-dir F:\\archai_experiment_reports
 @REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_c100_fb512_ftlr0.1_fte20_ct256_ftt0.3_c13 --out-dir F:\\archai_experiment_reports
 @REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_c100_fb512_ftlr0.1_fte25_ct256_ftt0.3_c13 --out-dir F:\\archai_experiment_reports
-python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_c100_fb512_ftlr0.1_fte30_ct256_ftt0.3_c13 --out-dir F:\\archai_experiment_reports
+@REM python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_c100_fb512_ftlr0.1_fte30_ct256_ftt0.3_c13 --out-dir F:\\archai_experiment_reports
 
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_c100_reg_b256_e10 --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_c100_reg_b256_e20 --out-dir D:\\archai_experiment_reports
@@ -285,6 +305,21 @@ python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --re
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b512_e20_scu --out-dir D:\\archai_experiment_reports
 @REM python scripts/reports/analysis_regular_natsbench_space.py --results-dir D:\\archaiphilly\\phillytools\\nb_i16_reg_b512_e30_scu --out-dir D:\\archai_experiment_reports
 
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_classifier --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c16 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c12 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c11 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c10 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.2_c9 --out-dir F:\\archai_experiment_reports
+
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.25_c13 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.15_c13 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte10_ct256_ftt0.10_c13 --out-dir F:\\archai_experiment_reports
+
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte15_ct256_ftt0.2_c13 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte20_ct256_ftt0.2_c13 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte25_ct256_ftt0.2_c13 --out-dir F:\\archai_experiment_reports
+python scripts/reports/fear_analysis/analysis_freeze_natsbench_space_new.py --results-dir F:\\archaiphilly\\phillytools\\ft_i6_fb512_ftlr0.1_fte30_ct256_ftt0.2_c13 --out-dir F:\\archai_experiment_reports
 
 @REM Flower 102
 
