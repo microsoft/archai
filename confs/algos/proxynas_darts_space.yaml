@@ -19,12 +19,14 @@ nas:
     trainer:
       use_val: False
       plotsdir: ''
-      epochs: 100
+      epochs: 20
       top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
       train_regular: True # if False the full regular training of the architecture will be bypassed
+      train_fear: False
       
     freeze_trainer:
       plotsdir: ''
+      bypass_freeze: False
       identifiers_to_unfreeze: ['logits_op._op', 'cells.7', 'cells.6'] # last few layer names in DARTS space are 'logits_op._op': Linear, 'cells.19': prefix for all cell 19 parameters
       apex:
         _copy: '/common/apex'
