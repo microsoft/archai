@@ -66,9 +66,10 @@ class FreezeDartsSpaceExperimentRunner(ExperimentRunner):
             conf_eval['checkpoint']['filename'] = '$expdir/freeze_checkpoint.pth'
 
         logger.pushd('freeze_evaluate')
-        freeze_evaler = FreezeDartsSpaceEvaluater()
-        conf_eval_freeze = deepcopy(conf_eval)
-        freeze_eval_result = freeze_evaler.evaluate(conf_eval_freeze, model_desc_builder=self.model_desc_builder())
+        if conf_eval['trainer']['train_fear']:
+            freeze_evaler = FreezeDartsSpaceEvaluater()
+            conf_eval_freeze = deepcopy(conf_eval)
+            freeze_eval_result = freeze_evaler.evaluate(conf_eval_freeze, model_desc_builder=self.model_desc_builder())
         logger.popd()
 
         # NOTE: Not returning freeze eval results to meet signature contract
