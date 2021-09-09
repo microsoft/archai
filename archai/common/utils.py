@@ -374,3 +374,6 @@ def uri2path(file_uri:str, windows_non_standard:bool=False)->str:
     return os.path.normpath(
         os.path.join(host, url2pathname(unquote(parsed.path)))
     )
+
+def dedup_list(l:List)->List:
+    return list(OrderedDict.fromkeys(l))

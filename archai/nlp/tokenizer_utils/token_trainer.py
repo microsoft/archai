@@ -30,10 +30,10 @@ def train_tokenizer(lines:List[str], token_config: TokenConfig,
         for i in range(0, len(lines), batch_size):
             yield lines[i : i + batch_size]
 
-    special_tokens = [stok for stok in                      \
-        (token_config.bos_token, token_config.eos_token,    \
-            token_config.unk_token, token_config.pad_token) \
-        if stok]
+    special_tokens = utils.dedup_list([stok for stok in                      \
+        (token_config.unk_token, token_config.bos_token, token_config.eos_token,    \
+            token_config.pad_token) \
+        if stok])
 
     # train
     tokenizer.train_from_iterator(batch_iterator(),
