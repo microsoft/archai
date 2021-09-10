@@ -664,7 +664,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_plots/cross_exp_plots.py",
             "console": "integratedTerminal",
-            "args": ["--dataset", "natsbench_imagenet16-120",
+            "args": ["--dataset", "darts_cifar10",
             "--conf-location", "scripts/reports/fear_plots/cross_exp_conf.yaml"]
         },
         {
