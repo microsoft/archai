@@ -521,7 +521,7 @@ class MemTransformerLM(nn.Module):
                  tgt_len=None, ext_len=None, mem_len=None,
                  cutoffs=[], adapt_inp=False,
                  same_length=False, attn_type=0, clamp_len=-1,
-                 sample_softmax=-1, model_ext=None, space_char_idx=None, char_pooling=None):
+                 sample_softmax=-1, model_ext=None, space_char_idx=None, char_pooling=None, segment_type=None):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token
 
@@ -536,6 +536,7 @@ class MemTransformerLM(nn.Module):
         self.model_ext = model_ext
         self.space_char_idx = space_char_idx
         self.char_pooling = char_pooling
+        self.segment_type = segment_type
 
         self.drop = nn.Dropout(dropout)
 
@@ -618,7 +619,12 @@ class MemTransformerLM(nn.Module):
             self.r_w_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
             self.r_r_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
             if self.model_ext == "bert_style_word_segment":
-                self.word_segment_emb = nn.Embedding(600, self.d_embed)
+                if self.segment_type == "word":
+                    self.word_segment_emb = nn.Embedding(600, self.d_embed)
+                elif self.segment_type == "subword":
+                    self.word_segment_emb = nn.Embedding(1024, self.d_embed)
+            elif self.model_ext == "char_emb_from_word":
+                self.word_segment_emb = nn.EmbeddingBag(self.n_token, self.d_embed, mode=self.char_pooling)
         # learnable
         elif self.attn_type == 1:
             self.r_emb = nn.Parameter(torch.Tensor(
@@ -733,6 +739,7 @@ class MemTransformerLM(nn.Module):
                 word_segment_emb = self.word_segment_emb(word_segment_chunks)
                 word_segment_emb = self.drop(word_segment_emb)
             elif self.model_ext == "char_emb_from_word":
+                '''
                 word_segment_emb = []
                 for batch_idx in range(0, dec_inp.size(1)):
                     cur_seq, prev_items = [], None
@@ -754,6 +761,36 @@ class MemTransformerLM(nn.Module):
                     cur_seq = torch.stack(cur_seq)
                     word_segment_emb.append(cur_seq.unsqueeze(1))
                 word_segment_emb = torch.cat(word_segment_emb, dim=1)
+                '''
+                input, offsets = [], []
+                offset_idx = 0
+                batchidx2cur_emb = {}
+                for seq_idx in range(0, dec_inp.size(0)):
+                    for batch_idx in range(0, dec_inp.size(1)):
+                        if batch_idx not in batchidx2cur_emb:
+                            batchidx2cur_emb[batch_idx] = []
+                        if dec_inp[seq_idx, batch_idx] == self.space_char_idx:
+                            input.append(self.space_char_idx)
+                            offsets.append(offset_idx)
+                            offset_idx += 1
+                            batchidx2cur_emb[batch_idx] = []
+                            continue
+                        if len(batchidx2cur_emb[batch_idx]) == 0:
+                            input.append(dec_inp[seq_idx, batch_idx].item())
+                            offsets.append(offset_idx)
+                            offset_idx += 1
+                            batchidx2cur_emb[batch_idx] = [dec_inp[seq_idx, batch_idx].item()]
+                            continue
+                        offsets.append(offset_idx)
+                        batchidx2cur_emb[batch_idx].append(dec_inp[seq_idx, batch_idx].item())
+                        for item in batchidx2cur_emb[batch_idx]:
+                            input.append(item)
+                            offset_idx += 1
+                del batchidx2cur_emb
+                word_segment_emb = self.word_segment_emb(torch.tensor(input, dtype=torch.long, device=dec_inp.device), torch.tensor(offsets, dtype=torch.long, device=dec_inp.device))
+                word_segment_emb = word_segment_emb.view(word_emb.size(0), word_emb.size(1), word_emb.size(2))
+                word_segment_emb = self.drop(word_segment_emb)
+                del input, offsets
 
             core_out = self.drop(word_emb)
             pos_emb = self.drop(pos_emb)

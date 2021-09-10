@@ -24,7 +24,7 @@ import string
 
 class Vocab: # Word vocab is the default
     def __init__(self, special=[], min_freq=0, max_size=None, lower_case=True,
-                 delimiter=None, vocab_file=None, model_ext=None):
+                 delimiter=None, vocab_file=None, model_ext=None, segment_type=None):
         """
         APIs:
             1. count_file -> count tokens
@@ -44,6 +44,11 @@ class Vocab: # Word vocab is the default
         self.delimiter = delimiter
         self.vocab_file = vocab_file # cached vocab file
         self.model_ext = model_ext
+        self.segment_type = segment_type
+        if self.segment_type == "subword":
+            from transformers import GPT2TokenizerFast
+            self.tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+
 
     def tokenize(self, line, add_eos=False, add_double_eos=False):
         """Split line into tokens, add_eos: add special to end, add_double_eos: add special to begin and end"""
@@ -211,13 +216,25 @@ class Vocab: # Word vocab is the default
     
     def convert_to_bert_style_segment(self, symbols):
         items = []
-        wi = 1
-        for sym in symbols:
-            if sym == " ":
-                items.append(0)
+        if self.segment_type == "word":
+            wi = 1
+            for sym in symbols:
+                if sym == " ":
+                    items.append(0)
+                    wi += 1
+                else:
+                    items.append(wi)
+        elif self.segment_type == "subword" and len(symbols)!=0:
+            wi = 1
+            space_char = 'Ġ'
+            gpt2_tokens = self.tokenizer.convert_ids_to_tokens(self.tokenizer("".join(symbols))["input_ids"])
+            for tok in gpt2_tokens:
+                for ch in tok:
+                    if ch == space_char:
+                        items.append(0)
+                    else:
+                        items.append(wi)
                 wi += 1
-            else:
-                items.append(wi)
         return torch.LongTensor(items)
 
     def convert_to_sent(self, indices, exclude=None):

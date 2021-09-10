@@ -520,7 +520,7 @@ class MemTransformerLM(nn.Module):
                  tgt_len=None, ext_len=None, mem_len=None,
                  cutoffs=[], adapt_inp=False,
                  same_length=False, attn_type=0, clamp_len=-1,
-                 sample_softmax=-1, model_ext=None, space_char_idx=None, char_pooling=None):
+                 sample_softmax=-1, model_ext=None, space_char_idx=None, char_pooling=None, segment_type=None):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token
 
@@ -535,6 +535,7 @@ class MemTransformerLM(nn.Module):
         self.model_ext = model_ext
         self.space_char_idx = space_char_idx
         self.char_pooling = char_pooling
+        self.segment_type = segment_type
 
         self.drop = nn.Dropout(dropout)
 
@@ -607,6 +608,22 @@ class MemTransformerLM(nn.Module):
 
         self._create_params()
 
+        '''
+        # print params => AdaEmb, Sftmax, Attn, FFN
+        adaparams, softmaxparams, attnparams, ffnparams = 0, 0, 0, 0
+        for name, W in self.named_parameters():
+            cur_param = W.size(0) * W.size(1) if len(W.size()) == 2 else W.size(0)
+            if name.startswith("word_emb.emb"):
+                adaparams += cur_param
+            elif "dec_attn" in name or "r_w" in name:
+                attnparams += cur_param
+            elif "pos_ff" in name:
+                ffnparams += cur_param
+            elif "crit" in name:
+                softmaxparams += cur_param
+        print("adaparams=%d softmaxparams=%d attnparams=%d ffnparams=%d"%(adaparams, softmaxparams, attnparams, ffnparams))
+        '''
+
     def backward_compatible(self):
         self.sample_softmax = -1
 
@@ -617,7 +634,10 @@ class MemTransformerLM(nn.Module):
             self.r_w_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
             self.r_r_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
             if self.model_ext == "bert_style_word_segment":
-                self.word_segment_emb = nn.Embedding(600, self.d_embed)
+                if self.segment_type == "word":
+                    self.word_segment_emb = nn.Embedding(1500, self.d_embed)
+                elif self.segment_type == "subword":
+                    self.word_segment_emb = nn.Embedding(1024, self.d_embed)
             elif self.model_ext == "char_emb_from_word":
                 #self.word_segment_emb = nn.Embedding(self.n_token, self.d_embed)
                 self.word_segment_emb = nn.EmbeddingBag(self.n_token, self.d_embed, mode=self.char_pooling)
@@ -719,6 +739,7 @@ class MemTransformerLM(nn.Module):
             pos_emb = self.pos_emb(pos_seq)
             if self.model_ext == "bert_style_word_segment":
                 #start_time = time.time()
+                '''
                 for cur_i in range(word_segment_chunks.size(1)):
                     prev_wid = 1
                     for j in range(word_segment_chunks.size(0)):
@@ -726,6 +747,7 @@ class MemTransformerLM(nn.Module):
                             prev_wid += 1
                         elif word_segment_chunks[j, cur_i] != 0:
                             word_segment_chunks[j, cur_i] = prev_wid # word_segment_chunks.size(0)-j-1
+                '''
                 word_segment_emb = self.word_segment_emb(word_segment_chunks)
                 word_segment_emb = self.drop(word_segment_emb)
                 #print("--- %s seconds ---" % (time.time() - start_time))
@@ -770,7 +792,7 @@ class MemTransformerLM(nn.Module):
                         if self.char_pooling == "max":
                             word_segment_emb[seq_idx, batch_idx] = torch.max(word_segment_emb[seq_idx, batch_idx], word_segment_emb[seq_idx-1, batch_idx])
                 '''
-                start_time = time.time()
+                #start_time = time.time()
                 input, offsets = [], []
                 offset_idx = 0
                 batchidx2cur_emb = {}

@@ -1,10 +1,11 @@
 from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 import contextlib
 import os
+import json
 from typing import Optional
 from collections import OrderedDict, Counter
 
-import torch
+import torch, gc
 
 from pytorch_transformers import GPT2Tokenizer
 
@@ -15,6 +16,7 @@ from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
 from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
 
 from tokenizers import ByteLevelBPETokenizer
+from tqdm import tqdm
 
 # Class GptVocab has been adapted from
 # https://github.com/cybertronai/transformer-xl/blob/master/utils/vocabulary.py
@@ -90,10 +92,15 @@ class BPEVocab(Vocab):
     def __init__(self, max_size:int, vocab_dir:str):
         self.max_size, self.vocab_dir = max_size, vocab_dir
         self.counter = Counter()
-        self.min_freq = 2
+        self.min_freq = 1000
+        self.add_prefix_space = True
+        self.add_prefix_new_line = True
+        self.special_tokens = "_OOV_,_BOS_"
+        self.bos_token_id = None
+        self.min_sort_id = 256+2
 
         # initialize tokenizer
-        self.tokenizer = ByteLevelBPETokenizer()
+        self.tokenizer = ByteLevelBPETokenizer(add_prefix_space=self.add_prefix_space)
     
     def count_file(self, path, verbose=True, add_eos=False):
         """Setup counter with frequencies, return tokens for the entir file"""
@@ -101,25 +108,95 @@ class BPEVocab(Vocab):
             print('counting file {} ...'.format(path))
         assert os.path.exists(path)
 
-        # start training
-        self.tokenizer.train(files=[path], vocab_size=self.max_size, min_frequency=2, special_tokens=[ "<s>",  "<pad>", "</s>", "<unk>"])
+        if os.path.isfile(os.path.join(self.vocab_dir, "vocab.json.log")):
+            print('reusing existing vocab {} ...'.format(self.vocab_dir))
+            self.tokenizer = ByteLevelBPETokenizer.from_file(os.path.join(self.vocab_dir, "vocab.json"), os.path.join(self.vocab_dir, "merges.txt"))
+            return
 
+        # start training
+        self.tokenizer.train(files=path, vocab_size=self.max_size, min_frequency=self.min_freq, special_tokens=self.special_tokens.split(','))
+
+        '''
         # read lines, count frequencies of tokens, convert to tokens
-        sents = [] # will contain all parsed tokens
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     print('    line {}'.format(idx))
-                symbols = self.tokenizer.encode(line.strip()).tokens
+                #symbols = self.tokenizer.encode(line.strip()).tokens
+                line = line.strip()
+                if self.add_prefix_space:
+                    line = ' ' + line
+                if self.add_prefix_new_line:
+                    line = '\n' + line
+                symbols = self.tokenizer.encode(line).tokens
                 self.counter.update(symbols)
-                sents.append(symbols)
-        
+        '''
+
         # save files
         if not os.path.exists(self.vocab_dir):
-            os.makedirs(self.vocab_dir)
+            try:
+                os.makedirs(self.vocab_dir)
+            except OSError as error:
+                print(error)  
         self.tokenizer.save_model(self.vocab_dir)
+        print('saving tokenizer output at {}'.format(self.vocab_dir))
 
-        return sents
+        tokens, tokens_counter = self.tokenize_lines(path)
+
+        # Sort the vocab
+        tokens_counter.update(list(range(self.max_size))) # add 1 to each value, to ensure that all of them > 0
+        print(tokens_counter.most_common(10))
+        sorted_ids = list(range(self.min_sort_id)) + \
+                     [int(token_id) for token_id, _ in tokens_counter.most_common() if int(token_id) >= self.min_sort_id]
+
+        orig2sorted_ids = [None] * self.max_size
+        for new, old in enumerate(sorted_ids):
+            orig2sorted_ids[old] = new
+        
+        with open(os.path.join(self.vocab_dir, "vocab.json"), encoding="utf-8") as f:
+            vocab_orig = json.load(f)
+        
+        vocab_list = [None] * self.max_size
+        for vocab, idx in vocab_orig.items():
+            vocab_list[orig2sorted_ids[idx]] = vocab
+        
+        vocab_new = OrderedDict([(v, idx) for idx, v in enumerate(vocab_list)])
+        with open(os.path.join(self.vocab_dir, "vocab.json"), 'w', encoding="utf-8") as f:
+            f.write(json.dumps(vocab_new, ensure_ascii=False))
+        
+        self.tokenizer = ByteLevelBPETokenizer.from_file(os.path.join(self.vocab_dir, "vocab.json"), os.path.join(self.vocab_dir, "merges.txt"))
+        del tokens
+        del tokens_counter
+        gc.collect()
+        tokens, tokens_counter = self.tokenize_lines(path)
+
+        with open(os.path.join(self.vocab_dir, "vocab.json.log"), 'w', encoding='utf-8') as f:
+            for idx in range(self.max_size):
+                f.write(f"{idx}\t{vocab_list[idx]}\t{tokens_counter.get(idx, 0)}\n")
+        del tokens
+        del tokens_counter
+        gc.collect()
+    
+    def tokenize_lines(self, train_file):
+        tokens = []
+        tokens_counter = Counter()
+        for line in open(train_file):
+            line = line.strip()
+            if self.add_prefix_space:
+                line = ' ' + line
+
+            if self.add_prefix_new_line:
+                line = '\n' + line
+
+            if self.bos_token_id is None:
+                toks = self.tokenizer.encode(line).ids
+            else:
+                toks = [self.bos_token_id] + self.tokenizer.encode(line).ids
+
+            tokens.append(toks)
+            tokens_counter.update(toks)
+
+        return (tokens, tokens_counter)
     
     def build_vocab(self):
         """Build the vocab by creating indices from the counter"""
@@ -128,11 +205,18 @@ class BPEVocab(Vocab):
         self.idx2sym = []
         self.sym2idx = OrderedDict()
 
+        '''
         for sym, cnt in self.counter.most_common(self.max_size):
             self.add_symbol(sym)
         self.add_symbol("<unk>")
-        
         self.unk_idx = self.sym2idx['<unk>']
+        '''
+        tokenizer_vocab = self.tokenizer.get_vocab()
+        self.idx2sym = [0] * len(tokenizer_vocab)
+        for bpe_token in tokenizer_vocab:
+            self.sym2idx[bpe_token] = tokenizer_vocab[bpe_token]
+            self.idx2sym[tokenizer_vocab[bpe_token]] = bpe_token
+        self.unk_idx = self.sym2idx['_OOV_']
 
         print('final vocab size is {}, unique tokens are {}'.format(
             len(self), len(self.counter)))
@@ -147,7 +231,12 @@ class BPEVocab(Vocab):
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     print('    line {}'.format(idx))
-                symbols = self.tokenizer.encode(line.strip()).tokens
+                line = line.strip()
+                if self.add_prefix_space:
+                    line = ' ' + line
+                if self.add_prefix_new_line:
+                    line = '\n' + line
+                symbols = self.tokenizer.encode(line).tokens
                 encoded.append(self.convert_to_tensor(symbols))
 
         if ordered:
@@ -163,9 +252,90 @@ class BPEVocab(Vocab):
         return symbols
     
     def convert_to_text(self, indices, vocab_type):
-        #print(indices)
-        #print(self.tokenizer.decode(indices))
         return self.tokenizer.decode(indices)
+    
+    def convert_to_tensor(self, symbols):
+        return torch.LongTensor(self.get_indices(symbols))
 
 
+class Office_PreTokBPEVocab(Vocab):
+    def __init__(self, max_size:int, vocab_dir:str):
+        self.max_size, self.vocab_dir = max_size, vocab_dir
+        self.counter = Counter()
+        self.vocab_f = os.path.join(vocab_dir, "vocab.json")
+        self.merges_f = os.path.join(vocab_dir, "merges.txt")
+        print('loading ByteLevelBPETokenizer from {}'.format(self.vocab_f))
+        self.tokenizer = ByteLevelBPETokenizer.from_file(self.vocab_f, self.merges_f)
+    
+    def count_file(self, path, verbose=True, add_eos=False):
+        """Setup counter with frequencies, return tokens for the entir file"""
+        # skipping this step
+
+    def build_vocab(self):
+        """Build the vocab by creating indices from the counter"""
+        print('Reading pretokenized vocab from {}'.format(
+            self.vocab_f))
+        self.idx2sym = []
+        self.sym2idx = OrderedDict()
+
+        with open(self.vocab_f, encoding="utf-8") as f:
+            vocab_orig = json.load(f)
+        self.idx2sym = [0] * len(vocab_orig)
+        for bpe_token, idx in vocab_orig.items():
+            self.sym2idx[bpe_token] = idx
+            self.idx2sym[idx] = bpe_token
+        self.unk_idx = self.sym2idx['_OOV_']
+
+        print('final vocab size is {}'.format(
+            len(self.idx2sym)))
+    
+    def encode_file(self, path, ordered=False, verbose=True, add_eos=True,
+                    add_double_eos=False, model_ext=None):
+        if verbose:
+            print('encoding file {} ...'.format(path))
+        assert os.path.exists(path)
+        encoded = []
+        with open(path, 'r', encoding='utf-8') as f:
+            for idx, line in enumerate(f):
+                if verbose and idx > 0 and idx % 500000 == 0:
+                    print('    line {}'.format(idx))
+                #encoded.append(torch.LongTensor([int(item) for item in line.strip().split()]))
+                encoded += [int(item) for item in line.strip().split()]
+        print("creating the gigantic 1d long tensor of size %d"%len(encoded))
+        encoded = torch.LongTensor(encoded)
+        #if ordered:
+        #    encoded = torch.cat(encoded)
+        #    return encoded
+
+        return encoded
+    
+    def encode_file_stream(self, path, ordered=False, verbose=True, add_eos=True,
+                    add_double_eos=False, model_ext=None, split_size=100000000):
+        if verbose:
+            print('encoding file {} ...'.format(path))
+        assert os.path.exists(path)
+        encoded = []
+        with open(path, 'r', encoding='utf-8') as f:
+            for idx, line in enumerate(f):
+                if verbose and idx > 0 and idx % 500000 == 0:
+                    print('    line {}'.format(idx))
+                #encoded.append(torch.LongTensor([int(item) for item in line.strip().split()]))
+                encoded += [int(item) for item in line.strip().split()]
+                if len(encoded) > split_size:
+                    yield torch.LongTensor(encoded)
+                    encoded = []
+        if len(encoded) != 0:
+            yield torch.LongTensor(encoded)
+        del encoded
+
+    def tokenize(self, line, add_eos=False, add_double_eos=False):
+        """Split line into tokens, add_eos: add special to end, add_double_eos: add special to begin and end"""
+        line = line.strip()
+        print(line)
+        symbols = self.tokenizer.encode(line.strip()).tokens
+        return symbols
+    
+    def convert_to_text(self, indices, vocab_type):
+        return self.tokenizer.decode(indices)
+    
 

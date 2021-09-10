@@ -25,11 +25,60 @@ description: run big scripts
 # amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char transxl_char_exp2_randsearch :transxl_char_params_80M_bertstyle_lr0p001 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001 :transxl_char_params_80M_bertstyle_lr0p01_restart_10K :transxl_char_params_80M_char_emb_from_word_max_lr0p001 :transxl_char_params_80M_clean_vocab inference_transxl
 # amlt results transxl_char_exp2_randsearch :transxl_char_params_80M :transxl_char_params_50M :transxl_char_base
 # amlt abort mingpt_experiment :pl_full_100M :pl_full_80M_512sl :pl_full_200M :pl_full_80M :pl_full
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L transxl_char_exp2_randsearch
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :small_20M_2L :small_20M_1L :small_20M_8L :small_20M_12L transxl_char_exp2_randsearch
+# amlt log transxl_char_exp2_randsearch :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L :small_20M_2L :small_20M_1L :small_20M_8L :small_20M_12L  
+# inference_char
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char transxl_char_exp2_randsearch :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L :small_20M_2L :small_20M_1L :small_20M_8L :small_20M_12L inference_transxl
+# amlt log transxl_char_exp2_randsearch :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L :small_20M_2L :small_20M_1L :small_20M_8L :small_20M_12L
+# amlt log inference_transxl :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L :small_20M_2L :small_20M_1L :small_20M_8L :small_20M_12L
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char transxl_char_exp2_randsearch :small_20M_1L inference_transxl
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :char_restart_moresteps transxl_char_exp2_randsearch :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L :small_20M_2L :small_20M_1L misc_transxl_char
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :char_restart_moresteps transxl_char_exp2_randsearch :small_5M_2L misc_transxl_char
+# amlt log misc_transxl_char :char_restart_moresteps-small_5M_2L
+
+# 8/24
+# amlt log transxl_char_exp2_randsearch :transxl_char_params_80M_bertstyle_lr0p001_8g :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 :transxl_char_params_80M_clean_vocab
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char transxl_char_exp2_randsearch :transxl_char_params_80M_bertstyle_lr0p001_8g :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 :transxl_char_params_80M_clean_vocab :transxl_char_params_80M inference_transxl
+
+# 8/25
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char transxl_char_exp2_randsearch :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 inference_transxl
+# amlt log transxl_char_exp2_randsearch :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4
+# amlt run archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4_subword :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4_subword :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4_subword :transxl_char_params_80M_bertstyle_lr0p001_g4_subword transxl_char_exp2_randsearch
+
+# 8/26
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_test transxl_char_exp2_randsearch :transxl_char_params_80M_bertstyle_lr0p001_8g :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 :transxl_char_params_80M inference_transxl
+# amlt log inference_transxl :inference_char-transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :inference_char-transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 :inference_char-transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :inference_char-transxl_char_params_80M_bertstyle_lr0p001_8g :inference_char-transxl_char_params_80M :inference_char_test-transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 :inference_char_test-transxl_char_params_80M_bertstyle_lr0p001_8g :inference_char_test-transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :inference_char_test-transxl_char_params_80M :inference_char_test-transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid transxl_char_exp2_randsearch :transxl_char_params_80M_bertstyle_lr0p001_8g :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 :transxl_char_params_80M :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L :small_20M_2L :small_20M_1L :small_20M_8L :small_20M_12L inference_transxl
+
+# 8/28
+# amlt log inference_transxl
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid_memstat transxl_char_exp2_randsearch :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L :small_20M_2L :small_20M_1L :small_20M_8L :small_20M_12L inference_transxl #### itpeusp100cl
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid_memstat transxl_char_exp2_randsearch :small_5M_2L inference_transxl
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid amlt s :small_5M_8L_cpool_subword_max :small_5M_8L_bert_word :small_5M_8L_cpool_subword_mean :small_5M_8L_bert_subword :small_5M_8L_cpool_subword_sum :small_5M_8L_cpool_word_mean :small_5M_8L_cpool_word_sum :small_5M_8L_cpool_word_max inference_transxl #### itpeusp100cl
+# amlt log inference_transxl :inference_char_valid-small_5M_8L_cpool_word_sum :inference_char_valid-small_5M_8L_cpool_word_mean :inference_char_valid-small_5M_8L_bert_word :inference_char_valid-small_5M_8L_cpool_word_max :inference_char_valid-small_5M_8L_bert_subword :inference_char_valid-small_5M_8L_cpool_subword_max :inference_char_valid-small_5M_8L_cpool_subword_sum :inference_char_valid-small_5M_8L_cpool_subword_mean         
+
+# 9/1
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :char_restart_moresteps transxl_char_exp2_randsearch :small_5M_2L misc_transxl_char
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid misc_transxl_char :char_restart_moresteps_small_5M_2L-small_5M_2L :char_restart_moresteps_small_5M_1L-small_5M_1L :char_restart_moresteps_small_10M_2L-small_10M_2L :char_restart_moresteps_small_10M_1L-small_10M_1L :char_restart_moresteps_small_10M_8L-small_10M_8L :char_restart_moresteps_small_10M_12L-small_10M_12L :char_restart_moresteps_small_20M_2L-small_20M_2L :char_restart_moresteps_small_20M_1L-small_20M_1L :char_restart_moresteps_small_20M_12L-small_20M_12L :char_restart_moresteps_small_20M_8L-small_20M_8L inference_misc_transxl_char
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid misc_transxl_char :char_restart_moresteps_small_5M_8L-small_5M_8L :char_restart_moresteps_small_5M_12L-small_5M_12L inference_misc_transxl_char
+
+# 9/2
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid_100K transxl_char_exp2_randsearch :small_5M_8L inference_transxl
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid transxl_char_exp2_randsearch :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4_subword :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4_subword :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4_subword :transxl_char_params_80M_bertstyle_lr0p001_g4_subword inference_transxl
+# amlt log misc_transxl_char :char_restart_moresteps_small_5M_2L-small_5M_2L :char_restart_moresteps_small_5M_1L-small_5M_1L :char_restart_moresteps_small_5M_8L-small_5M_8L :char_restart_moresteps_small_5M_12L-small_5M_12L  :char_restart_moresteps_small_10M_2L-small_10M_2L :char_restart_moresteps_small_10M_1L-small_10M_1L :char_restart_moresteps_small_10M_8L-small_10M_8L :char_restart_moresteps_small_10M_12L-small_10M_12L :char_restart_moresteps_small_20M_2L-small_20M_2L :char_restart_moresteps_small_20M_1L-small_20M_1L :char_restart_moresteps_small_20M_12L-small_20M_12L :char_restart_moresteps_small_20M_8L-small_20M_8L
+# amlt log transxl_char_exp2_randsearch :small_5M_2L :small_5M_1L :small_5M_8L :small_5M_12L :small_10M_2L :small_10M_1L :small_10M_8L :small_10M_12L :small_20M_2L :small_20M_1L :small_20M_8L :small_20M_12L
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid transxl_char_exp2_randsearch :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 inference_transxl
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid misc_transxl_char :char_restart_moresteps_small_5M_2L-small_5M_2L :char_restart_moresteps_small_5M_1L-small_5M_1L :char_restart_moresteps_small_10M_2L-small_10M_2L :char_restart_moresteps_small_10M_1L-small_10M_1L :char_restart_moresteps_small_10M_8L-small_10M_8L :char_restart_moresteps_small_10M_12L-small_10M_12L :char_restart_moresteps_small_20M_2L-small_20M_2L :char_restart_moresteps_small_20M_1L-small_20M_1L :char_restart_moresteps_small_20M_12L-small_20M_12L :char_restart_moresteps_small_20M_8L-small_20M_8L inference_misc_transxl_char
+
+# 9/9
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :save_char_embeddings transxl_char_exp2_randsearch :small_embed_sizes_g8_16_8_150_64_2048 :small_embed_sizes_g8_16_8_100_64_2048 inference_misc_transxl_char
+# amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid_50K transxl_char_exp2_randsearch :char10M_grid_bertstyle_8_16_256_64_200_word :char10M_grid_bertstyle_8_16_768_64_128_word :char10M_grid_bertstyle_8_16_768_32_165_word :char10M_grid_bertstyle_12_8_1024_32_128_subword :char10M_grid_bertstyle_16_16_256_32_128_word :char10M_grid_bertstyle_8_8_768_64_300_subword :char10M_grid_bertstyle_12_8_768_64_300_word :char10M_grid_bertstyle_16_16_256_64_300_subword :char10M_grid_bertstyle_16_16_768_32_165_word :char10M_grid_bertstyle_12_16_512_64_200_subword :char10M_grid_bertstyle_8_16_1024_64_128_word :char10M_grid_bertstyle_16_8_768_32_200_word :char10M_grid_bertstyle_12_8_768_64_165_subword :char10M_grid_bertstyle_8_8_1024_64_300_word :char10M_grid_bertstyle_8_8_1024_32_128_subword :char10M_grid_bertstyle_12_16_1024_64_128_word :char10M_grid_bertstyle_16_8_768_32_128_subword :char10M_grid_bertstyle_8_16_256_64_128_subword :char10M_grid_bertstyle_12_16_256_64_300_subword :char10M_grid_bertstyle_8_8_1024_32_165_subword :char10M_grid_bertstyle_16_8_256_32_300_subword :char10M_grid_bertstyle_8_16_1024_64_165_subword :char10M_grid_bertstyle_16_8_512_64_300_word :char10M_grid_bertstyle_16_8_1024_32_200_subword :char10M_grid_bertstyle_16_16_768_64_128_word :char10M_grid_bertstyle_16_16_512_64_128_subword :char10M_grid_bertstyle_8_16_256_64_165_word :char10M_grid_bertstyle_12_16_1024_32_128_word :char10M_grid_bertstyle_16_8_256_32_200_word :char10M_grid_bertstyle_12_16_1024_32_200_subword :char10M_grid_bertstyle_12_16_512_32_128_subword :char10M_grid_bertstyle_12_8_256_64_300_subword :char10M_grid_bertstyle_16_16_768_64_165_subword :char10M_grid_bertstyle_12_8_512_64_128_subword :char10M_grid_bertstyle_12_16_512_64_200_word :char10M_grid_bertstyle_12_8_768_64_128_subword :char10M_grid_bertstyle_8_16_768_32_300_subword :char10M_grid_bertstyle_8_16_768_64_200_word :char10M_grid_bertstyle_8_8_1024_64_165_subword :char10M_grid_bertstyle_8_8_1024_64_128_subword :char10M_grid_bertstyle_16_16_512_32_200_subword :char10M_grid_bertstyle_12_8_512_32_200_word :char10M_grid_bertstyle_16_8_768_64_300_word :char10M_grid_bertstyle_12_8_256_64_200_word :char10M_grid_bertstyle_16_8_1024_64_300_word :char10M_grid_bertstyle_8_8_512_32_128_word :char10M_grid_bertstyle_16_16_256_32_165_subword :char10M_grid_bertstyle_16_16_512_32_200_word :char10M_grid_bertstyle_12_8_1024_32_300_subword :char10M_grid_bertstyle_16_8_1024_32_300_word inference_transxl
 
 target:
   service: amlk8s
   # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
-  name: ms-shared # itplabrr1cl1, ms-shared, 
+  name: itplabrl1cl1 # itplabrr1cl1, ms-shared, 
   vc: resrchvc
 
 environment:
@@ -38,6 +87,7 @@ environment:
   setup:
     - set -e -o xtrace
     - sudo apt-get -y install git
+    - sudo apt-get install memstat
     - pip install --user tensorboard
 
 code:
@@ -224,10 +274,68 @@ jobs:
   - bash scripts/apex_install.sh
   - pip install --user -e .
   #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent -1 --cuda
-  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --cuda
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --cuda
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.1 --cuda --num_prompts 50000
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.2 --cuda --num_prompts 50000
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.3 --cuda --num_prompts 50000
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.4 --cuda --num_prompts 50000
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --cuda --num_prompts 50000
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.6 --cuda --num_prompts 50000
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.7 --cuda --num_prompts 50000
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.8 --cuda --num_prompts 50000
+  #- python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.9 --cuda --num_prompts 50000
   #- CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --batch_size 1 --prompt_context_percent 0.5 --num_prompts 200 --num_chars_generate 25
   #- CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --batch_size 1 --prompt_context_percent 0.5 --num_prompts 200 --num_chars_generate 50
   #- CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --batch_size 1 --prompt_context_percent 0.5 --num_prompts 200 --num_chars_generate 100
+- name: inference_char_valid
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.2 --cuda --num_prompts 50000 --split valid
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --cuda --num_prompts 50000 --split valid
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.8 --cuda --num_prompts 50000 --split valid
+- name: inference_char_valid_100K
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_100000.pt --experiment_name inference --prompt_context_percent 0.2 --cuda --num_prompts 50000 --split valid
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_100000.pt --experiment_name inference --prompt_context_percent 0.5 --cuda --num_prompts 50000 --split valid
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_100000.pt --experiment_name inference --prompt_context_percent 0.8 --cuda --num_prompts 50000 --split valid
+- name: inference_char_valid_50K
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_50000.pt --experiment_name inference --prompt_context_percent 0.2 --cuda --num_prompts 50000 --split valid
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_50000.pt --experiment_name inference --prompt_context_percent 0.5 --cuda --num_prompts 50000 --split valid
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_50000.pt --experiment_name inference --prompt_context_percent 0.8 --cuda --num_prompts 50000 --split valid
+- name: inference_char_valid_memstat
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - CUDA_VISIBLE_DEVICES="" python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --batch_size 1 --prompt_context_percent 0.5 --num_prompts 1 --num_chars_generate 100 --memstat
+- name: inference_char_test
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.1 --cuda --num_prompts 50000 --split test
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.2 --cuda --num_prompts 50000 --split test
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.3 --cuda --num_prompts 50000 --split test
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.4 --cuda --num_prompts 50000 --split test
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --cuda --num_prompts 50000 --split test
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.6 --cuda --num_prompts 50000 --split test
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.7 --cuda --num_prompts 50000 --split test
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.8 --cuda --num_prompts 50000 --split test
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.9 --cuda --num_prompts 50000 --split test
 - name: inference_word_match
   sku: G1
   command:
@@ -458,3 +566,213 @@ jobs:
   - bash scripts/apex_install.sh
   - pip install --user -e .
   - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling sum --save_all
+- name: small_5M_2L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 2 --n_head 8 --d_head 64 --d_embed 700 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 700 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_5M_2L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_5M_1L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 1 --n_head 8 --d_head 64 --d_embed 1300 --d_inner 600 --mem_len 512 --tgt_len 512 --d_model 1300 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_5M_1L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_5M_8L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 350 --d_inner 256 --mem_len 512 --tgt_len 512 --d_model 350 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_5M_8L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_5M_12L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 32 --d_embed 278 --d_inner 128 --mem_len 512 --tgt_len 512 --d_model 278 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_5M_12L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_10M_2L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 2 --n_head 8 --d_head 64 --d_embed 1380 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 1380 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_10M_2L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_10M_1L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 1 --n_head 8 --d_head 128 --d_embed 1600 --d_inner 750 --mem_len 512 --tgt_len 512 --d_model 1600 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_10M_1L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_10M_8L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 540 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 540 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_10M_8L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_10M_12L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 32 --d_embed 512 --d_inner 165 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_10M_12L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_20M_2L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 2 --n_head 8 --d_head 64 --d_embed 2250 --d_inner 900 --mem_len 512 --tgt_len 512 --d_model 2250 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_20M_2L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_20M_1L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 1 --n_head 8 --d_head 128 --d_embed 2900 --d_inner 820 --mem_len 512 --tgt_len 512 --d_model 2900 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_20M_1L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_20M_8L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 64 --d_embed 700 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 700 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_20M_8L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: small_20M_12L
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 550 --d_inner 250 --mem_len 512 --tgt_len 512 --d_model 550 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name small_20M_12L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all
+- name: char_restart_moresteps
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --config dgx1_2gpu_fp16 --experiment_name char_restart_moresteps --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_5M_2L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 2 --n_head 8 --d_head 64 --d_embed 700 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 700 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_5M_2L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_5M_1L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 1 --n_head 8 --d_head 64 --d_embed 1300 --d_inner 600 --mem_len 512 --tgt_len 512 --d_model 1300 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_5M_1L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_5M_8L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 350 --d_inner 256 --mem_len 512 --tgt_len 512 --d_model 350 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_5M_8L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_5M_12L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 32 --d_embed 278 --d_inner 128 --mem_len 512 --tgt_len 512 --d_model 278 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_5M_12L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_10M_2L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 2 --n_head 8 --d_head 64 --d_embed 1380 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 1380 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_10M_2L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_10M_1L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 1 --n_head 8 --d_head 128 --d_embed 1600 --d_inner 750 --mem_len 512 --tgt_len 512 --d_model 1600 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_10M_1L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_10M_8L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 540 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 540 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_10M_8L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_10M_12L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 32 --d_embed 512 --d_inner 165 --mem_len 512 --tgt_len 512 --d_model 512 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_10M_12L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_20M_2L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 2 --n_head 8 --d_head 64 --d_embed 2250 --d_inner 900 --mem_len 512 --tgt_len 512 --d_model 2250 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_20M_2L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_20M_1L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 1 --n_head 8 --d_head 128 --d_embed 2900 --d_inner 820 --mem_len 512 --tgt_len 512 --d_model 2900 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_20M_1L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_20M_8L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 64 --d_embed 700 --d_inner 512 --mem_len 512 --tgt_len 512 --d_model 700 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_20M_8L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: char_restart_moresteps_small_20M_12L
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 0 --max_step 1600000 --eval_interval 10000 --n_layer 12 --n_head 8 --d_head 64 --d_embed 550 --d_inner 250 --mem_len 512 --tgt_len 512 --d_model 550 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_20M_12L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt
+- name: transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4_subword
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling mean --save_all --segment_type subword
+- name: transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4_subword
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling max --save_all --segment_type subword 
+- name: transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4_subword
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext char_emb_from_word --char_pooling sum --save_all --segment_type subword
+- name: transxl_char_params_80M_bertstyle_lr0p001_g4_subword
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --model_ext bert_style_word_segment --segment_type subword
+- name: save_char_embeddings
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_200000.pt --experiment_name inference --prompt_context_percent 0.2 --cuda --num_prompts 50000

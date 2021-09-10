@@ -78,6 +78,12 @@ def parse_args():
                          help='Run training in fp16/mixed precision')
     general.add_argument('--restart', type=str, default='',
                          help='Restart training from the saved checkpoint')
+    general.add_argument('--layer_init_from_ckpt', type=str, default='',
+                         help='Initialize layers from checkpoint')
+    general.add_argument('--layer_idx_to_init', type=str, default='',
+                         help='what layers need to be initialized? 0-19 or 80-99 or 0-99') # only works if layer_init_from_ckpt != None
+    general.add_argument('--prune', type=str, default=None,
+                         help='prune what layers? 2,3')
     general.add_argument('--debug', action='store_true', default=None,
                          help='Run in debug mode (do not create exp dir)')
     general.add_argument('--log_all_ranks', action='store_true',
@@ -117,9 +123,9 @@ def parse_args():
     general.add_argument('--cache_dir', default=None, type=str,
                          help='Directory to store dataset cache, if None then use data dir as parent')
     dataset.add_argument('--dataset', type=str, default='wt2',
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'enron', 'reddit'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'enron', 'reddit', 'office_bpe'],
                          help='Dataset name')
-    dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe', 'char'],
+    dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe', 'char', 'office_pretokbpe'],
                          help='Type of vocabulary')
     dataset.add_argument('--vocab_size', type=int, default=None,
                          help='Size of vocabulary')
@@ -236,6 +242,8 @@ def parse_args():
                         help='extensions to trans-xl model') # bert_style_word_segment, char_emb_from_word  # clean_vocab
     training.add_argument('--char_pooling', type=str, default="mean",
                         help='type of pooling for obtaining word embeddings from character embeddings') # char_emb_from_word  sum, mean, max
+    training.add_argument('--segment_type', type=str, default="word",
+                        help='type of segmentation - word or gpt2-subword based')
 
     val = parser.add_argument_group('validation setup')
     val.add_argument('--eval_tgt_len', type=int, default=192,
@@ -445,6 +453,7 @@ def evaluate(eval_iter, model, args):
                            )
 
     # Evaluation
+    print('evaluating...')
     total_len, total_loss = 0, 0.
     with torch.no_grad():
         mems = None
@@ -784,7 +793,7 @@ def main():
     ###########################################################################
     # Load data
     ###########################################################################
-    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, max_size=args.vocab_size, model_ext=args.model_ext)
+    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, max_size=args.vocab_size, model_ext=args.model_ext, segment_type=args.segment_type)
     ntokens = len(corpus.vocab)
     vocab = corpus.vocab
     args.n_token = ntokens
@@ -808,7 +817,14 @@ def main():
     cutoffs, tie_projs = [], [False]
     if args.adaptive:
         assert args.dataset in ['wt103', 'wt2', 'lm1b', 'enron', 'reddit']
-        if args.dataset in ['wt103', 'wt2', 'enron']:
+        if args.vocab == 'bpe':
+            word_tokens = 267735
+            percents = [0.0746, 0.15, 0.746] # obtained from
+            cutoffs = [int(percent*args.n_token) for percent in percents]
+            tie_projs += [True] * len(cutoffs)
+            print('cutoffs...')
+            print(cutoffs)
+        elif args.dataset in ['wt103', 'wt2', 'enron']:
             cutoffs = [19997, 39997, 199997]
             tie_projs += [True] * len(cutoffs)
         elif args.dataset == 'lm1b':
@@ -842,8 +858,9 @@ def main():
         'clamp_len': args.clamp_len,
         'sample_softmax': args.sample_softmax,
         'model_ext': args.model_ext,
-        'space_char_idx': vocab.get_idx(" "),
-        'char_pooling': args.char_pooling
+        #'space_char_idx': vocab.get_idx(" "),
+        'char_pooling': args.char_pooling,
+        'segment_type': args.segment_type
         }
 
     model = MemTransformerLM(**model_config)
@@ -991,31 +1008,69 @@ def main():
     last_iter = 0
     best_val_loss = None
 
+    if args.layer_init_from_ckpt:
+        # initialize a set of layers in decoder (as defined in args.layer_idx_to_init) from checkpoint
+        # initializes weights that starts with layers
+        from operator import attrgetter
+        checkpoint = load_checkpoint(args.layer_init_from_ckpt)
+        ckpt_layers = checkpoint['model_config']['n_layer']
+        start_layer, end_layer = int(ckpt_layers*.01*(int(args.layer_idx_to_init.split('-')[0]))), int(ckpt_layers*.01*(int(args.layer_idx_to_init.split('-')[1])))
+        layer_idx_to_transfer = [idx for idx in range(start_layer, end_layer)]
+        print('layers transferred...')
+        print(layer_idx_to_transfer)
+        for layer_idx in layer_idx_to_transfer:
+            model.layers[layer_idx].dec_attn.qkv_net.weight.data = checkpoint['model_state']["layers.%d.dec_attn.qkv_net.weight"%layer_idx].half()
+            model.layers[layer_idx].dec_attn.o_net.weight.data = checkpoint['model_state']["layers.%d.dec_attn.o_net.weight"%layer_idx].half()
+            model.layers[layer_idx].dec_attn.layer_norm.weight.data = checkpoint['model_state']["layers.%d.dec_attn.layer_norm.weight"%layer_idx].half()
+            model.layers[layer_idx].dec_attn.layer_norm.bias.data = checkpoint['model_state']["layers.%d.dec_attn.layer_norm.bias"%layer_idx].half()
+            
+            model.layers[layer_idx].pos_ff.CoreNet[0].weight.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.0.weight"%layer_idx].half()
+            model.layers[layer_idx].pos_ff.CoreNet[0].bias.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.0.bias"%layer_idx].half()
+            model.layers[layer_idx].pos_ff.CoreNet[3].weight.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.3.weight"%layer_idx].half()
+            model.layers[layer_idx].pos_ff.CoreNet[3].bias.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.3.bias"%layer_idx].half()
+            
+            model.layers[layer_idx].pos_ff.layer_norm.weight.data = checkpoint['model_state']["layers.%d.pos_ff.layer_norm.weight"%layer_idx].half()
+            model.layers[layer_idx].pos_ff.layer_norm.bias.data = checkpoint['model_state']["layers.%d.pos_ff.layer_norm.bias"%layer_idx].half()
+            '''
+            for compo in ["layers.0.dec_attn.qkv_net.weight", "layers.0.dec_attn.o_net.weight", "layers.0.dec_attn.layer_norm.weight", "layers.0.dec_attn.layer_norm.bias", "layers.0.dec_attn.r_net.weight", "layers.0.pos_ff.CoreNet.0.weight", "layers.0.pos_ff.CoreNet.0.bias", "layers.0.pos_ff.CoreNet.3.weight", "layers.0.pos_ff.CoreNet.3.bias", "layers.0.pos_ff.layer_norm.weight", "layers.0.pos_ff.layer_norm.bias"]:
+                dest_compo = checkpoint['model_state'][compo.replace("layers.0", "layers.%d"%layer_idx)]
+                print(dest_compo.size())
+                src_compo = getattr(model.layers[layer_idx], compo.split("layers.0")[-1][1:])
+                attrgetter()
+                print(src_compo.size())
+
+                sys.exit(0)
+                #model.layers[layer_idx].dec_attn.qkv_net.weight = ckpt_layers['layers.<LID>.dec_attn.qkv_net.weight'.replace("<LID>", str(layer_idx))]
+            '''
+
     if args.restart:
         try:
-            checkpoint = load_checkpoint(args.restart)
-            model.load_state_dict(checkpoint['model_state'])
-            optimizer.load_state_dict(checkpoint['optimizer_state'])
-            scheduler.load_state_dict(checkpoint['scheduler_state'])
-            if args.fp16:
-                if args.amp == 'pytorch':
-                    scaler.load_state_dict(checkpoint['amp_state'])
-                elif args.amp == 'apex':
-                    amp.load_state_dict(checkpoint['amp_state'])
-            train_step = checkpoint['train_step']
-            start_epoch = checkpoint['epoch']
-            last_batch = checkpoint['batch']
-            last_iter = checkpoint['last_iter']
-            best_val_loss = checkpoint['best_val_loss']
+            if args.prune:
+                checkpoint = load_checkpoint(args.restart)
+            else:
+                checkpoint = load_checkpoint(args.restart)
+                model.load_state_dict(checkpoint['model_state'])
+                optimizer.load_state_dict(checkpoint['optimizer_state'])
+                scheduler.load_state_dict(checkpoint['scheduler_state'])
+                if args.fp16:
+                    if args.amp == 'pytorch':
+                        scaler.load_state_dict(checkpoint['amp_state'])
+                    elif args.amp == 'apex':
+                        amp.load_state_dict(checkpoint['amp_state'])
+                train_step = checkpoint['train_step']
+                start_epoch = checkpoint['epoch']
+                last_batch = checkpoint['batch']
+                last_iter = checkpoint['last_iter']
+                best_val_loss = checkpoint['best_val_loss']
 
-            if train_step >= args.max_step:
-                logging.info(f'Loaded checkpoint after {train_step} steps, but '
-                             f'this run was scheduled for a total of '
-                             f'{args.max_step} steps, exiting')
-                sys.exit(1)
+                if train_step >= args.max_step:
+                    logging.info(f'Loaded checkpoint after {train_step} steps, but '
+                                f'this run was scheduled for a total of '
+                                f'{args.max_step} steps, exiting')
+                    sys.exit(1)
 
-            model.apply(functools.partial(update_dropout, args=args))
-            model.apply(functools.partial(update_dropatt, args=args))
+                model.apply(functools.partial(update_dropout, args=args))
+                model.apply(functools.partial(update_dropatt, args=args))
         except FileNotFoundError:
             logging.info(f'Could not load checkpoint from {args.restart}, '
                          f'starting training from random init')
@@ -1057,7 +1112,6 @@ def main():
     # Test
     ###########################################################################
     summary = {}
-    #args.work_dir = "/home/t-gjawahar/archai/amlt/word_train/word5M"
     test_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
     if not args.no_eval and os.path.exists(test_path):
         # Load the best saved model.

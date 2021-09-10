@@ -232,7 +232,8 @@ def l2_promote():
         assert pValue.contents.value == 128
 
 def memstat_utils(message):
-    process = Popen(["memstat"], stdout=PIPE)
+    '''
+    process = Popen(["memstat"], stdout=PIPE, shell=True)
     (output, err) = process.communicate()
     memory = 0
     lines = []
@@ -240,10 +241,17 @@ def memstat_utils(message):
         if "PID %d"%PROCESS_ID in " ".join(line.strip().split()):
             memory += int(line.strip().split(": PID")[0][0:-1])
             lines.append(line)
-            print(line)
-    print(lines)
+            # print(line)
+    #print(lines)
     print("memstat output of %d at %s: %d"%(PROCESS_ID, message, memory/1000.0))
-
+    '''
+    memory = 0
+    for line in open("/proc/%s/status"%(PROCESS_ID)):
+        line = line.strip()
+        if "VmRSS:" in line:
+            memory = float(line.split()[-2])
+    print("rss output of %d at %s: %d\n"%(PROCESS_ID, message, memory/1000.0))
+    
 def dataset_dir_name(dataset:str)->str:
     if dataset=='wt103':
         return 'wikitext-103'

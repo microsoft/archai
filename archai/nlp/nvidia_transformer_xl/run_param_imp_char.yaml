@@ -194,5 +194,5 @@ jobs:
   - set -e -o xtrace
   - bash scripts/apex_install.sh
   - pip install --user -e .
-  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference_char_8_14 --prompt_context_percent 0.5 --cuda
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_100000.pt --experiment_name inference_char_8_14 --prompt_context_percent 0.5 --cuda
 

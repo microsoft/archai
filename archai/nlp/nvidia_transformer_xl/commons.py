@@ -1,6 +1,8 @@
 
 # general utils
 
+from math import radians
+from matplotlib.colors import cnames
 import torch
 import glob, sys
 import matplotlib.pyplot as plt
@@ -40,6 +42,14 @@ def reformer_check():
     print(decode(model.generate(encoded, do_sample=True, max_length=150)))
     print(sum(p.numel() for p in model.parameters()))
 #reformer_check()
+
+def check_num_emb_params():
+    from transformers import AutoTokenizer, AutoModelWithLMHead  
+    tokenizer = AutoTokenizer.from_pretrained("gpt2-large")
+    model = AutoModelWithLMHead.from_pretrained("gpt2-large")
+    print(sum(p.numel() for p in model.parameters()))
+
+#check_num_emb_params()
 
 def read_data(prompt_context_percent):
     encoded = []
@@ -401,10 +411,11 @@ layers_info = {""}
 #plot_latency_params()
 
 
-
+# amlt log transxl_char_exp2_randsearch :transxl_char_params_80M_clean_vocab :transxl_char_params_80M :transxl_char_params_80M_bertstyle_lr0p001 :transxl_char_params_80M_bertstyle_lr0p01_restart_10K :transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4         
 def plot_learning_curve2():
     import glob
     f2scores = {}
+    '''
     for f in glob.glob("/home/t-gjawahar/object_dir/char_archi_modifications/80M*"):
         f2scores[f.split("/")[-1].split(".")[0]] = []
         for line in open(f):
@@ -412,6 +423,15 @@ def plot_learning_curve2():
             if "valid ppl" in line:
                 items = line.split()
                 f2scores[f.split("/")[-1].split(".")[0]].append(float(items[-1]))
+    '''
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/transxl_char_exp2_randsearch/transxl_char_params_80M*/stdout.txt"):
+        f2scores[f.split("/")[-2].split("transxl_char_params_")[-1]] = []
+        for line in open(f):
+            line = line.strip()
+            if "valid ppl" in line:
+                items = line.split()
+                f2scores[f.split("/")[-2].split("transxl_char_params_")[-1]].append(float(items[-1]))
+        print(f.split("/")[-2], len(f2scores[f.split("/")[-2].split("transxl_char_params_")[-1]]))
     max_val = -1
     for key in f2scores:
         print(key, len(f2scores[key]))
@@ -423,7 +443,9 @@ def plot_learning_curve2():
     colors =['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive"]
     ei = 0
     for key in sorted(f2scores):
-        if not ("mean" in key or "max" in key or "sum" in key or key=="80M"):
+        #if not ("mean" in key or "max" in key or "sum" in key or key=="80M"):
+        #    continue
+        if ("mean" in key or "max" in key or "sum" in key or "restart" in key or "clean" in key):
             continue
         if len(f2scores[key]) == 40:
             plt.plot(xaxis, f2scores[key][0:40], color=colors[ei], marker='o', label=key)
@@ -437,13 +459,14 @@ def plot_learning_curve2():
     #plt.plot(xaxis, f2scores["bertstyle_lr0p01"][0:6], color=colors[3], marker='o', label="bertstyle_lr0.01")
     #plt.plot(xaxis, f2scores["vcorr4"][0:40], color=colors[3], marker='o', label="half d_model, d_inner, layer")
     plt.xlabel("Steps")
-    plt.ylabel("Valid BPC")
+    plt.ylabel("Valid Loss")
     plt.legend(loc="upper right")
     plt.show()
-    #fig.savefig("/home/t-gjawahar/object_dir/char_archi_modifications/%s_bertstyle_lcurve.pdf"%('full'), bbox_inches='tight')
-    fig.savefig("/home/t-gjawahar/object_dir/char_archi_modifications/%s_mean_max_sum_lcurve.pdf"%('full'), bbox_inches='tight')
+    fig.savefig("/home/t-gjawahar/object_dir/char_archi_modifications/%s_bertstyle_lcurve.pdf"%('full'), bbox_inches='tight')
+    #fig.savefig("/home/t-gjawahar/object_dir/char_archi_modifications/%s_mean_max_sum_lcurve.pdf"%('full'), bbox_inches='tight')
 
 #plot_learning_curve2()
+#sys.exit(0)
 
 def run_param_imp_char():
     res = ""
@@ -787,8 +810,11 @@ def check_reddit():
         print(num_words)
 #check_reddit()
 
+# amlt logs param_imp_char :transxl_char_params_80M :transxl_char_params_80M_dembed1000 :transxl_char_params_80M_dembed500 :transxl_char_params_80M_dhead32 :transxl_char_params_80M_dinner512 :transxl_char_params_80M_layer14 :transxl_char_params_80M_layer18 :transxl_char_params_80M_layer20 :transxl_char_params_80M_m1024_t256 :transxl_char_params_80M_m768_t256 :transxl_char_params_80M_nhead12 :transxl_char_params_80M_nhead2 :transxl_char_params_80M_nhead4
 def check_param_imp_char():
+    # read accuracy
     char_results = {}
+    '''
     for f in glob.glob("/home/t-gjawahar/object_dir/param_imp_char/80M*"):
         for line in open(f):
             content = line.strip()
@@ -797,10 +823,61 @@ def check_param_imp_char():
                 res = []
                 for i in range(3):
                     res.append(float(items[1 + 2* (i+1)]))
-                char_results[f.split("/")[-1].split(".")[0]] = res
+                char_results[f.split("/")[-1].split(".")[0]] = [res]
                 break
+    '''
+
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl_char/inference_char-transxl_char_params_80M*/stdout.txt"):
+        for line in open(f):
+            content = line.strip()
+            if "context=0.50" in content:
+                items = content.split()
+                res = []
+                for i in range(3):
+                    res.append(float(items[2 + 2* (i+1)]))
+                char_results[f.split("/")[-2].split("inference_char-transxl_char_params_")[-1]] = [res]
+                #break
+
     keys = sorted(list(char_results.keys()))
     print(keys)
+    
+    # read embed params, non embed params, valid ppl
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/param_imp_char/transxl_char_params_80M*/stdout.txt"):
+        key = f.split("/")[-2].split("transxl_char_params_")[-1]
+        valid_loss, n_all_param, n_nonemb_param, eval_step = None, None, None, None
+        for line in open(f):
+            line = line.strip()
+            if "valid loss" in line:
+                if int(line.split()[4]) > 20:
+                    break
+                eval_step = int(line.split()[4])
+                valid_loss = float(line.split()[-5])
+            elif "n_all_param" in line:
+                n_all_param = int(line.split()[-1])
+            elif "n_nonemb_param" in line:
+                n_nonemb_param = int(line.split()[-1])
+        if eval_step == 20:
+            char_results[key] += [valid_loss, n_all_param, n_nonemb_param]
+        if eval_step == 20:
+            print(key, [char_results[key][0][0], valid_loss, n_all_param, n_nonemb_param], eval_step)
+    
+    # plot scatter plot
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold"]
+    for i, term in enumerate(["Valid Loss.", "#all_params", "#nonemb_params"]):
+        fig = plt.figure(figsize=(10,5))
+        ei = 0
+        points, names = [], []
+        for key in keys:
+            if key in char_results and len(char_results[key]) == 4:
+                pt = plt.scatter(char_results[key][0][0], char_results[key][1+i], marker='x', c=colors[ei])
+                ei += 1
+                points.append(pt)
+                names.append(key)
+        plt.xlabel("PartialMatch@1")
+        plt.ylabel(term)
+        plt.legend(points, names, scatterpoints=1, loc="upper right", fontsize=10, bbox_to_anchor=(1.25, 0.55))
+        plt.show()
+        fig.savefig("/home/t-gjawahar/object_dir/param_imp_char/PartialMatch1_vs_%s_accuracy.pdf"%(term), bbox_inches='tight')
     
     '''
     # plot bar plots
@@ -831,8 +908,8 @@ def check_param_imp_char():
         #    break
     '''
 
-check_param_imp_char()
-sys.exit(0)
+#check_param_imp_char()
+#sys.exit(0)
 
 def plot_reddit_stats():
     # match results
@@ -863,19 +940,24 @@ def plot_reddit_stats():
 
     for i in range(2):
         fig = plt.figure(figsize=(10,5))
-        plt.grid(color='gray', linestyle='dashed')
+        #plt.grid(color='gray', linestyle='dashed')
         xaxis = [i+1 for i in range(3)]
         colors = ['red', 'cyan', 'green', 'orange']
-        plt.plot(xaxis, char_results[i], color=colors[0], marker='o', label="char80M")
-        plt.plot(xaxis, word_results[i], color=colors[1], marker='x', label="word80M")
-        plt.xlabel("#words")
-        plt.ylabel("%s Match"%("Full" if i == 0 else "Partial"))
+        #plt.plot(xaxis, char_results[i], color=colors[0], marker='o', label="char80M")
+        #plt.plot(xaxis, word_results[i], color=colors[1], marker='x', label="word80M")
+        plt.plot(xaxis, [526.0/1827.0, 167.0/1815.0, 51.0/1789.0], color=colors[0], marker='o', label="char80M")
+        plt.plot(xaxis, [498.0/1827.0, 136.0/1815.0, 40.0/1789.0], color=colors[1], marker='x', label="word80M")
+        plt.xlabel("N")
+        plt.ylabel("%sMatch@N"%("Exact" if i == 0 else "Partial"))
+        #plt.title("ExactMatch@N vs. N - Reddit")
+        plt.title("ExactMatch@N vs. N - Wikitext")
         plt.legend(loc="upper right")
         plt.show()
-        fig.savefig("/home/t-gjawahar/archai/scripts/%s_reddit_accuracy.pdf"%("Full" if i == 0 else "Partial"), bbox_inches='tight')
+        fig.savefig("/home/t-gjawahar/archai/scripts/%s_wikitext_accuracy.pdf"%("Full" if i == 0 else "Partial"), bbox_inches='tight')
+        break
 
 #plot_reddit_stats()
-
+#sys.exit(0)
 
 def tokenize_office_dataset():
     import nltk
@@ -967,5 +1049,1492 @@ def plot_office_acc_lat_mem():
 
 
 #plot_office_acc_lat_mem()
+
+
+def plot_small_models_analysis():
+    # read accuracy
+    char_results = {}
+    percent = "0.20"
+    fullmatch_n = 2
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-small_*/stdout.txt"):
+        for line in open(f):
+            content = line.strip()
+            if "context="+percent in content:
+                items = content.split()
+                #res = []
+                #for i in range(3):
+                #    res.append(float(items[2 + 2* (i+1)]))
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                char_results[f.split("/")[-2].split("inference_char_valid-small_")[-1]] =  [[score_1, score_2, score_3]]
+                break
+    print(char_results)
+
+    keys = sorted(list(char_results.keys()))
+    print(keys)
+    
+    # read embed params, non embed params, valid ppl
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/transxl_char_exp2_randsearch/small_*/stdout.txt"):
+        key = f.split("/")[-2].split("small_")[-1]
+        valid_loss, n_all_param, n_nonemb_param, eval_step = None, None, None, None
+        for line in open(f):
+            line = line.strip()
+            if "valid loss" in line:
+                #if int(line.split()[4]) > 20:
+                #    break
+                eval_step = int(line.split()[4])
+                valid_loss = float(line.split()[-5])
+            elif "n_all_param" in line:
+                n_all_param = int(line.split()[-1])
+            elif "n_nonemb_param" in line:
+                n_nonemb_param = int(line.split()[-1])
+        
+        #if eval_step == 20:
+        char_results[key] += [valid_loss, n_all_param, n_nonemb_param]
+        #if eval_step == 20:
+        print(key, [char_results[key][0][0], valid_loss, n_all_param, n_nonemb_param], eval_step)
+    print(char_results)
+
+    # word results
+    word_results = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics-word*_nofp/stdout.txt"):
+        for line in open(f):
+            content = line.strip()
+            if "context=0.50" in content:
+                items = content.split()
+                res = []
+                for i in range(3):
+                    res.append(float(items[2 + 2* (i+1)]))
+                print(f.split("/")[-2])
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                word_results[f.split("/")[-2].split("inference_word_model_metrics-word")[-1].split("_")[0]] = [[score_1, score_2, score_3]]
+                break
+    print(word_results)
+
+    # read embed params, non embed params, valid ppl
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/word_train/word*_nofp/stdout.txt"):
+        key = f.split("/")[-2].split("word")[-1].split("_")[0]
+        valid_loss, n_all_param, n_nonemb_param, eval_step = None, None, None, None
+        valid_ppl = None
+        for line in open(f):
+            line = line.strip()
+            if "valid loss" in line:
+                #if int(line.split()[4]) > 20:
+                #    break
+                eval_step = int(line.split()[4])
+                valid_loss = float(line.split()[-5])
+                valid_ppl = float(line.split()[-1])
+            elif "n_all_param" in line:
+                n_all_param = int(line.split()[-1])
+            elif "n_nonemb_param" in line:
+                n_nonemb_param = int(line.split()[-1])
+        
+        #if eval_step == 20:
+        word_results[key] += [valid_loss, n_all_param, n_nonemb_param, valid_ppl]
+        #if eval_step == 20:
+        #print(key, [char_results[key][0][0], valid_loss, n_all_param, n_nonemb_param], eval_step)
+    print(word_results)
+    wordkeys = sorted(list(word_results.keys()))
+
+    # plot scatter plot
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold", "darkorange", "teal", "slategrey", "crimson", "peru", "olive", "dimgray"]
+    markers = {"5M": "x", "10M": "o", "20M": "*", "30M": "<", "40M": "+", "80M": "D", "50M": "s"}
+    word_layers = {"5M": 3 , "10M": 4, "20M": 6, "30M": 8, "40M": 14, "50M": 16, "80M": 16}
+    embed_size = {"5M": 18 , "10M": 36, "20M": 74, "30M": 100, "40M": 128, "50M": 160, "80M": 256}
+    subword_results = {"0.20": [21.73, 6.34, 1.53], "0.50": [25.23, 6.67, 1.96], "0.80": [28.83, 8.79, 3.03]}
+    for i, term in enumerate(["Valid Loss.", "#all_params", "#nonemb_params"]):
+        fig = plt.figure(figsize=(10,5))
+        ax = fig.add_subplot(111)
+        ei = 0
+        points, names = [], []
+        for key in keys:
+            if key in char_results and len(char_results[key]) == 4:
+                pt = plt.scatter(char_results[key][0][fullmatch_n-1], char_results[key][1+i], marker='o', c=colors[ei]) #markers[key.split("_")[0]]
+                ei += 1
+                points.append(pt)
+                names.append("char_"+key)
+        for key in wordkeys:
+            if key in word_results and len(word_results[key]) == 5:
+                pt = plt.scatter(word_results[key][0][fullmatch_n-1], word_results[key][1+i], marker='x', c=colors[ei])
+                ei += 1
+                #points.append(pt)
+                #names.append("word_"+key)
+                ax.annotate("word_"+key+"_"+str(word_layers[key])+"_"+str(embed_size[key]), xy=(word_results[key][0][fullmatch_n-1], word_results[key][1+i]), textcoords='data')
+        if i == 1:
+            # subword model
+            pt = plt.scatter(subword_results[percent][fullmatch_n-1], 8551955, marker='+', c=colors[ei])
+            ax.annotate("subword_4L", xy=(subword_results[percent][fullmatch_n-1], 8551955), textcoords='data')
+        plt.xlabel("FullMatch@%d %s"%(fullmatch_n, percent))
+        plt.ylabel(term)
+        plt.legend(points, names, scatterpoints=1, loc="upper left", fontsize=8)#, bbox_to_anchor=(1.25, 0.55))
+        #plt.legend(points, names, scatterpoints=1, loc="upper right", fontsize=10, bbox_to_anchor=(1.25, 0.55))
+        plt.show()
+        #fig.savefig("/home/t-gjawahar/object_dir/param_imp_char/PartialMatch1_vs_%s_accuracy.pdf"%(term), bbox_inches='tight')
+        fig.savefig("/home/t-gjawahar/archai/scripts/8-23/Small_FullMatch%d%s_vs_%s_accuracy.pdf"%(fullmatch_n, percent,  term), bbox_inches='tight')
+    
+    # print gap
+    # accuracy gain vs. param savings
+    points = []
+    for word_model in word_results:
+        word_nparam = int(word_model[0:-1])
+        word_acc = word_results[word_model][0][0]
+        best_char_nparam, best_char_nacc = None, None
+        #layer = "12L"
+        params_def = "10M"
+        layer_def = "12L"
+        for param in [params_def]: # ["5M", "10M"]:#, "20M"]:
+            for layer in [layer_def]: # ["1L", "2L", "8L", "12L"]:
+                if char_results[param+"_"+layer][0][0] >= word_acc:
+                    best_char_nparam = int(param[0:-1]) #char_results[param+"_"+layer][2]
+                    best_char_nacc = char_results[param+"_"+layer][0][0]
+                    break
+            if best_char_nparam:
+                break
+        if not best_char_nparam:
+            #param, layer = "20M", "12L"
+            param, layer = params_def,layer_def
+            best_char_nparam =  int(param[0:-1]) # char_results[param+"_"+layer][2]
+            best_char_nacc = char_results[param+"_"+layer][0][0]
+        #print(word_model[0:-1], best_char_nacc-word_acc, word_nparam-best_char_nparam)
+        #points.append((word_model[0:-1], best_char_nacc-word_acc, (word_nparam-best_char_nparam)*1000000)) # raw
+        points.append((word_model[0:-1], best_char_nacc-word_acc, ((float(word_nparam-best_char_nparam)/float(word_nparam))*100.0))) # percent
+        print(word_model[0:-1], best_char_nacc-word_acc, ((float(word_nparam-best_char_nparam)/float(word_nparam))*100.0))
+    fig = plt.figure(figsize=(10,5))
+    ax = fig.add_subplot(111)
+    ei = 0
+    mpts, names = [], []
+    for point in points:
+        word_key, word_acc_gain, word_param_gain = point
+        pt = plt.scatter(word_acc_gain, word_param_gain, marker='x', c=colors[ei]) 
+        ei += 1
+        mpts.append(pt)
+        names.append("word_"+word_key)
+        #ax.annotate("word_"+word_key+"M", xy=(word_acc_gain-0.15, word_param_gain), textcoords='data')
+        '''
+        if "80" in word_key or "10" in word_key:
+            plt.text(word_acc_gain-0.15, word_param_gain-3500000, "word_"+word_key+"M", fontsize=15)
+        elif "30" in  word_key:
+            plt.text(word_acc_gain-0.05, word_param_gain+2500000, "word_"+word_key+"M", fontsize=15)
+        elif "20" in  word_key:
+            plt.text(word_acc_gain-0.25, word_param_gain+2500000, "word_"+word_key+"M", fontsize=15)
+        else:
+            plt.text(word_acc_gain-0.15, word_param_gain+2500000, "word_"+word_key+"M", fontsize=15)
+        '''
+        plt.text(word_acc_gain, word_param_gain, "word_"+word_key+"M", fontsize=15)
+    plt.xlabel("Accuracy Gain w. Char-%s-%s"%(params_def, layer_def), fontsize=15)
+    plt.ylabel("#Params Savings", fontsize=15)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    #plt.legend(mpts, names, scatterpoints=1, loc="upper right", fontsize=10) #, bbox_to_anchor=(1.25, 0.55))
+    plt.show()
+    #fig.savefig("/home/t-gjawahar/archai/scripts/8-23/accgain_paramsavings.pdf", bbox_inches='tight')
+    #fig.savefig("/home/t-gjawahar/archai/scripts/8-23/accgain_paramsavings_onlychar12L.pdf", bbox_inches='tight')
+    fig.savefig("/home/t-gjawahar/archai/scripts/8-23/accgain%s_paramsavings_percent_%s_%s.pdf"%(percent, params_def, layer_def), bbox_inches='tight')
+    
+#plot_small_models_analysis()
+
+def plot_subword_analysis():
+    # word results
+    word_results = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics-subword_nofp_wt103_g4_*/stdout.txt"):
+        for line in open(f):
+            content = line.strip()
+            if "context=0.50" in content:
+                items = content.split()
+                res = []
+                for i in range(3):
+                    res.append(float(items[2 + 2* (i+1)]))
+                print(f.split("/")[-2])
+                word_results[f.split("/")[-2].split("_")[-1]] = [res]
+                break
+    print(word_results)
+
+    # read embed params, non embed params, valid ppl
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/word_train/subword_nofp_wt103_g4_*/stdout.txt"):
+        key = f.split("/")[-2].split("word")[-1].split("_")[-1]
+        valid_loss, n_all_param, n_nonemb_param, eval_step = None, None, None, None
+        valid_ppl = None
+        for line in open(f):
+            line = line.strip()
+            if "valid loss" in line:
+                #if int(line.split()[4]) > 20:
+                #    break
+                eval_step = int(line.split()[4])
+                valid_loss = float(line.split()[-5])
+                valid_ppl = float(line.split()[-1])
+            elif "n_all_param" in line:
+                n_all_param = int(line.split()[-1])
+            elif "n_nonemb_param" in line:
+                n_nonemb_param = int(line.split()[-1])
+        
+        #if eval_step == 20:
+        if key in word_results:
+            word_results[key] += [valid_loss, n_all_param, n_nonemb_param, valid_ppl]
+    print(word_results)
+    
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k']
+    for num_word in [1, 2, 3]:
+        import matplotlib.pyplot as plt
+        fig = plt.figure(figsize=(10,5))
+        ei = 0
+        points = []
+        goodnames = []
+        for key in sorted(word_results):
+            goodname = key
+            pt = plt.scatter(word_results[key][2], word_results[key][0][num_word-1], marker='x', c=colors[ei])
+            ei += 1
+            points.append(pt)
+            goodnames.append(goodname)
+        plt.xlabel("Params")
+        plt.ylabel("FullMatch@"+str(num_word))
+        plt.legend(points, goodnames, scatterpoints=1, loc="upper right", fontsize=10, bbox_to_anchor=(1.15, 0.45))
+        plt.show()
+        fig.savefig("/home/t-gjawahar/archai/scripts/8-23/subword_params_vs_fmatch@%d.pdf"%(num_word), bbox_inches='tight')
+
+# plot_subword_analysis()
+
+
+def plot_latency_params():
+    points = []
+    lines = []
+    for line in open("/home/t-gjawahar/archai/scripts/latency"):
+        lines.append(line.strip())
+    char_latencies = {}
+    for i in range(12):
+        key = lines[3*i].split("small_")[-1]
+        latency = float(lines[(3*i)+2][0:-1])*1000 if lines[(3*i)+2][-1] == 's' else float(lines[(3*i)+2])
+        latency = (latency/1024) * (5)
+        points.append((key, int(key.split("M")[0]), latency))
+        char_latencies[key] = latency
+    print(points)
+    print(char_latencies)
+    lines = []
+    for line in open("/home/t-gjawahar/archai/scripts/latencyword"):
+        lines.append(line.strip())
+    word_latencies = {}
+    for i in range(7):
+        key = lines[3*i].strip()
+        latency = float(lines[(3*i)+2][0:-1])*1000 if lines[(3*i)+2][-1] == 's' else float(lines[(3*i)+2])
+        latency = (latency/192) 
+        points.append((key, int(key.split("M")[0]), latency))
+        word_latencies[key] = latency
+    print(word_latencies)
+
+    fig = plt.figure(figsize=(10,5))
+    ax = fig.add_subplot(111)
+    ei = 0
+    mpts, names = [], []
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold", "darkorange", "teal", "slategrey", "crimson", "peru", "olive"]
+    for point in points:
+        word_key, word_acc_gain, word_param_gain = point
+        pt = plt.scatter(word_acc_gain, word_param_gain, marker='x', c=colors[ei]) 
+        ei += 1
+        mpts.append(pt)
+        names.append(word_key)
+    plt.xlabel("Total Params")
+    plt.ylabel("Latency (ms)")
+    plt.legend(mpts, names, scatterpoints=1, loc="upper right", fontsize=10, bbox_to_anchor=(1.25, 0.55))
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/8-23/params_vs_latency.pdf", bbox_inches='tight')
+
+    # read accuracy
+    char_results = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-small_*/stdout.txt"):
+        for line in open(f):
+            content = line.strip()
+            if "context=0.50" in content:
+                items = content.split()
+                #res = []
+                #for i in range(3):
+                #    res.append(float(items[2 + 2* (i+1)]))
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                char_results[f.split("/")[-2].split("inference_char_valid-small_")[-1]] = [[score_1, score_2, score_3]]
+                break
+    print(char_results)
+
+    keys = sorted(list(char_results.keys()))
+    print(keys)
+    
+    # read embed params, non embed params, valid ppl
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/transxl_char_exp2_randsearch/small_*/stdout.txt"):
+        key = f.split("/")[-2].split("small_")[-1]
+        valid_loss, n_all_param, n_nonemb_param, eval_step = None, None, None, None
+        for line in open(f):
+            line = line.strip()
+            if "valid loss" in line:
+                #if int(line.split()[4]) > 20:
+                #    break
+                eval_step = int(line.split()[4])
+                valid_loss = float(line.split()[-5])
+            elif "n_all_param" in line:
+                n_all_param = int(line.split()[-1])
+            elif "n_nonemb_param" in line:
+                n_nonemb_param = int(line.split()[-1])
+        
+        #if eval_step == 20:
+        char_results[key] += [valid_loss, n_all_param, n_nonemb_param]
+        #if eval_step == 20:
+        print(key, [char_results[key][0][0], valid_loss, n_all_param, n_nonemb_param], eval_step)
+    print(char_results)
+
+    # word results
+    word_results = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics-word*_nofp/stdout.txt"):
+        for line in open(f):
+            content = line.strip()
+            if "context=0.50" in content:
+                items = content.split()
+                #res = []
+                #for i in range(3):
+                #    res.append(float(items[2 + 2* (i+1)]))
+                #print(f.split("/")[-2])
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                
+                word_results[f.split("/")[-2].split("inference_word_model_metrics-word")[-1].split("_")[0]] = [[score_1, score_2, score_3]]
+                break
+    print(word_results)
+
+    # read embed params, non embed params, valid ppl
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/word_train/word*_nofp/stdout.txt"):
+        key = f.split("/")[-2].split("word")[-1].split("_")[0]
+        valid_loss, n_all_param, n_nonemb_param, eval_step = None, None, None, None
+        valid_ppl = None
+        for line in open(f):
+            line = line.strip()
+            if "valid loss" in line:
+                #if int(line.split()[4]) > 20:
+                #    break
+                eval_step = int(line.split()[4])
+                valid_loss = float(line.split()[-5])
+                valid_ppl = float(line.split()[-1])
+            elif "n_all_param" in line:
+                n_all_param = int(line.split()[-1])
+            elif "n_nonemb_param" in line:
+                n_nonemb_param = int(line.split()[-1])
+        
+        #if eval_step == 20:
+        word_results[key] += [valid_loss, n_all_param, n_nonemb_param, valid_ppl]
+        #if eval_step == 20:
+        #print(key, [char_results[key][0][0], valid_loss, n_all_param, n_nonemb_param], eval_step)
+    print(word_results)
+    wordkeys = sorted(list(word_results.keys()))
+
+    # plot scatter plot
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold", "darkorange", "teal", "slategrey", "crimson", "peru", "olive"]
+    markers = {"5M": "x", "10M": "o", "20M": "*", "30M": "<", "40M": "+", "80M": "D", "50M": "s"}
+    word_layers = {"5M": 3 , "10M": 4, "20M": 6, "30M": 8, "40M": 14, "50M": 16, "80M": 16}
+    embed_size = {"5M": 18 , "10M": 36, "20M": 74, "30M": 100, "40M": 128, "50M": 160, "80M": 256}
+    fig = plt.figure(figsize=(10,5))
+    ax = fig.add_subplot(111)
+    ei = 0
+    points, names = [], []
+    for key in keys:
+        if key in char_results and len(char_results[key]) == 4:
+            pt = plt.scatter(char_results[key][0][0], char_latencies[key], marker='o', c=colors[ei]) #markers[key.split("_")[0]]
+            ei += 1
+            #points.append(pt)
+            #names.append("char_"+key)
+            ax.annotate("char"+key, xy=(char_results[key][0][0], char_latencies[key]), textcoords='data')
+    for key in wordkeys:
+        if key in word_results and len(word_results[key]) == 5:
+            pt = plt.scatter(word_results[key][0][0], word_latencies[key], marker='x', c=colors[ei])
+            ei += 1
+            points.append(pt)
+            names.append("word_"+key+"_"+str(word_layers[key])+"_"+str(embed_size[key]))
+            #ax.annotate("word_"+key+"_"+str(word_layers[key])+"_"+str(embed_size[key]), xy=(word_results[key][0][0], word_latencies[key]), textcoords='data')
+    plt.xlabel("FullMatch@1")
+    plt.ylabel("Latency")
+    plt.legend(points, names, scatterpoints=1, loc="upper left", fontsize=8)
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/8-23/Small_FullMatch1_vs_latency.pdf", bbox_inches='tight')
+
+    points = []
+    for word_model in word_results:
+        word_nparam = word_latencies[word_model]  # int(word_model[0:-1])
+        word_acc = word_results[word_model][0][0]
+        best_char_nparam, best_char_nacc = None, None
+        #layer = "12L"
+        params_def = "5M"
+        layer_def = "12L"
+        for param in [params_def]: #["5M", "10M", "20M"]:
+            for layer in [layer_def]: #["1L", "2L", "8L", "12L"]:
+                if char_results[param+"_"+layer][0][0] >= word_acc:
+                    best_char_nparam = char_latencies[param+"_"+layer] # int(param[0:-1]) #char_results[param+"_"+layer][2]
+                    best_char_nacc = char_results[param+"_"+layer][0][0]
+                    break
+            if best_char_nparam:
+                break
+        if not best_char_nparam:
+            #param, layer = "20M", "12L"
+            param, layer = params_def, layer_def
+            best_char_nparam = char_latencies[param+"_"+layer] # int(param[0:-1]) # char_results[param+"_"+layer][2]
+            best_char_nacc = char_results[param+"_"+layer][0][0]
+        #points.append((word_model[0:-1], best_char_nacc-word_acc, (word_nparam-best_char_nparam))) # raw
+        points.append((word_model[0:-1], best_char_nacc-word_acc, 100.0*((word_nparam-best_char_nparam)/float(word_nparam))))
+        print((word_model[0:-1], best_char_nacc-word_acc, word_nparam, best_char_nparam,  100.0*((word_nparam-best_char_nparam)/float(word_nparam))))
+    fig = plt.figure(figsize=(10,5))
+    ax = fig.add_subplot(111)
+    ei = 0
+    mpts, names = [], []
+    for point in points:
+        word_key, word_acc_gain, word_param_gain = point
+        pt = plt.scatter(word_acc_gain, word_param_gain, marker='x', c=colors[ei]) 
+        ei += 1
+        mpts.append(pt)
+        names.append("word_"+word_key)
+        print(word_key)
+        '''
+        if word_key in ["5", "40"]:
+            plt.text(word_acc_gain-0.15, word_param_gain-0.6, "word_"+word_key+"M",fontsize=15)
+        elif "10" in word_key:
+            plt.text(word_acc_gain-0.06, word_param_gain-0.6, "word_"+word_key+"M",fontsize=15)
+        elif "20" in word_key:
+            plt.text(word_acc_gain-0.26, word_param_gain-0.6, "word_"+word_key+"M",fontsize=15)
+        else:
+            plt.text(word_acc_gain-0.15, word_param_gain+0.4, "word_"+word_key+"M",fontsize=15)
+        '''
+        plt.text(word_acc_gain, word_param_gain, "word_"+word_key+"M",fontsize=15)
+    plt.xlabel("Accuracy Gain w. Char-%s-%s"%(params_def, layer_def),fontsize=15)
+    plt.ylabel("Latency Savings (ms)",fontsize=15)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    #plt.legend(mpts, names, scatterpoints=1, loc="upper right", fontsize=10) #, bbox_to_anchor=(1.25, 0.55))
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/8-23/accgain_latencylosses_%s_%s.pdf"%(params_def, layer_def), bbox_inches='tight')
+
+#plot_latency_params()
+
+def plot_memory_params():
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold", "darkorange", "teal", "slategrey", "crimson", "peru", "olive"]
+    points = []
+    char_latencies = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid_memstat-small*/stdout.txt"):
+        max_peak = 0
+        for line in open(f):
+            if "rss output of" in line.strip():
+                try:
+                    max_peak = max(max_peak, float(line.split()[-1]))
+                    if "program_end" in line.strip():
+                        break
+                except:
+                    print('error')
+                    continue
+        char_latencies[f.split("/")[-2].split("small_")[-1]] = max_peak
+    print(char_latencies)
+    lines = []
+    for line in open("/home/t-gjawahar/archai/scripts/latencyword"):
+        lines.append(line.strip())
+    word_latencies = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics_memstat-word*/stdout.txt"):
+        max_peak = 0
+        for line in open(f):
+            if "rss output of" in line.strip():
+                try:
+                    max_peak = max(max_peak, float(line.split()[-1]))
+                except:
+                    print('error')
+                    continue
+        word_latencies[f.split("/")[-2].split("word")[-1].split("_")[0]] = max_peak
+    print(word_latencies)
+
+    # read accuracy
+    char_results = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-small_*/stdout.txt"):
+        for line in open(f):
+            content = line.strip()
+            if "context=0.50" in content:
+                items = content.split()
+                #res = []
+                #for i in range(3):
+                #    res.append(float(items[2 + 2* (i+1)]))
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                char_results[f.split("/")[-2].split("inference_char_valid-small_")[-1]] = [[score_1, score_2, score_3]]
+                break
+    print(char_results)
+
+    keys = sorted(list(char_results.keys()))
+    print(keys)
+    
+    # read embed params, non embed params, valid ppl
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/transxl_char_exp2_randsearch/small_*/stdout.txt"):
+        key = f.split("/")[-2].split("small_")[-1]
+        valid_loss, n_all_param, n_nonemb_param, eval_step = None, None, None, None
+        for line in open(f):
+            line = line.strip()
+            if "valid loss" in line:
+                #if int(line.split()[4]) > 20:
+                #    break
+                eval_step = int(line.split()[4])
+                valid_loss = float(line.split()[-5])
+            elif "n_all_param" in line:
+                n_all_param = int(line.split()[-1])
+            elif "n_nonemb_param" in line:
+                n_nonemb_param = int(line.split()[-1])
+        
+        #if eval_step == 20:
+        char_results[key] += [valid_loss, n_all_param, n_nonemb_param]
+        #if eval_step == 20:
+        print(key, [char_results[key][0][0], valid_loss, n_all_param, n_nonemb_param], eval_step)
+    print(char_results)
+
+    # word results
+    word_results = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics-word*_nofp/stdout.txt"):
+        for line in open(f):
+            content = line.strip()
+            if "context=0.50" in content:
+                items = content.split()
+                #res = []
+                #for i in range(3):
+                #    res.append(float(items[2 + 2* (i+1)]))
+                #print(f.split("/")[-2])
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                
+                word_results[f.split("/")[-2].split("inference_word_model_metrics-word")[-1].split("_")[0]] = [[score_1, score_2, score_3]]
+                break
+    print(word_results)
+
+    # read embed params, non embed params, valid ppl
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/word_train/word*_nofp/stdout.txt"):
+        key = f.split("/")[-2].split("word")[-1].split("_")[0]
+        valid_loss, n_all_param, n_nonemb_param, eval_step = None, None, None, None
+        valid_ppl = None
+        for line in open(f):
+            line = line.strip()
+            if "valid loss" in line:
+                #if int(line.split()[4]) > 20:
+                #    break
+                eval_step = int(line.split()[4])
+                valid_loss = float(line.split()[-5])
+                valid_ppl = float(line.split()[-1])
+            elif "n_all_param" in line:
+                n_all_param = int(line.split()[-1])
+            elif "n_nonemb_param" in line:
+                n_nonemb_param = int(line.split()[-1])
+        
+        #if eval_step == 20:
+        word_results[key] += [valid_loss, n_all_param, n_nonemb_param, valid_ppl]
+        #if eval_step == 20:
+        #print(key, [char_results[key][0][0], valid_loss, n_all_param, n_nonemb_param], eval_step)
+    print(word_results)
+    wordkeys = sorted(list(word_results.keys()))
+
+    # plot scatter plot
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold", "darkorange", "teal", "slategrey", "crimson", "peru", "olive"]
+    markers = {"5M": "x", "10M": "o", "20M": "*", "30M": "<", "40M": "+", "80M": "D", "50M": "s"}
+    word_layers = {"5M": 3 , "10M": 4, "20M": 6, "30M": 8, "40M": 14, "50M": 16, "80M": 16}
+    embed_size = {"5M": 18 , "10M": 36, "20M": 74, "30M": 100, "40M": 128, "50M": 160, "80M": 256}
+    fig = plt.figure(figsize=(10,5))
+    ax = fig.add_subplot(111)
+    ei = 0
+    points, names = [], []
+    for key in keys:
+        if key in char_results and len(char_results[key]) == 4:
+            pt = plt.scatter(char_results[key][0][0], char_latencies[key], marker='o', c=colors[ei]) #markers[key.split("_")[0]]
+            ei += 1
+            #points.append(pt)
+            #names.append("char_"+key)
+            ax.annotate("char"+key, xy=(char_results[key][0][0], char_latencies[key]), textcoords='data')
+    for key in wordkeys:
+        if key in word_results and len(word_results[key]) == 5:
+            pt = plt.scatter(word_results[key][0][0], word_latencies[key], marker='x', c=colors[ei])
+            ei += 1
+            points.append(pt)
+            names.append("word_"+key+"_"+str(word_layers[key])+"_"+str(embed_size[key]))
+            #ax.annotate("word_"+key+"_"+str(word_layers[key])+"_"+str(embed_size[key]), xy=(word_results[key][0][0], word_latencies[key]), textcoords='data')
+    plt.xlabel("FullMatch@1")
+    plt.ylabel("Peak Memory utilization")
+    plt.legend(points, names, scatterpoints=1, loc="upper left", fontsize=8)
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/8-23/Small_FullMatch1_vs_pmu.pdf", bbox_inches='tight')
+
+    points = []
+    for word_model in word_results:
+        word_nparam = word_latencies[word_model]  # int(word_model[0:-1])
+        word_acc = word_results[word_model][0][0]
+        best_char_nparam, best_char_nacc = None, None
+        #layer = "12L"
+        params_def = "20M"
+        layer_def = "12L"
+        for param in [params_def]: #["5M", "10M", "20M"]:
+            for layer in [layer_def]: # ["1L", "2L", "8L", "12L"]:
+                if char_results[param+"_"+layer][0][0] >= word_acc:
+                    best_char_nparam = char_latencies[param+"_"+layer] # int(param[0:-1]) #char_results[param+"_"+layer][2]
+                    best_char_nacc = char_results[param+"_"+layer][0][0]
+                    break
+            if best_char_nparam:
+                break
+        if not best_char_nparam:
+            #param, layer = "20M", "12L"
+            param, layer = params_def, layer_def
+            best_char_nparam = char_latencies[param+"_"+layer] # int(param[0:-1]) # char_results[param+"_"+layer][2]
+            best_char_nacc = char_results[param+"_"+layer][0][0]
+        #print(word_model[0:-1], best_char_nacc-word_acc, word_nparam-best_char_nparam)
+        # points.append((word_model[0:-1], best_char_nacc-word_acc, (word_nparam-best_char_nparam))) # raw
+        points.append((word_model[0:-1], best_char_nacc-word_acc, 100.0*((word_nparam-best_char_nparam)/float(word_nparam))))
+        print(word_model[0:-1], best_char_nacc-word_acc, 100.0*((word_nparam-best_char_nparam)/float(word_nparam)))
+    fig = plt.figure(figsize=(10,5))
+    ax = fig.add_subplot(111)
+    ei = 0
+    mpts, names = [], []
+    for point in points:
+        word_key, word_acc_gain, word_param_gain = point
+        pt = plt.scatter(word_acc_gain, word_param_gain, marker='x', c=colors[ei]) 
+        ei += 1
+        mpts.append(pt)
+        names.append("word_"+word_key)
+        print(word_key)
+        '''
+        if word_key in ["10", "80"]: # down
+            plt.text(word_acc_gain-0.15, word_param_gain-40, "word_"+word_key+"M",fontsize=15)    
+        else: # up
+            plt.text(word_acc_gain-0.15, word_param_gain+35, "word_"+word_key+"M",fontsize=15)
+        '''
+        plt.text(word_acc_gain, word_param_gain, "word_"+word_key+"M",fontsize=15)
+    plt.xlabel("Accuracy Gain w. char-%s"%(params_def),fontsize=15)
+    plt.ylabel("Peak Memory Savings (MB)",fontsize=15)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    #plt.legend(mpts, names, scatterpoints=1, loc="upper right", fontsize=10) #, bbox_to_anchor=(1.25, 0.55))
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/8-23/accgain_pmugains_%s_%s.pdf"%(params_def, layer_def), bbox_inches='tight')
+
+#plot_memory_params()
+#sys.exit(0)
+
+
+def generate_restart_commands():
+    res = ""
+    names = []
+    for line in open("/home/t-gjawahar/object_dir/run_small.txt"):
+        if "name: " in line.strip():
+            res += line.replace("name: ", "name: char_restart_moresteps_")
+            names.append((line.replace("name: ", "name: char_restart_moresteps_").split(": ")[-1], line.split(": ")[-1]))
+        elif "sku: G4" in line.strip():
+            res += line.replace("G4", "G2")
+        elif "python -m" in line.strip():
+            res += line.replace("--nproc_per_node=\"4\"", "--nproc_per_node=\"2\"").replace("--warmup_step 4000", "--warmup_step 0").replace("--max_step 400000", "--max_step 1600000").replace("--config dgx1_4gpu_fp16", "--config dgx1_2gpu_fp16")[0:-1]+ " --restart $$AMLT_MAP_INPUT_DIR/checkpoint_400000.pt\n"
+        else:
+            res += (line)
+    #print(res)
+    #for name, oldname in names:
+    #    print("amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :%s transxl_char_exp2_randsearch :%s misc_transxl_char --yes"%(name.strip(), oldname.strip()))
+    cmd = "amlt log misc_transxl_char"
+    for name, oldname in names:
+        cmd += " :%s"%(name.strip()+"-"+oldname.strip())
+    print(cmd)
+
+#generate_restart_commands()
+
+def generate_word_segment_small_models(f):
+    command = "description: run small model scripts\n\ntarget:\n  service: amlk8s\n  name: ms-shared\n  vc: resrchvc\n\nenvironment:\n  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel\n  registry: docker.io\n  setup:\n    - set -e -o xtrace\n    - sudo apt-get -y install git\n    - pip install --user tensorboard\n\ncode:\n  local_dir: /home/t-gjawahar/archai\n\ndata:\n  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char\n  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char\n\njobs:\n"
+    job_cmd = "- name: small_5M_8L\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 8 --n_head 8 --d_head 32 --d_embed 350 --d_inner 256 --mem_len 512 --tgt_len 512 --d_model 350 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name small_5M_8L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 512 --lr 0.001 --save_all"
+
+    res = command
+    names = []
+    for segment_type in ["word", "subword"]:
+        for sname, model_ext in [("bert", "bert_style_word_segment"), ("cpool", "char_emb_from_word")]:
+            if sname == "bert":
+                new_job_cmd = job_cmd.replace("small_5M_8L", "small_5M_8L_"+sname+"_"+segment_type) + " --model_ext bert_style_word_segment --segment_type "+segment_type
+                res += new_job_cmd +"\n"
+                names.append(":small_5M_8L_"+sname+"_"+segment_type)
+            else:
+                for pooling in ["mean", "sum", "max"]:
+                    new_job_cmd = job_cmd.replace("small_5M_8L", "small_5M_8L_"+sname+"_"+segment_type+"_"+pooling) + " --model_ext char_emb_from_word --segment_type "+segment_type
+                    res += new_job_cmd +"\n"
+                    names.append(":small_5M_8L_"+sname+"_"+segment_type+"_"+pooling)
+    #print(res)
+    w = open(f, 'w')
+    w.write(res)
+    w.close()
+    print("amlt run %s %s transxl_char_exp2_randsearch"%(f, " ".join(names)))
+    # amlt status transxl_char_exp2_randsearch
+
+#generate_word_segment_small_models("scripts/8-25/generate_word_segment_small_models.yaml")
+
+def generate_integ_word_info():
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char-transxl_char_params_80M*/*.txt"):
+        for line in open(f):
+            line = line.strip()
+            if "context=" in line.strip():
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                print("%s %.2f %.2f %.2f"%(f.split("/")[-2].split("80M_")[-1], 100.0*score_1, 100.0*score_2, 100.0*score_3))
+                break
+
+#generate_integ_word_info()
+
+def calculate_word_ppl():
+    num_characters = 0
+    num_tokens = 0
+    for line in open("/home/t-gjawahar/object_dir/wikitext-2-raw-v1-char/wiki.valid.tokens"):
+        line = line.strip()
+        if len(line) != 0:
+            num_characters += len(line)
+            num_tokens += len(line.split())
+    import math
+    for bpc in [2.163, 2.174, 2.150, 2.151, 2.147]:
+        avg_loss = math.log(bpc)
+        bpc = avg_loss / math.log(2)
+        word_ppl = math.pow(2, bpc * (num_characters / num_tokens))
+        print("%.4f"%avg_loss, "%.2f"%word_ppl)
+
+# calculate_word_ppl()
+
+# amlt log inference_transxl :inference_char_valid-small_5M_1L :inference_char_valid-small_10M_2L :inference_char_valid-small_20M_12L :inference_char_valid-small_10M_8L :inference_char_valid-small_5M_2L :inference_char_valid-small_10M_12L :inference_char_valid-transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :inference_char_valid-transxl_char_params_80M :inference_char_valid-transxl_char_params_80M_bertstyle_lr0p001_8g :inference_char_valid-small_5M_8L :inference_char_valid-small_5M_12L :inference_char_valid-small_20M_8L :inference_char_valid-transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :inference_char_valid-small_20M_2L :inference_char_valid-small_10M_1L :inference_char_valid-small_20M_1L :inference_char_valid-transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4
+def generate_inference_logs_mlrg():
+    res = "amlt log inference_transxl"
+    for line in open("/home/t-gjawahar/archai/scripts/out.o"):
+        if not "small" in line:
+            continue
+        line = line.strip()
+        item = line.split()[0]
+        res += " "+item
+    print(res.replace("inference_char_valid", "inference_char_valid_memstat"))
+    
+#generate_inference_logs_mlrg()
+#sys.exit(0)
+
+
+def generate_memstat_commands():
+    commands = {}
+    correct_cur_name = None
+    for line in open("/home/t-gjawahar/archai/archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml"):
+        line = line.strip()
+        if "- name: " in line:
+            if "- name: small_" in line:
+                correct_cur_name = line.strip().split(": ")[-1]
+            else:
+                correct_cur_name = None
+        if correct_cur_name:
+            if "python -m" in line:
+                commands[correct_cur_name] = line.strip()
+    #print(commands)
+    for expname in commands:
+        cmd = commands[expname]
+        print(cmd.replace("- python -m torch.distributed.launch --nproc_per_node=\"4\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000", "CUDA_VISIBLE_DEVICES=\"\" python archai/nlp/nvidia_transformer_xl/exact_match.py --data /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char").replace("--config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001 --save_all", "--batch_size 1 --prompt_context_percent 0.5 --num_prompts 1 --num_chars_generate 100 --memstat"))
+        sys.exit(0)
+
+#generate_memstat_commands()
+
+
+def plot_char_modif_results():
+    charscores = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-transxl_char_params_80M*/stdout.txt"):
+        scores = []
+        for line in open(f):
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        goodname = "base"
+        if "mean" in f.split("/")[-2]:
+            goodname = "mean"
+        elif "max" in f.split("/")[-2]:
+            goodname = "max"
+        elif "sum" in f.split("/")[-2]:
+            goodname = "sum"
+        elif "bertstyle" in f.split("/")[-2]:
+            goodname = "bertstyle"
+        charscores[goodname] = [scores[0], scores[2], scores[4]]
+        #charscores[goodname] = [scores[1], scores[3], scores[5]]
+
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold", "darkorange", "teal", "slategrey", "crimson", "peru", "olive"]
+    '''
+    for j, context in enumerate([0.2, 0.5, 0.8]):
+        fig = plt.figure(figsize=(10,5))
+        plt.grid(color='gray', linestyle='dashed')
+        xaxis = [i+1 for i in range(3)]
+        ci = 0
+        for model in ["base", "bertstyle", "mean", "max", "sum"]:
+            plt.plot(xaxis, charscores[model][j], color=colors[ci], marker='o', label=model)
+            ci += 1
+        plt.xlabel("N (no. of words)")
+        plt.ylabel("ExactMatch@N")
+        plt.legend(loc="upper left")
+        plt.show()
+        fig.savefig("/home/t-gjawahar/archai/scripts/mlrg/wordonly_%.2f.pdf"%context, bbox_inches='tight')
+    '''
+    for j, N in enumerate([1, 2, 3]):
+        fig = plt.figure(figsize=(10,5))
+        #plt.grid(color='gray', linestyle='dashed')
+        xaxis = [0.2, 0.5, 0.8]
+        ci = 0
+        for model in ["base", "bertstyle", "mean", "max", "sum"]:
+            plt.plot(xaxis, [charscores[model][k][j] for k in range(len(xaxis))], color=colors[ci], marker='o', label=model)
+            ci += 1
+        plt.xlabel("Context Percent",fontsize=15)
+        plt.ylabel("ExactMatch@%d"%N,fontsize=15)
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.legend(loc="lower right",fontsize=12)
+        plt.title("ExactMatch@%d vs. Context Percent"%N,fontsize=15)
+        plt.show()
+        fig.savefig("/home/t-gjawahar/archai/scripts/mlrg/wordonly_%d.pdf"%N, bbox_inches='tight')
+    
+#plot_char_modif_results()
+
+def generate_char_archi_boxplot_commands():
+    command = "python archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer <n_layer> --n_head <n_head> --d_head <d_head> --d_embed <d_embed> --d_inner <d_inner> --mem_len 512 --tgt_len 512 --d_model <d_model> --dropout 0.1 -dropatt 0.0 --config dgx1_1gpu_fp16 --experiment_name small_20M_2L --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 128 --lr 0.001"
+
+    LAYERS = [2, 4, 8, 12, 16, 24, 32]
+    NHEAD = [2, 4, 8, 16, 32, 64]
+    DHEAD = [8, 16, 32, 64, 128]
+    DEMBED = [256, 512, 1024, 2048]
+    DINNER = [256, 512, 1024, 2048]
+    DMODEL = [256, 512, 1024, 2048]
+    import random
+    random.seed(123)
+    for i in range(150):
+        print(command.replace("<n_layer>", "%d"%random.choice(LAYERS)).replace("<n_head>", "%d"%random.choice(NHEAD)).replace("<d_head>", "%d"%random.choice(DHEAD)).replace("<d_embed>", "%d"%random.choice(DEMBED)).replace("<d_inner>", "%d"%random.choice(DINNER)).replace("<d_model>", "%d"%random.choice(DMODEL)))
+
+#generate_char_archi_boxplot_commands()
+
+def generate_plot_char_archi():
+    import numpy as np
+    params_adaptive_embedding_list, params_adaptive_softmax_list, params_attention_list, params_ff_list = [], [], [], []
+    for line in open("scripts/mlrg/chararchi.out"):
+        line = line.strip()
+        if line.startswith("adaparams"):
+            vals = [int(item.split("=")[-1]) for item in line.split()]
+            vals = [float(val) for val in vals]
+            total = vals[0]+vals[1]+vals[2]+vals[3]
+            vals[0] = vals[0]/total
+            vals[1] = vals[1]/total
+            vals[2] = vals[2]/total
+            vals[3] = vals[3]/total
+            params_adaptive_embedding_list.append(int(100.0*vals[0]))
+            params_adaptive_softmax_list.append(int(100.0*vals[1]))
+            params_attention_list.append(int(100.0*vals[2]))
+            params_ff_list.append(int(100.0*vals[3]))
+            if len(params_ff_list) == 100:
+                break
+
+    #fig = plt.figure(figsize=(10,5))
+    #ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
+    data = [params_adaptive_embedding_list, params_adaptive_softmax_list, params_attention_list, params_ff_list]
+    bp = ax.boxplot(data, sym='k+', showmeans=True)
+    m = [np.mean(d, axis=0) for d in data]
+    for i, line in enumerate(bp['medians']):
+        x, y = line.get_xydata()[1]
+        text = ' μ={:.2f}'.format(m[i])
+        print(text)
+        #if i>0:
+        #    ax.annotate(text, xy=(x-0.2, y+20))
+        #elif i == 3:
+        #    ax.annotate(text, xy=(x, y-30))
+        #else:
+        ax.annotate(text, xy=(x, y), fontsize=14)
+    ax.grid(axis='y')
+    plt.xticks(range(1, 5), ['AdaEmb', 'Sftmax', 'Attn', 'FFN'], fontsize=14)
+    plt.savefig('/home/t-gjawahar/archai/scripts/mlrg/parameter_breakdown_char.png', bbox_inches="tight")
+    fig.savefig("/home/t-gjawahar/archai/scripts/mlrg/parameter_breakdown_char.pdf", bbox_inches='tight')
+
+#generate_plot_char_archi()
+
+
+def integrate_word_subword_info():
+    charscores = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-small_5M_8L_*/stdout.txt"):
+        scores = []
+        for line in open(f):
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        goodname = f.split("/")[-2].split("inference_char_valid-small_5M_8L_")[-1]
+        #if "pool" in goodname and "max" not in goodname:
+            #continue
+        charscores[goodname] = [scores[0], scores[2], scores[4]]
+        #charscores[goodname] = [scores[1], scores[3], scores[5]]
+    print(charscores)
+    scores = []
+    for line in open("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid_100K-small_5M_8L/stdout.txt"):
+        if "context=" in line:
+            items = line.split(" ")
+            score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+            score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+            score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+            score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+            scores.append([score_1, score_2, score_3])
+    charscores["5M_8L_base"] = [scores[0], scores[2], scores[4]]
+
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold", "darkorange", "teal", "slategrey", "crimson", "peru", "olive"]
+    for j, N in enumerate([1, 2, 3]):
+        fig = plt.figure(figsize=(10,5))
+        #plt.grid(color='gray', linestyle='dashed')
+        xaxis = [0.2, 0.5, 0.8]
+        ci = 0
+        for model in charscores.keys():
+            plt.plot(xaxis, [charscores[model][k][j] for k in range(len(xaxis))], color=colors[ci], marker='o', label=model)
+            ci += 1
+        plt.xlabel("Context Percent")
+        plt.ylabel("ExactMatch@%d"%N)
+        plt.legend(loc="lower right")
+        plt.title("ExactMatch@%d vs. Context Percent"%N)
+        plt.show()
+        fig.savefig("/home/t-gjawahar/archai/scripts/mlrg/word_subword_full_%d.pdf"%N, bbox_inches='tight')
+
+#integrate_word_subword_info()
+
+def generate_bpe_sweep_models(f):
+    import random
+    random.seed(123)
+
+    command = "description: run bpe sweep model scripts\n\ntarget:\n  service: amlk8s\n  name: ms-shared\n  vc: resrchvc\n\nenvironment:\n  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel\n  registry: docker.io\n  setup:\n    - set -e -o xtrace\n    - sudo apt-get -y install git\n    - pip install --user tensorboard\n\ncode:\n  local_dir: /home/t-gjawahar/archai\n\ndata:\n  local_dir: /home/t-gjawahar/object_dir/wikitext-103\n  remote_dir: dataroot/textpred/wikitext-103\n\njobs:\n"
+    job_cmd = "- name: subword_space1_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>_<vocab_size>_<lr>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer <n_layer> --n_head <n_head> --d_model <d_model> --d_head <d_head> --d_inner <d_inner> --max_step 100000 --vocab bpe --vocab_size <vocab_size> --lr <lr>"
+    
+    # scripts/8-31-randsearch
+    # search_space_1
+    n_layers = [2, 4, 8]
+    n_heads = [4, 8]
+    d_models = [512]
+    d_heads = [32, 64]
+    d_inners = [512]
+    vocab_sizes = [260, 1000, 5000, 10000, 25000, 50000, 100000]
+    lrs = [0.01, 0.001]
+
+    res = command
+    names = []
+    job_cache = {}
+    while len(job_cache) < 50:
+        n_layer = random.choice(n_layers)
+        n_head = random.choice(n_heads)
+        d_model = random.choice(d_models)
+        d_head = random.choice(d_heads)
+        d_inner = random.choice(d_inners)
+        vocab_size = random.choice(vocab_sizes)
+        lr = random.choice(lrs)
+
+        cand_name = ":subword_space1_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>_<vocab_size>_<lr>".replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner)).replace("<vocab_size>", str(vocab_size)).replace("<lr>", str(lr))
+        if cand_name in job_cache:
+            continue
+        job_cache[cand_name] = True
+        new_job_cmd = job_cmd.replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner)).replace("<vocab_size>", str(vocab_size)).replace("<lr>", str(lr))
+        res += new_job_cmd +"\n"
+        names.append(cand_name)
+
+    #print(res)
+    res += "\n# amlt run %s %s word_train"%(f, " ".join(names))
+    res += "\n# amlt log word_train %s"%(" ".join(names))
+    res += "\n# amlt status word_train %s"%(" ".join(names))
+    w = open(f, 'w')
+    w.write(res)
+    w.close()
+    print("amlt run %s %s word_train"%(f, " ".join(names)))
+
+#generate_bpe_sweep_models("scripts/8-31-randsearch/generate_bpe_sweep_models.yaml")
+
+def results_generate_bpe_sweep_models():
+    # num parameters
+    hyp2params = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/word_train/subword_space1_*/*"):
+        num_params = None
+        for line in open(f):
+            line = line.strip()
+            if "#params" in line:
+                num_params = int(line.split()[-1])
+        if num_params:
+            hyp2params[f.split("/")[-2].split("subword_space1_")[-1]] = num_params
+    print(hyp2params, len(hyp2params))
+
+    # get exact match scores
+    hyp2taskscores = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics_valid-subword_space1*/*"):
+        hyp = f.split("/")[-2].split("inference_word_model_metrics_valid-subword_space1_")[-1]
+        if hyp not in hyp2params:
+            continue
+        scores = []
+        for line in open(f):
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        hyp2taskscores[hyp] = [scores[0], scores[2], scores[4]]
+    print(hyp2taskscores, len(hyp2taskscores))
+    scores = []
+    for hyp in hyp2taskscores:
+        scores.append((hyp2taskscores[hyp][0][0], [hyp2taskscores[hyp], hyp2params[hyp], hyp]))
+    scores = sorted(scores)
+    scores.reverse()
+    for score in scores:
+        print(score[1])
+
+#results_generate_bpe_sweep_models()
+
+def plot_learning_curve_more_steps():
+    import glob
+    initial_f2scores = {}
+    epochs = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/transxl_char_exp2_randsearch/small*/*"):
+        initial_f2scores[f.split("/")[-2]] = []
+        for line in open(f):
+            line = line.strip()
+            if "valid ppl" in line:
+                items = line.split()
+                initial_f2scores[f.split("/")[-2]].append(float(items[-1]))
+    restart_f2scores = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/misc_transxl_char/char_restart_moresteps_small_*/*"):
+        restart_f2scores[f.split("/")[-2]] = []
+        for line in open(f):
+            line = line.strip()
+            if "valid ppl" in line:
+                items = line.split()
+                restart_f2scores[f.split("/")[-2]].append(float(items[-1]))
+    final_f2scores = {}
+    for key in initial_f2scores:
+        for key1 in restart_f2scores:
+            if key in key1:
+                #print(key, len(initial_f2scores[key]), len(restart_f2scores[key1]))
+                final_f2scores[key] = initial_f2scores[key] + restart_f2scores[key1]
+                break
+    
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(12,5))
+    plt.grid(color='gray', linestyle='dashed')
+    xaxis = [10000*(i+1) for i in range(160)]
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold"]
+    ei = 0
+    for key in sorted(final_f2scores):
+        scores = final_f2scores[key] + [None] * (160 - len(final_f2scores[key]))
+        plt.plot(xaxis, scores, color=colors[ei], marker='o', label=key)
+        print(key, scores)
+        ei += 1
+    plt.xlabel("Steps")
+    plt.ylabel("Valid BPC")
+    plt.legend(loc="upper right")
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/mlrg/char_train_longer.pdf", bbox_to_anchor=(2.25, 2.55)) # bbox_inches='tight')
+
+# plot_learning_curve_more_steps()
+
+
+def extract_more_steps_diff():
+    more_steps_res = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_misc_transxl_char/inference_char_valid-char_restart_moresteps_small_*/*.txt"):
+        scores = []
+        for line in open(f):
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        more_steps_res[f.split("/")[-2].split("inference_char_valid-char_restart_moresteps_small_")[-1].split("-")[-1][6:]] = [scores[0], scores[2], scores[4]]
+    res_400K = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-small_*/stdout.txt"):
+        if len(f.split("/")[-2].split("inference_char_valid-small_")[-1].split("_")) != 2:
+            continue
+        scores = []
+        for line in open(f):
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        res_400K[f.split("/")[-2].split("inference_char_valid-small_")[-1].split("-")[-1]] = [scores[0], scores[2], scores[4]]
+    print(more_steps_res)
+    print(res_400K)
+    for key in sorted(res_400K.keys()):
+        res = res_400K[key]
+        more_steps = more_steps_res[key]
+        fstr = key
+        for res1, ms2 in zip(res, more_steps):
+            for r1, m2 in zip(res1, ms2):
+                fstr += ",%.2f"%(m2-r1)
+        print(fstr)
+        print(res, more_steps)
+        break
+#extract_more_steps_diff()
+
+def generate_small_char10M_grid_search_models(f):
+    import random
+    random.seed(123)
+
+    command = "description: run generate_small_char10M_grid_search_models scripts\n\ntarget:\n  service: amlk8s\n  name: ms-shared\n  vc: resrchvc\n\nenvironment:\n  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel\n  registry: docker.io\n  setup:\n    - set -e -o xtrace\n    - sudo apt-get -y install git\n    - pip install --user tensorboard\n\ncode:\n  local_dir: /home/t-gjawahar/archai\n\ndata:\n  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char\n  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char\n\njobs:\n"
+    job_cmd = "- name: char10M_grid_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer <n_layer> --n_head <n_head> --d_model <d_model> --d_head <d_head> --d_inner <d_inner> --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed <d_model> --dropout 0.1 --dropatt 0.0 --experiment_name char10M_grid_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>"
+    
+    # search_space_1
+    n_layers = [8, 12, 16]
+    n_heads = [8, 16]
+    d_models = [256, 512, 768, 1024]
+    d_heads = [32, 64]
+    d_inners = [128, 165, 200, 300]
+
+    res = command
+    names = []
+    job_cache = {}
+    while len(job_cache) < 20:
+        n_layer = random.choice(n_layers)
+        n_head = random.choice(n_heads)
+        d_model = random.choice(d_models)
+        d_head = random.choice(d_heads)
+        d_inner = random.choice(d_inners)
+
+        cand_name = ":char10M_grid_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>".replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner))
+        if cand_name in job_cache:
+            continue
+        job_cache[cand_name] = True
+        new_job_cmd = job_cmd.replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner))
+        res += new_job_cmd +"\n"
+        names.append(cand_name)
+
+    exp_name = "transxl_char_exp2_randsearch"
+    res += "\n# amlt run %s %s %s"%(f, " ".join(names), exp_name)
+    res += "\n# amlt log %s %s"%(exp_name, " ".join(names))
+    res += "\n# amlt status %s %s"%(exp_name, " ".join(names))
+    w = open(f, 'w')
+    w.write(res)
+    w.close()
+    print("amlt run %s %s %s"%(f, " ".join(names), exp_name))
+
+#generate_small_char10M_grid_search_models("scripts/9-3-randsearch/generate_small_char10M_grid_search_models.yaml")
+
+# amlt log inference_transxl :inference_char_valid-char10M_grid_12_8_512_32_300 :inference_char_valid-char10M_grid_8_16_256_32_200 :inference_char_valid-char10M_grid_12_8_256_64_200 :inference_char_valid-char10M_grid_8_16_256_64_200 :inference_char_valid-char10M_grid_16_16_256_32_128 :inference_char_valid-char10M_grid_8_8_512_64_200 :inference_char_valid-char10M_grid_16_8_512_32_200
+# amlt log transxl_char_exp2_randsearch :char10M_grid_12_8_512_32_300 :char10M_grid_8_16_256_32_200 :char10M_grid_12_8_256_64_200 :char10M_grid_8_16_256_64_200 :char10M_grid_16_16_256_32_128 :char10M_grid_8_8_512_64_200 :char10M_grid_16_8_512_32_200
+def results_generate_small_char10M_grid_search_models():
+    # conversion
+    num_characters = 0
+    num_tokens = 0
+    for line in open("/home/t-gjawahar/object_dir/wikitext-2-raw-v1-char/wiki.valid.tokens"):
+        line = line.strip()
+        if len(line) != 0:
+            num_characters += len(line)
+            num_tokens += len(line.split())
+    import math
+    def conversion(bpc):
+        avg_loss = math.log(bpc)
+        bpc = avg_loss / math.log(2)
+        return math.pow(2, bpc * (num_characters / num_tokens))
+
+    # calculate ppl
+    hyp2ppl = {}
+    hyp2params = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/transxl_char_exp2_randsearch/char10M_grid*/*"):
+        hyp2ppl[f.split("/")[-2]] = []
+        for line in open(f):
+            line = line.strip()
+            if "valid ppl" in line:
+                items = line.split()
+                hyp2ppl[f.split("/")[-2]].append(float(items[-1]))
+            elif "#params" in line:
+                hyp2params[f.split("/")[-2]] = float(line.split()[-1])
+    
+    # calculate word ppl
+    hyp2wordppl = {}
+    for f in hyp2ppl:
+        hyp2wordppl[f] = [hyp2ppl[f][20], conversion(hyp2ppl[f][20])]
+    print(hyp2wordppl)
+    
+    # get exact match scores
+    hyp2taskscores = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-char10M_grid*/stdout.txt"):
+        scores = []
+        for line in open(f):
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        hyp2taskscores[f.split("/")[-2].split("inference_char_valid-")[-1]] = [scores[0], scores[2], scores[4]]
+    print(hyp2taskscores)
+
+    # get scores
+    for hyp in hyp2taskscores:
+        res = ",".join(hyp.split("char10M_grid_")[-1].split("_"))
+        res += "," + str(hyp2taskscores[hyp][1][0]) + "," + str(hyp2taskscores[hyp][1][1]) + "," + str(hyp2taskscores[hyp][1][2])
+        res += "," + str(hyp2wordppl[hyp][0]) + "," + "%.3f"%(hyp2wordppl[hyp][1])
+        res += "," + str(hyp2params[hyp])
+        print(res)
+
+#results_generate_small_char10M_grid_search_models()
+
+def generate_small_embed_sizes(f):
+    import random
+    random.seed(123)
+
+    command = "description: run generate_small_embed_sizes scripts\n\ntarget:\n  service: amlk8s\n  name: ms-shared\n  vc: resrchvc\n\nenvironment:\n  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel\n  registry: docker.io\n  setup:\n    - set -e -o xtrace\n    - sudo apt-get -y install git\n    - pip install --user tensorboard\n\ncode:\n  local_dir: /home/t-gjawahar/archai\n\ndata:\n  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char\n  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char\n\njobs:\n"
+    job_cmd = "- name: small_embed_sizes_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer <n_layer> --n_head <n_head> --d_model 750 --d_head <d_head> --d_inner <d_inner> --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed <d_model> --dropout 0.1 --dropatt 0.0 --experiment_name small_embed_sizes_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>"
+
+    # search_space_1
+    n_layers = [16]
+    n_heads = [8]
+    d_models = [10, 50, 100, 150]
+    d_heads = [64]
+    d_inners = [2048]
+
+    res = command
+    names = []
+    job_cache = {}
+    while len(job_cache) < 4:
+        n_layer = random.choice(n_layers)
+        n_head = random.choice(n_heads)
+        d_model = random.choice(d_models)
+        d_head = random.choice(d_heads)
+        d_inner = random.choice(d_inners)
+
+        cand_name = ":small_embed_sizes_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>".replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner))
+        if cand_name in job_cache:
+            continue
+        job_cache[cand_name] = True
+        new_job_cmd = job_cmd.replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner))
+        res += new_job_cmd +"\n"
+        names.append(cand_name)
+
+    exp_name = "transxl_char_exp2_randsearch"
+    res += "\n# amlt run %s %s %s"%(f, " ".join(names), exp_name)
+    res += "\n# amlt log %s %s"%(exp_name, " ".join(names))
+    res += "\n# amlt status %s %s"%(exp_name, " ".join(names))
+    w = open(f, 'w')
+    w.write(res)
+    w.close()
+    print("amlt run %s %s %s"%(f, " ".join(names), exp_name))
+
+#generate_small_embed_sizes("scripts/9-5/generate_small_embed_sizes.yaml")
+
+def generate_small_embed_sizes_g8(f):
+    import random
+    random.seed(123)
+
+    command = "description: run generate_small_embed_sizes scripts\n\ntarget:\n  service: amlk8s\n  name: ms-shared\n  vc: resrchvc\n\nenvironment:\n  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel\n  registry: docker.io\n  setup:\n    - set -e -o xtrace\n    - sudo apt-get -y install git\n    - pip install --user tensorboard\n\ncode:\n  local_dir: /home/t-gjawahar/archai\n\ndata:\n  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char\n  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char\n\njobs:\n"
+    job_cmd = "- name: small_embed_sizes_g8_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>\n  sku: G8\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"8\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_8gpu_fp16 --config_file char_base.yaml --n_layer <n_layer> --n_head <n_head> --d_model 750 --d_head <d_head> --d_inner <d_inner> --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed <d_model> --dropout 0.1 --dropatt 0.0 --experiment_name small_embed_sizes_g8_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>"
+
+    # search_space_1
+    n_layers = [16]
+    n_heads = [8]
+    d_models = [10, 50, 100, 150]
+    d_heads = [64]
+    d_inners = [2048]
+
+    res = command
+    names = []
+    job_cache = {}
+    while len(job_cache) < 4:
+        n_layer = random.choice(n_layers)
+        n_head = random.choice(n_heads)
+        d_model = random.choice(d_models)
+        d_head = random.choice(d_heads)
+        d_inner = random.choice(d_inners)
+
+        cand_name = ":small_embed_sizes_g8_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>".replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner))
+        if cand_name in job_cache:
+            continue
+        job_cache[cand_name] = True
+        new_job_cmd = job_cmd.replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner))
+        res += new_job_cmd +"\n"
+        names.append(cand_name)
+
+    exp_name = "transxl_char_exp2_randsearch"
+    res += "\n# amlt run %s %s %s"%(f, " ".join(names), exp_name)
+    res += "\n# amlt log %s %s"%(exp_name, " ".join(names))
+    res += "\n# amlt status %s %s"%(exp_name, " ".join(names))
+    w = open(f, 'w')
+    w.write(res)
+    w.close()
+    print("amlt run %s %s %s"%(f, " ".join(names), exp_name))
+
+#generate_small_embed_sizes_g8("scripts/9-5/generate_small_embed_sizes_g8.yaml")
+
+
+def generate_wordmodel_layer_copy():
+    import random
+    random.seed(123)
+    
+    # word80M g2
+    job_cmd = "- name: wordmodel_80M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 1000 --dropout 0.1 --dropatt 0.0 --experiment_name wordmodel_80M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+
+    # word40M g2
+    job_cmd = "- name: wordmodel_40M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 1000 --dropout 0.1 --dropatt 0.0 --experiment_name wordmodel_40M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+
+    # word50M g2
+    job_cmd = "- name: wordmodel_50M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer 16 --n_head 8 --d_model 160 --d_head 32 --d_inner 800 --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 1000 --dropout 0.1 --dropatt 0.0 --experiment_name wordmodel_50M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+    
+    lidx = ["0-100", "0-25", "0-50", "0-75", "75-100", "50-100", "25-100", "25-75", "0-0"]
+    lidx = ["0-0", "0-10", "0-15", "0-20", "0-25"]
+    #lidx = ["0-0", "0-10", "0-20", "0-25"]
+    res = ""
+    names = []
+    for lid in lidx:
+        new_job_cmd = job_cmd.replace("<lidx>", lid)
+        res += new_job_cmd +"\n"
+        names.append("wordmodel_50M_layer_copy_<lidx>".replace("<lidx>", lid))
+    print(res)
+    for name in names:
+        print("amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :%s word_train :word50M misc_word --yes"%name)
+
+#generate_wordmodel_layer_copy()
+
+# amlt status misc_word
+# amlt log misc_word :wordmodel_80M_layer_copy_0-100-word80M :wordmodel_80M_layer_copy_0-25-word80M :wordmodel_80M_layer_copy_0-50-word80M :wordmodel_80M_layer_copy_0-75-word80M :wordmodel_80M_layer_copy_75-100-word80M :wordmodel_80M_layer_copy_50-100-word80M :wordmodel_80M_layer_copy_25-100-word80M :wordmodel_80M_layer_copy_25-75-word80M :wordmodel_80M_layer_copy_0-0-word80M
+def results_generate_wordmodel_layer_copy():
+    # conversion
+    num_characters = 0
+    num_tokens = 0
+    for line in open("/home/t-gjawahar/object_dir/wikitext-2-raw-v1-char/wiki.valid.tokens"):
+        line = line.strip()
+        if len(line) != 0:
+            num_characters += len(line)
+            num_tokens += len(line.split())
+    import math
+    def conversion(bpc):
+        avg_loss = math.log(bpc)
+        bpc = avg_loss / math.log(2)
+        return math.pow(2, bpc * (num_characters / num_tokens))
+
+    exp2scores = {}
+    max_steps = 0
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/misc_word/wordmodel*/*"):
+        scores = []
+        for line in open(f):
+            line = line.strip()
+            if "valid ppl" in line:
+                items = line.split()
+                score = conversion(float(items[-1]))
+                if score < 10000:
+                    scores.append(score)
+        exp2scores[f.split("/")[-2].split("_copy_")[-1].split("-word80M")[0]] = scores
+        max_steps = max(max_steps, len(scores))
+    print(exp2scores)
+
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(12,5))
+    plt.grid(color='gray', linestyle='dashed')
+    xaxis = [10000*(i+1) for i in range(max_steps)]
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold"]
+    ei = 0
+    for key in sorted(exp2scores):
+        #if key.startswith("0"):
+        if key.startswith("0-0") or not key.startswith("0"):
+            scores = exp2scores[key] + [None] * (max_steps - len(exp2scores[key]))
+            plt.plot(xaxis, scores, color=colors[ei], marker='o', label=key)
+            #print(key, scores)
+            ei += 1
+            print(key, len(exp2scores[key]))
+    plt.xlabel("Steps")
+    plt.ylabel("Valid PPL")
+    plt.legend(loc="upper right")
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/mlrg/results_generate_wordmodel_layer_copy.pdf", bbox_to_anchor=(2.25, 2.55)) # bbox_inches='tight')
+    
+    more_steps_res = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_misc_word/inference_char_valid_100K-*/*.txt"):
+        scores = []
+        for line in open(f):
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        more_steps_res[f.split("/")[-2].split("_copy_")[-1].split("-word80M")[0]] = [scores[0], scores[2], scores[4]]
+    print(more_steps_res)
+    for res in sorted(more_steps_res):
+        st = res
+        for s in more_steps_res[res]:
+            for s1 in s:
+                st += ',' + str(s1)
+        print(st)
+    
+results_generate_wordmodel_layer_copy()
+sys.exit(0)
+
+def generate_small_char10M_grid_search_bertstyle_models(f):
+    import random
+    random.seed(123)
+
+    command = "description: run generate_small_char10M_grid_search_bertstyle_models scripts\n\ntarget:\n  service: amlk8s\n  name: ms-shared\n  vc: resrchvc\n\nenvironment:\n  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel\n  registry: docker.io\n  setup:\n    - set -e -o xtrace\n    - sudo apt-get -y install git\n    - pip install --user tensorboard\n\ncode:\n  local_dir: /home/t-gjawahar/archai\n\ndata:\n  local_dir: /home/t-gjawahar/object_dir/wikitext-2-raw-v1-char\n  remote_dir: dataroot/textpred/wikitext-2-raw-v1-char\n\njobs:\n"
+    job_cmd = "- name: char10M_grid_bertstyle_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>_<segment_type>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer <n_layer> --n_head <n_head> --d_model <d_model> --d_head <d_head> --d_inner <d_inner> --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed <d_model> --dropout 0.1 --dropatt 0.0 --experiment_name char10M_grid_bertstyle_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner> --model_ext bert_style_word_segment --segment_type <segment_type>"
+    
+    # search_space_1
+    n_layers = [8, 12, 16]
+    n_heads = [8, 16]
+    d_models = [256, 512, 768, 1024]
+    d_heads = [32, 64]
+    d_inners = [128, 165, 200, 300]
+    segment_types = ["word", "subword"]
+
+    res = command
+    names = []
+    job_cache = {}
+    while len(job_cache) < 50:
+        n_layer = random.choice(n_layers)
+        n_head = random.choice(n_heads)
+        d_model = random.choice(d_models)
+        d_head = random.choice(d_heads)
+        d_inner = random.choice(d_inners)
+        segment_type = random.choice(segment_types)
+
+        cand_name = ":char10M_grid_bertstyle_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>_<segment_type>".replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner)).replace("<segment_type>", segment_type)
+        if cand_name in job_cache:
+            continue
+        job_cache[cand_name] = True
+        new_job_cmd = job_cmd.replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner)).replace("<segment_type>", segment_type)
+        res += new_job_cmd +"\n"
+        names.append(cand_name)
+
+    exp_name = "transxl_char_exp2_randsearch"
+    res += "\n# amlt run %s %s %s"%(f, " ".join(names), exp_name)
+    res += "\n# amlt log %s %s"%(exp_name, " ".join(names))
+    res += "\n# amlt status %s %s"%(exp_name, " ".join(names))
+    w = open(f, 'w')
+    w.write(res)
+    w.close()
+    print("amlt run %s %s %s"%(f, " ".join(names), exp_name))
+
+#generate_small_char10M_grid_search_bertstyle_models("scripts/9-3-randsearch/generate_small_char10M_grid_search_models_bertstyle.yaml")
+
+def cancel_jobs():
+    #cmd = "amlt abort transxl_char_exp2_randsearch"
+    #for line in open("/home/t-gjawahar/archai/scripts/cancel.sh"):
+    #    item = line.strip().split()[0]
+    #    cmd += " %s"%item
+    #print(cmd)
+    
+    cmd = "amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :inference_char_valid_50K transxl_char_exp2_randsearch"
+    for line in open("/home/t-gjawahar/archai/scripts/cancel.sh"):
+        if "killed" in line:
+            continue
+        item = line.strip().split()[0]
+        cmd += " %s"%item
+    cmd += " inference_transxl"
+    print(cmd)
+#cancel_jobs()
+
+
 
 

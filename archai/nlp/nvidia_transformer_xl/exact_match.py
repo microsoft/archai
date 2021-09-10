@@ -75,7 +75,7 @@ def parse_args():
     parser.add_argument('--dataset', type=str, default='wt103',
                         choices=['wt103', 'lm1b', 'enwik8', 'text8', 'wt2'],
                         help='dataset name')
-    parser.add_argument('--split', type=str, default='test',
+    parser.add_argument('--split', type=str, default='valid',
                         choices=['all', 'valid', 'test'],
                         help='which split to evaluate')
     parser.add_argument('--affinity', type=str,
@@ -622,7 +622,7 @@ def main():
             if 'model_ext' in checkpoint['model_config'] and (checkpoint['model_config']['model_ext'] == "bert_style_word_segment" or checkpoint['model_config']['model_ext'] == "char_emb_from_word"):
                 word_segment = []
             num_characters, num_tokens = 0, 0
-            with open(args.data + "/wiki.test.tokens", 'r', encoding='utf-8') as f:
+            with open(args.data + "/wiki.%s.tokens"%args.split, 'r', encoding='utf-8') as f:
                 for idx, line in enumerate(f):
                     num_characters += len(line.strip())
                     num_tokens += len(line.strip().split())
@@ -642,12 +642,12 @@ def main():
                                                 bptt=args.tgt_len, device=device,
                                                 ext_len=args.ext_len, warmup=False)
         else:
-            print('preparing prompts from %s/wiki.test.tokens'%(args.data))
+            print('preparing prompts from %s/wiki.%s.tokens'%(args.data, args.split))
             encoded = []
             #'''
             if args.prefix_len != -1:
                 prompt_cache = {}
-                with open(args.data + "/wiki.test.tokens", 'r', encoding='utf-8') as f:
+                with open(args.data + "/wiki.%s.tokens"%(args.split), 'r', encoding='utf-8') as f:
                     for idx, line in enumerate(f):
                         line = line.strip()
                         if len(line) == 0 or len(line.split()) <= 1:
@@ -678,8 +678,8 @@ def main():
                             break
             else:
                 prompt_cache = {}
-                #with open(args.data + "/wiki.test.tokens", 'r', encoding='utf-8') as f:
-                with open("/home/t-gjawahar/object_dir/WordData20210110/gan/tokenized_test.txt", 'r', encoding='utf-8') as f:
+                with open(args.data + "/wiki.%s.tokens"%args.split, 'r', encoding='utf-8') as f:
+                #with open("/home/t-gjawahar/object_dir/WordData20210110/gan/tokenized_test.txt", 'r', encoding='utf-8') as f:
                     for idx, line in enumerate(f):
                         line = line.strip()
                         if len(line) == 0 or len(line.split()) <= 1:
@@ -763,6 +763,15 @@ def main():
             model.load_state_dict(checkpoint['model_state'])
         elif args.type == 'torchscript':
             model.load_state_dict(checkpoint['model_state'], strict=False)
+        
+        '''
+        w = open("/home/t-gjawahar/object_dir/transxl_char_params_80M_input_lookup.json", "w")
+        for i in range(model.word_emb.emb_layers[0].weight.size(0)):
+            content = {"idx": i, "token": vocab.idx2sym[i], "embed": [str(a) for a in list(model.word_emb.emb_layers[0].weight[i,:].detach().numpy())] }
+            w.write(json.dumps(content))
+            w.write("\n")
+        w.close()
+        '''
     elif args.manual_config:
         args.manual_config['tgt_len'] = args.tgt_len
         args.manual_config['ext_len'] = args.ext_len

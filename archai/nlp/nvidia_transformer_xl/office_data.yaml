@@ -1,0 +1,115 @@
+# amlt run archai/nlp/nvidia_transformer_xl/office_data.yaml :bpe_office_128 word_train --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/office_data.yaml :bpe_office_128 :bpe_office_500 :bpe_office_1000 :bpe_office_5000 :bpe_office_10000 :bpe_office_25000 :bpe_office_50000 word_train --upload-data
+# amlt run archai/nlp/nvidia_transformer_xl/office_data.yaml :bpe_office_50000 word_train --upload-data
+
+description: run smodels on office data
+
+target:
+  service: amlk8s
+  # run "amlt target list amlk8s" to list theds names of available AMLK8s targets
+  name: ms-shared # itplabrr1cl1, ms-shared
+  vc: resrchvc
+
+environment:
+  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel
+  registry: docker.io # any public registry can be specified here
+  setup:
+    - set -e -o xtrace
+    - sudo apt-get -y install git
+    - pip install --user tensorboard
+
+code:
+  # local directory of the code. this will be uploaded to the server.
+  # $CONFIG_DIR is expanded to the directory of this config file
+  local_dir: /home/t-gjawahar/archai
+
+data:
+  #storage_id: 'us_east'
+  #remote_dir: dataroot
+  #local_dir: /home/t-gjawahar/object_dir/WordData20210110/gan/nltk_tokenized
+  #remote_dir: dataroot/textpred/office_nltk
+  #local_dir: /home/t-gjawahar/object_dir/WordData20210110/gan/raw
+  #remote_dir: dataroot/textpred/office_raw
+  #local_dir: /home/t-gjawahar/object_dir/WordData20210110/gan/raw_small
+  #remote_dir: dataroot/textpred/office_raw
+  local_dir: /home/t-gjawahar/object_dir/WordData20210110/gan/BPETok/TokS10000
+  remote_dir: dataroot/textpred/office_raw/TokS10000
+
+jobs:
+- name: word80M_office
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all --dataset reddit --vocab_size 267735
+- name: char80M_office
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --dataset reddit --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_4gpu_fp16 --experiment_name char80M_office --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: word80M_office_g2
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all --dataset reddit --vocab_size 267735
+- name: char80M_office_g2
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset reddit --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name char80M_office --config_file char_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+- name: bpe_office_128
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2"  archai/nlp/nvidia_transformer_xl/train.py --dataset office_bpe --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name char80M_office --config_file office_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all --vocab_size 128 --vocab office_pretokbpe
+- name: bpe_office_500
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset office_bpe --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name char80M_office --config_file office_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all --vocab_size 500 --vocab office_pretokbpe
+- name: bpe_office_1000
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset office_bpe --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name char80M_office --config_file office_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all --vocab_size 1000 --vocab office_pretokbpe
+- name: bpe_office_5000
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset office_bpe --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name char80M_office --config_file office_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all --vocab_size 5000 --vocab office_pretokbpe
+- name: bpe_office_10000
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset office_bpe --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name char80M_office --config_file office_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all --vocab_size 10000 --vocab office_pretokbpe
+- name: bpe_office_25000
+  sku: G2
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="" archai/nlp/nvidia_transformer_xl/train.py --dataset office_bpe --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name bpe_office_25000 --config_file office_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all --vocab_size 25000 --vocab office_pretokbpe
+- name: bpe_office_50000
+  sku: G4
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --dataset office_bpe --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_2gpu_fp16 --experiment_name bpe_office_50000 --config_file office_base.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001 --save_all --vocab_size 50000 --vocab office_pretokbpe

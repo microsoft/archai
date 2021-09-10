@@ -22,7 +22,7 @@ import sacremoses
 import torch
 
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as utils
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab, BPEVocab
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab, BPEVocab, Office_PreTokBPEVocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocabulary import Vocab
 #from archai.common import utils
 
@@ -146,7 +146,7 @@ class LMOrderedIteratorExt(object):
         if model_ext == "bert_style_word_segment" or model_ext == "char_emb_from_word":
             self.word_segment = word_segment.view(bsz, -1).t().contiguous().pin_memory()
 
-        if mem_len and warmup:
+        if mem_len and warmup and not model_ext:
             self.warmup_batches = (mem_len + bptt - 1) // bptt
             self.warmup_elems = self.warmup_batches * bptt
 
@@ -166,6 +166,8 @@ class LMOrderedIteratorExt(object):
         self.last_iter = None
 
     def roll(self, seed):
+        if self.model_ext == "bert_style_word_segment":
+            return
         rng = torch.Generator()
         rng.manual_seed(seed)
         for i in range(self.data.size(1)):
@@ -192,7 +194,7 @@ class LMOrderedIteratorExt(object):
         if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
             word_segment = self.word_segment[beg_idx:end_idx].to(self.device, non_blocking=True)
 
-        if self.mem_len and self.warmup:
+        if self.mem_len and self.warmup and not self.model_ext:
             warm = i >= self.warmup_elems
         else:
             warm = True
@@ -336,11 +338,136 @@ class LMMultiFileIterator(LMShuffledIterator):
             for batch in self.stream_iterator(sent_stream):
                 yield batch
 
+class LMStreamedIterator(object):
+    def __init__(self, data, bsz, bptt, device='cpu', ext_len=None,
+                 shuffle=False, model_ext=None, mem_len=None, warmup=True):
+        self.data = data
+
+        self.bsz = bsz
+        self.bptt = bptt
+        self.ext_len = ext_len if ext_len is not None else 0
+
+        self.mem_len = mem_len
+        self.warmup = warmup
+        self.warmup_done = False
+
+        self.device = device
+
+        self.last_iter = 0
+        self.n_batch = 0 
+
+    def stream_iterator(self, sent_stream):
+        # streams for each data in the batch
+        streams = [None] * self.bsz
+
+        data = torch.LongTensor(self.bptt, self.bsz)
+        target = torch.LongTensor(self.bptt, self.bsz)
+
+        n_retain = 0
+
+        while True:
+            # data   : [n_retain+bptt x bsz]
+            # target : [bptt x bsz]
+            data[n_retain:].fill_(-1)
+            target.fill_(-1)
+
+            valid_batch = True
+
+            for i in range(self.bsz):
+                n_filled = 0
+                try:
+                    while n_filled < self.bptt:
+                        if streams[i] is None or len(streams[i]) <= 1:
+                            streams[i] = next(sent_stream)
+                        # number of new tokens to fill in
+                        n_new = min(len(streams[i]) - 1, self.bptt - n_filled)
+                        # first n_retain tokens are retained from last batch
+                        data[n_retain+n_filled:n_retain+n_filled+n_new, i] = \
+                            streams[i][:n_new]
+                        target[n_filled:n_filled+n_new, i] = \
+                            streams[i][1:n_new+1]
+                        streams[i] = streams[i][n_new:]
+                        n_filled += n_new
+                except StopIteration:
+                    valid_batch = False
+                    break
+
+            if not valid_batch:
+                return
+
+            data = data.to(self.device)
+            target = target.to(self.device)
+
+            yield data, target, self.bptt
+
+            n_retain = min(data.size(0), self.ext_len)
+            if n_retain > 0:
+                data[:n_retain] = data[-n_retain:]
+            data.resize_(n_retain + self.bptt, data.size(1))
+
+    def stream_ord_iterator(self, data):
+        # Work out how cleanly we can divide the dataset into bsz parts.
+        n_step = data.size(0) // self.bsz
+
+        # Trim off any extra elements that wouldn't cleanly fit (remainders).
+        data = data[:n_step * self.bsz]
+
+        # Evenly divide the data across the bsz batches.
+        data = data.view(self.bsz, -1).t().contiguous().pin_memory()
+
+        if self.mem_len and self.warmup and not self.warmup_done:
+            self.warmup_batches = (self.mem_len + self.bptt - 1) // self.bptt
+            self.warmup_elems = self.warmup_batches * self.bptt
+
+            warmup_data = data.roll((self.warmup_elems, 1), (0, 1))[:self.warmup_elems]
+            data = torch.cat((warmup_data, data))
+
+            self.warmup_done = True
+
+        # Partition data for DistributedDataParallel
+        world_size = utils.distributed.get_world_size()
+        rank = utils.distributed.get_rank()
+        data = data.chunk(world_size, dim=1)[rank]
+
+        # Number of mini-batches
+        self.n_batch = (data.size(0) + self.bptt - 1) // self.bptt
+
+        for i in range(0, data.size(0) - 1, self.bptt):
+            bptt = self.bptt
+
+            seq_len = min(bptt, data.size(0) - 1 - i)
+
+            end_idx = i + seq_len
+            beg_idx = max(0, i - self.ext_len)
+
+            cur_data = data[beg_idx:end_idx].to(self.device, non_blocking=True)
+            cur_target = data[i+1:i+1+seq_len].to(self.device, non_blocking=True)
+
+            if self.mem_len and self.warmup and not self.warmup_done:
+                warm = i >= self.warmup_elems
+            else:
+                warm = True
+            
+            self.last_iter += 1
+
+            yield cur_data, cur_target, seq_len, warm
+
+        self.warmup_done = True
+        del data
+
+    def get_fixlen_iter(self, start=None):
+        for cur_data in self.data:
+            for result in self.stream_ord_iterator(cur_data):
+                yield result
+    
+    def __iter__(self):
+        return self.get_fixlen_iter()
 
 class Corpus(object):
-    def __init__(self, datadir, dataset, vocab, max_size=None, model_ext=None): # by default no args and kwargs are passed
+    def __init__(self, datadir, dataset, vocab, max_size=None, model_ext=None, segment_type=None): # by default no args and kwargs are passed
         self.dataset = dataset
         self.model_ext = model_ext
+        self.segment_type = segment_type
         if vocab == 'word':
             special, lower_case, vocab_file = [], True, None
             if dataset in ['wt103', 'wt2', 'enron', "reddit"]:
@@ -362,7 +489,7 @@ class Corpus(object):
         elif vocab == 'bpe':
             #vocab_dir = utils.full_path(os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size)), create=True)
             #self.vocab = GptVocab(max_size=max_size or 50000, vocab_dir)
-            vocab_dir = os.path.join(datadir, 'wikitext-103-bpe-vocab', str(max_size))
+            vocab_dir = os.path.join(datadir, 'bpe-vocab', str(max_size))
             print("vocab path = %s"%vocab_dir)
             self.vocab = BPEVocab(max_size=max_size or 50000, vocab_dir=vocab_dir)
         elif vocab == 'char':
@@ -374,15 +501,21 @@ class Corpus(object):
             self.vocab = Vocab(max_size=max_size,
                                special=special,
                                lower_case=lower_case,
-                               vocab_file=vocab_file, delimiter = "", model_ext=self.model_ext)
+                               vocab_file=vocab_file, delimiter = "", model_ext=self.model_ext, segment_type=self.segment_type)
+        elif vocab == "office_pretokbpe":
+            vocab_dir = datadir
+            self.vocab = Office_PreTokBPEVocab(max_size=max_size, vocab_dir=vocab_dir)
         else:
             raise RuntimeError('Unsupported vocab')
 
         train_filename, test_filename, valid_filename = 'train.txt', 'test.txt', 'valid.txt'
         if self.dataset in ['wt2', 'wt103', 'enron', "reddit"]:
             train_filename, test_filename, valid_filename = 'wiki.train.tokens', 'wiki.test.tokens', 'wiki.valid.tokens'
+        elif self.dataset in ['office_bpe']:
+            train_filename, test_filename, valid_filename = 'train.txt.tok', 'test.txt.tok', 'valid.txt.tok'
 
-        if self.dataset in ['ptb', 'wt2', 'enwik8', 'text8', 'enron', "reddit"]:
+
+        if self.dataset in ['ptb', 'wt2', 'enwik8', 'text8', 'enron', "reddit", "office_bpe"]:
             self.vocab.count_file(os.path.join(datadir, train_filename))
             #self.vocab.count_file(os.path.join(datadir, valid_filename))
             #self.vocab.count_file(os.path.join(datadir, test_filename))
@@ -404,8 +537,9 @@ class Corpus(object):
                 os.path.join(datadir, valid_filename), ordered=True)
             self.test = self.vocab.encode_file(
                 os.path.join(datadir, test_filename), ordered=True)
-        elif self.dataset in ['enwik8', 'text8', 'wt2', 'enron', "reddit"]:
+        elif self.dataset in ['enwik8', 'text8', 'wt2', 'enron', "reddit", "office_bpe"]:
             self.train = self.vocab.encode_file(
+                os.path.join(datadir, train_filename), ordered=True, add_eos=False, model_ext=self.model_ext) if self.dataset != "office_bpe" else self.vocab.encode_file_stream(
                 os.path.join(datadir, train_filename), ordered=True, add_eos=False, model_ext=self.model_ext)
             self.valid = self.vocab.encode_file(
                 os.path.join(datadir, valid_filename), ordered=True, add_eos=False, model_ext=self.model_ext)
@@ -417,6 +551,7 @@ class Corpus(object):
                 os.path.join(datadir, valid_filename), ordered=False, add_double_eos=True)
             self.test = self.vocab.encode_file(
                 os.path.join(datadir, test_filename), ordered=False, add_double_eos=True)
+        
 
     def get_iterator(self, split, *args, **kwargs):
         if split == 'train':
@@ -428,11 +563,13 @@ class Corpus(object):
             elif self.dataset == 'lm1b':
                 kwargs['shuffle'] = True
                 data_iter = LMMultiFileIterator(self.train, self.vocab, *args, **kwargs)
+            elif self.dataset == 'office_bpe':
+                data_iter = LMStreamedIterator(self.train, *args, **kwargs)
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'enron', "reddit"]:
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'enron', "reddit", "office_bpe"]:
                 if self.model_ext == "bert_style_word_segment" or self.model_ext == "char_emb_from_word":
-                    data_iter = LMOrderedIteratorExt(self.train, *args, **kwargs)
+                    data_iter = LMOrderedIteratorExt(data, *args, **kwargs)
                 else:
                     data_iter = LMOrderedIterator(data, *args, **kwargs)
             elif self.dataset == 'lm1b':
@@ -441,25 +578,27 @@ class Corpus(object):
         return data_iter
 
 
-def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None, model_ext=None):
+def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None, model_ext=None, segment_type=None):
     if vocab == 'word':
         fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.word.v1.pt')
     elif vocab == 'bpe':
         fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.bpe.v1.pt')
     elif vocab == 'char':
         fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.char.v1.pt')
+    elif vocab == 'office_pretokbpe':
+        fn = os.path.join(cachedir, 'cache.' + str(max_size) + '.office_pretokbpe.v1.pt')
     else:
         raise RuntimeError('Unsupported vocab')
 
-    if os.path.exists(fn) and not model_ext and vocab != "bpe":
+    if os.path.exists(fn) and not model_ext and vocab not in ["bpe", "office_pretokbpe"]:
         logging.info('Loading cached dataset...'+fn)
         corpus = torch.load(fn)
     else:
         logging.info('Producing dataset {}...'.format(dataset))
-        corpus = Corpus(datadir, dataset, vocab, max_size=max_size, model_ext=model_ext)
+        corpus = Corpus(datadir, dataset, vocab, max_size=max_size, model_ext=model_ext, segment_type=segment_type)
         with utils.distributed.sync_workers() as rank:
             if rank == 0:
-                if not model_ext: # save vocab for default trans-xl model only
+                if not model_ext and vocab not in ["office_pretokbpe"]: # save vocab for default trans-xl model only
                     torch.save(corpus, fn)
 
     return corpus
