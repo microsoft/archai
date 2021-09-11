@@ -1,14 +1,14 @@
-import logging
 from typing import Optional, Union, List
+import logging
 import os
-import argparse
 
 from tokenizers import ByteLevelBPETokenizer
 from transformers import PreTrainedTokenizerFast, PreTrainedTokenizerBase, GPT2TokenizerFast, GPT2Tokenizer, PreTrainedTokenizer
 
 from archai.common import utils, common
-from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
-from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
+from archai.nlp.tokenizer_utils.tokenizer_files import TokenizerFiles
+from archai.nlp.tokenizer_utils.token_config import TokenConfig
+
 
 def train_tokenizer(lines:List[str], token_config: TokenConfig,
                     vocab_size: int, save_dir: str, save_prefix='tokenizer',
@@ -63,40 +63,3 @@ def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, 
     # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
     #tokenizer.padding_side = "left"
     return tokenizer
-
-def basic_test():
-    parser = argparse.ArgumentParser(description='PyTorch Transformer-XL Language Model')
-    parser.add_argument('--data', type=str, default=None,
-                         help='Location of the data corpus')
-    parser.add_argument('--dataset', type=str, default='wt103',
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
-                         help='Dataset name')
-    parser.add_argument('--vocab', type=str, default='word', choices=['word', 'bpe'],
-                         help='Type of vocabulary')
-    parser.add_argument('--vocab_size', type=int, default=10000,
-                         help='Size of vocabulary')
-    args, _ = parser.parse_known_args()
-
-    pt_data_dir, pt_output_dir = common.pt_dirs()
-    args.data = args.data or pt_data_dir or common.default_dataroot()
-    args.data = utils.full_path(os.path.join(args.data, 'textpred', exp_utils.dataset_dir_name(args.dataset)))
-
-    save_path = utils.full_path(os.path.join(args.data, 'wikitext-103-bpe-vocab', str(args.vocab_size)), create=True)
-
-    train_filepath = os.path.join(args.data, 'wiki.train.tokens')
-    with open(train_filepath, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-
-    token_config = TokenConfig()
-
-    tokenizer_files = train_tokenizer(lines, token_config,
-        vocab_size=args.vocab_size, save_dir=save_path)
-
-    tokenizer = create_tokenizer(tokenizer_files, token_config)
-
-    print('tokenizer len', len(tokenizer))
-    print('merges_file', tokenizer_files.merges_file)
-    print('vocab_file', tokenizer_files.vocab_file)
-
-if __name__ == "__main__":
-    basic_test()
