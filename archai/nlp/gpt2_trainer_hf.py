@@ -41,7 +41,7 @@ from archai.nlp.gpt_training_args import GptTrainingArguments
 from archai.nlp.data_training_arguments import DataTrainingArguments
 from archai.nlp.model_arguments import ModelArguments
 
-from archai.nlp.tokenizer_utils.token_dataset import TokenConfig, TokenizerFiles
+from archai.nlp.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
 
 from archai.common import utils, common
