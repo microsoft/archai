@@ -37,9 +37,9 @@ from transformers.trainer_utils import get_last_checkpoint, is_main_process
 
 import torch
 
-from archai.nlp.gpt_training_args import GptTrainingArguments
-from archai.nlp.data_training_arguments import DataTrainingArguments
-from archai.nlp.model_arguments import ModelArguments
+from archai.nlp.huggingface.gpt_training_args import GptTrainingArguments
+from archai.nlp.huggingface.data_training_arguments import DataTrainingArguments
+from archai.nlp.huggingface.model_arguments import ModelArguments
 
 from archai.nlp.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
