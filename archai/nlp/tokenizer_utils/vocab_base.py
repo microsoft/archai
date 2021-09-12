@@ -12,7 +12,7 @@ class VocabBase(EnforceOverrides):
         pass
 
     @abstractmethod
-    def load(self)->bool:
+    def load(self)->None:
         pass
 
     @abstractmethod

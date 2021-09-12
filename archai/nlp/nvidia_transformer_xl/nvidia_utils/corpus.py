@@ -9,7 +9,7 @@ import torch
 from archai.common import utils
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.tokenizer_utils.word_vocab import WordVocab
-from archai.nlp.tokenizer_utils.gpt2_vocab import Gpt2Vocab
+from archai.nlp.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
 
 class Corpus:
@@ -117,7 +117,7 @@ class Corpus:
             add_eos = dataset in ['ptb', 'wt2', 'wt103', 'lm1b']
             vocab = WordVocab(save_path=vocab_cache_dir, vocab_size=vocab_size, special=special, lower_case=lower_case, add_eos=add_eos)
         elif vocab_type == 'bpe':
-            vocab = Gpt2Vocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
+            vocab = BbpeVocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
         else:
             raise RuntimeError(f'Unsupported vocab type: {vocab_type}')
 
@@ -141,7 +141,7 @@ class Corpus:
             vocab.train([os.path.join(datadir, train_filename)])
         else:
             vocab.load()
-            logging(f'Vocab cache found and loaded for type {vocab_type} and size {vocab_size} from {vocab_cache_dir}.')
+            logging.info(f'Vocab cache found and loaded for type {vocab_type} and size {vocab_size} from {vocab_cache_dir}.')
 
     def get_iterator(self, split, *args, **kwargs):
         if split == 'train':
