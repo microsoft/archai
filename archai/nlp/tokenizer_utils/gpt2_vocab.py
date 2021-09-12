@@ -23,6 +23,7 @@ class Gpt2Vocab(VocabBase):
         # max_model_input_sizes: {'gpt2': 1024, 'gpt2-medium': 1024, 'gpt2-large': 1024}
         # max_len = max_len_sentence_pair = max_len_single_sentence = 1024
         # mask_token = None
+        # default vocab size for GPT-2 is 50257
 
         self._config = TokenConfig(bos_token=bos_token, eos_token=eos_token,
                                    unk_token=unk_token, pad_token=pad_token,

@@ -7,9 +7,9 @@ import numpy as np
 import torch
 
 from archai.common import utils
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocab_base import VocabBase
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.word_vocab import WordVocab
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.gpt_vocab import GptVocab
+from archai.nlp.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.tokenizer_utils.word_vocab import WordVocab
+from archai.nlp.tokenizer_utils.gpt2_vocab import Gpt2Vocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
 
 class Corpus:
@@ -38,7 +38,7 @@ class Corpus:
         logging.info(f'Producing corpus cache for dataset {self.dataset}, vocab_type{self.vocab_type}, vocab_size {self.vocab_size}...')
 
         self.vocab = self._create_train_vocab(self.datadir, self.dataset, self.vocab_type,
-                                            self._vocab_cache_dir, self.vocab_size)
+                                            self._vocab_cache_dir, vocab_size=self.vocab_size)
 
         self.train, self.valid, self.test = self._get_encoded_files(
             self.vocab, self.datadir, self.dataset)
@@ -49,8 +49,9 @@ class Corpus:
             logging.info(f'Found existing cache for for dataset {self.dataset}. Loading from {self.train_cache_filepath}.')
 
             # ensure that we have tokenizer cache as well
-            self.vocab = Corpus._create_vocab(self.datadir, self.dataset, self.vocab_type, self.vocab_size)
-            vocab_exist = self.vocab.load(self._vocab_cache_dir)
+            self.vocab = Corpus._create_vocab(self.datadir, self.dataset,
+                self.vocab_type, self._vocab_cache_dir, vocab_size=self.vocab_size)
+            vocab_exist = self.vocab.load()
             assert vocab_exist
 
             self.train = torch.from_numpy(np.load(self.train_cache_filepath))
@@ -66,7 +67,7 @@ class Corpus:
         self.train = self.valid  = self.test = self.vocab = None
 
     def save(self):
-        assert self.vocab.exists(self._vocab_cache_dir)
+        assert self.vocab is not None and self.vocab.is_trained()
 
         # save dataset cache
         np.save(self.train_cache_filepath, self.train.numpy())
@@ -76,8 +77,10 @@ class Corpus:
     @staticmethod
     def _create_train_vocab(datadir:str, dataset:str, vocab_type:str, vocab_cache_dir:str,
                       vocab_size:Optional[int]=None)->VocabBase:
-        vocab = Corpus._create_vocab(datadir, dataset, vocab_type, vocab_size)
-        Corpus._train_vocab(vocab, datadir, dataset, vocab_type, vocab_cache_dir, vocab_size)
+        vocab = Corpus._create_vocab(datadir, dataset, vocab_type,
+                                     vocab_cache_dir, vocab_size=vocab_size)
+        Corpus._train_vocab(vocab, datadir, dataset, vocab_type,
+                                     vocab_cache_dir, vocab_size=vocab_size)
 
         return vocab
 
@@ -92,10 +95,10 @@ class Corpus:
         valid = vocab.encode_file(os.path.join(datadir, valid_filename))
         test = vocab.encode_file(os.path.join(datadir, test_filename))
 
-        return train, valid, test
+        return (torch.LongTensor(train), torch.LongTensor(valid), torch.LongTensor(test))
 
     @staticmethod
-    def _create_vocab(datadir:str, dataset:str, vocab_type:str,
+    def _create_vocab(datadir:str, dataset:str, vocab_type:str, vocab_cache_dir:str,
                       vocab_size:Optional[int]=None)->VocabBase:
         if vocab_type == 'word':
             special, lower_case, vocab_file = [], True, None # vocab file is text file of symbols, one per line
@@ -112,9 +115,9 @@ class Corpus:
 
             special += ['<unk>', '<S>'] # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
             add_eos = dataset in ['ptb', 'wt2', 'wt103', 'lm1b']
-            vocab = WordVocab(vocab_size=vocab_size, special=special, lower_case=lower_case, add_eos=add_eos)
+            vocab = WordVocab(save_path=vocab_cache_dir, vocab_size=vocab_size, special=special, lower_case=lower_case, add_eos=add_eos)
         elif vocab_type == 'bpe':
-            vocab = GptVocab(vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
+            vocab = Gpt2Vocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
         else:
             raise RuntimeError(f'Unsupported vocab type: {vocab_type}')
 
@@ -131,12 +134,13 @@ class Corpus:
     def _train_vocab(vocab:VocabBase, datadir:str, dataset:str, vocab_type:str,
                     vocab_cache_dir:str, vocab_size:Optional[int]=None)->None:
 
-        if not vocab.load(vocab_cache_dir): # if vocab cache does not exist
+        if not vocab.is_trained(): # if vocab cache does not exist
             train_filename, test_filename, valid_filename = \
                 Corpus._dataset_filenames(dataset)
 
-            vocab.train([os.path.join(datadir, train_filename)], save_dir=vocab_cache_dir)
+            vocab.train([os.path.join(datadir, train_filename)])
         else:
+            vocab.load()
             logging(f'Vocab cache found and loaded for type {vocab_type} and size {vocab_size} from {vocab_cache_dir}.')
 
     def get_iterator(self, split, *args, **kwargs):
