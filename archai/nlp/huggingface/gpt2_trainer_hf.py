@@ -42,7 +42,7 @@ from archai.nlp.huggingface.data_training_arguments import DataTrainingArguments
 from archai.nlp.huggingface.model_arguments import ModelArguments
 
 from archai.nlp.tokenizer_utils.token_config import TokenConfig
-from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
+from archai.nlp.tokenizer_utils.gpt2_vocab import train_tokenizer, create_tokenizer
 
 from archai.common import utils, common
 

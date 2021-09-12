@@ -728,9 +728,7 @@ def main():
     #     log_file = os.devnull
     #     dllog_file = os.devnull
 
-    exp_utils.setup_logging(log_all_ranks=args.log_all_ranks,
-                                  filename=log_file,
-                                  )
+    exp_utils.setup_logging(log_all_ranks=args.log_all_ranks, filename=log_file)
     exp_utils.setup_dllogger(enabled=True, filename=dllog_file)
 
     if args.local_batch_size is not None: # default is None
