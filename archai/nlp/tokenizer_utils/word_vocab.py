@@ -9,12 +9,12 @@ import torch
 
 from overrides import overrides
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocab_base import VocabBase
+from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.common import utils
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 
 class WordVocab(VocabBase): # Word vocab is the default
-    def __init__(self, special=[], min_freq=0, vocab_size=None, lower_case=True,
+    def __init__(self, save_path:str, special=[], min_freq=0, vocab_size=None, lower_case=True,
                  delimiter=None, add_eos=False, add_double_eos=False):
         self.counter = Counter()
         self.special = special
@@ -24,6 +24,7 @@ class WordVocab(VocabBase): # Word vocab is the default
         self.delimiter = delimiter
         self.add_eos = add_eos
         self.add_double_eos = add_double_eos
+        self.save_path = save_path
 
     def _tokenize_line(self, line)->List[str]:
         """Tokenize line, split on space, add_eos: add special to end, add_double_eos: add special to begin and end"""
@@ -75,34 +76,35 @@ class WordVocab(VocabBase): # Word vocab is the default
         self.sym2idx:OrderedDict[str, int] = OrderedDict()
 
     @overrides
-    def load(self, path:str)->bool:
+    def load(self)->None:
         """Load previously cached vocab file"""
-        if self.exists(path):
-            self._clear() # clear out existing symbols
+        vocab_filepath = self._vocab_filepath()
 
-            with open(cach_filepath, 'r', encoding='utf-8') as f:
-                for line in f:
-                    symb = line.strip().split()[0]
-                    self._add_symbol(symb)
-            self.unk_idx = self.sym2idx['<unk>']
-            return True
-        else:
-            return False
+        self._clear() # clear out existing symbols
+
+        with open(vocab_filepath, 'r', encoding='utf-8') as f:
+            for line in f:
+                symb = line.strip().split()[0]
+                self._add_symbol(symb)
+        self.unk_idx = self.sym2idx['<unk>']
+
+    def _vocab_filepath(self)->str:
+        return utils.full_path(os.path.join(self.save_path, 'vocab.txt'))
 
     def _save(self, path:str)->None:
-        path = utils.full_path(path, create=True)
-        cach_filepath = os.path.join(path, 'vocab.txt')
-        with open(cach_filepath, 'w', encoding='utf-8') as f:
+        path = utils.full_path(self.save_path, create=True)
+        vocab_filepath = self._vocab_filepath()
+        with open(vocab_filepath, 'w', encoding='utf-8') as f:
             f.write("\n".join(self.idx2sym))
 
     @overrides
-    def exists(self, path)->bool:
-        cach_filepath = utils.full_path(os.path.join(path, 'vocab.txt'))
-        return os.path.exists(cach_filepath)
+    def is_trained(self)->bool:
+        vocab_filepath = self._vocab_filepath()
+        return os.path.exists(vocab_filepath)
 
     @overrides
-    def train(self, filepaths:List[str], save_dir:str)->None:
-        logging.info(f'Building word vocab with min_freq={self.min_freq}, vocab_size={self.vocab_size} using {len(filepaths)} training file(s) at {save_dir}')
+    def train(self, filepaths:List[str])->None:
+        logging.info(f'Building word vocab with min_freq={self.min_freq}, vocab_size={self.vocab_size} using {len(filepaths)} training file(s) at {self.save_path}')
 
         assert len(filepaths)
 
@@ -123,14 +125,14 @@ class WordVocab(VocabBase): # Word vocab is the default
 
         with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
-                self._save(save_dir)
+                self._save(self.save_path)
 
         logging.info(f'Final word vocab size is {len(self)}, unique tokens are {len(self.counter)}')
 
     @overrides
-    def encode_line(self, line):
+    def encode_line(self, line)->List[int]:
         symbols = self._tokenize_line(line)
-        return self._convert_to_tensor(symbols)
+        return self._get_indices(symbols)
 
     def _encode_sents(self, sents, ordered=False, verbose=True):
         if verbose:
