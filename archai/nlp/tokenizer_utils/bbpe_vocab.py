@@ -25,7 +25,7 @@ class BbpeVocab(VocabBase):
                                    add_prefix_space=add_prefix_space, add_prefix_new_line=add_prefix_new_line)
         self._files = TokenizerFiles.from_path(save_path)
         self._tokenizer:Optional[ByteLevelBPETokenizer] = None # will load existing or create new
-        self.save_path = save_path
+        self.save_path = utils.full_path(save_path, create=True) if save_path else save_path
         self.vocab_size = vocab_size
         self.sorted_vocab = sorted_vocab
         self.min_frequency = min_frequency
@@ -66,7 +66,9 @@ class BbpeVocab(VocabBase):
         # TODO: EOT is supposed to be added at the end of the file but currently its not done
         # self.EOT = self.tokenizer.bos_token_id # .encoder['<|endoftext|>']
         if self.pad_vocab_size:
-            for i in range(0, self.padded_vocab_size - self.vocab_size):
+            vocab_size = self._tokenizer.get_vocab_size()
+            self.padded_vocab_size = (vocab_size + self.pad - 1) // self.pad * self.pad
+            for i in range(0, padded_vocab_size - vocab_size):
                 token = f'madeupword{i:09d}'
                 self._tokenizer.add_tokens([token])
 
@@ -90,6 +92,8 @@ class BbpeVocab(VocabBase):
 def encode_line(line:str, token_config:TokenConfig, tokenizer:ByteLevelBPETokenizer,
                 bos_id:List[int], eos_id:List[int])->List[int]:
     line = line.strip()
+    if not line:
+        return []
     if token_config.add_prefix_space:
         line = ' ' + line
     if token_config.add_prefix_new_line:
@@ -98,6 +102,7 @@ def encode_line(line:str, token_config:TokenConfig, tokenizer:ByteLevelBPETokeni
 
 def count_token_freq(filepaths:List[str], tokenizer:ByteLevelBPETokenizer, token_config:TokenConfig,
                      bos_id:List[int], eos_id:List[int])->Counter:
+    logging.info('Counting token frequencies...')
     tokens_counter = Counter()
     tokens_counter.update(list(range(tokenizer.get_vocab_size()))) # add each token
 
@@ -105,7 +110,9 @@ def count_token_freq(filepaths:List[str], tokenizer:ByteLevelBPETokenizer, token
         with open(filepath, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
-        for l in lines:
+        for i,l in enumerate(lines):
+            if ((i+1)%100000)==0:
+                logging.info(f'Counted tokens for line {i+1}...')
             toks = encode_line(l, token_config, tokenizer, bos_id, eos_id)
             tokens_counter.update(toks)
 
@@ -113,6 +120,7 @@ def count_token_freq(filepaths:List[str], tokenizer:ByteLevelBPETokenizer, token
 
 def save_sort_tokens(tokens_counter:Counter, tokenizer:ByteLevelBPETokenizer,
                     token_config:TokenConfig, tokenizer_files:TokenizerFiles):
+    logging.info('Saving sorted vocab file...')
     tokens_counter.update(list(range(tokenizer.get_vocab_size()))) # add 1 to each value, to ensure that all of them > 0
     min_sort_id = 256 + len(token_config.get_special_tokens())
     sorted_ids = list(range(min_sort_id)) + \
@@ -137,7 +145,7 @@ def train_tokenizer(filepaths:List[str], token_config: TokenConfig,
                     vocab_size: int, save_dir: str, save_prefix='tokenizer',
                     dropout: float = None, min_frequency: int = 2, show_progress=False,
                     added_tokens: List[str] = []) -> TokenizerFiles:
-
+    logging.info('Training tokenizer...')
     # check if we already have tokenizer cached filed
     tokenizer_out_files = TokenizerFiles.from_path(save_dir=save_dir)
     # if utils.is_debugging() and os.path.exists(tokenizer_out_files.vocab_file) \

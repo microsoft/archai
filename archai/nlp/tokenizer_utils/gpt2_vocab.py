@@ -34,7 +34,8 @@ class Gpt2Vocab(VocabBase):
                                    add_prefix_space=add_prefix_space, add_prefix_new_line=add_prefix_new_line)
         self._files = TokenizerFiles.from_path(save_path)
         self._tokenizer:Optional[PreTrainedTokenizerFast] = None
-        self.save_path = save_path
+        self.save_path = utils.full_path(save_path, create=True) if save_path else save_path
+
         self.pad_vocab_size = pad_vocab_size
         self.vocab_size = vocab_size
         self.max_length = max_length
