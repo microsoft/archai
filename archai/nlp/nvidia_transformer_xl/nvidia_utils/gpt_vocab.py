@@ -11,7 +11,6 @@ from pytorch_transformers import GPT2Tokenizer
 
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.vocab_base import VocabBase
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
-from archai.nlp.tokenizer_utils.token_trainer import create_tokenizer
 from archai.nlp.tokenizer_utils.token_trainer import train_tokenizer, create_tokenizer
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 from archai.nlp.tokenizer_utils.tokenizer_files import TokenizerFiles
