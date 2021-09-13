@@ -116,7 +116,7 @@ class Corpus:
             special += ['<unk>', '<S>'] # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
             add_eos = dataset in ['ptb', 'wt2', 'wt103', 'lm1b']
             vocab = WordVocab(save_path=vocab_cache_dir, vocab_size=vocab_size, special=special, lower_case=lower_case, add_eos=add_eos)
-        elif vocab_type == 'bpe':
+        elif vocab_type == 'bbpe':
             vocab = BbpeVocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
         else:
             raise RuntimeError(f'Unsupported vocab type: {vocab_type}')
