@@ -19,7 +19,7 @@ class BbpeVocab(VocabBase):
     def __init__(self, save_path:str, vocab_size:int, pad_vocab_size=False,
                  bos_token:Optional[str]="_BOS_", eos_token:Optional[str]=None,
                  unk_token:Optional[str]="_OOV_", min_frequency:Optional[int]=None,
-                 add_prefix_space=True,add_prefix_new_line=True, sorted_vocab=True) -> None:
+                 add_prefix_space=True,add_prefix_new_line=False, sorted_vocab=True) -> None:
         self._config = TokenConfig(bos_token=bos_token, eos_token=eos_token,
                                    unk_token=unk_token, pad_token=None,
                                    add_prefix_space=add_prefix_space, add_prefix_new_line=add_prefix_new_line)
