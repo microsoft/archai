@@ -112,7 +112,7 @@ def parse_args():
     parser.add_argument('--manual_config', type=json.loads, default=None,
                         help='Manually specify config for the model')
     parser.add_argument('--manual_vocab', type=str, default='word',
-                        choices=['word', 'bbpe'],
+                        choices=['word', 'bbpe', 'gpt2'],
                         help='Manually specify type of vocabulary')
     parser.add_argument('--fp16', action='store_true',
                         help='Run training in fp16/mixed precision')
