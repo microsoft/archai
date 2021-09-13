@@ -27,6 +27,13 @@ class VocabBase(EnforceOverrides):
     def __len__(self):
         pass
 
+    @abstractmethod
+    def token_to_id(self, t:str)->int:
+        pass
+    @abstractmethod
+    def id_to_token(self, id:int)->str:
+        pass
+
     def encode_file(self, path:str, verbose=True)->List[int]:
         logging.info(f'Encoding file: {path}')
         encoded = []

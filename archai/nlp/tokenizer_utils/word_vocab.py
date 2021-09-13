@@ -175,6 +175,15 @@ class WordVocab(VocabBase): # Word vocab is the default
     def _indices2symbols(self, indices)->List[str]:
         return [self._get_sym(idx) for idx in indices]
 
+    @overrides
+    def token_to_id(self, t:str)->int:
+        return self._get_idx(t)
+
+    @overrides
+    def id_to_token(self, id:int)->str:
+        return self._get_sym(id)
+
+
     def _get_indices(self, symbols)->List[int]:
         return [self._get_idx(sym) for sym in symbols]
 
