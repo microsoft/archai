@@ -232,6 +232,8 @@ def dataset_dir_name(dataset:str)->str:
         return 'wikitext-103'
     if dataset=='wt2':
         return 'wikitext-2'
+    if dataset=='olx':
+        return 'olx'
     if dataset=='lm1b':
         raise RuntimeError(f'dataset "{dataset}" is not supported yet')
     if dataset=='enwik8':
@@ -240,7 +242,7 @@ def dataset_dir_name(dataset:str)->str:
         raise RuntimeError(f'dataset "{dataset}" is not supported yet')
     raise RuntimeError(f'dataset "{dataset}" is not known')
 
-def get_create_dirs(data_dir:Optional[str]=None, dataset_name='wt103',
+def get_create_dirs(data_dir:Optional[str], dataset_name:str,
                     experiment_name='nv_xformer_xl', output_dir='~/logdir',
                     cache_dir:Optional[str]=None)->Tuple[str,str,str]:
     pt_data_dir, pt_output_dir = common.pt_dirs()

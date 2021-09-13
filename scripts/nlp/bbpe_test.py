@@ -17,7 +17,7 @@ def basic_test():
     parser.add_argument('--data', type=str, default=None,
                          help='Location of the data corpus')
     parser.add_argument('--dataset', type=str, default='wt103',
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx'],
                          help='Dataset name')
     parser.add_argument('--vocab_size', type=int, default=10000,
                          help='Size of vocabulary')

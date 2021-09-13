@@ -127,8 +127,8 @@ def parse_args():
                          help='Location of the data corpus')
     general.add_argument('--cache_dir', default=None, type=str,
                          help='Directory to store dataset cache, if None then use data dir as parent')
-    dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
+    dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -800,13 +800,15 @@ def main():
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [False]
     if args.adaptive:
-        assert args.dataset in ['wt103', 'wt2', 'lm1b']
-        if args.dataset in ['wt103', 'wt2']:
-            cutoffs = [19997, 39997, 199997]
+        assert args.dataset in ['wt103', 'wt2', 'lm1b', 'olx']
+        if args.dataset in ['wt103', 'wt2', 'olx']:
+            cutoffs = [19997, 39997, 199997] #TODO: make dynamic as per vocab size?
             tie_projs += [True] * len(cutoffs)
         elif args.dataset == 'lm1b':
             cutoffs = [59997, 99997, 639997]
             tie_projs += [False] * len(cutoffs)
+        else:
+            raise RuntimeError(f'Dataset {args.dataset} not supported for set cutoffs and tie_projs')
 
     ###########################################################################
     # Build the model
