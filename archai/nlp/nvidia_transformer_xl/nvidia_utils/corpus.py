@@ -16,7 +16,7 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.lm_iterators import LMMultiFi
 
 class Corpus:
     def __init__(self, datadir:str, dataset:str, vocab_type:str, cachedir:str,
-                 vocab_size:Optional[int]=None):
+                 vocab_size:Optional[int]=None, refresh_cache=False):
         self.datadir = datadir
         self.dataset = dataset
         self.vocab_type = vocab_type
@@ -33,6 +33,10 @@ class Corpus:
 
         # where tokenizer files will be cached
         self._vocab_cache_dir = os.path.join(self.corpus_cache_dir, 'vocab')
+        self.refresh_cache = refresh_cache
+
+        if refresh_cache:
+            logging.info('refresh_cache=True, all cache will be refreshed')
 
         self._clear()
 
@@ -40,14 +44,14 @@ class Corpus:
         logging.info(f'Producing corpus cache for dataset {self.dataset}, vocab_type{self.vocab_type}, vocab_size {self.vocab_size}...')
 
         self.vocab = self._create_train_vocab(self.datadir, self.dataset, self.vocab_type,
-                                            self._vocab_cache_dir, vocab_size=self.vocab_size)
+                                            self._vocab_cache_dir, self.vocab_size, self.refresh_cache)
 
         self.train, self.valid, self.test = self._get_encoded_files(
             self.vocab, self.datadir, self.dataset)
 
     def load(self):
         # if files for all dataset npy exist then we have corpus cache
-        if os.path.exists(self.train_cache_filepath) and os.path.exists(self.valid_cache_filepath) and os.path.exists(self.test_cache_filepath):
+        if not self.refresh_cache and os.path.exists(self.train_cache_filepath) and os.path.exists(self.valid_cache_filepath) and os.path.exists(self.test_cache_filepath):
             logging.info(f'Found existing cache for for dataset {self.dataset}. Loading from {self.train_cache_filepath}.')
 
             # ensure that we have tokenizer cache as well
@@ -63,7 +67,10 @@ class Corpus:
             return True
         else:
             self._clear()
-            return False # no cache exists
+            utils.delete_file(self.train_cache_filepath)
+            utils.delete_file(self.valid_cache_filepath)
+            utils.delete_file(self.test_cache_filepath)
+            return False # no cache exists or refresh is needed
 
     def _clear(self)->None:
         self.train = self.valid  = self.test = self.vocab = None
@@ -78,11 +85,11 @@ class Corpus:
 
     @staticmethod
     def _create_train_vocab(datadir:str, dataset:str, vocab_type:str, vocab_cache_dir:str,
-                      vocab_size:Optional[int]=None)->VocabBase:
+                      vocab_size:Optional[int], refresh_cache:bool)->VocabBase:
         vocab = Corpus._create_vocab(datadir, dataset, vocab_type,
                                      vocab_cache_dir, vocab_size=vocab_size)
         Corpus._train_vocab(vocab, datadir, dataset, vocab_type,
-                                     vocab_cache_dir, vocab_size=vocab_size)
+                                     vocab_cache_dir, vocab_size, refresh_cache)
 
         return vocab
 
@@ -136,9 +143,10 @@ class Corpus:
 
     @staticmethod
     def _train_vocab(vocab:VocabBase, datadir:str, dataset:str, vocab_type:str,
-                    vocab_cache_dir:str, vocab_size:Optional[int]=None)->None:
+                    vocab_cache_dir:str, vocab_size:Optional[int],
+                    refresh_cache:bool)->None:
 
-        if not vocab.is_trained(): # if vocab cache does not exist
+        if refresh_cache or not vocab.is_trained(): # if vocab cache does not exist
             train_filename, test_filename, valid_filename = \
                 Corpus._dataset_filenames(dataset)
 
