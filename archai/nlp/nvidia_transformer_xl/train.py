@@ -74,8 +74,6 @@ def parse_args():
                          help='Automatically append current time to work_dir')
     general.add_argument('--cuda', action='store_true',
                          help='Run training on a GPU using CUDA')
-    general.add_argument('--no_train', action='store_false',
-                         help='Only generate dataset caches, no training. Can be run on without GPU.')
     general.add_argument('--fp16', action='store_true',
                          help='Run training in fp16/mixed precision')
     general.add_argument('--restart', type=str, default='',
@@ -92,8 +90,12 @@ def parse_args():
                          help='Save all checkpoints')
     general.add_argument('--no_env', action='store_false',
                          help='Do not print info on execution env')
+    general.add_argument('--no_train', action='store_false',
+                         help='Only generate dataset caches, no training. Can be run on without GPU.')
     general.add_argument('--no_eval', action='store_true',
                          help='Disable model evaluation')
+    general.add_argument('--refresh_cache', action='store_false',
+                         help='Ignores any existing cache and overwrites it with new one')
     general.add_argument('--log_interval', type=int, default=10,
                          help='Report interval')
     general.add_argument('--target_throughput', type=float, default=None,
@@ -757,7 +759,8 @@ def main():
     # Load data
     ###########################################################################
     logging.info('Generating/loading dataset...')
-    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, vocab_size=args.vocab_size)
+    corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab,
+                           vocab_size=args.vocab_size, refresh_cache=args.refresh_cache)
     ntokens = len(corpus.vocab)
     logging.info(f'Dataset load complete, vocab size is: {ntokens}')
 

@@ -377,3 +377,10 @@ def uri2path(file_uri:str, windows_non_standard:bool=False)->str:
 
 def dedup_list(l:List)->List:
     return list(OrderedDict.fromkeys(l))
+
+def delete_file(filepath:str)->bool:
+    if os.path.isfile(filepath):
+        os.remove(filepath)
+        return True
+    else:
+        return False

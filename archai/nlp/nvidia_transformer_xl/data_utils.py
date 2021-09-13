@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Optional
 import logging
 import os
 import re
@@ -22,8 +23,10 @@ import torch
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.corpus import Corpus
 
-def get_lm_corpus(datadir, cachedir, dataset, vocab_type, vocab_size=None):
-    corpus = Corpus(datadir, dataset, vocab_type, cachedir, vocab_size=vocab_size)
+def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,
+                  vocab_size:Optional[int]=None, refresh_cache=False):
+    corpus = Corpus(datadir, dataset, vocab_type, cachedir,
+                    vocab_size=vocab_size, refresh_cache=refresh_cache)
     if not corpus.load(): # if cached version doesn't exist
         corpus.train_and_encode()
         with nv_utils.distributed.sync_workers() as rank:
@@ -44,6 +47,8 @@ def tokenize_raw(text, lang='en'):
 
 
 if __name__ == '__main__':
+    # test code
+
     import argparse
     parser = argparse.ArgumentParser(description='unit test')
     parser.add_argument('--datadir', type=str, default='../data/text8',
