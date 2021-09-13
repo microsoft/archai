@@ -76,7 +76,7 @@ def parse_args():
     parser.add_argument('--manual', type=str, default=None, nargs='+',
                         help='run model on raw input data')
     parser.add_argument('--dataset', type=str, default='wt103',
-                        choices=['wt103', 'lm1b', 'enwik8', 'text8'],
+                        choices=['wt103', 'lm1b', 'enwik8', 'text8', 'olx'],
                         help='dataset name')
     parser.add_argument('--split', type=str, default='all',
                         choices=['all', 'valid', 'test'],

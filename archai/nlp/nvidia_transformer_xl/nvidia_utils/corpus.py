@@ -111,8 +111,8 @@ class Corpus:
                       vocab_size:Optional[int]=None)->VocabBase:
         if vocab_type == 'word':
             special, lower_case, vocab_file = [], True, None # vocab file is text file of symbols, one per line
-            if dataset in ['wt103', 'wt2']:
-                special, lower_case = ['<eos>'], False
+            if dataset in ['wt103', 'wt2', 'olx']:
+                special, lower_case = ['<eos>'], False #TODO: we probably don't need special or could be done differently
             elif dataset == 'ptb':
                 special, lower_case = ['<eos>'], True
             elif dataset == 'lm1b':
@@ -123,7 +123,7 @@ class Corpus:
                 raise RuntimeError(f'dataset {dataset} is not recognized to produce vocab')
 
             special += ['<unk>', '<S>'] # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
-            add_eos = dataset in ['ptb', 'wt2', 'wt103', 'lm1b']
+            add_eos = dataset in ['ptb', 'wt2', 'wt103', 'lm1b', 'olx']
             vocab = WordVocab(save_path=vocab_cache_dir, vocab_size=vocab_size, special=special, lower_case=lower_case, add_eos=add_eos)
         elif vocab_type == 'bbpe':
             vocab = BbpeVocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
@@ -137,7 +137,7 @@ class Corpus:
     @staticmethod
     def _dataset_filenames(dataset:str)->Tuple[str,str,str]:
         train_filename, test_filename, valid_filename = 'train.txt', 'test.txt', 'valid.txt'
-        if dataset in ['wt2', 'wt103']:
+        if dataset in ['wt2', 'wt103', 'olx']:
             train_filename, test_filename, valid_filename = 'wiki.train.tokens', 'wiki.test.tokens', 'wiki.valid.tokens'
         return train_filename, test_filename, valid_filename
 
