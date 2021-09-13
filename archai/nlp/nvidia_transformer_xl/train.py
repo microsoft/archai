@@ -51,7 +51,14 @@ def parse_args():
     parser = argparse.ArgumentParser(parents=[parent_parser], add_help=True)
     cfg_parser = argparse.ArgumentParser(parents=[parent_parser], add_help=False)
 
-    cfg_parser.add_argument('--config', default='toy') # use 'dgx1_8gpu_fp16' for V100 16GB, dgx1_1gpu_fp16, default
+    # if debugging from VS then use toy mode otherwise use 1 GPU/FP32 mode to be on same side
+    default_config = 'dgx1_1gpu_fp32'
+    if utils.is_debugging():
+        default_config = 'toy'
+    elif not utils.is_windows(): # NVIDIA AMP is not available
+        default_config = 'dgx1_8gpu_fp16'
+
+    cfg_parser.add_argument('--config', default=default_config) # use 'dgx1_8gpu_fp16' for V100 16GB, dgx1_1gpu_fp16, default
     cfg_parser.add_argument('--config_file', default='wt103_base.yaml')
 
     config_args, _ = cfg_parser.parse_known_args()
@@ -94,7 +101,7 @@ def parse_args():
                          help='Only generate dataset caches, no training. Can be run on without GPU.')
     general.add_argument('--no_eval', action='store_true',
                          help='Disable model evaluation')
-    general.add_argument('--refresh_cache', action='store_false',
+    general.add_argument('--refresh_cache', action='store_false', default=False,
                          help='Ignores any existing cache and overwrites it with new one')
     general.add_argument('--log_interval', type=int, default=10,
                          help='Report interval')
