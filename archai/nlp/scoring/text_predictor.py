@@ -1,21 +1,21 @@
 # Copyright (c) Microsoft Corporation
 
-"""Module that implements algorithms for Text Prediction feature
-"""
 from __future__ import annotations
 
-from typing import Optional, Tuple
+import copy
 import functools
 import json
 import logging
 import re
 import time
 from collections import OrderedDict
-
-WORD_TOKEN_SEPARATOR = "Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-" # pylint: disable=anomalous-backslash-in-string
-WORD_TOKEN_SEPARATOR_SET = set(WORD_TOKEN_SEPARATOR)
+from typing import Tuple
 
 from archai.nlp.scoring.scoring_utils import get_settings
+from archai.nlp.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.scoring.vocab_wrapper import VocabWrapper
+from archai.nlp.scoring.model_wrapper import ModelWrapper
+from archai.nlp.scoring.scoring_utils import WORD_TOKEN_SEPARATOR_SET
 
 class Prediction:
     """Represents a single prediction.
@@ -106,7 +106,7 @@ class Prediction:
                 logging.info("Prediction environment not available. Ignoring additional parameters needed for score evaluation")
             return score
 
-        upper_token_ids = self.predictor.tokenizer.UPPER_TOKENS.intersection(self.token_ids)
+        upper_token_ids = self.predictor.vocab_wrapper.UPPER_TOKENS.intersection(self.token_ids)
         if len(upper_token_ids) > 0:
             score = (self.probability - Prediction.UPPER_PROB_PENALTY)*length*(a1*length + b1) - Prediction.UPPER_SCORE_PENALTY
 
@@ -122,7 +122,7 @@ class Prediction:
             raise ValueError(f"Unable to determine combined ids for '{self}'.")
         return self.input_ids + self.token_ids
 
-    def length_type(self) -> int:
+    def length_type(self) -> str:
         pred_len = len(self)
         if pred_len < 6:
             return "0:XS"
@@ -155,7 +155,7 @@ class Prediction:
             bool: Returns True if this is a valid prediction (that should be shown to the user)
         """
         if self.predictor is None:
-            return ValueError("Prediction environment not available; Not able to determine if prediction is valid")
+            raise ValueError("Prediction environment not available; Not able to determine if prediction is valid")
 
         if self.token_ids is None or len(self.token_ids) == 0:
             return False
@@ -163,7 +163,7 @@ class Prediction:
         if len(self.show()) < self.predictor.MIN_PRED_LEN:
             return False
 
-        if set(self.token_ids) & self.predictor.tokenizer.INVALID_TOKENS:
+        if set(self.token_ids) & self.predictor.vocab_wrapper.INVALID_TOKENS:
             return False
 
         if self.complete is None:
@@ -245,11 +245,11 @@ class TextPredictor:
     # Maximum text to process (otherwise it will be truncated)
     MAX_INPUT_TEXT_LEN = 1_000_000
     # Token id to attach to the beginning of the sequence
-    BOS_TOKEN_ID:Optional[int] = None
+    BOS_TOKEN_ID = None
 
-    def __init__(self, model, tokenizer):
-        self.model = model
-        self.tokenizer = tokenizer
+    def __init__(self, model, vocab:VocabBase):
+        self.model = ModelWrapper(model, vocab.token_to_id(' '), )
+        self.vocab_wrapper = VocabWrapper(vocab)
 
     def load_tpl_settings(self, file_name):
         """Load settings from a file like this:
@@ -316,13 +316,13 @@ class TextPredictor:
         next_token_probs = self.model.get_probs(input_ids)
         filter_prefix_len = len(filter_prefix)
         if filter_prefix_len == 0:
-            result = [((idx,), prob, len(self.tokenizer[idx])) for idx, prob in enumerate(next_token_probs)]
+            result = [((idx,), prob, len(self.vocab_wrapper[idx])) for idx, prob in enumerate(next_token_probs)]
         else:
             #filter_next_token_ids = self.tokenizer.filter_token_tuple_ids(filter_prefix, self.PREFIX_MAX_CHAR_LOOKBACK) # This is slow (sometimes ms)
-            filter_next_token_ids = self.tokenizer.filter_token_tuple_ids(filter_prefix) # This is slow (sometimes ms)
+            filter_next_token_ids = self.vocab_wrapper.filter_token_tuple_ids(filter_prefix) # This is slow (sometimes ms)
             # logging.debug("filter_next_tokens0: input_ids: %s; filter_prefix: '%s'; len(filter_next_token_ids): %s, time: %.3f ms", input_ids, filter_prefix, len(filter_next_token_ids), 1000*(time.time() - start_time))
 #            try:
-            result = [(tuple_idx, next_token_probs[tuple_idx[0]], len(self.tokenizer[tuple_idx[0]]) - filter_prefix_len) \
+            result = [(tuple_idx, next_token_probs[tuple_idx[0]], len(self.vocab_wrapper[tuple_idx[0]]) - filter_prefix_len) \
                 for tuple_idx in filter_next_token_ids]
 #            except:
 #                print(f"EXCEPT: {input_ids} {len(next_token_probs)}")
@@ -361,7 +361,7 @@ class TextPredictor:
         # logging.debug("filter_next_tokens_list2: input_ids: %s; filter_prefix: '%s'; idx: %s, len(filtered_next_token): %s, time: %.3f ms", input_ids, filter_prefix, idxs, len(filtered_next_token), 1000*(time.time() - start_time))
         return filtered_next_token
 
-    def predict_word_prefix(self, input_ids: tuple, prefix: str, debug: bool = False) -> Tuple[list, str, float]:
+    def predict_word_prefix(self, input_ids: tuple, prefix: str, debug: bool = False) -> Prediction:
         """Provide the best guess for the completion of the prefix.
         Returns a tuple with list of a sort: (token ids that complete the token, probability of completion)
         e.g.:
@@ -428,7 +428,7 @@ If you don't run it enough, you might not end up with any prefix or prefix will 
         if len(filtered_list) > 0 and filtered_list[0][2] >= 0:
             prob_sum = sum([prob for idxs, prob, filtered_length in filtered_list])
             idxs, prob, filtered_length = filtered_list[0]
-            pred_text = self.tokenizer.decode(idxs)[len(prefix):]
+            pred_text = self.vocab_wrapper.decode(idxs)[len(prefix):]
 
             prediction = Prediction(pred_text, prob/prob_sum, predictor=self, input_ids=input_ids, token_ids=idxs)
             logging.debug("predict_word_prefix: prefix: '%s': # calcs: %s; time: %.3f ms", prefix, calc_count, 1000*(time.time() - start_time))
@@ -457,11 +457,11 @@ If you don't run it enough, you might not end up with any prefix or prefix will 
         Returns:
             bool: True/False determining whether the word is 'complete'.
         """
-        if len(input_ids) > 0 and self.tokenizer[input_ids[-1]][-1] in WORD_TOKEN_SEPARATOR_SET:
+        if len(input_ids) > 0 and self.vocab_wrapper[input_ids[-1]][-1] in WORD_TOKEN_SEPARATOR_SET:
             return True
 
         probs = self.model.get_probs(input_ids)
-        prob_sum = sum([prob for idx, prob in enumerate(probs) if idx in self.tokenizer.WORD_TOKEN_SEPARATOR_IDX])
+        prob_sum = sum([prob for idx, prob in enumerate(probs) if idx in self.vocab_wrapper.WORD_TOKEN_SEPARATOR_IDX])
         #top = [(idx, self.tokenizer[idx], probs[idx], idx in self.tokenizer.WORD_TOKEN_SEPARATOR_IDX) for idx in reversed(np.argsort(probs)[-20:])]
         #logging.debug("is_complete_word:prob_sum: %s; top: %s", prob_sum, top)
 
@@ -481,11 +481,11 @@ If you don't run it enough, you might not end up with any prefix or prefix will 
         # TODO: Test truncate / clean text
         trunc_text = self.truncate_text(text)
         is_full_len = len(text) == len(trunc_text)
-        clean_trunc_text = self.tokenizer.clean(trunc_text, add_bos_text=is_full_len)
+        clean_trunc_text = self.vocab_wrapper.clean(trunc_text, add_bos_text=is_full_len)
 
-        context, prefix = self.tokenizer.find_context_prefix(clean_trunc_text)
+        context, prefix = self.vocab_wrapper.find_context_prefix(clean_trunc_text)
 
-        input_ids = tuple(self.tokenizer.encode(context))
+        input_ids = tuple(self.vocab_wrapper.encode(context))
         if self.BOS_TOKEN_ID is not None and is_full_len:
             input_ids = (self.BOS_TOKEN_ID,) + input_ids
 
@@ -511,7 +511,7 @@ If you don't run it enough, you might not end up with any prefix or prefix will 
         while total_prob > self.MIN_PROB_CUTOFF and calc_count < self.MAX_TOKEN_CALC:
             calc_count += 1
             next_token_id, next_prob = self.model.get_top_token_prob(tuple(prediction.all_ids()))
-            next_text = self.tokenizer.decode([next_token_id])
+            next_text = self.vocab_wrapper.decode([next_token_id])
             prediction = Prediction.next_prediction(prediction, next_text, next_prob, next_token_id)
             prediction.update_complete()
             total_prob = prediction.probability
@@ -546,3 +546,4 @@ MIN_PROB_CUTOFF = 0.001
         (_, results) = self.predict_full(text)
         complete_prediction = next((p for p in results if p.complete), Prediction.empty())
         return complete_prediction.show()
+

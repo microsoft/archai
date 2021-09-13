@@ -72,10 +72,16 @@ class Gpt2Vocab(VocabBase):
     @overrides
     def token_to_id(self, t:str)->int:
         return self._tokenizer.token_to_id(t)
-
     @overrides
     def id_to_token(self, id:int)->str:
         return self._tokenizer.id_to_token(id)
+
+    @overrides
+    def tokens_to_ids(self, ts:List[str])->List[int]:
+        return self._tokenizer.convert_tokens_to_ids(ts)
+    @overrides
+    def ids_to_tokens(self, ids:List[int])->List[str]:
+        return self._tokenizer.convert_ids_to_tokens(ids)
 
     @overrides
     def is_trained(self)->bool:
@@ -84,6 +90,9 @@ class Gpt2Vocab(VocabBase):
     @overrides
     def encode_line(self, line)->List[int]:
         return self._tokenizer.encode(line)
+    @overrides
+    def decode_line(self, ids:List[int])->str:
+        return self._tokenizer.decode(ids)
 
     @overrides
     def __len__(self):

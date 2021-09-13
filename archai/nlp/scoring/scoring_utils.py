@@ -1,3 +1,9 @@
+import re
+
+WORD_TOKEN_SEPARATOR = "Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~" # pylint: disable=anomalous-backslash-in-string
+WORD_TOKEN_SEPARATOR_SET = set(WORD_TOKEN_SEPARATOR)
+RE_SPLIT = re.compile('^(.*)([' + WORD_TOKEN_SEPARATOR + '].*)$', re.MULTILINE | re.DOTALL)
+
 def get_settings(obj, recursive=True):
     """Return object variables, for saving out as settings."""
     MAX_LIST_LEN = 10 # pylint: disable=invalid-name

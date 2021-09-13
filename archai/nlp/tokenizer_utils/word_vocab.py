@@ -133,6 +133,9 @@ class WordVocab(VocabBase): # Word vocab is the default
     def encode_line(self, line)->List[int]:
         symbols = self._tokenize_line(line)
         return self._get_indices(symbols)
+    @overrides
+    def decode_line(self, ids:List[int])->str:
+        return ' '.join(self.ids_to_tokens(ids))
 
     def _encode_sents(self, sents, ordered=False, verbose=True):
         if verbose:
@@ -178,11 +181,15 @@ class WordVocab(VocabBase): # Word vocab is the default
     @overrides
     def token_to_id(self, t:str)->int:
         return self._get_idx(t)
-
     @overrides
     def id_to_token(self, id:int)->str:
         return self._get_sym(id)
-
+    @overrides
+    def tokens_to_ids(self, ts:List[str])->List[int]:
+        return self._get_indices(ts)
+    @overrides
+    def ids_to_tokens(self, ids:List[int])->List[str]:
+        return self._indices2symbols(ids)
 
     def _get_indices(self, symbols)->List[int]:
         return [self._get_idx(sym) for sym in symbols]
