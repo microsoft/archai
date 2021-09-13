@@ -74,6 +74,8 @@ def parse_args():
                          help='Automatically append current time to work_dir')
     general.add_argument('--cuda', action='store_true',
                          help='Run training on a GPU using CUDA')
+    general.add_argument('--no_train', action='store_false',
+                         help='Only generate dataset caches, no training. Can be run on without GPU.')
     general.add_argument('--fp16', action='store_true',
                          help='Run training in fp16/mixed precision')
     general.add_argument('--restart', type=str, default='',
@@ -754,8 +756,15 @@ def main():
     ###########################################################################
     # Load data
     ###########################################################################
+    logging.info('Generating/loading dataset...')
     corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab, vocab_size=args.vocab_size)
     ntokens = len(corpus.vocab)
+    logging.info(f'Dataset load complete, vocab size is: {ntokens}')
+
+    if args.no_train:
+        logging.info('Exiting as no training was requested.')
+        sys.exit(0)
+
     vocab = corpus.vocab
     args.n_token = ntokens
 
