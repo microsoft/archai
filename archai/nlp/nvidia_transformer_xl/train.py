@@ -90,7 +90,7 @@ def parse_args():
                          help='Save all checkpoints')
     general.add_argument('--no_env', action='store_false',
                          help='Do not print info on execution env')
-    general.add_argument('--no_train', action='store_false',
+    general.add_argument('--no_train', action='store_false', default=False,
                          help='Only generate dataset caches, no training. Can be run on without GPU.')
     general.add_argument('--no_eval', action='store_true',
                          help='Disable model evaluation')
@@ -120,7 +120,7 @@ def parse_args():
                          help='Location of the data corpus')
     general.add_argument('--cache_dir', default=None, type=str,
                          help='Directory to store dataset cache, if None then use data dir as parent')
-    dataset.add_argument('--dataset', type=str, default='wt103',
+    dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name
                          choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
@@ -287,6 +287,8 @@ def parse_args():
 
     if args.debug is None:
         args.debug = utils.is_debugging()
+
+    args.config = config_args.config
 
     return args
 
@@ -734,6 +736,9 @@ def main():
 
     exp_utils.setup_logging(log_all_ranks=args.log_all_ranks, filename=log_file)
     exp_utils.setup_dllogger(enabled=True, filename=dllog_file)
+
+    if args.config == 'toy':
+        logging.warn('Running in toy mode which means wt2 dataset, only one step training, a lot of batch chunking for laptop GPU')
 
     if args.local_batch_size is not None: # default is None
         world_size = nv_distributed.get_world_size()

@@ -1,4 +1,8 @@
 # Base
+wt2: &wt2
+   dataset: wt2
+   data: null
+
 wt103: &wt103
    dataset: wt103
    data: null # dataroot
@@ -114,13 +118,26 @@ dgx1_1gpu_fp32: &dgx1_1gpu_fp32
    eval:
       <<: *eval
 
+# toy mode sets up single step with bach chunks of 64
 toy: &toy
    train:
       <<: *train
-      batch_chunk: 64
-      max_step: 20
+      dataset: wt2
+      batch_chunk: 4
+      max_step: 1
+      cuda: True
+      n_layer: 2
+      d_model: 128
+      n_head: 4
+      d_head: 16
+      d_inner: 512
+      tgt_len: 32
+      mem_len: 32
+      eval_tgt_len: 32
+      batch_size: 8
    eval:
       <<: *eval
+      dataset: wt2
 
 # Full training configs for NVIDIA DGX-2H (16x NVIDIA V100 32GB GPU)
 dgx2_16gpu_fp16: &dgx2_16gpu_fp16

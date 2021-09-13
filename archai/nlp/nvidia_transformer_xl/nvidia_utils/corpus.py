@@ -36,7 +36,7 @@ class Corpus:
         self.refresh_cache = refresh_cache
 
         if refresh_cache:
-            logging.info('refresh_cache=True, all cache will be refreshed')
+            logging.warn('refresh_cache=True, all cache will be refreshed')
 
         self._clear()
 
@@ -150,7 +150,9 @@ class Corpus:
             train_filename, test_filename, valid_filename = \
                 Corpus._dataset_filenames(dataset)
 
+            logging.info('Training vocab...')
             vocab.train([os.path.join(datadir, train_filename)])
+            logging.info('Finished training vocab.')
         else:
             vocab.load()
             logging.info(f'Vocab cache found and loaded for type {vocab_type} and size {vocab_size} from {vocab_cache_dir}.')
