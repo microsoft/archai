@@ -18,13 +18,16 @@ class VocabBase(EnforceOverrides):
     @abstractmethod
     def encode_line(self, line:str)->List[int]:
         pass
+    @abstractmethod
+    def decode_line(self, ids:List[int])->str:
+        pass
 
     @abstractmethod
     def is_trained(self)->bool:
         pass
 
     @abstractmethod
-    def __len__(self):
+    def __len__(self)->int:
         pass
 
     @abstractmethod
@@ -33,6 +36,11 @@ class VocabBase(EnforceOverrides):
     @abstractmethod
     def id_to_token(self, id:int)->str:
         pass
+
+    def tokens_to_ids(self, ts:List[str])->List[int]:
+        return [self.token_to_id(t) for t in ts]
+    def ids_to_tokens(self, ids:List[int])->List[str]:
+        return [self.id_to_token(id) for id in ids]
 
     def encode_file(self, path:str, verbose=True)->List[int]:
         logging.info(f'Encoding file: {path}')

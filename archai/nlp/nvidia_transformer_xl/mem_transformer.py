@@ -522,7 +522,7 @@ class MemTransformerLM(nn.Module):
                  same_length=False, attn_type=0, clamp_len=-1,
                  sample_softmax=-1):
         super(MemTransformerLM, self).__init__()
-        self.n_token = n_token
+        self.n_token = n_token # number of tokens in vocab
 
         d_embed = d_model if d_embed is None else d_embed
         self.d_embed = d_embed

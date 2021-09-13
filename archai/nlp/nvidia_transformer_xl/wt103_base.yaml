@@ -126,15 +126,16 @@ toy: &toy
       batch_chunk: 4
       max_step: 1
       cuda: True
-      n_layer: 2
-      d_model: 128
-      n_head: 4
-      d_head: 16
-      d_inner: 512
-      tgt_len: 32
-      mem_len: 32
-      eval_tgt_len: 32
       batch_size: 8
+
+      # n_layer: 2
+      # d_model: 128
+      # n_head: 4
+      # d_head: 16
+      # d_inner: 512
+      # tgt_len: 32
+      # mem_len: 32
+      # eval_tgt_len: 32
    eval:
       <<: *eval
       dataset: wt2

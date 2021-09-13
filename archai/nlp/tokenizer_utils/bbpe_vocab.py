@@ -94,6 +94,10 @@ class BbpeVocab(VocabBase):
         return self.bos_id + self._tokenizer.encode(line).ids + self.eos_id
 
     @overrides
+    def decode_line(self, ids:List[int])->str:
+        return self._tokenizer.decode(ids)
+
+    @overrides
     def __len__(self):
         return self._tokenizer.get_vocab_size()
 
