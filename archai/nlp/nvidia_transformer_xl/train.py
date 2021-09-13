@@ -119,7 +119,7 @@ def parse_args():
     dataset.add_argument('--dataset', type=str, default='wt103',
                          choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8'],
                          help='Dataset name')
-    dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe'],
+    dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
     dataset.add_argument('--vocab_size', type=int, default=None,
                          help='Size of vocabulary')

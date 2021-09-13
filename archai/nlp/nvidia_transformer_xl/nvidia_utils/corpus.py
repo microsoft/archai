@@ -10,6 +10,8 @@ from archai.common import utils
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.tokenizer_utils.word_vocab import WordVocab
 from archai.nlp.tokenizer_utils.bbpe_vocab import BbpeVocab
+from archai.nlp.tokenizer_utils.gpt2_vocab import Gpt2Vocab
+
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
 
 class Corpus:
@@ -118,6 +120,8 @@ class Corpus:
             vocab = WordVocab(save_path=vocab_cache_dir, vocab_size=vocab_size, special=special, lower_case=lower_case, add_eos=add_eos)
         elif vocab_type == 'bbpe':
             vocab = BbpeVocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
+        elif vocab_type == 'gpt2':
+            vocab = Gpt2Vocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
         else:
             raise RuntimeError(f'Unsupported vocab type: {vocab_type}')
 
