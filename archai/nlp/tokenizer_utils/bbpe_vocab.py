@@ -51,6 +51,14 @@ class BbpeVocab(VocabBase):
         self.load()
 
     @overrides
+    def token_to_id(self, t:str)->int:
+        return self._tokenizer.token_to_id(t)
+
+    @overrides
+    def id_to_token(self, id:int)->str:
+        return self._tokenizer.id_to_token(id)
+
+    @overrides
     def load(self)->None:
         self._tokenizer = create_tokenizer(self._files, self._config)
         self._finalize_tokenizer()

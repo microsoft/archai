@@ -70,6 +70,14 @@ class Gpt2Vocab(VocabBase):
             self._tokenizer.add_tokens([token])
 
     @overrides
+    def token_to_id(self, t:str)->int:
+        return self._tokenizer.token_to_id(t)
+
+    @overrides
+    def id_to_token(self, id:int)->str:
+        return self._tokenizer.id_to_token(id)
+
+    @overrides
     def is_trained(self)->bool:
         return TokenizerFiles.files_exists(self.save_path)
 
