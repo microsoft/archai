@@ -19,10 +19,10 @@ nas:
     trainer:
       use_val: False
       plotsdir: ''
-      epochs: 20
+      epochs: 100
       top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
-      train_regular: True # if False the full regular training of the architecture will be bypassed
-      train_fear: False
+      train_regular: False # if False the full regular training of the architecture will be bypassed
+      train_fear: True
       
     freeze_trainer:
       plotsdir: ''
@@ -36,7 +36,7 @@ nas:
       l1_alphas: 0.0  # weight to be applied to sum(abs(alphas)) to loss term
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger
       title: 'eval_train'
-      epochs: 10
+      epochs: 20
       batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
       lossfn:
         type: 'CrossEntropyLoss'
