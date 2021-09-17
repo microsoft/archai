@@ -27,7 +27,7 @@ nas:
     freeze_trainer:
       plotsdir: ''
       bypass_freeze: False
-      identifiers_to_unfreeze: ['logits_op._op', 'cells.7', 'cells.6'] # last few layer names in DARTS space are 'logits_op._op': Linear, 'cells.19': prefix for all cell 19 parameters
+      identifiers_to_unfreeze: ['logits_op._op', 'cells.7', 'cells.6', 'cells.5', 'cells.4', 'cells.3'] # last few layer names in DARTS space are 'logits_op._op': Linear, 'cells.19': prefix for all cell 19 parameters
       apex:
         _copy: '/common/apex'
       aux_weight: 0.0 # very important that this is 0.0 for freeze training
@@ -36,7 +36,7 @@ nas:
       l1_alphas: 0.0  # weight to be applied to sum(abs(alphas)) to loss term
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger
       title: 'eval_train'
-      epochs: 20
+      epochs: 10
       batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
       lossfn:
         type: 'CrossEntropyLoss'
