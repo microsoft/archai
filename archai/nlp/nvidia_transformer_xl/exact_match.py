@@ -38,7 +38,7 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import benchmark
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import create_exp_dir
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import l2_promote
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import log_env_info
-
+import gc
 
 def parse_args():
     parent_parser = argparse.ArgumentParser(
@@ -146,8 +146,8 @@ def parse_args():
                          help='Directory for the results')
 
     parser.add_argument('--prompt_context_percent', type=float, default=-1,
-                        help='Report interval')
-    parser.add_argument('--generation_method', type=str, default='wt103',
+                        help='percentage of words from input to be considered for creating prompt')
+    parser.add_argument('--generation_method', type=str, default='greedy',
                         choices=['greedy', 'pure', 'beam', 'topk', 'topp'],
                         help='dataset name')
     parser.add_argument('--beam_size', type=int, default=40,
@@ -405,6 +405,86 @@ def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_siz
     end_time = time.time()
     print("Time = "+str(end_time-start_time))
 
+def beam_search(encoded, model, device, vocab, tgt_len, generation_method, beam_size, topp, topk, prompt_context_percent, vocab_type, model_ext, suggestion_length=None):
+    exact_matches = Counter()
+    total = Counter()
+    partial_matches = Counter()
+    start_time = time.time()
+    with torch.no_grad():
+        #pbar = tqdm(total=len(encoded))
+        idx = 0
+        for prompt_tensor, prompt_tokens, target_tokens in encoded:
+            # perform first inference
+            log_probs = get_log_probs(prompt_tensor, model, device, tgt_len, model_ext=model_ext, space_char_idx=vocab.get_idx(" "))[-1]
+            top_indices = torch.argsort(log_probs, descending=True)[0:beam_size]
+            top_logprobs = log_probs[top_indices].double()
+            hypothesis = []
+            for top_idx, top_lprob in zip(top_indices, top_logprobs):
+                next_token_tensor = torch.IntTensor(1)
+                next_token_tensor[0] = top_idx.item()
+                new_prompt_tensor = torch.cat((prompt_tensor, next_token_tensor))
+                hypothesis.append((new_prompt_tensor, top_lprob.item()))
+            is_done = False
+            while is_done == False:
+                cur_hypothesis = []
+                for hyp in hypothesis:
+                    cur_prompt_tensor, cur_top_lprob = hyp        
+                    cur_log_probs = get_log_probs(cur_prompt_tensor, model, device, tgt_len, model_ext=model_ext, space_char_idx=vocab.get_idx(" "))[-1]
+                    cur_top_indices = torch.argsort(cur_log_probs, descending=True)
+                    cur_top_logprobs = cur_log_probs[cur_top_indices].double()
+                    for top_idx, top_lprob in zip(cur_top_indices, cur_top_logprobs):
+                        next_token_tensor = torch.IntTensor(1)
+                        next_token_tensor[0] = top_idx.item()
+                        new_prompt_tensor = torch.cat((cur_prompt_tensor, next_token_tensor))
+                        cur_hypothesis.append((top_lprob.item()+cur_top_lprob, new_prompt_tensor.tolist()))
+                cur_hypothesis.sort()
+                cur_hypothesis.reverse()
+                hypothesis = []
+                for hyp in cur_hypothesis[0:beam_size]:
+                    cur_log_prob, cur_prompt_tensor = hyp
+                    hypothesis.append((torch.LongTensor(cur_prompt_tensor), cur_log_prob))
+                is_done = True
+                for hyp in hypothesis:
+                    generated_text = vocab.convert_to_text(hyp[0].tolist()[len(prompt_tensor):], vocab_type)
+                    if len(generated_text.split()) < 4 and len(hyp[0].tolist()[len(prompt_tensor):]) < 100:
+                        is_done = False
+                        break
+                del cur_hypothesis
+                gc.collect()
+            generated_text = hypothesis[0][0].tolist()[len(prompt_tensor):]
+            generated_tokens = vocab.convert_to_text(generated_text, vocab_type).split()
+
+            # compute match metrics
+            for suggestion_len in range(0, min(suggestion_length, len(target_tokens))):
+                exact_match = True
+                for token_i in range(0, suggestion_len+1):
+                    if len(generated_tokens) < token_i + 1 or generated_tokens[token_i].lower() != target_tokens[token_i].lower():
+                        exact_match = False
+                        break
+                if exact_match:
+                    exact_matches[suggestion_len+1] += 1
+                    #if suggestion_len > 2:
+                    #    sys.exit(0)
+                partial_matches[suggestion_len+1] += get_prefix_overlap_len(" ".join(generated_tokens[0:suggestion_len+1]), " ".join(target_tokens[0:suggestion_len+1]))
+                total[suggestion_len+1] += 1
+            print("Index: %d\nPrompt: %s\nGenerated Text: %s\nTarget Text: %s\n\n"%(idx, " ".join(prompt_tokens), vocab.convert_to_text(generated_text, vocab_type), " ".join(target_tokens)))
+
+            #pbar.update(1)
+            idx += 1
+            #if idx > 5:
+            #    break
+        #pbar.close()
+    res = ""
+    for suggestion_len in range(1, len(total)+1):
+        res += "%d: %.2f (%d/%d),"%(suggestion_len, float(exact_matches[suggestion_len])/total[suggestion_len] if total[suggestion_len]!= 0 else 0, exact_matches[suggestion_len], total[suggestion_len])
+    print("context=%.2f-%d %s"%(prompt_context_percent, beam_size, res))
+    res = ""
+    for suggestion_len in range(1, len(total)+1):
+        res += "%d: %.2f (%d/%d),"%(suggestion_len, float(partial_matches[suggestion_len])/total[suggestion_len] if total[suggestion_len]!= 0 else 0, partial_matches[suggestion_len], total[suggestion_len])
+    print("context=%.2f-%d %s"%(prompt_context_percent, beam_size, res))
+    end_time = time.time()
+    print("Time = "+str(end_time-start_time))
+
 def inference_latency(encoded, model, device, vocab, tgt_len, generation_method, beam_size, topp, topk, prompt_context_percent, vocab_type, num_chars_generate, suggestion_length, memstat=False):
     exact_matches = Counter()
     total = Counter()
@@ -585,7 +665,7 @@ def main():
     torch.manual_seed(args.seed)
 
     if args.model:
-        model_path = args.model
+        model_path = args.model if os.path.exists(args.model) else "/".join(args.model.split("/")[0:-1]) + "/checkpoint_best.pt" 
     elif args.work_dir:
         model_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
     else:
@@ -757,15 +837,24 @@ def main():
         checkpoint['model_config']['clamp_len'] = args.clamp_len
         checkpoint['model_config']['same_length'] = args.same_length
         checkpoint['model_config']['dtype'] = dtype
-
+        
+        '''        
+        for state in checkpoint['model_state']:
+            if state.startswith("crit"):
+                print(state, checkpoint['model_state'][state].size())
+        print('---')
+        print(checkpoint['model_config'])
+        sys.exit(0)
+        '''
+        
         model = MemTransformerLM(**checkpoint['model_config'])
         if args.type == 'pytorch':
             model.load_state_dict(checkpoint['model_state'])
         elif args.type == 'torchscript':
             model.load_state_dict(checkpoint['model_state'], strict=False)
-        
+
         '''
-        w = open("/home/t-gjawahar/object_dir/transxl_char_params_80M_input_lookup.json", "w")
+        w = open("/home/t-gjawahar/object_dir/transxl_char_params_80M_input_lookup_50embed.json", "w")
         for i in range(model.word_emb.emb_layers[0].weight.size(0)):
             content = {"idx": i, "token": vocab.idx2sym[i], "embed": [str(a) for a in list(model.word_emb.emb_layers[0].weight[i,:].detach().numpy())] }
             w.write(json.dumps(content))
@@ -804,6 +893,8 @@ def main():
             inference_latency(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type, num_chars_generate=args.num_chars_generate, suggestion_length=args.suggestion_length, memstat=args.memstat)
         elif args.prefix_len != -1:
             exposure_ebm(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type, num_chars_generate=args.num_chars_generate, prefix_len=args.prefix_len, exposure_num_prompt_tokens=args.exposure_num_prompt_tokens, exposure_num_generation_tokens=args.exposure_num_generation_tokens)
+        elif args.generation_method == "beam":
+            beam_search(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type, model_ext=checkpoint['model_config']['model_ext'] if 'model_ext' in checkpoint['model_config'] else None, suggestion_length=args.suggestion_length)
         else:
             generate(encoded, model, device, vocab, args.tgt_len, args.generation_method, args.beam_size, args.topp, args.topk, args.prompt_context_percent, vocab_type=vocab_type, model_ext=checkpoint['model_config']['model_ext'] if 'model_ext' in checkpoint['model_config'] else None, suggestion_length=args.suggestion_length)
 

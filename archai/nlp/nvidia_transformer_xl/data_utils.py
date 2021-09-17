@@ -599,7 +599,11 @@ def get_lm_corpus(datadir, cachedir, dataset, vocab, max_size=None, model_ext=No
         with utils.distributed.sync_workers() as rank:
             if rank == 0:
                 if not model_ext and vocab not in ["office_pretokbpe"]: # save vocab for default trans-xl model only
-                    torch.save(corpus, fn)
+                    try:
+                        torch.save(corpus, fn)
+                    except:
+                        # save can fail due to https://github.com/pytorch/pytorch/issues/48580
+                        pass
 
     return corpus
 

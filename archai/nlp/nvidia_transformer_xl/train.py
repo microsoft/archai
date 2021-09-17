@@ -82,6 +82,8 @@ def parse_args():
                          help='Initialize layers from checkpoint')
     general.add_argument('--layer_idx_to_init', type=str, default='',
                          help='what layers need to be initialized? 0-19 or 80-99 or 0-99') # only works if layer_init_from_ckpt != None
+    general.add_argument('--embed_layer_init', type=str, default='',
+                         help='initialize embed layer from pretrained HF model. provide model name.') # bert-large-uncased, gpt2 (768), gpt2-large (1280), EleutherAI/gpt-neo-2.7B
     general.add_argument('--prune', type=str, default=None,
                          help='prune what layers? 2,3')
     general.add_argument('--debug', action='store_true', default=None,
@@ -1019,18 +1021,19 @@ def main():
         print('layers transferred...')
         print(layer_idx_to_transfer)
         for layer_idx in layer_idx_to_transfer:
-            model.layers[layer_idx].dec_attn.qkv_net.weight.data = checkpoint['model_state']["layers.%d.dec_attn.qkv_net.weight"%layer_idx].half()
-            model.layers[layer_idx].dec_attn.o_net.weight.data = checkpoint['model_state']["layers.%d.dec_attn.o_net.weight"%layer_idx].half()
-            model.layers[layer_idx].dec_attn.layer_norm.weight.data = checkpoint['model_state']["layers.%d.dec_attn.layer_norm.weight"%layer_idx].half()
-            model.layers[layer_idx].dec_attn.layer_norm.bias.data = checkpoint['model_state']["layers.%d.dec_attn.layer_norm.bias"%layer_idx].half()
+            model.layers[layer_idx].dec_attn.qkv_net.weight.data = checkpoint['model_state']["layers.%d.dec_attn.qkv_net.weight"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.dec_attn.qkv_net.weight"%layer_idx].float()
+            model.layers[layer_idx].dec_attn.o_net.weight.data = checkpoint['model_state']["layers.%d.dec_attn.o_net.weight"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.dec_attn.o_net.weight"%layer_idx].float()
+            model.layers[layer_idx].dec_attn.layer_norm.weight.data = checkpoint['model_state']["layers.%d.dec_attn.layer_norm.weight"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.dec_attn.layer_norm.weight"%layer_idx].float()
+            model.layers[layer_idx].dec_attn.layer_norm.bias.data = checkpoint['model_state']["layers.%d.dec_attn.layer_norm.bias"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.dec_attn.layer_norm.bias"%layer_idx].float()
             
-            model.layers[layer_idx].pos_ff.CoreNet[0].weight.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.0.weight"%layer_idx].half()
-            model.layers[layer_idx].pos_ff.CoreNet[0].bias.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.0.bias"%layer_idx].half()
-            model.layers[layer_idx].pos_ff.CoreNet[3].weight.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.3.weight"%layer_idx].half()
-            model.layers[layer_idx].pos_ff.CoreNet[3].bias.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.3.bias"%layer_idx].half()
+            model.layers[layer_idx].pos_ff.CoreNet[0].weight.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.0.weight"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.pos_ff.CoreNet.0.weight"%layer_idx].float()
+            model.layers[layer_idx].pos_ff.CoreNet[0].bias.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.0.bias"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.pos_ff.CoreNet.0.bias"%layer_idx].float()
+            model.layers[layer_idx].pos_ff.CoreNet[3].weight.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.3.weight"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.pos_ff.CoreNet.3.weight"%layer_idx].float()
+            model.layers[layer_idx].pos_ff.CoreNet[3].bias.data = checkpoint['model_state']["layers.%d.pos_ff.CoreNet.3.bias"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.pos_ff.CoreNet.3.bias"%layer_idx].float()
             
-            model.layers[layer_idx].pos_ff.layer_norm.weight.data = checkpoint['model_state']["layers.%d.pos_ff.layer_norm.weight"%layer_idx].half()
-            model.layers[layer_idx].pos_ff.layer_norm.bias.data = checkpoint['model_state']["layers.%d.pos_ff.layer_norm.bias"%layer_idx].half()
+            model.layers[layer_idx].pos_ff.layer_norm.weight.data = checkpoint['model_state']["layers.%d.pos_ff.layer_norm.weight"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.pos_ff.layer_norm.weight"%layer_idx].float()
+            model.layers[layer_idx].pos_ff.layer_norm.bias.data = checkpoint['model_state']["layers.%d.pos_ff.layer_norm.bias"%layer_idx].half() if args.fp16 else checkpoint['model_state']["layers.%d.pos_ff.layer_norm.bias"%layer_idx].float()
+
             '''
             for compo in ["layers.0.dec_attn.qkv_net.weight", "layers.0.dec_attn.o_net.weight", "layers.0.dec_attn.layer_norm.weight", "layers.0.dec_attn.layer_norm.bias", "layers.0.dec_attn.r_net.weight", "layers.0.pos_ff.CoreNet.0.weight", "layers.0.pos_ff.CoreNet.0.bias", "layers.0.pos_ff.CoreNet.3.weight", "layers.0.pos_ff.CoreNet.3.bias", "layers.0.pos_ff.layer_norm.weight", "layers.0.pos_ff.layer_norm.bias"]:
                 dest_compo = checkpoint['model_state'][compo.replace("layers.0", "layers.%d"%layer_idx)]
@@ -1042,6 +1045,21 @@ def main():
                 sys.exit(0)
                 #model.layers[layer_idx].dec_attn.qkv_net.weight = ckpt_layers['layers.<LID>.dec_attn.qkv_net.weight'.replace("<LID>", str(layer_idx))]
             '''
+    if args.embed_layer_init:
+        print('initializing embedding layers from %s'%args.embed_layer_init)
+        from transformers import AutoTokenizer, AutoModelWithLMHead
+        pt_tokenizer = AutoTokenizer.from_pretrained(args.embed_layer_init)
+        pt_vocab =  pt_tokenizer.get_vocab()
+        pt_model = AutoModelWithLMHead.from_pretrained(args.embed_layer_init)
+        num_tok_init = 0
+        for idx in range(len(vocab)):
+            symbol = vocab.get_sym(idx)
+            if symbol in pt_vocab:
+                model.word_emb.emb_layers[0].weight.data[idx] = pt_model.transformer.wte.weight[idx]
+                num_tok_init += 1
+        print('initialized %d out of %d token embeddings'%(num_tok_init, len(vocab)))
+        del pt_tokenizer
+        del pt_model
 
     if args.restart:
         try:

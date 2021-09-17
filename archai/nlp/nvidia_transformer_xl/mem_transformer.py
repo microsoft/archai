@@ -916,6 +916,72 @@ class MemTransformerLM(nn.Module):
 
         return (loss, new_mems)
 
+def forward_predict_memtransformer(self, data):
+    # nn.DataParallel does not allow size(0) tensors to be broadcasted.
+    # So, have to initialize size(0) mems inside the model forward.
+    # Moreover, have to return new_mems to allow nn.DataParallel to piece
+    # them together.
+    tgt_len = data.size(0)
+    hidden, _ = self._forward(data, mems=None)
+
+    pred_hid = hidden[-tgt_len:]
+    out = self.crit(pred_hid.view(-1, pred_hid.size(-1)))
+    out = out.view(tgt_len, -1)
+    
+    return out
+
+def predict(self, hidden):
+    '''
+        hidden :: [len*bsz x d_proj]
+    '''
+    self.flops = 0
+
+    if self.n_clusters == 0:
+        logit = self._compute_logit(hidden, self.out_layers_weights[0], self.out_layers_biases[0], self.get_out_proj(0))
+        output = torch.argmax(logit, dim=1)
+    else:
+        # construct weights and biases
+        weights, biases, projs = [], [], []
+        for i in range(len(self.cutoffs)):
+            if self.div_val == 1:
+                l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i + 1]
+                weight_i = self.out_layers_weights[0][l_idx:r_idx]
+                bias_i = self.out_layers_biases[0][l_idx:r_idx]
+            else:
+                weight_i = self.out_layers_weights[i]
+                bias_i = self.out_layers_biases[i]
+            projs.append(self.get_out_proj(i))
+
+            if i == 0:
+                weight_i = torch.cat([weight_i, self.cluster_weight], dim=0)
+                bias_i = torch.cat([bias_i, self.cluster_bias], dim=0)
+
+            weights.append(weight_i)
+            biases.append(bias_i)
+
+        head_weight, head_bias, head_proj = weights[0], biases[0], projs[0]
+        head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj)
+        output = torch.argmax(head_logit, dim=1)
+        not_in_shortlist = (output >= self.shortlist_size)
+        all_in_shortlist = not (not_in_shortlist.any()) 
+        
+        # log_prob = self._get_full_log_prob(hidden, head_logit, weights[1:], biases[1:], projs[1:])
+        
+        if all_in_shortlist:
+            # pass
+            return output
+        elif not_in_shortlist.all():
+            print('option 2')
+            log_prob = self._get_full_log_prob(hidden, head_logit, weights[1:], biases[1:], projs[1:])
+            return torch.argmax(log_prob, dim=1)   
+        else:
+            print('option 3')
+            not_in_shortlist_indices = torch.nonzero(not_in_shortlist).reshape(-1)
+            log_prob = self._get_full_log_prob(torch.index_select(hidden, dim=0, index=not_in_shortlist_indices), 
+                                                torch.index_select(head_logit, dim=0, index=not_in_shortlist_indices),
+                                                weights[1:], biases[1:], projs[1:])
+            output[not_in_shortlist_indices] = torch.argmax(log_prob, dim=1)
+            return output
 
 if __name__ == '__main__':
     import argparse

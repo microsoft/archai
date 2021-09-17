@@ -1802,17 +1802,16 @@ def calculate_word_ppl():
 
 # amlt log inference_transxl :inference_char_valid-small_5M_1L :inference_char_valid-small_10M_2L :inference_char_valid-small_20M_12L :inference_char_valid-small_10M_8L :inference_char_valid-small_5M_2L :inference_char_valid-small_10M_12L :inference_char_valid-transxl_char_params_80M_char_emb_from_word_mean_lr0p001_g4 :inference_char_valid-transxl_char_params_80M :inference_char_valid-transxl_char_params_80M_bertstyle_lr0p001_8g :inference_char_valid-small_5M_8L :inference_char_valid-small_5M_12L :inference_char_valid-small_20M_8L :inference_char_valid-transxl_char_params_80M_char_emb_from_word_sum_lr0p001_g4 :inference_char_valid-small_20M_2L :inference_char_valid-small_10M_1L :inference_char_valid-small_20M_1L :inference_char_valid-transxl_char_params_80M_char_emb_from_word_max_lr0p001_g4
 def generate_inference_logs_mlrg():
-    res = "amlt log inference_transxl"
-    for line in open("/home/t-gjawahar/archai/scripts/out.o"):
-        if not "small" in line:
-            continue
+    res = "amlt log inference_word"
+    for line in open("scripts/inference.sh"):
         line = line.strip()
+        if "failed" in line:
+            continue
         item = line.split()[0]
         res += " "+item
-    print(res.replace("inference_char_valid", "inference_char_valid_memstat"))
+    print(res)
     
 #generate_inference_logs_mlrg()
-#sys.exit(0)
 
 
 def generate_memstat_commands():
@@ -2017,7 +2016,7 @@ def generate_bpe_sweep_models(f):
     d_models = [512]
     d_heads = [32, 64]
     d_inners = [512]
-    vocab_sizes = [260, 1000, 5000, 10000, 25000, 50000, 100000]
+    vocab_sizes = [260, 1000, 5000, 10000, 25000, 50000, 100000] # >10K got cancelled
     lrs = [0.01, 0.001]
 
     res = command
@@ -2071,6 +2070,7 @@ def results_generate_bpe_sweep_models():
         if hyp not in hyp2params:
             continue
         scores = []
+        overall_numerator, overall_denominator = [0.0]*3, [0.0]*3 # 3 is # tokens (smart compose upto 15)
         for line in open(f):
             if "context=" in line:
                 items = line.split(" ")
@@ -2079,17 +2079,186 @@ def results_generate_bpe_sweep_models():
                 score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
                 score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
                 scores.append([score_1, score_2, score_3])
-        hyp2taskscores[hyp] = [scores[0], scores[2], scores[4]]
+                overall_numerator[0] += float(items[5].split(",")[0][1:-1].split("/")[0]) 
+                overall_denominator[0] += float(items[5].split(",")[0][1:-1].split("/")[1])
+                overall_numerator[1] +=  float(items[7].split(",")[0][1:-1].split("/")[0]) 
+                overall_denominator[1] += float(items[7].split(",")[0][1:-1].split("/")[1])
+                overall_numerator[2] += float(items[-1].split(",")[0][1:-1].split("/")[0])
+                overall_denominator[2] += float(items[-1].split(",")[0][1:-1].split("/")[1])
+        overall_score = 0.0
+        for idx in range(len(overall_numerator)):
+            overall_score += overall_numerator[idx]/overall_denominator[idx]
+        overall_score /= 3.0
+        hyp2taskscores[hyp] = [scores[0], scores[2], scores[4], overall_score]
     print(hyp2taskscores, len(hyp2taskscores))
     scores = []
     for hyp in hyp2taskscores:
-        scores.append((hyp2taskscores[hyp][0][0], [hyp2taskscores[hyp], hyp2params[hyp], hyp]))
+        #scores.append((hyp2taskscores[hyp][0][0], [hyp2taskscores[hyp], hyp2params[hyp], hyp]))
+        scores.append((hyp2taskscores[hyp][-1], [hyp2taskscores[hyp], hyp2params[hyp], hyp]))
     scores = sorted(scores)
     scores.reverse()
     for score in scores:
         print(score[1])
 
-#results_generate_bpe_sweep_models()
+# results_generate_bpe_sweep_models()
+
+def generate_bpe_sweep_models_space2(f):
+    import random
+    random.seed(123)
+
+    command = "description: run bpe sweep model scripts\n\ntarget:\n  service: amlk8s\n  name: ms-shared\n  vc: resrchvc\n\nenvironment:\n  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel\n  registry: docker.io\n  setup:\n    - set -e -o xtrace\n    - sudo apt-get -y install git\n    - pip install --user tensorboard\n\ncode:\n  local_dir: /home/t-gjawahar/archai\n\ndata:\n  local_dir: /home/t-gjawahar/object_dir/wikitext-103\n  remote_dir: dataroot/textpred/wikitext-103\n\njobs:\n"
+    job_cmd = "- name: subword_space2_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>_<vocab_size>_<lr>\n  sku: G4\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"4\" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base.yaml --n_layer <n_layer> --n_head <n_head> --d_model <d_model> --d_head <d_head> --d_inner <d_inner> --max_step 400000 --vocab bpe --vocab_size <vocab_size> --lr <lr> --save_all"
+    
+    # scripts/8-31-randsearch
+    # search_space_1
+    n_layers = [2, 4, 8]
+    n_heads = [4, 8, 16]
+    d_models = [256, 512, 768, 1024, 2048]
+    d_heads = [32, 64, 128]
+    d_inners = [256, 512, 768, 1024, 2048]
+    vocab_sizes = [260, 1000, 5000, 10000, 25000, 50000, 100000]
+    lrs = [0.01, 0.001]
+
+    res = command
+    names = []
+    job_cache = {}
+    while len(job_cache) < 50:
+        n_layer = random.choice(n_layers)
+        n_head = random.choice(n_heads)
+        d_model = random.choice(d_models)
+        d_head = random.choice(d_heads)
+        d_inner = random.choice(d_inners)
+        vocab_size = random.choice(vocab_sizes)
+        lr = random.choice(lrs)
+
+        cand_name = ":subword_space2_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>_<vocab_size>_<lr>".replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner)).replace("<vocab_size>", str(vocab_size)).replace("<lr>", str(lr))
+        if cand_name in job_cache:
+            continue
+        job_cache[cand_name] = True
+        new_job_cmd = job_cmd.replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner)).replace("<vocab_size>", str(vocab_size)).replace("<lr>", str(lr))
+        res += new_job_cmd +"\n"
+        names.append(cand_name)
+
+    #print(res)
+    res += "\n# amlt run %s %s word_train"%(f, " ".join(names))
+    res += "\n# amlt log word_train %s"%(" ".join(names))
+    res += "\n# amlt status word_train %s"%(" ".join(names))
+    w = open(f, 'w')
+    w.write(res)
+    w.close()
+    print("amlt run %s %s word_train"%(f, " ".join(names)))
+
+#generate_bpe_sweep_models_space2("scripts/9-13-randsearch/generate_bpe_sweep_models_space2.yaml")
+
+def regenerate_bpe_sweep_models_space2(f):
+    import random
+    random.seed(123)
+
+    command = "description: run bpe sweep model scripts\n\ntarget:\n  service: amlk8s\n  name: ms-shared\n  vc: resrchvc\n\nenvironment:\n  image: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel\n  registry: docker.io\n  setup:\n    - set -e -o xtrace\n    - sudo apt-get -y install git\n    - pip install --user tensorboard\n\ncode:\n  local_dir: /home/t-gjawahar/archai\n\ndata:\n  local_dir: /home/t-gjawahar/object_dir/wikitext-103\n  remote_dir: dataroot/textpred/wikitext-103\n\njobs:\n"
+    job_cmd = "- name: subword_space2_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>_<vocab_size>_<lr>\n  sku: G4\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"4\" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base.yaml --n_layer <n_layer> --n_head <n_head> --d_model <d_model> --d_head <d_head> --d_inner <d_inner> --max_step 400000 --vocab bpe --vocab_size <vocab_size> --lr <lr> --save_all"
+    
+    # scripts/8-31-randsearch
+    # search_space_1
+    n_layers = [2, 4, 8]
+    n_heads = [4, 8, 16]
+    d_models = [256, 512, 768, 1024, 2048]
+    d_heads = [32, 64, 128]
+    d_inners = [256, 512, 768, 1024, 2048]
+    vocab_sizes = [260, 1000, 5000, 10000, 25000, 50000, 100000]
+    lrs = [0.01, 0.001]
+
+    res = command
+    names = []
+    job_cache = {}
+    models = ":subword_space2_2_8_256_64_768_260_0.01 :subword_space2_4_16_2048_64_768_100000_0.01 :subword_space2_2_4_768_128_768_50000_0.01 :subword_space2_2_4_1024_32_2048_10000_0.01 :subword_space2_2_8_1024_32_256_260_0.01 :subword_space2_2_4_768_64_2048_10000_0.001 :subword_space2_4_4_768_64_2048_100000_0.001 :subword_space2_2_16_2048_128_768_260_0.001 :subword_space2_8_16_1024_128_2048_50000_0.001 :subword_space2_8_16_1024_64_2048_260_0.01 :subword_space2_8_4_1024_128_768_1000_0.001 :subword_space2_4_16_1024_32_1024_10000_0.001 :subword_space2_2_4_2048_32_768_260_0.001 :subword_space2_2_8_2048_128_256_50000_0.001 :subword_space2_4_16_512_128_1024_1000_0.01 :subword_space2_8_8_1024_64_256_260_0.01 :subword_space2_4_4_256_64_768_50000_0.001 :subword_space2_4_16_1024_32_256_25000_0.01 :subword_space2_8_8_256_32_1024_260_0.001 :subword_space2_2_16_1024_32_768_5000_0.001 :subword_space2_2_16_768_64_768_260_0.01 :subword_space2_4_4_512_64_512_50000_0.01 :subword_space2_8_4_2048_64_2048_5000_0.01 :subword_space2_8_8_1024_64_512_25000_0.001 :subword_space2_8_4_512_128_1024_10000_0.01 :subword_space2_8_4_1024_128_256_5000_0.001 :subword_space2_8_16_1024_64_1024_100000_0.01 :subword_space2_2_16_768_128_2048_25000_0.01 :subword_space2_4_16_256_128_768_1000_0.001 :subword_space2_2_8_2048_32_512_5000_0.001 :subword_space2_4_4_2048_32_512_25000_0.01 :subword_space2_2_4_768_128_512_260_0.001 :subword_space2_2_8_2048_128_512_100000_0.01 :subword_space2_4_8_1024_32_768_50000_0.001 :subword_space2_4_8_512_128_512_25000_0.01 :subword_space2_4_8_768_128_1024_5000_0.001 :subword_space2_2_8_768_32_512_10000_0.01 :subword_space2_4_8_2048_64_512_100000_0.001 :subword_space2_4_4_768_32_768_25000_0.001 :subword_space2_2_8_256_128_1024_5000_0.01 :subword_space2_4_16_768_32_1024_5000_0.001 :subword_space2_8_16_768_32_1024_25000_0.001 :subword_space2_4_4_512_32_256_10000_0.001 :subword_space2_8_4_1024_128_256_10000_0.01 :subword_space2_4_8_512_128_256_10000_0.001 :subword_space2_8_16_256_64_1024_1000_0.01 :subword_space2_4_8_512_64_768_10000_0.01 :subword_space2_8_4_1024_128_512_1000_0.01 :subword_space2_4_16_512_128_2048_100000_0.01 :subword_space2_4_8_1024_32_768_25000_0.01"
+    for model in models.split():
+        n_layer, n_head, d_model, d_head, d_inner, vocab_size, lr = model.split(":subword_space2_")[-1].split('_')
+
+        cand_name = ":subword_space2_<n_layer>_<n_head>_<d_model>_<d_head>_<d_inner>_<vocab_size>_<lr>".replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner)).replace("<vocab_size>", str(vocab_size)).replace("<lr>", str(lr))
+        if cand_name in job_cache:
+            continue
+        job_cache[cand_name] = True
+        new_job_cmd = job_cmd.replace("<n_layer>", str(n_layer)).replace("<n_layer>", str(n_layer)).replace("<n_head>", str(n_head)).replace("<d_model>", str(d_model)).replace("<d_head>", str(d_head)).replace("<d_inner>", str(d_inner)).replace("<vocab_size>", str(vocab_size)).replace("<lr>", str(lr))
+        res += new_job_cmd +"\n"
+        names.append(cand_name)
+
+    #print(res)
+    res += "\n# amlt run %s %s word_train"%(f, " ".join(names))
+    res += "\n# amlt log word_train %s"%(" ".join(names))
+    res += "\n# amlt status word_train %s"%(" ".join(names))
+    w = open(f, 'w')
+    w.write(res)
+    w.close()
+    print("amlt run %s %s word_train"%(f, " ".join(names)))
+
+#regenerate_bpe_sweep_models_space2("scripts/9-13-randsearch/generate_bpe_sweep_models_space2.yaml")
+
+def results_generate_bpe_sweep_models_space2():
+    # num parameters
+    hyp2params = {}
+    hyp2nonembparams = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/word_train/subword_space2_*/*"):
+        num_params = None
+        num_ne_params = None
+        for line in open(f):
+            line = line.strip()
+            if "#params" in line:
+                num_params = int(line.split()[-1])
+            elif "#non emb params" in line:
+                num_ne_params = int(line.split()[-1])
+        if num_params:
+            hyp2params[f.split("/")[-2].split("subword_space2_")[-1]] = num_params
+        if num_ne_params:
+            hyp2nonembparams[f.split("/")[-2].split("subword_space2_")[-1]] = num_params
+    print(hyp2params, len(hyp2params))
+
+    # get exact match scores
+    hyp2taskscores = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_misc_word/inference_word_valid_400K-subword_space2*/*"):
+        hyp = f.split("/")[-2].split("inference_word_valid_400K-subword_space2_")[-1]
+        print(f)
+        print(hyp)
+        if hyp not in hyp2params:
+            continue
+        scores = []
+        overall_numerator, overall_denominator = [0.0]*3, [0.0]*3 # 3 is # tokens (smart compose upto 15)
+        i = 0
+        for line in open(f):
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+                if i % 2 == 0:
+                    overall_numerator[0] += float(items[5].split(",")[0][1:-1].split("/")[0]) 
+                    overall_denominator[0] += float(items[5].split(",")[0][1:-1].split("/")[1])
+                    overall_numerator[1] +=  float(items[7].split(",")[0][1:-1].split("/")[0]) 
+                    overall_denominator[1] += float(items[7].split(",")[0][1:-1].split("/")[1])
+                    overall_numerator[2] += float(items[-1].split(",")[0][1:-1].split("/")[0])
+                    overall_denominator[2] += float(items[-1].split(",")[0][1:-1].split("/")[1])
+                i += 1
+        if len(scores) == 0:
+            continue
+        overall_score = 0.0
+        for idx in range(len(overall_numerator)):
+            overall_score += overall_numerator[idx]/overall_denominator[idx]
+        overall_score /= 3.0
+        hyp2taskscores[hyp] = [scores[0], scores[2], scores[4], overall_score]
+    print(hyp2taskscores, len(hyp2taskscores))
+    scores = []
+    for hyp in hyp2taskscores:
+        #scores.append((hyp2taskscores[hyp][0][0], [hyp2taskscores[hyp], hyp2params[hyp], hyp]))
+        scores.append((hyp2taskscores[hyp][-1], [hyp2taskscores[hyp], hyp2params[hyp], hyp2nonembparams[hyp], hyp]))
+    scores = sorted(scores)
+    scores.reverse()
+    for score in scores:
+        #print(score[1])
+        print(score[1][-2], score[1][-1].split("_")[-2], score[1][0][-1])
+
+#results_generate_bpe_sweep_models_space2()
+#sys.exit(0)
 
 def plot_learning_curve_more_steps():
     import glob
@@ -2470,8 +2639,146 @@ def results_generate_wordmodel_layer_copy():
                 st += ',' + str(s1)
         print(st)
     
-results_generate_wordmodel_layer_copy()
-sys.exit(0)
+#results_generate_wordmodel_layer_copy()
+
+def generate_wordmodel_layer_copy_warmup_lr_tuning():
+    import random
+    random.seed(123)
+
+    # word40M g2
+    job_cmd = "- name: wordmodel_40M_layer_copy_<lidx>_<warmup>_<lr>\n  sku: G4\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"4\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step <warmup> --max_step 200000 --eval_interval 10000 --config dgx1_4gpu_fp16 --config_file char_base.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --save_all --batch_size 128 --lr <lr> --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 1000 --dropout 0.1 --dropatt 0.0 --experiment_name wordmodel_40M_layer_copy_<lidx>_<warmup>_<lr> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+    
+    #lidx = ["0-100", "0-25", "0-50", "0-75", "75-100", "50-100", "25-100", "25-75", "0-0"]
+    #lidx = ["0-0", "0-10", "0-15", "0-20", "0-25"]
+    #lidx = ["0-0", "0-10", "0-20", "0-25"]
+    lid = "0-20"
+    res = ""
+    warmup_steps = [0, 4000]
+    lrs = [0.01, 0.001, 0.0001]
+    names = []
+    for step in warmup_steps:
+        for lr in lrs:
+            new_job_cmd = job_cmd.replace("<lidx>", lid).replace("<warmup>", str(step)).replace("<lr>", str(lr))
+            res += new_job_cmd +"\n"
+            names.append("wordmodel_40M_layer_copy_<lidx>_<warmup>_<lr>".replace("<lidx>", lid).replace("<warmup>", str(step)).replace("<lr>", str(lr)))
+    print(res)
+    for name in names:
+        print("amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :%s word_train :word40M misc_word --yes"%name)
+
+#generate_wordmodel_layer_copy_warmup_lr_tuning()
+
+def generate_subword2char_layer_copy():
+    import random
+    random.seed(123)
+
+    # subword (top based on overall EM)  4_8_512_64_512_10000_0.01 (space1)
+    # [[[21.62, 6.06, 1.64], [26.66, 7.71, 2.29], [29.37, 8.56, 3.38], 0.15195327250264076], 12484883, '4_8_512_64_512_10000_0.01']
+    # scripts/8-31-randsearch/generate_bpe_sweep_models.yaml
+    # python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 4 --n_head 8 --d_model 512 --d_head 64 --d_inner 512 --max_step 100000 --vocab bpe --vocab_size 10000 --lr 0.01
+    #job_cmd = "- name: subwordmodel_12M_layer_copy_<lidx>\n  sku: G4\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"4\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 200000 --eval_interval 10000 --config dgx1_4gpu_fp16 --config_file char_base.yaml --n_layer 4 --n_head 8 --d_model 512 --d_head 64 --d_inner 512 --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 512 --dropout 0.1 --dropatt 0.0 --experiment_name subwordmodel_12M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+
+    # subword (top based on overall EM)  8_4_2048_64_2048_5000_0.01 (space1)
+    # [[[24.9, 6.96, 2.38], [30.54, 9.42, 3.52], [32.48, 10.83, 5.01], 0.1401888142836454], 98430347, '8_4_2048_64_2048_5000_0.01']
+    # scripts/9-13-randsearch/generate_bpe_sweep_models_space2.yaml
+    # python -m torch.distributed.launch --nproc_per_node="4" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_4gpu_fp16 --config_file wt103_base.yaml --n_layer 8 --n_head 4 --d_model 2048 --d_head 64 --d_inner 2048 --max_step 400000 --vocab bpe --vocab_size 5000 --lr 0.01 --save_all
+    job_cmd = "- name: subwordmodel_98M_layer_copy_<lidx>\n  sku: G4\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"4\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 200000 --eval_interval 10000 --config dgx1_4gpu_fp16 --config_file char_base.yaml --n_layer 8 --n_head 4 --d_model 2048 --d_head 64 --d_inner 2048 --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 2048 --dropout 0.1 --dropatt 0.0 --experiment_name subwordmodel_98M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+    
+    lidx = ["0-0", "0-25", "0-50", "0-75", "0-100"]
+    lidx = ["0-0", "0-20", "0-25", "0-40", "0-50", "0-70", "0-80", "0-90", "0-100"]
+    res = ""
+    names = []
+    for lid in lidx:
+        new_job_cmd = job_cmd.replace("<lidx>", lid)
+        res += new_job_cmd +"\n"
+        names.append("subwordmodel_98M_layer_copy_<lidx>".replace("<lidx>", lid))
+    print(res)
+    for name in names:
+        print("amlt map scripts/9-13-randsearch/generate_bpe_sweep_models_space2.yaml :%s word_train :subword_space2_8_4_2048_64_2048_5000_0.01 misc_word --yes"%name)
+
+#generate_subword2char_layer_copy()
+
+def generate_word2subword_layer_copy():
+    import random
+    random.seed(123)
+
+    # subword example
+    # - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 2 --n_head 8 --d_model 512 --d_head 64 --d_inner 512 --max_step 100000 --vocab bpe --vocab_size 260 --lr 0.01
+
+    # word80M g2
+    #job_cmd = "- name: wordmodel_80M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 1000 --dropout 0.1 --dropatt 0.0 --experiment_name wordmodel_80M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+    #job_cmd = "- name: word2subword_word80M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --max_step 100000 --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --save_all --lr 0.01 --d_embed 512 --dropout 0.1 --dropatt 0.0 --experiment_name word2subword_word80M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx> --vocab bpe --vocab_size 10000"
+
+    # word40M g2
+    #job_cmd = "- name: wordmodel_40M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 1000 --dropout 0.1 --dropatt 0.0 --experiment_name wordmodel_40M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+    job_cmd = "- name: word2subword_word40M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --max_step 100000 --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --save_all --lr 0.01 --d_embed 512 --dropout 0.1 --dropatt 0.0 --experiment_name word2subword_word40M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx> --vocab bpe --vocab_size 10000"
+    
+    lidx = ["0-0", "0-10", "0-15", "0-20", "0-25", "0-50", "0-75", "0-100"]
+    res = ""
+    names = []
+    for lid in lidx:
+        new_job_cmd = job_cmd.replace("<lidx>", lid)
+        res += new_job_cmd +"\n"
+        names.append("word2subword_word40M_layer_copy_<lidx>".replace("<lidx>", lid))
+    print(res)
+    for name in names:
+        print("amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :%s word_train :word40M misc_word --yes"%name)
+
+#generate_word2subword_layer_copy()
+
+def generate_word2subword_layer_copy_embed_copy():
+    import random
+    random.seed(123)
+
+    # subword example
+    # - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 2 --n_head 8 --d_model 512 --d_head 64 --d_inner 512 --max_step 100000 --vocab bpe --vocab_size 260 --lr 0.01
+    # word40M g2
+    #job_cmd = "- name: wordmodel_40M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 2000000 --eval_interval 10000 --config dgx1_2gpu_fp16 --config_file char_base.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --save_all --batch_size 128 --lr 0.001 --mem_len 512 --tgt_len 512 --eval_tgt_len 1024 --d_embed 1000 --dropout 0.1 --dropatt 0.0 --experiment_name wordmodel_40M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx>"
+    job_cmd = "- name: word2subword_word40M_layer_copy_<lidx>_<embed_layer_init>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --max_step 100000 --config dgx1_2gpu_fp16 --config_file wt103_base_no_fp.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --save_all --lr 0.01 --d_embed 768 --dropout 0.1 --dropatt 0.0 --experiment_name word2subword_word40M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx> --vocab bpe --vocab_size 10000 --embed_layer_init <embed_layer_init>"
+    
+    lidx = ["0-0", "0-10", "0-15", "0-20"] #, "0-25", "0-50", "0-75", "0-100"]
+    embed_layer_init = ["gpt2"]
+    res = ""
+    names = []
+    for eli in embed_layer_init:
+        for lid in lidx:
+            new_job_cmd = job_cmd.replace("<lidx>", lid).replace("<embed_layer_init>", eli)
+            res += new_job_cmd +"\n"
+            names.append("word2subword_word40M_layer_copy_<lidx>_<embed_layer_init>".replace("<lidx>", lid).replace("<embed_layer_init>", eli))
+
+    job_cmd = "- name: word2subword_word40M_layer_copy_<lidx>_None\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --max_step 100000 --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 14 --n_head 8 --d_model 128 --d_head 32 --d_inner 900 --save_all --lr 0.01 --d_embed 768 --dropout 0.1 --dropatt 0.0 --experiment_name word2subword_word40M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx> --vocab bpe --vocab_size 10000"
+    for lid in lidx:
+        new_job_cmd = job_cmd.replace("<lidx>", lid)
+        res += new_job_cmd +"\n"
+        names.append("word2subword_word40M_layer_copy_<lidx>_None".replace("<lidx>", lid))
+    print(res)
+    for name in names:
+        print("amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :%s word_train :word40M misc_word --yes"%name)
+
+#generate_word2subword_layer_copy_embed_copy()
+
+def generate_char2subword_layer_copy():
+    import random
+    random.seed(123)
+
+    # subword example
+    # - python -m torch.distributed.launch --nproc_per_node="2" archai/nlp/nvidia_transformer_xl/train.py --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 2 --n_head 8 --d_model 512 --d_head 64 --d_inner 512 --max_step 100000 --vocab bpe --vocab_size 260 --lr 0.01
+
+    # transxl_char_params_80M g2
+    # python -m torch.distributed.launch --nproc_per_node="8" archai/nlp/nvidia_transformer_xl/train.py --dataset wt2 --warmup_step 4000 --max_step 400000 --eval_interval 10000 --n_layer 16 --n_head 8 --d_head 64 --d_embed 750 --d_inner 2048 --mem_len 512 --tgt_len 512 --d_model 750 --dropout 0.1 -dropatt 0.0 --config dgx1_8gpu_fp16 --experiment_name transxl_char_base_enwiki --config_file char_no_fp.yaml --eval_tgt_len 1024 --batch_size 64 --lr 0.001
+    job_cmd = "- name: char2subword_char80M_layer_copy_<lidx>\n  sku: G2\n  command:\n  - set -e -o xtrace\n  - bash scripts/apex_install.sh\n  - pip install --user -e .\n  - python -m torch.distributed.launch --nproc_per_node=\"2\" archai/nlp/nvidia_transformer_xl/train.py --max_step 100000 --config dgx1_2gpu_fp16 --config_file wt103_base.yaml --n_layer 16 --n_head 8 --d_model 750 --d_head 64 --d_inner 768 --save_all --lr 0.01 --d_embed 512 --dropout 0.1 --dropatt 0.0 --experiment_name char2subword_char80M_layer_copy_<lidx> --layer_init_from_ckpt $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --layer_idx_to_init <lidx> --vocab bpe --vocab_size 10000"
+
+    lidx = ["0-0", "0-10", "0-15", "0-20", "0-25", "0-50", "0-75", "0-100"]
+    res = ""
+    names = []
+    for lid in lidx:
+        new_job_cmd = job_cmd.replace("<lidx>", lid)
+        res += new_job_cmd +"\n"
+        names.append("char2subword_char80M_layer_copy_<lidx>".replace("<lidx>", lid))
+    print(res)
+    for name in names:
+        print("amlt map archai/nlp/nvidia_transformer_xl/run_char_philly_exp3_char_final_select.yaml :%s transxl_char_exp2_randsearch :transxl_char_params_80M misc_word --yes"%name)
+
+#generate_char2subword_layer_copy()
 
 def generate_small_char10M_grid_search_bertstyle_models(f):
     import random
@@ -2532,9 +2839,564 @@ def cancel_jobs():
         item = line.strip().split()[0]
         cmd += " %s"%item
     cmd += " inference_transxl"
+
+    # cancel.sh
+    cmd = "amlt run scripts/9-13-randsearch/generate_bpe_sweep_models_space2.yaml"
+    for line in open("/home/t-gjawahar/archai/scripts/cancel.sh"):
+        if "running" in line:
+            continue
+        item = line.strip().split()[0]
+        cmd += " %s"%item
+    cmd += " word_train"
     print(cmd)
 #cancel_jobs()
 
+def generate_inference_commands():
+    #cmd = "amlt map archai/nlp/nvidia_transformer_xl/word_train.yaml :inference_char_valid_200K misc_word"
+    #for line in open("/home/t-gjawahar/archai/scripts/inference.sh"):
+    #    item = line.strip().split()[0]
+    #    cmd += " %s"%item
+    #cmd += " inference_misc_word"
+    cmd = "amlt map scripts/9-13-randsearch/generate_bpe_sweep_models_space2.yaml :inference_word_valid_400K word_train"
+    for line in open("/home/t-gjawahar/archai/scripts/inference.sh"):
+        item = line.strip().split()[0]
+        cmd += " %s"%item
+    cmd += " inference_misc_word"
+    print(cmd)
+    
+#generate_inference_commands()
 
+# gather data for 3D plot
+# scripts/9-13-3d-plot
+import json
+def write_jsonl_to_f(json_lines, f):
+    w = open(f, 'w')
+    for line in json_lines:
+        w.write(json.dumps(line))
+        w.write("\n")
+    w.close()
+def extract_hyp_values(f):
+    params = ["vocab_size", "experiment_name", "vocab", "n_layer", "n_head", "d_head", "d_embed", "d_model", "d_inner", "adaptive", "div_val", "lr", "tgt_len", "mem_len", "eval_tgt_len", "n_all_param", "n_nonemb_param"]
+    work_dir_starts = False
+    values = {}
+    for line in open(f):
+        line = line.strip()
+        if "work_dir" in line and "Namespace" not in line:
+            work_dir_starts = True
+        elif "Starting training..." in line:
+            work_dir_starts = False
+        if work_dir_starts:
+            param = None
+            for p in params:
+                if p in line:
+                    param = p
+            if param and "lr_min" not in line:
+                values[param] = line.strip().split()[-1]
+    return values
+def extract_scores(f):
+    scores = []
+    overall_numerator, overall_denominator = [0.0]*3, [0.0]*3 # 3 is # tokens (smart compose upto 15)
+    partial_overall_numerator, partial_overall_denominator = [0.0]*3, [0.0]*3
+    j = 0
+    for line in open(f):
+        if "context=" in line:
+            items = line.split(" ")
+            score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+            score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+            score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+            score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+            scores.append([score_1, score_2, score_3])
+            if j % 2 == 0:
+                overall_numerator[0] += float(items[5].split(",")[0][1:-1].split("/")[0]) 
+                overall_denominator[0] += float(items[5].split(",")[0][1:-1].split("/")[1])
+                overall_numerator[1] +=  float(items[7].split(",")[0][1:-1].split("/")[0]) 
+                overall_denominator[1] += float(items[7].split(",")[0][1:-1].split("/")[1])
+                overall_numerator[2] += float(items[-1].split(",")[0][1:-1].split("/")[0])
+                overall_denominator[2] += float(items[-1].split(",")[0][1:-1].split("/")[1])
+            else:
+                partial_overall_numerator[0] += float(items[5].split(",")[0][1:-1].split("/")[0]) 
+                partial_overall_denominator[0] += float(items[5].split(",")[0][1:-1].split("/")[1])
+                partial_overall_numerator[1] +=  float(items[7].split(",")[0][1:-1].split("/")[0]) 
+                partial_overall_denominator[1] += float(items[7].split(",")[0][1:-1].split("/")[1])
+                partial_overall_numerator[2] += float(items[-1].split(",")[0][1:-1].split("/")[0])
+                partial_overall_denominator[2] += float(items[-1].split(",")[0][1:-1].split("/")[1])
+            j += 1
+    final_scores = {}
+    final_scores["em@0.2"] = scores[0]
+    final_scores["em@0.5"] = scores[2]
+    final_scores["em@0.8"] = scores[4]
+    overall_score = 0.0
+    for idx in range(len(overall_numerator)):
+        overall_score += overall_numerator[idx]/overall_denominator[idx]
+    overall_score /= 3.0
+    final_scores["em@overall"] = float("%.2f"%(100.0*overall_score))
+    overall_score = 0.0
+    for idx in range(len(partial_overall_numerator)):
+        overall_score += partial_overall_numerator[idx]/partial_overall_denominator[idx]
+    overall_score /= 3.0
+    final_scores["pm@overall"] = float("%.2f"%(100.0*overall_score))
+    return final_scores
 
+def gather_data_for_3d_plot():
+    master_folder = "scripts/9-13-3d-plot"
+    
+    ##############
+    # char model
+    ##############
+    # grid search around 10M
+    charmod2params = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/transxl_char_exp2_randsearch/char10M_grid*/*"):
+        folder_name = f.split("/")[-2]
+        if "bertstyle" in folder_name:
+            continue
+        values = extract_hyp_values(f)
+        values["experiment_name"] = folder_name.split("_grid_")[-1]
+        charmod2params[folder_name.split("_grid_")[-1]] = values
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-char10M_grid*/stdout.txt"):
+        final_scores = extract_scores(f)
+        folder_name = f.split("/")[-2]
+        for k in final_scores:
+            charmod2params[folder_name.split("_grid_")[-1]][k] = final_scores[k]
+    print(charmod2params, len(charmod2params))
+    # small models
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/transxl_char_exp2_randsearch/small_*/stdout.txt"):
+        folder_name = f.split("/")[-2]
+        if "g8" in folder_name:
+            continue
+        values = extract_hyp_values(f)
+        values["experiment_name"] = folder_name
+        charmod2params[folder_name] = values
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-small_*/stdout.txt"):
+        folder_name = f.split("/")[-2]
+        if "bert" in folder_name or "cpool" in folder_name:
+            continue
+        final_scores = extract_scores(f)
+        for k in final_scores:
+            charmod2params[folder_name.split("inference_char_valid-")[-1]][k] = final_scores[k]
+    print(charmod2params, len(charmod2params))
+    
+    ##############
+    # word model
+    ##############
+    # word model all sizes
+    wordmod2params = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/word_train/word*_nofp/stdout.txt"):
+        folder_name = f.split("/")[-2]
+        if "g4" not in folder_name and "nofp" in folder_name:
+            values = extract_hyp_values(f)
+            values["experiment_name"] = folder_name.split("_")[0]
+            wordmod2params[folder_name.split("_")[0]] = values
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics-word*_nofp/stdout.txt"):
+        folder_name = f.split("/")[-2]
+        final_scores = extract_scores(f)
+        if folder_name.split("inference_word_model_metrics-")[-1].split("_nofp")[0] in wordmod2params:
+            for k in final_scores:
+                wordmod2params[folder_name.split("inference_word_model_metrics-")[-1].split("_nofp")[0]][k] = final_scores[k]
+    #print(wordmod2params, wordmod2params.keys(), len(wordmod2params))
+        
+    ###############
+    # subword model
+    ###############
+    subwordmod2params = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/word_train/subword_space1_*/*"):
+        folder_name = f.split("/")[-2]
+        num_params = None
+        for line in open(f):
+            line = line.strip()
+            if "#params" in line:
+                num_params = int(line.split()[-1])
+        if num_params:
+            values = extract_hyp_values(f)
+            values["experiment_name"] = folder_name.split("subword_")[-1]
+            subwordmod2params[folder_name.split("subword_")[-1]] = values
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics_valid-subword_space1*/*"):
+        folder_name = f.split("/")[-2]
+        if folder_name.split("inference_word_model_metrics_valid-subword_")[-1] in subwordmod2params:
+            final_scores = extract_scores(f)
+            for k in final_scores:
+                subwordmod2params[folder_name.split("inference_word_model_metrics_valid-subword_")[-1]][k] = final_scores[k]
+    
+    write_jsonl_to_f([charmod2params[k] for k in sorted(charmod2params)], master_folder + "/char_acc.jsonl")
+    write_jsonl_to_f([wordmod2params[k] for k in sorted(wordmod2params)], master_folder + "/word_acc.jsonl")
+    write_jsonl_to_f([subwordmod2params[k] for k in sorted(subwordmod2params)], master_folder + "/subword_acc.jsonl")
+
+#gather_data_for_3d_plot()
+
+def generate_latency_commands_d3(fold):
+    sample_word_cmd = "python archai/nlp/nvidia_transformer_xl/train.py --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --batch_chunk 1 --eval_batch_size 1 --max_step 0 --config dgx1_1gpu_fp16 --eval_tgt_len 128 --mem_len 0 --tgt_len 128"
+    template_word_cmd = "python archai/nlp/nvidia_transformer_xl/train.py --config_file wt103_base_no_fp.yaml --n_layer <n_layer> --n_head <n_head> --d_model <d_model> --d_head <d_head> --d_inner <d_inner> --batch_chunk 1 --eval_batch_size 1 --max_step 0 --config dgx1_1gpu_fp16 --eval_tgt_len 128 --mem_len 0 --tgt_len 128"
+    sample_char_cmd = "python archai/nlp/nvidia_transformer_xl/train.py --config_file char_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all --batch_chunk 1 --eval_batch_size 1 --max_step 0 --config dgx1_1gpu_fp16 --eval_tgt_len 600 --mem_len 0 --tgt_len 600 --vocab_size 128"
+    template_char_cmd = "python archai/nlp/nvidia_transformer_xl/train.py --config_file char_no_fp.yaml --n_layer <n_layer> --n_head <n_head> --d_model <d_model> --d_head <d_head> --d_inner <d_inner> --max_step 200000 --save_all --batch_chunk 1 --eval_batch_size 1 --max_step 0 --config dgx1_1gpu_fp16 --eval_tgt_len 600 --mem_len 0 --tgt_len 600 --vocab_size 128"
+    sample_subword_cmd = "python archai/nlp/nvidia_transformer_xl/train.py --config_file wt103_base_no_fp.yaml --n_layer 16 --n_head 8 --d_model 256 --d_head 32 --d_inner 768 --max_step 200000 --save_all --batch_chunk 1 --eval_batch_size 1 --max_step 0 --config dgx1_1gpu_fp16 --eval_tgt_len 600 --mem_len 0 --tgt_len 600 --vocab bpe --vocab_size 260"
+    template_subword_cmd = "python archai/nlp/nvidia_transformer_xl/train.py --config_file wt103_base_no_fp.yaml --n_layer <n_layer> --n_head <n_head> --d_model <d_model> --d_head <d_head> --d_inner <d_inner> --max_step 200000 --save_all --batch_chunk 1 --eval_batch_size 1 --max_step 0 --config dgx1_1gpu_fp16 --eval_tgt_len 600 --mem_len 0 --tgt_len 600 --vocab bpe --vocab_size <vocab_size>"
+
+    w = open("word_latency.sh", "w")
+    for line in open(fold + "/word_acc.jsonl"):
+        content = json.loads(line.strip())
+        w.write("%s\n"%(template_word_cmd.replace("<n_layer>", content["n_layer"]).replace("<n_head>", content["n_head"]).replace("<d_model>", content["d_model"]).replace("<d_head>", content["d_head"]).replace("<d_inner>", content["d_inner"])))
+    w.close()
+
+    w = open("char_latency.sh", "w")
+    for line in open(fold + "/char_acc.jsonl"):
+        content = json.loads(line.strip())
+        w.write("%s\n"%(template_word_cmd.replace("<n_layer>", content["n_layer"]).replace("<n_head>", content["n_head"]).replace("<d_model>", content["d_model"]).replace("<d_head>", content["d_head"]).replace("<d_inner>", content["d_inner"])))
+    w.close()
+
+    w = open("subword_latency.sh", "w")
+    for line in open(fold + "/subword_acc.jsonl"):
+        content = json.loads(line.strip())
+        w.write("%s\n"%(template_word_cmd.replace("<n_layer>", content["n_layer"]).replace("<n_head>", content["n_head"]).replace("<d_model>", content["d_model"]).replace("<d_head>", content["d_head"]).replace("<d_inner>", content["d_inner"]).replace("<vocab_size>", content["vocab"])))
+    w.close()
+
+#generate_latency_commands_d3(fold)
+
+def results_inference_valid_200K():
+    for f in sorted(glob.glob("/home/t-gjawahar/archai/amlt/inference_misc_word/inference_char_valid_200K-subwordmodel_*/*")):
+        folder = f.split("/")[-2]
+        if folder.startswith("inference_char_valid_200K-subwordmodel_12M_layer_copy"):
+            final_scores = extract_scores(f)
+            res = folder.split("_copy_")[-1].split("-subword_space1_4_8_512_64_512_10000_0.01")[0]
+            for p in ["0.2", "0.5", "0.8"]:
+                for s in final_scores["em@"+p]:
+                    res += "," + str(s)
+            res += "," + str(final_scores["em@overall"])
+            res += "," + str(final_scores["pm@overall"])
+            print(res)
+
+#results_inference_valid_200K()
+
+def results_for_bpe_sweep_space1():
+    scores = []
+    for line in open("scripts/9-13-3d-plot/subword_acc.jsonl"):
+        content = json.loads(line.strip())
+        if "em@overall" not in content:
+            continue
+        scores.append((content["pm@overall"], content))
+    scores = sorted(scores)
+    scores.reverse()
+    for score in scores:
+        _, content = score
+        res = '%s,%s,%s,%s,%s,%s,%s,%.2f,%.2f'%(content["n_layer"], content["n_head"], content["d_head"], content["lr"], content["vocab"], content["n_all_param"], content["n_nonemb_param"], content["em@overall"], content["pm@overall"])
+        print(res)
+
+#results_for_bpe_sweep_space1()
+
+def compare_all_three_models(xaxis, yaxis):
+    next_ans = False
+    latency = []
+    for line in open("scripts/9-13-3d-plot/char_latency_d3.out"):
+        line = line.strip()
+        if "model(data, target, mems)" in line:
+            next_ans = True
+        elif next_ans:
+            latency.append((5.0*float(line.split()[0]))/512) if line.endswith("ms") else latency.append((5000.0*float(line.split()[0]))/512)
+            next_ans = False
+        else:
+            next_ans = False
+    pmu = []
+    prev_memory = None
+    for line in open("scripts/9-13-3d-plot/char_pmu_d3.out"):
+        line = line.strip()
+        if "TestMemoryUsed output of" in line:
+            if "eval end:" in line:
+                if prev_memory:
+                    pmu.append(prev_memory)
+                prev_memory = None
+            else:
+                if prev_memory:
+                    prev_memory = max(prev_memory, float(line.split()[-1]))
+                else:
+                    prev_memory = float(line.split()[-1])
+    charmod2scores = {}
+    for li, line in enumerate(open("scripts/9-13-3d-plot/char_acc.jsonl")):
+        content = json.loads(line.strip())
+        content["latency"] = latency[li]
+        content["pmu"] = pmu[li]
+        charmod2scores[content["experiment_name"]] = content
+
+    latency = []
+    next_ans = False
+    for line in open("scripts/9-13-3d-plot/word_latency_d3.out"):
+        line = line.strip()
+        if "model(data, target, mems)" in line:
+            next_ans = True
+        elif next_ans:
+            latency.append((1.0*float(line.split()[0]))/192) if line.endswith("ms") else latency.append((1000.0*float(line.split()[0]))/192)
+            next_ans = False
+        else:
+            next_ans = False
+    pmu = []
+    prev_memory = None
+    for line in open("scripts/9-13-3d-plot/word_pmu_d3.out"):
+        line = line.strip()
+        if "TestMemoryUsed output of" in line:
+            if "eval end:" in line:
+                if prev_memory:
+                    pmu.append(prev_memory)
+                prev_memory = None
+            else:
+                if prev_memory:
+                    prev_memory = max(prev_memory, float(line.split()[-1]))
+                else:
+                    prev_memory = float(line.split()[-1])
+    wordmod2scores = {}
+    for li, line in enumerate(open("scripts/9-13-3d-plot/word_acc.jsonl")):
+        content = json.loads(line.strip())
+        content["latency"] = latency[li]
+        content["pmu"] = pmu[li]
+        if "em@overall" not in content:
+            continue
+        wordmod2scores[content["experiment_name"]] = content
+
+    latency = []
+    next_ans = False
+    for line in open("scripts/9-13-3d-plot/subword_latency_d3.out"):
+        line = line.strip()
+        if "model(data, target, mems)" in line:
+            print(line)
+            next_ans = True
+        elif next_ans:
+            print("---", line)
+            if not line.endswith("ms") and not line.endswith("s"):
+                latency.append(None)
+            else:
+                latency.append((1.0*float(line.split()[0]))/192) if line.endswith("ms") else latency.append((1000.0*float(line.split()[0]))/192)
+            next_ans = False
+        else:
+            next_ans = False
+    pmu = []
+    prev_memory = None
+    for line in open("scripts/9-13-3d-plot/subword_pmu_d3.out"):
+        line = line.strip()
+        if "TestMemoryUsed output of" in line:
+            if "eval end:" in line:
+                if prev_memory:
+                    pmu.append(prev_memory)
+                prev_memory = None
+            else:
+                if prev_memory:
+                    prev_memory = max(prev_memory, float(line.split()[-1]))
+                else:
+                    prev_memory = float(line.split()[-1])
+    subwordmod2scores = {}
+    print('subword...')
+    for li, line in enumerate(open("scripts/9-13-3d-plot/subword_acc.jsonl")):
+        content = json.loads(line.strip())
+        lat = None if len(latency) <= li else latency[li]
+        pm = pmu[li]
+        if "em@overall" not in content:
+            continue
+        if lat:
+            #print(lat, content["vocab"])
+            content["latency"] = lat
+            content["pmu"] = pm
+            subwordmod2scores[content["experiment_name"]] = content
+            print(content["pmu"], content["n_all_param"], content["n_nonemb_param"])
+    sys.exit(0)
+    print(len(charmod2scores), len(wordmod2scores), len(subwordmod2scores))
+    import matplotlib.patches as mpatches
+    fig = plt.figure(figsize=(10,5))
+    class_colours = ['cyan', 'red', 'green']
+    classes = ['char', 'word', 'subword']
+    #class_colours = ['cyan', 'green']
+    #classes = ['char', 'subword']
+    for mod in charmod2scores:
+        pt = plt.scatter(float(charmod2scores[mod][xaxis]), float(charmod2scores[mod][yaxis]), marker='x', c=class_colours[0], label='char')
+    for mod in wordmod2scores:
+        pt = plt.scatter(float(wordmod2scores[mod][xaxis]), float(wordmod2scores[mod][yaxis]), marker='o', c=class_colours[1], label='word')
+    for mod in subwordmod2scores:
+        pt = plt.scatter(float(subwordmod2scores[mod][xaxis]), float(subwordmod2scores[mod][yaxis]), marker='+', c=class_colours[2], label='subword')
+    plt.xlabel(xaxis,fontsize=16)
+    plt.ylabel(yaxis,fontsize=16)
+    recs = []
+    for i in range(0,len(class_colours)):
+        recs.append(mpatches.Rectangle((0,0),1,1,fc=class_colours[i]))
+    plt.legend(recs,classes,loc=4,fontsize=16)
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/9-14/%s_vs_%s.pdf"%(xaxis, yaxis), bbox_inches='tight')
+
+compare_all_three_models("pmu", "em@overall")
+sys.exit(0)
+
+def spearman_nonemb_params_for_bpesweep():
+    subwordmod2scores = {}
+    for li, line in enumerate(open("scripts/9-13-3d-plot/subword_acc.jsonl")):
+        content = json.loads(line.strip())
+        subwordmod2scores[content["experiment_name"]] = content
+    vocab2scores = {}
+    for exp in subwordmod2scores:
+        values = subwordmod2scores[exp]
+        if 'em@overall' not in values:
+            continue
+        if values['vocab'] not in vocab2scores:
+            vocab2scores[values['vocab']] = [[], []]
+        vocab2scores[values['vocab']][0].append(values['em@overall'])
+        vocab2scores[values['vocab']][1].append(values['n_nonemb_param'])
+    for line in open("scripts/9-13-3d-plot/subword_space2.jsonl"):
+        items = line.strip().split()
+        params, vocab_size, score = int(items[0]), items[1], float(items[-1])
+        if vocab_size not in vocab2scores:
+            vocab2scores[vocab_size] = [[], []]
+        vocab2scores[vocab_size][0].append(score)
+        vocab2scores[vocab_size][1].append(params)
+    print(vocab2scores)
+    from scipy import stats
+    for vocab in sorted(vocab2scores):
+        rho, pval = stats.spearmanr(vocab2scores[vocab][0], vocab2scores[vocab][1])
+        print("%s,%.2f,%.2f,%d"%(vocab, rho, pval, len(vocab2scores[vocab][0])))
+#spearman_nonemb_params_for_bpesweep()
+
+def check_word2subword_scores():
+    f2scores = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/misc_word/word2subword_word40M_layer_copy_*/*"):
+        if "_" in f.split("/")[-2].split("word2subword_word40M_layer_copy_")[-1].split("-word40M")[0]:
+            continue
+        if "0-20" not in f.split("/")[-2].split("word2subword_word40M_layer_copy_")[-1].split("-word40M")[0]  and "0-0" not in f.split("/")[-2].split("word2subword_word40M_layer_copy_")[-1].split("-word40M")[0]:
+            continue
+        f2scores[f.split("/")[-2].split("word2subword_word40M_layer_copy_")[-1].split("-word40M")[0]] = []
+        print(f)
+        for line in open(f):
+            line = line.strip()
+            if "valid ppl" in line:
+                items = line.split()
+                f2scores[f.split("/")[-2].split("word2subword_word40M_layer_copy_")[-1].split("-word40M")[0]].append(float(items[-1]))
+        print(f.split("/")[-2].split("word2subword_word40M_layer_copy_")[-1].split("-word40M")[0], len(f2scores[f.split("/")[-2].split("word2subword_word40M_layer_copy_")[-1].split("-word40M")[0]]))
+    #del f2scores["0-75"]
+    #del f2scores["0-100"]
+    #del f2scores["0-50"]
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(12,5))
+    plt.grid(color='gray', linestyle='dashed')
+    xaxis = [5000*(i+1) for i in range(20)]
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold"]
+    ei = 0
+    for key in sorted(f2scores):
+        scores = f2scores[key] + [None] * (20 - len(f2scores[key]))
+        plt.plot(xaxis, scores, color=colors[ei], marker='o', label=key)
+        print(key, scores)
+        ei += 1
+    plt.xlabel("Steps")
+    plt.ylabel("Valid PPL")
+    plt.legend(loc="upper right")
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/9-14/word2subword_40M_copy.pdf", bbox_to_anchor=(2.25, 2.55))
+
+# check_word2subword_scores()
+
+def plot_learning_curve_word40M2char6M_warmup_lr_study():
+    import glob
+    f2scores = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/misc_word/wordmodel_40M_layer_copy_0-20_*/*"):
+        f2scores[f.split("/")[-2].split("wordmodel_40M_layer_copy_0-20_")[-1].split("-word40M")[0]] = []
+        for line in open(f):
+            line = line.strip()
+            if "valid ppl" in line:
+                items = line.split()
+                f2scores[f.split("/")[-2].split("wordmodel_40M_layer_copy_0-20_")[-1].split("-word40M")[0]].append(float(items[-1]))
+        if len(f2scores[f.split("/")[-2].split("wordmodel_40M_layer_copy_0-20_")[-1].split("-word40M")[0]]) == 0:
+            del f2scores[f.split("/")[-2].split("wordmodel_40M_layer_copy_0-20_")[-1].split("-word40M")[0]]
+    print(f2scores)
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(12,5))
+    plt.grid(color='gray', linestyle='dashed')
+    xaxis = [10000*(i+1) for i in range(7)]
+    colors = ['b', 'c', 'y', 'm', 'r', 'g', 'k', "indigo", "violet", "springgreen", "olive", "firebrick", "gold"]
+    ei = 0
+    for key in sorted(f2scores):
+        scores = f2scores[key] + [None] * (7 - len(f2scores[key]))
+        plt.plot(xaxis, scores, color=colors[ei], marker='o', label=key)
+        print(key, scores)
+        ei += 1
+    plt.xlabel("Steps")
+    plt.ylabel("Valid BPC")
+    plt.legend(loc="upper right")
+    plt.show()
+    fig.savefig("/home/t-gjawahar/archai/scripts/mlrg/word40M2char6M_warmup_lr.pdf", bbox_to_anchor=(2.25, 2.55))
+
+#plot_learning_curve_word40M2char6M_warmup_lr_study()
+
+def results_beam_search():
+    exp2score = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/word_beam_search_metrics-subword_space1*/*") + glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/char_beam_search_metrics-*/*"):
+        scores = []
+        for line in open(f):
+            line = line.strip()
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        exp2score[f.split("/")[-2].split("beam_search_metrics-")[-1]] = scores
+        print(f.split("/")[-2].split("beam_search_metrics-")[-1], len(scores))
+    
+    charexp2score = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_transxl/inference_char_valid-small_*/*"):
+        if len(f.split("/")[-2].split("inference_char_valid-")[-1].split("_")) != 3:
+            continue
+        scores = []
+        for line in open(f):
+            line = line.strip()
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        charexp2score[f.split("/")[-2].split("inference_char_valid-")[-1]] = scores
+        print(f.split("/")[-2].split("inference_char_valid-")[-1], len(scores))
+    
+    # print char scores
+    res = ""
+    for model in ["5M", "10M", "20M"]:
+        for layer in ["1L", "2L", "8L", "12L"]:
+            base_scores = charexp2score["small_"+model+"_"+layer]
+            beam_scores = exp2score["small_"+model+"_"+layer]
+            res += "small_"+model+"_"+layer
+            scores = base_scores + beam_scores
+            print("small_"+model+"_"+layer, scores)
+            for start_idx in range(0, len(scores), 6):
+                s = scores[start_idx:start_idx+6]
+                if len(s) != 6:
+                    continue
+                res += "," + str(s[0][0]) + "," + str(s[2][0]) + "," + str(s[4][0])
+            res += "\n"
+    
+    swexp2score = {}
+    for f in glob.glob("/home/t-gjawahar/archai/amlt/inference_word/inference_word_model_metrics_valid-subword_space1_*/*"):
+        scores = []
+        for line in open(f):
+            line = line.strip()
+            if "context=" in line:
+                items = line.split(" ")
+                score_1 = float(items[5].split(",")[0][1:-1].split("/")[0]) /  float(items[5].split(",")[0][1:-1].split("/")[1])
+                score_2 = float(items[7].split(",")[0][1:-1].split("/")[0]) /  float(items[7].split(",")[0][1:-1].split("/")[1])
+                score_3 = float(items[-1].split(",")[0][1:-1].split("/")[0]) /  float(items[-1].split(",")[0][1:-1].split("/")[1])
+                score_1, score_2, score_3 = float("%.2f"%(100.0*score_1)), float("%.2f"%(100.0*score_2)), float("%.2f"%(100.0*score_3))
+                scores.append([score_1, score_2, score_3])
+        swexp2score[f.split("/")[-2].split("inference_word_model_metrics_valid-")[-1]] = scores
+        print(f.split("/")[-2].split("inference_word_model_metrics_valid-")[-1], len(scores))
+    print(swexp2score)
+
+    # print subword scores
+    res = ""
+    for exp in exp2score:
+        if "space1" in exp:
+            base_scores = swexp2score[exp]
+            beam_scores = exp2score[exp]
+            scores = base_scores + beam_scores
+            if len(scores) < 12:
+                continue
+            res += ",".join(exp.split("subword_space1_")[-1].split("_"))
+            for start_idx in range(0, len(scores), 6):
+                s = scores[start_idx:start_idx+6]
+                if len(s) != 6:
+                    continue
+                res += "," + str(s[0][0]) + "," + str(s[2][0]) + "," + str(s[4][0])
+            res += "\n"
+    print(res)
+
+#results_beam_search()
 

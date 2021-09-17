@@ -20,7 +20,7 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import Lo
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
-from nvidia_utils.exp_utils import memstat_utils
+#from nvidia_utils.exp_utils import memstat_utils
 
 @torch.jit.script
 def add_and_scale(tensor1, tensor2, alpha: float):
@@ -609,6 +609,10 @@ class MemTransformerLM(nn.Module):
 
         self._create_params()
 
+        # for name, W in self.named_parameters():
+        #   if name.startswith("crit"):
+        #    print(name, W.size())
+
     def backward_compatible(self):
         self.sample_softmax = -1
 
@@ -872,7 +876,6 @@ class MemTransformerLM(nn.Module):
         # them together.
         if mems is None:
             mems = self.init_mems()
-
         
         if memstat:
             memstat_utils("model_forward_start")
@@ -901,6 +904,14 @@ class MemTransformerLM(nn.Module):
             loss = loss.view(tgt_len, -1)
 
         return (loss, new_mems)
+
+def forward_predict_memtransformer(self, data):
+    tgt_len = data.size(0)
+    hidden, _ = self._forward(data, mems=None)
+    pred_hid = hidden[-tgt_len:]
+    out = self.crit(pred_hid.view(-1, pred_hid.size(-1)), target=None)
+    out = out.view(tgt_len, -1)
+    return out
 
 
 if __name__ == '__main__':

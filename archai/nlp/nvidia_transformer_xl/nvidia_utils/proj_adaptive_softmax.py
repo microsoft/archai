@@ -219,3 +219,22 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                 offset += logprob_i.size(0)
 
         return nll
+    
+    def _get_full_log_prob(self, input, head_output, weights, biases, projs):
+        """ Given input tensor, and output of `self.head`,
+        compute the log of the full distribution """
+
+        out = input.new_empty((head_output.size(0), self.n_token))
+        head_logprob = F.log_softmax(head_output, dim=1)
+
+        out[:, :self.shortlist_size] = head_logprob[:, :self.shortlist_size]
+
+        for i, (start_idx, stop_idx) in enumerate(zip(self.cutoffs, self.cutoffs[1:])):
+            weight_i, bias_i, proj_i = weights[i], biases[i], projs[i]
+            cluster_output = self._compute_logit(input, weight_i, bias_i, proj_i) #self.tail[i](input)
+            cluster_logprob = F.log_softmax(cluster_output, dim=1)
+            output_logprob = cluster_logprob + head_logprob[:, self.shortlist_size + i].unsqueeze(1)
+
+            out[:, start_idx:stop_idx] = output_logprob
+
+        return out

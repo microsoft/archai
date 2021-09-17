@@ -108,10 +108,10 @@ class BPEVocab(Vocab):
             print('counting file {} ...'.format(path))
         assert os.path.exists(path)
 
-        if os.path.isfile(os.path.join(self.vocab_dir, "vocab.json.log")):
-            print('reusing existing vocab {} ...'.format(self.vocab_dir))
-            self.tokenizer = ByteLevelBPETokenizer.from_file(os.path.join(self.vocab_dir, "vocab.json"), os.path.join(self.vocab_dir, "merges.txt"))
-            return
+        #if os.path.isfile(os.path.join(self.vocab_dir, "vocab.json.log")):
+        #    print('reusing existing vocab {} ...'.format(self.vocab_dir))
+        #    self.tokenizer = ByteLevelBPETokenizer.from_file(os.path.join(self.vocab_dir, "vocab.json"), os.path.join(self.vocab_dir, "merges.txt"))
+        #    return
 
         # start training
         self.tokenizer.train(files=path, vocab_size=self.max_size, min_frequency=self.min_freq, special_tokens=self.special_tokens.split(','))
@@ -144,19 +144,22 @@ class BPEVocab(Vocab):
         tokens, tokens_counter = self.tokenize_lines(path)
 
         # Sort the vocab
-        tokens_counter.update(list(range(self.max_size))) # add 1 to each value, to ensure that all of them > 0
+        #tokens_counter.update(list(range(self.max_size))) # add 1 to each value, to ensure that all of them > 0
+        tokens_counter.update(list(range(len(tokens_counter)))) # add 1 to each value, to ensure that all of them > 0
         print(tokens_counter.most_common(10))
         sorted_ids = list(range(self.min_sort_id)) + \
                      [int(token_id) for token_id, _ in tokens_counter.most_common() if int(token_id) >= self.min_sort_id]
 
-        orig2sorted_ids = [None] * self.max_size
+        #orig2sorted_ids = [None] * self.max_size
+        orig2sorted_ids = [None] * len(tokens_counter)
         for new, old in enumerate(sorted_ids):
             orig2sorted_ids[old] = new
         
         with open(os.path.join(self.vocab_dir, "vocab.json"), encoding="utf-8") as f:
             vocab_orig = json.load(f)
         
-        vocab_list = [None] * self.max_size
+        #vocab_list = [None] * self.max_size
+        vocab_list = [None] * len(tokens_counter)
         for vocab, idx in vocab_orig.items():
             vocab_list[orig2sorted_ids[idx]] = vocab
         
@@ -171,7 +174,8 @@ class BPEVocab(Vocab):
         tokens, tokens_counter = self.tokenize_lines(path)
 
         with open(os.path.join(self.vocab_dir, "vocab.json.log"), 'w', encoding='utf-8') as f:
-            for idx in range(self.max_size):
+            #for idx in range(self.max_size):
+            for idx in range(len(tokens_counter)):
                 f.write(f"{idx}\t{vocab_list[idx]}\t{tokens_counter.get(idx, 0)}\n")
         del tokens
         del tokens_counter
