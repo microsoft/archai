@@ -259,6 +259,10 @@ def parse_args():
                       default=os.getenv('LOCAL_RANK', 0),
                       help='Used for multi-process training.')
 
+    post = parser.add_argument_group('post-processing setup')
+    post.add_argument('--dynamic_quantization', action='store_true',
+                      help='Dynamic quantization')
+
     parser.set_defaults(**config)
     args, _ = parser.parse_known_args()
 
@@ -302,7 +306,7 @@ def parse_args():
 
 def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
                     vocab, epoch, batch, last_iter, train_step, best_val_loss,
-                    is_best, work_dir):
+                    is_best, work_dir, prefix=''):
     if args.fp16:
         if args.amp == 'pytorch':
             amp_state = scaler.state_dict()
@@ -328,7 +332,7 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
         'best_val_loss': best_val_loss,
         }
 
-    last_chkpt_fname = 'checkpoint_last.pt'
+    last_chkpt_fname =  prefix + 'checkpoint_last.pt'
 
     with nv_distributed.sync_workers() as rank:
         last_chkpt_path = os.path.join(work_dir, last_chkpt_fname)
@@ -339,22 +343,22 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
 
             # save best checkpoint if better than previous best
             if is_best:
-                best_chkpt_fname = 'checkpoint_best.pt'
+                best_chkpt_fname = prefix + 'checkpoint_best.pt'
                 best_chkpt_path = os.path.join(work_dir, best_chkpt_fname)
                 logging.info(f'Saving checkpoint to {best_chkpt_path}')
                 shutil.copy(last_chkpt_path, best_chkpt_path)
 
             # save every checkpoint if save_all is true
             if args.save_all:
-                step_chkpt_fname = f'checkpoint_{train_step}.pt'
+                step_chkpt_fname = f'{prefix}checkpoint_{train_step}.pt'
                 step_chkpt_path = os.path.join(work_dir, step_chkpt_fname)
                 logging.info(f'Saving checkpoint to {step_chkpt_path}')
                 shutil.copy(last_chkpt_path, step_chkpt_path)
 
 
-def load_checkpoint(path):
+def load_checkpoint(path, prefix=''):
     if os.path.isdir(path):
-        path = os.path.join(path, 'checkpoint_last.pt')
+        path = os.path.join(path, prefix + 'checkpoint_last.pt')
 
     dst = f'cuda:{torch.cuda.current_device()}'
     logging.info(f'Loading checkpoint from {path}')
@@ -1044,6 +1048,18 @@ def main():
         logging.info('-' * 100)
         logging.info('Exiting from training early')
     elapsed = time.time() - start_time
+
+    if args.dynamic_quantization:
+        model_qnt = torch.quantization.quantize_dynamic(model.cpu())
+
+        model_qnt.word_emb.qconfig = torch.quantization.float_qparams_weight_only_qconfig
+        torch.quantization.prepare(model_qnt, inplace=True)
+        torch.quantization.convert(model_qnt, inplace=True)
+
+        save_checkpoint(args, model_qnt, model_config, optimizer, scheduler,
+                        scaler, vocab, epoch, last_batch, last_iter,
+                        train_step, best_val_loss, False,
+                        args.work_dir, prefix='qnt-')
 
     ###########################################################################
     # Test
