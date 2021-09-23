@@ -66,7 +66,8 @@ class Corpus:
 
         if refresh_cache:
             logging.warn('Refreshing all cache ...')
-            self._clear()
+
+        self._clear()
 
     def train_and_encode(self) -> None:
         """Trains a new corpus and encodes all available sets (training, validation and/or testing).
@@ -91,20 +92,21 @@ class Corpus:
 
         """
 
+        # Ensures that we are loading the tokenizer cache as well
+        self.vocab = Corpus._create_vocab(self.datadir,
+                                          self.dataset,
+                                          self.vocab_type,
+                                          self._vocab_cache_dir,
+                                          vocab_size=self.vocab_size)
+
         # Checks whether cached files already exists
         cache_filepath = os.path.exists(self.train_cache_filepath) \
             and os.path.exists(self.valid_cache_filepath) \
             and os.path.exists(self.test_cache_filepath)
 
-        if not self.refresh_cache and cache_filepath and self.vocab is not None and self.vocab.is_trained():
+        if not self.refresh_cache and cache_filepath and self.vocab.is_trained():
             logging.info(f'Found existing cache for dataset {self.dataset}. Loading from {self.train_cache_filepath} ...')
 
-            # Ensures that we are loading the tokenizer cache as well
-            self.vocab = Corpus._create_vocab(self.datadir,
-                                              self.dataset,
-                                              self.vocab_type,
-                                              self._vocab_cache_dir,
-                                              vocab_size=self.vocab_size)
             self.vocab.load()
 
             self.train = torch.from_numpy(np.load(self.train_cache_filepath))

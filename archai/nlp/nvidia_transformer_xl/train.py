@@ -101,7 +101,7 @@ def parse_args():
                          help='Only generate dataset caches, no training. Can be run on without GPU.')
     general.add_argument('--no_eval', action='store_true',
                          help='Disable model evaluation')
-    general.add_argument('--refresh_cache', action='store_false', default=False,
+    general.add_argument('--refresh_cache', action='store_true', default=False,
                          help='Ignores any existing cache and overwrites it with new one')
     general.add_argument('--log_interval', type=int, default=10,
                          help='Report interval')
