@@ -34,21 +34,25 @@ def basic_test():
 
     train_filepath = os.path.join(args.data, 'wiki.test.tokens')
 
-    vocab = BbpeVocab(save_path, args.vocab_size)
+    vocab = BbpeVocab(save_path, args.vocab_size, eos_token='<eos>', bos_token='<bos>', unk_token='<unk>')
     vocab.train([train_filepath])
 
     print('tokenizer len', len(vocab))
+    print('BOS', vocab.token_to_id('<bos>'))
 
     enc = vocab.encode_line("It's a nice sunny day; she murmered. Should we get take-out? ")
     print(enc)
+    print(vocab.decode_line(enc))
     print()
 
     enc = vocab.encode_line("\n It's a nice sunny day; she murmered. Should we get take-out?")
     print(enc)
+    print(vocab.decode_line(enc))
     print()
 
     enc = vocab.encode_line("<bos>\n It's a nice sunny day; she murmered. Should we get take-out?<eos>")
     print(enc)
+    print(vocab.decode_line(enc))
     print()
 
 if __name__ == "__main__":

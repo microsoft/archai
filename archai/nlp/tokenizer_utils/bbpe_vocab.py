@@ -14,6 +14,7 @@ from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.tokenizer_utils.tokenizer_files import TokenizerFiles
 from archai.nlp.tokenizer_utils.token_config import TokenConfig
 from archai.common import utils, common
+from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class BbpeVocab(VocabBase):
     def __init__(self, save_path:str, vocab_size:int, pad_vocab_size=False,
@@ -41,14 +42,18 @@ class BbpeVocab(VocabBase):
         with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
                 logging.info(f'Training BBPE Vocab for size {self.vocab_size} at "{self.save_path}" ...')
-                train_tokenizer(filepaths, self._config, vocab_size=self.vocab_size, save_dir=self.save_path,
+                _train_tokenizer(filepaths, self._config, vocab_size=self.vocab_size, save_dir=self.save_path,
                     min_frequency=self.min_frequency if self.min_frequency is not None else 2) # 2 is Huggingface default
 
                 if self.sorted_vocab:
                     self.load()
-                    counter = count_token_freq(filepaths, self._tokenizer, self._config, self.bos_id, self.eos_id)
-                    save_sort_tokens(counter, self._tokenizer, self._config, self._files)
+                    counter = _count_token_freq(filepaths, self._tokenizer, self._config, self.bos_id, self.eos_id)
+                    _save_sort_tokens(counter, self._tokenizer, self._config, self._files)
         self.load()
+
+    @overrides
+    def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
+        return self._tokenizer.token_to_id(self._config.special_token_name(sp))
 
     @overrides
     def token_to_id(self, t:str)->int:
@@ -60,7 +65,7 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def load(self)->None:
-        self._tokenizer = create_tokenizer(self._files, self._config)
+        self._tokenizer = _create_tokenizer(self._files, self._config)
         self._finalize_tokenizer()
 
         self.bos_id = [] if not self._config.bos_token else [self._tokenizer.token_to_id(self._config.bos_token)]
@@ -86,12 +91,8 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def encode_line(self, line)->List[int]:
-        line = line.strip()
-        if self._config.add_prefix_space:
-            line = ' ' + line
-        if self._config.add_prefix_new_line:
-            line = '\n' + line
-        return self.bos_id + self._tokenizer.encode(line).ids + self.eos_id
+        toks = _encode_line(line, self._config, self._tokenizer, self.bos_id, self.eos_id)
+        return toks
 
     @overrides
     def decode_line(self, ids:List[int])->str:
@@ -101,7 +102,7 @@ class BbpeVocab(VocabBase):
     def __len__(self):
         return self._tokenizer.get_vocab_size()
 
-def encode_line(line:str, token_config:TokenConfig, tokenizer:ByteLevelBPETokenizer,
+def _encode_line(line:str, token_config:TokenConfig, tokenizer:ByteLevelBPETokenizer,
                 bos_id:List[int], eos_id:List[int])->List[int]:
     line = line.strip()
     if not line:
@@ -112,7 +113,7 @@ def encode_line(line:str, token_config:TokenConfig, tokenizer:ByteLevelBPETokeni
         line = '\n' + line
     return bos_id + tokenizer.encode(line).ids + eos_id
 
-def count_token_freq(filepaths:List[str], tokenizer:ByteLevelBPETokenizer, token_config:TokenConfig,
+def _count_token_freq(filepaths:List[str], tokenizer:ByteLevelBPETokenizer, token_config:TokenConfig,
                      bos_id:List[int], eos_id:List[int])->Counter:
     logging.info('Counting token frequencies...')
     tokens_counter = Counter()
@@ -125,12 +126,12 @@ def count_token_freq(filepaths:List[str], tokenizer:ByteLevelBPETokenizer, token
         for i,l in enumerate(lines):
             if ((i+1)%100000)==0:
                 logging.info(f'Counted tokens for line {i+1}...')
-            toks = encode_line(l, token_config, tokenizer, bos_id, eos_id)
+            toks = _encode_line(l, token_config, tokenizer, bos_id, eos_id)
             tokens_counter.update(toks)
 
     return tokens_counter
 
-def save_sort_tokens(tokens_counter:Counter, tokenizer:ByteLevelBPETokenizer,
+def _save_sort_tokens(tokens_counter:Counter, tokenizer:ByteLevelBPETokenizer,
                     token_config:TokenConfig, tokenizer_files:TokenizerFiles):
     logging.info('Saving sorted vocab file...')
     tokens_counter.update(list(range(tokenizer.get_vocab_size()))) # add 1 to each value, to ensure that all of them > 0
@@ -153,7 +154,7 @@ def save_sort_tokens(tokens_counter:Counter, tokenizer:ByteLevelBPETokenizer,
     with open(tokenizer_files.vocab_file, 'w', encoding="utf-8") as f:
         f.write(json.dumps(v_map, ensure_ascii=False))
 
-def train_tokenizer(filepaths:List[str], token_config: TokenConfig,
+def _train_tokenizer(filepaths:List[str], token_config: TokenConfig,
                     vocab_size: int, save_dir: str, save_prefix='tokenizer',
                     dropout: float = None, min_frequency: int = 2, show_progress=False,
                     added_tokens: List[str] = []) -> TokenizerFiles:
@@ -168,8 +169,7 @@ def train_tokenizer(filepaths:List[str], token_config: TokenConfig,
     special_tokens = token_config.get_special_tokens()
 
     # TODO: measure impact of dropout
-    tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)
-
+    tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)ens)
     tokenizer.train(files=filepaths, vocab_size=vocab_size, min_frequency=min_frequency,
         special_tokens=special_tokens)
 
@@ -182,7 +182,7 @@ def train_tokenizer(filepaths:List[str], token_config: TokenConfig,
 
     return tokenizer_out_files
 
-def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length=1024)->ByteLevelBPETokenizer:
+def _create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length=1024)->ByteLevelBPETokenizer:
     tokenizer = ByteLevelBPETokenizer.from_file(tokenizer_files.vocab_file, tokenizer_files.merges_file)
 
     # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664

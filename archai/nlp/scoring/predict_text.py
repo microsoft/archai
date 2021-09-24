@@ -18,7 +18,7 @@ from typing import List
 import pandas as pd
 import torch
 
-def predict_console(text_prediction):
+def predict_console(predictor:TextPredictor):
     """Console application showing predictions.
     """
     logging.info("Launching console")
@@ -32,8 +32,29 @@ def predict_console(text_prediction):
             line = input(PROMPT)
             if line.strip() == "exit":
                 break
+
+            if line[0:4] == "set ":
+                try:
+                    _, param, value = line.strip().split(maxsplit=3)
+                except:
+                    logging.warning("Could not split '%s' into keyword, param, value", line)
+                    param = ""
+                    value = 0
+
+                predictor_param_names = [name for name in TextPredictor.__dict__ if isinstance(TextPredictor.__dict__[name], int)]
+                if param in predictor_param_names:
+                    predictor.__dict__[param] = int(value)
+
+                for name in predictor_param_names:
+                    value = predictor.__dict__[name] if name in predictor.__dict__ else TextPredictor.__dict__[name]
+                    print(f"{name:30s}\t{value}")
+
+                continue
+
+            line = re.sub(r"\\n", r"\n", line)
+
             start = time.time()
-            (best_prediction, predictions) = text_prediction.predict_full(line)
+            (best_prediction, predictions) = predictor.predict_full(line)
             msg = f"Prediction  : {best_prediction.text}\n"
             msg += f"P(Match)    : {best_prediction.p_match():.5f}\n"
             msg += f"CharAccepted: {best_prediction.char_accepted():.5f}\n"
@@ -49,76 +70,23 @@ def predict_console(text_prediction):
         print("Exiting...")
 
 
-def load_text_file(in_filepath:str)->List[OrderedDict]:
-    """Load text file and convert it to SmartCompose file format."""
-    logging.info(f"Loading text file from {in_filepath}")
-    lines = []
-    with open(in_filepath) as f:
-        lines = f.readlines()
-
-    positions = []
-    for line_id, line in enumerate(lines):
-        line = line.rstrip()
-        for char_id in range(len(line)):
-            pos = OrderedDict({
-                "UniqueId": f"{line_id}-{char_id}",
-                "Body": line[:char_id],
-                "BodyContinued": line[char_id:]
-                })
-            positions.append(pos)
-    return positions
-
-def load_smart_compose_file(in_filepath:str)->List[OrderedDict]:
-    """Load SmartCompose .json file format."""
-    logging.info(f"Loading smartcompose file from {in_filepath}")
-    lines = []
-    with open(in_filepath) as f:
-        lines = f.readlines()
-    positions = [json.loads(line) for line in lines]
-    return positions
-
-def predict_smartcompose(text_prediction, positions, max_line_len:int, min_score:float, save_step:int, out_filepath:str):
-    """Process dictionary loaded from SmartCompose .json file format."""
-    results = []
-    for pos in positions:
-        start_time = time.time()
-        text = pos['Body']
-        if len(text) > max_line_len:
-            text = pos['Body'][(-1*max_line_len):] # Truncate
-            text = text[text.find(' '):]                # Remove partial token
-        prediction = text_prediction.predict(text)
-        end_time = time.time()
-        pos['Time'] = int(1000*(end_time - start_time))
-        if len(prediction) > 5 and prediction.score() > min_score:
-            pos['Suggestions'] = [{
-                'Suggestion': prediction.text,
-                'Probability': prediction.probability,
-                'Score': prediction.score(),
-                }]
-        else:
-            pos['Suggestions'] = []
-
-        pos_str = json.dumps(pos)
-        results.append(pos_str + "\n")
-        logging.debug(pos_str)
-
-        if len(results) % save_step == 0 or len(results) == len(positions):
-            with open(out_filepath, 'w') as f:
-                f.write("".join(results))
-
-    return results
-
-def predict_text(model, vocab, in_filetype:str, in_filepath:str, out_filepath:str, min_score=1.0, save_step=100000, max_line_len=10000):
+def predict_text(model, vocab, in_filetype:str, in_filepath:str, out_filepath:str, min_score=1.0, save_step=100000, max_body_len=10000):
     predictor = TextPredictor(model, vocab)
 
     if in_filetype == "console":
         predict_console(predictor)
-    elif in_filetype == "text":
-        positions = load_text_file(in_filepath)
-        predict_smartcompose(predictor, positions, max_line_len, min_score, save_step, out_filepath)
-    elif in_filetype == "smartcompose":
-        positions = load_smart_compose_file(in_filepath)
-        predict_smartcompose(predictor, positions, max_line_len, min_score, save_step, out_filepath)
+    elif in_filetype == "text" or in_filetype == "smartcompose":
+        seq = TextPredictionSequence.from_file(in_filepath, in_filetype, predictor)
+        # seq.MAX_BODY_LEN = max_body_len # Doesn't play well with BOS token
+        seq.SAVE_STEP = save_step
+        seq.MIN_SCORE = min_score
+        seq.CURRENT_PARAGRAPH_ONLY = current_paragraph_only
+        seq.predict(output)
+        seq.save(output)
+        if score:
+            min_scores = np.arange(min_score, max_score, score_step).tolist()
+            seq.score(min_scores, expected_match_rate)
+            seq.save_all(score_output_dir, predict_file=None)
     else:
         raise ValueError(f"Unkown input type '{in_filetype}'")
 
