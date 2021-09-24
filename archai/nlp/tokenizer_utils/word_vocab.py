@@ -12,25 +12,35 @@ from overrides import overrides
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.common import utils
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
+from archai.nlp.tokenizer_utils.token_config import TokenConfig
+from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class WordVocab(VocabBase): # Word vocab is the default
-    def __init__(self, save_path:str, special=[], min_freq=0, vocab_size=None, lower_case=True,
-                 delimiter=None, add_eos=False, add_double_eos=False):
+    def __init__(self, save_path:str, min_freq=0, vocab_size=None,
+                 bos_token:Optional[str]=None, eos_token:Optional[str]=None,
+                 unk_token:Optional[str]=None, lower_case=False,
+                 delimiter=None):
         self.counter = Counter()
-        self.special = special
+        self._config = TokenConfig(bos_token=bos_token, eos_token=eos_token,
+                                   unk_token=unk_token, pad_token=None,
+                                   # no prefix space or line needed as we delimit on white space unlike in bbpe
+                                   add_prefix_space=False, add_prefix_new_line=False,
+                                   lower_case=lower_case)
+
+        assert self._config.unk_token, "unk token must be supplied for WordVocab"
+        self._bos = [self._config.bos_token] if self._config.bos_token else []
+        self._eos = [self._config.eos_token] if self._config.eos_token else []
+
         self.min_freq = min_freq
         self.vocab_size = vocab_size
-        self.lower_case = lower_case
         self.delimiter = delimiter
-        self.add_eos = add_eos
-        self.add_double_eos = add_double_eos
         self.save_path = save_path
 
     def _tokenize_line(self, line)->List[str]:
         """Tokenize line, split on space, add_eos: add special to end, add_double_eos: add special to begin and end"""
         line = line.strip()
         # convert to lower case
-        if self.lower_case:
+        if self._config.lower_case:
             line = line.lower()
 
         # empty delimiter '' will evaluate False
@@ -39,12 +49,7 @@ class WordVocab(VocabBase): # Word vocab is the default
         else:
             symbols = line.split(self.delimiter)
 
-        if self.add_double_eos:  # lm1b
-            return ['<S>'] + symbols + ['<S>']
-        elif self.add_eos:
-            return symbols + ['<eos>']
-        else:
-            return symbols
+        return self._bos + symbols + self._eos
 
     def _add_file(self, path, verbose=True)->None:
         """Setup counter with frequencies, return tokens for the entir file"""
@@ -86,7 +91,7 @@ class WordVocab(VocabBase): # Word vocab is the default
             for line in f:
                 symb = line.strip().split()[0]
                 self._add_symbol(symb)
-        self.unk_idx = self.sym2idx['<unk>']
+        self.unk_idx = self.sym2idx[self._config.unk_token]
 
     def _vocab_filepath(self)->str:
         return utils.full_path(os.path.join(self.save_path, 'vocab.txt'))
@@ -114,7 +119,7 @@ class WordVocab(VocabBase): # Word vocab is the default
             self._add_file(filepath)
 
         # add specials regardless of vocab_size
-        for sym in self.special:
+        for sym in self._config.get_special_tokens():
             self._add_special(sym)
 
         remaining_len = self.vocab_size - len(self) if self.vocab_size is not None else None
@@ -136,6 +141,9 @@ class WordVocab(VocabBase): # Word vocab is the default
     @overrides
     def decode_line(self, ids:List[int])->str:
         return ' '.join(self.ids_to_tokens(ids))
+
+    def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
+        return self._tokenizer.token_to_id(self._config.special_token_name(sp))
 
     def _encode_sents(self, sents, ordered=False, verbose=True):
         if verbose:
@@ -170,9 +178,6 @@ class WordVocab(VocabBase): # Word vocab is the default
         if sym in self.sym2idx:
             return self.sym2idx[sym]
         else:
-            # logging.info('encounter unk {}'.format(sym))
-            assert '<eos>' not in sym
-            assert hasattr(self, 'unk_idx')
             return self.sym2idx.get(sym, self.unk_idx)
 
     def _indices2symbols(self, indices)->List[str]:

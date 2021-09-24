@@ -1,10 +1,11 @@
 from abc import abstractmethod
-from typing import List
+from typing import List, Optional
 import logging
 
-import torch
 
 from overrides import overrides, EnforceOverrides
+
+from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class VocabBase(EnforceOverrides):
     @abstractmethod
@@ -35,6 +36,10 @@ class VocabBase(EnforceOverrides):
         pass
     @abstractmethod
     def id_to_token(self, id:int)->str:
+        pass
+
+    @abstractmethod
+    def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
         pass
 
     def tokens_to_ids(self, ts:List[str])->List[int]:
