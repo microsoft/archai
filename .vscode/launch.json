@@ -273,7 +273,26 @@
             "request": "launch",
             "program": "${cwd}/archai/nlp/nvidia_transformer_xl/train.py",
             "console": "integratedTerminal",
-            "args": ["--config", "dgx1_1gpu_fp16", "--config_file", "wt103_base.yaml", "--attn_type", "2", "--n_layer", "16", "--n_head", "8", "--d_model", "256", "--d_head", "32", "--d_inner", "768", "--log_interval", "10"]
+            "args": ["--config", "dgx1_1gpu_fp32", "--config_file", "wt103_base.yaml", "--attn_type", "2", "--n_layer", "16", "--n_head", "8", "--d_model", "256", "--d_head", "32", "--d_inner", "768", "--log_interval", "10"]
+        },
+        {
+            "name": "Train TransformerXL Distributed",
+            "type": "python",
+            "request": "launch",
+            "module": "torch.distributed.launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--nproc_per_node=4",
+                "archai/nlp/nvidia_transformer_xl/train.py",
+                "--config",
+                "dgx1_4gpu_fp32",
+                "--config_file",
+                "wt103_base.yaml"
+            ],
+            "env": {
+                "NCCL_P2P_DISABLE": "1"
+            }
         },
         {
             "name": "CurrentFile",
