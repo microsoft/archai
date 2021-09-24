@@ -13,6 +13,7 @@ from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.tokenizer_utils.tokenizer_files import TokenizerFiles
 from archai.nlp.tokenizer_utils.token_config import TokenConfig
 from archai.common import utils, common
+from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class Gpt2Vocab(VocabBase):
     def __init__(self, vocab_size:int, save_path:str, max_length=1024, pad_vocab_size=True,
@@ -44,15 +45,14 @@ class Gpt2Vocab(VocabBase):
         with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
                 logging.info(f'Training GPT2 Vocab for size {self.vocab_size} at "{self.save_path}" ...')
-                train_tokenizer(filepaths, self._config, vocab_size=self.vocab_size, save_dir=self.save_path)
+                _train_tokenizer(filepaths, self._config, vocab_size=self.vocab_size, save_dir=self.save_path)
 
         self.load()
 
     @overrides
     def load(self)->None:
-        self._tokenizer = create_tokenizer(self._files, self._config, max_length=self.max_length)
-        if self.pad_vocab_size:
-            self._finalize_tokenizer()
+        self._tokenizer = _create_tokenizer(self._files, self._config, max_length=self.max_length)
+        self._finalize_tokenizer()
 
         logging.info(f'tokenizer len: {len(self._tokenizer)}')
         logging.info(f'merges_file: {self._files.merges_file}')
@@ -62,12 +62,13 @@ class Gpt2Vocab(VocabBase):
         # TODO: EOT is supposed to be added at the end of the file but currently its not done
         # self.EOT = self.tokenizer.bos_token_id # .encoder['<|endoftext|>']
 
-        pad = 8
-        vocab_size = len(self._tokenizer)
-        padded_vocab_size = (vocab_size + pad - 1) // pad * pad
-        for i in range(0, padded_vocab_size - vocab_size):
-            token = f'madeupword{i:09d}'
-            self._tokenizer.add_tokens([token])
+        if self.pad_vocab_size:
+            pad = 8
+            vocab_size = len(self._tokenizer)
+            padded_vocab_size = (vocab_size + pad - 1) // pad * pad
+            for i in range(0, padded_vocab_size - vocab_size):
+                token = f'madeupword{i:09d}'
+                self._tokenizer.add_tokens([token])
 
     @overrides
     def token_to_id(self, t:str)->int:
@@ -75,6 +76,10 @@ class Gpt2Vocab(VocabBase):
     @overrides
     def id_to_token(self, id:int)->str:
         return self._tokenizer.id_to_token(id)
+
+    @overrides
+    def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
+        return self._tokenizer.token_to_id(self._config.special_token_name(sp))
 
     @overrides
     def tokens_to_ids(self, ts:List[str])->List[int]:
@@ -98,7 +103,7 @@ class Gpt2Vocab(VocabBase):
     def __len__(self):
         return len(self._tokenizer)
 
-def train_tokenizer(filepaths: List[str], token_config: TokenConfig,
+def _train_tokenizer(filepaths: List[str], token_config: TokenConfig,
                     vocab_size: int, save_dir: str, save_prefix='tokenizer',
                     dropout: float = None, min_frequency: int = 0, show_progress=False,
                     added_tokens: List[str] = []) -> TokenizerFiles:
@@ -142,7 +147,7 @@ def train_tokenizer(filepaths: List[str], token_config: TokenConfig,
 
     return tokenizer_out_files
 
-def create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length=1024)->PreTrainedTokenizerFast:
+def _create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length=1024)->PreTrainedTokenizerFast:
     tokenizer = GPT2TokenizerFast(vocab_file=tokenizer_files.vocab_file,
                               merges_file=tokenizer_files.merges_file,
                               model_max_length=max_length,

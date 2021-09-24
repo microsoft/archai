@@ -226,31 +226,21 @@ class Corpus:
         """
 
         if vocab_type == 'word':
-            # Word-based file is composed of raw text of symbols, one per line
-            special, lower_case, vocab_file = [], True, None
-
+            # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
+            unk_token, bos_token, eos_token, lower_case, vocab_file = '<unk>', None, '<eos>', False, None # vocab file is text file of symbols, one per line
             if dataset in ['wt103', 'wt2', 'olx']:
-                # TODO: we probably don't need special or could be done differently
-                special, lower_case = ['<eos>'], False
-            elif dataset == 'ptb':
-                special, lower_case = ['<eos>'], True
-            elif dataset == 'lm1b':
-                special, lower_case, vocab_file = [], False, os.path.join(datadir, '1b_word_vocab.txt')
-            elif dataset in ['enwik8', 'text8']:
                 pass
+            elif dataset == 'ptb':
+                lower_case = True
+            elif dataset == 'lm1b':
+                bos_token, eos_token, vocab_file = '<S>', '<S>', os.path.join(datadir, '1b_word_vocab.txt')
+            elif dataset in ['enwik8', 'text8']:
+                eos_token, lower_case = None, True
             else:
                 raise RuntimeError(f'Dataset not yet fully supported: {dataset}')
-
-            # `<S>` is added for double end-of-sentence
-            # `<unk>` is a rare token in corpus with frequency < 3
-            special += ['<unk>', '<S>']
-            add_eos = dataset in ['ptb', 'wt2', 'wt103', 'lm1b', 'olx']
-            vocab = WordVocab(save_path=vocab_cache_dir,
-                              vocab_size=vocab_size,
-                              special=special,
-                              lower_case=lower_case,
-                              add_eos=add_eos)
-
+            vocab = WordVocab(save_path=vocab_cache_dir, vocab_size=vocab_size,
+                              bos_token=bos_token, eos_token=eos_token, unk_token=unk_token,
+                              lower_case=lower_case)
         elif vocab_type == 'bbpe':
             # Default `vocab_size` for GPT-2 is 50257
             vocab = BbpeVocab(save_path=vocab_cache_dir,
