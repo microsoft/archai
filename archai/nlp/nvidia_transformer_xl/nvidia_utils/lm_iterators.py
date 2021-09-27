@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed
+from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 
 class LMOrderedIterator(object):
     def __init__(self, data, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True):
@@ -34,8 +34,8 @@ class LMOrderedIterator(object):
             self.data = torch.cat((warmup_data, self.data))
 
         # Partition data for DistributedDataParallel
-        world_size = distributed.get_world_size()
-        rank = distributed.get_rank()
+        world_size = nv_utils.distributed.get_world_size()
+        rank = nv_utils.distributed.get_rank()
         self.data = self.data.chunk(world_size, dim=1)[rank]
 
         # Number of mini-batches
