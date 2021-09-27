@@ -148,52 +148,91 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def __len__(self):
-        return len(self._tokenizer)
+        return self._tokenizer.get_vocab_size()
 
-    def _preprocess_text(self, text:str)->str:
-        text = text.strip()
-        if self._config.add_prefix_space:
-            text = ' ' + text
-        if self._config.add_prefix_new_line:
-            text = '\n' + text
-        if self._config.lower_case:
-            text = text.lower()
-        return text
+def _encode_line(line:str, token_config:TokenConfig, tokenizer:ByteLevelBPETokenizer,
+                bos_id:List[int], eos_id:List[int])->List[int]:
+    line = line.strip()
+    if not line:
+        return []
+    if token_config.add_prefix_space:
+        line = ' ' + line
+    if token_config.add_prefix_new_line:
+        line = '\n' + line
+    return bos_id + tokenizer.encode(line).ids + eos_id
 
-    def _count_token_freq(self, filepaths:List[str])->Counter:
-        logging.info('Counting token frequencies...')
-        tokens_counter = Counter()
-        tokens_counter.update(list(range(len(self._tokenizer)))) # add each token
+def _count_token_freq(filepaths:List[str], tokenizer:ByteLevelBPETokenizer, token_config:TokenConfig,
+                     bos_id:List[int], eos_id:List[int])->Counter:
+    logging.info('Counting token frequencies...')
+    tokens_counter = Counter()
+    tokens_counter.update(list(range(tokenizer.get_vocab_size()))) # add each token
 
-        for filepath in filepaths:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
+    for filepath in filepaths:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
 
-            for i,l in enumerate(lines):
-                if ((i+1)%100000)==0:
-                    logging.info(f'Counted tokens for line {i+1}...')
-                toks = self.encode_text(l, add_special_tokens=False)
-                tokens_counter.update(toks)
+        for i,l in enumerate(lines):
+            if ((i+1)%100000)==0:
+                logging.info(f'Counted tokens for line {i+1}...')
+            toks = _encode_line(l, token_config, tokenizer, bos_id, eos_id)
+            tokens_counter.update(toks)
 
-        return tokens_counter
+    return tokens_counter
 
-    def _train_tokenizer(self, filepaths:List[str], dropout: float = None,
-                        added_tokens: List[str] = []) -> None:
-        logging.info('Training tokenizer...')
+def _save_sort_tokens(tokens_counter:Counter, tokenizer:ByteLevelBPETokenizer,
+                    token_config:TokenConfig, tokenizer_files:TokenizerFiles):
+    logging.info('Saving sorted vocab file...')
+    tokens_counter.update(list(range(tokenizer.get_vocab_size()))) # add 1 to each value, to ensure that all of them > 0
+    min_sort_id = 256 + len(token_config.get_special_tokens())
+    sorted_ids = list(range(min_sort_id)) + \
+                        [int(token_id) for token_id, _ in tokens_counter.most_common() if int(token_id) >= min_sort_id]
 
-        special_tokens = self._config.get_special_tokens()
-        min_frequency = self.min_frequency if self.min_frequency is not None else 2
+    t_map = [(new, old) for new, old in enumerate(sorted_ids)]
+    t_map.sort(key=lambda t:t[1])
+    orig2sorted_ids = [t[0] for t in t_map]
 
-        # TODO: measure impact of dropout
-        tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=self._config.add_prefix_space)
-        tokenizer.train(files=filepaths, vocab_size=self.vocab_size, min_frequency=min_frequency,
-            special_tokens=special_tokens)
+    with open(tokenizer_files.vocab_file, encoding="utf-8") as f:
+        vocab_orig = json.load(f)
 
-        # additional tokens we might want to add
-        if len(added_tokens):
-            tokenizer.add_tokens(added_tokens)
+    assert len(vocab_orig) == len(orig2sorted_ids)
+    v_map = OrderedDict([(vocab, orig2sorted_ids[idx]) for vocab, idx in vocab_orig.items()])
 
-        # generates save_prefix-vocab.json and save_prefix-merges.txt
-        tokenizer.save(self._tokenizer_filepath, pretty=True)
+    utils.copy_file(tokenizer_files.vocab_file, tokenizer_files.vocab_file + '.unsorted.json')
 
+    with open(tokenizer_files.vocab_file, 'w', encoding="utf-8") as f:
+        f.write(json.dumps(v_map, ensure_ascii=False))
 
+def _train_tokenizer(filepaths:List[str], token_config: TokenConfig,
+                    vocab_size: int, save_dir: str, save_prefix='tokenizer',
+                    dropout: float = None, min_frequency: int = 2, show_progress=False,
+                    added_tokens: List[str] = []) -> TokenizerFiles:
+    logging.info('Training tokenizer...')
+    # check if we already have tokenizer cached filed
+    tokenizer_out_files = TokenizerFiles.from_path(save_dir=save_dir)
+    # if utils.is_debugging() and os.path.exists(tokenizer_out_files.vocab_file) \
+    #         and os.path.exists(tokenizer_out_files.merges_file):
+    #     logging.info(f'Found BBPE tokenizer cached files at "{save_dir}", reusing them.')
+    #     return tokenizer_out_files
+
+    special_tokens = token_config.get_special_tokens()
+
+    # TODO: measure impact of dropout
+    tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)
+    tokenizer.train(files=filepaths, vocab_size=vocab_size, min_frequency=min_frequency,
+        special_tokens=special_tokens)
+
+    # additional tokens we might want to add
+    if len(added_tokens):
+        tokenizer.add_tokens(added_tokens)
+
+    # generates save_prefix-vocab.json and save_prefix-merges.txt
+    tokenizer.save_model(save_dir, save_prefix)
+
+    return tokenizer_out_files
+
+def _create_tokenizer(tokenizer_files:TokenizerFiles, token_config: TokenConfig, max_length=1024)->ByteLevelBPETokenizer:
+    tokenizer = ByteLevelBPETokenizer.from_file(tokenizer_files.vocab_file, tokenizer_files.merges_file)
+
+    # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
+    #tokenizer.padding_side = "left"
+    return tokenizer

@@ -145,15 +145,9 @@ class WordVocab(VocabBase): # Word vocab is the default
         return toks
 
     @overrides
-    def decode_text(self, ids:List[int],skip_special_tokens=False)->str:
-        syms = self.ids_to_tokens(ids)
-        if skip_special_tokens and len(syms):
-            if syms[0] == self._bos:
-                syms = syms[1:]
-            if len(syms) and syms[-1] == self._eos:
-                syms = syms[:-1]
-        return ' '.join(syms)
-
+    def decode_line(self, ids:List[int])->str:
+        return ' '.join(self.ids_to_tokens(ids))
+    @overrides
     def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
         return self._tokenizer.token_to_id(self._config.special_token_name(sp))
 
