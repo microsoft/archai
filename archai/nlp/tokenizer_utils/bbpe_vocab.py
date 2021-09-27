@@ -169,7 +169,7 @@ def _train_tokenizer(filepaths:List[str], token_config: TokenConfig,
     special_tokens = token_config.get_special_tokens()
 
     # TODO: measure impact of dropout
-    tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)ens)
+    tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)
     tokenizer.train(files=filepaths, vocab_size=vocab_size, min_frequency=min_frequency,
         special_tokens=special_tokens)
 

@@ -141,7 +141,7 @@ class WordVocab(VocabBase): # Word vocab is the default
     @overrides
     def decode_line(self, ids:List[int])->str:
         return ' '.join(self.ids_to_tokens(ids))
-
+    @overrides
     def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
         return self._tokenizer.token_to_id(self._config.special_token_name(sp))
 
