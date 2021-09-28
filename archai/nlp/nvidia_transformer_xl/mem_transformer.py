@@ -45,16 +45,43 @@ class PositionalEmbedding(nn.Module):
             return pos_emb[:, None, :]
 
 
+class DWiseConvPrimerEZ(nn.Module):
+    ''' Implements Depthwise convolutinon according to https://arxiv.org/abs/2109.08668'''
+
+    def __init__(self, d_model:int, kernel_size:int=3):
+        super(DWiseConvPrimerEZ, self).__init__()
+
+        self.kernel_size = kernel_size
+        # Depthwise conv: groups == in_channels
+        self.dconv = nn.Conv1d(d_model*3, d_model*3, kernel_size=kernel_size, groups=d_model*3)
+
+    def forward(self, inp):
+        ''' Input should be Length x Batch x Features'''
+
+        # LxBxF -> BxFxL
+        w_heads = torch.permute(inp, (1, 2, 0))
+        # Pad kernel_size-1 to the left of the length so we have causal convolution (cant look forward)
+        w_heads = F.pad(w_heads, (self.kernel_size-1, 0))
+        w_heads = self.dconv(w_heads)
+        # Permute back: BxFxL -> LxBxF
+        w_heads = torch.permute(w_heads, (2, 0, 1))
+
+        return w_heads
+
+
 class PositionwiseFF(nn.Module):
-    def __init__(self, d_model, d_inner, dropout, pre_lnorm=False):
+    def __init__(self, d_model, d_inner, dropout, pre_lnorm=False, relu_squared=False):
         super(PositionwiseFF, self).__init__()
 
         self.d_model = d_model
         self.d_inner = d_inner
         self.dropout = dropout
+        self.relu_squared = relu_squared
 
-        self.CoreNet = nn.Sequential(
-            nn.Linear(d_model, d_inner), nn.ReLU(inplace=True),
+        self.CoreNet1 = nn.Sequential(
+            nn.Linear(d_model, d_inner), nn.ReLU(inplace=True)
+        )
+        self.CoreNet2 = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(d_inner, d_model),
             nn.Dropout(dropout),
@@ -66,17 +93,19 @@ class PositionwiseFF(nn.Module):
 
     def forward(self, inp):
         if self.pre_lnorm:
-            # layer normalization + positionwise feed-forward
-            core_out = self.CoreNet(self.layer_norm(inp))
+            inp = self.layer_norm(inp)
 
-            # residual connection
-            output = core_out + inp
+        # positionwise feed-forward
+        if self.relu_squared:
+            core_out = self.CoreNet2(self.CoreNet1(inp) ** 2)
         else:
-            # positionwise feed-forward
-            core_out = self.CoreNet(inp)
+            core_out = self.CoreNet2(self.CoreNet1(inp))
 
-            # residual connection + layer normalization
-            output = self.layer_norm(inp + core_out)
+        # residual connection
+        output = core_out + inp
+
+        if not self.pre_lnorm:
+            output = self.layer_norm(output)
 
         return output
 
@@ -158,19 +187,24 @@ class MultiHeadAttn(nn.Module):
 
 class RelMultiHeadAttn(nn.Module):
     def __init__(self, n_head, d_model, d_head, dropout, dropatt=0,
-                 tgt_len=None, ext_len=None, mem_len=None, pre_lnorm=False):
+                 tgt_len=None, ext_len=None, mem_len=None, pre_lnorm=False,
+                 primer_ez=False):
         super(RelMultiHeadAttn, self).__init__()
 
         self.n_head = n_head
         self.d_model = d_model
         self.d_head = d_head
         self.dropout = dropout
+        self.primer_ez = primer_ez
 
         self.qkv_net = nn.Linear(d_model, 3 * n_head * d_head, bias=False)
 
         self.drop = nn.Dropout(dropout)
         self.dropatt = nn.Dropout(dropatt)
         self.o_net = nn.Linear(n_head * d_head, d_model, bias=False)
+
+        if self.primer_ez:
+            self.dconv = DWiseConvPrimerEZ(self.d_model)
 
         self.layer_norm = nn.LayerNorm(d_model)
 
@@ -243,6 +277,9 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
                 w_heads = self.qkv_net(cat)
             r_head_k = self.r_net(r)
 
+            if self.primer_ez:
+                w_heads = self.dconv(w_heads)
+
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
             w_head_q = w_head_q[-qlen:]
         else:
@@ -251,6 +288,9 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
             else:
                 w_heads = self.qkv_net(w)
             r_head_k = self.r_net(r)
+
+            if self.primer_ez:
+                w_heads = self.dconv(w_heads)
 
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
 
@@ -322,6 +362,10 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
                 w_heads = self.qkv_net(self.layer_norm(cat))
             else:
                 w_heads = self.qkv_net(cat)
+
+            if self.primer_ez:
+                w_heads = self.dconv(w_heads)
+
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
 
             w_head_q = w_head_q[-qlen:]
@@ -330,6 +374,10 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
                 w_heads = self.qkv_net(self.layer_norm(w))
             else:
                 w_heads = self.qkv_net(w)
+
+            if self.primer_ez:
+                w_heads = self.dconv(w_heads)
+
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
 
         klen = w_head_k.size(0)
@@ -411,12 +459,13 @@ class DecoderLayer(nn.Module):
 
 class RelLearnableDecoderLayer(nn.Module):
     def __init__(self, n_head, d_model, d_head, d_inner, dropout,
-                 **kwargs):
+                 primer_ez=False, **kwargs):
         super(RelLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelLearnableMultiHeadAttn(n_head, d_model, d_head,
-                                                  dropout, **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
+                                                  dropout, primer_ez=primer_ez,
+                                                  **kwargs)
+        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, relu_squared=primer_ez, 
                                      pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r_emb, r_w_bias, r_bias, dec_attn_mask=None, mems=None):
@@ -431,13 +480,14 @@ class RelLearnableDecoderLayer(nn.Module):
 
 class RelPartialLearnableDecoderLayer(nn.Module):
     def __init__(self, n_head, d_model, d_head, d_inner, dropout,
-                 **kwargs):
+                 primer_ez=False, **kwargs):
         super(RelPartialLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelPartialLearnableMultiHeadAttn(n_head, d_model,
                                                          d_head, dropout,
+                                                         primer_ez=primer_ez,
                                                          **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
+        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, relu_squared=primer_ez, 
                                      pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r, r_w_bias, r_r_bias, dec_attn_mask=None, mems=None):
@@ -520,7 +570,7 @@ class MemTransformerLM(nn.Module):
                  tgt_len=None, ext_len=None, mem_len=None,
                  cutoffs=[], adapt_inp=False,
                  same_length=False, attn_type=0, clamp_len=-1,
-                 sample_softmax=-1):
+                 sample_softmax=-1, primer_ez=False):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
@@ -556,7 +606,7 @@ class MemTransformerLM(nn.Module):
                     RelPartialLearnableDecoderLayer(
                         n_head, d_model, d_head, d_inner, dropout,
                         tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
-                        dropatt=dropatt, pre_lnorm=pre_lnorm)
+                        dropatt=dropatt, pre_lnorm=pre_lnorm, primer_ez=primer_ez)
                 )
         # learnable embeddings
         elif attn_type == 1:
@@ -565,7 +615,7 @@ class MemTransformerLM(nn.Module):
                     RelLearnableDecoderLayer(
                         n_head, d_model, d_head, d_inner, dropout,
                         tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
-                        dropatt=dropatt, pre_lnorm=pre_lnorm)
+                        dropatt=dropatt, pre_lnorm=pre_lnorm, primer_ez=primer_ez)
                 )
         # absolute embeddings
         elif attn_type in [2, 3]:
