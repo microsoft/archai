@@ -179,6 +179,8 @@ def parse_args():
                        help='Parameters initialized by N(0, init_std)')
     model.add_argument('--proj_init_std', type=float, default=0.01,
                        help='Parameters initialized by N(0, init_std)')
+    model.add_argument('--primer_ez', action='store_true',
+                       help='Use Primer EZ arch modifications (squared relu and DConv)')
 
     opt = parser.add_argument_group('optimizer setup')
     opt.add_argument('--optim', default='jitlamb', type=str,
@@ -836,6 +838,7 @@ def main():
         'attn_type': args.attn_type,
         'clamp_len': args.clamp_len,
         'sample_softmax': args.sample_softmax,
+        'primer_ez': args.primer_ez,
         }
 
     model = MemTransformerLM(**model_config)
