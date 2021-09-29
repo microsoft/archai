@@ -19,6 +19,7 @@ import torch.nn.functional as F
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import LogUniformSampler
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from archai.nlp.nvidia_transformer_xl.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 
 
 @torch.jit.script
@@ -45,43 +46,16 @@ class PositionalEmbedding(nn.Module):
             return pos_emb[:, None, :]
 
 
-class DWiseConvPrimerEZ(nn.Module):
-    ''' Implements Depthwise convolutinon according to https://arxiv.org/abs/2109.08668'''
-
-    def __init__(self, d_model:int, kernel_size:int=3):
-        super(DWiseConvPrimerEZ, self).__init__()
-
-        self.kernel_size = kernel_size
-        # Depthwise conv: groups == in_channels
-        self.dconv = nn.Conv1d(d_model*3, d_model*3, kernel_size=kernel_size, groups=d_model*3)
-
-    def forward(self, inp):
-        ''' Input should be Length x Batch x Features'''
-
-        # LxBxF -> BxFxL
-        w_heads = torch.permute(inp, (1, 2, 0))
-        # Pad kernel_size-1 to the left of the length so we have causal convolution (cant look forward)
-        w_heads = F.pad(w_heads, (self.kernel_size-1, 0))
-        w_heads = self.dconv(w_heads)
-        # Permute back: BxFxL -> LxBxF
-        w_heads = torch.permute(w_heads, (2, 0, 1))
-
-        return w_heads
-
-
 class PositionwiseFF(nn.Module):
-    def __init__(self, d_model, d_inner, dropout, pre_lnorm=False, relu_squared=False):
+    def __init__(self, d_model, d_inner, dropout, pre_lnorm=False):
         super(PositionwiseFF, self).__init__()
 
         self.d_model = d_model
         self.d_inner = d_inner
         self.dropout = dropout
-        self.relu_squared = relu_squared
 
-        self.CoreNet1 = nn.Sequential(
-            nn.Linear(d_model, d_inner), nn.ReLU(inplace=True)
-        )
-        self.CoreNet2 = nn.Sequential(
+        self.CoreNet = nn.Sequential(
+            nn.Linear(d_model, d_inner), nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(d_inner, d_model),
             nn.Dropout(dropout),
@@ -93,19 +67,17 @@ class PositionwiseFF(nn.Module):
 
     def forward(self, inp):
         if self.pre_lnorm:
-            inp = self.layer_norm(inp)
+            # layer normalization + positionwise feed-forward
+            core_out = self.CoreNet(self.layer_norm(inp))
 
-        # positionwise feed-forward
-        if self.relu_squared:
-            core_out = self.CoreNet2(self.CoreNet1(inp) ** 2)
+            # residual connection
+            output = core_out + inp
         else:
-            core_out = self.CoreNet2(self.CoreNet1(inp))
+            # positionwise feed-forward
+            core_out = self.CoreNet(inp)
 
-        # residual connection
-        output = core_out + inp
-
-        if not self.pre_lnorm:
-            output = self.layer_norm(output)
+            # residual connection + layer normalization
+            output = self.layer_norm(inp + core_out)
 
         return output
 
@@ -465,8 +437,13 @@ class RelLearnableDecoderLayer(nn.Module):
         self.dec_attn = RelLearnableMultiHeadAttn(n_head, d_model, d_head,
                                                   dropout, primer_ez=primer_ez,
                                                   **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, relu_squared=primer_ez, 
-                                     pre_lnorm=kwargs.get('pre_lnorm'))
+
+        if primer_ez:
+            self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout, 
+                                                 pre_lnorm=kwargs.get('pre_lnorm'))
+        else:
+            self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+                                         pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r_emb, r_w_bias, r_bias, dec_attn_mask=None, mems=None):
 
@@ -487,8 +464,13 @@ class RelPartialLearnableDecoderLayer(nn.Module):
                                                          d_head, dropout,
                                                          primer_ez=primer_ez,
                                                          **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, relu_squared=primer_ez, 
-                                     pre_lnorm=kwargs.get('pre_lnorm'))
+
+        if primer_ez:
+            self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout, 
+                                                 pre_lnorm=kwargs.get('pre_lnorm'))
+        else:
+            self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+                                         pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r, r_w_bias, r_r_bias, dec_attn_mask=None, mems=None):
 
