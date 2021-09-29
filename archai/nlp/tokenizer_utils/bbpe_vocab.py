@@ -77,8 +77,7 @@ class BbpeVocab(VocabBase):
 
     def _rewrite_json_sorted(self, filepaths:List[str]):
 
-        tokens_counter = _count_token_freq(filepaths, self._tokenizer, self._config,
-                                    self.bos_id, self.eos_id)
+        tokens_counter = self._count_token_freq(filepaths)
 
         logging.info('Saving sorted vocab file...')
         tokens_counter.update(list(range(len(self._tokenizer)))) # add 1 to each value, to ensure that all of them > 0
@@ -122,46 +121,45 @@ class BbpeVocab(VocabBase):
         return os.path.isfile(self._tokenizer_filepath)
 
     @overrides
-    def encode_line(self, line)->List[int]:
-        toks = _encode_line(line, self._config, self._tokenizer, self.bos_id, self.eos_id)
+    def encode_text(self, text:str, add_special_tokens=True)->List[int]:
+        text = self._preprocess_text(text)
+        toks = self._tokenizer.encode(text, add_special_tokens=add_special_tokens)
         return toks
 
     @overrides
-    def decode_line(self, ids:List[int])->str:
-        return self._tokenizer.decode(ids)
+    def decode_text(self, ids:List[int],skip_special_tokens=False)->str:
+        return self._tokenizer.decode(ids, skip_special_tokens=skip_special_tokens)
 
     @overrides
     def __len__(self):
         return len(self._tokenizer)
 
-def _encode_line(line:str, token_config:TokenConfig, tokenizer:ByteLevelBPETokenizer,
-                bos_id:List[int], eos_id:List[int])->List[int]:
-    line = line.strip()
-    if not line:
-        return []
-    if token_config.add_prefix_space:
-        line = ' ' + line
-    if token_config.add_prefix_new_line:
-        line = '\n' + line
-    return bos_id + tokenizer.encode(line) + eos_id
+    def _preprocess_text(self, text:str)->str:
+        text = text.strip()
+        if self._config.add_prefix_space:
+            text = ' ' + text
+        if self._config.add_prefix_new_line:
+            text = '\n' + text
+        if self._config.lower_case:
+            text = text.lower()
+        return text
 
-def _count_token_freq(filepaths:List[str], tokenizer:PreTrainedTokenizerFast, token_config:TokenConfig,
-                     bos_id:List[int], eos_id:List[int])->Counter:
-    logging.info('Counting token frequencies...')
-    tokens_counter = Counter()
-    tokens_counter.update(list(range(len(tokenizer)))) # add each token
+    def _count_token_freq(self, filepaths:List[str])->Counter:
+        logging.info('Counting token frequencies...')
+        tokens_counter = Counter()
+        tokens_counter.update(list(range(len(self._tokenizer)))) # add each token
 
-    for filepath in filepaths:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
+        for filepath in filepaths:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
 
-        for i,l in enumerate(lines):
-            if ((i+1)%100000)==0:
-                logging.info(f'Counted tokens for line {i+1}...')
-            toks = _encode_line(l, token_config, tokenizer, bos_id, eos_id)
-            tokens_counter.update(toks)
+            for i,l in enumerate(lines):
+                if ((i+1)%100000)==0:
+                    logging.info(f'Counted tokens for line {i+1}...')
+                toks = self.encode_text(l, add_special_tokens=False)
+                tokens_counter.update(toks)
 
-    return tokens_counter
+        return tokens_counter
 
 def _train_tokenizer(filepaths:List[str], token_config: TokenConfig,
                     vocab_size: int, save_filepath: str,

@@ -357,7 +357,7 @@ def main():
 
         text = " ".join(args.manual)
         tokenized = tokenize_raw(text) # text cleanup and transforms
-        tensor = vocab.encode_line(tokenized, add_eos=True)
+        tensor = vocab.encode_text(tokenized, add_special_tokens=True)
 
         iter = data_utils.LMOrderedIterator(tensor, bsz=args.batch_size,
                                             bptt=args.tgt_len, device=device,
