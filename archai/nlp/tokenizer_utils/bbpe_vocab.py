@@ -19,16 +19,18 @@ from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 class BbpeVocab(VocabBase):
     def __init__(self, save_path:str, vocab_size:int, pad_vocab_size=False,
                  bos_token:Optional[str]="_BOS_", eos_token:Optional[str]=None,
-                 unk_token:Optional[str]="_OOV_", min_frequency:Optional[int]=None,
+                 unk_token:Optional[str]="_OOV_", pad_token:Optional[str]=None,
+                 min_frequency:Optional[int]=None, model_max_length:Optional[int]=None,
                  add_prefix_space=True,add_prefix_new_line=False, sorted_vocab=True) -> None:
         self._config = TokenConfig(bos_token=bos_token, eos_token=eos_token,
-                                   unk_token=unk_token, pad_token=None,
+                                   unk_token=unk_token, pad_token=pad_token,
                                    add_prefix_space=add_prefix_space, add_prefix_new_line=add_prefix_new_line)
         self._tokenizer:Optional[PreTrainedTokenizerFast] = None # will load existing or create new
-        self._tokenizer_filepath = os.path.join(utils.full_path(save_path, create=True), 'bbpe_tokenizer.json') if save_path else save_path
+        self._tokenizer_filepath = os.path.join(utils.full_path(save_path, create=True), 'bbpe_tokenizer.json')
         self.vocab_size = vocab_size
         self.sorted_vocab = sorted_vocab
         self.min_frequency = min_frequency
+        self.model_max_length = model_max_length
 
         self.bos_id = []
         self.eos_id = []
@@ -64,7 +66,7 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def load(self)->None:
-        self._tokenizer = _load_tokenizer(self._tokenizer_filepath, self._config)
+        self._tokenizer = _load_tokenizer(self._tokenizer_filepath, self._config, self.model_max_length)
         self._finalize_tokenizer()
 
         self.bos_id = [] if not self._config.bos_token else [self.token_to_id(self._config.bos_token)]
@@ -181,8 +183,8 @@ def _train_tokenizer(filepaths:List[str], token_config: TokenConfig,
     # generates save_prefix-vocab.json and save_prefix-merges.txt
     tokenizer.save(save_filepath, pretty=True)
 
-def _load_tokenizer(save_filepath:str, token_config: TokenConfig)->PreTrainedTokenizerFast:
-    tokenizer = PreTrainedTokenizerFast(tokenizer_file=save_filepath)
+def _load_tokenizer(save_filepath:str, token_config: TokenConfig, model_max_length:Optional[int])->PreTrainedTokenizerFast:
+    tokenizer = PreTrainedTokenizerFast(tokenizer_file=save_filepath, model_max_length=model_max_length)
 
     # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
     #tokenizer.padding_side = "left"
