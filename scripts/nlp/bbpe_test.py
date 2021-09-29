@@ -9,7 +9,7 @@ from archai.nlp.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
 
 def basic_test():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     parser = argparse.ArgumentParser(description='PyTorch Transformer-XL Language Model')
     parser.add_argument('--work_dir', default='~/logdir', type=str,
