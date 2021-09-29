@@ -36,20 +36,16 @@ class WordVocab(VocabBase): # Word vocab is the default
         self.delimiter = delimiter
         self.save_path = save_path
 
-    def _tokenize_line(self, line)->List[str]:
-        """Tokenize line, split on space, add_eos: add special to end, add_double_eos: add special to begin and end"""
-        line = line.strip()
-        # convert to lower case
+    # TODO: remove suplicates of this function from across the project
+    def _preprocess_text(self, text:str)->str:
+        text = text.strip()
+        if self._config.add_prefix_space:
+            text = ' ' + text
+        if self._config.add_prefix_new_line:
+            text = '\n' + text
         if self._config.lower_case:
-            line = line.lower()
-
-        # empty delimiter '' will evaluate False
-        if self.delimiter == '':
-            symbols = line
-        else:
-            symbols = line.split(self.delimiter)
-
-        return self._bos + symbols + self._eos
+            text = text.lower()
+        return text
 
     def _add_file(self, path, verbose=True)->None:
         """Setup counter with frequencies, return tokens for the entir file"""
@@ -135,12 +131,28 @@ class WordVocab(VocabBase): # Word vocab is the default
         logging.info(f'Final word vocab size is {len(self)}, unique tokens are {len(self.counter)}')
 
     @overrides
-    def encode_line(self, line)->List[int]:
-        symbols = self._tokenize_line(line)
-        return self._get_indices(symbols)
+    def encode_text(self, text:str, add_special_tokens=True)->List[int]:
+        text = self._preprocess_text(text)
+
+        # split on whitespace
+        symbols = text.split(self.delimiter)
+
+        if add_special_tokens:
+            toks = self._bos + symbols + self._eos
+
+        toks = self._get_indices(symbols)
+
+        return toks
+
     @overrides
-    def decode_line(self, ids:List[int])->str:
-        return ' '.join(self.ids_to_tokens(ids))
+    def decode_text(self, ids:List[int],skip_special_tokens=False)->str:
+        syms = self.ids_to_tokens(ids)
+        if skip_special_tokens and len(syms):
+            if syms[0] == self._bos:
+                syms = syms[1:]
+            if len(syms) and syms[-1] == self._eos:
+                syms = syms[:-1]
+        return ' '.join(syms)
 
     def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
         return self._tokenizer.token_to_id(self._config.special_token_name(sp))

@@ -40,19 +40,24 @@ def basic_test():
     print('tokenizer len', len(vocab))
     print('BOS', vocab.token_to_id('<bos>'))
 
-    enc = vocab.encode_line("It's a nice sunny day; she murmered. Should we get take-out? ")
+    enc = vocab.encode_text("It's a nice sunny day; she murmered. Should we get take-out? ")
     print(enc)
-    print(vocab.decode_line(enc))
+    print(vocab.decode_text(enc))
     print()
 
-    enc = vocab.encode_line("\n It's a nice sunny day; she murmered. Should we get take-out?")
+    enc = vocab.encode_text("\n It's a nice sunny day; she murmered. Should we get take-out?")
     print(enc)
-    print(vocab.decode_line(enc))
+    print(vocab.decode_text(enc))
     print()
 
-    enc = vocab.encode_line("<bos>\n It's a nice sunny day; she murmered. Should we get take-out?<eos>")
+    enc = vocab.encode_text("<bos>\n It's a nice sunny day; she murmered. Should we get take-out?<eos>")
     print(enc)
-    print(vocab.decode_line(enc))
+    print(vocab.decode_text(enc))
+    print()
+
+    enc = vocab.encode_text("<bos>\n It's a nice sunny day; she murmered. Should we get take-out?<eos>")
+    print(enc)
+    print(vocab.decode_text(enc, skip_special_tokens=True))
     print()
 
 if __name__ == "__main__":
