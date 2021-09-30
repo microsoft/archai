@@ -1,6 +1,6 @@
 import logging
 import functools
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 
@@ -56,7 +56,7 @@ class VocabWrapper:
     def encode(self, text: str) -> list:
         return self.vocab.encode_text(text)
 
-    def decode(self, input_ids: list) -> str:
+    def decode(self, input_ids:List[int]) -> str:
         return self.vocab.decode_text(input_ids)
 
     @functools.lru_cache(maxsize=32768)
