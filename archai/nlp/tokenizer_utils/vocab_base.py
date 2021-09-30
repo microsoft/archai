@@ -17,7 +17,7 @@ class VocabBase(EnforceOverrides):
         pass
 
     @abstractmethod
-    def encode_text(self, text:str, add_special_tokens=True)->List[int]:
+    def encode_text(self, text:str, add_special_tokens=False)->List[int]:
         pass
     @abstractmethod
     def decode_text(self, ids:List[int],skip_special_tokens=False)->str:
@@ -47,7 +47,7 @@ class VocabBase(EnforceOverrides):
     def ids_to_tokens(self, ids:List[int])->List[str]:
         return [self.id_to_token(id) for id in ids]
 
-    def encode_file(self, path:str, verbose=True, add_special_tokens=True)->List[int]:
+    def encode_file(self, path:str, verbose=True, add_special_tokens=False)->List[int]:
         logging.info(f'Encoding file: {path}')
         encoded = []
         with open(path, 'r', encoding='utf-8') as f:

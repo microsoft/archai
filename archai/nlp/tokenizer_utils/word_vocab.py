@@ -131,7 +131,7 @@ class WordVocab(VocabBase): # Word vocab is the default
         logging.info(f'Final word vocab size is {len(self)}, unique tokens are {len(self.counter)}')
 
     @overrides
-    def encode_text(self, text:str, add_special_tokens=True)->List[int]:
+    def encode_text(self, text:str, add_special_tokens=False)->List[int]:
         text = self._preprocess_text(text)
 
         # split on whitespace
