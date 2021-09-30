@@ -808,7 +808,7 @@ class MemTransformerLM(nn.Module):
 
         return core_out, new_mems
 
-    def forward(self, data, target, mems):
+    def forward(self, data, target, mems, output='loss'):
         # nn.DataParallel does not allow size(0) tensors to be broadcasted.
         # So, have to initialize size(0) mems inside the model forward.
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
@@ -816,20 +816,27 @@ class MemTransformerLM(nn.Module):
         if mems is None:
             mems = self.init_mems()
 
-        tgt_len = target.size(0)
         hidden, new_mems = self._forward(data, mems=mems)
 
-        pred_hid = hidden[-tgt_len:]
+        if output == 'loss':
+            tgt_len = target.size(0)
+            pred_hid = hidden[-tgt_len:]
+        else:
+            pred_hid = hidden
+
         if self.sample_softmax > 0 and self.training:
             assert self.tie_weight
             logit = sample_logits(self.word_emb, self.out_layer.bias, target,
                                   pred_hid, self.sampler)
             loss = -F.log_softmax(logit, -1)[:, :, 0]
         else:
-            loss = self.crit(pred_hid.view(-1, pred_hid.size(-1)), target.view(-1))
-            loss = loss.view(tgt_len, -1)
+            if output in ['logits', 'probs']:
+                out = self.crit(pred_hid.view(-1, pred_hid.size(-1)), None, output=output)
+            else:
+                out = self.crit(pred_hid.view(-1, pred_hid.size(-1)), target.view(-1), output=output)
+                out = out.view(tgt_len, -1)
 
-        return (loss, new_mems)
+        return (out, new_mems)
 
 
 if __name__ == '__main__':

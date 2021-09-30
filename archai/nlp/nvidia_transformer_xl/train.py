@@ -808,7 +808,8 @@ def main():
     if args.adaptive:
         assert args.dataset in ['wt103', 'wt2', 'lm1b', 'olx']
         if args.dataset in ['wt103', 'wt2', 'olx']:
-            cutoffs = [19997, 39997, 199997] #TODO: make dynamic as per vocab size?
+            #cutoffs = [19997, 39997] #TODO: make dynamic as per vocab size?
+            cutoffs = [5000] #TODO: make dynamic as per vocab size?
             tie_projs += [True] * len(cutoffs)
         elif args.dataset == 'lm1b':
             cutoffs = [59997, 99997, 639997]
