@@ -8,7 +8,7 @@ import json
 from overrides import overrides
 
 from tokenizers import ByteLevelBPETokenizer
-from transformers import PreTrainedTokenizerFast
+from transformers import PreTrainedTokenizerFast, PreTrainedTokenizer
 
 from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
@@ -44,8 +44,7 @@ class BbpeVocab(VocabBase):
         with nv_utils.distributed.sync_workers() as rank:
             if rank == 0:
                 logging.info(f'Training BBPE Vocab for size {self.vocab_size} at "{self._tokenizer_filepath}" ...')
-                _train_tokenizer(filepaths, self._config, vocab_size=self.vocab_size, save_filepath=self._tokenizer_filepath,
-                    min_frequency=self.min_frequency if self.min_frequency is not None else 2) # 2 is Huggingface default
+                self._train_tokenizer(filepaths)
 
                 if self.sorted_vocab:
                     self.load()
@@ -66,9 +65,18 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def load(self)->None:
-        self._tokenizer = _load_tokenizer(self._tokenizer_filepath, self._config, self.model_max_length)
+        # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
+        #tokenizer.padding_side = "left"
+
+        # TODO: check is loaded tokenizer has same settings as in vocab constructor
+        self._tokenizer = PreTrainedTokenizerFast(tokenizer_file=self._tokenizer_filepath,
+            model_max_length=self.model_max_length,
+            bos_token=self._config.bos_token, eos_token = self._config.eos_token,
+            unk_token=self._config.unk_token, pad_token = self._config.pad_token)
+
         self._finalize_tokenizer()
 
+        # these IDs will be used to manually add BOS and EOS
         self.bos_id = [] if not self._config.bos_token else [self.token_to_id(self._config.bos_token)]
         self.eos_id = [] if not self._config.eos_token else [self.token_to_id(self._config.eos_token)]
 
@@ -121,9 +129,17 @@ class BbpeVocab(VocabBase):
         return os.path.isfile(self._tokenizer_filepath)
 
     @overrides
-    def encode_text(self, text:str, add_special_tokens=True)->List[int]:
+    def encode_text(self, text:str, add_special_tokens=False)->List[int]:
         text = self._preprocess_text(text)
-        toks = self._tokenizer.encode(text, add_special_tokens=add_special_tokens)
+
+        # we always set add_special_tokens=False because Huggingface implementation is buggy
+        # instead add bos and eos manually
+        # https://github.com/huggingface/transformers/issues/3311
+        toks = self._tokenizer.encode(text, add_special_tokens=False)
+
+        if add_special_tokens:
+            toks = self.bos_id + toks + self.eos_id
+
         return toks
 
     @overrides
@@ -161,33 +177,23 @@ class BbpeVocab(VocabBase):
 
         return tokens_counter
 
-def _train_tokenizer(filepaths:List[str], token_config: TokenConfig,
-                    vocab_size: int, save_filepath: str,
-                    min_frequency:int, dropout: float = None, # min_frequency default is 2
-                    added_tokens: List[str] = []) -> None:
-    logging.info('Training tokenizer...')
+    def _train_tokenizer(self, filepaths:List[str], dropout: float = None,
+                        added_tokens: List[str] = []) -> None:
+        logging.info('Training tokenizer...')
 
-    special_tokens = token_config.get_special_tokens()
+        special_tokens = self._config.get_special_tokens()
+        min_frequency = self.min_frequency if self.min_frequency is not None else 2
 
-    # TODO: measure impact of dropout
-    tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=token_config.add_prefix_space)
-    tokenizer.train(files=filepaths, vocab_size=vocab_size, min_frequency=min_frequency,
-        special_tokens=special_tokens)
+        # TODO: measure impact of dropout
+        tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=self._config.add_prefix_space)
+        tokenizer.train(files=filepaths, vocab_size=self.vocab_size, min_frequency=min_frequency,
+            special_tokens=special_tokens)
 
-    # additional tokens we might want to add
-    if len(added_tokens):
-        tokenizer.add_tokens(added_tokens)
+        # additional tokens we might want to add
+        if len(added_tokens):
+            tokenizer.add_tokens(added_tokens)
 
-    # generates save_prefix-vocab.json and save_prefix-merges.txt
-    tokenizer.save(save_filepath, pretty=True)
+        # generates save_prefix-vocab.json and save_prefix-merges.txt
+        tokenizer.save(self._tokenizer_filepath, pretty=True)
 
-def _load_tokenizer(save_filepath:str, token_config: TokenConfig, model_max_length:Optional[int])->PreTrainedTokenizerFast:
-    tokenizer = PreTrainedTokenizerFast(tokenizer_file=save_filepath, model_max_length=model_max_length)
-
-    # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
-    #tokenizer.padding_side = "left"
-
-    # TODO: check is loaded tokenizer has same settings as in vocab constructor
-
-    return tokenizer
 
