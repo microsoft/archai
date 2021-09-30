@@ -51,7 +51,7 @@ class Corpus:
 
     def load(self):
         # if files for all dataset npy exist then we have corpus cache
-        if not self.refresh_cache and os.path.exists(self.train_cache_filepath) and os.path.exists(self.valid_cache_filepath) and os.path.exists(self.test_cache_filepath) and self.vocab is not None and self.vocab.is_trained():
+        if not self.refresh_cache and os.path.exists(self.train_cache_filepath) and os.path.exists(self.valid_cache_filepath) and os.path.exists(self.test_cache_filepath):
             logging.info(f'Found existing cache for for dataset {self.dataset}. Loading from {self.train_cache_filepath}.')
 
             # ensure that we have tokenizer cache as well
@@ -103,7 +103,7 @@ class Corpus:
         valid = vocab.encode_file(os.path.join(datadir, valid_filename))
         test = vocab.encode_file(os.path.join(datadir, test_filename))
 
-        return (torch.LongTensor(train), torch.LongTensor(valid), torch.LongTensor(test))
+        return ((train, valid, test))
 
     @staticmethod
     def _create_vocab(datadir:str, dataset:str, vocab_type:str, vocab_cache_dir:str,
@@ -137,8 +137,9 @@ class Corpus:
     @staticmethod
     def _dataset_filenames(dataset:str)->Tuple[str,str,str]:
         train_filename, test_filename, valid_filename = 'train.txt', 'test.txt', 'valid.txt'
-        if dataset in ['wt2', 'wt103', 'olx']:
+        if dataset in ['wt2', 'wt103']:
             train_filename, test_filename, valid_filename = 'wiki.train.tokens', 'wiki.test.tokens', 'wiki.valid.tokens'
+
         return train_filename, test_filename, valid_filename
 
     @staticmethod
@@ -159,7 +160,7 @@ class Corpus:
 
     def get_iterator(self, split, *args, **kwargs):
         if split == 'train':
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8']:
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'olx']:
                 data_iter = LMOrderedIterator(self.train, *args, **kwargs)
             # elif self.dataset == 'lm1b':
             #     kwargs['shuffle'] = True
@@ -169,7 +170,7 @@ class Corpus:
 
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8']:
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'olx']:
                 data_iter = LMOrderedIterator(data, *args, **kwargs)
             elif self.dataset == 'lm1b':
                 data_iter = LMShuffledIterator(data, *args, **kwargs)
