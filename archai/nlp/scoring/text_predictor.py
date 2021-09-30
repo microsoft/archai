@@ -11,7 +11,6 @@ import time
 from collections import OrderedDict
 from typing import Tuple
 
-from archai.nlp.scoring.scoring_utils import get_settings
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.scoring.vocab_wrapper import VocabWrapper
 from archai.nlp.scoring.model_wrapper import ModelWrapper
