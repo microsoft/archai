@@ -13,7 +13,7 @@ from torch import nn
 
 class ModelWrapper:
     def __init__(self, model:nn.Module, space_token_id:int,
-                 max_seq_len, # 64 for Micronet, 128 otherwise?
+                 max_seq_len:int, # 64 for Micronet, 128 otherwise?
                  device=None):
         self.space_token_id = space_token_id
         self.max_seq_len = max_seq_len
@@ -23,11 +23,15 @@ class ModelWrapper:
 
     @functools.lru_cache(maxsize=1024)
     def get_logits(self, input_ids: tuple) -> list:
+        # if empty then use space
         if len(input_ids) == 0:
             input_ids = (self.space_token_id,)
+
+        # if too long then truncate
         elif len(input_ids) > self.max_seq_len:
             input_ids = input_ids[(-1*self.max_seq_len):]
 
+        # pad if too small
         input_ids_len = len(input_ids)
         if input_ids_len < self.max_seq_len:
             input_ids = input_ids + (0,) * (self.max_seq_len - input_ids_len)
