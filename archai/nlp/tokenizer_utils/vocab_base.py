@@ -64,7 +64,7 @@ class VocabBase(EnforceOverrides):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     logging.info(f'    completed file line {format(idx)}')
 
-                tokens = self.encode_line(line)
+                tokens = self.encode_text(line, add_special_tokens=add_special_tokens)
                 encoded.extend(tokens)
 
         if len(encoded) > 0:
