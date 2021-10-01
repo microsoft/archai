@@ -130,22 +130,19 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         else:
             return self.out_projs[i]
 
-    def forward(self, hidden, target, keep_order=False, output='loss'):
+    def forward(self, hidden, target, keep_order=False):
         '''
             hidden :: [len*bsz x d_proj]
             target :: [len*bsz]
         '''
-        if output == 'loss' and hidden.size(0) != target.size(0):
-                raise RuntimeError('Input and target should have the same size '
-                                'in the batch dimension.')
+
+        if hidden.size(0) != target.size(0):
+            raise RuntimeError('Input and target should have the same size '
+                               'in the batch dimension.')
 
         if self.n_clusters == 0:
             logit = self._compute_logit(hidden, self.out_layers_weights[0],
                                         self.out_layers_biases[0], self.get_out_proj(0))
-
-            if output == 'logits':
-                return logit
-
             nll = -F.log_softmax(logit, dim=-1) \
                     .gather(1, target.unsqueeze(1)).squeeze(1)
         else:
