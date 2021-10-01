@@ -15,8 +15,13 @@ import time
 from collections import OrderedDict
 from typing import List
 
+import numpy as np
+
 import pandas as pd
 import torch
+
+from archai.nlp.scoring.sequence import TextPredictionSequence
+from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 
 def predict_console(predictor:TextPredictor):
     """Console application showing predictions.
@@ -70,8 +75,13 @@ def predict_console(predictor:TextPredictor):
         print("Exiting...")
 
 
-def predict_text(model, vocab, in_filetype:str, in_filepath:str, out_filepath:str, min_score=1.0, save_step=100000, max_body_len=10000):
+def predict_text(model, vocab:VocabBase, in_filetype:str, in_filepath:str, out_filepath:str, score_output_dir:str,
+                 save_step=100000, min_score=1.0, max_score=5.0, score_step=0.1,
+                 expected_match_rate=0.5, # Match point to estimate parameters at
+                 current_paragraph_only=False, # Truncate the body to current paragraph only (remove anything before new line)
+                 do_scoring=False, max_body_len=10000):
     predictor = TextPredictor(model, vocab)
+    predictor.MAX_INPUT_TEXT_LEN = max_body_len
 
     if in_filetype == "console":
         predict_console(predictor)
@@ -81,12 +91,21 @@ def predict_text(model, vocab, in_filetype:str, in_filepath:str, out_filepath:st
         seq.SAVE_STEP = save_step
         seq.MIN_SCORE = min_score
         seq.CURRENT_PARAGRAPH_ONLY = current_paragraph_only
-        seq.predict(output)
-        seq.save(output)
-        if score:
+        seq.predict(out_filepath)
+        seq.save(out_filepath)
+        if do_scoring:
             min_scores = np.arange(min_score, max_score, score_step).tolist()
             seq.score(min_scores, expected_match_rate)
             seq.save_all(score_output_dir, predict_file=None)
     else:
         raise ValueError(f"Unkown input type '{in_filetype}'")
 
+
+# sample command lines
+# tp_predict_text --type smartcompose --model_type swiftkey --model lm+/model_opset12_quant.onnx --tokenizer_type swiftkey --tokenizer tokenizer/ --min_score 2 --input ~/Swiftkey/data/Eval/GSuiteCompete/GSuiteCompete10pc.ljson --output ./GSuiteCompete10pc.ljson --score
+
+# tp_predict_text --type console --model_type transformers --model distilgpt2 --tokenizer_type transformers --tokenizer gpt2
+
+# python scratch/toreli/nlxpy/nlxpy/cli/tp_predict_text.py --type smartcompose --model_type transformers --model distilgpt2 --tokenizer_type transformers --tokenizer gpt2 --input /home/caiocesart/dataroot/metrics/GSuiteCompete10pc.ljson --score
+
+# tp_predict_text --verbose --type console --model_type transformers --model distilgpt2 --tokenizer_type transformers --tokenizer gpt2
