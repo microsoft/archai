@@ -19,6 +19,7 @@ import torch.nn.functional as F
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import LogUniformSampler
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from archai.nlp.nvidia_transformer_xl.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 
 
 @torch.jit.script
@@ -158,19 +159,24 @@ class MultiHeadAttn(nn.Module):
 
 class RelMultiHeadAttn(nn.Module):
     def __init__(self, n_head, d_model, d_head, dropout, dropatt=0,
-                 tgt_len=None, ext_len=None, mem_len=None, pre_lnorm=False):
+                 tgt_len=None, ext_len=None, mem_len=None, pre_lnorm=False,
+                 primer_ez=False):
         super(RelMultiHeadAttn, self).__init__()
 
         self.n_head = n_head
         self.d_model = d_model
         self.d_head = d_head
         self.dropout = dropout
+        self.primer_ez = primer_ez
 
         self.qkv_net = nn.Linear(d_model, 3 * n_head * d_head, bias=False)
 
         self.drop = nn.Dropout(dropout)
         self.dropatt = nn.Dropout(dropatt)
         self.o_net = nn.Linear(n_head * d_head, d_model, bias=False)
+
+        if self.primer_ez:
+            self.dconv = DWiseConvPrimerEZ(self.d_model)
 
         self.layer_norm = nn.LayerNorm(d_model)
 
@@ -243,6 +249,9 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
                 w_heads = self.qkv_net(cat)
             r_head_k = self.r_net(r)
 
+            if self.primer_ez:
+                w_heads = self.dconv(w_heads)
+
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
             w_head_q = w_head_q[-qlen:]
         else:
@@ -251,6 +260,9 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
             else:
                 w_heads = self.qkv_net(w)
             r_head_k = self.r_net(r)
+
+            if self.primer_ez:
+                w_heads = self.dconv(w_heads)
 
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
 
@@ -322,6 +334,10 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
                 w_heads = self.qkv_net(self.layer_norm(cat))
             else:
                 w_heads = self.qkv_net(cat)
+
+            if self.primer_ez:
+                w_heads = self.dconv(w_heads)
+
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
 
             w_head_q = w_head_q[-qlen:]
@@ -330,6 +346,10 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
                 w_heads = self.qkv_net(self.layer_norm(w))
             else:
                 w_heads = self.qkv_net(w)
+
+            if self.primer_ez:
+                w_heads = self.dconv(w_heads)
+
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
 
         klen = w_head_k.size(0)
@@ -411,13 +431,19 @@ class DecoderLayer(nn.Module):
 
 class RelLearnableDecoderLayer(nn.Module):
     def __init__(self, n_head, d_model, d_head, d_inner, dropout,
-                 **kwargs):
+                 primer_ez=False, **kwargs):
         super(RelLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelLearnableMultiHeadAttn(n_head, d_model, d_head,
-                                                  dropout, **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
-                                     pre_lnorm=kwargs.get('pre_lnorm'))
+                                                  dropout, primer_ez=primer_ez,
+                                                  **kwargs)
+
+        if primer_ez:
+            self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout, 
+                                                 pre_lnorm=kwargs.get('pre_lnorm'))
+        else:
+            self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+                                         pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r_emb, r_w_bias, r_bias, dec_attn_mask=None, mems=None):
 
@@ -431,14 +457,20 @@ class RelLearnableDecoderLayer(nn.Module):
 
 class RelPartialLearnableDecoderLayer(nn.Module):
     def __init__(self, n_head, d_model, d_head, d_inner, dropout,
-                 **kwargs):
+                 primer_ez=False, **kwargs):
         super(RelPartialLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelPartialLearnableMultiHeadAttn(n_head, d_model,
                                                          d_head, dropout,
+                                                         primer_ez=primer_ez,
                                                          **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
-                                     pre_lnorm=kwargs.get('pre_lnorm'))
+
+        if primer_ez:
+            self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout, 
+                                                 pre_lnorm=kwargs.get('pre_lnorm'))
+        else:
+            self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+                                         pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r, r_w_bias, r_r_bias, dec_attn_mask=None, mems=None):
 
@@ -520,7 +552,7 @@ class MemTransformerLM(nn.Module):
                  tgt_len=None, ext_len=None, mem_len=None,
                  cutoffs=[], adapt_inp=False,
                  same_length=False, attn_type=0, clamp_len=-1,
-                 sample_softmax=-1):
+                 sample_softmax=-1, primer_ez=False):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
@@ -556,7 +588,7 @@ class MemTransformerLM(nn.Module):
                     RelPartialLearnableDecoderLayer(
                         n_head, d_model, d_head, d_inner, dropout,
                         tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
-                        dropatt=dropatt, pre_lnorm=pre_lnorm)
+                        dropatt=dropatt, pre_lnorm=pre_lnorm, primer_ez=primer_ez)
                 )
         # learnable embeddings
         elif attn_type == 1:
@@ -565,7 +597,7 @@ class MemTransformerLM(nn.Module):
                     RelLearnableDecoderLayer(
                         n_head, d_model, d_head, d_inner, dropout,
                         tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
-                        dropatt=dropatt, pre_lnorm=pre_lnorm)
+                        dropatt=dropatt, pre_lnorm=pre_lnorm, primer_ez=primer_ez)
                 )
         # absolute embeddings
         elif attn_type in [2, 3]:

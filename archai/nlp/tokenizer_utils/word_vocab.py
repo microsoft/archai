@@ -154,6 +154,7 @@ class WordVocab(VocabBase): # Word vocab is the default
                 syms = syms[:-1]
         return ' '.join(syms)
 
+    @overrides
     def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
         return self._tokenizer.token_to_id(self._config.special_token_name(sp))
 
