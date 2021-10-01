@@ -17,10 +17,10 @@ class VocabBase(EnforceOverrides):
         pass
 
     @abstractmethod
-    def encode_line(self, line:str)->List[int]:
+    def encode_text(self, text:str, add_special_tokens=False)->List[int]:
         pass
     @abstractmethod
-    def decode_line(self, ids:List[int])->str:
+    def decode_text(self, ids:List[int],skip_special_tokens=False)->str:
         pass
 
     @abstractmethod
@@ -47,14 +47,14 @@ class VocabBase(EnforceOverrides):
     def ids_to_tokens(self, ids:List[int])->List[str]:
         return [self.id_to_token(id) for id in ids]
 
-    def encode_file(self, path:str, verbose=True)->List[int]:
+    def encode_file(self, path:str, verbose=True, add_special_tokens=False)->List[int]:
         logging.info(f'Encoding file: {path}')
         encoded = []
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     logging.info(f'    completed file line {format(idx)}')
-                tokens = self.encode_line(line)
+                tokens = self.encode_text(line, add_special_tokens=add_special_tokens)
                 encoded.extend(tokens)
 
         return encoded

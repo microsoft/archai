@@ -11,11 +11,12 @@ import time
 from collections import OrderedDict
 from typing import Tuple
 
-from archai.nlp.scoring.scoring_utils import get_settings
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.scoring.vocab_wrapper import VocabWrapper
 from archai.nlp.scoring.model_wrapper import ModelWrapper
 from archai.nlp.scoring.scoring_utils import WORD_TOKEN_SEPARATOR_SET
+from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.scoring.scoring_utils import get_settings
 
 class Prediction:
     """Represents a single prediction.
@@ -244,12 +245,11 @@ class TextPredictor:
 
     # Maximum text to process (otherwise it will be truncated)
     MAX_INPUT_TEXT_LEN = 1_000_000
-    # Token id to attach to the beginning of the sequence
-    BOS_TOKEN_ID = None
 
-    def __init__(self, model, vocab:VocabBase):
-        self.model = ModelWrapper(model, vocab.token_to_id(' '), )
+    def __init__(self, model:nn.Module, vocab:VocabBase):
+        self.model_wrapper = ModelWrapper(model, vocab.token_to_id(' '), )
         self.vocab_wrapper = VocabWrapper(vocab)
+        self.bos_id = vocab.special_token_id(SpecialTokenEnum.BOS)
 
     def load_tpl_settings(self, file_name):
         """Load settings from a file like this:
@@ -313,7 +313,7 @@ class TextPredictor:
         (i.e. token '34' is 'C', which means that 6 characters still were not filtered away)
         """
         # start_time = time.time()
-        next_token_probs = self.model.get_probs(input_ids)
+        next_token_probs = self.model_wrapper.get_probs(input_ids)
         filter_prefix_len = len(filter_prefix)
         if filter_prefix_len == 0:
             result = [((idx,), prob, len(self.vocab_wrapper[idx])) for idx, prob in enumerate(next_token_probs)]
@@ -460,7 +460,7 @@ If you don't run it enough, you might not end up with any prefix or prefix will 
         if len(input_ids) > 0 and self.vocab_wrapper[input_ids[-1]][-1] in WORD_TOKEN_SEPARATOR_SET:
             return True
 
-        probs = self.model.get_probs(input_ids)
+        probs = self.model_wrapper.get_probs(input_ids)
         prob_sum = sum([prob for idx, prob in enumerate(probs) if idx in self.vocab_wrapper.WORD_TOKEN_SEPARATOR_IDX])
         #top = [(idx, self.tokenizer[idx], probs[idx], idx in self.tokenizer.WORD_TOKEN_SEPARATOR_IDX) for idx in reversed(np.argsort(probs)[-20:])]
         #logging.debug("is_complete_word:prob_sum: %s; top: %s", prob_sum, top)
@@ -486,8 +486,8 @@ If you don't run it enough, you might not end up with any prefix or prefix will 
         context, prefix = self.vocab_wrapper.find_context_prefix(clean_trunc_text)
 
         input_ids = tuple(self.vocab_wrapper.encode(context))
-        if self.BOS_TOKEN_ID is not None and is_full_len:
-            input_ids = (self.BOS_TOKEN_ID,) + input_ids
+        if self.bos_id is not None and is_full_len:
+            input_ids = (self.bos_id,) + input_ids
 
         logging.debug("TextPredictor.predict_full: context[-20:]: '%s';" +\
             " input_ids[-5:]: %s; prefix: '%s'; time: %.3f ms", context[-20:], input_ids[-5:], prefix, 1000*(time.time() - start_time))
@@ -510,7 +510,7 @@ If you don't run it enough, you might not end up with any prefix or prefix will 
         calc_count = 0
         while total_prob > self.MIN_PROB_CUTOFF and calc_count < self.MAX_TOKEN_CALC:
             calc_count += 1
-            next_token_id, next_prob = self.model.get_top_token_prob(tuple(prediction.all_ids()))
+            next_token_id, next_prob = self.model_wrapper.get_top_token_prob(tuple(prediction.all_ids()))
             next_text = self.vocab_wrapper.decode([next_token_id])
             prediction = Prediction.next_prediction(prediction, next_text, next_prob, next_token_id)
             prediction.update_complete()
