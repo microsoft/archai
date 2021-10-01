@@ -462,7 +462,7 @@ def evaluate(eval_iter, model, args):
         for i, (data, target, seq_len, warm) in enumerate(eval_iter):
             if args.eval_max_steps > 0 and i >= args.eval_max_steps:
                 break
-            loss, mems = model(data, target, mems)
+            loss, mems, log_prob = model(data, target, mems)
             loss = loss.float().mean()
             if warm:
                 # assert (mems is None) or mems.size(1) == model.mem_len
@@ -491,7 +491,7 @@ def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
 
     enable_autocast = args.fp16 and args.amp == 'pytorch'
     with torch.cuda.amp.autocast(enable_autocast):
-        loss, mems[i] = model(data_i, target_i, mems[i])
+        loss, mems[i], log_prob = model(data_i, target_i, mems[i])
         loss = loss.float().mean().type_as(loss) / args.batch_chunk
 
     if args.swap_mem and mems[i] is not None:
@@ -804,7 +804,7 @@ def main():
                                   mem_len=eval_mem_len, ext_len=args.ext_len)
 
     # adaptive softmax / embedding
-    cutoffs, tie_projs = [], [False]
+    cutoffs, tie_projs = [], [False] # head cluster projection is never tied with embeddings
     if args.adaptive:
         assert args.dataset in ['wt103', 'wt2', 'lm1b', 'olx']
         if args.dataset in ['wt103', 'wt2', 'olx']:
