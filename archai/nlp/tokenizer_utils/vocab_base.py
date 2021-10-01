@@ -56,9 +56,8 @@ class VocabBase(EnforceOverrides):
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     logging.info(f'    completed file line {format(idx)}')
-                    tensor_encoded = torch.cat((tensor_encoded, torch.LongTensor(encoded)))
-                    encoded = []
-                tokens = self.encode_line(line)
+
+                tokens = self.encode_text(line, add_special_tokens=add_special_tokens)
                 encoded.extend(tokens)
 
         if len(encoded) > 0:
