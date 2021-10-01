@@ -16,12 +16,12 @@ class DWiseConvPrimerEZ(nn.Module):
         ''' Input should be Length x Batch x Features'''
 
         # LxBxF -> BxFxL
-        w_heads = torch.permute(inp, (1, 2, 0))
+        w_heads = inp.permute((1, 2, 0))
         # Pad kernel_size-1 to the left of the length so we have causal convolution (cant look forward)
         w_heads = F.pad(w_heads, (self.kernel_size-1, 0))
         w_heads = self.dconv(w_heads)
         # Permute back: BxFxL -> LxBxF
-        w_heads = torch.permute(w_heads, (2, 0, 1))
+        w_heads = w_heads.permute((2, 0, 1))
 
         return w_heads
 
