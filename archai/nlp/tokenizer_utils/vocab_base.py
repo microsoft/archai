@@ -4,6 +4,7 @@ import logging
 
 
 from overrides import overrides, EnforceOverrides
+import torch
 
 from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
@@ -50,11 +51,23 @@ class VocabBase(EnforceOverrides):
     def encode_file(self, path:str, verbose=True, add_special_tokens=False)->List[int]:
         logging.info(f'Encoding file: {path}')
         encoded = []
+        tensor_encoded = torch.LongTensor()
+
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
+
+                # Converts to tensor.Tensor every 500k lines otherwise Python list uses a lot of RAM
+                if idx > 0 and idx % 500000 == 0:
+                    tensor_encoded = torch.cat((tensor_encoded, torch.LongTensor(encoded)))
+                    encoded = []
+
                 if verbose and idx > 0 and idx % 500000 == 0:
                     logging.info(f'    completed file line {format(idx)}')
+
                 tokens = self.encode_text(line, add_special_tokens=add_special_tokens)
                 encoded.extend(tokens)
 
-        return encoded
+        if len(encoded) > 0:
+            tensor_encoded = torch.cat((tensor_encoded, torch.LongTensor(encoded)))
+
+        return tensor_encoded
