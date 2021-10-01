@@ -90,6 +90,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                     )
         else:
             for i in range(len(self.cutoffs)):
+                # calculate embeddings for clusters, exponentially decreasing in size
                 l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i+1]
                 d_emb_i = d_embed // (div_val ** i)
 
@@ -111,9 +112,14 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         self.keep_order = keep_order
 
     def _compute_logit(self, hidden, weight, bias, proj):
+        # if no projection then simply multiply hidden values with wights
+        # else apply projection to hidden and then multiply with weight matrix
         if proj is None:
             logit = F.linear(hidden, weight, bias=bias)
         else:
+            # below is equivalent to:
+            # proj_hid = nn.functional.linear(hidden, proj.t().contiguous())
+            # logit = nn.functional.linear(proj_hid, weight, bias=bias)
             logit = torch.einsum('bd,de,ev->bv', (hidden, proj, weight.t()))
             if bias is not None:
                 logit = logit + bias
@@ -140,13 +146,13 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             raise RuntimeError('Input and target should have the same size '
                                'in the batch dimension.')
 
-        if self.n_clusters == 0:
+        if self.n_clusters == 0: # if no adaptive softmax
             logit = self._compute_logit(hidden, self.out_layers_weights[0],
                                         self.out_layers_biases[0], self.get_out_proj(0))
             nll = -F.log_softmax(logit, dim=-1) \
                     .gather(1, target.unsqueeze(1)).squeeze(1)
         else:
-            # construct weights and biases
+            # construct weights and biases for each cluster
             weights, biases = [], []
             for i in range(len(self.cutoffs)):
                 if self.div_val == 1:
