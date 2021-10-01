@@ -126,6 +126,7 @@ def main():
                 # not in the benchmark we need to remove it from consideration
                 arch_id = confs[key]['nas']['eval']['dartsspace']['arch_index']
                 if arch_id not in list(reg_evals_data.keys()):
+                    print(f'Did not find arch_id {arch_id} in benchmark. Ignoring.')
                     continue
                 reg_eval_top1 = reg_evals_data[arch_id]
                 all_reg_evals.append(reg_eval_top1)
