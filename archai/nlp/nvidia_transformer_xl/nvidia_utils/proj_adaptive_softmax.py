@@ -16,7 +16,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
+# same as nn.ParameterList but expect some list items to be None
 class OptionalParameterList(nn.ParameterList):
     def extra_repr(self):
         child_lines = []
@@ -33,29 +33,31 @@ class OptionalParameterList(nn.ParameterList):
 
 class ProjectedAdaptiveLogSoftmax(nn.Module):
     def __init__(self, n_token, d_embed, d_proj, cutoffs, div_val=1,
-                 tie_projs=None, out_layers_weights=None, out_projs=None,
+                 tie_projs=None,
+                 out_layers_weights=None, # output layer weights, if not supplied then create new (typically shared with embedding layer weights)
+                 out_projs=None,
                  keep_order=False):
         super().__init__()
 
-        self.n_token = n_token
+        self.n_token = n_token # vocab size
         self.d_embed = d_embed
         self.d_proj = d_proj
 
-        self.cutoffs = cutoffs + [n_token]
+        self.cutoffs = cutoffs + [n_token] # add vocab size in cutoff
         self.cutoff_ends = [0] + self.cutoffs
         self.div_val = div_val
 
         self.shortlist_size = self.cutoffs[0]
-        self.n_clusters = len(self.cutoffs) - 1
+        self.n_clusters = len(self.cutoffs) - 1 # number of clusters will be >= 0
         self.head_size = self.shortlist_size + self.n_clusters
 
         self.tie_projs = tie_projs
 
-        if self.n_clusters > 0:
+        if self.n_clusters > 0: # create parameters for each cluster
             self.cluster_weight = nn.Parameter(torch.zeros(self.n_clusters, self.d_embed))
             self.cluster_bias = nn.Parameter(torch.zeros(self.n_clusters))
 
-        if not out_layers_weights:
+        if not out_layers_weights: # if not shared weights with embedding layer
             self.out_layers_weights = nn.ParameterList()
         else:
             self.out_layers_weights = out_layers_weights
@@ -65,8 +67,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         self.shared_out_projs = out_projs
         self.out_projs = OptionalParameterList()
 
-        if div_val == 1:
-            if d_proj != d_embed:
+        if div_val == 1: # if cluster sizes are all same
+            if d_proj != d_embed: # d_proj is same as d_model
                 for i in range(len(self.cutoffs)):
                     if tie_projs[i]:
                         self.out_projs.append(None)
@@ -91,7 +93,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                 l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i+1]
                 d_emb_i = d_embed // (div_val ** i)
 
-                if tie_projs[i]:
+                if tie_projs[i]: # True for Wiki* datasets but False for lm1b
                     self.out_projs.append(None)
                 else:
                     self.out_projs.append(
