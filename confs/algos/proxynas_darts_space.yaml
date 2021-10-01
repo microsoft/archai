@@ -26,7 +26,7 @@ nas:
       
     freeze_trainer:
       plotsdir: ''
-      bypass_freeze: False
+      bypass_freeze: True
       identifiers_to_unfreeze: ['logits_op._op', 'cells.7', 'cells.6', 'cells.5', 'cells.4', 'cells.3'] # last few layer names in DARTS space are 'logits_op._op': Linear, 'cells.19': prefix for all cell 19 parameters
       apex:
         _copy: '/common/apex'
