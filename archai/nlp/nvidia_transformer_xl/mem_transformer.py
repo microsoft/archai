@@ -439,10 +439,10 @@ class RelLearnableDecoderLayer(nn.Module):
                                                   **kwargs)
 
         if primer_ez:
-            self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout, 
+            self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout,
                                                  pre_lnorm=kwargs.get('pre_lnorm'))
         else:
-            self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+            self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
                                          pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r_emb, r_w_bias, r_bias, dec_attn_mask=None, mems=None):
@@ -466,10 +466,10 @@ class RelPartialLearnableDecoderLayer(nn.Module):
                                                          **kwargs)
 
         if primer_ez:
-            self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout, 
+            self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout,
                                                  pre_lnorm=kwargs.get('pre_lnorm'))
         else:
-            self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+            self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
                                          pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r, r_w_bias, r_r_bias, dec_attn_mask=None, mems=None):
@@ -610,19 +610,20 @@ class MemTransformerLM(nn.Module):
 
         self.sample_softmax = sample_softmax
         # use sampled softmax
-        if sample_softmax > 0:
+        if sample_softmax > 0: # default is to not use
             self.out_layer = nn.Linear(d_model, n_token)
             self.tie_weight = tie_weight
             self.sampler = LogUniformSampler(n_token, sample_softmax)
 
         # use adaptive softmax (including standard softmax)
         else:
-            if tie_weight:
+            if tie_weight: # default is True
+                # word_emb.emb_layers has only one element with embedding weight matrix
                 emb_layers = [i.weight for i in self.word_emb.emb_layers]
             else:
                 emb_layers = None
 
-            emb_projs = self.word_emb.emb_projs
+            emb_projs = self.word_emb.emb_projs # nn.ParameterList of len=0
 
             self.crit = ProjectedAdaptiveLogSoftmax(n_token, d_embed, d_model,
                                                     cutoffs, div_val=div_val,
@@ -821,15 +822,16 @@ class MemTransformerLM(nn.Module):
 
         pred_hid = hidden[-tgt_len:]
         if self.sample_softmax > 0 and self.training:
+            raise NotImplementedError('Computing log probabilities is not implemented for sample_softmax mode')
             assert self.tie_weight
             logit = sample_logits(self.word_emb, self.out_layer.bias, target,
                                   pred_hid, self.sampler)
             loss = -F.log_softmax(logit, -1)[:, :, 0]
         else:
-            loss = self.crit(pred_hid.view(-1, pred_hid.size(-1)), target.view(-1))
+            loss, log_prob = self.crit(pred_hid.view(-1, pred_hid.size(-1)), target.view(-1))
             loss = loss.view(tgt_len, -1)
 
-        return (loss, new_mems)
+        return (loss, new_mems, log_prob)
 
 
 if __name__ == '__main__':

@@ -33,7 +33,7 @@ class OptionalParameterList(nn.ParameterList):
 
 class ProjectedAdaptiveLogSoftmax(nn.Module):
     def __init__(self, n_token, d_embed, d_proj, cutoffs, div_val=1,
-                 tie_projs=None,
+                 tie_projs=None, # which clusters should share projection matrix with input embeddings? Head cluster projection is never shared
                  out_layers_weights=None, # output layer weights, if not supplied then create new (typically shared with embedding layer weights)
                  out_projs=None,
                  keep_order=False):
@@ -64,7 +64,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
 
         self.out_layers_biases = nn.ParameterList()
 
-        self.shared_out_projs = out_projs
+        self.shared_out_projs = out_projs # default is empty list
         self.out_projs = OptionalParameterList()
 
         if div_val == 1: # if cluster sizes are all same
@@ -76,7 +76,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                         self.out_projs.append(
                             nn.Parameter(torch.zeros(d_proj, d_embed))
                         )
-            else:
+            else: # no projection required
                 # self.out_projs = [None] * len(self.cutoffs)
                 self.out_projs.append(None)
 
@@ -142,17 +142,22 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             target :: [len*bsz]
         '''
 
-        if hidden.size(0) != target.size(0):
+        if target is not None and hidden.size(0) != target.size(0):
             raise RuntimeError('Input and target should have the same size '
                                'in the batch dimension.')
 
         if self.n_clusters == 0: # if no adaptive softmax
+            # compute logits and log_probs as usual
             logit = self._compute_logit(hidden, self.out_layers_weights[0],
                                         self.out_layers_biases[0], self.get_out_proj(0))
+
+            # nll will be None if target is None
             nll = -F.log_softmax(logit, dim=-1) \
-                    .gather(1, target.unsqueeze(1)).squeeze(1)
+                        .gather(1, target.unsqueeze(1)).squeeze(1) \
+                            if target is not None else None
+            log_probs = F.log_softmax(logit, dim=-1)
         else:
-            # construct weights and biases for each cluster
+            # build list of output weights and biases to use for each cluster
             weights, biases = [], []
             for i in range(len(self.cutoffs)):
                 if self.div_val == 1:
@@ -163,7 +168,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                     weight_i = self.out_layers_weights[i]
                     bias_i = self.out_layers_biases[i]
 
-                if i == 0:
+                # for the first cluster we append n_cluster-1 weights and biases for the following clusters
+                if i == 0: # wight_i->[cutoff, d_embd], cluster_weight->[n_cluster, d_embed]
                     weight_i = torch.cat(
                         [weight_i, self.cluster_weight], dim=0)
                     bias_i = torch.cat(
@@ -172,45 +178,73 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                 weights.append(weight_i)
                 biases.append(bias_i)
 
+            # Calculate logits and log probabilities for the head cluster
             head_weight, head_bias, head_proj = weights[0], biases[0], self.get_out_proj(0)
-
-            head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj)
+            # end of these logits and log prob is for each of the n_cluster-1
+            head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj) #[max_klen, cluster(0) size + n_cluster-1]
             head_logprob = F.log_softmax(head_logit, dim=1)
 
-            nll = torch.zeros_like(target, dtype=hidden.dtype, device=hidden.device)
+            # prepare the array to fill for nll and log_prob
+            # nll is None is target is None
+            nll = torch.zeros_like(target, dtype=hidden.dtype, device=hidden.device) \
+                    if target is not None else None
+            log_probs = hidden.new_empty((head_logit.size(0), self.n_token))
 
             offset = 0
-            cutoff_values = [0] + self.cutoffs
+            cutoff_values = [0] + self.cutoffs # append 0 index for start of first cluster
             for i in range(len(cutoff_values) - 1):
+                # calculate range of current cluster
                 l_idx, r_idx = cutoff_values[i], cutoff_values[i + 1]
 
-                mask_i = (target >= l_idx) & (target < r_idx)
-                indices_i = mask_i.nonzero(as_tuple=False).squeeze()
+                if target is not None:
+                    # select the indices in the target where we have labels present in current cluster
+                    mask_i = (target >= l_idx) & (target < r_idx)
+                    indices_i = mask_i.nonzero(as_tuple=False).squeeze()
 
-                if indices_i.numel() == 0:
-                    continue
+                    # if target has no labels from current cluster, no loss or log prob to compute
+                    if indices_i.numel() == 0:
+                        continue
 
-                target_i = target.index_select(0, indices_i) - l_idx
-                head_logprob_i = head_logprob.index_select(0, indices_i)
+                    # select parts of relevant target and log prob tensors
+                    target_i = target.index_select(0, indices_i) - l_idx
+                    head_logprob_i = head_logprob.index_select(0, indices_i)
+                    hidden_i = hidden.index_select(0, indices_i)
 
+
+                # now compute nll_i and fill up log_probs
+                # nll_i will be used to fill up nll tensor
                 if i == 0:
-                    logprob_i = head_logprob_i.gather(1, target_i[:, None]).squeeze(1)
+                    # for the cluster 0, we already have computed log prob, so just
+                    # pick out the values relevant to target and stuff into final answer
+                    nll_i = head_logprob_i.gather(1, target_i[:, None]).squeeze(1) \
+                        if target is not None else None
+                    log_probs[:, : self.cutoffs[0]] = head_logprob[:, : self.cutoffs[0]]
                 else:
                     weight_i, bias_i, proj_i = weights[i], biases[i], self.get_out_proj(i)
-
-                    hidden_i = hidden.index_select(0, indices_i)
 
                     tail_logit_i = self._compute_logit(hidden_i, weight_i, bias_i, proj_i)
                     tail_logprob_i = F.log_softmax(tail_logit_i, dim=1)
 
-                    logprob_i = head_logprob_i[:, -i] \
-                        + tail_logprob_i.gather(1, target_i[:, None]).squeeze(1)
+                    # select the index in head_logprob where we will put cluster probabilities
+                    # original code has bug for using -i instead of cluster_prob_idx
+                    cluster_prob_idx = self.cutoffs[0] + i - 1  # No probability for the head cluster
 
-                if self.keep_order or keep_order:
-                    nll.index_copy_(0, indices_i, -logprob_i)
-                else:
-                    nll[offset:offset+logprob_i.size(0)].copy_(-logprob_i)
+                    nll_i = - (head_logprob_i[:, cluster_prob_idx] \
+                            + tail_logprob_i.gather(1, target_i[:, None]).squeeze(1)) \
+                                if target is not None else None
 
-                offset += logprob_i.size(0)
+                    # for computing log prob, we need to use full hidden layer
+                    tail_logit_f = self._compute_logit(hidden, weight_i, bias_i, proj_i)
+                    tail_logprob_f = F.log_softmax(tail_logit_f, dim=1)
 
-        return nll
+                    log_probs_i = head_logprob[:, cluster_prob_idx, None] + tail_logprob_f
+                    log_probs[:, l_idx:r_idx] = log_probs_i
+
+                if target is not None:
+                    if self.keep_order or keep_order:
+                        nll.index_copy_(0, indices_i, nll_i)
+                    else:
+                        nll[offset:offset+nll_i.size(0)].copy_(nll_i)
+                    offset += nll_i.size(0)
+
+        return (nll, log_probs)
