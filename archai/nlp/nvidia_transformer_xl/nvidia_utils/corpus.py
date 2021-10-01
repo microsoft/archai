@@ -51,7 +51,7 @@ class Corpus:
 
     def load(self):
         # if files for all dataset npy exist then we have corpus cache
-        if not self.refresh_cache and os.path.exists(self.train_cache_filepath) and os.path.exists(self.valid_cache_filepath) and os.path.exists(self.test_cache_filepath):
+        if not self.refresh_cache and os.path.exists(self.train_cache_filepath) and os.path.exists(self.valid_cache_filepath) and os.path.exists(self.test_cache_filepath) and self.vocab is not None and self.vocab.is_trained():
             logging.info(f'Found existing cache for for dataset {self.dataset}. Loading from {self.train_cache_filepath}.')
 
             # ensure that we have tokenizer cache as well
