@@ -47,8 +47,11 @@ def main():
     fig.add_trace(go.Scatter(x=xs, y=ys, mode='markers'))
     fig.update_layout(xaxis_title='Time to reach threshold train accuracy (s)', 
                       yaxis_title='Final Accuracy')
+    fig.update_layout(font=dict(size=48))
     savename_html = os.path.join(args.out_dir, 'nasbench301_timetothresh_vs_testacc.html')
     fig.write_html(savename_html)
+    savename_pdf = os.path.join(args.out_dir, 'nasbench301_timetothresh_vs_testacc.pdf')
+    fig.write_image(savename_pdf, engine="kaleido", width=1500, height=1500, scale=1)
     fig.show()
 
 
