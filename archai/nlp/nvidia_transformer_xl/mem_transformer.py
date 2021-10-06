@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -809,7 +810,10 @@ class MemTransformerLM(nn.Module):
 
         return core_out, new_mems
 
-    def forward(self, data, target, mems):
+    def forward(self, data:torch.Tensor, target:Optional[torch.Tensor], mems:Optional[torch.Tensor]):
+        # data -> [seq_len, batch_size], target -> [seq_len, batch_size]
+        # Returns:
+        # loss -> [seq_len, batch_size], log_prob -> [seq_len, batch_size, vocab_size]
         # nn.DataParallel does not allow size(0) tensors to be broadcasted.
         # So, have to initialize size(0) mems inside the model forward.
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
@@ -817,8 +821,9 @@ class MemTransformerLM(nn.Module):
         if mems is None:
             mems = self.init_mems()
 
-        tgt_len = target.size(0)
         hidden, new_mems = self._forward(data, mems=mems)
+
+        tgt_len = target.size(0) if target is not None else data.size(0)
 
         pred_hid = hidden[-tgt_len:]
         if self.sample_softmax > 0 and self.training:
@@ -828,8 +833,12 @@ class MemTransformerLM(nn.Module):
                                   pred_hid, self.sampler)
             loss = -F.log_softmax(logit, -1)[:, :, 0]
         else:
-            loss, log_prob = self.crit(pred_hid.view(-1, pred_hid.size(-1)), target.view(-1))
-            loss = loss.view(tgt_len, -1)
+            loss, log_prob = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
+                                       target=target.view(-1) if target is not None else None)
+            # loss -> [target_len, batch_size]
+            # log_prob -> [target_len, batch_size, vocab_size]
+            loss = loss.view(tgt_len, -1) if target is not None else None
+            log_prob = log_prob.view(tgt_len, data.size(1), -1)
 
         return (loss, new_mems, log_prob)
 

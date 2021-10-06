@@ -22,7 +22,7 @@ class ModelWrapper:
         self.model.eval()
 
     @functools.lru_cache(maxsize=1024)
-    def get_logits(self, input_ids: tuple) -> list:
+    def _ids2tensor(self, input_ids: tuple):
         # if empty then use space
         if len(input_ids) == 0:
             input_ids = (self.space_token_id,)
@@ -34,12 +34,12 @@ class ModelWrapper:
         # pad if too small
         input_ids_len = len(input_ids)
         if input_ids_len < self.max_seq_len:
-            input_ids = input_ids + (0,) * (self.max_seq_len - input_ids_len)
+            # TODO: tomasz: pad left instead of right using space IDs
+            input_ids = (self.space_token_id,) * (self.max_seq_len - input_ids_len) + input_ids
 
         tokenized_tensor = torch.tensor(input_ids).to(self.device) # pylint: disable=not-callable
-        outputs = self.model(input_ids=tokenized_tensor)
-        next_token_logits = outputs[0][-1, :].detach()
-        return next_token_logits.tolist()
+        tokenized_tensor.unsqueeze_(0)  # add batch dimension
+        return tokenized_tensor
 
     def get_loss(self, input_ids: tuple) -> float:
         # TODO: BUG: Few % difference from calculating manually
@@ -69,12 +69,14 @@ class ModelWrapper:
             list: probability distribution over all tokens
         """
         start = time.time()
-        input_ids = tuple(input_ids[(-1*self.max_seq_len):])
-        logits = self.get_logits(input_ids)
-        probs = softmax(logits)
+        in_tensor = self._ids2tensor(input_ids)
 
-        logging.debug("Model time for %s input_ids: %s ms; first 10 probs: %s", len(input_ids), 1000*(time.time() - start), probs[:10])
-        return probs
+        loss, mems, log_prob = self.model(in_tensor, target=None, mems=None)
+        # take logits for last token, get first batch
+        next_token_probs = torch.exp(log_prob[-1][0]).tolist()
+
+        logging.debug("Model time for %s input_ids: %s ms; first 10 probs: %s", len(input_ids), 1000*(time.time() - start), next_token_probs[:10])
+        return next_token_probs
 
     @functools.lru_cache(maxsize=1024)
     def get_top_token_prob(self, input_ids: tuple) -> Tuple[int, float]:
