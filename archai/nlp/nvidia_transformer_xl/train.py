@@ -804,15 +804,15 @@ def main():
                                   mem_len=eval_mem_len, ext_len=args.ext_len)
 
     # adaptive softmax / embedding
-    cutoffs, tie_projs = [], [False] # head cluster projection is never tied with embeddings
+    cutoffs, tie_projs = [], [] # head cluster projection is never tied with embeddings
     if args.adaptive:
         assert args.dataset in ['wt103', 'wt2', 'lm1b', 'olx']
         if args.dataset in ['wt103', 'wt2', 'olx']:
-            cutoffs = [19997, 39997, 199997] #TODO: make dynamic as per vocab size?
-            tie_projs += [True] * len(cutoffs)
+            cutoffs = [19997, 39997, 199997, ntokens]
+            tie_projs = [False] + [True] * (len(cutoffs)-1)
         elif args.dataset == 'lm1b':
-            cutoffs = [59997, 99997, 639997]
-            tie_projs += [False] * len(cutoffs)
+            cutoffs = [59997, 99997, 639997, ntokens]
+            tie_projs = [False] + [False] * (len(cutoffs)-1)
         else:
             raise RuntimeError(f'Dataset {args.dataset} not supported for set cutoffs and tie_projs')
 

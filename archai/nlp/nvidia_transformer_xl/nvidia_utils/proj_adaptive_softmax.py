@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List, Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -32,8 +33,10 @@ class OptionalParameterList(nn.ParameterList):
 
 
 class ProjectedAdaptiveLogSoftmax(nn.Module):
-    def __init__(self, n_token, d_embed, d_proj, cutoffs, div_val=1,
-                 tie_projs=None, # which clusters should share projection matrix with input embeddings? Head cluster projection is never shared
+    def __init__(self, n_token, d_embed, d_proj,
+                 cutoffs:Optional[List[int]],
+                 div_val=1,
+                 tie_projs:Optional[List[bool]]=None, # which clusters should share projection matrix with input embeddings? Head cluster projection is never shared
                  out_layers_weights=None, # output layer weights, if not supplied then create new (typically shared with embedding layer weights)
                  out_projs=None,
                  keep_order=False):
@@ -43,7 +46,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         self.d_embed = d_embed
         self.d_proj = d_proj
 
-        self.cutoffs = cutoffs + [n_token] # add vocab size in cutoff
+        self.cutoffs = ProjectedAdaptiveLogSoftmax.clean_cutoffs(cutoffs, n_token)
+
         self.cutoff_ends = [0] + self.cutoffs
         self.div_val = div_val
 
@@ -51,7 +55,9 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         self.n_clusters = len(self.cutoffs) - 1 # number of clusters will be >= 0
         self.head_size = self.shortlist_size + self.n_clusters
 
-        self.tie_projs = tie_projs
+        self.tie_projs = ProjectedAdaptiveLogSoftmax.clean_tie_projs(tie_projs,
+            self.cutoffs, n_token)
+        assert len(self.tie_projs) == len(self.cutoffs)
 
         if self.n_clusters > 0: # create parameters for each cluster
             self.cluster_weight = nn.Parameter(torch.zeros(self.n_clusters, self.d_embed))
@@ -68,7 +74,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         self.out_projs = OptionalParameterList()
 
         if div_val == 1: # if cluster sizes are all same
-            if d_proj != d_embed: # d_proj is same as d_model
+            if d_proj != d_embed: # default: d_proj is same as d_model
                 for i in range(len(self.cutoffs)):
                     if tie_projs[i]:
                         self.out_projs.append(None)
@@ -94,7 +100,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                 l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i+1]
                 d_emb_i = d_embed // (div_val ** i)
 
-                if tie_projs[i]: # True for Wiki* datasets but False for lm1b
+                if tie_projs[i]: # True for non-head clusters in Wiki* datasets but False for lm1b
                     self.out_projs.append(None)
                 else:
                     self.out_projs.append(
@@ -124,6 +130,55 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             if bias is not None:
                 logit = logit + bias
         return logit
+
+    @staticmethod
+    def default_cutoffs(n_token:int)->List[int]:
+        cutoffs, cutoff = [], 20000
+        while cutoff < n_token-10000:
+            cutoffs.append(cutoff)
+            cutoff *= 3
+
+        cutoffs.append(n_token)
+        return cutoffs
+
+    @staticmethod
+    def default_tie_proj(cutoffs:List[int])->List[bool]:
+        return [False] + [True] * (len(cutoffs)-1)
+
+    @staticmethod
+    def clean_cutoffs(cutoffs:Optional[List[int]], n_token:int):
+        if cutoffs is None:
+            cutoffs = ProjectedAdaptiveLogSoftmax.default_cutoffs(n_token)
+        cutoffs = cutoffs.copy()
+        if not cutoffs:
+            cutoffs = [n_token]
+        assert isinstance(cutoffs, list) and len(cutoffs)>0
+
+        # check if all entries in array are monotonically increasing
+        # if any entry is > n_token then we trim the array at that point
+        last_co, c = cutoffs[0], 1
+        while c < len(cutoffs):
+            assert cutoffs[c] > last_co, f"cutoff at {c} is <= {c-1}"
+            last_co = cutoffs[c]
+            if cutoffs[c] > n_token:
+                break
+            c += 1
+        cutoffs = cutoffs[:c] # trim the list if there was any entry > n_token
+        # make sure the last entry is n_token
+        if cutoffs[-1] > n_token:
+            cutoffs[-1] = n_token
+        if cutoffs[-1] < n_token:
+            cutoffs.append(n_token)
+
+        return cutoffs
+
+    @staticmethod
+    def clean_tie_projs(tie_projs:Optional[List[bool]], cutoffs:List[int], n_token:int):
+        if tie_projs is None:
+            tie_projs = ProjectedAdaptiveLogSoftmax.default_tie_proj(cutoffs)
+        assert isinstance(tie_projs, list)
+
+        return tie_projs[:len(cutoffs)]
 
     def get_out_proj(self, i):
         if self.tie_projs[i]:
