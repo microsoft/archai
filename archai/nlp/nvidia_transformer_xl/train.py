@@ -368,63 +368,6 @@ def load_checkpoint(path, prefix=''):
     return checkpoint
 
 
-def init_weight(weight, args):
-    """Intialize given parameters using specified strategy"""
-    if args.init == 'uniform':
-        nn.init.uniform_(weight, -args.init_range, args.init_range)
-    elif args.init == 'normal': # default
-        nn.init.normal_(weight, 0.0, args.init_std)
-
-
-def init_bias(bias):
-    nn.init.constant_(bias, 0.0)
-
-
-def weights_init(m, args):
-    """Initialize weights of module using specified strategy"""
-    classname = m.__class__.__name__
-    if classname.find('Linear') != -1:
-        if hasattr(m, 'weight') and m.weight is not None:
-            init_weight(m.weight, args)
-        if hasattr(m, 'bias') and m.bias is not None:
-            init_bias(m.bias)
-    elif classname.find('AdaptiveEmbedding') != -1:
-        if hasattr(m, 'emb_projs'):
-            for i in range(len(m.emb_projs)):
-                if m.emb_projs[i] is not None:
-                    nn.init.normal_(m.emb_projs[i], 0.0, args.proj_init_std)
-    elif classname.find('Embedding') != -1:
-        if hasattr(m, 'weight'):
-            init_weight(m.weight, args)
-    elif classname.find('ProjectedAdaptiveLogSoftmax') != -1:
-        if hasattr(m, 'cluster_weight') and m.cluster_weight is not None:
-            init_weight(m.cluster_weight, args)
-        if hasattr(m, 'cluster_bias') and m.cluster_bias is not None:
-            init_bias(m.cluster_bias)
-        if hasattr(m, 'out_projs'):
-            for i in range(len(m.out_projs)):
-                if m.out_projs[i] is not None:
-                    nn.init.normal_(m.out_projs[i], 0.0, args.proj_init_std)
-        if hasattr(m, 'out_layers_weights'):
-            for i in range(len(m.out_layers_weights)):
-                if m.out_layers_weights[i] is not None:
-                    init_weight(m.out_layers_weights[i], args)
-    elif classname.find('LayerNorm') != -1:
-        if hasattr(m, 'weight'):
-            nn.init.normal_(m.weight, 1.0, args.init_std)
-        if hasattr(m, 'bias') and m.bias is not None:
-            init_bias(m.bias)
-    elif classname.find('TransformerLM') != -1:
-        if hasattr(m, 'r_emb'):
-            init_weight(m.r_emb, args)
-        if hasattr(m, 'r_w_bias'):
-            init_weight(m.r_w_bias, args)
-        if hasattr(m, 'r_r_bias'):
-            init_weight(m.r_r_bias, args)
-        if hasattr(m, 'r_bias'):
-            init_bias(m.r_bias)
-
-
 def update_dropout(m, args):
     classname = m.__class__.__name__
     if classname.find('Dropout') != -1:
@@ -842,14 +785,16 @@ def main():
         'attn_type': args.attn_type,
         'clamp_len': args.clamp_len,
         'sample_softmax': args.sample_softmax,
+
+        'weight_init_type': args.init_type,
+        'weight_init_range': args.init_range,
+        'weight_init_std': args.init_std,
+        'proj_init_std': args.proj_init_std,
+
         'primer_ez': args.primer_ez,
         }
 
     model = MemTransformerLM(**model_config)
-
-    model.apply(functools.partial(weights_init, args=args))
-    # ensure embedding init is not overridden by out_layer in case of weight sharing
-    model.word_emb.apply(functools.partial(weights_init, args=args))
 
     args.n_all_param = sum([p.nelement() for p in model.parameters()])
     args.n_nonemb_param = sum([p.nelement() for p in model.layers.parameters()])
@@ -1126,19 +1071,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # Disable profiling executor
-    try:
-        torch._C._jit_set_profiling_executor(False)
-        torch._C._jit_set_profiling_mode(False)
-    except AttributeError:
-        pass
-
-    # Before we do anything with models, we want to ensure that we get fp16
-    # execution of torch.einsum in APEX AMP.
-    # Otherwise it'll default to "promote" mode, and we'll get fp32 operations.
-    # Note that running `--apex_amp_opt_level O2` will remove the need for this
-    # code, but it is still valid.
-    if 'apex' in sys.modules:
-        amp.register_half_function(torch, 'einsum')
-
+    exp_utils.script_init()
     main()

@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from typing import Optional
+import functools
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -545,15 +547,16 @@ class AdaptiveEmbedding(nn.Module):
 
         return embed
 
-
 class MemTransformerLM(nn.Module):
-    def __init__(self, n_token, n_layer, n_head, d_model, d_head, d_inner,
-                 dropout, dropatt, dtype, tie_weight=True, d_embed=None,
-                 div_val=1, tie_projs=[False], pre_lnorm=False,
-                 tgt_len=None, ext_len=None, mem_len=None,
-                 cutoffs=[], adapt_inp=False,
-                 same_length=False, attn_type=0, clamp_len=-1,
-                 sample_softmax=-1, primer_ez=False):
+    def __init__(self, n_token, n_layer=16, n_head=8, d_model=512, d_head=64, d_inner=2048,
+                 dropout=0.1, dropatt=0.0, dtype=None, tie_weight=True, d_embed=512,
+                 div_val=1, tie_projs=None, pre_lnorm=False,
+                 tgt_len=192, ext_len=0, mem_len=192,
+                 cutoffs=None, adapt_inp=False,
+                 same_length=False, attn_type=0, clamp_len=-1, sample_softmax=-1,
+                 weight_init_type='normal', weight_init_range=0.1, weight_init_std=0.02,
+                 proj_init_std=0.01, init_std=0.02,
+                 primer_ez=False):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
@@ -576,7 +579,7 @@ class MemTransformerLM(nn.Module):
 
         self.tgt_len = tgt_len
         self.mem_len = mem_len
-        self.ext_len = ext_len
+        self.ext_len = ext_len # extended context length, default is 0
         self.max_klen = tgt_len + ext_len + mem_len
 
         self.attn_type = attn_type
@@ -637,6 +640,19 @@ class MemTransformerLM(nn.Module):
         self.clamp_len = clamp_len
 
         self._create_params()
+
+        # initialize weights
+        weight_init_params = {
+            'weight_init_type': weight_init_type,
+            'weight_init_range': weight_init_range,
+            'weight_init_std': weight_init_std,
+            'proj_init_std': proj_init_std,
+            'init_std': init_std
+        }
+
+        self.apply(functools.partial(weights_init, **weight_init_params))
+        # ensure embedding init is not overridden by out_layer in case of weight sharing
+        self.word_emb.apply(functools.partial(weights_init, **weight_init_params))
 
     def backward_compatible(self):
         self.sample_softmax = -1
@@ -841,6 +857,67 @@ class MemTransformerLM(nn.Module):
             log_prob = log_prob.view(tgt_len, data.size(1), -1)
 
         return (loss, new_mems, log_prob)
+
+def init_weight(weight, weight_init_type:str, weight_init_range:float, weight_init_std:float):
+    """Intialize given parameters using specified strategy"""
+    if weight_init_type == 'uniform':
+        nn.init.uniform_(weight, -weight_init_range, weight_init_range)
+    elif weight_init_type == 'normal': # default
+        nn.init.normal_(weight, 0.0, weight_init_std)
+
+def init_bias(bias):
+    nn.init.constant_(bias, 0.0)
+
+def weights_init(m, weight_init_type:str, weight_init_range:float, weight_init_std:float, proj_init_std:float):
+    """Initialize weights of module using specified strategy"""
+    classname = m.__class__.__name__
+
+    weight_init_params = {
+        'weight_init_type': weight_init_type,
+        'weight_init_range': weight_init_range,
+        'weight_init_std': weight_init_std
+    }
+
+    if classname.find('Linear') != -1:
+        if hasattr(m, 'weight') and m.weight is not None:
+            init_weight(m.weight, **weight_init_params)
+        if hasattr(m, 'bias') and m.bias is not None:
+            init_bias(m.bias)
+    elif classname.find('AdaptiveEmbedding') != -1:
+        if hasattr(m, 'emb_projs'):
+            for i in range(len(m.emb_projs)):
+                if m.emb_projs[i] is not None:
+                    nn.init.normal_(m.emb_projs[i], 0.0, proj_init_std)
+    elif classname.find('Embedding') != -1:
+        if hasattr(m, 'weight'):
+            init_weight(m.weight, **weight_init_params)
+    elif classname.find('ProjectedAdaptiveLogSoftmax') != -1:
+        if hasattr(m, 'cluster_weight') and m.cluster_weight is not None:
+            init_weight(m.cluster_weight, **weight_init_params)
+        if hasattr(m, 'cluster_bias') and m.cluster_bias is not None:
+            init_bias(m.cluster_bias)
+        if hasattr(m, 'out_projs'):
+            for i in range(len(m.out_projs)):
+                if m.out_projs[i] is not None:
+                    nn.init.normal_(m.out_projs[i], 0.0, proj_init_std)
+        if hasattr(m, 'out_layers_weights'):
+            for i in range(len(m.out_layers_weights)):
+                if m.out_layers_weights[i] is not None:
+                    init_weight(m.out_layers_weights[i], **weight_init_params)
+    elif classname.find('LayerNorm') != -1:
+        if hasattr(m, 'weight'):
+            nn.init.normal_(m.weight, 1.0, weight_init_std)
+        if hasattr(m, 'bias') and m.bias is not None:
+            init_bias(m.bias)
+    elif classname.find('TransformerLM') != -1:
+        if hasattr(m, 'r_emb'):
+            init_weight(m.r_emb, **weight_init_params)
+        if hasattr(m, 'r_w_bias'):
+            init_weight(m.r_w_bias, **weight_init_params)
+        if hasattr(m, 'r_r_bias'):
+            init_weight(m.r_r_bias, **weight_init_params)
+        if hasattr(m, 'r_bias'):
+            init_bias(m.r_bias)
 
 
 if __name__ == '__main__':
