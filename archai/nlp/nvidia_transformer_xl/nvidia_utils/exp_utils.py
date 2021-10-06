@@ -25,9 +25,15 @@ from typing import Optional, Tuple
 import dllogger
 import torch.utils.collect_env
 
-from . import distributed as nv_distributed
+from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
 
 from archai.common import utils, common
+
+try:
+    from apex import amp
+except ModuleNotFoundError:
+    logging.warn('APEX AMP is unavailable')
+
 
 class AverageMeter:
     """
@@ -255,3 +261,19 @@ def get_create_dirs(data_dir:Optional[str], dataset_name:str,
     cache_dir = utils.full_path(cache_dir, create=True)
 
     return data_dir, output_dir, cache_dir
+
+def script_init():
+        # Disable profiling executor
+    try:
+        torch._C._jit_set_profiling_executor(False)
+        torch._C._jit_set_profiling_mode(False)
+    except AttributeError:
+        pass
+
+    # Before we do anything with models, we want to ensure that we get fp16
+    # execution of torch.einsum in APEX AMP.
+    # Otherwise it'll default to "promote" mode, and we'll get fp32 operations.
+    # Note that running `--apex_amp_opt_level O2` will remove the need for this
+    # code, but it is still valid.
+    if 'apex' in sys.modules:
+        amp.register_half_function(torch, 'einsum')

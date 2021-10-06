@@ -22,6 +22,7 @@ import torch
 
 from archai.nlp.scoring.sequence import TextPredictionSequence
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
 
 def predict_console(predictor:TextPredictor):
     """Console application showing predictions.
@@ -75,7 +76,8 @@ def predict_console(predictor:TextPredictor):
         print("Exiting...")
 
 
-def predict_text(model, vocab:VocabBase, in_filetype:str, in_filepath:str, out_filepath:str, score_output_dir:str,
+def predict_text(model, vocab:VocabBase, in_filetype:str,
+                 in_filepath:str='', out_filepath:str='', score_output_dir:str='',
                  save_step=100000, min_score=1.0, max_score=5.0, score_step=0.1,
                  expected_match_rate=0.5, # Match point to estimate parameters at
                  current_paragraph_only=False, # Truncate the body to current paragraph only (remove anything before new line)
@@ -100,6 +102,13 @@ def predict_text(model, vocab:VocabBase, in_filetype:str, in_filepath:str, out_f
     else:
         raise ValueError(f"Unkown input type '{in_filetype}'")
 
+
+def test_console():
+    predict_text(in_filepath='console')
+
+if __name__ == "__main__":
+    exp_utils.script_init()
+    test_console()
 
 # sample command lines
 # tp_predict_text --type smartcompose --model_type swiftkey --model lm+/model_opset12_quant.onnx --tokenizer_type swiftkey --tokenizer tokenizer/ --min_score 2 --input ~/Swiftkey/data/Eval/GSuiteCompete/GSuiteCompete10pc.ljson --output ./GSuiteCompete10pc.ljson --score
