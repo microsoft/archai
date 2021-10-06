@@ -647,7 +647,6 @@ class MemTransformerLM(nn.Module):
             'weight_init_range': weight_init_range,
             'weight_init_std': weight_init_std,
             'proj_init_std': proj_init_std,
-            'init_std': init_std
         }
 
         self.apply(functools.partial(weights_init, **weight_init_params))

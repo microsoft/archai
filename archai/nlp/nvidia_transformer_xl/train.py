@@ -786,7 +786,7 @@ def main():
         'clamp_len': args.clamp_len,
         'sample_softmax': args.sample_softmax,
 
-        'weight_init_type': args.init_type,
+        'weight_init_type': args.init,
         'weight_init_range': args.init_range,
         'weight_init_std': args.init_std,
         'proj_init_std': args.proj_init_std,
