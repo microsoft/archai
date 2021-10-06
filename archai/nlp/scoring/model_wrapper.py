@@ -38,7 +38,7 @@ class ModelWrapper:
             input_ids = (self.space_token_id,) * (self.max_seq_len - input_ids_len) + input_ids
 
         tokenized_tensor = torch.tensor(input_ids).to(self.device) # pylint: disable=not-callable
-        tokenized_tensor.unsqueeze_(0)  # add batch dimension
+        tokenized_tensor = tokenized_tensor[:, None]  # add batch dimension
         return tokenized_tensor
 
     def get_loss(self, input_ids: tuple) -> float:

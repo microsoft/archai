@@ -156,7 +156,7 @@ class WordVocab(VocabBase): # Word vocab is the default
 
     @overrides
     def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
-        return self._tokenizer.token_to_id(self._config.special_token_name(sp))
+        return self.token_to_id(self._config.special_token_name(sp))
 
     def _encode_sents(self, sents, ordered=False, verbose=True):
         if verbose:

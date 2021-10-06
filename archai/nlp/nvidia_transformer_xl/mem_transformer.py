@@ -493,7 +493,7 @@ class AdaptiveEmbedding(nn.Module):
         self.n_token = n_token
         self.d_embed = d_embed
 
-        self.cutoffs = cutoffs + [n_token]
+        self.cutoffs = ProjectedAdaptiveLogSoftmax.clean_cutoffs(cutoffs, n_token)
         self.div_val = div_val
         self.d_proj = d_proj
 

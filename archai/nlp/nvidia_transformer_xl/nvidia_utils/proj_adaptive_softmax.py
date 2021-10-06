@@ -276,18 +276,21 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                         if target is not None else None
                     log_probs[:, : self.cutoffs[0]] = head_logprob[:, : self.cutoffs[0]]
                 else:
-                    weight_i, bias_i, proj_i = weights[i], biases[i], self.get_out_proj(i)
-
-                    tail_logit_i = self._compute_logit(hidden_i, weight_i, bias_i, proj_i)
-                    tail_logprob_i = F.log_softmax(tail_logit_i, dim=1)
-
                     # select the index in head_logprob where we will put cluster probabilities
                     # original code has bug for using -i instead of cluster_prob_idx
                     cluster_prob_idx = self.cutoffs[0] + i - 1  # No probability for the head cluster
 
-                    nll_i = - (head_logprob_i[:, cluster_prob_idx] \
-                            + tail_logprob_i.gather(1, target_i[:, None]).squeeze(1)) \
-                                if target is not None else None
+                    weight_i, bias_i, proj_i = weights[i], biases[i], self.get_out_proj(i)
+
+                    if target is not None:
+                        tail_logit_i = self._compute_logit(hidden_i, weight_i, bias_i, proj_i)
+                        tail_logprob_i = F.log_softmax(tail_logit_i, dim=1)
+
+                        nll_i = - (head_logprob_i[:, cluster_prob_idx] \
+                                + tail_logprob_i.gather(1, target_i[:, None]).squeeze(1)) \
+                                    if target is not None else None
+                    else:
+                        nll_i = None
 
                     # for computing log prob, we need to use full hidden layer
                     tail_logit_f = self._compute_logit(hidden, weight_i, bias_i, proj_i)
