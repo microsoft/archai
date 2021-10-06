@@ -11,6 +11,8 @@ import time
 from collections import OrderedDict
 from typing import Tuple
 
+from torch import nn
+
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.scoring.vocab_wrapper import VocabWrapper
 from archai.nlp.scoring.model_wrapper import ModelWrapper
@@ -247,7 +249,7 @@ class TextPredictor:
     MAX_INPUT_TEXT_LEN = 1_000_000
 
     def __init__(self, model:nn.Module, vocab:VocabBase):
-        self.model_wrapper = ModelWrapper(model, vocab.token_to_id(' '), )
+        self.model_wrapper = ModelWrapper(model, vocab.token_to_id(' '), model.tgt_len)
         self.vocab_wrapper = VocabWrapper(vocab)
         self.bos_id = vocab.special_token_id(SpecialTokenEnum.BOS)
 

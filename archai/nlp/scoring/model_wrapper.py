@@ -49,13 +49,16 @@ class ModelWrapper:
 
         labels_len_sum = 0
         loss_sum = 0.0
-        for idx in range(0, len(input_ids), self.max_seq_len):
-            tmp_input_ids = (self.space_token_id,) + input_ids[idx:(idx + self.max_seq_len)]
-            labels_len = len(tmp_input_ids) - 1
-            tokenized_tensor = torch.tensor(tmp_input_ids).to(self.device) # pylint: disable=not-callable
-            outputs = self.model(input_ids=tokenized_tensor, labels=tokenized_tensor)
-            labels_len_sum += labels_len
-            loss_sum += labels_len * float(outputs.loss)
+        for idx in range(0, len(input_ids)-1, self.max_seq_len):
+            data = input_ids[idx:(idx + self.max_seq_len)]
+            target = input_ids[idx+1:(idx + 1 + self.max_seq_len)]
+
+            data_t = self._ids2tensor(data)
+            target_t = self._ids2tensor(target)
+
+            loss, mems, log_prob = self.model(data_t, target=target_t, mems=None)
+            loss_sum += torch.sum(loss)
+            labels_len_sum += len(target)
         return loss_sum / labels_len_sum
 
     @functools.lru_cache(maxsize=1024)

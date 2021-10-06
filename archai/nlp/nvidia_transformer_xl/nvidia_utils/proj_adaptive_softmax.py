@@ -133,13 +133,14 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
 
     @staticmethod
     def default_cutoffs(n_token:int)->List[int]:
-        cutoffs, cutoff = [], 20000
-        while cutoff < n_token-10000:
-            cutoffs.append(cutoff)
-            cutoff *= 3
+        return [19997, 39997, 199997, n_token]
+        # cutoffs, cutoff = [], 20000
+        # while cutoff < n_token-10000:
+        #     cutoffs.append(cutoff)
+        #     cutoff *= 3
 
-        cutoffs.append(n_token)
-        return cutoffs
+        # cutoffs.append(n_token)
+        # return cutoffs
 
     @staticmethod
     def default_tie_proj(cutoffs:List[int])->List[bool]:
