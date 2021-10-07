@@ -1,4 +1,6 @@
 import logging
+import argparse
+import os
 
 import torch
 
@@ -6,22 +8,50 @@ from archai.nlp.scoring.score import score
 from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
 from archai.nlp.nvidia_transformer_xl.data_utils import get_lm_corpus
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
+from archai.common import utils, common
+from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 
-def test_console():
-    device = torch.device('cuda')
+def create_vocab(dataset_dir:str, dataset_name:str)->VocabBase:
+    corpus = get_lm_corpus(datadir=dataset_dir, cachedir=cache_dir, dataset=dataset_name, vocab_type='word', vocab_size=None, refresh_cache=False)
 
-    data_dir, work_dir, cache_dir = exp_utils.get_create_dirs(data_dir=None, dataset_name='wt103', experiment_name='test_console')
-
-    corpus = get_lm_corpus(datadir=data_dir, cachedir=cache_dir, dataset='wt103', vocab_type='word',
-                           vocab_size=None, refresh_cache=False)
-    ntokens = len(corpus.vocab)
     logging.info(f'Dataset load complete, vocab size is: {ntokens}')
 
-    model = MemTransformerLM(ntokens)
+    return corpus.vocab
+
+def test_score(dataset_dir:str, dataset_name:str, in_filetype:str,
+               in_filepath:str, out_filepath:str, score_output_dir:str):
+    device = torch.device('cuda')
+
+    vocab = create_vocab(dataset_dir, dataset_name)
+    model = MemTransformerLM(len(vocab))
     model.to(device)
 
-    score(model=model, vocab=corpus.vocab, in_filetype='console')
+    score(model=model, vocab=vocab, in_filetype=in_filetype)
 
 if __name__ == "__main__":
     exp_utils.script_init()
-    test_console()
+
+    logging.basicConfig(level=logging.INFO)
+
+    parser = argparse.ArgumentParser(description='PyTorch Transformer-XL Language Model')
+    parser.add_argument('--output_dir', default='~/logdir', type=str,
+                         help='Directory for the results')
+    parser.add_argument('--dataroot', type=str, default=None,
+                         help='Location of the data corpus')
+    parser.add_argument('--dataset', type=str, default='wt103',
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx'],
+                         help='Dataset name')
+    parser.add_argument('--in_filetype', type=str, default='console',
+                         help='input for scoring')
+    parser.add_argument('--experiment_name', type=str, default='test_score',
+                         help='dir name for exoeriment')
+    args, _ = parser.parse_known_args()
+
+    dataset_dir, work_dir, cache_dir, dataroot = exp_utils.get_create_dirs(dataroot=args.dataroot, dataset_name=args.dataset, experiment_name=args.experiment_name, output_dir=args.output_dir)
+
+    eval_filepath = os.path.join(dataroot, 'textpred', 'eval', 'GSuiteCompete10pc_toy.ljson')
+    out_filepath = os.path(work_dir, 'score_preds.txt')
+    score_out_dir = utils.full_path(os.path(work_dir, 'scores'), create=True)
+
+    test_score(dataset_dir, args.dataset_name, args.in_filetype,
+               eval_filepath, out_filepath, score_out_dir)

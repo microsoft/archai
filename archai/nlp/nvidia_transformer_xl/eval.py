@@ -292,7 +292,7 @@ def main():
     device = torch.device('cuda' if args.cuda else 'cpu')
     nvidia_utils.distributed.init_distributed(args.cuda)
 
-    args.data, args.work_dir, args.cache_dir = \
+    args.data, args.work_dir, args.cache_dir, dataroot = \
         exp_utils.get_create_dirs(args.data, args.dataset, args.experiment_name,
                                   args.work_dir, args.cache_dir)
 
