@@ -39,7 +39,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                  tie_projs:Optional[List[bool]]=None, # which clusters should share projection matrix with input embeddings? Head cluster projection is never shared
                  out_layers_weights=None, # output layer weights, if not supplied then create new (typically shared with embedding layer weights)
                  out_projs=None,
-                 keep_order=False):
+                 keep_order=False # return nll tensor in same order as sequence
+                 ):
         super().__init__()
 
         self.n_token = n_token # vocab size
@@ -192,7 +193,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         else:
             return self.out_projs[i]
 
-    def forward(self, hidden:torch.Tensor, target:Optional[torch.Tensor], keep_order=False):
+    def forward(self, hidden:torch.Tensor, target:Optional[torch.Tensor],
+                keep_order=False, return_nll=True, return_log_probs=False):
         '''
             hidden :: [len*bsz x d_proj]
             target :: [len*bsz]
@@ -201,6 +203,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         if target is not None and hidden.size(0) != target.size(0):
             raise RuntimeError('Input and target should have the same size '
                                'in the batch dimension.')
+        if target is None:
+            return_nll = False
 
         if self.n_clusters == 0: # if no adaptive softmax
             # compute logits and log_probs as usual
@@ -210,8 +214,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             # nll will be None if target is None
             nll = -F.log_softmax(logit, dim=-1) \
                         .gather(1, target.unsqueeze(1)).squeeze(1) \
-                            if target is not None else None
-            log_probs = F.log_softmax(logit, dim=-1)
+                            if return_nll else None
+            log_probs = F.log_softmax(logit, dim=-1) if return_log_probs else None
         else:
             # build list of output weights and biases to use for each cluster
             weights, biases = [], []
@@ -243,8 +247,9 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             # prepare the array to fill for nll and log_prob
             # nll is None is target is None
             nll = torch.zeros_like(target, dtype=hidden.dtype, device=hidden.device) \
-                    if target is not None else None
-            log_probs = hidden.new_empty((head_logit.size(0), self.n_token))
+                    if return_nll else None
+            log_probs = hidden.new_empty((head_logit.size(0), self.n_token)) \
+                    if return_log_probs else None
 
             offset = 0
             cutoff_values = [0] + self.cutoffs # append 0 index for start of first cluster
@@ -272,9 +277,14 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                 if i == 0:
                     # for the cluster 0, we already have computed log prob, so just
                     # pick out the values relevant to target and stuff into final answer
-                    nll_i = head_logprob_i.gather(1, target_i[:, None]).squeeze(1) \
-                        if target is not None else None
-                    log_probs[:, : self.cutoffs[0]] = head_logprob[:, : self.cutoffs[0]]
+                    if return_nll:
+                        nll_i = head_logprob_i.gather(1, target_i[:, None]).squeeze(1)
+                    else:
+                        nll_i = None
+
+                    if return_log_probs:
+                        log_probs[:, : self.cutoffs[0]] = head_logprob[:, : self.cutoffs[0]]
+                    # else no log_probs
                 else:
                     # select the index in head_logprob where we will put cluster probabilities
                     # original code has bug for using -i instead of cluster_prob_idx
@@ -282,24 +292,26 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
 
                     weight_i, bias_i, proj_i = weights[i], biases[i], self.get_out_proj(i)
 
-                    if target is not None:
+                    if return_nll:
                         tail_logit_i = self._compute_logit(hidden_i, weight_i, bias_i, proj_i)
                         tail_logprob_i = F.log_softmax(tail_logit_i, dim=1)
 
                         nll_i = - (head_logprob_i[:, cluster_prob_idx] \
-                                + tail_logprob_i.gather(1, target_i[:, None]).squeeze(1)) \
-                                    if target is not None else None
+                                + tail_logprob_i.gather(1, target_i[:, None]).squeeze(1))
                     else:
                         nll_i = None
 
-                    # for computing log prob, we need to use full hidden layer
-                    tail_logit_f = self._compute_logit(hidden, weight_i, bias_i, proj_i)
-                    tail_logprob_f = F.log_softmax(tail_logit_f, dim=1)
+                    if return_log_probs:
+                        # for computing log prob, we need to use full hidden layer
+                        tail_logit_f = self._compute_logit(hidden, weight_i, bias_i, proj_i)
+                        tail_logprob_f = F.log_softmax(tail_logit_f, dim=1)
 
-                    log_probs_i = head_logprob[:, cluster_prob_idx, None] + tail_logprob_f
-                    log_probs[:, l_idx:r_idx] = log_probs_i
+                        log_probs_i = head_logprob[:, cluster_prob_idx, None] + tail_logprob_f
+                        log_probs[:, l_idx:r_idx] = log_probs_i
+                    else:
+                        log_probs = None
 
-                if target is not None:
+                if return_nll:
                     if self.keep_order or keep_order:
                         nll.index_copy_(0, indices_i, nll_i)
                     else:
