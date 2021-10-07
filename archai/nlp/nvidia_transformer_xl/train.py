@@ -694,7 +694,7 @@ def main():
     exp_utils.setup_dllogger(enabled=True, filename=dllog_file)
 
     if args.config == 'toy':
-        logging.warn('Running in toy mode which means wt2 dataset, only one step training, a lot of batch chunking for laptop GPU')
+        logging.warning('Running in toy mode which means wt2 dataset, only one step training, a lot of batch chunking for laptop GPU')
 
     if args.local_batch_size is not None: # default is None
         world_size = nv_distributed.get_world_size()

@@ -825,7 +825,8 @@ class MemTransformerLM(nn.Module):
 
         return core_out, new_mems
 
-    def forward(self, data:torch.Tensor, target:Optional[torch.Tensor], mems:Optional[torch.Tensor]):
+    def forward(self, data:torch.Tensor, target:Optional[torch.Tensor], mems:Optional[torch.Tensor],
+                return_nll=True, return_log_probs=False):
         # data -> [seq_len, batch_size], target -> [seq_len, batch_size]
         # Returns:
         # loss -> [seq_len, batch_size], log_prob -> [seq_len, batch_size, vocab_size]
@@ -835,6 +836,9 @@ class MemTransformerLM(nn.Module):
         # them together.
         if mems is None:
             mems = self.init_mems()
+
+        if target is None:
+            return_nll = False
 
         hidden, new_mems = self._forward(data, mems=mems)
 
@@ -849,11 +853,12 @@ class MemTransformerLM(nn.Module):
             loss = -F.log_softmax(logit, -1)[:, :, 0]
         else:
             loss, log_prob = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
-                                       target=target.view(-1) if target is not None else None)
+                                       target=target.view(-1) if target is not None else None,
+                                       return_nll=return_nll, return_log_probs=return_log_probs)
             # loss -> [target_len, batch_size]
             # log_prob -> [target_len, batch_size, vocab_size]
             loss = loss.view(tgt_len, -1) if target is not None else None
-            log_prob = log_prob.view(tgt_len, data.size(1), -1)
+            log_prob = log_prob.view(tgt_len, data.size(1), -1) if log_prob is not None else None
 
         return (loss, new_mems, log_prob)
 
