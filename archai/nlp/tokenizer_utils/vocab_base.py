@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from typing import List, Optional
 import logging
+from collections import abc
 
 
 from overrides import overrides, EnforceOverrides
@@ -8,7 +9,7 @@ import torch
 
 from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
-class VocabBase(EnforceOverrides):
+class VocabBase(EnforceOverrides, abc.Sized):
     @abstractmethod
     def train(self, filepaths:List[str])->None:
         pass
@@ -29,7 +30,8 @@ class VocabBase(EnforceOverrides):
         pass
 
     @abstractmethod
-    def __len__(self)->int:
+    @overrides
+    def __len__(self):
         pass
 
     @abstractmethod
