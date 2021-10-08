@@ -14,8 +14,6 @@ from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 def create_vocab(dataset_dir:str, dataset_name:str)->VocabBase:
     corpus = get_lm_corpus(datadir=dataset_dir, cachedir=cache_dir, dataset=dataset_name, vocab_type='word', vocab_size=None, refresh_cache=False)
 
-    logging.info(f'Dataset load complete, vocab size is: {ntokens}')
-
     return corpus.vocab
 
 def test_score(dataset_dir:str, dataset_name:str, in_filetype:str,
@@ -23,6 +21,8 @@ def test_score(dataset_dir:str, dataset_name:str, in_filetype:str,
     device = torch.device('cuda')
 
     vocab = create_vocab(dataset_dir, dataset_name)
+    logging.info(f'Dataset load complete, vocab size is: {len(vocab)}')
+
     model = MemTransformerLM(len(vocab))
     model.to(device)
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', type=str, default='wt103',
                          choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx'],
                          help='Dataset name')
-    parser.add_argument('--in_filetype', type=str, default='console',
+    parser.add_argument('--in_filetype', type=str, default='smartcompose', # console, text, smartcompose
                          help='input for scoring')
     parser.add_argument('--experiment_name', type=str, default='test_score',
                          help='dir name for exoeriment')
@@ -50,8 +50,12 @@ if __name__ == "__main__":
     dataset_dir, work_dir, cache_dir, dataroot = exp_utils.get_create_dirs(dataroot=args.dataroot, dataset_name=args.dataset, experiment_name=args.experiment_name, output_dir=args.output_dir)
 
     eval_filepath = os.path.join(dataroot, 'textpred', 'eval', 'GSuiteCompete10pc_toy.ljson')
-    out_filepath = os.path(work_dir, 'score_preds.txt')
-    score_out_dir = utils.full_path(os.path(work_dir, 'scores'), create=True)
+    out_filepath = os.path.join(work_dir, 'score_preds.txt')
+    score_out_dir = utils.full_path(os.path.join(work_dir, 'scores'), create=True)
 
-    test_score(dataset_dir, args.dataset_name, args.in_filetype,
+    print('eval_filepath', eval_filepath)
+    print('out_filepath', out_filepath)
+    print('score_out_dir', score_out_dir)
+
+    test_score(dataset_dir, args.dataset, args.in_filetype,
                eval_filepath, out_filepath, score_out_dir)

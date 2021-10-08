@@ -58,8 +58,16 @@ class WordVocab(VocabBase): # Word vocab is the default
             for idx, line in enumerate(f):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     logging.info('    file line {}'.format(idx))
-                symbols = self._tokenize_line(line)
+                symbols = self._tokenize_text(line)
                 self.counter.update(symbols)
+
+    def _tokenize_text(self, text:str)->List[str]:
+        text = self._preprocess_text(text)
+
+        # split on whitespace
+        symbols = text.split(self.delimiter)
+
+        return symbols
 
     def _count_sents(self, sents, verbose=False):
         """
@@ -132,10 +140,7 @@ class WordVocab(VocabBase): # Word vocab is the default
 
     @overrides
     def encode_text(self, text:str, add_special_tokens=False)->List[int]:
-        text = self._preprocess_text(text)
-
-        # split on whitespace
-        symbols = text.split(self.delimiter)
+        symbols = self._tokenize_text(text)
 
         if add_special_tokens:
             toks = self._bos + symbols + self._eos

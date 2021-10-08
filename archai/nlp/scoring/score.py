@@ -81,7 +81,7 @@ def score(model, vocab:VocabBase, in_filetype:str,
                  save_step=100000, min_score=1.0, max_score=5.0, score_step=0.1,
                  expected_match_rate=0.5, # Match point to estimate parameters at
                  current_paragraph_only=False, # Truncate the body to current paragraph only (remove anything before new line)
-                 do_scoring=False, max_body_len=10000):
+                 do_scoring=True, max_body_len=10000):
     predictor = TextPredictor(model, vocab)
     predictor.MAX_INPUT_TEXT_LEN = max_body_len
 
