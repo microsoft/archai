@@ -23,18 +23,21 @@ install_requires=[
 
 setup(
     name="archai",
-    version="0.5.0",
-    author="Shital Shah, Debadeepta Dey,",
+    version="0.6.0",
+    author="Shital Shah, Debadeepta Dey",
     author_email="shitals@microsoft.com, dedey@microsoft.com",
     description="Research platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Shital Shah, Debadeepta Dey",
-    author_email="shitals@microsoft.com, dedey@microsoft.com",
     url="https://github.com/microsoft/archai",
-	license="MIT",
-    install_requires=install_requires,
-    packages=find_packages(),
+    packages=setuptools.find_packages(),
+	license='MIT',
+    classifiers=[
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Intended Audience :: Science/Research'
+    ],
     include_package_data=True,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
