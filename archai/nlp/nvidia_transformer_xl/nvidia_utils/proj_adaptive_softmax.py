@@ -215,7 +215,9 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             nll = -F.log_softmax(logit, dim=-1) \
                         .gather(1, target.unsqueeze(1)).squeeze(1) \
                             if return_nll else None
-            log_probs = F.log_softmax(logit, dim=-1) if return_log_probs else None
+
+            log_probs = F.log_softmax(logit, dim=-1) \
+                if return_log_probs else None
         else:
             # build list of output weights and biases to use for each cluster
             weights, biases = [], []
@@ -278,7 +280,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                     # for the cluster 0, we already have computed log prob, so just
                     # pick out the values relevant to target and stuff into final answer
                     if return_nll:
-                        nll_i = head_logprob_i.gather(1, target_i[:, None]).squeeze(1)
+                        nll_i = -head_logprob_i.gather(1, target_i[:, None]).squeeze(1)
                     else:
                         nll_i = None
 
