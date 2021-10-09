@@ -23,7 +23,9 @@ install_requires=[
 
 setup(
     name="archai",
-    version="0.6.4",
+    version="0.5.0",
+    author="Shital Shah, Debadeepta Dey,",
+    author_email="shitals@microsoft.com, dedey@microsoft.com",
     description="Research platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
