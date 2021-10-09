@@ -241,7 +241,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             # Calculate logits and log probabilities for the head cluster
             head_weight, head_bias, head_proj = weights[0], biases[0], self.get_out_proj(0)
             # end of these logits and log prob is for each of the n_cluster-1
-            head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj) #[max_klen, cluster(0) size + n_cluster-1]
+            head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj) #[seq_len*batch, cluster(0) size + n_cluster-1]
             head_logprob = F.log_softmax(head_logit, dim=1)
 
             # prepare the array to fill for nll and log_prob
