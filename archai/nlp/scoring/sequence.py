@@ -465,22 +465,34 @@ print(json.dumps(score, indent=2))
         summary["TotalWordCount"] = self.word_count
         summary["Perplexity"] = self.perplexity
         summary["SuggestionsShown"] = len(triggered_df.index)
-        summary["SuggestionsMatched"] = int(np.sum(triggered_df["Match"]))
-        summary["SuggestionsAccepted"] = int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"]))
+        summary["SuggestionsMatched"] = int(np.sum(triggered_df["Match"])) \
+            if len(triggered_df.columns) else 0
+        summary["SuggestionsAccepted"] = int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"])) \
+            if len(triggered_df.columns) else 0
         summary["SuggestionRatePerWord"] = summary["SuggestionsShown"]/summary["TotalWordCount"]
         summary["SuggestionRatePerChar"] = summary["SuggestionsShown"]/summary["TotalEvalPoints"]
-        summary["MatchRate"] = np.mean(triggered_df["Match"])
-        summary["AcceptRate"] = np.mean(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"])
-        summary["CharMatched"] = int(np.sum(triggered_df["Match"] * triggered_df["Length"]))
-        summary["CharAccepted"] = int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"] * triggered_df["Length"]))
+        summary["MatchRate"] = np.mean(triggered_df["Match"]) \
+            if len(triggered_df.columns) else 0
+        summary["AcceptRate"] = np.mean(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"]) \
+            if len(triggered_df.columns) else 0
+        summary["CharMatched"] = int(np.sum(triggered_df["Match"] * triggered_df["Length"])) \
+            if len(triggered_df.columns) else 0
+        summary["CharAccepted"] = int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"] * triggered_df["Length"])) \
+            if len(triggered_df.columns) else 0
         summary["CharMatchRate"] = summary["CharMatched"]/summary["TotalEvalPoints"]
         summary["CharAcceptRate"] = summary["CharAccepted"]/summary["TotalEvalPoints"]
-        summary["SuggestionsShownByType"] = triggered_df.groupby(["Type"]).size().to_dict()
-        summary["SuggestionsMatchedByType"] = triggered_df[triggered_df["Match"]].groupby(["Type"]).size().to_dict()
-        summary["MatchRateByType"] = triggered_df.groupby(["Type"]).agg({"Match":"mean"}).to_dict()["Match"]
-        summary["SuggestionsShownByWordCount"] = triggered_df.groupby(["WordCount"]).size().to_dict()
-        summary["SuggestionsMatchedByWordCount"] = triggered_df[triggered_df["Match"]].groupby(["WordCount"]).size().to_dict()
-        summary["MatchRateByWordCount"] = triggered_df.groupby(["WordCount"]).agg({"Match":"mean"}).to_dict()["Match"]
+        summary["SuggestionsShownByType"] = triggered_df.groupby(["Type"]).size().to_dict() \
+            if len(triggered_df.columns) else None
+        summary["SuggestionsMatchedByType"] = triggered_df[triggered_df["Match"]].groupby(["Type"]).size().to_dict() \
+            if len(triggered_df.columns) else 0
+        summary["MatchRateByType"] = triggered_df.groupby(["Type"]).agg({"Match":"mean"}).to_dict()["Match"] \
+            if len(triggered_df.columns) else None
+        summary["SuggestionsShownByWordCount"] = triggered_df.groupby(["WordCount"]).size().to_dict() \
+            if len(triggered_df.columns) else None
+        summary["SuggestionsMatchedByWordCount"] = triggered_df[triggered_df["Match"]].groupby(["WordCount"]).size().to_dict() \
+            if len(triggered_df.columns) else None
+        summary["MatchRateByWordCount"] = triggered_df.groupby(["WordCount"]).agg({"Match":"mean"}).to_dict()["Match"] \
+            if len(triggered_df.columns) else None
         return summary
 
     def score(self, min_scores: list|float, expected_match_rate: float = None) -> list:
