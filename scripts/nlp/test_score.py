@@ -26,7 +26,9 @@ def test_score(dataset_dir:str, dataset_name:str, in_filetype:str,
     model = MemTransformerLM(len(vocab))
     model.to(device)
 
-    score(model=model, vocab=vocab, in_filetype=in_filetype)
+    score(model=model, vocab=vocab, in_filetype=in_filetype,
+          in_filepath=in_filepath, out_filepath=out_filepath, score_output_dir=score_out_dir,
+          min_score=0.0, min_pred_len=0)
 
 if __name__ == "__main__":
     exp_utils.script_init()

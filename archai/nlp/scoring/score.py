@@ -80,19 +80,20 @@ def score(model, vocab:VocabBase, in_filetype:str,
                  in_filepath:str='', out_filepath:str='', score_output_dir:str='',
                  save_step=100000, min_score=1.0, max_score=5.0, score_step=0.1,
                  expected_match_rate=0.5, # Match point to estimate parameters at
-                 current_paragraph_only=False, # Truncate the body to current paragraph only (remove anything before new line)
-                 do_scoring=True, max_body_len=10000):
+                 current_paragraph_only=False, # Truncate the body to current paragraph only (remove anything before new line
+                 do_scoring=True, max_body_len=10000, min_pred_len=6):
     predictor = TextPredictor(model, vocab)
     predictor.MAX_INPUT_TEXT_LEN = max_body_len
 
     if in_filetype == "console":
         predict_console(predictor)
     elif in_filetype == "text" or in_filetype == "smartcompose":
-        seq = TextPredictionSequence.from_file(in_filepath, in_filetype, predictor)
+        assert in_filepath, "in_filepath must be provided"
+        seq = TextPredictionSequence.from_file(in_filepath, in_filetype, predictor,
+            save_step=save_step, min_score=min_score, current_paragraph_only=current_paragraph_only,
+            min_pred_len=min_pred_len
+            )
         # seq.MAX_BODY_LEN = max_body_len # Doesn't play well with BOS token
-        seq.SAVE_STEP = save_step
-        seq.MIN_SCORE = min_score
-        seq.CURRENT_PARAGRAPH_ONLY = current_paragraph_only
         seq.predict(out_filepath)
         seq.save(out_filepath)
         if do_scoring:
