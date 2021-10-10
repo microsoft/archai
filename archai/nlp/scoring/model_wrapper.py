@@ -57,9 +57,9 @@ class ModelWrapper:
             target_t = self._ids2tensor(target)
 
             loss, mems, log_prob = self.model(data_t, target=target_t, mems=None)
-            loss_sum += torch.sum(loss)
+            loss_sum += torch.sum(loss).item()
             labels_len_sum += len(target)
-        return loss_sum / labels_len_sum
+        return (loss_sum / labels_len_sum)
 
     @functools.lru_cache(maxsize=1024)
     def get_probs(self, input_ids: tuple) -> list:
