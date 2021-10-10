@@ -74,7 +74,8 @@ class ModelWrapper:
         start = time.time()
         in_tensor = self._ids2tensor(input_ids)
 
-        loss, mems, log_prob = self.model(in_tensor, target=None, mems=None)
+        loss, mems, log_prob = self.model(in_tensor, target=None, mems=None,
+                                                  return_nll=False, return_log_probs=True)
         # take logits for last token, get first batch
         next_token_probs = torch.exp(log_prob[-1][0]).tolist()
 

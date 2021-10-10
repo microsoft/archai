@@ -112,14 +112,9 @@ seq.predict()
 score = seq.score([1, 1.5, 2, 2.5, 3, 3.5, 4, 5], expected_match_rate = 0.5)
 print(json.dumps(score, indent=2))
     """
-    MAX_BODY_LEN = 1_000_000 # Note that setting this will not work well with BOS token correction
-    MIN_PRED_LEN = 6
-    MIN_SCORE = 1.0
-    SAVE_STEP = 100_000
-    CURRENT_PARAGRAPH_ONLY = False
-    SILENT = False
-
-    def __init__(self, predictor:Optional[TextPredictor] = None):
+    def __init__(self, predictor:Optional[TextPredictor] = None,
+                 max_body_len = 1_000_000, min_pred_len=6, min_score=1.0,
+                 save_step=100_000, current_paragraph_only=False):
         super().__init__()
         self.predictor = predictor
 
@@ -128,18 +123,28 @@ print(json.dumps(score, indent=2))
         self._score_summary_list = None
         self._triggered_df = None
 
+        self.max_body_len = max_body_len
+        self.min_pred_len = min_pred_len
+        self.min_score = min_score
+        self.save_step = save_step
+        self.current_paragraph_only = current_paragraph_only
+
     @classmethod
-    def from_file(cls, file_name: str, file_type: str, predictor:Optional[TextPredictor] = None):
+    def from_file(cls, file_name: str, file_type: str, predictor:Optional[TextPredictor] = None,
+                 **kwargs):
         # TODO:Fixme - put more file formats
         if file_type == "smartcompose":
-            return TextPredictionSequence.from_smart_compose_file(file_name, predictor)
+            return TextPredictionSequence.from_smart_compose_file(file_name, predictor,
+                **kwargs)
         if file_type == "text":
-            return TextPredictionSequence.from_text_file(file_name, predictor=predictor)
+            return TextPredictionSequence.from_text_file(file_name, predictor=predictor,
+                **kwargs)
 
         return NotImplementedError
 
     @classmethod
-    def from_smart_compose_file(cls, file_name: str, predictor:Optional[TextPredictor] = None) -> TextPredictionSequence:
+    def from_smart_compose_file(cls, file_name: str,
+                predictor:Optional[TextPredictor] = None, **kwargs) -> TextPredictionSequence:
         """Load SmartCompose .json file format.
         """
         logging.info(f"Loading smartcompose file from {file_name}")
@@ -147,7 +152,7 @@ print(json.dumps(score, indent=2))
         with open(file_name) as f:
             lines = f.readlines()
 
-        sequence = TextPredictionSequence(predictor)
+        sequence = TextPredictionSequence(predictor, **kwargs)
         for line in lines:
             if len(line) < 10:
                 logging.warning(f"Skipping line '{line}'")
@@ -158,7 +163,8 @@ print(json.dumps(score, indent=2))
         return sequence
 
     @classmethod
-    def from_text_file(cls, file_name: str, new_document_re: str = "\\n\\n+", predictor:Optional[TextPredictor] = None) -> TextPredictionSequence:
+    def from_text_file(cls, file_name: str, new_document_re: str = "\\n\\n+",
+                       predictor:Optional[TextPredictor] = None, **kwargs) -> TextPredictionSequence:
         """Load text file and convert it to TextPredictionSequence object.
 
         Args:
@@ -175,7 +181,7 @@ print(json.dumps(score, indent=2))
             text = f.read()
         lines = re.split(new_document_re, text, flags=re.DOTALL | re.MULTILINE)
 
-        seq = TextPredictionSequence(predictor)
+        seq = TextPredictionSequence(predictor, **kwargs)
         for line_id, line in enumerate(lines):
             line = line.strip()
             line = ftfy.fix_text(line)
@@ -277,23 +283,23 @@ print(json.dumps(score, indent=2))
         for i, pos in enumerate(self.values()):
             start_time = time.time()
             text = pos.body
-            if self.CURRENT_PARAGRAPH_ONLY:
+            if self.current_paragraph_only:
                 text = re.sub("^(.*\n)", "", text, flags=re.M)
 
-            if len(text) > self.MAX_BODY_LEN:
-                text = pos.body[(-1*self.MAX_BODY_LEN):] # Truncate
+            if len(text) > self.max_body_len:
+                text = pos.body[(-1*self.max_body_len):] # Truncate
                 text = text[text.find(' '):]             # Remove partial token
 
             prediction = self.predictor.predict(text)
             end_time = time.time()
             pos.time = int(1000*(end_time - start_time))
 
-            if len(prediction) >= self.MIN_PRED_LEN and prediction.score() >= self.MIN_SCORE:
+            if len(prediction) >= self.min_pred_len and prediction.score() >= self.min_score:
                 pos.prediction = prediction
             else:
                 pos.prediction = None
 
-            if output_filepath is not None and ((i+1) % self.SAVE_STEP == 0 or i == (len(self) - 1)):
+            if output_filepath is not None and ((i+1) % self.save_step == 0 or i == (len(self) - 1)):
                 self.save(output_filepath)
 
     @property
@@ -325,7 +331,7 @@ print(json.dumps(score, indent=2))
             token_ids = self.predictor.vocab_wrapper.encode(text)
 
             token_ids_len_sum += len(token_ids)
-            loss_sum += len(token_ids) * self.predictor.model.get_loss(tuple(token_ids))
+            loss_sum += len(token_ids) * self.predictor.model_wrapper.get_loss(tuple(token_ids))
 
         perplexity = np.exp(loss_sum/token_ids_len_sum)
         self._perplexity = perplexity
@@ -359,26 +365,34 @@ print(json.dumps(score, indent=2))
         """
         predictions_list = []
         for pos in self.values():
-            if pos.prediction is None:
-                continue
-
             prediction = pos.prediction
-            body_continued = pos.body_continued[:len(prediction)]
-            prediction.match = prediction.show() == body_continued
-            min_len = min(len(prediction.show()), len(body_continued))
-            last_match_char = next((i for i in range(min_len) if prediction.show()[i] != body_continued[i]), min_len)
+            if prediction is not None:
+                body_continued = pos.body_continued[:len(prediction)]
+                prediction.match = prediction.show() == body_continued
+                min_len = min(len(prediction.show()), len(body_continued))
+                last_match_char = next((i for i in range(min_len) if prediction.show()[i] != body_continued[i]), min_len)
+                length_type = prediction.length_type()
+                prediction_odict = prediction.to_odict()
+                p_accept_given_match = prediction.p_accept_given_match()
+            else:
+                body_continued, min_len, last_match_char = True, 0, 0
+                prediction_odict = OrderedDict(
+                    [('Text', ''), ('Probability', 0.0), ('Length', 0), ('Complete', False), ('Match', None), ('PAccept', 0.0), ('Score', 0.0), ('CharAccepted', 0.0), ('WordCount', 0), ('Tokens', None)]
+                    )
+                length_type = ''
+                p_accept_given_match = 0.0
 
-            prediction_odict = prediction.to_odict()
             prediction_odict["Line"] = pos.line_id
             prediction_odict["Char"] = pos.char_id
             prediction_odict["BodyContinued"] = body_continued
-            prediction_odict["Type"] = prediction.length_type()
+            prediction_odict["Type"] = length_type
             prediction_odict["LastMatchChar"] = last_match_char
             prediction_odict["NextTrigger"] = pos.char_id + last_match_char + 1
-            prediction_odict["PAcceptGivenMatch"] = prediction.p_accept_given_match()
+            prediction_odict["PAcceptGivenMatch"] = p_accept_given_match
             predictions_list.append(prediction_odict)
 
         predictions_df = pd.DataFrame(predictions_list)
+
         predictions_df_columns = ["Line", "Char", "Text", "BodyContinued"]
         predictions_df_columns = predictions_df_columns + predictions_df.columns.drop(predictions_df_columns + ["Complete", "Tokens"]).tolist()
         predictions_df = predictions_df[predictions_df_columns]
