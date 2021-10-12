@@ -51,7 +51,7 @@ class WordVocab(VocabBase): # Word vocab is the default
         """Setup counter with frequencies, return tokens for the entir file"""
         if verbose:
             logging.info('counting file {} ...'.format(path))
-        assert os.path.exists(path)
+        assert os.path.exists(path), f"Training file to build word vocan does not exist: {path}"
 
         # read lines, count frequencies of tokens, convert to tokens
         with open(path, 'r', encoding='utf-8') as f:
