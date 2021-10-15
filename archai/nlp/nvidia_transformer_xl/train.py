@@ -232,7 +232,7 @@ def parse_args():
                           help='Length of the extended context')
     training.add_argument('--mem_len', type=int, default=192,
                           help='Length of the retained previous heads, number of tokens cached from previous iterations during training')
-    training.add_argument('--seed', type=int, default=1111,
+    training.add_argument('--seed', type=int, default=42,
                           help='Random seed')
     training.add_argument('--multi_gpu', default=None, type=str,
                           choices=['ddp', 'dp'],
