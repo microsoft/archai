@@ -49,6 +49,9 @@ class Corpus:
         self.train, self.valid, self.test = self._get_encoded_files(
             self.vocab, self.datadir, self.dataset)
 
+        logging.info(f'Sizes for train: {self.train.size(0)}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
+
+
     def load(self):
 
         # ensure that we have tokenizer cache as well
@@ -67,7 +70,7 @@ class Corpus:
             self.valid = torch.from_numpy(np.load(self.valid_cache_filepath))
             self.test = torch.from_numpy(np.load(self.test_cache_filepath))
 
-            logging.info(f'Sizses for train: {self.train.size(0)}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
+            logging.info(f'Sizes for train: {self.train.size(0)}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
 
             return True
         else:
@@ -117,7 +120,7 @@ class Corpus:
                       vocab_size:Optional[int]=None)->VocabBase:
         if vocab_type == 'word':
             # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
-            unk_token, bos_token, eos_token, lower_case, vocab_file = '<unk>', None, '<eos>', False, None # vocab file is text file of symbols, one per line
+            bos_token, eos_token, lower_case, vocab_file = None, '<eos>', False, None # vocab file is text file of symbols, one per line
             if dataset in ['wt103', 'wt2', 'olx']:
                 pass
             elif dataset == 'ptb':
@@ -130,7 +133,7 @@ class Corpus:
                 raise RuntimeError(f'dataset {dataset} is not recognized to produce vocab')
 
             vocab = WordVocab(save_path=vocab_cache_dir, vocab_size=vocab_size,
-                              bos_token=bos_token, eos_token=eos_token, unk_token=unk_token,
+                              bos_token=bos_token, eos_token=eos_token,
                               lower_case=lower_case)
         elif vocab_type == 'bbpe':
             vocab = BbpeVocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257

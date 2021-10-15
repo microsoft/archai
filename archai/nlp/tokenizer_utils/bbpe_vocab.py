@@ -21,7 +21,8 @@ class BbpeVocab(VocabBase):
                  bos_token:Optional[str]="_BOS_", eos_token:Optional[str]=None,
                  unk_token:Optional[str]="_OOV_", pad_token:Optional[str]=None,
                  min_frequency:Optional[int]=None, model_max_length:Optional[int]=None,
-                 add_prefix_space=True,add_prefix_new_line=False, sorted_vocab=True) -> None:
+                 add_prefix_space=True,add_prefix_new_line=False, sorted_vocab=True,
+                 encode_special_tokens=False, decode_special_tokens=False) -> None:
         self._config = TokenConfig(bos_token=bos_token, eos_token=eos_token,
                                    unk_token=unk_token, pad_token=pad_token,
                                    add_prefix_space=add_prefix_space, add_prefix_new_line=add_prefix_new_line)
@@ -31,6 +32,8 @@ class BbpeVocab(VocabBase):
         self.sorted_vocab = sorted_vocab
         self.min_frequency = min_frequency
         self.model_max_length = model_max_length
+        self.encode_special_tokens = encode_special_tokens
+        self.decode_special_tokens = decode_special_tokens
 
         self.bos_id = []
         self.eos_id = []
@@ -129,7 +132,7 @@ class BbpeVocab(VocabBase):
         return os.path.isfile(self._tokenizer_filepath)
 
     @overrides
-    def encode_text(self, text:str, add_special_tokens=False)->List[int]:
+    def encode_text(self, text:str)->List[int]:
         text = self._preprocess_text(text)
 
         # we always set add_special_tokens=False because Huggingface implementation is buggy
@@ -137,14 +140,14 @@ class BbpeVocab(VocabBase):
         # https://github.com/huggingface/transformers/issues/3311
         toks = self._tokenizer.encode(text, add_special_tokens=False)
 
-        if add_special_tokens:
+        if self.encode_special_tokens:
             toks = self.bos_id + toks + self.eos_id
 
         return toks
 
     @overrides
-    def decode_text(self, ids:List[int],skip_special_tokens=False)->str:
-        return self._tokenizer.decode(ids, skip_special_tokens=skip_special_tokens)
+    def decode_text(self, ids:List[int])->str:
+        return self._tokenizer.decode(ids, skip_special_tokens=self.decode_special_tokens)
 
     @overrides
     def __len__(self):
