@@ -19,10 +19,10 @@ class VocabBase(EnforceOverrides, abc.Sized):
         pass
 
     @abstractmethod
-    def encode_text(self, text:str, add_special_tokens=False)->List[int]:
+    def encode_text(self, text:str)->List[int]:
         pass
     @abstractmethod
-    def decode_text(self, ids:List[int],skip_special_tokens=False)->str:
+    def decode_text(self, ids:List[int])->str:
         pass
 
     @abstractmethod
@@ -50,7 +50,7 @@ class VocabBase(EnforceOverrides, abc.Sized):
     def ids_to_tokens(self, ids:List[int])->List[str]:
         return [self.id_to_token(id) for id in ids]
 
-    def encode_file(self, path:str, verbose=True, add_special_tokens=False)->List[int]:
+    def encode_file(self, path:str, verbose=True)->List[int]:
         logging.info(f'Encoding file: {path}')
         encoded = []
         tensor_encoded = torch.LongTensor()
@@ -59,7 +59,7 @@ class VocabBase(EnforceOverrides, abc.Sized):
                 if verbose and idx > 0 and idx % 500000 == 0:
                     logging.info(f'    completed file line {format(idx)}')
 
-                tokens = self.encode_text(line, add_special_tokens=add_special_tokens)
+                tokens = self.encode_text(line)
                 encoded.extend(tokens)
 
         if len(encoded) > 0:

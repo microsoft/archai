@@ -17,9 +17,9 @@ from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class WordVocab(VocabBase): # Word vocab is the default
     def __init__(self, save_path:str, min_freq=0, vocab_size=None,
-                 bos_token:Optional[str]=None, eos_token:Optional[str]=None,
-                 unk_token:Optional[str]=None, lower_case=False,
-                 delimiter=None):
+                 bos_token:Optional[str]=None, eos_token:Optional[str]='<eos>',
+                 unk_token:Optional[str]='<unk>', lower_case=False,
+                 delimiter=None, encode_special_tokens=True, decode_special_tokens=True):
         self.counter = Counter()
         self._config = TokenConfig(bos_token=bos_token, eos_token=eos_token,
                                    unk_token=unk_token, pad_token=None,
@@ -31,6 +31,8 @@ class WordVocab(VocabBase): # Word vocab is the default
         self._bos = [self._config.bos_token] if self._config.bos_token else []
         self._eos = [self._config.eos_token] if self._config.eos_token else []
 
+        self.encode_special_tokens = encode_special_tokens
+        self.decode_special_tokens = decode_special_tokens
         self.min_freq = min_freq
         self.vocab_size = vocab_size
         self.delimiter = delimiter
@@ -38,7 +40,7 @@ class WordVocab(VocabBase): # Word vocab is the default
 
     # TODO: remove suplicates of this function from across the project
     def _preprocess_text(self, text:str)->str:
-        text = text.strip()
+        #text = text.strip()
         if self._config.add_prefix_space:
             text = ' ' + text
         if self._config.add_prefix_new_line:
@@ -139,10 +141,10 @@ class WordVocab(VocabBase): # Word vocab is the default
         logging.info(f'Final word vocab size is {len(self)}, unique tokens are {len(self.counter)}')
 
     @overrides
-    def encode_text(self, text:str, add_special_tokens=False)->List[int]:
+    def encode_text(self, text:str)->List[int]:
         symbols = self._tokenize_text(text)
 
-        if add_special_tokens:
+        if self.encode_special_tokens:
             toks = self._bos + symbols + self._eos
 
         toks = self._get_indices(symbols)
@@ -150,9 +152,9 @@ class WordVocab(VocabBase): # Word vocab is the default
         return toks
 
     @overrides
-    def decode_text(self, ids:List[int],skip_special_tokens=False)->str:
+    def decode_text(self, ids:List[int])->str:
         syms = self.ids_to_tokens(ids)
-        if skip_special_tokens and len(syms):
+        if self.decode_special_tokens and len(syms):
             if syms[0] == self._bos:
                 syms = syms[1:]
             if len(syms) and syms[-1] == self._eos:
