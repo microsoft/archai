@@ -67,8 +67,11 @@ class Corpus:
             self.valid = torch.from_numpy(np.load(self.valid_cache_filepath))
             self.test = torch.from_numpy(np.load(self.test_cache_filepath))
 
+            logging.info(f'Sizses for train: {self.train.size(0)}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
+
             return True
         else:
+            logging.info(f'Clearing all cache and rebuidling it')
             self._clear()
             utils.delete_file(self.train_cache_filepath)
             utils.delete_file(self.valid_cache_filepath)
@@ -162,10 +165,11 @@ class Corpus:
             vocab.load()
             logging.info(f'Vocab cache found and loaded for type {vocab_type} and size {vocab_size} from {vocab_cache_dir}.')
 
-    def get_iterator(self, split, *args, **kwargs):
+    def get_iterator(self, split, batch_size, tgt_len, device, ext_len, mem_len=None):
         if split == 'train':
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'olx']:
-                data_iter = LMOrderedIterator(self.train, *args, **kwargs)
+                data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
+                                              device=device, ext_len=ext_len, mem_len=mem_len)
             # elif self.dataset == 'lm1b':
             #     kwargs['shuffle'] = True
             #     data_iter = LMMultiFileIterator(self.train, self.vocab, *args, **kwargs)
@@ -175,9 +179,11 @@ class Corpus:
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'olx']:
-                data_iter = LMOrderedIterator(data, *args, **kwargs)
+                data_iter = LMOrderedIterator(data, batch_size, tgt_len,
+                                              device=device, ext_len=ext_len, mem_len=mem_len)
             elif self.dataset == 'lm1b':
-                data_iter = LMShuffledIterator(data, *args, **kwargs)
+                data_iter = LMShuffledIterator(data, batch_size, tgt_len,
+                                              device=device, ext_len=ext_len)
             else:
                 raise RuntimeError(f'Dataset not yet fully supported: {self.dataset}')
 
