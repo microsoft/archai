@@ -145,7 +145,7 @@ class WordVocab(VocabBase): # Word vocab is the default
         symbols = self._tokenize_text(text)
 
         if self.encode_special_tokens:
-            toks = self._bos + symbols + self._eos
+            symbols = self._bos + symbols + self._eos
 
         toks = self._get_indices(symbols)
 
