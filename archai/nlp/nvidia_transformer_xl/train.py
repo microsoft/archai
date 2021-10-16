@@ -1096,7 +1096,7 @@ def main():
     summary = evaluate_main(args, model, tr_iter)
 
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
-    logging.info(f'Training throughput: {training_time["train_throughput"].avg:.2f} tok/s')
+    logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
 
     if best_val_loss:
         val_perplexity = math.exp(best_val_loss)
