@@ -175,7 +175,7 @@ class BbpeVocab(VocabBase):
             for i,l in enumerate(lines):
                 if ((i+1)%100000)==0:
                     logging.info(f'Counted tokens for line {i+1}...')
-                toks = self.encode_text(l, add_special_tokens=False)
+                toks = self.encode_text(l)
                 tokens_counter.update(toks)
 
         return tokens_counter
