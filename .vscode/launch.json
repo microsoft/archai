@@ -698,7 +698,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_freeze_darts_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_dt_fb96_ftlr0.025_fte10_ct96_ftt0.6_ftonly",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_dt_fb96_ftlr0.025_fte10_ct96_ftt0.6_nofreeze_ftonly",
             "--out-dir", "F:\\archai_experiment_reports", "--reg-evals-file", 
             "F:\\archai_experiment_reports\\ft_dt_fb96_ftlr0.025_fte10_ct96_ftt0.6\\darts_benchmark.yaml"]
         },
@@ -708,7 +708,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_regular_darts_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\dt_reg_b96_e20",
+            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_dt_fb96_ftlr0.025_fte10_ct96_ftt0.6_fixed",
             "--out-dir", "F:\\archai_experiment_reports", "--reg-evals-file", 
             "F:\\archai_experiment_reports\\ft_dt_fb96_ftlr0.025_fte10_ct96_ftt0.6\\darts_benchmark.yaml"]
         },
@@ -908,6 +908,15 @@
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_nasbench301_timetothresh.py",
+            "console": "integratedTerminal",
+            "args": ["--nb301-logs-dir", "C:\\Users\\dedey\\dataroot\\nasbench301\\nasbench301_full_data\\nb_301_v13_lc_iclr_final\\rs",
+                "--out-dir", "F:\\archai_experiment_reports"]
+        },
+        {
+            "name": "Analysis Nasbench301 Ranking",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_nasbench301_ranking.py",
             "console": "integratedTerminal",
             "args": ["--nb301-logs-dir", "C:\\Users\\dedey\\dataroot\\nasbench301\\nasbench301_full_data\\nb_301_v13_lc_iclr_final\\rs",
                 "--out-dir", "F:\\archai_experiment_reports"]
