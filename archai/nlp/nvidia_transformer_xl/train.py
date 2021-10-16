@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Optional, Tuple
 
 import argparse
 import functools
@@ -358,17 +358,6 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
                 step_chkpt_path = os.path.join(work_dir, step_chkpt_fname)
                 logging.info(f'Saving checkpoint to {step_chkpt_path}')
                 shutil.copy(last_chkpt_path, step_chkpt_path)
-
-
-def load_checkpoint(path, prefix=''):
-    if os.path.isdir(path):
-        path = os.path.join(path, prefix + 'checkpoint_last.pt')
-
-    dst = f'cuda:{torch.cuda.current_device()}'
-    logging.info(f'Loading checkpoint from {path}')
-    checkpoint = torch.load(path, map_location=dst)
-    return checkpoint
-
 
 def update_dropout(m, args):
     classname = m.__class__.__name__
@@ -947,8 +936,7 @@ def train_main(args, device, tr_iter, va_iter, model, para_model, model_config,
 
     if args.restart:
         try:
-            checkpoint = load_checkpoint(args.restart)
-            model.load_state_dict(checkpoint['model_state'])
+            model, model_config, checkpoint = load_model(args.restart, model, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1028,8 +1016,7 @@ def evaluate_main(args, model, te_iter):
     test_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
     if not args.no_eval and os.path.exists(test_path):
         # Load the best saved model.
-        checkpoint = load_checkpoint(test_path)
-        model.load_state_dict(checkpoint['model_state'])
+        model, model_config, checkpoint = load_model(test_path, model, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
@@ -1057,6 +1044,29 @@ def evaluate_main(args, model, te_iter):
             summary['test_perplexity'] = math.exp(test_loss)
 
     return summary
+
+
+def load_model(path:str, model:Optional[MemTransformerLM], on_cpu:bool) -> Tuple[MemTransformerLM, dict, dict]:
+    # case for restart
+    if os.path.isdir(path):
+        path = os.path.join(path, 'checkpoint_last.pt')
+
+    print(f'Loading PyTorch model from: {path}')
+
+    dst = f'cuda:{torch.cuda.current_device()}' \
+        if not on_cpu \
+        else torch.device('cpu')
+
+    # Loads the checkpoint
+    checkpoint = torch.load(path, map_location=dst)
+
+    model_config = checkpoint['model_config']
+
+    # Initializes the model
+    model = MemTransformerLM(**model_config) if model is None else model
+    model.load_state_dict(checkpoint['model_state'])
+
+    return model, model_config, checkpoint
 
 
 def main():
