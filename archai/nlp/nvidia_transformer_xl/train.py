@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import argparse
 import functools
 import itertools
@@ -648,7 +650,8 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
             break
     return train_step, best_val_loss
 
-def main():
+
+def init():
     args = parse_args()
 
     # TODO: below is commented out because nvlm installation issues on Windows
@@ -716,21 +719,16 @@ def main():
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    ###########################################################################
-    # Load data
-    ###########################################################################
+    return args, device
+
+def load_data(args, device):
     logging.info('Generating/loading dataset...')
     corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab,
                            vocab_size=args.vocab_size, refresh_cache=args.refresh_cache)
-    ntokens = len(corpus.vocab)
-    logging.info(f'Dataset load complete, vocab size is: {ntokens}')
 
     if args.no_train:
         logging.info('Exiting as no training was requested.')
         sys.exit(0)
-
-    vocab = corpus.vocab
-    args.n_token = ntokens
 
     if args.mem_len == 0: # default is 192
         eval_mem_len = 0
@@ -746,6 +744,10 @@ def main():
                                   args.eval_tgt_len, device=device,
                                   mem_len=eval_mem_len, ext_len=args.ext_len)
 
+    return  corpus.vocab, tr_iter, va_iter, te_iter
+
+
+def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [] # head cluster projection is never tied with embeddings
     if args.adaptive:
@@ -759,9 +761,6 @@ def main():
         else:
             raise RuntimeError(f'Dataset {args.dataset} not supported for set cutoffs and tie_projs')
 
-    ###########################################################################
-    # Build the model
-    ###########################################################################
     model_config = {
         'n_token': ntokens,
         'n_layer': args.n_layer,
@@ -796,9 +795,9 @@ def main():
 
     model = MemTransformerLM(**model_config)
 
-    args.n_all_param = sum([p.nelement() for p in model.parameters()])
-    args.n_nonemb_param = sum([p.nelement() for p in model.layers.parameters()])
+    return model, model_config
 
+def create_optimizer(args, model):
     # optimizer
     if args.optim.lower() == 'sgd':
         if args.sample_softmax > 0:
@@ -840,9 +839,13 @@ def main():
         optimizer = lamb.JITLamb(model.parameters(), lr=args.lr,
                                  weight_decay=args.weight_decay)
         optimizer_sparse = None
+    else:
+        raise NotImplementedError(f'Optimizer {args.optim} is not implemented')
 
-    model = model.to(device)
+    return optimizer, optimizer_sparse
 
+
+def create_grad_scaler(args, model, optimizer):
     scaler = None
     if args.fp16:
         if args.amp == 'pytorch':
@@ -853,7 +856,10 @@ def main():
                 optimizer,
                 opt_level=args.apex_amp_opt_level,
                 )
+    return scaler
 
+
+def distributed_model(args, model, device):
     # by default this argument is not used, instead we spawn multiple instances
     # using command line:
     # python -m torch.distributed.launch --nproc_per_node="$2" train.py \
@@ -875,6 +881,11 @@ def main():
     else:
         para_model = model
 
+    return para_model, model
+
+
+def create_scheduler(args, optimizer, optimizer_sparse):
+    scheduler, scheduler_sparse = None, None
     # scheduler
     if args.scheduler == 'cosine':
         if args.max_step_scheduler:
@@ -922,13 +933,12 @@ def main():
     elif args.scheduler == 'constant':
         pass
 
-    logging.info('=' * 100)
-    for k, v in args.__dict__.items():
-        logging.info('    - {} : {}'.format(k, v))
-    logging.info('=' * 100)
-    logging.info('#params = {}'.format(args.n_all_param))
-    logging.info('#non emb params = {}'.format(args.n_nonemb_param))
+    return scheduler, scheduler_sparse
 
+
+def train_main(args, device, tr_iter, va_iter, model, para_model, model_config,
+                optimizer, optimizer_sparse, scheduler,
+                scheduler_sparse, scaler, vocab):
     train_step = 0
     start_epoch = 1
     last_batch = 0
@@ -992,26 +1002,28 @@ def main():
                 logging.info('-' * 100)
                 logging.info('End of training')
                 break
+
+        if args.dynamic_quantization:
+            model_qnt = torch.quantization.quantize_dynamic(model.cpu())
+
+            model_qnt.word_emb.qconfig = torch.quantization.float_qparams_weight_only_qconfig
+            torch.quantization.prepare(model_qnt, inplace=True)
+            torch.quantization.convert(model_qnt, inplace=True)
+
+            save_checkpoint(args, model_qnt, model_config, optimizer, scheduler,
+                            scaler, vocab, epoch, last_batch, last_iter,
+                            train_step, best_val_loss, False,
+                            args.work_dir, prefix='qnt-')
+
     except KeyboardInterrupt:
         logging.info('-' * 100)
         logging.info('Exiting from training early')
+
     elapsed = time.time() - start_time
 
-    if args.dynamic_quantization:
-        model_qnt = torch.quantization.quantize_dynamic(model.cpu())
+    return elapsed, best_val_loss, meters
 
-        model_qnt.word_emb.qconfig = torch.quantization.float_qparams_weight_only_qconfig
-        torch.quantization.prepare(model_qnt, inplace=True)
-        torch.quantization.convert(model_qnt, inplace=True)
-
-        save_checkpoint(args, model_qnt, model_config, optimizer, scheduler,
-                        scaler, vocab, epoch, last_batch, last_iter,
-                        train_step, best_val_loss, False,
-                        args.work_dir, prefix='qnt-')
-
-    ###########################################################################
-    # Test
-    ###########################################################################
+def evaluate_main(args, model, te_iter):
     summary = {}
     test_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
     if not args.no_eval and os.path.exists(test_path):
@@ -1044,8 +1056,47 @@ def main():
         else:
             summary['test_perplexity'] = math.exp(test_loss)
 
-    logging.info(f'Training time: {(elapsed / 60):.2f} minutes')
-    logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
+    return summary
+
+
+def main():
+    args, device = init()
+
+    vocab, tr_iter, va_iter, te_iter = load_data(args, device)
+
+    ntokens = len(vocab)
+    model, model_config = create_model(args, device, ntokens)
+
+    optimizer, optimizer_sparse = create_optimizer(args, model)
+
+    model = model.to(device)
+
+    scaler = create_grad_scaler(args, model, optimizer)
+
+    para_model, model = distributed_model(args, model, device)
+
+    scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
+
+
+    logging.info('=' * 100)
+    for k, v in args.__dict__.items():
+        logging.info('    - {} : {}'.format(k, v))
+    logging.info('=' * 100)
+
+    n_all_param = sum([p.nelement() for p in model.parameters()])
+    n_nonemb_param = sum([p.nelement() for p in model.layers.parameters()])
+    logging.info('#params = {}'.format(n_all_param))
+    logging.info('#non emb params = {}'.format(n_nonemb_param))
+
+
+    training_time, best_val_loss, meters = train_main(args, device, tr_iter, va_iter, model, para_model,
+        model_config, optimizer, optimizer_sparse, scheduler,
+        scheduler_sparse, scaler, vocab)
+
+    summary = evaluate_main(args, model, tr_iter)
+
+    logging.info(f'Training time: {(training_time / 60):.2f} minutes')
+    logging.info(f'Training throughput: {training_time["train_throughput"].avg:.2f} tok/s')
 
     if best_val_loss:
         val_perplexity = math.exp(best_val_loss)
@@ -1054,7 +1105,7 @@ def main():
 
     summary.update({
         'train_throughput': meters['train_throughput'].avg,
-        'train_elapsed': elapsed / 60,
+        'train_elapsed': training_time / 60,
         'valid_loss': best_val_loss,
         'valid_perplexity': val_perplexity,
         })
