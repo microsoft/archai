@@ -39,8 +39,18 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
 
         # freeze everything other than the last layer
         if not self.conf_train['bypass_freeze']:
-            logger.info('no freezing!')
+            # addup parameters which are not frozen
+            num_frozen_params = 0
+            for l in model_stats.layer_stats:
+                for identifier in self.conf_train['identifiers_to_unfreeze']:
+                    if identifier in l.name:
+                        num_frozen_params += l.parameters            
+            ratio_unfrozen = num_frozen_params / model_stats.parameters 
+            logger.info(f'unfrozen parameters ratio {ratio_unfrozen}')
+
             self._freeze_but_last_layer()
+        else:
+            logger.info(f'Bypassing freezing!')
 
 
     def _freeze_but_last_layer(self) -> None:
