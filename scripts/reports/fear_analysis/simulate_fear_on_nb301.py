@@ -14,7 +14,7 @@ import statistics
 def find_train_thresh_epochs(train_acc:List[float], train_thresh:float)->int:
     for i, t in enumerate(train_acc):
         if t >= train_thresh:
-            return i 
+            return i + 1
 
 
 def main():
@@ -24,13 +24,14 @@ def main():
     args, extra_args = parser.parse_known_args()
 
     train_thresh = 60.0
-    post_thresh_epochs = 5
+    post_thresh_epochs = 10
 
     all_test_acc = []
     all_fear_end_acc = []
     all_fear_time = []
 
     all_reg_train_acc = defaultdict(list)
+    all_reg_train_time_per_epoch = defaultdict(list)
     
     # collect all the json file names in the log dir recursively
     for root, dir, files in os.walk(args.nb301_logs_dir):
@@ -61,6 +62,7 @@ def main():
                 # evaluation baseline
                 for epoch_num, train_acc in enumerate(log_data['learning_curves']['Train/train_accuracy']):
                     all_reg_train_acc[epoch_num].append(train_acc)
+                    all_reg_train_time_per_epoch[epoch_num].append((epoch_num + 1) * per_epoch_time)                
 
 
 
@@ -69,14 +71,17 @@ def main():
     print(f'FEAR avg time: {statistics.mean(all_fear_time)}')
 
     spes_train_acc_vs_epoch = {}
+    avg_time_train_acc_vs_epoch = {}
     for epoch_num, train_accs_epoch in all_reg_train_acc.items():
         if len(train_accs_epoch) != len(all_test_acc):
             continue
         this_spe, _ = spearmanr(all_test_acc, train_accs_epoch)
         spes_train_acc_vs_epoch[epoch_num] = this_spe
+        avg_time_train_acc_vs_epoch[epoch_num] = statistics.mean(all_reg_train_time_per_epoch[epoch_num])
 
     for epoch_num, spe in spes_train_acc_vs_epoch.items():
-        print(f'Epoch {epoch_num}, spearman {spe}')                
+        avg_time = avg_time_train_acc_vs_epoch[epoch_num]
+        print(f'Epoch {epoch_num}, spearman {spe}, avg. time: {avg_time} seconds')                
 
 
 

@@ -63,8 +63,9 @@ class FreezeTrainer(ArchTrainer, EnforceOverrides):
             ratio_unfrozen = num_frozen_params / model_stats.parameters 
             logger.info(f'unfrozen parameters ratio {ratio_unfrozen}')
 
-            logger.info('no freezing!')
             self._freeze_but_last_layer()
+        else:
+            logger.info(f'Bypassing freezing!')
 
 
     def _freeze_but_last_layer(self) -> None:
