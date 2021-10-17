@@ -90,7 +90,8 @@ nas:
       cv_num: 5 # total number of folds available
       dataset:
         _copy: '/dataset'
-    freeze_trainer:  
+    freeze_trainer:
+      bypass_freeze: True  
       identifiers_to_unfreeze: ['logits_op._op', 'cells.7', 'cells.6'] # last few layer names in DARTS space are 'logits_op._op': Linear, 'cells.19': prefix for all cell 19 parameters
       apex:
         _copy: '/common/apex'
@@ -125,7 +126,7 @@ nas:
         lossfn:
           type: 'CrossEntropyLoss'
     trainer_full:
-      top1_acc_threshold: 0.6
+      top1_acc_threshold: 0.1
       use_val: False
       apex:
         _copy: '/common/apex'
