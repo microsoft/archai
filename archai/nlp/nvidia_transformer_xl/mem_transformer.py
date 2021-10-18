@@ -379,6 +379,7 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
 
         klen = w_head_k.size(0)
+        plen = 0
 
         w_head_q = w_head_q.view(qlen, bsz, self.n_head, self.d_head)
         w_head_k = w_head_k.view(klen, bsz, self.n_head, self.d_head)
@@ -386,8 +387,10 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
 
         if past_key_values is not None:
             past_k, past_v = past_key_values
+            plen = past_k.size(0)
             w_head_k = torch.cat((past_k, w_head_k), dim=0)
             w_head_v = torch.cat((past_v, w_head_v), dim=0)
+            # r_emb = torch.cat((past_r_emb, r_emb), dim=0)
 
         if self.use_cache:
             present_key_values = (w_head_k, w_head_v)
@@ -395,13 +398,13 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
             present_key_values = None
 
         if klen > r_emb.size(0):
-            r_emb_pad = r_emb[0:1].expand(klen-r_emb.size(0), -1, -1)
+            r_emb_pad = r_emb[0:1].expand(klen+plen-r_emb.size(0), -1, -1)
             r_emb = torch.cat([r_emb_pad, r_emb], 0)
-            r_bias_pad = r_bias[0:1].expand(klen-r_bias.size(0), -1)
+            r_bias_pad = r_bias[0:1].expand(klen+plen-r_bias.size(0), -1)
             r_bias = torch.cat([r_bias_pad, r_bias], 0)
         else:
-            r_emb = r_emb[-klen:]
-            r_bias = r_bias[-klen:]
+            r_emb = r_emb[-(klen+plen):]
+            r_bias = r_bias[-(klen+plen):]
 
         r_bias = r_bias.t()
 
@@ -471,7 +474,7 @@ class RelLearnableDecoderLayer(nn.Module):
         super(RelLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelLearnableMultiHeadAttn(n_head, d_model, d_head,
-                                                  dropout, primer_ez=primer_ez, use_cache=use_cache
+                                                  dropout, primer_ez=primer_ez, use_cache=use_cache,
                                                   **kwargs)
 
         if primer_ez:
