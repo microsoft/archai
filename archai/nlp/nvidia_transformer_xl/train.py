@@ -183,6 +183,8 @@ def parse_args():
                        help='Parameters initialized by N(0, init_std)')
     model.add_argument('--primer_ez', action='store_true',
                        help='Use Primer EZ arch modifications (squared relu and DConv)')
+    model.add_argument('--use_cache', action='store_true',
+                       help='Whether to return last key/value attentions to speed decoding')
 
     opt = parser.add_argument_group('optimizer setup')
     opt.add_argument('--optim', default='jitlamb', type=str,
@@ -396,7 +398,7 @@ def evaluate(eval_iter, model, args):
         for i, (data, target, seq_len, warm) in enumerate(eval_iter):
             if args.eval_max_steps > 0 and i >= args.eval_max_steps:
                 break
-            loss, mems, log_prob = model(data, target, mems)
+            loss, mems, log_prob, past_key_values = model(data, target, mems)
             loss = loss.float().mean()
             if warm:
                 # assert (mems is None) or mems.size(1) == model.mem_len
@@ -425,7 +427,7 @@ def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
 
     enable_autocast = args.fp16 and args.amp == 'pytorch'
     with torch.cuda.amp.autocast(enable_autocast):
-        loss, mems[i], log_prob = model(data_i, target_i, mems[i])
+        loss, mems[i], log_prob, past_key_values = model(data_i, target_i, mems[i])
         loss = loss.float().mean().type_as(loss) / args.batch_chunk
 
     if args.swap_mem and mems[i] is not None:
@@ -780,6 +782,7 @@ def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
         'proj_init_std': args.proj_init_std,
 
         'primer_ez': args.primer_ez,
+        'use_cache': args.use_cache
         }
 
     model = MemTransformerLM(**model_config)

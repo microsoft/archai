@@ -129,6 +129,11 @@ class MultiHeadAttn(nn.Module):
         head_k = head_k.view(c.size(0), c.size(1), self.n_head, self.d_head)
         head_v = head_v.view(c.size(0), c.size(1), self.n_head, self.d_head)
 
+        if self.use_cache:
+            present_key_values = None
+        else:
+            present_key_values = None
+
         # [bsz x n_head x qlen x klen]
         attn_score = torch.einsum('ibnd,jbnd->bnij', (head_q, head_k))
         attn_score.mul_(self.scale)
@@ -158,7 +163,7 @@ class MultiHeadAttn(nn.Module):
             # residual connection + layer normalization
             output = self.layer_norm(h + attn_out)
 
-        return output
+        return output, present_key_values
 
 
 class RelMultiHeadAttn(nn.Module):
@@ -279,6 +284,11 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
 
         r_head_k = r_head_k.view(rlen, self.n_head, self.d_head)       # qlen x n_head x d_head
 
+        if self.use_cache:
+            present_key_values = None
+        else:
+            present_key_values = None
+
         # compute attention score
         rw_head_q = w_head_q + r_w_bias                                # qlen x bsz x n_head x d_head
         AC = torch.einsum('ibnd,jbnd->bnij', (rw_head_q, w_head_k))    # bsz x n_head x qlen x klen
@@ -319,7 +329,7 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
             # residual connection + layer normalization
             output = self.layer_norm(w + attn_out)
 
-        return output
+        return output, present_key_values
 
 
 class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
@@ -362,6 +372,11 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
         w_head_q = w_head_q.view(qlen, bsz, self.n_head, self.d_head)
         w_head_k = w_head_k.view(klen, bsz, self.n_head, self.d_head)
         w_head_v = w_head_v.view(klen, bsz, self.n_head, self.d_head)
+
+        if self.use_cache:
+            present_key_values = None
+        else:
+            present_key_values = None
 
         if klen > r_emb.size(0):
             r_emb_pad = r_emb[0:1].expand(klen-r_emb.size(0), -1, -1)
@@ -414,7 +429,7 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
             # residual connection + layer normalization
             output = self.layer_norm(w + attn_out)
 
-        return output
+        return output, present_key_values
 
 
 class DecoderLayer(nn.Module):
@@ -427,11 +442,11 @@ class DecoderLayer(nn.Module):
 
     def forward(self, dec_inp, dec_attn_mask=None, mems=None, past_key_values=None):
 
-        output = self.dec_attn(dec_inp, attn_mask=dec_attn_mask,
-                               mems=mems, past_key_values=past_key_values)
+        output, present_key_values = self.dec_attn(dec_inp, attn_mask=dec_attn_mask,
+                                                   mems=mems, past_key_values=past_key_values)
         output = self.pos_ff(output)
 
-        return output
+        return output, present_key_values
 
 
 class RelLearnableDecoderLayer(nn.Module):
@@ -452,12 +467,12 @@ class RelLearnableDecoderLayer(nn.Module):
 
     def forward(self, dec_inp, r_emb, r_w_bias, r_bias, dec_attn_mask=None, mems=None, past_key_values=None):
 
-        output = self.dec_attn(dec_inp, r_emb, r_w_bias, r_bias,
-                               attn_mask=dec_attn_mask,
-                               mems=mems, past_key_values=past_key_values)
+        output, present_key_values = self.dec_attn(dec_inp, r_emb, r_w_bias, r_bias,
+                                                   attn_mask=dec_attn_mask,
+                                                   mems=mems, past_key_values=past_key_values)
         output = self.pos_ff(output)
 
-        return output
+        return output, present_key_values
 
 
 class RelPartialLearnableDecoderLayer(nn.Module):
@@ -479,12 +494,12 @@ class RelPartialLearnableDecoderLayer(nn.Module):
 
     def forward(self, dec_inp, r, r_w_bias, r_r_bias, dec_attn_mask=None, mems=None, past_key_values=None):
 
-        output = self.dec_attn(dec_inp, r, r_w_bias, r_r_bias,
-                               attn_mask=dec_attn_mask,
-                               mems=mems, past_key_values=past_key_values)
+        output, present_key_values = self.dec_attn(dec_inp, r, r_w_bias, r_r_bias,
+                                                   attn_mask=dec_attn_mask,
+                                                   mems=mems, past_key_values=past_key_values)
         output = self.pos_ff(output)
 
-        return output
+        return output, present_key_values
 
 
 class AdaptiveEmbedding(nn.Module):
@@ -837,7 +852,7 @@ class MemTransformerLM(nn.Module):
         return core_out, new_mems, pasts_key_values
 
     def forward(self, data:torch.Tensor, target:Optional[torch.Tensor], mems:Optional[torch.Tensor],
-                past_key_values:Optional[torch.Tensor], return_nll=True, return_log_probs=False):
+                past_key_values:Optional[torch.Tensor]=None, return_nll=True, return_log_probs=False):
         # data -> [seq_len, batch_size], target -> [seq_len, batch_size]
         # Returns:
         # loss -> [seq_len, batch_size], log_prob -> [seq_len, batch_size, vocab_size]
@@ -852,7 +867,7 @@ class MemTransformerLM(nn.Module):
             return_nll = False
 
         if past_key_values is None:
-            past_key_values = tuple([None] * len(self.n_layer))
+            past_key_values = tuple([None] * self.n_layer)
 
         hidden, new_mems, past_key_values = self._forward(data, mems=mems, past_key_values=past_key_values)
 
