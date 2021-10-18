@@ -45,7 +45,7 @@ dataset: {} # default dataset settings comes from __include__ on the top
 nas:
   search:
     max_num_models: 300
-    ratio_fastest_duration: 2.0
+    ratio_fastest_duration: 8.0
     finalizer: 'default' # options are 'random' or 'default'
     data_parallel: False
     checkpoint:
@@ -126,7 +126,7 @@ nas:
         lossfn:
           type: 'CrossEntropyLoss'
     trainer_full:
-      top1_acc_threshold: 0.1
+      top1_acc_threshold: 0.6
       use_val: False
       apex:
         _copy: '/common/apex'
