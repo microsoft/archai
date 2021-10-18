@@ -4,9 +4,11 @@ import argparse
 import os
 from typing import List
 from tqdm import tqdm
+import math as ma
+import numpy as np
 
 import plotly.graph_objects as go
-from scipy.stats import kendalltau, spearmanr
+from scipy.stats import kendalltau, spearmanr, sem
 import statistics
 
 
@@ -15,6 +17,55 @@ def find_train_thresh_epochs(train_acc:List[float], train_thresh:float)->int:
     for i, t in enumerate(train_acc):
         if t >= train_thresh:
             return i + 1
+
+
+def top_buckets_spearmans(all_reg_evals:List[float],
+                        all_proxy_evals:List[float],
+                        all_proxy_times:List[float]):
+
+    assert len(all_reg_evals) == len(all_proxy_evals)
+    assert len(all_reg_evals) == len(all_proxy_times)
+    reg_proxy = [(x, y, z) for x, y, z in zip(all_reg_evals, all_proxy_evals, all_proxy_times)]
+    
+    # sort in descending order of accuracy of regular evaluation
+    reg_proxy.sort(key= lambda x: x[0], reverse=True)
+
+    top_percent_times_avg = []
+    top_percent_times_std = []
+    top_percent_times_stderr = []
+
+    spe_top_percents = []
+
+    top_percents = []
+    top_percent_range = range(2, 101, 2)
+    for top_percent in top_percent_range:
+        top_percents.append(top_percent)
+        num_to_keep = int(ma.floor(len(reg_proxy) * top_percent * 0.01))
+        top_percent_reg_proxy_times = reg_proxy[:num_to_keep]
+        top_percent_reg = [x[0] for x in top_percent_reg_proxy_times]
+        top_percent_proxy = [x[1] for x in top_percent_reg_proxy_times]
+        top_percent_proxy_times = [x[2] for x in top_percent_reg_proxy_times]
+
+        top_percent_times_avg.append(np.mean(np.array(top_percent_proxy_times)))
+        top_percent_times_std.append(np.std(np.array(top_percent_proxy_times)))
+        top_percent_times_stderr.append(sem(np.array(top_percent_proxy_times)))
+
+        spe_proxy, _ = spearmanr(top_percent_reg, top_percent_proxy)
+        spe_top_percents.append(spe_proxy)
+
+    results = {
+        'top_percents': top_percents,
+        'spes': spe_top_percents,
+        'avg_times': top_percent_times_avg,
+        'std_times': top_percent_times_std,
+        'stderr_times': top_percent_times_stderr
+    }
+
+    return results
+
+
+
+
 
 
 def main():
@@ -81,7 +132,21 @@ def main():
 
     for epoch_num, spe in spes_train_acc_vs_epoch.items():
         avg_time = avg_time_train_acc_vs_epoch[epoch_num]
-        print(f'Epoch {epoch_num}, spearman {spe}, avg. time: {avg_time} seconds')                
+        # print(f'Epoch {epoch_num}, spearman {spe}, avg. time: {avg_time} seconds')
+
+    # FEAR rank correlations at top n percent of architectures
+    # -------------------------------------------------------------
+    fear_results = top_buckets_spearmans(all_reg_evals=all_test_acc,
+                                        all_proxy_evals=all_fear_end_acc,
+                                        all_proxy_times=all_fear_time)
+
+
+    # Regular evaluation rank correlations at top n percent of architectures
+    # -----------------------------------------------------------------------
+    
+    
+
+    print('dummy') 
 
 
 
