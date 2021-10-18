@@ -129,8 +129,13 @@ class MultiHeadAttn(nn.Module):
         head_k = head_k.view(c.size(0), c.size(1), self.n_head, self.d_head)
         head_v = head_v.view(c.size(0), c.size(1), self.n_head, self.d_head)
 
+        if past_key_values is not None:
+            past_k, past_v = past_key_values
+            head_k = torch.cat((past_k, head_k), dim=0)
+            head_v = torch.cat((past_v, head_v), dim=0)
+
         if self.use_cache:
-            present_key_values = None
+            present_key_values = (head_k, head_v)
         else:
             present_key_values = None
 
@@ -284,8 +289,14 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
 
         r_head_k = r_head_k.view(rlen, self.n_head, self.d_head)       # qlen x n_head x d_head
 
+        if past_key_values is not None:
+            past_k, past_v, past_r = past_key_values
+            w_head_k = torch.cat((past_k, w_head_k), dim=0)
+            w_head_v = torch.cat((past_v, w_head_v), dim=0)
+            r_head_k = torch.cat((past_r, r_head_k), dim=0)
+
         if self.use_cache:
-            present_key_values = None
+            present_key_values = (w_head_k, w_head_v, r_head_k)
         else:
             present_key_values = None
 
@@ -373,8 +384,13 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
         w_head_k = w_head_k.view(klen, bsz, self.n_head, self.d_head)
         w_head_v = w_head_v.view(klen, bsz, self.n_head, self.d_head)
 
+        if past_key_values is not None:
+            past_k, past_v = past_key_values
+            w_head_k = torch.cat((past_k, w_head_k), dim=0)
+            w_head_v = torch.cat((past_v, w_head_v), dim=0)
+
         if self.use_cache:
-            present_key_values = None
+            present_key_values = (w_head_k, w_head_v)
         else:
             present_key_values = None
 
@@ -756,7 +772,8 @@ class MemTransformerLM(nn.Module):
         word_emb = self.word_emb(dec_inp)
 
         mlen = mems[0].size(0) if mems is not None else 0
-        klen = mlen + qlen
+        plen = past_key_values[0][0].size(0) if past_key_values[0] is not None else 0
+        klen = mlen + plen + qlen
         if self.same_length:
             all_ones = word_emb.new_ones(qlen, klen)
             mask_len = klen - self.mem_len - 1
@@ -764,17 +781,17 @@ class MemTransformerLM(nn.Module):
                 mask_shift_len = qlen - mask_len
             else:
                 mask_shift_len = qlen
-            dec_attn_mask = (torch.triu(all_ones, 1+mlen)
+            dec_attn_mask = (torch.triu(all_ones, 1+mlen+plen)
                              + torch.tril(all_ones, -mask_shift_len)).bool()
         else:
             dec_attn_mask = torch.triu(
-                word_emb.new_ones(qlen, klen), diagonal=1+mlen).bool()
+                word_emb.new_ones(qlen, klen), diagonal=1+mlen+plen).bool()
 
         hids = []
         pasts_key_values = ()
         # default
         if self.attn_type == 0:
-            pos_seq = torch.arange(klen-1, -1, -1.0, device=word_emb.device,
+            pos_seq = torch.arange(klen-plen-1, -1, -1.0, device=word_emb.device,
                                    dtype=word_emb.dtype)
             if self.clamp_len > 0:
                 pos_seq.clamp_(max=self.clamp_len)
