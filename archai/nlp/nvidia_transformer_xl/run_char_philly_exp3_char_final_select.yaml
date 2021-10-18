@@ -344,6 +344,15 @@ jobs:
   - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_50000.pt --experiment_name inference --prompt_context_percent 0.2 --cuda --num_prompts 50000 --split valid
   - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_50000.pt --experiment_name inference --prompt_context_percent 0.5 --cuda --num_prompts 50000 --split valid
   - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_50000.pt --experiment_name inference --prompt_context_percent 0.8 --cuda --num_prompts 50000 --split valid
+- name: inference_char_valid_best
+  sku: G1
+  command:
+  - set -e -o xtrace
+  - bash scripts/apex_install.sh
+  - pip install --user -e .
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.2 --cuda --num_prompts 50000 --split valid
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.5 --cuda --num_prompts 50000 --split valid
+  - python archai/nlp/nvidia_transformer_xl/exact_match.py --work_dir $$AMLT_MAP_INPUT_DIR --dataset wt2 --tgt_len 512 --mem_len 2000 --same_length --model $$AMLT_MAP_INPUT_DIR/checkpoint_best.pt --experiment_name inference --prompt_context_percent 0.8 --cuda --num_prompts 50000 --split valid
 - name: inference_char_valid_memstat
   sku: G1
   command:
