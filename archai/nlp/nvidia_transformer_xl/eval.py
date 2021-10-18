@@ -198,7 +198,7 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1):
 
                 torch.cuda.synchronize()
                 start_iter = time.time()
-                loss, mems = model(data, target, mems)
+                loss, mems, _, _ = model(data, target, mems)
                 torch.cuda.synchronize()
                 elapsed = time.time() - start_iter
 
@@ -265,7 +265,7 @@ def compile_model(model, device, args):
     with torch.no_grad():
         mems = None
         for _ in range(2):
-            _, mems = model(inp, tgt, mems)
+            _, mems, _, _ = model(inp, tgt, mems)
     torch.cuda.synchronize()
     stop = time.time()
     logging.info(f'Building the model took {stop - start:.2f} seconds')
