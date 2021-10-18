@@ -130,12 +130,12 @@ class MultiHeadAttn(nn.Module):
         head_v = head_v.view(c.size(0), c.size(1), self.n_head, self.d_head)
 
         if past_key_values is not None:
-            past_k, past_v = past_key_values
+            past_k, past_v = torch.unbind(past_key_values, dim=0)
             head_k = torch.cat((past_k, head_k), dim=0)
             head_v = torch.cat((past_v, head_v), dim=0)
 
         if self.use_cache:
-            present_key_values = (head_k, head_v)
+            present_key_values = torch.stack([head_k, head_v], dim=0)
         else:
             present_key_values = None
 
@@ -287,16 +287,16 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
         w_head_k = w_head_k.view(klen, bsz, self.n_head, self.d_head)  # klen x bsz x n_head x d_head
         w_head_v = w_head_v.view(klen, bsz, self.n_head, self.d_head)  # klen x bsz x n_head x d_head
 
-        r_head_k = r_head_k.view(rlen, self.n_head, self.d_head)       # qlen x n_head x d_head
+        r_head_k = r_head_k.view(rlen, bsz, self.n_head, self.d_head)  # qlen x bsz x n_head x d_head
 
         if past_key_values is not None:
-            past_k, past_v, past_r = past_key_values
+            past_k, past_v, past_r = torch.unbind(past_key_values, dim=0)
             w_head_k = torch.cat((past_k, w_head_k), dim=0)
             w_head_v = torch.cat((past_v, w_head_v), dim=0)
             r_head_k = torch.cat((past_r, r_head_k), dim=0)
 
         if self.use_cache:
-            present_key_values = (w_head_k, w_head_v, r_head_k)
+            present_key_values = torch.stack([w_head_k, w_head_v, r_head_k], dim=0)
         else:
             present_key_values = None
 
@@ -305,7 +305,7 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
         AC = torch.einsum('ibnd,jbnd->bnij', (rw_head_q, w_head_k))    # bsz x n_head x qlen x klen
 
         rr_head_q = w_head_q + r_r_bias
-        BD = torch.einsum('ibnd,jnd->bnij', (rr_head_q, r_head_k))     # bsz x n_head x qlen x klen
+        BD = torch.einsum('ibnd,jbnd->bnij', (rr_head_q, r_head_k))     # bsz x n_head x qlen x klen
         BD = self._rel_shift(BD)
 
         # [bsz x n_head x qlen x klen]
@@ -386,14 +386,13 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
         w_head_v = w_head_v.view(klen, bsz, self.n_head, self.d_head)
 
         if past_key_values is not None:
-            past_k, past_v = past_key_values
+            past_k, past_v = torch.unbind(past_key_values, dim=0)
             plen = past_k.size(0)
             w_head_k = torch.cat((past_k, w_head_k), dim=0)
             w_head_v = torch.cat((past_v, w_head_v), dim=0)
-            # r_emb = torch.cat((past_r_emb, r_emb), dim=0)
 
         if self.use_cache:
-            present_key_values = (w_head_k, w_head_v)
+            present_key_values = torch.stack([w_head_k, w_head_v], dim=0)
         else:
             present_key_values = None
 
@@ -798,7 +797,7 @@ class MemTransformerLM(nn.Module):
                                    dtype=word_emb.dtype)
             if self.clamp_len > 0:
                 pos_seq.clamp_(max=self.clamp_len)
-            pos_emb = self.pos_emb(pos_seq)
+            pos_emb = self.pos_emb(pos_seq, bsz=bsz)
 
             core_out = self.drop(word_emb)
             pos_emb = self.drop(pos_emb)
@@ -832,7 +831,7 @@ class MemTransformerLM(nn.Module):
                                    dtype=word_emb.dtype)
             if self.clamp_len > 0:
                 pos_seq.clamp_(max=self.clamp_len)
-            pos_emb = self.pos_emb(pos_seq)
+            pos_emb = self.pos_emb(pos_seq, bsz=bsz)
 
             core_out = self.drop(word_emb + pos_emb[-qlen:])
 
