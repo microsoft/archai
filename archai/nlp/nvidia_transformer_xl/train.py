@@ -1,7 +1,6 @@
 from typing import Optional, Tuple
 
 import argparse
-import pprint
 import functools
 import itertools
 import logging
@@ -793,7 +792,7 @@ def load_data(args, device, get_file_stats=True):
     if get_file_stats:
         file_stats = corpus.file_stats()
         for file_stat in file_stats:
-            print(file_stat)
+            logging.info(file_stat)
 
     return  corpus.vocab, tr_iter, va_iter, te_iter, file_stats
 
@@ -1100,22 +1099,25 @@ def evaluate_main(args, model, te_iter, test_file_stats):
 
         logging.info('=' * 100)
         if args.dataset in ['enwik8', 'text8']:
-            logging.info('| End of training | test time: {:5.2f}s | test loss {:5.2f} | test bpc {:9.5f} | word ppl {:9.3f}'.format(
-                test_elapsed, test_metrix.avg_loss, test_metrix.bpc, test_metrix.word_ppl))
+            logging.info('| End of training | test time: {:5.2f}s | test loss {:5.2f} | word ppl {:9.3f} | test bpc {:9.5f}'.format(
+                test_elapsed, test_metrix.avg_loss, test_metrix.word_ppl, test_metrix.bpc))
         else:
-            logging.info('| End of training | test time: {:5.2f}s | test loss {:5.2f} | test ppl {:9.3f} | word ppl {:9.3f}'.format(
-                test_elapsed, test_metrix.avg_loss, test_metrix.ppl, test_metrix.word_ppl))
+            logging.info('| End of training | test time: {:5.2f}s | test loss {:5.2f} | word ppl {:9.3f} | test ppl {:9.3f}'.format(
+                test_elapsed, test_metrix.avg_loss, test_metrix.word_ppl, test_metrix.ppl))
         logging.info('=' * 100)
 
         summary.update({
-            'total_elapsed': test_metrix.total_elapsed,
+            'test_word_count': test_file_stats.word_count,
+            'test_total_elapsed': test_metrix.total_elapsed,
             'test_elapsed': test_elapsed,
-            'avg_loss': test_metrix.avg_loss,
-            'avg_loss_nomem': test_metrix.avg_loss_nomem,
+            'test_total_loss': test_metrix.total_loss,
+            'test_total_loss_nomem': test_metrix.total_loss_nomem,
+            'test_avg_loss': test_metrix.avg_loss,
+            'test_avg_loss_nomem': test_metrix.avg_loss_nomem,
             'test_steps': test_metrix.total_steps,
             'test_len': test_metrix.total_len,
-            'word_ppl': test_metrix.word_ppl,
-            'word_ppl_nomem': test_metrix.word_ppl_nomem
+            'test_word_ppl': test_metrix.word_ppl,
+            'test_word_ppl_nomem': test_metrix.word_ppl_nomem
             })
 
         if args.dataset in ['enwik8', 'text8']:
@@ -1133,7 +1135,7 @@ def load_model(path:str, model:Optional[MemTransformerLM], on_cpu:bool) -> Tuple
     if os.path.isdir(path):
         path = os.path.join(path, 'checkpoint_last.pt')
 
-    print(f'Loading PyTorch model from: {path}')
+    logging.info(f'Loading PyTorch model from: {path}')
 
     dst = f'cuda:{torch.cuda.current_device()}' \
         if not on_cpu \
@@ -1185,29 +1187,16 @@ def main():
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
 
-    if best_val_loss:
-        val_perplexity = math.exp(best_val_loss)
-    else:
-        val_perplexity = None
-
     summary.update({
         'train_throughput': meters['train_throughput'].avg,
         'train_elapsed': training_time / 60,
         'valid_loss': best_val_loss,
-        'valid_perplexity': val_perplexity,
+        'valid_perplexity': math.exp(best_val_loss) if best_val_loss else None,
         })
-    logging.info(pprint.pprint(summary))
-    dllogger.log(step=tuple(), data=summary)
 
-    passed = benchmark(
-        target_perplexity=args.target_perplexity,
-        test_perplexity=val_perplexity,
-        target_throughput=args.target_throughput,
-        test_throughput=meters['train_throughput'].avg
-        )
-    if not passed:
-        sys.exit(1)
-    sys.exit(0)
+    logging.info(summary)
+
+    dllogger.log(step=tuple(), data=summary)
 
 
 if __name__ == "__main__":
