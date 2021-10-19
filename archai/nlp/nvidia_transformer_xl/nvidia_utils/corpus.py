@@ -2,6 +2,7 @@ import os
 import glob
 from typing import Optional, Tuple
 import logging
+from dataclasses import dataclass
 
 import numpy as np
 import torch
@@ -13,6 +14,14 @@ from archai.nlp.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.tokenizer_utils.gpt2_vocab import Gpt2Vocab
 
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
+
+
+@dataclass
+class DataFileStats:
+    filepath:str
+    line_count:int=0
+    word_count:int=0
+    char_count:int=0
 
 class Corpus:
     def __init__(self, datadir:str, dataset:str, vocab_type:str, cachedir:str,
@@ -43,17 +52,14 @@ class Corpus:
     def train_and_encode(self):
         logging.info(f'Producing corpus cache for dataset {self.dataset}, vocab_type{self.vocab_type}, vocab_size {self.vocab_size}...')
 
-        self.vocab = self._create_train_vocab(self.datadir, self.dataset, self.vocab_type,
-                                            self._vocab_cache_dir, self.vocab_size, self.refresh_cache)
+        self.vocab = self._create_train_vocab()
 
-        self.train, self.valid, self.test = self._get_encoded_files(
-            self.vocab, self.datadir, self.dataset)
+        self.train, self.valid, self.test = self._get_encoded_files()
 
         logging.info(f'Sizes for train: {self.train.size(0)}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
 
 
     def load(self):
-
         # ensure that we have tokenizer cache as well
         self.vocab = Corpus._create_vocab(self.datadir, self.dataset,
             self.vocab_type, self._vocab_cache_dir, vocab_size=self.vocab_size)
@@ -92,28 +98,39 @@ class Corpus:
         np.save(self.valid_cache_filepath, self.valid.numpy())
         np.save(self.test_cache_filepath, self.test.numpy())
 
-    @staticmethod
-    def _create_train_vocab(datadir:str, dataset:str, vocab_type:str, vocab_cache_dir:str,
-                      vocab_size:Optional[int], refresh_cache:bool)->VocabBase:
-        vocab = Corpus._create_vocab(datadir, dataset, vocab_type,
-                                     vocab_cache_dir, vocab_size=vocab_size)
-        Corpus._train_vocab(vocab, datadir, dataset, vocab_type,
-                                     vocab_cache_dir, vocab_size, refresh_cache)
+    def _create_train_vocab(self)->VocabBase:
+        vocab = Corpus._create_vocab(self.datadir, self.dataset, self.vocab_type,
+                                     self._vocab_cache_dir, vocab_size=self.vocab_size)
+        self._train_vocab()
 
         return vocab
 
     @staticmethod
-    def _get_encoded_files(vocab:VocabBase, datadir:str, dataset:str)->\
+    def _get_file_stats(filepath:str)->DataFileStats:
+        stats = DataFileStats(filepath)
+        with open(filepath, 'r', encoding="utf-8") as f:
+            for line in f:
+                stats.line_count += 1
+                stats.char_count += len(line)
+                stats.word_count += len(line.split())
+        return stats
+
+    def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
+        train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
+        return (Corpus._get_file_stats(train_filepath), \
+                Corpus._get_file_stats(valid_filepath), \
+                Corpus._get_file_stats(test_filepath))
+
+    def _get_encoded_files(self)->\
         Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 
-        train_filename, test_filename, valid_filename = \
-                    Corpus._dataset_filenames(dataset)
+        train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
 
-        train = vocab.encode_file(os.path.join(datadir, train_filename))
-        valid = vocab.encode_file(os.path.join(datadir, valid_filename))
-        test = vocab.encode_file(os.path.join(datadir, test_filename))
+        train = self.vocab.encode_file(train_filepath)
+        valid = self.vocab.encode_file(valid_filepath)
+        test = self.vocab.encode_file(test_filepath)
 
-        return ((train, valid, test))
+        return (train, valid, test)
 
     @staticmethod
     def _create_vocab(datadir:str, dataset:str, vocab_type:str, vocab_cache_dir:str,
@@ -144,29 +161,26 @@ class Corpus:
 
         return vocab
 
-    @staticmethod
-    def _dataset_filenames(dataset:str)->Tuple[str,str,str]:
-        train_filename, test_filename, valid_filename = 'train.txt', 'test.txt', 'valid.txt'
-        if dataset in ['wt2', 'wt103']:
-            train_filename, test_filename, valid_filename = 'wiki.train.tokens', 'wiki.test.tokens', 'wiki.valid.tokens'
+    def _dataset_filepaths(self)->Tuple[str,str,str]:
+        train_filename, valid_filename, test_filename = 'train.txt', 'valid.txt', 'test.txt'
+        if self.dataset in ['wt2', 'wt103']:
+            train_filename, valid_filename, test_filename = 'wiki.train.tokens', 'wiki.valid.tokens', 'wiki.test.tokens'
 
-        return train_filename, test_filename, valid_filename
+        return (os.path.join(self.datadir, train_filename),
+                os.path.join(self.datadir, valid_filename),
+                os.path.join(self.datadir, test_filename))
 
-    @staticmethod
-    def _train_vocab(vocab:VocabBase, datadir:str, dataset:str, vocab_type:str,
-                    vocab_cache_dir:str, vocab_size:Optional[int],
-                    refresh_cache:bool)->None:
-
-        if refresh_cache or not vocab.is_trained(): # if vocab cache does not exist
-            train_filename, test_filename, valid_filename = \
-                Corpus._dataset_filenames(dataset)
+    def _train_vocab(self)->None:
+        if self.refresh_cache or not self.vocab.is_trained(): # if vocab cache does not exist
+            train_filepath, valid_filepath, test_filepath = \
+                self._dataset_filepaths()
 
             logging.info('Training vocab...')
-            vocab.train([os.path.join(datadir, train_filename)])
+            self.vocab.train([train_filepath])
             logging.info('Finished training vocab.')
         else:
-            vocab.load()
-            logging.info(f'Vocab cache found and loaded for type {vocab_type} and size {vocab_size} from {vocab_cache_dir}.')
+            self.vocab.load()
+            logging.info(f'Vocab cache found and loaded for type {self.vocab_type} and size {self.vocab_size} from {self._vocab_cache_dir}.')
 
     def get_iterator(self, split, batch_size, tgt_len, device, ext_len, mem_len=None):
         if split == 'train':
