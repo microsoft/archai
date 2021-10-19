@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 
 import argparse
+import pprint
 import functools
 import itertools
 import logging
@@ -373,7 +374,7 @@ def update_dropatt(m, args):
         m.dropatt.p = args.dropatt
 
 
-def evaluate(eval_iter, model, args):
+def evaluate(eval_iter, model, args, eval_nomem=True):
     # Turn on evaluation mode which disables dropout.
     model.eval()
 
@@ -392,18 +393,34 @@ def evaluate(eval_iter, model, args):
                            )
 
     # Evaluation
-    total_len, total_loss = 0, 0.
+    total_len, total_loss, total_loss_nomem, steps = 0, 0., 0., 0
+    start_time = time.time()
     with torch.no_grad():
         mems = None
         for i, (data, target, seq_len, warm) in enumerate(eval_iter):
+            steps += 1
             if args.eval_max_steps > 0 and i >= args.eval_max_steps:
                 break
+
+            # first with mem
             loss, mems, _, _ = model(data, target, mems)
             loss = loss.float().mean()
+
+            # now without mem
+            loss_nomem = None
+            if eval_nomem:
+                loss_nomem, _, _, _ = model(data, target, None)
+                loss_nomem = loss_nomem.float().mean()
+
             if warm:
                 # assert (mems is None) or mems.size(1) == model.mem_len
                 total_loss += seq_len * loss.item()
                 total_len += seq_len
+
+                if eval_nomem:
+                    total_loss_nomem += seq_len * loss_nomem.item()
+
+    elapsed = time.time() - start_time
 
     # Switch back to the training mode
     model.reset_length(tgt_len=args.tgt_len,
@@ -412,7 +429,35 @@ def evaluate(eval_iter, model, args):
                        )
     model.train()
 
-    return total_loss / total_len
+    return total_loss, total_len, total_loss_nomem, steps, elapsed
+
+
+class EvalMetrics:
+    def __init__(self, eval_word_count, node_loss, node_len, node_loss_nomem, node_steps, node_elapsed) -> None:
+        self.total_loss = nv_distributed.all_reduce_item(node_loss, 'sum')
+        self.total_len = nv_distributed.all_reduce_item(node_len, 'sum')
+        self.total_loss_nomem = nv_distributed.all_reduce_item(node_loss_nomem, 'sum')
+        self.total_steps = nv_distributed.all_reduce_item(node_steps, 'sum')
+        self.total_elapsed = nv_distributed.all_reduce_item(node_elapsed, 'sum')
+
+        self.avg_loss = self.total_loss / self.total_len
+
+        self.word_ppl = math.exp(self.total_loss / eval_word_count)
+
+        if self.total_loss_nomem is not None:
+            self.avg_loss_nomem = self.total_loss_nomem / self.total_len
+            self.word_ppl_nomem = math.exp(self.total_loss_nomem / eval_word_count)
+            self.ppl_nomem = math.exp(self.avg_loss_nomem)
+            self.bpc_nomem = self.avg_loss_nomem / math.log(2)
+        else:
+            self.avg_loss_nomem = None
+            self.word_ppl_nomem = None
+            self.ppl_nomem = None
+            self.bpc_nomem = None
+
+        self.ppl = math.exp(self.avg_loss)
+        self.bpc = self.avg_loss / math.log(2)
+
 
 
 def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
@@ -451,7 +496,7 @@ def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
 def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
           optimizer_sparse, scheduler, scheduler_sparse, scaler, vocab, epoch,
           last_batch, last_iter, train_step, best_val_loss, meters,
-          device, args):
+          device, args, valid_file_stats):
     # Turn on training mode which enables dropout.
     model.train()
 
@@ -584,29 +629,31 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
         if (do_periodic_eval or is_final_step or interrupted) and not args.no_eval:
             eval_start_time = time.time()
-            val_loss = evaluate(va_iter, model, args)
-            val_loss = nv_distributed.all_reduce_item(val_loss, op='mean')
+            node_metrix = evaluate(va_iter, model, args, eval_nomem=False)
+            val_metrix = EvalMetrics(valid_file_stats.word_count, *node_metrix)
 
             logging.info('-' * 100)
             log_str = '| Eval {:3d} at step {:>8d} | time: {:5.2f}s ' \
-                      '| valid loss {:5.2f}'.format(
+                      '| loss {:5.2f} | word ppl {:5.2f}'.format(
                           train_step // args.eval_interval,
                           train_step,
                           (time.time() - eval_start_time),
-                          val_loss,
+                          val_metrix.avg_loss, val_metrix.word_ppl
                           )
 
             dllogger_data = {
                 'valid_elapsed': (time.time() - eval_start_time),
-                'valid_loss': val_loss,
+                'valid_loss': val_metrix.avg_loss,
+                'valid_ppl': val_metrix.ppl,
+                'valid_word_ppl': val_metrix.word_ppl
                 }
 
             if args.dataset in ['enwik8', 'text8']:
-                log_str += ' | bpc {:9.5f}'.format(val_loss / math.log(2))
-                dllogger_data['valid_bits_per_character'] = val_loss / math.log(2)
+                log_str += ' | bpc {:9.5f}'.format(val_metrix.bpc)
+                dllogger_data['valid_bits_per_character'] = val_metrix.bpc
             else:
-                log_str += ' | valid ppl {:9.3f}'.format(math.exp(val_loss))
-                dllogger_data['valid_perplexity'] = math.exp(val_loss)
+                log_str += ' | ppl {:9.3f}'.format(val_metrix.ppl)
+                dllogger_data['valid_perplexity'] = val_metrix.ppl
             logging.info(log_str)
             logging.info('-' * 100)
             dllogger.log(step=tuple([train_step]), data=dllogger_data)
@@ -615,8 +662,8 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
             # Check if the validation loss is the best we've seen so far.
             is_best = False
-            if not best_val_loss or val_loss < best_val_loss:
-                best_val_loss = val_loss
+            if not best_val_loss or val_metrix.avg_loss < best_val_loss:
+                best_val_loss = val_metrix.avg_loss
                 is_best = True
 
             save_checkpoint(args, model, model_config, optimizer, scheduler,
@@ -626,9 +673,9 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
             # dev-performance based learning rate annealing
             if args.scheduler == 'dev_perf':
-                scheduler.step(val_loss)
+                scheduler.step(val_metrix.avg_loss)
                 if scheduler_sparse:
-                    scheduler_sparse.step(val_loss)
+                    scheduler_sparse.step(val_metrix.avg_loss)
 
             # subtract eval time from timers for training
             log_start_time += time.time() - eval_start_time
@@ -643,6 +690,8 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
 
 def init():
+    exp_utils.script_init()
+
     args = parse_args()
 
     # TODO: below is commented out because nvlm installation issues on Windows
@@ -710,9 +759,14 @@ def init():
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
+    logging.info('=' * 100)
+    for k, v in args.__dict__.items():
+        logging.info('    - {} : {}'.format(k, v))
+    logging.info('=' * 100)
+
     return args, device
 
-def load_data(args, device):
+def load_data(args, device, get_file_stats=True):
     logging.info('Generating/loading dataset...')
     corpus = get_lm_corpus(args.data, args.cache_dir, args.dataset, args.vocab,
                            vocab_size=args.vocab_size, refresh_cache=args.refresh_cache)
@@ -735,7 +789,13 @@ def load_data(args, device):
                                   args.eval_tgt_len, device=device,
                                   mem_len=eval_mem_len, ext_len=args.ext_len)
 
-    return  corpus.vocab, tr_iter, va_iter, te_iter
+    file_stats = None
+    if get_file_stats:
+        file_stats = corpus.file_stats()
+        for file_stat in file_stats:
+            print(file_stat)
+
+    return  corpus.vocab, tr_iter, va_iter, te_iter, file_stats
 
 
 def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
@@ -786,6 +846,11 @@ def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
         }
 
     model = MemTransformerLM(**model_config)
+
+    n_all_param = sum([p.nelement() for p in model.parameters()])
+    n_nonemb_param = sum([p.nelement() for p in model.layers.parameters()])
+    logging.info('#params = {}'.format(n_all_param))
+    logging.info('#non emb params = {}'.format(n_nonemb_param))
 
     return model, model_config
 
@@ -930,7 +995,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
 
 def train_main(args, device, tr_iter, va_iter, model, para_model, model_config,
                 optimizer, optimizer_sparse, scheduler,
-                scheduler_sparse, scaler, vocab):
+                scheduler_sparse, scaler, vocab, valid_file_stats):
     train_step = 0
     start_epoch = 1
     last_batch = 0
@@ -983,7 +1048,7 @@ def train_main(args, device, tr_iter, va_iter, model, para_model, model_config,
                 optimizer, optimizer_sparse, scheduler,
                 scheduler_sparse, scaler, vocab, epoch, last_batch,
                 last_iter, train_step, best_val_loss, meters,
-                device, args
+                device, args, valid_file_stats
                 )
 
             last_batch = 0
@@ -1014,37 +1079,51 @@ def train_main(args, device, tr_iter, va_iter, model, para_model, model_config,
 
     return elapsed, best_val_loss, meters
 
-def evaluate_main(args, model, te_iter):
-    summary = {}
+def evaluate_main(args, model, te_iter, test_file_stats):
+    summary = {
+        'n_all_param': sum([p.nelement() for p in model.parameters()]),
+        'n_nonemb_param': sum([p.nelement() for p in model.layers.parameters()])
+    }
+
     test_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
+
     if not args.no_eval and os.path.exists(test_path):
         # Load the best saved model.
         model, model_config, checkpoint = load_model(test_path, model, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
-        test_loss = evaluate(te_iter, model, args)
-        test_loss = nv_distributed.all_reduce_item(test_loss, 'mean')
+        node_metrix = evaluate(te_iter, model, args)
+        test_metrix = EvalMetrics(test_file_stats.word_count, *node_metrix)
+
         test_elapsed = time.time() - test_start_time
 
         logging.info('=' * 100)
         if args.dataset in ['enwik8', 'text8']:
-            logging.info('| End of training | test time: {:5.2f}s | test loss {:5.2f} | test bpc {:9.5f}'.format(
-                test_elapsed, test_loss, test_loss / math.log(2)))
+            logging.info('| End of training | test time: {:5.2f}s | test loss {:5.2f} | test bpc {:9.5f} | word ppl {:9.3f}'.format(
+                test_elapsed, test_metrix.avg_loss, test_metrix.bpc, test_metrix.word_ppl))
         else:
-            logging.info('| End of training | test time: {:5.2f}s | test loss {:5.2f} | test ppl {:9.3f}'.format(
-                test_elapsed, test_loss, math.exp(test_loss)))
+            logging.info('| End of training | test time: {:5.2f}s | test loss {:5.2f} | test ppl {:9.3f} | word ppl {:9.3f}'.format(
+                test_elapsed, test_metrix.avg_loss, test_metrix.ppl, test_metrix.word_ppl))
         logging.info('=' * 100)
 
         summary.update({
+            'total_elapsed': test_metrix.total_elapsed,
             'test_elapsed': test_elapsed,
-            'test_loss': test_loss,
+            'avg_loss': test_metrix.avg_loss,
+            'avg_loss_nomem': test_metrix.avg_loss_nomem,
+            'test_steps': test_metrix.total_steps,
+            'test_len': test_metrix.total_len,
+            'word_ppl': test_metrix.word_ppl,
+            'word_ppl_nomem': test_metrix.word_ppl_nomem
             })
 
         if args.dataset in ['enwik8', 'text8']:
-            summary['test_bits_per_character'] = test_loss / math.log(2)
+            summary['test_bits_per_character'] = test_metrix.bpc
+            summary['test_bits_per_character_nomem'] = test_metrix.bpc_nomem
         else:
-            summary['test_perplexity'] = math.exp(test_loss)
+            summary['test_perplexity'] = test_metrix.ppl
+            summary['test_perplexity_nomem'] = test_metrix.ppl_nomem
 
     return summary
 
@@ -1073,40 +1152,35 @@ def load_model(path:str, model:Optional[MemTransformerLM], on_cpu:bool) -> Tuple
 
 
 def main():
+    # get command line args
     args, device = init()
 
-    vocab, tr_iter, va_iter, te_iter = load_data(args, device)
+    # load tokenizer and datasets
+    vocab, tr_iter, va_iter, te_iter, file_stats = load_data(args, device)
 
+    # create model
     ntokens = len(vocab)
     model, model_config = create_model(args, device, ntokens)
 
+    # create optimizer
     optimizer, optimizer_sparse = create_optimizer(args, model)
 
     model = model.to(device)
 
+    # create gradient scaler
     scaler = create_grad_scaler(args, model, optimizer)
 
+    # enable distributed training
     para_model, model = distributed_model(args, model, device)
 
+    # create scheduler
     scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
-
-
-    logging.info('=' * 100)
-    for k, v in args.__dict__.items():
-        logging.info('    - {} : {}'.format(k, v))
-    logging.info('=' * 100)
-
-    n_all_param = sum([p.nelement() for p in model.parameters()])
-    n_nonemb_param = sum([p.nelement() for p in model.layers.parameters()])
-    logging.info('#params = {}'.format(n_all_param))
-    logging.info('#non emb params = {}'.format(n_nonemb_param))
-
 
     training_time, best_val_loss, meters = train_main(args, device, tr_iter, va_iter, model, para_model,
         model_config, optimizer, optimizer_sparse, scheduler,
-        scheduler_sparse, scaler, vocab)
+        scheduler_sparse, scaler, vocab, file_stats[1])
 
-    summary = evaluate_main(args, model, tr_iter)
+    summary = evaluate_main(args, model, tr_iter, file_stats[-1])
 
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
@@ -1122,6 +1196,7 @@ def main():
         'valid_loss': best_val_loss,
         'valid_perplexity': val_perplexity,
         })
+    logging.info(pprint.pprint(summary))
     dllogger.log(step=tuple(), data=summary)
 
     passed = benchmark(
@@ -1132,8 +1207,8 @@ def main():
         )
     if not passed:
         sys.exit(1)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
-    exp_utils.script_init()
     main()
