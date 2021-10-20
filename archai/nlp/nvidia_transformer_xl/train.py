@@ -446,7 +446,9 @@ class EvalMetrics:
         self.word_ppl = math.exp(self.total_loss / eval_word_count)
 
         if self.total_loss_nomem is not None:
-            self.avg_loss_nomem = self.total_loss_nomem / self.total_len
+            avg_loss_nomem = node_loss_nomem / node_len
+            self.avg_loss_nomem =  nv_distributed.all_reduce_item(avg_loss_nomem, 'mean')
+
             self.word_ppl_nomem = math.exp(self.total_loss_nomem / eval_word_count)
             self.ppl_nomem = math.exp(self.avg_loss_nomem)
             self.bpc_nomem = self.avg_loss_nomem / math.log(2)
