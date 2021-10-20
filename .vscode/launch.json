@@ -944,7 +944,7 @@
             "program": "${cwd}/scripts/reports/fear_analysis/simulate_fear_on_nb301.py",
             "console": "integratedTerminal",
             "args": ["--nb301-logs-dir", "C:\\Users\\dedey\\dataroot\\nasbench301\\nasbench301_full_data\\nb_301_v13_lc_iclr_final\\rs",
-                "--out-dir", "F:\\archai_experiment_reports"]
+                "--out-dir", "F:\\archai_experiment_reports", "--scorer", "train_accuracy"]
         },
         {
             "name": "Analysis Simulate FEAR on Nasbench301 Toy",
@@ -953,7 +953,7 @@
             "program": "${cwd}/scripts/reports/fear_analysis/simulate_fear_on_nb301.py",
             "console": "integratedTerminal",
             "args": ["--nb301-logs-dir", "C:\\Users\\dedey\\dataroot\\nasbench301\\nasbench301_full_data\\nb_301_v13_toy",
-                "--out-dir", "F:\\archai_experiment_reports"]
+                "--out-dir", "F:\\archai_experiment_reports", "--scorer", "train_accuracy"]
         },
         {
             "name": "CurrentFile",
