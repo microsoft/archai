@@ -1,5 +1,6 @@
 from typing import Optional, Tuple
 
+import pprint
 import argparse
 import functools
 import itertools
@@ -433,13 +434,14 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
 
 class EvalMetrics:
     def __init__(self, eval_word_count, node_loss, node_len, node_loss_nomem, node_steps, node_elapsed) -> None:
+        node_avg_loss = node_loss / node_len
+
+        self.avg_loss = nv_distributed.all_reduce_item(node_avg_loss, 'mean')
         self.total_loss = nv_distributed.all_reduce_item(node_loss, 'sum')
         self.total_len = nv_distributed.all_reduce_item(node_len, 'sum')
         self.total_loss_nomem = nv_distributed.all_reduce_item(node_loss_nomem, 'sum')
         self.total_steps = nv_distributed.all_reduce_item(node_steps, 'sum')
         self.total_elapsed = nv_distributed.all_reduce_item(node_elapsed, 'sum')
-
-        self.avg_loss = self.total_loss / self.total_len
 
         self.word_ppl = math.exp(self.total_loss / eval_word_count)
 
@@ -1124,8 +1126,8 @@ def evaluate_main(args, model, te_iter, test_file_stats):
             summary['test_bits_per_character'] = test_metrix.bpc
             summary['test_bits_per_character_nomem'] = test_metrix.bpc_nomem
         else:
-            summary['test_perplexity'] = test_metrix.ppl
-            summary['test_perplexity_nomem'] = test_metrix.ppl_nomem
+            summary['test_ppl'] = test_metrix.ppl
+            summary['test_ppl_nomem'] = test_metrix.ppl_nomem
 
     return summary
 
@@ -1191,10 +1193,10 @@ def main():
         'train_throughput': meters['train_throughput'].avg,
         'train_elapsed': training_time / 60,
         'valid_loss': best_val_loss,
-        'valid_perplexity': math.exp(best_val_loss) if best_val_loss else None,
+        'valid_ppl': math.exp(best_val_loss) if best_val_loss else None,
         })
 
-    logging.info(summary)
+    logging.info(pprint.pformat(summary))
 
     dllogger.log(step=tuple(), data=summary)
 
