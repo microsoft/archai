@@ -53,7 +53,7 @@ if __name__ == '__main__':
     model, model_config = load_from_pt(torch_model_path)
 
     # Exports to ONNX
-    export_onnx_from_pt(model, model_config, onnx_model_path, share_weights=False)
+    export_onnx_from_pt(model, model_config, onnx_model_path, share_weights=True)
 
     # Whether optimization should be applied
     if optimization:
