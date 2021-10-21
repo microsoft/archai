@@ -1096,7 +1096,7 @@ def evaluate_main(args, model, te_iter, test_file_stats):
 
         # Run on test data.
         test_start_time = time.time()
-        node_metrix = evaluate(te_iter, model, args, eval_nomem=True)
+        node_metrix = evaluate(te_iter, model, args, eval_nomem=False)
         test_metrix = EvalMetrics(test_file_stats.word_count, *node_metrix)
 
         test_elapsed = time.time() - test_start_time
