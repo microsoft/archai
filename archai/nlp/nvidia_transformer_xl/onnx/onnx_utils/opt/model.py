@@ -315,8 +315,8 @@ class MemTransformerLMOnnxModel(OnnxModel):
         self.prune_graph()
 
         # Fuses appropriate nodes into BiasSkipLayerNormalization
-        # if (options is None) or options.enable_bias_skip_layer_norm:
-            # self.fuse_add_bias_skip_layer_norm()
+        if (options is None) or options.enable_bias_skip_layer_norm:
+            self.fuse_add_bias_skip_layer_norm()
 
         # Removes unused constants that are staling through the graph
         self.remove_unused_constant()
