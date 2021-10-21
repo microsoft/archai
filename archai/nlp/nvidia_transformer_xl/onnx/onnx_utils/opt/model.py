@@ -7,7 +7,6 @@ from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
                   ValueInfoProto, helper)
 from onnxruntime.transformers.fusion_attention import (AttentionMask,
                                                        FusionAttention)
-from onnxruntime.transformers.fusion_embedlayer import FusionEmbedLayerNormalization
 from onnxruntime.transformers.fusion_layernorm import FusionLayerNormalization
 from onnxruntime.transformers.fusion_reshape import FusionReshape
 from onnxruntime.transformers.fusion_shape import FusionShape
@@ -115,14 +114,6 @@ class MemTransformerLMOnnxModel(OnnxModel):
             if new_node:
                 add_cast_count += 1
             remove_cast_count += len(removed_nodes)
-
-    def fuse_embed_layer(self) -> None:
-        """Fuses the appropriate nodes into a EmbedLayerNormalization layer.
-
-        """
-
-        fusion = FusionEmbedLayerNormalization(self)
-        fusion.apply()
 
     def fuse_layer_norm(self) -> None:
         """Fuses the appropriate nodes into a LayerNormalization layer.
@@ -316,10 +307,6 @@ class MemTransformerLMOnnxModel(OnnxModel):
         # Fuses appropriate nodes into Shape
         self.fuse_shape()
 
-        # Fuses appropriate nodes into EmbedLayerNormalization
-        # if (options is None) or options.enable_embed_layer_norm:
-            # self.fuse_embed_layer()
-
         # Removes useless Reshape nodes that are staling through the graph
         self.utils.remove_useless_reshape_nodes(self)
 
@@ -328,8 +315,8 @@ class MemTransformerLMOnnxModel(OnnxModel):
         self.prune_graph()
 
         # Fuses appropriate nodes into BiasSkipLayerNormalization
-        # if (options is None) or options.enable_bias_skip_layer_norm:
-            # self.fuse_add_bias_skip_layer_norm()
+        if (options is None) or options.enable_bias_skip_layer_norm:
+            self.fuse_add_bias_skip_layer_norm()
 
         # Removes unused constants that are staling through the graph
         self.remove_unused_constant()

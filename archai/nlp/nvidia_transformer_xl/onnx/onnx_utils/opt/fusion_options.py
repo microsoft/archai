@@ -27,7 +27,6 @@ class FusionOptions:
 
         # Layer normalization
         self.enable_layer_norm = True
-        self.enable_embed_layer_norm = True
         self.enable_skip_layer_norm = True
         self.enable_bias_skip_layer_norm = True
 
