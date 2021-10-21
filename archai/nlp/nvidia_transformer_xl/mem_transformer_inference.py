@@ -624,7 +624,7 @@ class MemTransformerLM(nn.Module):
             self.r_r_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
             if self.model_ext == "bert_style_word_segment":
                 if self.segment_type == "word":
-                    self.word_segment_emb = nn.Embedding(600, self.d_embed)
+                    self.word_segment_emb = nn.Embedding(1500, self.d_embed)
                 elif self.segment_type == "subword":
                     self.word_segment_emb = nn.Embedding(1024, self.d_embed)
             elif self.model_ext == "char_emb_from_word":
