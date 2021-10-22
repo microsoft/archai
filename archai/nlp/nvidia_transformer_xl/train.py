@@ -844,7 +844,6 @@ def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
         'weight_init_std': args.init_std,
         'proj_init_std': args.proj_init_std,
 
-        'model_type': 'transfo-xl',
         'primer_ez': args.primer_ez,
         'use_cache': args.use_cache
         }
