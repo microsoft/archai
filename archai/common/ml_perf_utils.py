@@ -22,7 +22,7 @@ def model_memory(create_model:Callable[[], nn.Module])->Tuple[nn.Module, int]:
 
     return model, new_mem-baseline_mem
 
-def inference_stats(model:nn.Module, **inputs)->Tuple(int, int):
+def inference_stats(model:nn.Module, **inputs)->Tuple[int, int]:
     # return memory usage in bytes, cpu time in ms
     with profile(activities=[ProfilerActivity.CPU], profile_memory=True, record_shapes=False) as prof:
         _ = model(**inputs)

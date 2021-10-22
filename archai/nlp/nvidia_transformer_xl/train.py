@@ -1,6 +1,7 @@
 from typing import Optional, Tuple
 
 import pprint
+from datetime import datetime
 import argparse
 import functools
 import itertools
@@ -40,6 +41,7 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import create_exp_d
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import l2_promote
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import log_env_info
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import register_ignoring_timeout_handler
+from archai.common import ml_perf_utils
 
 from archai.common import utils, common
 
@@ -713,7 +715,7 @@ def init():
     device = torch.device('cuda' if args.cuda else 'cpu')
     nv_distributed.init_distributed(args.cuda)
 
-    args.data, args.work_dir, args.cache_dir, dataroot = \
+    args.data, args.work_dir, args.cache_dir, args.dataroot = \
         exp_utils.get_create_dirs(args.data, args.dataset, args.experiment_name,
                                   args.work_dir, args.cache_dir)
 
@@ -844,7 +846,6 @@ def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
         'weight_init_std': args.init_std,
         'proj_init_std': args.proj_init_std,
 
-        'model_type': 'transfo-xl',
         'primer_ez': args.primer_ez,
         'use_cache': args.use_cache
         }
@@ -1083,17 +1084,15 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     return elapsed, best_val_loss, meters
 
-def evaluate_main(args, model, test_itr, test_file_stats):
+def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
     summary = {
         'n_all_param': sum([p.nelement() for p in model.parameters()]),
         'n_nonemb_param': sum([p.nelement() for p in model.layers.parameters()])
     }
 
-    test_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
-
-    if not args.no_eval and os.path.exists(test_path):
+    if not args.no_eval and os.path.exists(checkpoint_path):
         # Load the best saved model.
-        model, model_config, checkpoint = load_model(test_path, model, on_cpu=False)
+        model, model_config, checkpoint = load_model(checkpoint_path, model, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
@@ -1187,23 +1186,56 @@ def main():
         model_config, optimizer, optimizer_sparse, scheduler,
         scheduler_sparse, scaler, vocab, file_stats[1])
 
-    summary = evaluate_main(args, model, test_itr, file_stats[-1])
+    checkpoint_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
+    summary = evaluate_main(args, model, checkpoint_path, test_itr, file_stats[-1])
 
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
 
+    data, *_ = next(iter(valid_itr))
+    pt_mem, pt_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
+    _, process_mem = ml_perf_utils.model_memory(
+        lambda: load_model(checkpoint_path, model=None, on_cpu=True))
+
     summary.update({
+        'experiment_name': args.experiment_name,
+        'run_date': str(datetime.now()),
+        'data.shape(0)': data.shape[0],
+        'data.shape(1)': data.shape[1],
+        'dataset': args.dataset,
         'vocab_size': ntokens,
         'vocab_type': args.vocab,
         'train_throughput': meters['train_throughput'].avg,
         'train_elapsed': training_time / 60,
         'valid_loss': best_val_loss,
         'valid_ppl': math.exp(best_val_loss) if best_val_loss else None,
+        'n_token': ntokens,
+        'n_layer': model_config['n_layer'],
+        'n_head': model_config['n_head'],
+        'd_model': model_config['d_model'],
+        'd_head': model_config['d_head'],
+        'd_inner': model_config['d_inner'],
+        'dropatt': model_config['dropatt'],
+        'd_embed': model_config['d_embed'],
+        'div_val': model_config['div_val'],
+        'tgt_len': model_config['tgt_len'],
+        'ext_len': model_config['ext_len'],
+        'mem_len': model_config['mem_len'],
+        'cutoffs': model_config['cutoffs'],
+        'primer_ez': model_config['primer_ez'],
+        'pt_mem': pt_mem,
+        'pt_time': pt_time,
+        'process_mem': process_mem
         })
 
     logging.info(pprint.pformat(summary))
+
     utils.save_as_yaml(summary, os.path.join(args.work_dir, 'summary.yaml'))
     utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
+
+    csv_filepath = os.path.join(args.dataroot, 'textpred', 'experiment_results.csv')
+    utils.append_csv_file(csv_filepath, list(summary.items()))
+
     logging.info(f'Output dir: {args.work_dir}')
     dllogger.log(step=tuple(), data=summary)
 
