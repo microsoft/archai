@@ -1192,6 +1192,8 @@ def main():
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
 
     summary.update({
+        'vocab_size': ntokens,
+        'vocab_type': args.vocab,
         'train_throughput': meters['train_throughput'].avg,
         'train_elapsed': training_time / 60,
         'valid_loss': best_val_loss,
@@ -1199,7 +1201,9 @@ def main():
         })
 
     logging.info(pprint.pformat(summary))
-
+    utils.save_as_yaml(summary, os.path.join(args.work_dir, 'summary.yaml'))
+    utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
+    logging.info(f'Output dir: {args.work_dir}')
     dllogger.log(step=tuple(), data=summary)
 
 
