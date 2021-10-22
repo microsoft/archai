@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import json
 from collections import OrderedDict
 from itertools import chain
 from typing import Optional
@@ -9,7 +10,7 @@ import torch
 from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
 from onnx import helper, load_model, numpy_helper, save
 
-from tools.torch.operators import register_trilu_operator
+from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.operators import register_trilu_operator
 
 
 def weight_sharing(onnx_model_path: str) -> None:
@@ -123,7 +124,7 @@ def export_onnx_from_pt(model: MemTransformerLM,
     # Applies a caveat to use unsupported triu/tril by PyTorch
     register_trilu_operator()
 
-    # Exports to ONNX
+    # Exports model to ONNX
     torch.onnx.export(model,
                       (inputs,),
                       onnx_model_path,
@@ -135,6 +136,13 @@ def export_onnx_from_pt(model: MemTransformerLM,
                       enable_onnx_checker=enable_onnx_checker,
                       opset_version=opset_version,
                       custom_opsets={'com.microsoft': 1})
+
+    # Exports configuration to JSON
+    model_config['model_type'] = 'transfo-xl'
+    model_config['num_attention_heads'] = n_head
+    model_config['past_key_values'] = n_past_values
+    with open('config.json', 'w') as f:
+        json.dump(model_config, f)
 
     # Applies weight sharing
     if share_weights:
