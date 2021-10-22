@@ -384,3 +384,7 @@ def delete_file(filepath:str)->bool:
         return True
     else:
         return False
+
+def save_as_yaml(obj, filepath:str)->None:
+    with open(filepath, 'w', encoding='utf-8') as f:
+        yaml.dump(obj, f, default_flow_style=False)
