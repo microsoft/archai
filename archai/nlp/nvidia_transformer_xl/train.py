@@ -496,7 +496,7 @@ def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
     return train_loss
 
 
-def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
+def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
           optimizer_sparse, scheduler, scheduler_sparse, scaler, vocab, epoch,
           last_batch, last_iter, train_step, best_val_loss, meters,
           device, args, valid_file_stats):
@@ -510,9 +510,9 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
     mems = [None for _ in range(args.batch_chunk)]
     if args.varlen:
-        train_iter = tr_iter.get_varlen_iter(start=last_iter)
+        train_iter = train_itr.get_varlen_iter(start=last_iter)
     else:
-        train_iter = tr_iter.get_fixlen_iter(start=last_iter)
+        train_iter = train_itr.get_fixlen_iter(start=last_iter)
 
     print('Starting training...')
     for batch, (data, target, seq_len, _) in enumerate(train_iter, start=last_batch+1):
@@ -600,7 +600,7 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
                     epoch,
                     train_step,
                     batch,
-                    tr_iter.n_batch,
+                    train_itr.n_batch,
                     lr,
                     avg_elapsed * 1000,
                     throughput,
@@ -632,7 +632,7 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
 
         if (do_periodic_eval or is_final_step or interrupted) and not args.no_eval:
             eval_start_time = time.time()
-            node_metrix = evaluate(va_iter, model, args, eval_nomem=False)
+            node_metrix = evaluate(valid_itr, model, args, eval_nomem=False)
             val_metrix = EvalMetrics(valid_file_stats.word_count, *node_metrix)
 
             logging.info('-' * 100)
@@ -661,7 +661,7 @@ def train(tr_iter, va_iter, model, para_model, model_config, optimizer,
             logging.info('-' * 100)
             dllogger.log(step=tuple([train_step]), data=dllogger_data)
 
-            last_iter = tr_iter.last_iter
+            last_iter = train_itr.last_iter
 
             # Check if the validation loss is the best we've seen so far.
             is_best = False
@@ -783,12 +783,12 @@ def load_data(args, device, get_file_stats=True):
     else:
         eval_mem_len = args.mem_len + args.tgt_len - args.eval_tgt_len
 
-    tr_iter = corpus.get_iterator('train', args.batch_size, args.tgt_len,
+    train_itr = corpus.get_iterator('train', args.batch_size, args.tgt_len,
                                   device=device, ext_len=args.ext_len)
-    va_iter = corpus.get_iterator('valid', args.eval_batch_size,
+    valid_itr = corpus.get_iterator('valid', args.eval_batch_size,
                                   args.eval_tgt_len, device=device,
                                   mem_len=eval_mem_len, ext_len=args.ext_len)
-    te_iter = corpus.get_iterator('test', args.eval_batch_size,
+    test_itr = corpus.get_iterator('test', args.eval_batch_size,
                                   args.eval_tgt_len, device=device,
                                   mem_len=eval_mem_len, ext_len=args.ext_len)
 
@@ -798,7 +798,7 @@ def load_data(args, device, get_file_stats=True):
         for file_stat in file_stats:
             logging.info(file_stat)
 
-    return  corpus.vocab, tr_iter, va_iter, te_iter, file_stats
+    return  corpus.vocab, train_itr, valid_itr, test_itr, file_stats
 
 
 def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
@@ -996,7 +996,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
     return scheduler, scheduler_sparse
 
 
-def train_main(args, device, tr_iter, va_iter, model, para_model, model_config,
+def train_main(args, device, train_itr, valid_itr, model, para_model, model_config,
                 optimizer, optimizer_sparse, scheduler,
                 scheduler_sparse, scaler, vocab, valid_file_stats):
     train_step = 0
@@ -1045,9 +1045,9 @@ def train_main(args, device, tr_iter, va_iter, model, para_model, model_config,
     try:
         for epoch in itertools.count(start=start_epoch):
             if args.roll: # enable random shifts in datasets
-                tr_iter.roll(seed=args.seed + epoch)
+                train_itr.roll(seed=args.seed + epoch)
             train_step, best_val_loss = train(
-                tr_iter, va_iter, model, para_model, model_config,
+                train_itr, valid_itr, model, para_model, model_config,
                 optimizer, optimizer_sparse, scheduler,
                 scheduler_sparse, scaler, vocab, epoch, last_batch,
                 last_iter, train_step, best_val_loss, meters,
@@ -1082,7 +1082,7 @@ def train_main(args, device, tr_iter, va_iter, model, para_model, model_config,
 
     return elapsed, best_val_loss, meters
 
-def evaluate_main(args, model, te_iter, test_file_stats):
+def evaluate_main(args, model, test_itr, test_file_stats):
     summary = {
         'n_all_param': sum([p.nelement() for p in model.parameters()]),
         'n_nonemb_param': sum([p.nelement() for p in model.layers.parameters()])
@@ -1096,7 +1096,7 @@ def evaluate_main(args, model, te_iter, test_file_stats):
 
         # Run on test data.
         test_start_time = time.time()
-        node_metrix = evaluate(te_iter, model, args, eval_nomem=False)
+        node_metrix = evaluate(test_itr, model, args, eval_nomem=False)
         test_metrix = EvalMetrics(test_file_stats.word_count, *node_metrix)
 
         test_elapsed = time.time() - test_start_time
@@ -1162,7 +1162,7 @@ def main():
     args, device = init()
 
     # load tokenizer and datasets
-    vocab, tr_iter, va_iter, te_iter, file_stats = load_data(args, device)
+    vocab, train_itr, valid_itr, test_itr, file_stats = load_data(args, device)
 
     # create model
     ntokens = len(vocab)
@@ -1182,11 +1182,11 @@ def main():
     # create scheduler
     scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
-    training_time, best_val_loss, meters = train_main(args, device, tr_iter, va_iter, model, para_model,
+    training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
         model_config, optimizer, optimizer_sparse, scheduler,
         scheduler_sparse, scaler, vocab, file_stats[1])
 
-    summary = evaluate_main(args, model, tr_iter, file_stats[-1])
+    summary = evaluate_main(args, model, test_itr, file_stats[-1])
 
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
