@@ -514,7 +514,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     else:
         train_iter = train_itr.get_fixlen_iter(start=last_iter)
 
-    print('Starting training...')
+    logging.info('Starting training...')
     for batch, (data, target, seq_len, _) in enumerate(train_iter, start=last_batch+1):
         log_step += 1
         target_tokens += target.numel()
