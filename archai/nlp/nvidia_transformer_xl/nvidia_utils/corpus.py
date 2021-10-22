@@ -99,11 +99,11 @@ class Corpus:
         np.save(self.test_cache_filepath, self.test.numpy())
 
     def _create_train_vocab(self)->VocabBase:
-        vocab = Corpus._create_vocab(self.datadir, self.dataset, self.vocab_type,
+        self.vocab = Corpus._create_vocab(self.datadir, self.dataset, self.vocab_type,
                                      self._vocab_cache_dir, vocab_size=self.vocab_size)
         self._train_vocab()
 
-        return vocab
+        return self.vocab
 
     @staticmethod
     def _get_file_stats(filepath:str)->DataFileStats:
