@@ -123,7 +123,7 @@ def is_debugging()->bool:
 
 def full_path(path:str, create=False)->str:
     assert path
-    path = os.path.abspath(
+    path = os.path.realpath(
             os.path.expanduser(
                 os.path.expandvars(path)))
     if create:
