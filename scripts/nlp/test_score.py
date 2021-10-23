@@ -45,7 +45,7 @@ if __name__ == "__main__":
                          help='input for scoring')
     parser.add_argument('--experiment_name', type=str, default='test_score',
                          help='dir name for exoeriment')
-    parser.add_argument('--model_filepath', type=str, default='"~/GitHubSrc/archaiphilly/amlt/baseline_g8/train_xxl_dgx1_8gpu_fp16/checkpoint_best.pt"',
+    parser.add_argument('--model_filepath', type=str, default='~/dataroot/textpred/experiment_results/baseline_g8/train_xxl_dgx1_8gpu_fp16/checkpoint_best.pt',
                          help='Checkpoint file path for model')
     args, _ = parser.parse_known_args()
 
@@ -54,12 +54,15 @@ if __name__ == "__main__":
     eval_filepath = os.path.join(dataroot, 'textpred', 'eval', 'GSuiteCompete10pc_toy.ljson')
     out_filepath = os.path.join(work_dir, 'score_preds.txt')
     score_out_dir = utils.full_path(os.path.join(work_dir, 'scores'), create=True)
+    model_filepath = utils.full_path(args.model_filepath)
 
     print('eval_filepath', eval_filepath)
     print('out_filepath', out_filepath)
     print('score_out_dir', score_out_dir)
+    print('model_filepath', model_filepath)
 
-    model, *_ = MemTransformerLM.load_model(utils.full_path(args.model_filepath), model=None, on_cpu=False)
+
+    model, *_ = MemTransformerLM.load_model(model_filepath, model=None, on_cpu=False)
 
     test_score(model, dataset_dir, args.dataset, args.in_filetype,
                eval_filepath, out_filepath, score_out_dir)
