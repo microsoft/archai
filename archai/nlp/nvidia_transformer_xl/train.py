@@ -1009,7 +1009,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = load_model(args.restart, model, on_cpu=False)
+            model, model_config, checkpoint = MemTransformerLM.load_model(args.restart, model, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1092,7 +1092,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
 
     if not args.no_eval and os.path.exists(checkpoint_path):
         # Load the best saved model.
-        model, model_config, checkpoint = load_model(checkpoint_path, model, on_cpu=False)
+        model, model_config, checkpoint = MemTransformerLM.load_model(checkpoint_path, model, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
@@ -1133,30 +1133,6 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
 
     return summary
 
-
-def load_model(path:str, model:Optional[MemTransformerLM], on_cpu:bool) -> Tuple[MemTransformerLM, dict, dict]:
-    # case for restart
-    if os.path.isdir(path):
-        path = os.path.join(path, 'checkpoint_last.pt')
-
-    logging.info(f'Loading PyTorch model from: {path}')
-
-    dst = f'cuda:{torch.cuda.current_device()}' \
-        if not on_cpu \
-        else torch.device('cpu')
-
-    # Loads the checkpoint
-    checkpoint = torch.load(path, map_location=dst)
-
-    model_config = checkpoint['model_config']
-
-    # Initializes the model
-    model = MemTransformerLM(**model_config) if model is None else model
-    model.load_state_dict(checkpoint['model_state'])
-
-    return model, model_config, checkpoint
-
-
 def main():
     # get command line args
     args, device = init()
@@ -1195,7 +1171,7 @@ def main():
     data, *_ = next(iter(valid_itr))
     pt_mem, pt_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
-        lambda: load_model(checkpoint_path, model=None, on_cpu=True))
+        lambda: MemTransformerLM.load_model(checkpoint_path, model=None, on_cpu=True))
 
     summary.update({
         'experiment_name': args.experiment_name,
@@ -1233,8 +1209,9 @@ def main():
     utils.save_as_yaml(summary, os.path.join(args.work_dir, 'summary.yaml'))
     utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
 
-    csv_filepath = os.path.join(args.dataroot, 'textpred', 'experiment_results.csv')
-    utils.append_csv_file(csv_filepath, list(summary.items()))
+    exp_results_dir = utils.full_path(os.path.join(args.dataroot, 'textpred', 'experiment_results'), create=True)
+    summary_csv_filepath = os.path.join(exp_results_dir, 'summaries.csv')
+    utils.append_csv_file(summary_csv_filepath, list(summary.items()))
 
     logging.info(f'Output dir: {args.work_dir}')
     dllogger.log(step=tuple(), data=summary)
