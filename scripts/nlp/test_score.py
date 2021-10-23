@@ -1,10 +1,11 @@
 import logging
 import argparse
 import os
+from typing import Optional
 
 import torch
 
-from archai.nlp.scoring.score import score
+from archai.nlp.scoring import score
 from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
 from archai.nlp.nvidia_transformer_xl.data_utils import get_lm_corpus
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
@@ -16,17 +17,14 @@ def create_vocab(dataset_dir:str, dataset_name:str)->VocabBase:
 
     return corpus.vocab
 
-def test_score(dataset_dir:str, dataset_name:str, in_filetype:str,
+def test_score(model:Optional[MemTransformerLM], dataset_dir:str, dataset_name:str, in_filetype:str,
                in_filepath:str, out_filepath:str, score_output_dir:str):
-    device = torch.device('cuda')
-
     vocab = create_vocab(dataset_dir, dataset_name)
     logging.info(f'Dataset load complete, vocab size is: {len(vocab)}')
 
-    model = MemTransformerLM(len(vocab))
-    model.to(device)
+    model = MemTransformerLM(len(vocab)) if model is None else model
 
-    score(model=model, vocab=vocab, in_filetype=in_filetype,
+    score.score(model=model, vocab=vocab, in_filetype=in_filetype,
           in_filepath=in_filepath, out_filepath=out_filepath, score_output_dir=score_out_dir,
           min_score=0.0, min_pred_len=0)
 
@@ -43,10 +41,12 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', type=str, default='wt103',
                          choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx'],
                          help='Dataset name')
-    parser.add_argument('--in_filetype', type=str, default='smartcompose', # console, text, smartcompose
+    parser.add_argument('--in_filetype', type=str, default='console', # console, text, smartcompose
                          help='input for scoring')
     parser.add_argument('--experiment_name', type=str, default='test_score',
                          help='dir name for exoeriment')
+    parser.add_argument('--model_filepath', type=str, default='"~/GitHubSrc/archaiphilly/amlt/baseline_g8/train_xxl_dgx1_8gpu_fp16/checkpoint_best.pt"',
+                         help='Checkpoint file path for model')
     args, _ = parser.parse_known_args()
 
     dataset_dir, work_dir, cache_dir, dataroot = exp_utils.get_create_dirs(dataroot=args.dataroot, dataset_name=args.dataset, experiment_name=args.experiment_name, output_dir=args.output_dir)
@@ -59,5 +59,7 @@ if __name__ == "__main__":
     print('out_filepath', out_filepath)
     print('score_out_dir', score_out_dir)
 
-    test_score(dataset_dir, args.dataset, args.in_filetype,
+    model, *_ = MemTransformerLM.load_model(utils.full_path(args.model_filepath), model=None, on_cpu=False)
+
+    test_score(model, dataset_dir, args.dataset, args.in_filetype,
                eval_filepath, out_filepath, score_out_dir)

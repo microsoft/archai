@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from typing import Optional, Tuple
 import functools
+import os
+import logging
 
 import torch
 import torch.nn as nn
@@ -696,6 +698,29 @@ class MemTransformerLM(nn.Module):
 
     def backward_compatible(self):
         self.sample_softmax = -1
+
+    @staticmethod
+    def load_model(path:str, model:Optional['MemTransformerLM'], on_cpu:bool) -> Tuple['MemTransformerLM', dict, dict]:
+        # case for restart
+        if os.path.isdir(path):
+            path = os.path.join(path, 'checkpoint_last.pt')
+
+        logging.info(f'Loading MemformerLM model from: {path}')
+
+        dst = f'cuda:{torch.cuda.current_device()}' \
+            if not on_cpu \
+            else torch.device('cpu')
+
+        # Loads the checkpoint
+        checkpoint = torch.load(path, map_location=dst)
+
+        model_config = checkpoint['model_config']
+
+        # Initializes the model
+        model = MemTransformerLM(**model_config) if model is None else model
+        model.load_state_dict(checkpoint['model_state'])
+
+        return model, model_config, checkpoint
 
     def _create_params(self):
         # default attention
