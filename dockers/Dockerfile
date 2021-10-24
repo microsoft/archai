@@ -8,4 +8,7 @@ LABEL description="Archai docker with all dependencies" \
       tooltypeversion="0.5.0" \
       createtime="10/8/2021"
 
-RUN pip install --user git+https://github.com/microsoft/archai.git
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+RUN pip install --no-cache-dir git+https://github.com/microsoft/archai.git
