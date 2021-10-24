@@ -19,11 +19,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import yaml
-try:
-    from apex import amp
-except ModuleNotFoundError:
-    warnings.warn('APEX AMP is unavailable')
-
 
 from torch.nn.parallel import DistributedDataParallel
 
@@ -60,8 +55,6 @@ def parse_args():
     default_config = 'dgx1_1gpu_fp32'
     if utils.is_debugging():
         default_config = 'toy'
-    elif not utils.is_windows(): # NVIDIA AMP is not available
-        default_config = 'dgx1_8gpu_fp16'
 
     cfg_parser.add_argument('--config', default=default_config) # use 'dgx1_8gpu_fp16' for V100 16GB, dgx1_1gpu_fp16, default
     cfg_parser.add_argument('--config_file', default='wt103_base.yaml')
@@ -117,8 +110,6 @@ def parse_args():
     general.add_argument('--apex_amp_opt_level', type=str, default='O2',
                          choices=['O0', 'O1', 'O2', 'O3'],
                          help='Optimization level for apex amp')
-    general.add_argument('--amp', choices=['apex', 'pytorch'], default='apex',
-                         help='Implementation of automatic mixed precision')
     general.add_argument('--affinity', type=str,
                          default='socket_unique_interleaved',
                          choices=['socket', 'single', 'single_unique',
@@ -300,11 +291,6 @@ def parse_args():
     if args.batch_size % args.batch_chunk != 0:
         raise RuntimeError('Batch size needs to be divisible by batch chunk')
 
-    if args.fp16 and args.amp == 'apex' and 'apex' not in sys.modules:
-        raise RuntimeError(
-            'APEX AMP unavailable, install APEX or switch to pytorch AMP'
-        )
-
     if args.debug is None:
         args.debug = utils.is_debugging()
 
@@ -317,12 +303,7 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
                     vocab, epoch, batch, last_iter, train_step, best_val_loss,
                     is_best, work_dir, prefix=''):
     if args.fp16:
-        if args.amp == 'pytorch':
-            amp_state = scaler.state_dict()
-        elif args.amp == 'apex':
-            amp_state = amp.state_dict()
-        else:
-            raise RuntimeError(f'args.amp should be pytorch or apex but was "{args.amp}"')
+        amp_state = scaler.state_dict()
     else:
         amp_state = None
 
@@ -475,8 +456,7 @@ def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
     if args.swap_mem and mems[i] is not None:
         mems[i] = mems[i].to(device, non_blocking=True)
 
-    enable_autocast = args.fp16 and args.amp == 'pytorch'
-    with torch.cuda.amp.autocast(enable_autocast):
+    with torch.cuda.amp.autocast(args.fp16):
         loss, mems[i], _, _ = model(data_i, target_i, mems[i])
         loss = loss.float().mean().type_as(loss) / args.batch_chunk
 
@@ -484,13 +464,7 @@ def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
         mems[i] = mems[i].to(cpu, non_blocking=True)
 
     if args.fp16:
-        if args.amp == 'pytorch':
-            scaler.scale(loss).backward()
-        elif args.amp == 'apex':
-            with amp.scale_loss(loss, optimizer, delay_unscale=delay_unscale) as scaled_loss:
-                scaled_loss.backward()
-        else:
-            raise RuntimeError(f'args.amp should be pytorch or apex but was "{args.amp}"')
+        scaler.scale(loss).backward()
     else:
         loss.backward()
 
@@ -545,15 +519,12 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
             train_loss += train_loss_chunk
 
         if args.fp16:
-            if args.amp == 'pytorch':
-                scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
-            elif args.amp == 'apex':
-                torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), args.clip)
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
         else:
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
 
-        if args.fp16 and args.amp == 'pytorch':
+        if args.fp16:
             scaler.step(optimizer)
             scaler.update()
         else:
@@ -910,14 +881,7 @@ def create_optimizer(args, model):
 def create_grad_scaler(args, model, optimizer):
     scaler = None
     if args.fp16:
-        if args.amp == 'pytorch':
-            scaler = torch.cuda.amp.GradScaler()
-        elif args.amp == 'apex':
-            model, optimizer = amp.initialize(
-                model,
-                optimizer,
-                opt_level=args.apex_amp_opt_level,
-                )
+        scaler = torch.cuda.amp.GradScaler()
     return scaler
 
 
@@ -1013,10 +977,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
-                if args.amp == 'pytorch':
-                    scaler.load_state_dict(checkpoint['amp_state'])
-                elif args.amp == 'apex':
-                    amp.load_state_dict(checkpoint['amp_state'])
+                scaler.load_state_dict(checkpoint['amp_state'])
             train_step = checkpoint['train_step']
             start_epoch = checkpoint['epoch']
             last_batch = checkpoint['batch']
