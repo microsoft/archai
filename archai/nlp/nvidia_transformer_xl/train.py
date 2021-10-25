@@ -36,6 +36,7 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import create_exp_d
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import l2_promote
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import log_env_info
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import register_ignoring_timeout_handler
+from archai.nlp.nvidia_transformer_xl.qat import prepare_with_qat, qat_to_float_modules
 from archai.common import ml_perf_utils
 
 from archai.common import utils, common
@@ -179,6 +180,8 @@ def parse_args():
                        help='Use Primer EZ arch modifications (squared relu and DConv)')
     model.add_argument('--use_cache', action='store_true',
                        help='Whether to return last key/value attentions to speed decoding')
+    model.add_argument('--qat', action='store_true',
+                       help='Whether to perform Quantization Aware Training')
 
     opt = parser.add_argument_group('optimizer setup')
     opt.add_argument('--optim', default='jitlamb', type=str,
@@ -1045,6 +1048,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     return elapsed, best_val_loss, meters
 
+
 def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
     summary = {
         'n_all_param': sum([p.nelement() for p in model.parameters()]),
@@ -1093,6 +1097,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
             summary['test_ppl_nomem'] = test_metrix.ppl_nomem
 
     return summary
+
 
 def main():
     # get command line args
@@ -1176,6 +1181,31 @@ def main():
 
     logging.info(f'Output dir: {args.work_dir}')
     dllogger.log(step=tuple(), data=summary)
+
+    if args.qat:
+        # Loads the model from the best pre-trained checkpoint
+        model, model_config, checkpoint = MemTransformerLM.load_model(checkpoint_path, model, on_cpu=False)
+
+        # Prepares the model with QAT
+        model = prepare_with_qat(model, onnx_compatible=True)
+        para_model = prepare_with_qat(para_model, onnx_compatible=True)
+
+        # QAT-based arguments
+        args.restart = None
+        args.no_eval = True
+        args.lr = 1e-4
+        args.max_step = 1000
+
+        # Performs a QAT fine-tuning
+        training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
+            model_config, optimizer, optimizer_sparse, scheduler,
+            scheduler_sparse, scaler, vocab, file_stats[1])
+        
+        # Changes the model back to fp32 and save its checkpoint
+        model = qat_to_float_modules(model)
+        save_checkpoint(args, model, model_config, optimizer, scheduler,
+            scaler, vocab, -1, -1, -1, -1, best_val_loss,
+            True, args.work_dir, prefix='qat_')
 
 
 if __name__ == "__main__":
