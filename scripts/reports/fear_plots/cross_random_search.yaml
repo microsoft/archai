@@ -20,6 +20,7 @@ darts_cifar10:
     rs_darts_far_ftt0.6_fte10_ratio_4.0: 'rs_darts_far_ftt0.6_fte10_ratio_4.0'
     rs_darts_far_ftt0.6_fte10_ratio_4.0_nofreeze: 'rs_darts_far_ftt0.6_fte10_ratio_4.0_nofreeze'
     rs_darts_far_ftt0.6_fte10_ratio_8.0: 'rs_darts_far_ftt0.6_fte10_ratio_8.0'
+    rs_darts_far_ftt0.6_fte10_ratio_8.0_nofreeze: 'rs_darts_far_ftt0.6_fte10_ratio_8.0_nofreeze'
 
   colors:
     fastarchrank: 'green'
