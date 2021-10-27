@@ -1138,6 +1138,8 @@ def main():
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
 
     data, *_ = next(iter(valid_itr))
+    model.to('cpu')
+    data = data.to('cpu')
     pt_mem, pt_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
         lambda: MemTransformerLM.load_model(checkpoint_path, model=None, on_cpu=True))
@@ -1151,7 +1153,7 @@ def main():
         'vocab_size': ntokens,
         'vocab_type': args.vocab,
         'train_throughput': meters['train_throughput'].avg,
-        'train_elapsed': training_time / 60,
+        'train_elapsed': training_time / 60.0,
         'valid_loss': best_val_loss,
         'valid_ppl': math.exp(best_val_loss) if best_val_loss else None,
         'n_token': ntokens,
