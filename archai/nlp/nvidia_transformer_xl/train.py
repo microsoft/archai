@@ -1141,7 +1141,7 @@ def main():
     model.to('cpu')
     data = data[:,:1] # make it batch size of one
     data = data[:0].to('cpu')
-    pt_mem, pt_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
+    pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
         lambda: MemTransformerLM.load_model(checkpoint_path, model=None, on_cpu=True))
 
@@ -1171,8 +1171,10 @@ def main():
         'mem_len': model_config['mem_len'],
         'cutoffs': model_config['cutoffs'],
         'primer_ez': model_config['primer_ez'],
-        'pt_mem': pt_mem,
-        'pt_time_us': pt_time,
+        'pt_ops_mem': pt_ops_mem,
+        'pt_ops_time_us': pt_ops_time,
+        'pt_ops_flops': pt_ops_flops,
+        'pt_inf_time_us': pt_inf_time,
         'process_mem': process_mem
         })
 
