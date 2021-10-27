@@ -3,12 +3,13 @@
 
 from abc import ABCMeta, abstractmethod
 from typing import List
+from overrides.enforce import EnforceOverrides
 
 import torch.nn as nn
 from archai.nas.arch_meta import ArchWithMetaData
 
 
-class DiscreteSearchSpace(metaclass=ABCMeta):
+class DiscreteSearchSpace(EnforceOverrides, metaclass=ABCMeta):
     @abstractmethod
     def random_sample(self)->ArchWithMetaData:
         '''Uniform random sample an architecture (nn.Module)'''
