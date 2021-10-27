@@ -376,11 +376,11 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
                            )
 
     # Evaluation
-    total_len, total_loss, total_loss_nomem, steps = 0, 0., 0., 0
+    total_len, total_loss, total_loss_nomem, steps, total_len_nowarmup, batches = 0, 0., 0., 0, 0, -1
     start_time = time.time()
     with torch.no_grad():
         mems = None
-        for i, (data, target, seq_len, warm) in enumerate(eval_iter):
+        for batches, (data, target, seq_len, warm) in enumerate(eval_iter):
             steps += 1
             if args.eval_max_steps > 0 and i >= args.eval_max_steps:
                 break
@@ -388,6 +388,7 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
             # first with mem
             loss, mems, _, _ = model(data, target, mems)
             loss = loss.float().mean()
+            numel = data.numel()
 
             # now without mem
             loss_nomem = None
@@ -395,13 +396,14 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
                 loss_nomem, _, _, _ = model(data, target, None)
                 loss_nomem = loss_nomem.float().mean()
 
+            total_len_nowarmup += numel
             if warm:
                 # assert (mems is None) or mems.size(1) == model.mem_len
-                total_loss += seq_len * loss.item()
-                total_len += seq_len
+                total_loss += numel * loss.item()
+                total_len += numel
 
                 if eval_nomem:
-                    total_loss_nomem += seq_len * loss_nomem.item()
+                    total_loss_nomem += numel * loss_nomem.item()
 
     elapsed = time.time() - start_time
 
@@ -412,27 +414,31 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
                        )
     model.train()
 
-    return total_loss, total_len, total_loss_nomem, steps, elapsed
+    return total_loss, total_len, total_loss_nomem, steps, elapsed, total_len_nowarmup, batches+1
 
 
 class EvalMetrics:
-    def __init__(self, eval_word_count, node_loss, node_len, node_loss_nomem, node_steps, node_elapsed) -> None:
+    def __init__(self, eval_word_count, node_loss, node_len, node_loss_nomem,
+                 node_steps, node_elapsed, node_len_nowarmup, batches) -> None:
         node_avg_loss = node_loss / node_len
 
         self.avg_loss = nv_distributed.all_reduce_item(node_avg_loss, 'mean')
         self.total_loss = nv_distributed.all_reduce_item(node_loss, 'sum')
         self.total_len = nv_distributed.all_reduce_item(node_len, 'sum')
+        self.total_len_nowarmup = nv_distributed.all_reduce_item(node_len_nowarmup, 'sum')
         self.total_loss_nomem = nv_distributed.all_reduce_item(node_loss_nomem, 'sum')
         self.total_steps = nv_distributed.all_reduce_item(node_steps, 'sum')
         self.total_elapsed = nv_distributed.all_reduce_item(node_elapsed, 'sum')
+        self.eval_word_count = eval_word_count
 
-        self.word_ppl = math.exp(self.total_loss / eval_word_count)
+        self.warmup_discount = 1.0 - float(self.total_len_nowarmup - self.total_len) / self.total_len_nowarmup
+        self.word_ppl = math.exp(self.total_loss / (eval_word_count * self.warmup_discount))
 
         if self.total_loss_nomem is not None:
             avg_loss_nomem = node_loss_nomem / node_len
             self.avg_loss_nomem =  nv_distributed.all_reduce_item(avg_loss_nomem, 'mean')
 
-            self.word_ppl_nomem = math.exp(self.total_loss_nomem / eval_word_count)
+            self.word_ppl_nomem = math.exp(self.total_loss_nomem /  (eval_word_count * self.warmup_discount))
             self.ppl_nomem = math.exp(self.avg_loss_nomem)
             self.bpc_nomem = self.avg_loss_nomem / math.log(2)
         else:
@@ -1072,7 +1078,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
         logging.info('=' * 100)
 
         summary.update({
-            'test_word_count': test_file_stats.word_count,
+            'test_word_count': test_metrix.eval_word_count,
             'test_total_elapsed': test_metrix.total_elapsed,
             'test_elapsed': test_elapsed,
             'test_total_loss': test_metrix.total_loss,
@@ -1081,6 +1087,8 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
             'test_avg_loss_nomem': test_metrix.avg_loss_nomem,
             'test_steps': test_metrix.total_steps,
             'test_len': test_metrix.total_len,
+            'total_len_nowarmup': test_metrix.total_len_nowarmup,
+            'warmup_discount': test_metrix.warmup_discount,
             'test_word_ppl': test_metrix.word_ppl,
             'test_word_ppl_nomem': test_metrix.word_ppl_nomem
             })
