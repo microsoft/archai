@@ -890,11 +890,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_random_search_darts_far.py",
             "console": "integratedTerminal",
-<<<<<<< HEAD
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_darts_far_ftt0.6_fte10_ratio_2.0",
-=======
             "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\rs_darts_far_ftt0.6_fte10_ratio_8.0_nofreeze",
->>>>>>> 03fd8ac2 (Added DARTS random search results with FEAR.)
                 "--out-dir", "F:\\archai_experiment_reports"]
         },
         {
