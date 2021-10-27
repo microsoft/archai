@@ -1139,7 +1139,8 @@ def main():
 
     data, *_ = next(iter(valid_itr))
     model.to('cpu')
-    data = data.to('cpu')
+    data = data[:,:1] # make it batch size of one
+    data = data[:0].to('cpu')
     pt_mem, pt_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
         lambda: MemTransformerLM.load_model(checkpoint_path, model=None, on_cpu=True))
@@ -1171,7 +1172,7 @@ def main():
         'cutoffs': model_config['cutoffs'],
         'primer_ez': model_config['primer_ez'],
         'pt_mem': pt_mem,
-        'pt_time': pt_time,
+        'pt_time_us': pt_time,
         'process_mem': process_mem
         })
 
@@ -1181,7 +1182,7 @@ def main():
     utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
 
     exp_results_dir = utils.full_path(os.path.join(args.dataroot, 'textpred', 'experiment_results'), create=True)
-    summary_csv_filepath = os.path.join(exp_results_dir, 'summaries.csv')
+    summary_csv_filepath = os.path.join(exp_results_dir, 'summaries.tsv')
     utils.append_csv_file(summary_csv_filepath, list(summary.items()))
 
     logging.info(f'Output dir: {args.work_dir}')
