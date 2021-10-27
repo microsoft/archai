@@ -2,18 +2,20 @@
 # Licensed under the MIT license.
 
 from abc import ABCMeta, abstractmethod
+from typing import List
+
 import torch.nn as nn
+from archai.nas.arch_meta import ArchWithMetaData
 
 
 class DiscreteSearchSpace(metaclass=ABCMeta):
     @abstractmethod
-    def random_sample(self):
+    def random_sample(self)->ArchWithMetaData:
         '''Uniform random sample an architecture (nn.Module)'''
         pass
 
     @abstractmethod
-    def get_neighbors(self, arch:nn.Module):
+    def get_neighbors(self, arch:ArchWithMetaData)->List[ArchWithMetaData]:
         '''Return the neighbors (some definition of neighborhood) of an architecture'''
         pass
-
 
