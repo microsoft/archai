@@ -178,6 +178,8 @@ def fmt(val:Any)->str:
 
 def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t'):
     fieldnames, rows = [], []
+
+    # get existing fiel names and rows
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
             dr = csv.DictReader(f, delimiter=delimiter)
@@ -186,10 +188,12 @@ def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t')
     if fieldnames is None:
         fieldnames = []
 
+    # add field names from old file and new row
     new_fieldnames = OrderedDict([(fn, None) for fn, v in new_row])
     for fn in fieldnames:
         new_fieldnames[fn]=None
 
+    # write new CSV file
     with open(filepath, 'w', newline='') as f:
         dr = csv.DictWriter(f, fieldnames=new_fieldnames.keys(), delimiter=delimiter)
         dr.writeheader()
