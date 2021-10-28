@@ -1,7 +1,8 @@
 import torch
 from torch.nn import functional as F
-
 from torch.quantization import MinMaxObserver
+
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 
 class OnnxDynamicObserver(object):
@@ -310,6 +311,30 @@ DYNAMIC_QAT_MODULE_MAPPING_FOR_ONNX = {
     torch.nn.Linear: FakeDynamicQuantLinearForOnnx
 }
 
+# Adds placeholder for changing `_compute_logit`
+COMPUTE_LOGIT = ProjectedAdaptiveLogSoftmax._compute_logit
+
+
+def dynamic_qat_compute_logit(self, hidden, weight, bias, proj):
+    """Translates `_compute_logit` from Adaptive Softmax to a QAT-ready version.
+
+    """
+
+    # if no projection then simply multiply hidden values with wights
+    # else apply projection to hidden and then multiply with weight matrix
+    if proj is None:
+        fake_quant_hidden = self.hidden_fake_quant(hidden)
+        fake_quant_weight = self.weight_fake_quant(weight)
+        logit = F.linear(fake_quant_hidden, fake_quant_weight, bias=bias)
+    else:
+        # below is equivalent to:
+        # proj_hid = nn.functional.linear(hidden, proj.t().contiguous())
+        # logit = nn.functional.linear(proj_hid, weight, bias=bias)
+        logit = torch.einsum('bd,de,ev->bv', (hidden, proj, weight.t()))
+        if bias is not None:
+            logit = logit + bias
+    return logit
+
 
 def qat_to_float_modules(model):
     """Changes QAT-ready modules to float-based modules.
@@ -317,12 +342,14 @@ def qat_to_float_modules(model):
     """
 
     for name in list(model._modules):
-        module = model._modules[name]
+        module = model._modules[name]            
 
         if hasattr(module, 'to_float'):
             model._modules[name] = module.to_float()
         else:
             qat_to_float_modules(module)
+
+    ProjectedAdaptiveLogSoftmax._compute_logit = COMPUTE_LOGIT
 
     return model
 
@@ -348,6 +375,12 @@ def float_to_qat_modules(model,
                                  module_mapping=module_mapping,
                                  qconfig=qconfig,
                                  **kwargs)
+
+    ProjectedAdaptiveLogSoftmax.hidden_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+                                                                     onnx_compatible=True)
+    ProjectedAdaptiveLogSoftmax.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+                                                                     onnx_compatible=True)
+    ProjectedAdaptiveLogSoftmax._compute_logit = dynamic_qat_compute_logit
 
     return model
 
