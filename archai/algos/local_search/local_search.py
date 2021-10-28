@@ -1,4 +1,7 @@
 from abc import ABCMeta, abstractmethod
+from overrides.overrides import overrides
+
+import abc
 import math as ma
 from typing import Tuple, List
 
@@ -7,19 +10,32 @@ import torch.nn as nn
 from archai.common.common import logger
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
+from archai.nas.searcher import Searcher, SearchResult
+from archai.common.config import Config
 
+class LocalSearch(Searcher):
+    
+    @abstractmethod
+    def get_search_space(self)->DiscreteSearchSpace:
+        pass
 
-class LocalSearch(metaclass=ABCMeta):
-    def __init__(self, max_num_models:int, search_space:DiscreteSearchSpace):
+    @abstractmethod
+    def get_max_num_models(self)->int:
+        pass
+
+    @overrides
+    def search(self, conf_search:Config):
+        max_num_models = self.get_max_num_models()
         assert max_num_models >= 0
         self.max_num_models = max_num_models
+
+        search_space = self.get_search_space()
         assert isinstance(search_space, DiscreteSearchSpace)
         self.search_space = search_space
 
         # store all local minima
         self.local_minima = []
 
-    def local_search(self):
         num_evaluated = 0
         archs_touched = []
 
