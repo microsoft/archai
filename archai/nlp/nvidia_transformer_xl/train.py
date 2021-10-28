@@ -1207,8 +1207,10 @@ def main():
         # QAT-based arguments
         args.restart = None
         args.no_eval = True
-        args.lr = 1e-4
-        args.max_step = 10
+        args.lr = args.lr * 0.1
+        args.max_step = int(args.max_step * 0.1)
+        if args.max_step == 0:
+            args.max_step += 1
 
         # Performs a QAT fine-tuning
         training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
