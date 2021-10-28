@@ -1,6 +1,7 @@
 import os
 from overrides.overrides import overrides
 from typing import List, Tuple
+from archai.nas.discrete_search_space import DiscreteSearchSpace
 
 from archai.nas.searcher import Searcher, SearchResult
 from archai.common.common import logger
@@ -12,7 +13,7 @@ from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.natsbench_tss_search_spaces.discrete_search_space_natsbench_tss import DiscreteSearchSpaceNatsbenchTSS
 
 
-class LocalSearchNatsbenchTSSReg(LocalSearch, Searcher):
+class LocalSearchNatsbenchTSSReg(LocalSearch):
     @overrides
     def search(self, conf_search:Config)->SearchResult:
 
@@ -25,16 +26,22 @@ class LocalSearchNatsbenchTSSReg(LocalSearch, Searcher):
         self.conf_loader = conf_search['loader']
         # endregion
 
-        self.search_space = DiscreteSearchSpaceNatsbenchTSS(self.dataset_name, 
-                                                            self.natsbench_location)
-
         # eval cache so that if local search visits
         # a network already evaluated then we don't
         # evaluate it again. 
         self.eval_cache = {}
 
-        # initialize LocalSearch
-        super().__init__(self.max_num_models, self.search_space)
+        super().search(conf_search)
+
+    @overrides
+    def get_search_space(self)->DiscreteSearchSpaceNatsbenchTSS:
+        return DiscreteSearchSpaceNatsbenchTSS(self.dataset_name, 
+                                                self.natsbench_location)
+
+
+    @overrides
+    def get_max_num_models(self)->int:
+        return self.max_num_models
 
 
     @overrides

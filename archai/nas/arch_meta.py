@@ -6,17 +6,17 @@ class ArchWithMetaData:
     def __init__(self, arch:nn.Module, metadata:Dict):
         assert isinstance(arch, nn.Module)
         assert isinstance(metadata, dict)
-        self.arch = arch
+        self.arch_model = arch
         self.metadata = metadata
 
     @property
     def arch(self):
-        return self.arch
+        return self.arch_model
 
     @arch.setter
     def arch(self, arch:nn.Module):
         assert isinstance(arch, nn.Module)
-        self.arch = arch
+        self.arch_model = arch
 
     @property
     def metadata(self):
