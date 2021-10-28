@@ -19,8 +19,7 @@ class LocalSearch(metaclass=ABCMeta):
         # store all local minima
         self.local_minima = []
 
-
-    def search(self):
+    def local_search(self):
         num_evaluated = 0
         archs_touched = []
 
@@ -80,7 +79,7 @@ class LocalSearch(metaclass=ABCMeta):
                 # sample an architecture not touched till now
                 while not curr_arch or not curr_acc:
                     sampled_arch = self.search_space.random_sample()
-                    if not self._check_membership(archs_touched, sampled_arch)
+                    if not self._check_membership(archs_touched, sampled_arch):
                         curr_arch = sampled_arch
                         # NOTE: some evaluation method could early reject!
                         curr_acc = self._evaluate(curr_arch) 
@@ -102,7 +101,7 @@ class LocalSearch(metaclass=ABCMeta):
     @abstractmethod
     def _check_membership(self, 
                         archs_touched:List[ArchWithMetaData],
-                        archs:ArchWithMetaData)->bool:
+                        arch:ArchWithMetaData)->bool:
         pass
 
     @abstractmethod
