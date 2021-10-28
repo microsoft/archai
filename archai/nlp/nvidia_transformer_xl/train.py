@@ -1199,15 +1199,18 @@ def main():
         # Loads the model from the best pre-trained checkpoint
         model, model_config, checkpoint = MemTransformerLM.load_model(checkpoint_path, model, on_cpu=False)
 
-        # Prepares the model with QAT
+        # Prepares the model with QAT (also allows for distributed training)
         model = prepare_with_qat(model, onnx_compatible=True)
-        para_model = prepare_with_qat(para_model, onnx_compatible=True)
+        model = model.to(device)
+        para_model, model = distributed_model(args, model, device)
 
         # QAT-based arguments
         args.restart = None
         args.no_eval = True
-        args.lr = 1e-4
-        args.max_step = 1000
+        args.lr = args.lr * 0.1
+        args.max_step = int(args.max_step * 0.1)
+        if args.max_step == 0:
+            args.max_step += 1
 
         # Performs a QAT fine-tuning
         training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
