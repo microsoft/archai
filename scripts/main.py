@@ -34,6 +34,9 @@ from archai.algos.random_natsbench.random_natsbench_tss_reg_exp_runner import Ra
 from archai.algos.random_darts.random_dartsspace_reg_exp_runner import RandomDartsSpaceRegExpRunner
 from archai.algos.random_darts.random_dartsspace_far_exp_runner import RandomDartsSpaceFarExpRunner
 from archai.algos.local_search_natsbench.local_natsbench_tss_far_exp_runner import LocalNatsbenchTssFarExpRunner
+from archai.algos.local_search_natsbench.local_search_natsbench_tss_fear_exp_runner import LocalSearchNatsbenchTSSFearExpRunner
+from archai.algos.local_search_natsbench.local_search_natsbench_tss_reg_exp_runner import LocalSearchNatsbenchTSSRegExpRunner
+
 
 def main():
     runner_types:Dict[str, Type[ExperimentRunner]] = {
@@ -64,7 +67,9 @@ def main():
         'random_natsbench_tss_reg': RandomNatsbenchTssRegExpRunner,
         'random_dartsspace_reg': RandomDartsSpaceRegExpRunner,
         'random_dartsspace_far': RandomDartsSpaceFarExpRunner,
-        'local_natsbench_tss_far': LocalNatsbenchTssFarExpRunner
+        'local_natsbench_tss_far': LocalNatsbenchTssFarExpRunner,
+        'local_search_natsbench_tss_reg': LocalSearchNatsbenchTSSRegExpRunner,
+        'local_search_natsbench_tss_fear': LocalSearchNatsbenchTSSFearExpRunner
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
