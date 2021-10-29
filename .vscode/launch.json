@@ -549,12 +549,28 @@
             "args": ["--full", "--algos", "random_dartsspace_far", "--no-eval"]
         },
         {
-            "name": "Local Natsbench Tss Far Search",
+            "name": "Local Natsbench Tss Far Search (DEPRECATED)",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "local_natsbench_tss_far", "--datasets", "cifar10", "--no-eval"]
+        },
+        {
+            "name": "Local Search Natsbench Tss Fear",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "local_search_natsbench_tss_fear", "--datasets", "cifar10", "--no-eval"]
+        },
+        {
+            "name": "Local Search Natsbench Tss Reg",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "local_search_natsbench_tss_reg", "--datasets", "cifar10", "--no-eval"]
         },
         {
             "name": "Analysis Aggregate",

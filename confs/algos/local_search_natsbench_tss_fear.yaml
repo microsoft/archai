@@ -45,7 +45,7 @@ dataset: {} # default dataset settings comes from __include__ on the top
 nas:
   search:
     use_fear: True
-    max_num_models: 300
+    max_num_models: 3
     ratio_fastest_duration: 1.2
     natsbench:
       natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
@@ -113,6 +113,7 @@ nas:
           type: 'CrossEntropyLoss'
 
     freeze_trainer:
+      bypass_freeze: False
       plotsdir: ''
       identifiers_to_unfreeze: ['classifier', 'lastact', 'cells.16', 'cells.15', 'cells.14', 'cells.13'] # last few layer names in natsbench: lastact, lastact.0, lastact.1: BN-Relu, global_pooling: global avg. pooling (doesn't get exposed as a named param though), classifier: linear layer
       apex:
