@@ -12,12 +12,12 @@ from archai.nas.searcher import Searcher, SearchResult
 from archai.nas.finalizers import Finalizers
 from archai.nas.random_finalizers import RandomFinalizers
 from archai.nas.model_desc_builder import ModelDescBuilder
-from archai.algos.local_search_natsbench.local_search_natsbench_tss_reg import LocalSearchNatsbenchTSSReg
-from archai.algos.local_search_natsbench.local_natsbench_tss_far_searcher import LocalNatsbenchTssFarSearcher
+from archai.algos.local_search_natsbench.local_search_natsbench_tss_fear import LocalSearchNatsbenchTSSFear
 
 
-class LocalNatsbenchTssFarExpRunner(ExperimentRunner):
-    ''' Runs local search using FastArchRank on Natsbench space '''
+
+class LocalSearchNatsbenchTSSFearExpRunner(ExperimentRunner):
+    ''' Runs local search using FEAR on Natsbench space '''
 
     @overrides
     def model_desc_builder(self)->Optional[ModelDescBuilder]:
@@ -39,7 +39,7 @@ class LocalNatsbenchTssFarExpRunner(ExperimentRunner):
 
     @overrides
     def searcher(self)->Searcher:
-        return LocalNatsbenchTssFarSearcher()
+        return LocalSearchNatsbenchTSSFear()
 
     @overrides
     def evaluater(self)->Evaluater:
