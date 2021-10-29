@@ -70,3 +70,15 @@ class DiscreteSearchSpaceNatsbenchTSS(DiscreteSearchSpace):
         tokens = string.split('|')
         ops = [t.split('~')[0] for i,t in enumerate(tokens) if i not in [0,2,5,9]]
         return ops
+
+    
+    def _get_string_from_ops(self, ops):
+        ''' Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py '''
+        # given a list of operations, get the string
+        strings = ['|']
+        nodes = [0, 0, 1, 0, 1, 2]
+        for i, op in enumerate(ops):
+            strings.append(op+'~{}|'.format(nodes[i]))
+            if i < len(nodes) - 1 and nodes[i+1] == 0:
+                strings.append('+|')
+        return ''.join(strings)
