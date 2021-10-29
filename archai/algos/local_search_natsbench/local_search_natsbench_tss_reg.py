@@ -1,6 +1,6 @@
 import os
 from overrides.overrides import overrides
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 
 from archai.nas.searcher import Searcher, SearchResult
@@ -70,9 +70,10 @@ class LocalSearchNatsbenchTSSReg(LocalSearch):
         
         
     @overrides
-    def _find_best_minimum(self)->Tuple[int, float, float]:
-        best_minimum = max(self.local_minima, key=lambda x:x[1])
-        return best_minimum
+    def _find_best_minimum(self)->Optional[Tuple[int, float, float]]:
+        if self.local_minima:
+            best_minimum = max(self.local_minima, key=lambda x:x[1])
+            return best_minimum
         
 
     @overrides
