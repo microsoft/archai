@@ -3,27 +3,25 @@ import torch.nn as nn
 
 
 class ArchWithMetaData:
-    def __init__(self, arch:nn.Module, metadata:Dict):
-        assert isinstance(arch, nn.Module)
-        assert isinstance(metadata, dict)
-        self.arch_model = arch
-        self.metadata = metadata
+    def __init__(self, model:nn.Module, extradata:Dict):
+        self._arch = model
+        self._metadata = extradata
 
     @property
     def arch(self):
-        return self.arch_model
+        return self._arch
 
     @arch.setter
-    def arch(self, arch:nn.Module):
-        assert isinstance(arch, nn.Module)
-        self.arch_model = arch
+    def arch(self, model:nn.Module):
+        assert isinstance(model, nn.Module)
+        self._arch = model
 
     @property
     def metadata(self):
-        return self.metadata
+        return self._metadata
 
     @metadata.setter
-    def metadata(self, metadata):
-        assert isinstance(metadata, dict) 
-        self.metadata = metadata
+    def metadata(self, extradata:Dict):
+        assert isinstance(extradata, dict) 
+        self._metadata = extradata
     
