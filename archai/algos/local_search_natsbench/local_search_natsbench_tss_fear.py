@@ -1,6 +1,6 @@
 import os
 from overrides.overrides import overrides
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 import math as ma
 from copy import deepcopy
 
@@ -83,9 +83,10 @@ class LocalSearchNatsbenchTSSFear(LocalSearch):
         
         
     @overrides
-    def _find_best_minimum(self)->Tuple[int, float, float]:
-        best_minimum = max(self.local_minima, key=lambda x:x[1])
-        return best_minimum
+    def _find_best_minimum(self)->Optional[Tuple[int, float, float]]:
+        if self.local_minima:
+            best_minimum = max(self.local_minima, key=lambda x:x[1])
+            return best_minimum
         
 
     @overrides
@@ -143,20 +144,8 @@ class LocalSearchNatsbenchTSSFear(LocalSearch):
         checkpoint = None
         trainer = FreezeTrainer(self.conf_train_freeze, arch.arch, checkpoint)
         freeze_train_metrics = trainer.fit(data_loaders)
-        logger.popd()# if we did not early terminate in conditional 
-        # training then freeze train
-        # get data with new batch size for freeze training
-        conf_loader_freeze = deepcopy(self.conf_loader)
-        conf_loader_freeze['train_batch'] = self.conf_loader['freeze_loader']['train_batch'] 
-
-        logger.pushd(f"freeze_training_{arch.metadata['archid']}")
-        data_loaders = self.get_data(conf_loader_freeze, to_cache=False)
-        # now just finetune the last few layers
-        checkpoint = None
-        trainer = FreezeTrainer(self.conf_train_freeze, arch.arch, checkpoint)
-        freeze_train_metrics = trainer.fit(data_loaders)
         logger.popd()
-
+        
         train_top1 = freeze_train_metrics.best_train_top1()
         arch.metadata['train_top1'] = train_top1
         # cache it
