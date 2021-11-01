@@ -44,9 +44,7 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   search:
-    use_fear: True
-    max_num_models: 3
-    ratio_fastest_duration: 1.2
+    max_num_models: 300
     natsbench:
       natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
     finalizer: 'default' # options are 'random' or 'default'
@@ -62,9 +60,7 @@ nas:
       aug: '' # additional augmentations to use
       cutout: 0 # cutout length, use cutout augmentation when > 0
       load_train: True # load train split of dataset
-      train_batch: 256
-      freeze_loader:
-        train_batch: 512 # batch size for freeze training.
+      train_batch: 1024
       train_workers: 4 # if null then gpu_count*4
       test_workers: '_copy: ../train_workers' # if null then 4
       load_test: False # load test split of dataset
@@ -84,7 +80,7 @@ nas:
       grad_clip: 5.0 # grads above this value is clipped
       logger_freq: 1000 # after every N updates dump loss and other metrics in logger
       title: 'arch_train'
-      epochs: 1
+      epochs: 2
       batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
       # additional vals for the derived class
       plotsdir: '' #empty string means no plots, other wise plots are generated for each epoch in this dir
