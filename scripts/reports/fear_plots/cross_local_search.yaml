@@ -11,6 +11,7 @@ natsbench_cifar10:
 
   regular:
     ls_reg_max300_b1024_e02_fixedseeds: 'ls_reg_max300_b1024_e02_fixedseeds'
+    ls_reg_max300_b1024_e02_fixedseeds_refactor: 'ls_reg_max300_b1024_e02_fixedseeds_refactor'
     ls_reg_max300_b1024_e20_fixedseeds: 'ls_reg_max300_b1024_e20_fixedseeds'
     ls_reg_max300_b1024_e30_fixedseeds: 'ls_reg_max300_b1024_e30_fixedseeds'
     ls_reg_max300_b1024_e40_fixedseeds: 'ls_reg_max300_b1024_e40_fixedseeds'
