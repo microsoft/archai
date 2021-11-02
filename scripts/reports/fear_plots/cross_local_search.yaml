@@ -6,6 +6,7 @@ natsbench_cifar10:
 
   fastarchrank:
     ls_far_ftt0.6_max300_ratio2.0_fixedseeds: 'ls_far_ftt0.6_max300_ratio2.0_fixedseeds'
+    ls_far_ftt0.6_max300_ratio2.0_fixedseeds_refactor: 'ls_far_ftt0.6_max300_ratio2.0_fixedseeds_refactor'
     ls_far_ftt0.6_max300_ratio4.0_fixedseeds: 'ls_far_ftt0.6_max300_ratio4.0_fixedseeds'
     ls_far_ftt0.6_max300_ratio8.0_fixedseeds: 'ls_far_ftt0.6_max300_ratio8.0_fixedseeds'
 
