@@ -8,6 +8,7 @@ from archai.nas.model import Model
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 from archai.nas.model_desc import CellDesc, ModelDesc, CellType
+from archai.common.common import get_conf
 
 
 class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
@@ -82,6 +83,9 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
                     conf_model_desc:Config, 
                     seed:Optional[int]=None)->ArchWithMetaData:
         ''' Uniform random sample an architecture '''
+        config = get_conf()
+        
+
         model_desc = self.random_model_desc_builder.build(conf_model_desc, seed=seed)
         model = Model(model_desc, affine=True)
         meta_data = {'archid': self.arch_counter}
