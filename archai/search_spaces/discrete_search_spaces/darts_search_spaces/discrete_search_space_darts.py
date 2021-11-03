@@ -1,8 +1,9 @@
 import copy
-from typing import List
+from typing import List, Optional
 from overrides.overrides import overrides
-from archai.algos.natsbench.lib.nas_infer_model.DXYs.genotypes import PRIMITIVES
 
+from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.common.config import Config
 from archai.nas.model import Model
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
@@ -20,6 +21,10 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         'dil_conv_3x3',
         'dil_conv_5x5'    
     ]
+
+    def __init__(self):
+        self.arch_counter = 0
+        self.random_model_desc_builder = RandomModelDescBuilder()
 
 
     def _get_regular_cell(self, model_desc:ModelDesc)->CellDesc:
@@ -70,7 +75,19 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
                     this_nbr._nodes[i].edges[j].input_ids[0] = u
                     edge_nbrs_cell_descs.append(this_nbr)
         return edge_nbrs_cell_descs
-            
+
+
+    @overrides
+    def random_sample(self, 
+                    conf_model_desc:Config, 
+                    seed:Optional[int]=None)->ArchWithMetaData:
+        ''' Uniform random sample an architecture '''
+        model_desc = self.random_model_desc_builder.build(conf_model_desc, seed=seed)
+        model = Model(model_desc, affine=True)
+        meta_data = {'archid': self.arch_counter}
+        self.arch_counter += 1
+        return ArchWithMetaData(model, meta_data)
+        
 
     @overrides
     def get_neighbors(self, arch: ArchWithMetaData) -> List[ArchWithMetaData]:
@@ -142,8 +159,16 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         assert len(edge_nbrs) == 24
 
         # Now convert all the model descs to actual Models
-
-
+        all_nbrs = op_nbrs + edge_nbrs
+        all_models = [Model(nbr_desc, affine=True) for nbr_desc in all_nbrs]
+        
+        all_arch_meta = []
+        for model in all_models:
+            meta_data = {'archid': self.arch_counter}
+            self.arch_counter += 1
+            arch_meta = ArchWithMetaData(model, meta_data)
+            all_arch_meta.append(arch_meta)
+        return all_arch_meta
 
     
 
