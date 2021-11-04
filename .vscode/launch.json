@@ -578,7 +578,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "local_search_darts_reg", "--datasets", "cifar10", "--no-eval"]
+            "args": ["--full", "--algos", "local_search_darts_reg", "--datasets", "cifar10"]
         },
         {
             "name": "Analysis Aggregate",
