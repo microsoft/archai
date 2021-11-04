@@ -1,4 +1,5 @@
 import copy
+import random
 from typing import List, Optional
 from overrides.overrides import overrides
 
@@ -26,6 +27,10 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
     def __init__(self):
         self.arch_counter = 0
         self.random_model_desc_builder = RandomModelDescBuilder()
+
+        self.config = get_conf()
+        self.conf_model_desc = self.config['nas']['search']['model_desc']
+        self.drop_path_prob = self.config['nas']['search']['trainer']['drop_path_prob']
 
 
     def _get_regular_cell(self, model_desc:ModelDesc)->CellDesc:
@@ -72,26 +77,39 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
                 for u in unused_valid_ids:
                     # change edge source to be different
                     this_nbr = copy.deepcopy(cell_desc)
-                    edge.input_ids[0] = u
                     this_nbr._nodes[i].edges[j].input_ids[0] = u
                     edge_nbrs_cell_descs.append(this_nbr)
         return edge_nbrs_cell_descs
 
 
     @overrides
-    def random_sample(self, 
-                    conf_model_desc:Config, 
-                    seed:Optional[int]=None)->ArchWithMetaData:
-        ''' Uniform random sample an architecture '''
-        config = get_conf()
-        
-
-        model_desc = self.random_model_desc_builder.build(conf_model_desc, seed=seed)
-        model = Model(model_desc, affine=True)
+    def random_sample(self)->ArchWithMetaData:
+        ''' Uniform random sample an architecture '''        
+        # this is okay as this is deterministic wrt top level seed
+        # so if as long as top level conf seed changes every run
+        # this will be different and generate different archs to initialize
+        # local search 
+        seed = random.randint(0, 1e10) 
+        model_desc = self.random_model_desc_builder.build(self.conf_model_desc, seed=seed)
+        model = Model(model_desc, droppath=self.drop_path_prob, affine=True)
         meta_data = {'archid': self.arch_counter}
         self.arch_counter += 1
         return ArchWithMetaData(model, meta_data)
-        
+
+    
+    def _create_nbr(self, central_desc:ModelDesc, 
+                    nbr_cells:List[CellDesc], 
+                    cell_type:CellType)->ModelDesc:
+
+        nbrs = []
+        for nbr_cell in nbr_cells:
+            this_nbr = copy.deepcopy(central_desc)
+            for i, cell_desc in enumerate(this_nbr._cell_descs):
+                if cell_desc.cell_type is cell_type:
+                    this_nbr._cell_descs[i] = copy.deepcopy(nbr_cell)
+            nbrs.append(this_nbr)
+        return nbrs
+                
 
     @overrides
     def get_neighbors(self, arch: ArchWithMetaData) -> List[ArchWithMetaData]:
@@ -102,35 +120,28 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         assert isinstance(arch.arch, Model)
         central_desc = arch.arch.desc
 
-        central_regular_cell = self._get_regular_cell(self, central_desc)
-        central_reduction_cell = self._get_reduction_cell(self, central_desc)
+        central_regular_cell = self._get_regular_cell(central_desc)
+        central_reduction_cell = self._get_reduction_cell(central_desc)
 
         op_nbrs_regular_cell_descs = self._get_ops_neighbors(central_regular_cell)
         op_nbrs_reduction_cell_descs = self._get_ops_neighbors(central_reduction_cell)
 
-        assert len(op_nbrs_reduction_cell_descs) == 56
-        assert len(op_nbrs_regular_cell_descs) == 56
+        assert len(op_nbrs_reduction_cell_descs) == 48
+        assert len(op_nbrs_regular_cell_descs) == 48
 
         # create deepcopy of central model desc and 
         # replace all the regular cells
         # with the descs of the nbrs
-        op_nbrs = []
-        for reg_cell in op_nbrs_regular_cell_descs:
-            this_nbr = copy.deepcopy(central_desc)
-            for i, cell_desc in enumerate(this_nbr._cell_descs):
-                if cell_desc.cell_type is CellType.Regular:
-                    this_nbr._cell_descs[i] = copy.deepcopy(reg_cell)
-            op_nbrs.append(this_nbr)
-            
-        # same with reduction cells
-        for red_cell in op_nbrs_reduction_cell_descs:
-            this_nbr = copy.deepcopy(central_desc)
-            for i, cell_desc in enumerate(this_nbr._cell_descs):
-                if cell_desc.cell_type is CellType.Reduction:
-                    this_nbr._cell_descs[i] = copy.deepcopy(red_cell)
-            op_nbrs.append(this_nbr)
-        
-        assert len(op_nbrs) == 112
+        reg_op_nbrs = self._create_nbr(central_desc, 
+                                    op_nbrs_regular_cell_descs,
+                                    cell_type=CellType.Regular)
+
+        red_op_nbrs = self._create_nbr(central_desc, 
+                                    op_nbrs_reduction_cell_descs,
+                                    cell_type=CellType.Regular)
+                            
+        op_nbrs = reg_op_nbrs + red_op_nbrs
+        assert len(op_nbrs) == 96
 
         # now create the edge neighbors where the 
         # only difference is in one of the input edges
@@ -144,27 +155,20 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         # create deepcopy of central model desc and 
         # replace all the regular cells
         # with the descs of the nbrs
-        edge_nbrs = []
-        for reg_cell in edge_nbrs_regular_cell_descs:
-            this_nbr = copy.deepcopy(central_desc)
-            for i, cell_desc in enumerate(this_nbr._cell_descs):
-                if cell_desc.cell_type is CellType.Regular:
-                    this_nbr._cell_descs[i] = copy.deepcopy(reg_cell)
-            edge_nbrs.append(this_nbr)
+        reg_edge_nbrs = self._create_nbr(central_desc, 
+                                    edge_nbrs_regular_cell_descs,
+                                    cell_type=CellType.Regular)
 
-        # same with reduction cells
-        for red_cell in edge_nbrs_reduction_cell_descs:
-            this_nbr = copy.deepcopy(central_desc)
-            for i, cell_desc in enumerate(this_nbr._cell_descs):
-                if cell_desc.cell_type is CellType.Reduction:
-                    this_nbr._cell_descs[i] = copy.deepcopy(red_cell)
-            edge_nbrs.append(this_nbr)
-        
+        red_edge_nbrs = self._create_nbr(central_desc, 
+                                    edge_nbrs_reduction_cell_descs,
+                                    cell_type=CellType.Reduction)
+
+        edge_nbrs = reg_edge_nbrs + red_edge_nbrs                                            
         assert len(edge_nbrs) == 24
 
         # Now convert all the model descs to actual Models
         all_nbrs = op_nbrs + edge_nbrs
-        all_models = [Model(nbr_desc, affine=True) for nbr_desc in all_nbrs]
+        all_models = [Model(nbr_desc, self.drop_path_prob, affine=True) for nbr_desc in all_nbrs]
         
         all_arch_meta = []
         for model in all_models:
