@@ -51,21 +51,50 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
                 return cell_desc
 
 
-    def _get_ops_neighbors(self, cell_desc:CellDesc)->List[CellDesc]:
-        op_nbrs_cell_descs = []
+    def _change_cell_op(self,
+                        central_desc:ModelDesc, 
+                        node_idx:int, 
+                        edge_idx:int, 
+                        op_name:str,
+                        cell_type:CellType)->ModelDesc:
+
+        nbr_desc = copy.deepcopy(central_desc)
+        for cell_desc in nbr_desc._cell_descs:
+            if cell_desc.cell_type is cell_type:
+                # make the change
+                cell_desc._nodes[node_idx].edges[edge_idx].op_desc.name = op_name
+        return nbr_desc
+
+
+    def _change_edge_source(self,
+                        central_desc:ModelDesc, 
+                        node_idx:int, 
+                        edge_idx:int, 
+                        edge_source:int,
+                        cell_type:CellType)->ModelDesc:
+
+        nbr_desc = copy.deepcopy(central_desc)
+        for cell_desc in nbr_desc._cell_descs:
+            if cell_desc.cell_type is cell_type:
+                # make the change
+                cell_desc._nodes[node_idx].edges[edge_idx].input_ids[0] = edge_source
+        return nbr_desc
+
+    
+    def _get_ops_neighbors(self, cell_desc:CellDesc, central_desc:ModelDesc)->List[CellDesc]:
+        op_nbrs = []
         for j, node in enumerate(cell_desc._nodes):
-            for k,edge in enumerate(node.edges):
+            for k, edge in enumerate(node.edges):
                 available = [op_name for op_name in DiscreteSearchSpaceDARTS.PRIMITIVES if op_name!=edge.op_desc.name]
                 for op_name in available:
                     # change one op to be different
-                    this_nbr = copy.deepcopy(cell_desc)
-                    this_nbr._nodes[j].edges[k].op_desc.name = op_name
-                    op_nbrs_cell_descs.append(this_nbr)
-        return op_nbrs_cell_descs
+                    this_nbr = self._change_cell_op(central_desc, j, k, op_name, cell_desc.cell_type)
+                    op_nbrs.append(this_nbr)
+        return op_nbrs
 
 
-    def _get_edge_neighbors(self, cell_desc:CellDesc)->List[CellDesc]:
-        edge_nbrs_cell_descs = []
+    def _get_edge_neighbors(self, cell_desc:CellDesc, central_desc:ModelDesc)->List[CellDesc]:
+        edge_nbrs = []
         for i, node in enumerate(cell_desc._nodes):
             # no choices for the first internal node
             if i == 0:
@@ -76,10 +105,9 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
             for j, edge in enumerate(node.edges):
                 for u in unused_valid_ids:
                     # change edge source to be different
-                    this_nbr = copy.deepcopy(cell_desc)
-                    this_nbr._nodes[i].edges[j].input_ids[0] = u
-                    edge_nbrs_cell_descs.append(this_nbr)
-        return edge_nbrs_cell_descs
+                    this_nbr = self._change_edge_source(central_desc, i, j, u, cell_desc.cell_type)
+                    edge_nbrs.append(this_nbr)
+        return edge_nbrs
 
 
     @overrides
@@ -123,47 +151,25 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         central_regular_cell = self._get_regular_cell(central_desc)
         central_reduction_cell = self._get_reduction_cell(central_desc)
 
-        op_nbrs_regular_cell_descs = self._get_ops_neighbors(central_regular_cell)
-        op_nbrs_reduction_cell_descs = self._get_ops_neighbors(central_reduction_cell)
+        op_nbrs_regular = self._get_ops_neighbors(central_regular_cell, central_desc)
+        op_nbrs_reduction = self._get_ops_neighbors(central_reduction_cell, central_desc)
 
-        assert len(op_nbrs_reduction_cell_descs) == 48
-        assert len(op_nbrs_regular_cell_descs) == 48
-
-        # create deepcopy of central model desc and 
-        # replace all the regular cells
-        # with the descs of the nbrs
-        reg_op_nbrs = self._create_nbr(central_desc, 
-                                    op_nbrs_regular_cell_descs,
-                                    cell_type=CellType.Regular)
-
-        red_op_nbrs = self._create_nbr(central_desc, 
-                                    op_nbrs_reduction_cell_descs,
-                                    cell_type=CellType.Regular)
-                            
-        op_nbrs = reg_op_nbrs + red_op_nbrs
+        assert len(op_nbrs_regular) == 48
+        assert len(op_nbrs_reduction) == 48
+                    
+        op_nbrs = op_nbrs_regular + op_nbrs_reduction
         assert len(op_nbrs) == 96
 
         # now create the edge neighbors where the 
         # only difference is in one of the input edges
         # there should be 24 of them
-        edge_nbrs_regular_cell_descs = self._get_edge_neighbors(central_regular_cell)
-        edge_nbrs_reduction_cell_descs = self._get_edge_neighbors(central_reduction_cell)
+        edge_nbrs_regular = self._get_edge_neighbors(central_regular_cell, central_desc)
+        edge_nbrs_reduction = self._get_edge_neighbors(central_reduction_cell, central_desc)
 
-        assert len(edge_nbrs_reduction_cell_descs) == 12
-        assert len(edge_nbrs_regular_cell_descs) == 12
+        assert len(edge_nbrs_regular) == 12
+        assert len(edge_nbrs_reduction) == 12
 
-        # create deepcopy of central model desc and 
-        # replace all the regular cells
-        # with the descs of the nbrs
-        reg_edge_nbrs = self._create_nbr(central_desc, 
-                                    edge_nbrs_regular_cell_descs,
-                                    cell_type=CellType.Regular)
-
-        red_edge_nbrs = self._create_nbr(central_desc, 
-                                    edge_nbrs_reduction_cell_descs,
-                                    cell_type=CellType.Reduction)
-
-        edge_nbrs = reg_edge_nbrs + red_edge_nbrs                                            
+        edge_nbrs = edge_nbrs_regular + edge_nbrs_reduction                                           
         assert len(edge_nbrs) == 24
 
         # Now convert all the model descs to actual Models
