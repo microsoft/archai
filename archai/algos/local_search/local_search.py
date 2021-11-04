@@ -82,7 +82,6 @@ class LocalSearch(Searcher):
                     to_restart_search = False
                 else:
                     # didn't improve! this is a local minima
-                    # get the full evaluation result from natsbench
                     self._log_local_minima(curr_arch, curr_acc, num_evaluated)
                     to_restart_search = True
 

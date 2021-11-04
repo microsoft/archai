@@ -25,6 +25,7 @@ class LocalSearchDartsReg(LocalSearch):
         self.dataset_name = conf_search['loader']['dataset']['name']
         self.conf_train = conf_search['trainer']
         self.conf_loader = conf_search['loader']
+        self.final_desc_filename = conf_search['final_desc_filename']
         # endregion
 
         # eval cache so that if local search visits
@@ -33,6 +34,13 @@ class LocalSearchDartsReg(LocalSearch):
         self.eval_cache:Dict[str, ArchWithMetaData] = {}
 
         super().search(conf_search)
+
+        # save to the format that is expected by eval
+        best_local_minimum = self._find_best_minimum()
+        best_desc = best_local_minimum[0].arch.desc
+        best_desc.save(self.final_desc_filename)
+
+
 
     @overrides
     def get_search_space(self)->DiscreteSearchSpaceDARTS:
@@ -66,7 +74,7 @@ class LocalSearchDartsReg(LocalSearch):
         
         
     @overrides
-    def _find_best_minimum(self)->Optional[Tuple[int, float, float]]:
+    def _find_best_minimum(self)->Optional[Tuple[ArchWithMetaData, float]]:
         if self.local_minima:
             best_minimum = max(self.local_minima, key=lambda x:x[1])
             return best_minimum

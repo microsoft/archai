@@ -19,10 +19,6 @@ class LocalSearchDartsRegExpRunner(ExperimentRunner):
     ''' Runs local search using regular evaluation on Natsbench space '''
 
     @overrides
-    def model_desc_builder(self)->Optional[ModelDescBuilder]:
-        return None
-
-    @overrides
     def trainer_class(self)->TArchTrainer:
         return None # no search trainer
 
@@ -32,20 +28,8 @@ class LocalSearchDartsRegExpRunner(ExperimentRunner):
         return search.search(conf_search)
 
     @overrides
-    def run_eval(self, conf_eval:Config)->EvalResult:
-        evaler = self.evaluater()
-        return evaler.evaluate(conf_eval)
-
-    @overrides
     def searcher(self)->Searcher:
         return LocalSearchDartsReg()
 
-    @overrides
-    def evaluater(self)->Evaluater:
-        return None
-
-    @overrides
-    def copy_search_to_eval(self) -> None:
-        return None
     
 

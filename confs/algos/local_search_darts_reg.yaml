@@ -9,11 +9,11 @@ nas:
     loader:
       val_ratio: 0.0 # don't need val for local search
     trainer:
-      epochs: 1
+      epochs: 2
 
   eval:
     model_desc:
       n_cells: 8
     trainer:
-      epochs: 1
+      epochs: 100
 
