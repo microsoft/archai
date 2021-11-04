@@ -89,22 +89,22 @@ class LocalSearchDartsReg(LocalSearch):
             logger.info(f"Arch is in eval cache. Returning from cache.")
             return self.eval_cache[arch_flat_rep].metadata['train_top1']
 
-        # # if not in cache actually evaluate it
-        # # -------------------------------------
-        # # NOTE: we don't pass checkpoint to the trainers
-        # # as it creates complications and we don't need it
-        # # as these trainers are quite fast
-        # checkpoint = None
+        # if not in cache actually evaluate it
+        # -------------------------------------
+        # NOTE: we don't pass checkpoint to the trainers
+        # as it creates complications and we don't need it
+        # as these trainers are quite fast
+        checkpoint = None
 
-        # logger.pushd(f"regular_training_{arch.metadata['archid']}")            
-        # data_loaders = self.get_data(self.conf_loader)
-        # trainer = Trainer(self.conf_train, arch.arch, checkpoint) 
-        # trainer_metrics = trainer.fit(data_loaders)
-        # train_time = trainer_metrics.total_training_time()
-        # logger.popd()
+        logger.pushd(f"regular_training_{arch.metadata['archid']}")            
+        data_loaders = self.get_data(self.conf_loader)
+        trainer = Trainer(self.conf_train, arch.arch, checkpoint) 
+        trainer_metrics = trainer.fit(data_loaders)
+        train_time = trainer_metrics.total_training_time()
+        logger.popd()
 
-        # train_top1 = trainer_metrics.best_train_top1()
-        # arch.metadata['train_top1'] = train_top1
+        train_top1 = trainer_metrics.best_train_top1()
+        arch.metadata['train_top1'] = train_top1
 
         # DEBUG: simulate architecture evaluation
         train_top1 = random.random()
