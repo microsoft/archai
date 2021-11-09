@@ -162,10 +162,7 @@ class FakeQuantEmbedding(torch.nn.Embedding):
         return self._quant_weight
 
     def forward(self, x):
-        if self.training:
-            return self.fake_quant_weight[x]
-
-        return self.weight[x]
+        return self.fake_quant_weight[x]
 
     @classmethod
     def from_float(cls, mod, qconfig=None, **kwargs):
@@ -243,13 +240,8 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
         return self._quant_weight
 
     def forward(self, x):
-        if self.training:
-            x = self.input_pre_process(x)
-
-        if self.training:
-            return F.linear(x, self.fake_quant_weight, self.bias)
-
-        return F.linear(x, self.weight, self.bias)
+        x = self.input_pre_process(x)
+        return F.linear(x, self.fake_quant_weight, self.bias)
 
     @classmethod
     def from_float(cls, mod, qconfig=None, activation_reduce_range=True, **kwargs):
@@ -300,15 +292,122 @@ class FakeDynamicQuantLinearForOnnx(FakeDynamicQuantLinear):
 
         super().__init__(*args, **kwargs)
 
+class FakeDynamicQuantConv1d(torch.nn.Conv1d):
+    """Translates a torch-based Conv1D layer into a QAT-ready Linear.
+
+    """
+
+    _FLOAT_MODULE = torch.nn.Conv1d
+
+    def __init__(self,
+                 *args,
+                 dynamic_weight=True,
+                 activation_reduce_range=True,
+                 bits=8,
+                 onnx_compatible=False,
+                 qconfig=None,
+                 **kwargs):
+        """Initializes a fake quantized Conv1D layer.
+        
+        """
+
+        super().__init__(*args, **kwargs)
+
+        self.dynamic_weight = dynamic_weight
+        if dynamic_weight:
+            self.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+                                                      reduce_range=False,
+                                                      bits=bits,
+                                                      onnx_compatible=onnx_compatible)
+
+        self.input_pre_process = FakeDynamicQuant(reduce_range=activation_reduce_range,
+                                                  bits=bits,
+                                                  onnx_compatible=onnx_compatible)
+
+    @property
+    def fake_quant_weight(self):
+        if self.training:
+            return self.weight_fake_quant(self.weight)
+
+        if not hasattr(self, '_quant_weight'):
+            self._quant_weight = self.weight_fake_quant(self.weight)
+
+        return self._quant_weight
+
+    def forward(self, x):
+        x = self.input_pre_process(x)
+        return self._conv_forward(x, self.fake_quant_weight, self.bias)
+
+    @classmethod
+    def from_float(cls, mod, qconfig=None, activation_reduce_range=True, **kwargs):
+        assert type(mod) == cls._FLOAT_MODULE, ' qat.' + cls.__name__ + '.from_float only works for ' + cls._FLOAT_MODULE.__name__
+
+        if not qconfig:
+            assert hasattr(mod, 'qconfig'), 'Input float module must have qconfig defined'
+            assert mod.qconfig, 'Input float module must have a valid qconfig'
+            qconfig = mod.qconfig
+
+        qat_conv1d = cls(in_channels=mod.in_channels,
+                         out_channels=mod.out_channels,
+                         kernel_size=mod.kernel_size,
+                         stride=mod.stride,
+                         padding=mod.padding,
+                         dilation=mod.dilation,
+                         groups=mod.groups,
+                         padding_mode=mod.padding_mode,
+                         bias=mod.bias is not None,
+                         activation_reduce_range=activation_reduce_range,
+                         qconfig=qconfig,
+                         **kwargs)
+
+        qat_conv1d.weight = mod.weight
+        qat_conv1d.bias = mod.bias
+
+        return qat_conv1d
+
+    def to_float(self):
+        weight = self.weight_fake_quant(self.weight)
+
+        float_conv1d = torch.nn.Conv1d(in_channels=self.in_channels,
+                                       out_channels=self.out_channels,
+                                       kernel_size=self.kernel_size,
+                                       stride=self.stride,
+                                       padding=self.padding,
+                                       dilation=self.dilation,
+                                       groups=self.groups,
+                                       padding_mode=self.padding_mode,
+                                       bias=self.bias is not None)
+
+        float_conv1d.weight = torch.nn.Parameter(weight)
+        float_conv1d.bias = self.bias
+
+        return float_conv1d
+
+class FakeDynamicQuantConv1dForOnnx(FakeDynamicQuantConv1d):
+    """Allows a QAT-ready Linear layer to be exported with ONNX.
+
+    """
+
+    def __init__(self, *args,  **kwargs):
+        """Initializes a fake quantized Linear layer compatible with ONNX.
+        
+        """
+
+        kwargs['activation_reduce_range'] = False
+        kwargs['onnx_compatible'] = True
+
+        super().__init__(*args, **kwargs)
 
 # Maps between standard and ONNX modules
 DYNAMIC_QAT_MODULE_MAPPING = {
     torch.nn.Embedding: FakeQuantEmbedding,
-    torch.nn.Linear: FakeDynamicQuantLinear
+    torch.nn.Linear: FakeDynamicQuantLinear,
+    torch.nn.Conv1d: FakeDynamicQuantConv1d
 }
 DYNAMIC_QAT_MODULE_MAPPING_FOR_ONNX = {
     torch.nn.Embedding: FakeQuantEmbeddingForOnnx,
-    torch.nn.Linear: FakeDynamicQuantLinearForOnnx
+    torch.nn.Linear: FakeDynamicQuantLinearForOnnx,
+    torch.nn.Conv1d: FakeDynamicQuantConv1dForOnnx
 }
 
 # Adds placeholder for changing `_compute_logit`
