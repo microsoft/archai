@@ -257,7 +257,7 @@ def get_create_dirs(dataroot:Optional[str], dataset_name:str,
     dataroot = utils.full_path(dataroot)
 
     dataset_dir = utils.full_path(os.path.join(dataroot,'textpred', dataset_dir_name(dataset_name)))
-    output_dir=  utils.full_path(pt_output_dir or \
+    output_dir = utils.full_path(pt_output_dir or \
                         os.path.join(output_dir, experiment_name)
                     , create=True)
 
@@ -267,7 +267,7 @@ def get_create_dirs(dataroot:Optional[str], dataset_name:str,
     cache_dir = utils.full_path(cache_dir, create=True)
 
     if not os.path.isabs(pretrained_path):
-        pretrained_path = os.path.join(os.path.dirname(pt_output_dir), pretrained_path)
+        pretrained_path = os.path.join(os.path.dirname(output_dir), pretrained_path)
 
     return dataset_dir, output_dir, pretrained_path, cache_dir, dataroot
 
