@@ -153,13 +153,8 @@ class FakeQuantEmbedding(torch.nn.Embedding):
 
     @property
     def fake_quant_weight(self):
-        if self.training:
-            return self.weight_fake_quant(self.weight)
+        return self.weight_fake_quant(self.weight)
 
-        if not hasattr(self, '_quant_weight'):
-            self._quant_weight = self.weight_fake_quant(self.weight)
-
-        return self._quant_weight
 
     def forward(self, x):
         return self.fake_quant_weight[x]
@@ -231,13 +226,7 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
 
     @property
     def fake_quant_weight(self):
-        if self.training:
-            return self.weight_fake_quant(self.weight)
-
-        if not hasattr(self, '_quant_weight'):
-            self._quant_weight = self.weight_fake_quant(self.weight)
-
-        return self._quant_weight
+        return self.weight_fake_quant(self.weight)
 
     def forward(self, x):
         x = self.input_pre_process(x)
@@ -326,13 +315,7 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
 
     @property
     def fake_quant_weight(self):
-        if self.training:
-            return self.weight_fake_quant(self.weight)
-
-        if not hasattr(self, '_quant_weight'):
-            self._quant_weight = self.weight_fake_quant(self.weight)
-
-        return self._quant_weight
+        return self.weight_fake_quant(self.weight)
 
     def forward(self, x):
         x = self.input_pre_process(x)
@@ -475,9 +458,10 @@ def float_to_qat_modules(model,
                                  qconfig=qconfig,
                                  **kwargs)
 
-    ProjectedAdaptiveLogSoftmax.hidden_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+    ProjectedAdaptiveLogSoftmax.hidden_fake_quant = FakeDynamicQuant(reduce_range=False,
                                                                      onnx_compatible=True)
     ProjectedAdaptiveLogSoftmax.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+                                                                     reduce_range=False,
                                                                      onnx_compatible=True)
     ProjectedAdaptiveLogSoftmax._compute_logit = dynamic_qat_compute_logit
 
