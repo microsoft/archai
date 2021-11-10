@@ -700,7 +700,7 @@ class MemTransformerLM(nn.Module):
         self.sample_softmax = -1
 
     @staticmethod
-    def load_model(path:str, model:Optional['MemTransformerLM'], on_cpu:bool) -> Tuple['MemTransformerLM', dict, dict]:
+    def load_model(path:str, model:Optional['MemTransformerLM']=None, on_cpu:Optional[bool]=False) -> Tuple['MemTransformerLM', dict, dict]:
         # case for restart
         if os.path.isdir(path):
             path = os.path.join(path, 'checkpoint_last.pt')
@@ -715,6 +715,11 @@ class MemTransformerLM(nn.Module):
         checkpoint = torch.load(path, map_location=dst)
 
         model_config = checkpoint['model_config']
+
+        # Compatibility with older models
+        # TODO: remove once not needed
+        if 'encoder_like' in model_config:
+            del model_config['encoder_like']
 
         # Initializes the model
         model = MemTransformerLM(**model_config) if model is None else model
