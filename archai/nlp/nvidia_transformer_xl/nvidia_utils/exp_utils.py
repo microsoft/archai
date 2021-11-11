@@ -266,7 +266,7 @@ def get_create_dirs(dataroot:Optional[str], dataset_name:str,
     
     cache_dir = utils.full_path(cache_dir, create=True)
 
-    if not os.path.isabs(pretrained_path):
+    if not os.path.isabs(pretrained_path) and pretrained_path:
         pretrained_path = os.path.join(os.path.dirname(output_dir), pretrained_path)
 
     return dataset_dir, output_dir, pretrained_path, cache_dir, dataroot
