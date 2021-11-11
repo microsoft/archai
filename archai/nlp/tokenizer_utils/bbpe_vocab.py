@@ -155,6 +155,11 @@ class BbpeVocab(VocabBase):
 
     def _preprocess_text(self, text:str)->str:
         text = text.strip()
+
+        # Do not add space for empty lines
+        if self._config.add_prefix_new_line and (text == '\n' or text == ''):
+            return '\n'
+
         if self._config.add_prefix_space:
             text = ' ' + text
         if self._config.add_prefix_new_line:
@@ -187,10 +192,26 @@ class BbpeVocab(VocabBase):
         special_tokens = self._config.get_special_tokens()
         min_frequency = self.min_frequency if self.min_frequency is not None else 2
 
+        # We need to preprocess the file for training as well
+        def read_line_iter(func, file):
+            for line in file:
+                yield func(line)
+            return
+
+        # Open files
+        open_files = [open(filepath, 'r') for filepath in filepaths]
+
+        # Creates a Iterator[Iterator[str]] object the first iterates over the files and 
+        # the second over the lines. _preprocess_text is applied to each line.
+        iter_files = iter([read_line_iter(self._preprocess_text, file) for file in open_files])
+
         # TODO: measure impact of dropout
-        tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=self._config.add_prefix_space)
-        tokenizer.train(files=filepaths, vocab_size=self.vocab_size, min_frequency=min_frequency,
+        tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=False) # We add our own spaces
+        tokenizer.train_from_iterator(iter_files, vocab_size=self.vocab_size, min_frequency=min_frequency,
             special_tokens=special_tokens)
+
+        for file in open_files:
+            file.close()
 
         # additional tokens we might want to add
         if len(added_tokens):

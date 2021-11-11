@@ -32,7 +32,7 @@ class Corpus:
         self.vocab_size =  vocab_size
 
         # where we maintain the cache for the corpus based on dataset+vocab_type+vocab_size
-        self.corpus_cache_dir = cachedir or os.path.join(datadir, 'cache')
+        self.corpus_cache_dir = cachedir
         self.corpus_cache_dir = utils.full_path(os.path.join(self.corpus_cache_dir, f'{dataset}',f'{vocab_type}',f'{vocab_size}'), create=True)
 
         # where dataset npy files are cached

@@ -18,9 +18,9 @@ from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 class Gpt2Vocab(BbpeVocab):
     def __init__(self, save_path:str, vocab_size:int=50257, pad_vocab_size=True,
                  bos_token:Optional[str]="<|endoftext|>", eos_token:Optional[str]="<|endoftext|>",
-                 unk_token:Optional[str]="<|endoftext|>", pad_token:Optional[str]=None,
+                 unk_token:Optional[str]="<|unk|>", pad_token:Optional[str]=None,
                  min_frequency:Optional[int]=None, model_max_length:Optional[int]=1024,
-                 add_prefix_space=True,add_prefix_new_line=False, sorted_vocab=True) -> None:
+                 add_prefix_space=True,add_prefix_new_line=True, sorted_vocab=True) -> None:
         # GPT2Tokenizer
         # vocab_size: 50257
         # bos = eos = unk = '<|endoftext|>'
