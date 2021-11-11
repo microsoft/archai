@@ -12,6 +12,7 @@ import shutil
 import sys
 import time
 import warnings
+import copy
 
 import dllogger
 import numpy as np
@@ -84,6 +85,8 @@ def parse_args():
                          help='Run training in fp16/mixed precision')
     general.add_argument('--restart', type=str, default='',
                          help='Restart training from the saved checkpoint')
+    general.add_argument('--pretrained_path', type=str, default='',
+                         help='Absolute or relative pretrained model path for finetuning or QAT')
     general.add_argument('--debug', action='store_true', default=None,
                          help='Run in debug mode (do not create exp dir)')
     general.add_argument('--log_all_ranks', action='store_true',
@@ -122,8 +125,8 @@ def parse_args():
     dataset = parser.add_argument_group('dataset setup')
     dataset.add_argument('--data', type=str, default=None,
                          help='Location of the data corpus')
-    general.add_argument('--cache_dir', default=None, type=str,
-                         help='Directory to store dataset cache, if None then use data dir as parent')
+    general.add_argument('--cache_dir', default='cache', type=str,
+                         help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
                          choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx'],
                          help='Dataset name')
@@ -181,7 +184,7 @@ def parse_args():
     model.add_argument('--use_cache', action='store_true',
                        help='Whether to return last key/value attentions to speed decoding')
     model.add_argument('--qat', action='store_true',
-                       help='Whether to perform Quantization Aware Training')
+                       help='Whether to perform Quantization Aware Training (usually based on pretrained model)')
 
     opt = parser.add_argument_group('optimizer setup')
     opt.add_argument('--optim', default='jitlamb', type=str,
@@ -265,6 +268,8 @@ def parse_args():
     post = parser.add_argument_group('post-processing setup')
     post.add_argument('--dynamic_quantization', action='store_true',
                       help='Dynamic quantization')
+    post.add_argument('--post_qat', action='store_true',
+                      help='Perform QAT after training the model')
 
     parser.set_defaults(**config)
     args, _ = parser.parse_known_args()
@@ -651,7 +656,15 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                 best_val_loss = val_metrix.avg_loss
                 is_best = True
 
-            save_checkpoint(args, model, model_config, optimizer, scheduler,
+            model_to_save = model
+
+            if args.qat:
+                # Convert the model to a regular FP32 model for saving
+                model_float = copy.deepcopy(model)
+                model_float = qat_to_float_modules(model_float)
+                model_to_save = model_float
+
+            save_checkpoint(args, model_to_save, model_config, optimizer, scheduler,
                             scaler, vocab, epoch, batch, last_iter,
                             train_step, best_val_loss, is_best,
                             args.work_dir)
@@ -695,9 +708,9 @@ def init():
     device = torch.device('cuda' if args.cuda else 'cpu')
     nv_distributed.init_distributed(args.cuda)
 
-    args.data, args.work_dir, args.cache_dir, args.dataroot = \
+    args.data, args.work_dir, args.pretrained_path, args.cache_dir, args.dataroot = \
         exp_utils.get_create_dirs(args.data, args.dataset, args.experiment_name,
-                                  args.work_dir, args.cache_dir)
+                                  args.work_dir, args.pretrained_path, args.cache_dir)
 
     with nv_distributed.sync_workers() as rank:
         if rank == 0:
@@ -783,7 +796,7 @@ def load_data(args, device, get_file_stats=True):
     return  corpus.vocab, train_itr, valid_itr, test_itr, file_stats
 
 
-def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
+def create_or_load_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [] # head cluster projection is never tied with embeddings
     if args.adaptive:
@@ -830,7 +843,17 @@ def create_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
         'use_cache': args.use_cache
         }
 
-    model = MemTransformerLM(**model_config)
+    if args.qat and not args.pretrained_path:
+        logging.warning('QAT usually starts from a pretrained model. Check the --pretrained_path argument.')
+
+    if args.pretrained_path:
+        logging.info('Overwriting the provided model config with the pretrained model config.')
+        model, model_config, checkpoint = MemTransformerLM.load_model(args.pretrained_path, on_cpu=False)
+    else:
+        model = MemTransformerLM(**model_config)
+
+    if args.qat:
+        model = prepare_with_qat(model, onnx_compatible=True)
 
     n_all_param = sum([p.nelement() for p in model.parameters()])
     n_nonemb_param = sum([p.nelement() for p in model.layers.parameters()])
@@ -1116,7 +1139,7 @@ def main():
 
     # create model
     ntokens = len(vocab)
-    model, model_config = create_model(args, device, ntokens)
+    model, model_config = create_or_load_model(args, device, ntokens)
 
     # create optimizer
     optimizer, optimizer_sparse = create_optimizer(args, model)
@@ -1144,8 +1167,7 @@ def main():
 
     data, *_ = next(iter(valid_itr))
     model.to('cpu')
-    data = data[:,:1] # make it batch size of one
-    data = data[:0].to('cpu')
+    data = data[:,:1].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
         lambda: MemTransformerLM.load_model(checkpoint_path, model=None, on_cpu=True))
@@ -1195,7 +1217,7 @@ def main():
     logging.info(f'Output dir: {args.work_dir}')
     dllogger.log(step=tuple(), data=summary)
 
-    if args.qat:
+    if args.post_qat:
         # Loads the model from the best pre-trained checkpoint
         model, model_config, checkpoint = MemTransformerLM.load_model(checkpoint_path, model, on_cpu=False)
 
@@ -1207,10 +1229,6 @@ def main():
         # QAT-based arguments
         args.restart = None
         args.no_eval = True
-        args.lr = args.lr * 0.1
-        args.max_step = int(args.max_step * 0.1)
-        if args.max_step == 0:
-            args.max_step += 1
 
         # Performs a QAT fine-tuning
         training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,

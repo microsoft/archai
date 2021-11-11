@@ -250,19 +250,26 @@ def dataset_dir_name(dataset:str)->str:
 
 def get_create_dirs(dataroot:Optional[str], dataset_name:str,
                     experiment_name='nv_xformer_xl', output_dir='~/logdir',
-                    cache_dir:Optional[str]=None)->Tuple[str,str,str,str]:
+                    pretrained_path:Optional[str]=None, cache_dir:Optional[str]=None)->Tuple[str,str,str,str,str]:
+
     pt_data_dir, pt_output_dir = common.pt_dirs()
     dataroot = dataroot or pt_data_dir or common.default_dataroot()
     dataroot = utils.full_path(dataroot)
 
     dataset_dir = utils.full_path(os.path.join(dataroot,'textpred', dataset_dir_name(dataset_name)))
-    output_dir=  utils.full_path(pt_output_dir or \
+    output_dir = utils.full_path(pt_output_dir or \
                         os.path.join(output_dir, experiment_name)
                     , create=True)
-    cache_dir = cache_dir or os.path.join(dataset_dir, 'cache')
+
+    if not os.path.isabs(cache_dir):
+        cache_dir = os.path.join(dataset_dir, cache_dir)
+    
     cache_dir = utils.full_path(cache_dir, create=True)
 
-    return dataset_dir, output_dir, cache_dir, dataroot
+    if not os.path.isabs(pretrained_path):
+        pretrained_path = os.path.join(os.path.dirname(output_dir), pretrained_path)
+
+    return dataset_dir, output_dir, pretrained_path, cache_dir, dataroot
 
 def script_init():
         # Disable profiling executor
