@@ -359,7 +359,7 @@ def generate(encoded, model, device, vocab, tgt_len, generation_method, beam_siz
         for prompt_tensor, prompt_tokens, target_tokens in encoded:
             generated_text = []
             #while len("".join(generated_text).split()) < 4 and len(generated_text) < 100:
-            while len(vocab.convert_to_text(generated_text, vocab_type).split()) < 4 and len(generated_text) < 100:
+            while len(vocab.convert_to_text(generated_text, vocab_type).split()) < suggestion_length and len(generated_text) < 100:
                 # get log probs
                 log_probs = get_log_probs(prompt_tensor, model, device, tgt_len, model_ext=model_ext, space_char_idx=vocab.get_idx(" "))[-1]
                 top_indices = torch.argsort(log_probs)[-topk:]
