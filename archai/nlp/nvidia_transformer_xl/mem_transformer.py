@@ -296,7 +296,7 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
             past_r = past_r[:, 0, :, :]
             w_head_k = torch.cat((past_k, w_head_k), dim=0)
             w_head_v = torch.cat((past_v, w_head_v), dim=0)
-            r_head_k = torch.cat((past_r, r_head_k), dim=0)
+            r_head_k = torch.cat((r_head_k, past_r), dim=0)
 
         if self.use_cache:
             # Caveat that allows for torch `stack` and `unbind`
@@ -808,7 +808,7 @@ class MemTransformerLM(nn.Module):
 
         mlen = mems[0].size(0) if mems is not None else 0
         plen = past_key_values[0][0].size(0) if past_key_values[0] is not None else 0
-        klen = mlen + plen + qlen
+        klen = mlen + qlen
         if self.same_length:
             all_ones = word_emb.new_ones(qlen, klen)
             mask_len = klen - self.mem_len - 1
@@ -826,7 +826,7 @@ class MemTransformerLM(nn.Module):
         pasts_key_values = ()
         # default
         if self.attn_type == 0:
-            pos_seq = torch.arange(klen-plen-1, -1, -1.0, device=word_emb.device,
+            pos_seq = torch.arange(klen+plen-1, plen-1, -1.0, device=word_emb.device,
                                    dtype=word_emb.dtype)
             if self.clamp_len > 0:
                 pos_seq.clamp_(max=self.clamp_len)
