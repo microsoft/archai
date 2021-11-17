@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from pathlib import Path
 import json
 from collections import OrderedDict
 from itertools import chain
@@ -139,9 +140,12 @@ def export_onnx_from_pt(model: MemTransformerLM,
 
     # Exports configuration to JSON
     model_config['model_type'] = 'transfo-xl'
-    model_config['num_attention_heads'] = n_head
+    #model_config['num_attention_heads'] = n_head
     model_config['past_key_values'] = n_past_values
-    with open('config.json', 'w') as f:
+
+    config_path = Path(onnx_model_path).parent / 'config.json'
+
+    with open(config_path, 'w') as f:
         json.dump(model_config, f)
 
     # Applies weight sharing

@@ -1,0 +1,104 @@
+# Base
+train: &train
+   cuda: true
+   n_layer: 3
+   d_model: 256
+   n_head: 8
+   d_head: 32
+   d_inner: 1885
+   dropout: 0.0
+   dropatt: 0.0
+   optim: jitlamb
+   lr: 0.01
+   eta_min: 0.0001
+   roll: true
+   warmup_step: 1000
+   max_step: 2000000
+   tgt_len: 192
+   mem_len: 0
+   eval_tgt_len: 192
+   batch_size: 256
+   multi_gpu: ddp
+   log_interval: 50
+   eval_interval: 5000
+   adaptive: false
+
+eval: &eval
+   cuda: true
+   tgt_len: 64
+   mem_len: 640
+   clamp_len: 400
+   same_length: true
+   split: test
+
+default:
+   train:
+      <<: *train
+   eval:
+      <<: *eval
+
+manual_eval:
+   train:
+      <<: *train
+   eval:
+      <<: *eval
+      manual_config: '{"n_token": 267735, "n_layer": 16, "n_head": 8, "d_model": 512, "d_head": 64, "d_inner": 2048, "dropout": 0.1, "dropatt": 0.0, "dtype": null, "tie_weight": true, "d_embed": 512, "div_val": 1, "tie_projs": [false, true, true, true], "pre_lnorm": false, "tgt_len": 192, "ext_len": 0, "mem_len": 192, "cutoffs": [19997, 39997, 199997], "same_length": false, "attn_type": 0, "clamp_len": -1, "sample_softmax": -1}'
+
+# Full training configs for NVIDIA DGX-1 (8x NVIDIA V100 16GB GPU)
+dgx1_8gpu_fp16: &dgx1_8gpu_fp16
+   train:
+      <<: *train
+      fp16: true
+   eval:
+      <<: *eval
+      fp16: true
+
+dgx1_8gpu_fp32: &dgx1_8gpu_fp32
+   train:
+      <<: *train
+   eval:
+      <<: *eval
+
+dgx1_4gpu_fp16: &dgx1_4gpu_fp16
+   train:
+      <<: *train
+      fp16: true
+   eval:
+      <<: *eval
+      fp16: true
+
+dgx1_4gpu_fp32: &dgx1_4gpu_fp32
+   train:
+      <<: *train
+   eval:
+      <<: *eval
+
+dgx1_2gpu_fp16: &dgx1_2gpu_fp16
+   train:
+      <<: *train
+      fp16: true
+   eval:
+      <<: *eval
+      fp16: true
+
+dgx1_2gpu_fp32: &dgx1_2gpu_fp32
+   train:
+      <<: *train
+   eval:
+      <<: *eval
+
+dgx1_1gpu_fp16: &dgx1_1gpu_fp16
+   train:
+      <<: *train
+      fp16: true
+      batch_chunk: 2
+   eval:
+      <<: *eval
+      fp16: true
+
+dgx1_1gpu_fp32: &dgx1_1gpu_fp32
+   train:
+      <<: *train
+      batch_chunk: 2
+   eval:
+      <<: *eval
