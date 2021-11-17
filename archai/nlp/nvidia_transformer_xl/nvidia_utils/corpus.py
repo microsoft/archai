@@ -115,9 +115,16 @@ class Corpus:
                 stats.word_count += len(line.split())
         return stats
 
+    # TODO: Too slow to get train file stats, remove it definitely?
+    # def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
+    #     train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
+    #     return (Corpus._get_file_stats(train_filepath), \
+    #             Corpus._get_file_stats(valid_filepath), \
+    #             Corpus._get_file_stats(test_filepath))
+
     def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
         train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
-        return (Corpus._get_file_stats(train_filepath), \
+        return (None, \
                 Corpus._get_file_stats(valid_filepath), \
                 Corpus._get_file_stats(test_filepath))
 
@@ -138,7 +145,7 @@ class Corpus:
         if vocab_type == 'word':
             # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
             bos_token, eos_token, lower_case, vocab_file = None, '<eos>', False, None # vocab file is text file of symbols, one per line
-            if dataset in ['wt103', 'wt2', 'olx']:
+            if dataset in ['wt103', 'wt2'] or 'olx' in dataset:
                 pass
             elif dataset == 'ptb':
                 lower_case = True
@@ -184,7 +191,7 @@ class Corpus:
 
     def get_iterator(self, split, batch_size, tgt_len, device, ext_len, mem_len=None):
         if split == 'train':
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'olx']:
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or 'olx' in self.dataset:
                 data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
                                               device=device, ext_len=ext_len, mem_len=mem_len)
             # elif self.dataset == 'lm1b':
@@ -195,7 +202,7 @@ class Corpus:
 
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8', 'olx']:
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or 'olx' in self.dataset:
                 data_iter = LMOrderedIterator(data, batch_size, tgt_len,
                                               device=device, ext_len=ext_len, mem_len=mem_len)
             elif self.dataset == 'lm1b':

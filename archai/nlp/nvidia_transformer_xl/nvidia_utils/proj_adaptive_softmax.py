@@ -52,9 +52,12 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         self.cutoff_ends = [0] + self.cutoffs
         self.div_val = div_val
 
-        self.shortlist_size = self.cutoffs[0]
-        self.n_clusters = len(self.cutoffs) - 1 # number of clusters will be >= 0
-        self.head_size = self.shortlist_size + self.n_clusters
+        if self.cutoffs:
+            self.n_clusters = len(self.cutoffs) - 1 # number of clusters will be >= 0
+            self.shortlist_size = self.cutoffs[0] # TODO: remove? Never used...
+            self.head_size = self.shortlist_size + self.n_clusters # TODO: remove? Never used...
+        else:
+            self.n_clusters = 0
 
         self.tie_projs = ProjectedAdaptiveLogSoftmax.clean_tie_projs(tie_projs,
             self.cutoffs, n_token)
@@ -151,6 +154,11 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
     def clean_cutoffs(cutoffs:Optional[List[int]], n_token:int):
         if cutoffs is None:
             cutoffs = ProjectedAdaptiveLogSoftmax.default_cutoffs(n_token)
+
+        # Not using adaptive emb
+        if len(cutoffs) == 0:
+            return cutoffs
+
         cutoffs = cutoffs.copy()
         if not cutoffs:
             cutoffs = [n_token]
@@ -183,7 +191,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         return tie_projs[:len(cutoffs)]
 
     def get_out_proj(self, i):
-        if self.tie_projs[i]:
+        if not self.tie_projs or self.tie_projs[i]:
             if len(self.shared_out_projs) == 0:
                 return None
             elif len(self.shared_out_projs) == 1:
