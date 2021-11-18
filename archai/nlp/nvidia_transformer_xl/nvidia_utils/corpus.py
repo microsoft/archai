@@ -145,7 +145,7 @@ class Corpus:
         if vocab_type == 'word':
             # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
             bos_token, eos_token, lower_case, vocab_file = None, '<eos>', False, None # vocab file is text file of symbols, one per line
-            if dataset in ['wt103', 'wt2'] or 'olx' in dataset:
+            if dataset in ['wt103', 'wt2'] or dataset.startswith('olx_'):
                 pass
             elif dataset == 'ptb':
                 lower_case = True
@@ -191,7 +191,7 @@ class Corpus:
 
     def get_iterator(self, split, batch_size, tgt_len, device, ext_len, mem_len=None):
         if split == 'train':
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or 'olx' in self.dataset:
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
                 data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
                                               device=device, ext_len=ext_len, mem_len=mem_len)
             # elif self.dataset == 'lm1b':
@@ -202,7 +202,7 @@ class Corpus:
 
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or 'olx' in self.dataset:
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
                 data_iter = LMOrderedIterator(data, batch_size, tgt_len,
                                               device=device, ext_len=ext_len, mem_len=mem_len)
             elif self.dataset == 'lm1b':

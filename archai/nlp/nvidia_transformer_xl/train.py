@@ -803,8 +803,8 @@ def create_or_load_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [] # head cluster projection is never tied with embeddings
     if args.adaptive:
-        assert args.dataset in ['wt103', 'wt2', 'lm1b'] or 'olx' in args.dataset
-        if args.dataset in ['wt103', 'wt2'] or 'olx' in args.dataset:
+        assert args.dataset in ['wt103', 'wt2', 'lm1b'] or args.dataset.startswith('olx_')
+        if args.dataset in ['wt103', 'wt2'] or args.dataset.startswith('olx_'):
             cutoffs = [19997, 39997, 199997, ntokens]
             tie_projs = [False] + [True] * (len(cutoffs)-1)
         elif args.dataset == 'lm1b':
