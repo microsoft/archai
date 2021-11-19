@@ -185,7 +185,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         return tie_projs[:len(cutoffs)]
 
     def get_out_proj(self, i):
-        if not self.tie_projs or self.tie_projs[i]:
+        if self.tie_projs[i]:
             if len(self.shared_out_projs) == 0:
                 return None
             elif len(self.shared_out_projs) == 1:
