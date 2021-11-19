@@ -913,6 +913,12 @@ class MemTransformerLM(nn.Module):
         # So, have to initialize size(0) mems inside the model forward.
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
         # them together.
+
+        # Reshapes `data` and `target` to seq_len x batch_size
+        data = data.view(data.size(1), data.size(0))
+        if target is not None:
+            target = target.view(target.size(1), target.size(0))
+
         if mems is None:
             mems = self.init_mems()
 
