@@ -35,6 +35,7 @@ class OptionalParameterList(nn.ParameterList):
 class ProjectedAdaptiveLogSoftmax(nn.Module):
     def __init__(self, n_token, d_embed, d_proj,
                  cutoffs:Optional[List[int]],
+                 adaptive:bool,
                  div_val=1,
                  tie_projs:Optional[List[bool]]=None, # which clusters should share projection matrix with input embeddings? Head cluster projection is never shared
                  out_layers_weights=None, # output layer weights, if not supplied then create new (typically shared with embedding layer weights)
@@ -52,12 +53,12 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         self.cutoff_ends = [0] + self.cutoffs
         self.div_val = div_val
 
-        self.shortlist_size = self.cutoffs[0]
+        self.shortlist_size = self.cutoffs[0] # TODO: remove? Never used...
         self.n_clusters = len(self.cutoffs) - 1 # number of clusters will be >= 0
-        self.head_size = self.shortlist_size + self.n_clusters
+        self.head_size = self.shortlist_size + self.n_clusters # TODO: remove? Never used...
 
         self.tie_projs = ProjectedAdaptiveLogSoftmax.clean_tie_projs(tie_projs,
-            self.cutoffs, n_token)
+            self.cutoffs, adaptive, n_token)
         assert len(self.tie_projs) == len(self.cutoffs)
 
         if self.n_clusters > 0: # create parameters for each cluster
@@ -144,13 +145,14 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         # return cutoffs
 
     @staticmethod
-    def default_tie_proj(cutoffs:List[int])->List[bool]:
-        return [False] + [True] * (len(cutoffs)-1)
+    def default_tie_proj(cutoffs:List[int], adaptive:bool)->List[bool]:
+        return [not adaptive] + [True] * (len(cutoffs)-1)
 
     @staticmethod
     def clean_cutoffs(cutoffs:Optional[List[int]], n_token:int):
         if cutoffs is None:
             cutoffs = ProjectedAdaptiveLogSoftmax.default_cutoffs(n_token)
+
         cutoffs = cutoffs.copy()
         if not cutoffs:
             cutoffs = [n_token]
@@ -175,11 +177,11 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         return cutoffs
 
     @staticmethod
-    def clean_tie_projs(tie_projs:Optional[List[bool]], cutoffs:List[int], n_token:int):
-        if tie_projs is None:
-            tie_projs = ProjectedAdaptiveLogSoftmax.default_tie_proj(cutoffs)
+    def clean_tie_projs(tie_projs:Optional[List[bool]], cutoffs:List[int], adaptive:bool, n_token:int):
+        if not tie_projs:
+            tie_projs = ProjectedAdaptiveLogSoftmax.default_tie_proj(cutoffs, adaptive)
+        
         assert isinstance(tie_projs, list)
-
         return tie_projs[:len(cutoffs)]
 
     def get_out_proj(self, i):

@@ -238,8 +238,8 @@ def dataset_dir_name(dataset:str)->str:
         return 'wikitext-103'
     if dataset=='wt2':
         return 'wikitext-2'
-    if dataset=='olx':
-        return 'olx'
+    if dataset.startswith('olx_'):
+        return dataset
     if dataset=='lm1b':
         raise RuntimeError(f'dataset "{dataset}" is not supported yet')
     if dataset=='enwik8':

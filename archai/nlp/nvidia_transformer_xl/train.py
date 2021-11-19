@@ -27,6 +27,7 @@ from archai.nlp.nvidia_transformer_xl import lamb
 from archai.nlp.nvidia_transformer_xl.data_utils import get_lm_corpus
 from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.data_parallel import BalancedDataParallel
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
 # from archai.nlp.nvidia_transformer_xl.nvidia_utils import gpu_affinity
@@ -128,7 +129,7 @@ def parse_args():
     general.add_argument('--cache_dir', default='cache', type=str,
                          help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -179,8 +180,10 @@ def parse_args():
                        help='Parameters initialized by N(0, init_std)')
     model.add_argument('--proj_init_std', type=float, default=0.01,
                        help='Parameters initialized by N(0, init_std)')
-    model.add_argument('--primer_ez', action='store_true',
-                       help='Use Primer EZ arch modifications (squared relu and DConv)')
+    model.add_argument('--primer_sqrt', action='store_true',
+                       help='Use Primer EZ arch modifications (squared relu)')
+    model.add_argument('--primer_conv', action='store_true',
+                       help='Use Primer EZ arch modifications (DConv)')
     model.add_argument('--use_cache', action='store_true',
                        help='Whether to return last key/value attentions to speed decoding')
     model.add_argument('--qat', action='store_true',
@@ -195,7 +198,7 @@ def parse_args():
     opt.add_argument('--mom', type=float, default=0.0,
                      help='Momentum for sgd')
     opt.add_argument('--scheduler', default='cosine', type=str,
-                     choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant'],
+                     choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
                      help='LR scheduler to use')
     opt.add_argument('--max_step_scheduler', type=int, default=None,
                      help='Max number of training steps for LR scheduler')
@@ -560,7 +563,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                     scheduler.step(train_step - args.warmup_step)
                     if scheduler_sparse:
                         scheduler_sparse.step(train_step - args.warmup_step)
-        elif args.scheduler == 'inv_sqrt':
+        elif args.scheduler in ['inv_sqrt', 'cyclic_cosine']:
             scheduler.step(train_step)
             if scheduler_sparse:
                 scheduler_sparse.step(train_step)
@@ -800,8 +803,8 @@ def create_or_load_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [] # head cluster projection is never tied with embeddings
     if args.adaptive:
-        assert args.dataset in ['wt103', 'wt2', 'lm1b', 'olx']
-        if args.dataset in ['wt103', 'wt2', 'olx']:
+        assert args.dataset in ['wt103', 'wt2', 'lm1b'] or args.dataset.startswith('olx_')
+        if args.dataset in ['wt103', 'wt2'] or args.dataset.startswith('olx_'):
             cutoffs = [19997, 39997, 199997, ntokens]
             tie_projs = [False] + [True] * (len(cutoffs)-1)
         elif args.dataset == 'lm1b':
@@ -829,6 +832,7 @@ def create_or_load_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
         'ext_len': args.ext_len,
         'mem_len': args.mem_len,
         'cutoffs': cutoffs,
+        'adaptive': args.adaptive,
         'same_length': args.same_length,
         'attn_type': args.attn_type,
         'clamp_len': args.clamp_len,
@@ -839,7 +843,8 @@ def create_or_load_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
         'weight_init_std': args.init_std,
         'proj_init_std': args.proj_init_std,
 
-        'primer_ez': args.primer_ez,
+        'primer_sqrt': args.primer_sqrt,
+        'primer_conv': args.primer_conv,
         'use_cache': args.use_cache
         }
 
@@ -986,6 +991,17 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                 optimizer_sparse, factor=args.decay_rate, patience=args.patience,
                 min_lr=args.lr_min,
                 )
+        else:
+            scheduler_sparse = None
+    elif args.scheduler == 'cyclic_cosine':
+        init_decay_epochs = int((args.max_step-args.warmup_step) / 2)
+        restart_interval = int((args.max_step-args.warmup_step) / 4)
+
+        scheduler = CyclicCosineDecayLR(optimizer, init_decay_epochs, args.eta_min, restart_interval, 
+                                        warmup_epochs=args.warmup_step, warmup_start_lr=args.lr*0.01)
+        if args.sample_softmax > 0 and optimizer_sparse is not None:
+            scheduler_sparse = CyclicCosineDecayLR(optimizer_sparse, init_decay_epochs, args.eta_min, restart_interval, 
+                                        warmup_epochs=args.warmup_step, warmup_start_lr=args.lr*0.01)
         else:
             scheduler_sparse = None
     elif args.scheduler == 'constant':
@@ -1197,7 +1213,8 @@ def main():
         'ext_len': model_config['ext_len'],
         'mem_len': model_config['mem_len'],
         'cutoffs': model_config['cutoffs'],
-        'primer_ez': model_config['primer_ez'],
+        'primer_conv': model_config['primer_conv'],
+        'primer_sqrt': model_config['primer_sqrt'],
         'pt_ops_mem': pt_ops_mem,
         'pt_ops_time_us': pt_ops_time,
         'pt_ops_flops': pt_ops_flops,
