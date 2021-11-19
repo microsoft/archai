@@ -811,7 +811,7 @@ class MemTransformerLM(nn.Module):
         plen = past_key_values[0][0].size(0) if past_key_values[0] is not None else 0
         klen = mlen + qlen
         if self.same_length:
-            all_ones = word_emb.new_ones(qlen, klen)
+            all_ones = word_emb.new_ones(qlen, klen+plen)
             mask_len = klen - self.mem_len - 1
             if mask_len > 0:
                 mask_shift_len = qlen - mask_len
@@ -821,7 +821,7 @@ class MemTransformerLM(nn.Module):
                              + torch.tril(all_ones, -mask_shift_len)).bool()
         else:
             dec_attn_mask = torch.triu(
-                word_emb.new_ones(qlen, klen), diagonal=1+mlen+plen).bool()
+                word_emb.new_ones(qlen, klen+plen), diagonal=1+mlen+plen).bool()
 
         hids = []
         pasts_key_values = ()
