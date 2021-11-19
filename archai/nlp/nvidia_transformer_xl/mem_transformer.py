@@ -914,10 +914,10 @@ class MemTransformerLM(nn.Module):
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
         # them together.
 
-        # Reshapes `data` and `target` to seq_len x batch_size
-        data = data.view(data.size(1), data.size(0))
+        # Transposes `data` and `target` to seq_len x batch_size
+        data = data.t()
         if target is not None:
-            target = target.view(target.size(1), target.size(0))
+            target = target.t()
 
         if mems is None:
             mems = self.init_mems()
@@ -941,7 +941,7 @@ class MemTransformerLM(nn.Module):
             loss = -F.log_softmax(logit, -1)[:, :, 0]
         else:
             loss, log_prob = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
-                                       target=target.view(-1) if target is not None else None,
+                                       target=target.contiguous().view(-1) if target is not None else None,
                                        return_nll=return_nll, return_log_probs=return_log_probs)
             # loss -> [target_len, batch_size]
             # log_prob -> [target_len, batch_size, vocab_size]
