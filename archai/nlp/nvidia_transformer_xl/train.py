@@ -832,6 +832,7 @@ def create_or_load_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
         'ext_len': args.ext_len,
         'mem_len': args.mem_len,
         'cutoffs': cutoffs,
+        'adaptive': args.adaptive,
         'same_length': args.same_length,
         'attn_type': args.attn_type,
         'clamp_len': args.clamp_len,
