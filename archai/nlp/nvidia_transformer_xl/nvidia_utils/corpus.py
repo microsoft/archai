@@ -115,16 +115,9 @@ class Corpus:
                 stats.word_count += len(line.split())
         return stats
 
-    # TODO: Too slow to get train file stats, remove it definitely?
-    # def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
-    #     train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
-    #     return (Corpus._get_file_stats(train_filepath), \
-    #             Corpus._get_file_stats(valid_filepath), \
-    #             Corpus._get_file_stats(test_filepath))
-
     def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
         train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
-        return (None, \
+        return (Corpus._get_file_stats(train_filepath), \
                 Corpus._get_file_stats(valid_filepath), \
                 Corpus._get_file_stats(test_filepath))
 

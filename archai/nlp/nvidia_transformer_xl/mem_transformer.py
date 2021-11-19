@@ -592,7 +592,7 @@ class MemTransformerLM(nn.Module):
                  dropout=0.1, dropatt=0.0, dtype=None, tie_weight=True, d_embed=512,
                  div_val=1, tie_projs=None, pre_lnorm=False,
                  tgt_len=192, ext_len=0, mem_len=192,
-                 cutoffs=None, adapt_inp=False,
+                 cutoffs=None, adaptive=False,
                  same_length=False, attn_type=0, clamp_len=-1, sample_softmax=-1,
                  weight_init_type='normal', weight_init_range=0.1, weight_init_std=0.02,
                  proj_init_std=0.01, init_std=0.02,
@@ -673,7 +673,8 @@ class MemTransformerLM(nn.Module):
             emb_projs = self.word_emb.emb_projs # nn.ParameterList of len=0
 
             self.crit = ProjectedAdaptiveLogSoftmax(n_token, d_embed, d_model,
-                                                    cutoffs, div_val=div_val,
+                                                    cutoffs, adaptive,
+                                                    div_val=div_val,
                                                     tie_projs=tie_projs,
                                                     out_projs=emb_projs,
                                                     out_layers_weights=emb_layers)

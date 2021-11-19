@@ -77,7 +77,9 @@ def load_from_pt(torch_model_path: str) -> Tuple[MemTransformerLM, dict]:
 
     # Initializes the model
 
-    # Compatibility, TODO: Remove when not necessary
+    # Added for compatibility with models trained with an 
+    # older test branch which had this flag
+    # TODO: Remove in the future
     if 'encoder_like' in checkpoint['model_config']:
         del checkpoint['model_config']['encoder_like']
     
