@@ -30,8 +30,8 @@ class LMOrderedIterator(object):
             self.warmup_batches = (mem_len + bptt - 1) // bptt
             self.warmup_elems = self.warmup_batches * bptt
 
-            warmup_data = self.data.roll((self.warmup_elems, 1), (1, 0))[:self.warmup_elems]
-            self.data = torch.cat((warmup_data, self.data))
+            warmup_data = self.data.roll((self.warmup_elems, 1), (1, 0))[:, :self.warmup_elems]
+            self.data = torch.cat((warmup_data, self.data), dim=-1)
 
         # Partition data for DistributedDataParallel
         world_size = nv_utils.distributed.get_world_size()
