@@ -516,8 +516,8 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
             param.grad = None
 
         # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
-        data_chunks = torch.chunk(data, args.batch_chunk, 1)
-        target_chunks = torch.chunk(target, args.batch_chunk, 1)
+        data_chunks = torch.chunk(data, args.batch_chunk, 0)
+        target_chunks = torch.chunk(target, args.batch_chunk, 0)
 
         for i in range(args.batch_chunk):
             # if this is last chunk and distribued mode then use delay_unscale=True for amp
