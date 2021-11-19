@@ -259,8 +259,8 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1):
 
 
 def compile_model(model, device, args):
-    inp = torch.randint(0, 1000, (args.tgt_len, args.batch_size)).to(device)
-    tgt = torch.randint(0, 1000, (args.tgt_len, args.batch_size)).to(device)
+    inp = torch.randint(0, 1000, (args.batch_size, args.tgt_len)).to(device)
+    tgt = torch.randint(0, 1000, (args.batch_size, args.tgt_len)).to(device)
     start = time.time()
     with torch.no_grad():
         mems = None
