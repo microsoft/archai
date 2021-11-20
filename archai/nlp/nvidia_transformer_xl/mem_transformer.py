@@ -810,6 +810,8 @@ class MemTransformerLM(nn.Module):
         mlen = mems[0].size(0) if mems is not None else 0
         plen = past_key_values[0][0].size(0) if past_key_values[0] is not None else 0
         klen = mlen + qlen
+        # `plen` should be taken into account when creating the
+        # attention mask because `past_key_values` might be used
         if self.same_length:
             all_ones = word_emb.new_ones(qlen, klen+plen)
             mask_len = klen - self.mem_len - 1
@@ -940,6 +942,8 @@ class MemTransformerLM(nn.Module):
                                   pred_hid, self.sampler)
             loss = -F.log_softmax(logit, -1)[:, :, 0]
         else:
+            # As we are transposing the `target`, we need it in a contiguous
+            # piece of memory before applying a tensor visualization (view)
             loss, log_prob = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
                                        target=target.contiguous().view(-1) if target is not None else None,
                                        return_nll=return_nll, return_log_probs=return_log_probs)
