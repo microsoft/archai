@@ -191,14 +191,14 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1):
     with torch.no_grad():
         mems = None
         for _ in range(repeat):
-            for idx, (data, target, seq_len, warm) in enumerate(eval_iter):
+            for idx, (input_ids, labels, seq_len, warm) in enumerate(eval_iter):
                 if max_size and idx >= max_size:
                     break
                 eval_step += 1
 
                 torch.cuda.synchronize()
                 start_iter = time.time()
-                loss, mems, _, _ = model(data, target, mems)
+                loss, _, mems, _ = model(input_ids, labels, mems)
                 torch.cuda.synchronize()
                 elapsed = time.time() - start_iter
 
@@ -211,8 +211,8 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1):
                 meters['eval_latency'].update(elapsed)
                 log_latency += elapsed
 
-                target_tokens = target.numel()
-                throughput = target_tokens / elapsed
+                labels_tokens = labels.numel()
+                throughput = labels_tokens / elapsed
                 throughput = nvidia_utils.distributed.all_reduce_item(throughput, op='sum')
                 meters['eval_throughput'].update(throughput)
                 log_throughput += throughput
@@ -259,13 +259,13 @@ def evaluate(eval_iter, model, meters, log_interval, max_size=None, repeat=1):
 
 
 def compile_model(model, device, args):
-    inp = torch.randint(0, 1000, (args.batch_size, args.tgt_len)).to(device)
-    tgt = torch.randint(0, 1000, (args.batch_size, args.tgt_len)).to(device)
+    input_ids = torch.randint(0, 1000, (args.batch_size, args.tgt_len)).to(device)
+    labels = torch.randint(0, 1000, (args.batch_size, args.tgt_len)).to(device)
     start = time.time()
     with torch.no_grad():
         mems = None
         for _ in range(2):
-            _, mems, _, _ = model(inp, tgt, mems)
+            _, _, mems, _ = model(input_ids, labels, mems)
     torch.cuda.synchronize()
     stop = time.time()
     logging.info(f'Building the model took {stop - start:.2f} seconds')
