@@ -906,9 +906,10 @@ class MemTransformerLM(nn.Module):
 
         return core_out, new_mems, pasts_key_values
 
-    def forward(self, data:torch.Tensor, target:Optional[torch.Tensor], mems:Optional[torch.Tensor],
+    def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor], mems:Optional[torch.Tensor],
                 past_key_values:Optional[torch.Tensor]=None, return_nll=True, return_log_probs=False):
-        # data -> [seq_len, batch_size], target -> [seq_len, batch_size]
+        # input_ids and labels are transposed within the code to avoid major changes
+        # input_ids -> [seq_len, batch_size], labels -> [seq_len, batch_size]
         # Returns:
         # loss -> [seq_len, batch_size], log_prob -> [seq_len, batch_size, vocab_size]
         # nn.DataParallel does not allow size(0) tensors to be broadcasted.
@@ -916,41 +917,41 @@ class MemTransformerLM(nn.Module):
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
         # them together.
 
-        # Transposes `data` and `target` to seq_len x batch_size
-        data = data.t()
-        if target is not None:
-            target = target.t()
+        # Transposes `input_ids` and `labels` to seq_len x batch_size
+        input_ids = input_ids.t()
+        if labels is not None:
+            labels = labels.t()
 
         if mems is None:
             mems = self.init_mems()
 
-        if target is None:
+        if labels is None:
             return_nll = False
 
         if past_key_values is None:
             past_key_values = tuple([None] * self.n_layer)
 
-        hidden, new_mems, past_key_values = self._forward(data, mems=mems, past_key_values=past_key_values)
+        hidden, new_mems, past_key_values = self._forward(input_ids, mems=mems, past_key_values=past_key_values)
 
-        tgt_len = target.size(0) if target is not None else data.size(0)
+        tgt_len = labels.size(0) if labels is not None else input_ids.size(0)
 
         pred_hid = hidden[-tgt_len:]
         if self.sample_softmax > 0 and self.training:
             raise NotImplementedError('Computing log probabilities is not implemented for sample_softmax mode')
             assert self.tie_weight
-            logit = sample_logits(self.word_emb, self.out_layer.bias, target,
+            logit = sample_logits(self.word_emb, self.out_layer.bias, labels,
                                   pred_hid, self.sampler)
             loss = -F.log_softmax(logit, -1)[:, :, 0]
         else:
-            # As we are transposing the `target`, we need it in a contiguous
+            # As we are transposing the `labels`, we need it in a contiguous
             # piece of memory before applying a tensor visualization (view)
             loss, log_prob = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
-                                       target=target.contiguous().view(-1) if target is not None else None,
+                                       target=labels.contiguous().view(-1) if labels is not None else None,
                                        return_nll=return_nll, return_log_probs=return_log_probs)
-            # loss -> [target_len, batch_size]
-            # log_prob -> [target_len, batch_size, vocab_size]
-            loss = loss.view(tgt_len, -1) if target is not None else None
-            log_prob = log_prob.view(tgt_len, data.size(1), -1) if log_prob is not None else None
+            # loss -> [labels_len, batch_size]
+            # log_prob -> [labels_len, batch_size, vocab_size]
+            loss = loss.view(tgt_len, -1) if labels is not None else None
+            log_prob = log_prob.view(tgt_len, input_ids.size(1), -1) if log_prob is not None else None
 
         return (loss, new_mems, log_prob, past_key_values)
 
@@ -1061,13 +1062,13 @@ if __name__ == '__main__':
     # device = torch.device("cuda" if args.cuda else "cpu")
     # model.to(device)
 
-    # B = 4 # bytes per data element
-    # data_len = tgt_len * 20
-    # data = torch.LongTensor(data_len*B).random_(0, args.n_token).to(device)
-    # diter = lm_iterators.LMOrderedIterator(data, B, tgt_len, device=device, ext_len=ext_len)
+    # B = 4 # bytes per input_ids element
+    # input_len = tgt_len * 20
+    # input_ids = torch.LongTensor(input_len*B).random_(0, args.n_token).to(device)
+    # diter = lm_iterators.LMOrderedIterator(input_ids, B, tgt_len, device=device, ext_len=ext_len)
 
     # mems = None
-    # for idx, (inp, tgt, seqlen, _) in enumerate(diter):
+    # for idx, (input_ids, labels, seqlen, _) in enumerate(diter):
     #     print('batch {}'.format(idx))
-    #     _, mems = model(inp, tgt, mems)
+    #     _, mems = model(input_ids, labels, mems)
 
