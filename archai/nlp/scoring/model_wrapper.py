@@ -52,15 +52,15 @@ class ModelWrapper:
             labels_len_sum = 0
             loss_sum = 0.0
             for idx in range(0, len(input_ids)-1, self.max_seq_len):
-                data = input_ids[idx:(idx + self.max_seq_len)]
-                target = input_ids[idx+1:(idx + 1 + self.max_seq_len)]
+                _input_ids = input_ids[idx:(idx + self.max_seq_len)]
+                labels = input_ids[idx+1:(idx + 1 + self.max_seq_len)]
 
-                data_t = self._ids2tensor(data)
-                target_t = self._ids2tensor(target)
+                input_ids_t = self._ids2tensor(_input_ids)
+                labels_t = self._ids2tensor(labels)
 
-                loss, mems, log_prob, *_ = self.model(data_t, target=target_t, mems=None)
+                loss, prediction_scores, mems, *_ = self.model(input_ids_t, labels=labels_t, mems=None)
                 loss_sum += torch.sum(loss).item()
-                labels_len_sum += len(target)
+                labels_len_sum += len(labels)
             return (loss_sum / labels_len_sum)
 
     @functools.lru_cache(maxsize=1024)
@@ -77,10 +77,11 @@ class ModelWrapper:
         in_tensor = self._ids2tensor(input_ids)
 
         with torch.no_grad():
-            loss, mems, log_prob, *_ = self.model(in_tensor, target=None, mems=None,
-                                                    return_nll=False, return_log_probs=True)
+            loss, prediction_scores, mems, *_ = self.model(in_tensor, labels=None, mems=None,
+                                                           output_loss=False,
+                                                           output_prediction_scores=True)
             # take logits for last token, get first batch
-            next_token_probs = torch.exp(log_prob[-1][0]).tolist()
+            next_token_probs = torch.exp(prediction_scores[-1][0]).tolist()
 
         logging.debug("Model time for %s input_ids: %s ms; first 10 probs: %s", len(input_ids), 1000*(time.time() - start), next_token_probs[:10])
         return next_token_probs
