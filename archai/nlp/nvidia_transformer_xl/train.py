@@ -397,7 +397,7 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
                 break
 
             # first with mem
-            loss, mems, _, _ = model(input_ids, labels, mems)
+            loss, _, mems, _ = model(input_ids, labels, mems)
             loss = loss.float().mean()
             numel = input_ids.numel()
 
@@ -474,7 +474,7 @@ def train_iteration(model, i, mems, input_ids_chunks, labels_chunks, scaler,
         mems[i] = mems[i].to(device, non_blocking=True)
 
     with torch.cuda.amp.autocast(args.fp16):
-        loss, mems[i], _, _ = model(input_ids_i, labels_i, mems[i])
+        loss, _, mems[i], _ = model(input_ids_i, labels_i, mems[i])
         loss = loss.float().mean().type_as(loss) / args.batch_chunk
 
     if args.swap_mem and mems[i] is not None:
