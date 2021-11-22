@@ -911,7 +911,7 @@ class MemTransformerLM(nn.Module):
         # input_ids and labels are transposed within the code to avoid major changes
         # input_ids -> [seq_len, batch_size], labels -> [seq_len, batch_size]
         # Returns:
-        # loss -> [seq_len, batch_size], prediction_scores -> [seq_len, batch_size, vocab_size]
+        # loss -> [batch_size, seq_len], prediction_scores -> [batch_size, seq_len, vocab_size]
         # nn.DataParallel does not allow size(0) tensors to be broadcasted.
         # So, have to initialize size(0) mems inside the model forward.
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
@@ -948,10 +948,10 @@ class MemTransformerLM(nn.Module):
             loss, prediction_scores = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
                                                 target=labels.contiguous().view(-1) if labels is not None else None,
                                                 output_loss=output_loss, output_prediction_scores=output_prediction_scores)
-            # loss -> [labels_len, batch_size]
-            # prediction_scores -> [labels_len, batch_size, vocab_size]
-            loss = loss.view(tgt_len, -1) if labels is not None else None
-            prediction_scores = prediction_scores.view(tgt_len, input_ids.size(1), -1) if prediction_scores is not None else None
+            # loss -> [batch_size, tgt_len]
+            # prediction_scores -> [batch_size, tgt_len, vocab_size]
+            loss = loss.view(-1, tgt_len) if labels is not None else None
+            prediction_scores = prediction_scores.view(input_ids.size(1), tgt_len, -1) if prediction_scores is not None else None
 
         return (loss, prediction_scores, mems, past_key_values)
 
