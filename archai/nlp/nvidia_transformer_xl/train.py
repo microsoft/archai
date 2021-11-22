@@ -391,20 +391,20 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
     start_time = time.time()
     with torch.no_grad():
         mems = None
-        for batches, (data, target, seq_len, warm) in enumerate(eval_iter):
+        for batches, (input_ids, labels, seq_len, warm) in enumerate(eval_iter):
             steps += 1
             if args.eval_max_steps > 0 and i >= args.eval_max_steps:
                 break
 
             # first with mem
-            loss, mems, _, _ = model(data, target, mems)
+            loss, mems, _, _ = model(input_ids, labels, mems)
             loss = loss.float().mean()
-            numel = data.numel()
+            numel = input_ids.numel()
 
             # now without mem
             loss_nomem = None
             if eval_nomem:
-                loss_nomem, _, _, _ = model(data, target, None)
+                loss_nomem, _, _, _ = model(input_ids, labels, None)
                 loss_nomem = loss_nomem.float().mean()
 
             total_len_nowarmup += numel
@@ -463,18 +463,18 @@ class EvalMetrics:
 
 
 
-def train_iteration(model, i, mems, data_chunks, target_chunks, scaler,
+def train_iteration(model, i, mems, input_ids_chunks, labels_chunks, scaler,
                     optimizer, device, delay_unscale, args):
     # trains a given chunk
     cpu = torch.device('cpu')
-    data_i = data_chunks[i].contiguous()
-    target_i = target_chunks[i].contiguous()
+    input_ids_i = input_ids_chunks[i].contiguous()
+    labels_i = labels_chunks[i].contiguous()
 
     if args.swap_mem and mems[i] is not None:
         mems[i] = mems[i].to(device, non_blocking=True)
 
     with torch.cuda.amp.autocast(args.fp16):
-        loss, mems[i], _, _ = model(data_i, target_i, mems[i])
+        loss, mems[i], _, _ = model(input_ids_i, labels_i, mems[i])
         loss = loss.float().mean().type_as(loss) / args.batch_chunk
 
     if args.swap_mem and mems[i] is not None:
@@ -497,7 +497,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     model.train()
 
     train_loss = 0
-    target_tokens = 0
+    labels_tokens = 0
     log_step = 0
     log_start_time = time.time()
 
@@ -508,28 +508,28 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
         train_iter = train_itr.get_fixlen_iter(start=last_iter)
 
     logging.info('Starting training...')
-    for batch, (data, target, seq_len, _) in enumerate(train_iter, start=last_batch+1):
+    for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
         log_step += 1
-        target_tokens += target.numel()
+        labels_tokens += labels.numel()
 
         for param in model.parameters():
             param.grad = None
 
         # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
-        data_chunks = torch.chunk(data, args.batch_chunk, 0)
-        target_chunks = torch.chunk(target, args.batch_chunk, 0)
+        input_ids_chunks = torch.chunk(input_ids, args.batch_chunk, 0)
+        labels_chunks = torch.chunk(labels, args.batch_chunk, 0)
 
         for i in range(args.batch_chunk):
             # if this is last chunk and distribued mode then use delay_unscale=True for amp
             if i < args.batch_chunk - 1 and isinstance(para_model, DistributedDataParallel):
                 with para_model.no_sync():
                     train_loss_chunk = train_iteration(
-                        para_model, i, mems, data_chunks, target_chunks, scaler,
+                        para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
                         optimizer, device, True, args
                     )
             else:
                 train_loss_chunk = train_iteration(
-                    para_model, i, mems, data_chunks, target_chunks, scaler,
+                    para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
                     optimizer, device, False, args
                 )
 
@@ -580,10 +580,10 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
             log_step = 0
 
             lr = optimizer.param_groups[0]['lr']
-            throughput = target_tokens / elapsed
+            throughput = labels_tokens / elapsed
             throughput = nv_distributed.all_reduce_item(throughput, op='sum')
             meters['train_throughput'].update(throughput)
-            target_tokens = 0
+            labels_tokens = 0
 
             log_str = '| epoch {:3d} step {:>8d} | batches {:>6d} / {:d} | lr {:.3e} ' \
                 '| ms/batch {:5.1f} | tok/s {:7.0f} | loss {:5.2f}'.format(
@@ -1181,18 +1181,18 @@ def main():
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
 
-    data, *_ = next(iter(valid_itr))
+    input_ids, *_ = next(iter(valid_itr))
     model.to('cpu')
-    data = data[:1,:].to('cpu') # make it batch size of one
-    pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
+    input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
+    pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
         lambda: MemTransformerLM.load_model(checkpoint_path, model=None, on_cpu=True))
 
     summary.update({
         'experiment_name': args.experiment_name,
         'run_date': str(datetime.now()),
-        'data.shape(0)': data.shape[0],
-        'data.shape(1)': data.shape[1],
+        'input_ids.shape(0)': input_ids.shape[0],
+        'input_ids.shape(1)': input_ids.shape[1],
         'dataset': args.dataset,
         'vocab_size': ntokens,
         'vocab_type': args.vocab,
