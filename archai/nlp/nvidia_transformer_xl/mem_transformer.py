@@ -907,11 +907,11 @@ class MemTransformerLM(nn.Module):
         return core_out, new_mems, pasts_key_values
 
     def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor], mems:Optional[torch.Tensor],
-                past_key_values:Optional[torch.Tensor]=None, return_nll=True, return_log_probs=False):
+                past_key_values:Optional[torch.Tensor]=None, output_loss=True, output_prediction_scores=False):
         # input_ids and labels are transposed within the code to avoid major changes
         # input_ids -> [seq_len, batch_size], labels -> [seq_len, batch_size]
         # Returns:
-        # loss -> [seq_len, batch_size], log_prob -> [seq_len, batch_size, vocab_size]
+        # loss -> [seq_len, batch_size], prediction_scores -> [seq_len, batch_size, vocab_size]
         # nn.DataParallel does not allow size(0) tensors to be broadcasted.
         # So, have to initialize size(0) mems inside the model forward.
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
@@ -926,12 +926,12 @@ class MemTransformerLM(nn.Module):
             mems = self.init_mems()
 
         if labels is None:
-            return_nll = False
+            output_loss = False
 
         if past_key_values is None:
             past_key_values = tuple([None] * self.n_layer)
 
-        hidden, new_mems, past_key_values = self._forward(input_ids, mems=mems, past_key_values=past_key_values)
+        hidden, mems, past_key_values = self._forward(input_ids, mems=mems, past_key_values=past_key_values)
 
         tgt_len = labels.size(0) if labels is not None else input_ids.size(0)
 
@@ -945,15 +945,15 @@ class MemTransformerLM(nn.Module):
         else:
             # As we are transposing the `labels`, we need it in a contiguous
             # piece of memory before applying a tensor visualization (view)
-            loss, log_prob = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
-                                       target=labels.contiguous().view(-1) if labels is not None else None,
-                                       return_nll=return_nll, return_log_probs=return_log_probs)
+            loss, prediction_scores = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
+                                                target=labels.contiguous().view(-1) if labels is not None else None,
+                                                output_loss=output_loss, output_prediction_scores=output_prediction_scores)
             # loss -> [labels_len, batch_size]
-            # log_prob -> [labels_len, batch_size, vocab_size]
+            # prediction_scores -> [labels_len, batch_size, vocab_size]
             loss = loss.view(tgt_len, -1) if labels is not None else None
-            log_prob = log_prob.view(tgt_len, input_ids.size(1), -1) if log_prob is not None else None
+            prediction_scores = prediction_scores.view(tgt_len, input_ids.size(1), -1) if prediction_scores is not None else None
 
-        return (loss, new_mems, log_prob, past_key_values)
+        return (loss, prediction_scores, mems, past_key_values)
 
 def init_weight(weight, weight_init_type:str, weight_init_range:float, weight_init_std:float):
     """Intialize given parameters using specified strategy"""
@@ -1070,5 +1070,5 @@ if __name__ == '__main__':
     # mems = None
     # for idx, (input_ids, labels, seqlen, _) in enumerate(diter):
     #     print('batch {}'.format(idx))
-    #     _, mems = model(input_ids, labels, mems)
+    #     _, _, mems = model(input_ids, labels, mems)
 
