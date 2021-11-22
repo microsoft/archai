@@ -516,8 +516,8 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
             param.grad = None
 
         # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
-        data_chunks = torch.chunk(data, args.batch_chunk, 1)
-        target_chunks = torch.chunk(target, args.batch_chunk, 1)
+        data_chunks = torch.chunk(data, args.batch_chunk, 0)
+        target_chunks = torch.chunk(target, args.batch_chunk, 0)
 
         for i in range(args.batch_chunk):
             # if this is last chunk and distribued mode then use delay_unscale=True for amp
@@ -1183,7 +1183,7 @@ def main():
 
     data, *_ = next(iter(valid_itr))
     model.to('cpu')
-    data = data[:,:1].to('cpu') # make it batch size of one
+    data = data[:1,:].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, data=data, target=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
         lambda: MemTransformerLM.load_model(checkpoint_path, model=None, on_cpu=True))

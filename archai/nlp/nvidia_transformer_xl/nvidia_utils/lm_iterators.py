@@ -24,14 +24,14 @@ class LMOrderedIterator(object):
         data = data[:n_step * bsz]
 
         # Evenly divide the data across the bsz batches.
-        self.data = data.view(bsz, -1).t().contiguous().pin_memory()
+        self.data = data.view(bsz, -1).contiguous().pin_memory()
 
         if mem_len and warmup:
             self.warmup_batches = (mem_len + bptt - 1) // bptt
             self.warmup_elems = self.warmup_batches * bptt
 
-            warmup_data = self.data.roll((self.warmup_elems, 1), (0, 1))[:self.warmup_elems]
-            self.data = torch.cat((warmup_data, self.data))
+            warmup_data = self.data.roll((self.warmup_elems, 1), (1, 0))[:, :self.warmup_elems]
+            self.data = torch.cat((warmup_data, self.data), dim=-1)
 
         # Partition data for DistributedDataParallel
         world_size = nv_utils.distributed.get_world_size()
@@ -39,30 +39,30 @@ class LMOrderedIterator(object):
         self.data = self.data.chunk(world_size, dim=1)[rank]
 
         # Number of mini-batches
-        self.n_batch = (self.data.size(0) + self.bptt - 1) // self.bptt
+        self.n_batch = (self.data.size(1) + self.bptt - 1) // self.bptt
 
         self.last_iter = None
 
     def roll(self, seed):
         rng = torch.Generator()
         rng.manual_seed(seed)
-        for i in range(self.data.size(1)):
-            row = self.data[:, i]
-            shift = torch.randint(0, self.data.size(0), (1,), generator=rng)
+        for i in range(self.data.size(0)):
+            row = self.data[i, :]
+            shift = torch.randint(0, self.data.size(1), (1,), generator=rng)
             row = torch.cat((row[shift:], row[:shift]))
-            self.data[:, i] = row
+            self.data[i, :] = row
 
     def get_batch(self, i, bptt=None):
         if bptt is None:
             bptt = self.bptt
 
-        seq_len = min(bptt, self.data.size(0) - 1 - i)
+        seq_len = min(bptt, self.data.size(1) - 1 - i)
 
         end_idx = i + seq_len
         beg_idx = max(0, i - self.ext_len)
 
-        data = self.data[beg_idx:end_idx].to(self.device, non_blocking=True)
-        target = self.data[i+1:i+1+seq_len].to(self.device, non_blocking=True)
+        data = self.data[:,beg_idx:end_idx].to(self.device, non_blocking=True)
+        target = self.data[:,i+1:i+1+seq_len].to(self.device, non_blocking=True)
 
         if self.mem_len and self.warmup:
             warm = i >= self.warmup_elems
@@ -74,7 +74,7 @@ class LMOrderedIterator(object):
     def get_fixlen_iter(self, start=0):
         if start != 0:
             start += self.bptt
-        for i in range(start, self.data.size(0) - 1, self.bptt):
+        for i in range(start, self.data.size(1) - 1, self.bptt):
             self.last_iter = i
             yield self.get_batch(i)
 
@@ -87,7 +87,7 @@ class LMOrderedIterator(object):
             data, target, seq_len = self.get_batch(i, bptt)
             i += seq_len
             yield data, target, seq_len
-            if i >= self.data.size(0) - 2:
+            if i >= self.data.size(1) - 2:
                 break
 
     def __iter__(self):
@@ -121,15 +121,15 @@ class LMShuffledIterator(object):
         # streams for each data in the batch
         streams = [None] * self.bsz
 
-        data = torch.LongTensor(self.bptt, self.bsz)
-        target = torch.LongTensor(self.bptt, self.bsz)
+        data = torch.LongTensor(self.bsz, self.bptt)
+        target = torch.LongTensor(self.bsz, self.bptt)
 
         n_retain = 0
 
         while True:
-            # data   : [n_retain+bptt x bsz]
-            # target : [bptt x bsz]
-            data[n_retain:].fill_(-1)
+            # data   : [bsz x n_retain+bptt]
+            # target : [bsz x bptt]
+            data[:, n_retain:].fill_(-1)
             target.fill_(-1)
 
             valid_batch = True
@@ -143,9 +143,9 @@ class LMShuffledIterator(object):
                         # number of new tokens to fill in
                         n_new = min(len(streams[i]) - 1, self.bptt - n_filled)
                         # first n_retain tokens are retained from last batch
-                        data[n_retain+n_filled:n_retain+n_filled+n_new, i] = \
+                        data[i, n_retain+n_filled:n_retain+n_filled+n_new] = \
                             streams[i][:n_new]
-                        target[n_filled:n_filled+n_new, i] = \
+                        target[i, n_filled:n_filled+n_new] = \
                             streams[i][1:n_new+1]
                         streams[i] = streams[i][n_new:]
                         n_filled += n_new
@@ -161,10 +161,10 @@ class LMShuffledIterator(object):
 
             yield data, target, self.bptt
 
-            n_retain = min(data.size(0), self.ext_len)
+            n_retain = min(data.size(1), self.ext_len)
             if n_retain > 0:
-                data[:n_retain] = data[-n_retain:]
-            data.resize_(n_retain + self.bptt, data.size(1))
+                data[:, :n_retain] = data[:, -n_retain:]
+            data.resize_(data.size(0), n_retain + self.bptt)
 
     def __iter__(self):
         # sent_stream is an iterator

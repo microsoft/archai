@@ -810,8 +810,10 @@ class MemTransformerLM(nn.Module):
         mlen = mems[0].size(0) if mems is not None else 0
         plen = past_key_values[0][0].size(0) if past_key_values[0] is not None else 0
         klen = mlen + qlen
+        # `plen` should be taken into account when creating the
+        # attention mask because `past_key_values` might be used
         if self.same_length:
-            all_ones = word_emb.new_ones(qlen, klen)
+            all_ones = word_emb.new_ones(qlen, klen+plen)
             mask_len = klen - self.mem_len - 1
             if mask_len > 0:
                 mask_shift_len = qlen - mask_len
@@ -821,7 +823,7 @@ class MemTransformerLM(nn.Module):
                              + torch.tril(all_ones, -mask_shift_len)).bool()
         else:
             dec_attn_mask = torch.triu(
-                word_emb.new_ones(qlen, klen), diagonal=1+mlen+plen).bool()
+                word_emb.new_ones(qlen, klen+plen), diagonal=1+mlen+plen).bool()
 
         hids = []
         pasts_key_values = ()
@@ -913,6 +915,12 @@ class MemTransformerLM(nn.Module):
         # So, have to initialize size(0) mems inside the model forward.
         # Moreover, have to return new_mems to allow nn.DataParallel to piece
         # them together.
+
+        # Transposes `data` and `target` to seq_len x batch_size
+        data = data.t()
+        if target is not None:
+            target = target.t()
+
         if mems is None:
             mems = self.init_mems()
 
@@ -934,8 +942,10 @@ class MemTransformerLM(nn.Module):
                                   pred_hid, self.sampler)
             loss = -F.log_softmax(logit, -1)[:, :, 0]
         else:
+            # As we are transposing the `target`, we need it in a contiguous
+            # piece of memory before applying a tensor visualization (view)
             loss, log_prob = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
-                                       target=target.view(-1) if target is not None else None,
+                                       target=target.contiguous().view(-1) if target is not None else None,
                                        return_nll=return_nll, return_log_probs=return_log_probs)
             # loss -> [target_len, batch_size]
             # log_prob -> [target_len, batch_size, vocab_size]
