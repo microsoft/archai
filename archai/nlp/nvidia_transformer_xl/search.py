@@ -34,7 +34,10 @@ model_config_defaults = {'d_head': None,
                          'cutoffs': [19997, 39997, 199997],
                          'tie_projs': [False, True, True, True],
                          'tie_weight': True,
-                         'dtype': None}
+                         'dtype': None,
+                         'primer_conv': False,
+                         'primer_sqrt': False,
+                         'use_cache': False}
 
 
 class Converter(object):
@@ -50,6 +53,7 @@ class Converter(object):
         gene = []
 
         sample_n_layer = config['n_layer']
+
         gene.append(config['d_model'])
         gene.append(sample_n_layer)
 
@@ -80,6 +84,7 @@ class Converter(object):
                   'n_head': None}
 
         current_index = 0
+
         config['d_model'] = gene[current_index]
         current_index += 1
 
@@ -98,6 +103,7 @@ class Converter(object):
         key_list = []
 
         current_index = 0
+
         key_list += [gene[current_index]]  # d_model
         current_index += 1
 
@@ -138,13 +144,13 @@ class Converter(object):
         gene_choice.append(self.d_model_choice)
         gene_choice.append(self.n_layer_choice)
 
-        for i in range(self.max_n_layer):
+        for _ in range(self.max_n_layer):
             if d_inner_min is not None:
                 gene_choice.append(list(range(d_inner_min, self.d_inner_choice[-1], 50)))
             else:
                 gene_choice.append(self.d_inner_choice)
 
-        for i in range(self.max_n_layer):
+        for _ in range(self.max_n_layer):
             gene_choice.append(self.n_head_choice)
 
         return gene_choice

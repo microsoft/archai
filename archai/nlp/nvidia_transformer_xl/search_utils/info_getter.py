@@ -8,9 +8,11 @@ import yaml
 from scipy.stats import spearmanr
 
 plt.rcParams.update({'font.size': 18})
+
 model_config_keys = ['n_token', 'n_layer', 'n_head', 'd_model', 'd_head', 'd_inner', 'dropout', 'dropatt',
                      'd_embed', 'div_val', 'pre_lnorm', 'tgt_len', 'ext_len', 'mem_len',
-                     'same_length', 'attn_type', 'clamp_len', 'sample_softmax']
+                     'same_length', 'attn_type', 'clamp_len', 'sample_softmax',
+                     'primer_conv', 'primer_sqrt', 'use_cache']
 
 
 def get_label(baseline_config, new_config):
@@ -26,7 +28,7 @@ def get_label(baseline_config, new_config):
     return '_'.join(label)
 
 
-def get_metrics(topk, sorted_ground_truth, sorted_target, val_ppl_list_gt, val_ppl_list_target, common_configs=None):
+def get_metrics(topk, sorted_ground_truth, sorted_target, val_ppl_list_gt, val_ppl_list_target):
     idx = int(topk/100.*len(sorted_ground_truth))
 
     sorted_ground_truth_binned = sorted_ground_truth[:idx].astype(np.int32)
@@ -35,13 +37,13 @@ def get_metrics(topk, sorted_ground_truth, sorted_target, val_ppl_list_gt, val_p
     correct = len(np.intersect1d(sorted_target_binned, sorted_ground_truth_binned))
     total = len(sorted_target_binned)
     common_ratio = correct*1./total
-    print('Correctly ranked top %d %% (%d) with %.2f accuracy' %
-          (topk, total, correct*1./total))
+
+    print('Correctly ranked top %d %% (%d) with %.2f accuracy' %(topk, total, correct*1./total))
 
     topk_val_ppl_list_gt = [val_ppl_list_gt[i] for i in range(len(val_ppl_list_gt)) if i in sorted_ground_truth_binned]
     topk_val_ppl_list_target = [val_ppl_list_target[i] for i in range(len(val_ppl_list_target)) if i in sorted_ground_truth_binned]
-
     spr_rank, _ = spearmanr(topk_val_ppl_list_gt, topk_val_ppl_list_target)
+
     print('Spearman Correlation on top %d %% (%d): %.3f' % (topk, len(topk_val_ppl_list_gt), spr_rank))
 
     return common_ratio, spr_rank
@@ -138,6 +140,7 @@ def get_info_from_json(json_file, step=[], type=None):
         for line in lines:
             str = re.search('DLLL \{(.+?)\}', line)
             str = '{'+str.group(1)+'}}'
+
             final_train_log = json.loads(str)
 
             if len(step) > 0:
@@ -157,14 +160,18 @@ def get_info_from_json(json_file, step=[], type=None):
             else:
                 try:
                     out_dict['train_elapsed'] = float(final_train_log['data']['train_elapsed'])*60
+
                     if key is None:
                         for k in final_train_log['data'].keys():
                             if 'perplexity' in k:
                                 out_dict[k] = final_train_log['data'][k]
+
                     elif key in final_train_log['data'].keys():
                         out_dict[key] = final_train_log['data'][key]
+
                     out_dict['amlt_job'] = amlt_job
                     break
+
                 except:
                     return None
 
@@ -176,10 +183,12 @@ def get_config_name(job):
         idx = re.search('(config_[0-9]+)', job).span()[0]
         job = job[idx:]
         config_name = job.split('/')[0]
+
         return config_name + '_' + job.split('/')[1]
 
     elif 'baseline' in job:
         dir_name = os.path.basename(os.path.dirname(job))
+        
         return re.search('(config_[0-9]+_[0-9]+)', dir_name).group(1)
 
     elif 'evo_search' in job or 'midevolution' in job:
