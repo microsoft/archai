@@ -563,7 +563,9 @@ class AdaptiveEmbedding(nn.Module):
                 embed = F.linear(embed, self.emb_projs[0])
         else:
             param = next(self.parameters())
-            inp_flat = inp.view(-1)
+            # Makes sure that `inp_flat` is spanned across a contiguous dimension
+            # due to the possiiblity of having different layer sizes 
+            inp_flat = inp.contiguous().view(-1)
             emb_flat = torch.zeros([inp_flat.size(0), self.d_proj],
                                    dtype=param.dtype, device=param.device)
             for i in range(len(self.cutoffs)):
@@ -601,7 +603,7 @@ class MemTransformerLM(nn.Module):
         self.n_token = n_token # number of tokens in vocab
 
         def _map_to_list(p):
-            return p if type(p) == list else [p] * n_layer
+            return p if type(p) != int else [p] * n_layer
 
         d_embed = d_model if d_embed is None else d_embed
         d_inner = _map_to_list(d_inner)
@@ -741,16 +743,11 @@ class MemTransformerLM(nn.Module):
         # default attention
         if self.attn_type == 0:
             self.pos_emb = PositionalEmbedding(self.d_model)
-            self.r_w_bias = []
-            self.r_r_bias = []
             for i, _ in enumerate(self.layers):
                 setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
                 setattr(self, f'r_r_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
         # learnable
         elif self.attn_type == 1:
-            self.r_emb = []
-            self.r_w_bias = []
-            self.r_bias = []
             for i, _ in enumerate(self.layers):
                 setattr(self, f'r_emb_{i}', nn.Parameter(torch.Tensor(self.max_klen, self.n_head[i], self.d_head[i]).zero_()))
                 setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
