@@ -741,16 +741,11 @@ class MemTransformerLM(nn.Module):
         # default attention
         if self.attn_type == 0:
             self.pos_emb = PositionalEmbedding(self.d_model)
-            self.r_w_bias = []
-            self.r_r_bias = []
             for i, _ in enumerate(self.layers):
                 setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
                 setattr(self, f'r_r_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
         # learnable
         elif self.attn_type == 1:
-            self.r_emb = []
-            self.r_w_bias = []
-            self.r_bias = []
             for i, _ in enumerate(self.layers):
                 setattr(self, f'r_emb_{i}', nn.Parameter(torch.Tensor(self.max_klen, self.n_head[i], self.d_head[i]).zero_()))
                 setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
