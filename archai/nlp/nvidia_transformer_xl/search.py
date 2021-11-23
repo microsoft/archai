@@ -1,25 +1,21 @@
-import random
-import os
-import re
-import pickle
 import copy
-import imageio
-from numpy.core.numeric import indices
-from numpy.lib.arraysetops import isin
-import yaml
+import os
+import pickle
+import random
+import re
 import time
 import types
-import numpy as np
+
+import imageio
 import matplotlib.pyplot as plt
-
+import numpy as np
 import torch
+import yaml
+from numpy.core.numeric import indices
 
-from archai.nlp.nvidia_transformer_xl.search_utils.utils import get_model, process_parameters, get_latency
-from archai.nlp.nvidia_transformer_xl.search_utils.generate_archs import gather_results
-from archai.nlp.nvidia_transformer_xl.search_utils.gather_results import get_metrics
-# from archai.nlp.nvidia_transformer_xl.train_evolution import train_during_evolution
 from archai.nlp.nvidia_transformer_xl.mem_transformer import forward_predict_memtransformer, predict
-
+from archai.nlp.nvidia_transformer_xl.search_utils.constraint_getter import get_latency, get_model, process_parameters
+from archai.nlp.nvidia_transformer_xl.search_utils.info_getter import get_metrics, get_results
 
 model_config_defaults = {'d_head': None, 'n_token': 267736, 'dropout': 0.1, 'dropatt': 0.0, \
                         'd_embed': None, 'div_val': 4, 'pre_lnorm': False, 'tgt_len': 192, 'ext_len': 0, 'mem_len': 192, \
@@ -954,12 +950,12 @@ def gather_amulet_results(population_size, exp_name, path_to_results, bundle_cou
                 return False
         return True 
 
-    results = gather_results(exp_name, path_to_results, filetypes='.json')
+    results = get_results(exp_name, path_to_results, filetypes='.json')
     while not found_all_jobs(keys, results):
         print(population_size)
         time.sleep(60)
-        results = gather_results(exp_name, path_to_results, filetypes='.json')
-    configs = gather_results(exp_name, path_to_results, filetypes='.yaml')
+        results = get_results(exp_name, path_to_results, filetypes='.json')
+    configs = get_results(exp_name, path_to_results, filetypes='.yaml')
 
     results_this_experiment = {k:results[k] for k in keys} 
     configs_from_jobs = {k:{'d_model':configs[k]['d_model'], 'n_layer':configs[k]['n_layer'], 'd_inner':configs[k]['d_inner'], 'n_head':configs[k]['n_head']} for k in keys}
@@ -1202,7 +1198,7 @@ def get_diff_with_pareto(gt_latencies, gt_val_ppls, is_gt_pareto, is_proxy_paret
 
 def get_gt_pareto(args, exp_name, path_to_dir, start_config, ppl_eps=0.1, latency_eps = 0.01, hybrid=False, use_convex_hull=False, 
                     min_acceptable_latency_diff=0, baseline_exp=None):
-    gt_results = gather_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+    gt_results = get_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
     print('found %d model configurations' % len(gt_results.keys()))
 
     print('Loading the latencies from log file')
@@ -1331,7 +1327,7 @@ def get_gt_pareto(args, exp_name, path_to_dir, start_config, ppl_eps=0.1, latenc
 
 def compare_w_baseline(args, exp_name, path_to_dir, start_config=None, ppl_eps=0.1, latency_eps = 0.01, hybrid=False, use_convex_hull=False, 
                        min_acceptable_latency_diff=0, baseline_exp=None, check_pareto=True):
-    gt_results = gather_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+    gt_results = get_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
     print('found %d model configurations' % len(gt_results.keys()))
 
     print('Loading the latencies from log file')
@@ -1598,7 +1594,7 @@ def get_final_pareto_front(args, eps=0.05, hybrid=False, use_convex_hull=False):
 def analyze_baseline(args, exp_name, path_to_dir):
     alg = Evolution(**args)
     
-    baseline_results = gather_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+    baseline_results = get_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
     with open(os.path.join(path_to_dir, exp_name, 'latency_summary_{}.yaml'.format(args['device_name'])), 'r') as f:
         latencies = yaml.load(f)
     with open(os.path.join(path_to_dir, exp_name, 'params.pkl'), 'rb') as f:
@@ -1812,7 +1808,7 @@ if __name__=='__main__':
         # ---------------- compare final val ppl with nparams pareto
         with open('amlt_logs/evolution_40000/params_summary.yaml') as f:
             n_all_params = yaml.load(f)
-        gt_results = gather_results('evolution_40000', 'amlt_logs/evolution_40000', filetypes=['.json'], verbose=False)
+        gt_results = get_results('evolution_40000', 'amlt_logs/evolution_40000', filetypes=['.json'], verbose=False)
 
         params_list = []
         val_ppl_list = []
@@ -1841,7 +1837,7 @@ if __name__=='__main__':
 
     '''
     #---------------- check whether all jobs have finished running
-    gt_results = gather_results(gt_exp_name, os.path.join(path_to_amlt_results, gt_exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+    gt_results = get_results(gt_exp_name, os.path.join(path_to_amlt_results, gt_exp_name), filetypes=['config.yaml', '.json'], verbose=False)
     
     counts = {i: 0 for i in range(58)}
     for k in gt_results.keys():
