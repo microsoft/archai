@@ -1016,6 +1016,362 @@ def weights_init(m, weight_init_type:str, weight_init_range:float, weight_init_s
         if hasattr(m, 'r_bias'):
             init_bias(m.r_bias)
 
+class MemTransformerLM_flex(nn.Module):
+    def __init__(self, n_token, n_layer, n_head, d_model, d_head, d_inner,
+                 dropout, dropatt, dtype, tie_weight=True, d_embed=None,
+                 div_val=1, tie_projs=[False], pre_lnorm=False,
+                 tgt_len=None, ext_len=None, mem_len=None,
+                 cutoffs=[], adaptive=False, adapt_inp=False,
+                 same_length=False, attn_type=0, clamp_len=-1,
+                 sample_softmax=-1):
+        super(MemTransformerLM_flex, self).__init__()
+        self.n_token = n_token
+
+        d_embed = d_model if d_embed is None else d_embed
+        self.d_embed = d_embed
+        self.d_model = d_model
+        self.n_heads = n_head
+        self.d_heads = [d_model//n_h for n_h in n_head] if d_head is None else d_head
+        # assert (np.multiply(self.d_heads, self.n_heads)==[self.d_model]*len(self.n_heads)).all(), "d_model must be divisible by sampled num_heads"
+
+        self.word_emb = AdaptiveEmbedding(n_token, d_embed, d_model, cutoffs, div_val=div_val)
+
+        self.drop = nn.Dropout(dropout)
+
+        self.tie_weight = tie_weight
+        self.tie_projs = tie_projs
+        self.div_val = div_val
+
+        self.n_layer = n_layer
+
+        self.tgt_len = tgt_len
+        self.mem_len = mem_len
+        self.ext_len = ext_len
+        self.max_klen = tgt_len + ext_len + mem_len
+
+        self.attn_type = attn_type
+
+        self.layers = nn.ModuleList()
+        # the default attention
+        if attn_type == 0:
+            for i in range(n_layer):
+                self.layers.append(
+                    RelPartialLearnableDecoderLayer(n_head[i], d_model, self.d_heads[i], d_inner[i], dropout, tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
+                                                    dropatt=dropatt, pre_lnorm=pre_lnorm))
+        # learnable embeddings
+        elif attn_type == 1:
+            for i in range(n_layer):
+                self.layers.append(
+                    RelLearnableDecoderLayer(n_head[i], d_model, self.d_heads[i], d_inner[i], dropout, tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
+                                            dropatt=dropatt, pre_lnorm=pre_lnorm))
+        # absolute embeddings
+        elif attn_type in [2, 3]:
+            for i in range(n_layer):
+                self.layers.append(DecoderLayer(n_head[i], d_model, self.d_heads[i], d_inner[i], dropout, dropatt=dropatt, pre_lnorm=pre_lnorm))
+
+        self.sample_softmax = sample_softmax
+        # use sampled softmax
+        if sample_softmax > 0:
+            self.out_layer = nn.Linear(d_model, n_token)
+            self.tie_weight = tie_weight
+            self.sampler = LogUniformSampler(n_token, sample_softmax)
+
+        # use adaptive softmax (including standard softmax)
+        else:
+            if tie_weight:
+                emb_layers = [i.weight for i in self.word_emb.emb_layers]
+            else:
+                emb_layers = None
+
+            emb_projs = self.word_emb.emb_projs
+            # emb_projs = nn.ParameterList([i.weight for i in self.word_emb.emb_projs])
+
+            self.crit = ProjectedAdaptiveLogSoftmax(n_token, d_embed, d_model,
+                                                    cutoffs, adaptive,
+                                                    div_val=div_val,
+                                                    tie_projs=tie_projs,
+                                                    out_projs=emb_projs,
+                                                    out_layers_weights=emb_layers)
+
+
+        self.same_length = same_length
+        self.clamp_len = clamp_len
+
+        self._create_params()
+
+    def backward_compatible(self):
+        self.sample_softmax = -1
+
+    def _create_params(self):
+        # default attention
+        if self.attn_type == 0:
+            self.pos_emb = PositionalEmbedding(self.d_model)
+            self.r_w_bias = []
+            self.r_r_bias = []
+            for i, layer in enumerate(self.layers):
+                setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_heads[i], self.d_heads[i]).zero_()))
+                setattr(self, f'r_r_bias_{i}', nn.Parameter(torch.Tensor(self.n_heads[i], self.d_heads[i]).zero_()))
+                # self.r_w_bias.append(nn.Parameter(torch.Tensor(self.n_heads[i], self.d_heads[i]).zero_()))
+                # self.r_r_bias.append(nn.Parameter(torch.Tensor(self.n_heads[i], self.d_heads[i]).zero_()))
+
+        # learnable
+        elif self.attn_type == 1:
+            self.r_emb = []
+            self.r_w_bias = []
+            self.r_bias = []
+            for i, layer in enumerate(self.layers):
+                setattr(self, f'r_emb_{i}', nn.Parameter(torch.Tensor(self.max_klen, self.n_heads[i], self.d_heads[i]).zero_()))
+                setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_heads[i], self.d_heads[i]).zero_()))
+                setattr(self, f'r_bias_{i}', nn.Parameter(torch.Tensor(self.max_klen, self.n_heads[i]).zero_()))
+                # self.r_emb.append(nn.Parameter(torch.Tensor(self.max_klen, self.n_heads[i], self.d_heads[i]).zero_()))
+                # self.r_w_bias.append(nn.Parameter(torch.Tensor(self.n_heads[i], self.d_heads[i]).zero_()))
+                # self.r_bias.append(nn.Parameter(torch.Tensor(self.max_klen, self.n_heads[i]).zero_()))
+        # absolute standard
+        elif self.attn_type == 2:
+            self.pos_emb = PositionalEmbedding(self.d_model)
+        # absolute deeper SA
+        elif self.attn_type == 3:
+            self.r_emb = nn.Parameter(torch.Tensor(self.n_layer, self.max_klen, self.d_model).zero_())
+
+    def reset_length(self, tgt_len, ext_len, mem_len):
+        if tgt_len < 1:
+            raise RuntimeError(f'tgt_len should be >= 1, but got {tgt_len}')
+        if ext_len < 0:
+            raise RuntimeError(f'ext_len should be >= 0, but got {ext_len}')
+        if mem_len < 0:
+            raise RuntimeError(f'mem_len should be >= 0, but got {mem_len}')
+        self.tgt_len = tgt_len
+        self.mem_len = mem_len
+        self.ext_len = ext_len
+
+    def init_mems(self):
+        if self.mem_len > 0:
+            param = next(self.parameters())
+            mems = torch.empty(self.n_layer, 0, dtype=param.dtype,
+                               device=param.device)
+            return mems
+        else:
+            return None
+
+    def _update_mems(self, hids, mems, qlen, mlen):
+        # does not deal with None
+        if mems is None:
+            return None
+
+        # mems is not None
+        assert len(hids) == len(mems), 'len(hids) != len(mems)'
+
+        # There are `mlen + qlen` steps that can be cached into mems
+        # For the next step, the last `ext_len` of the `qlen` tokens
+        # will be used as the extended context. Hence, we only cache
+        # the tokens from `mlen + qlen - self.ext_len - self.mem_len`
+        # to `mlen + qlen - self.ext_len`.
+        with torch.no_grad():
+            stacked = torch.stack(hids)
+            if (
+                self.mem_len == self.tgt_len
+                and self.ext_len == 0
+                and stacked.size(1) == self.mem_len
+            ):
+                new_mems = stacked.detach()
+            else:
+                end_idx = mlen + max(0, qlen - self.ext_len)
+                beg_idx = max(0, end_idx - self.mem_len)
+                if mems.numel():
+                    cat = torch.cat([mems, stacked], dim=1)
+                else:
+                    cat = stacked
+                new_mems = cat[:, beg_idx:end_idx].detach()
+
+        return new_mems
+
+    def _forward(self, dec_inp, mems=None):
+        qlen, bsz = dec_inp.size()
+
+        word_emb = self.word_emb(dec_inp)
+
+        mlen = mems[0].size(0) if mems is not None else 0
+        klen = mlen + qlen
+        if self.same_length:
+            all_ones = word_emb.new_ones(qlen, klen)
+            mask_len = klen - self.mem_len - 1
+            if mask_len > 0:
+                mask_shift_len = qlen - mask_len
+            else:
+                mask_shift_len = qlen
+            dec_attn_mask = (torch.triu(all_ones, 1+mlen) + torch.tril(all_ones, -mask_shift_len)).bool()
+        else:
+            dec_attn_mask = torch.triu(word_emb.new_ones(qlen, klen), diagonal=1+mlen).bool()
+
+        hids = []
+        # default
+        if self.attn_type == 0:
+            pos_seq = torch.arange(klen-1, -1, -1.0, device=word_emb.device, dtype=word_emb.dtype)
+            if self.clamp_len > 0:
+                pos_seq.clamp_(max=self.clamp_len)
+            pos_emb = self.pos_emb(pos_seq)
+
+            core_out = self.drop(word_emb)
+            pos_emb = self.drop(pos_emb)
+
+            for i, layer in enumerate(self.layers):
+                hids.append(core_out.detach())
+                mems_i = None if mems is None else mems[i]
+
+                # core_out = layer(core_out, pos_emb, self.r_w_bias[i], self.r_r_bias[i], dec_attn_mask=dec_attn_mask, mems=mems_i)
+                core_out, _ = layer(core_out, pos_emb, getattr(self, f'r_w_bias_{i}'), getattr(self, f'r_r_bias_{i}'), dec_attn_mask=dec_attn_mask, mems=mems_i)
+        # learnable
+        elif self.attn_type == 1:
+            core_out = self.drop(word_emb)
+            for i, layer in enumerate(self.layers):
+                hids.append(core_out.detach())
+                if self.clamp_len > 0:
+                    r_emb = getattr(self, f'r_emb_{i}')[-self.clamp_len:]
+                    r_bias = getattr(self, f'r_bias_{i}')[-self.clamp_len:]
+                    # r_emb = self.r_emb[i][-self.clamp_len:]
+                    # r_bias = self.r_bias[i][-self.clamp_len:]
+                else:
+                    r_emb, r_bias = getattr(self, f'r_emb_{i}'), getattr(self, f'r_bias_{i}')
+                    # r_emb, r_bias = self.r_emb[i], self.r_bias[i]
+
+                mems_i = None if mems is None else mems[i]
+                # core_out = layer(core_out, r_emb, self.r_w_bias[i], r_bias, dec_attn_mask=dec_attn_mask, mems=mems_i)
+                core_out = layer(core_out, r_emb, getattr(self, f'r_w_bias_{i}'), r_bias, dec_attn_mask=dec_attn_mask, mems=mems_i)
+        # absolute
+        elif self.attn_type == 2:
+            pos_seq = torch.arange(klen - 1, -1, -1.0, device=word_emb.device,
+                                   dtype=word_emb.dtype)
+            if self.clamp_len > 0:
+                pos_seq.clamp_(max=self.clamp_len)
+            pos_emb = self.pos_emb(pos_seq)
+
+            core_out = self.drop(word_emb + pos_emb[-qlen:])
+
+            for i, layer in enumerate(self.layers):
+                hids.append(core_out.detach())
+                mems_i = None if mems is None else mems[i]
+                if mems_i is not None and len(mems_i) and i == 0:
+                    mems_i += pos_emb[:mlen]
+                core_out = layer(core_out, dec_attn_mask=dec_attn_mask,
+                                 mems=mems_i)
+        elif self.attn_type == 3:
+            core_out = self.drop(word_emb)
+
+            for i, layer in enumerate(self.layers):
+                hids.append(core_out.detach())
+                mems_i = None if mems is None else mems[i]
+                if mems_i is not None and len(mems_i) and mlen > 0:
+                    cur_emb = self.r_emb[i][:-qlen]
+                    cur_size = cur_emb.size(0)
+                    if cur_size < mlen:
+                        cur_emb_pad = cur_emb[0:1].expand(mlen-cur_size, -1, -1)
+                        cur_emb = torch.cat([cur_emb_pad, cur_emb], 0)
+                    else:
+                        cur_emb = cur_emb[-mlen:]
+                    mems_i += cur_emb.view(mlen, 1, -1)
+                core_out += self.r_emb[i][-qlen:].view(qlen, 1, -1)
+
+                core_out = layer(core_out, dec_attn_mask=dec_attn_mask,
+                                 mems=mems_i)
+
+        core_out = self.drop(core_out)
+
+        new_mems = self._update_mems(hids, mems, qlen, mlen)
+
+        return core_out, new_mems
+
+    def forward(self, data, target, mems):
+        # nn.DataParallel does not allow size(0) tensors to be broadcasted.
+        # So, have to initialize size(0) mems inside the model forward.
+        # Moreover, have to return new_mems to allow nn.DataParallel to piece
+        # them together.
+        if mems is None:
+            mems = self.init_mems()
+
+        tgt_len = target.size(0)
+        hidden, new_mems = self._forward(data, mems=mems)
+
+        pred_hid = hidden[-tgt_len:]
+        if self.sample_softmax > 0 and self.training:
+            assert self.tie_weight
+            logit = sample_logits(self.word_emb, self.out_layer.bias, target,
+                                  pred_hid, self.sampler)
+            loss = -F.log_softmax(logit, -1)[:, :, 0]
+        else:
+            loss = self.crit(pred_hid.view(-1, pred_hid.size(-1)), target.view(-1))
+            loss = loss.view(tgt_len, -1)
+        
+        return (loss, new_mems)
+
+
+def forward_predict_memtransformer(self, data):
+    # nn.DataParallel does not allow size(0) tensors to be broadcasted.
+    # So, have to initialize size(0) mems inside the model forward.
+    # Moreover, have to return new_mems to allow nn.DataParallel to piece
+    # them together.
+    tgt_len = data.size(0)
+    hidden, _ = self._forward(data, mems=None)
+
+    pred_hid = hidden[-tgt_len:]
+    out = self.crit(pred_hid.view(-1, pred_hid.size(-1)))
+    out = out.view(tgt_len, -1)
+    
+    return out
+
+
+def predict(self, hidden):
+    '''
+        hidden :: [len*bsz x d_proj]
+    '''
+    self.flops = 0
+
+    if self.n_clusters == 0:
+        logit = self._compute_logit(hidden, self.out_layers_weights[0], self.out_layers_biases[0], self.get_out_proj(0))
+        output = torch.argmax(logit, dim=1)
+    else:
+        # construct weights and biases
+        weights, biases, projs = [], [], []
+        for i in range(len(self.cutoffs)):
+            if self.div_val == 1:
+                l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i + 1]
+                weight_i = self.out_layers_weights[0][l_idx:r_idx]
+                bias_i = self.out_layers_biases[0][l_idx:r_idx]
+            else:
+                weight_i = self.out_layers_weights[i]
+                bias_i = self.out_layers_biases[i]
+            projs.append(self.get_out_proj(i))
+
+            if i == 0:
+                weight_i = torch.cat([weight_i, self.cluster_weight], dim=0)
+                bias_i = torch.cat([bias_i, self.cluster_bias], dim=0)
+
+            weights.append(weight_i)
+            biases.append(bias_i)
+
+        head_weight, head_bias, head_proj = weights[0], biases[0], projs[0]
+        head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj)
+        output = torch.argmax(head_logit, dim=1)
+        not_in_shortlist = (output >= self.shortlist_size)
+        all_in_shortlist = not (not_in_shortlist.any()) 
+        
+        # log_prob = self._get_full_log_prob(hidden, head_logit, weights[1:], biases[1:], projs[1:])
+        
+        if all_in_shortlist:
+            # pass
+            return output
+        elif not_in_shortlist.all():
+            print('option 2')
+            log_prob = self._get_full_log_prob(hidden, head_logit, weights[1:], biases[1:], projs[1:])
+            return torch.argmax(log_prob, dim=1)   
+        else:
+            print('option 3')
+            not_in_shortlist_indices = torch.nonzero(not_in_shortlist).reshape(-1)
+            log_prob = self._get_full_log_prob(torch.index_select(hidden, dim=0, index=not_in_shortlist_indices), 
+                                                torch.index_select(head_logit, dim=0, index=not_in_shortlist_indices),
+                                                weights[1:], biases[1:], projs[1:])
+            output[not_in_shortlist_indices] = torch.argmax(log_prob, dim=1)
+            return output
+
 
 if __name__ == '__main__':
     import argparse
