@@ -1,15 +1,13 @@
 import os
-import types
 
 import numpy as np
 import torch
 import torch.utils.benchmark as benchmark
 
 from archai.nlp.nvidia_transformer_xl.mem_transformer import (
-    AdaptiveEmbedding, DecoderLayer, MemTransformerLM, MemTransformerLM_flex,
+    AdaptiveEmbedding, DecoderLayer, MemTransformerLM,
     MultiHeadAttn, PositionwiseFF, ProjectedAdaptiveLogSoftmax,
-    RelLearnableMultiHeadAttn, RelPartialLearnableMultiHeadAttn,
-    forward_predict_memtransformer, predict)
+    RelLearnableMultiHeadAttn, RelPartialLearnableMultiHeadAttn)
 
 
 def get_list_of_layers(module, layer_type=None):
@@ -83,11 +81,7 @@ def process_parameters(model, verbose=True):
 
 
 def get_model_and_params(model_config, verbose=False):
-    if isinstance(model_config['n_head'], list) and len(model_config['n_head']) > 1:
-        model = MemTransformerLM_flex(**model_config)
-    else:
-        model = MemTransformerLM(**model_config)
-
+    model = MemTransformerLM(**model_config)
     model = model.to(device='cpu')
 
     curr_n_all_param, params_adaptive_embedding, params_adaptive_softmax, params_attention, params_ff = process_parameters(model, verbose=verbose)
@@ -96,14 +90,9 @@ def get_model_and_params(model_config, verbose=False):
 
 
 def get_model(model_config, train=False):
-    if isinstance(model_config['n_head'], list):
-        model = MemTransformerLM_flex(**model_config)
-    else:
-        model = MemTransformerLM(**model_config)
+    model = MemTransformerLM(**model_config)
 
     if not train:
-        model.forward = types.MethodType(forward_predict_memtransformer, model)
-        model.crit.forward = types.MethodType(predict, model.crit)
         model = model.to(device='cpu')
         model.eval()
 
@@ -116,9 +105,9 @@ def get_latency(model, model_config, n_threads=1, repeat=10):
 
     model = model.to(device='cpu')
 
-    t0 = benchmark.Timer(stmt='model(data)',
+    t0 = benchmark.Timer(stmt='model(input_ids, labels, mems)',
                          setup='',
-                         globals={'data': torch.LongTensor(model_config['tgt_len']).random_(0, model_config['n_token']).unsqueeze(-1), 'model': model},
+                         globals={'input_ids': torch.LongTensor(model_config['tgt_len']).random_(0, model_config['n_token']).unsqueeze(0), 'labels': None, 'mems': None, 'model': model},
                          num_threads=n_threads,
                          label='Multithreaded model execution')
 
