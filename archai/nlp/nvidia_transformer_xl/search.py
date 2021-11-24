@@ -13,7 +13,7 @@ import torch
 import yaml
 from numpy.core.numeric import indices
 
-from archai.nlp.nvidia_transformer_xl.mem_transformer import forward_predict_memtransformer, predict
+from archai.common import utils
 from archai.nlp.nvidia_transformer_xl.search_utils.constraint_getter import get_latency, get_model, process_parameters, get_yaml_values
 from archai.nlp.nvidia_transformer_xl.search_utils.info_getter import get_metrics, get_results
 
@@ -408,8 +408,8 @@ class Evolution(object):
 
             if do_train:
                 if train_local:
-                    path_to_results = './amlt_logs'
-                    os.makedirs(path_to_results, exist_ok=True)
+                    path_to_results = utils.full_path('./amlt_logs', create=True)
+                    experiment_name = 'nv_xformer_xl'
 
                     t0 = time.time()
 
@@ -418,25 +418,23 @@ class Evolution(object):
                     else:
                         command = 'python -m torch.distributed.launch --nproc_per_node="%s" ' % n_gpus
 
-                    command += 'archai/nlp/nvidia_transformer_xl/train_evolution.py --config %s --config_file wt103_base.yaml --n_layer %s --n_head %s --d_model %s --d_inner %s --d_embed %s --div_val %s --max_step %d --scheduler constant --summary_path %s' \
-                                % (gpu_config, model_config['n_layer'], get_yaml_values(model_config['n_head']), model_config['d_model'],
+                    command += 'archai/nlp/nvidia_transformer_xl/train.py --work_dir %s --experiment_name %s --config %s --config_file wt103_base.yaml --n_layer %s --n_head %s --d_model %s --d_inner %s --d_embed %s --div_val %s --max_step %d --scheduler constant --summary_path %s' \
+                                % (path_to_results, experiment_name, gpu_config, model_config['n_layer'], get_yaml_values(model_config['n_head']), model_config['d_model'],
                                 get_yaml_values(model_config['d_inner']), model_config['d_model'], model_config_defaults['div_val'], max_step, path_to_results)
                     os.system(command)
 
-                    log_file = os.path.join(path_to_results, 'train_log.pkl')
+                    log_file = os.path.join(os.path.join(path_to_results, experiment_name), 'summary.yaml')
                     while not os.path.exists(log_file):
                         pass
-                    with open(log_file, 'rb') as f:
-                        summary = pickle.load(f)
+                    with open(log_file, 'r') as f:
+                        summary = yaml.load(f, Loader=yaml.FullLoader)
 
                     t1 = time.time()
                     avg_time.append(t1-t0)
 
-                    key = 'valid_perplexity' if use_valid else 'test_perplexity'
+                    key = 'valid_ppl' if use_valid else 'test_ppl'
                     params.append(-summary[key])
 
-                    model.forward = types.MethodType(forward_predict_memtransformer, model)
-                    model.crit.forward = types.MethodType(predict, model.crit)
                     model = model.to(device='cpu')
                     model.eval()
 
@@ -1734,8 +1732,8 @@ if __name__ == '__main__':
             'do_train': False,
             'start_train': 40,
             'train_local': True,
-            'n_gpus': 4,
-            'gpu_config': 'dgx1_4gpu_fp32',
+            'n_gpus': 1,
+            'gpu_config': 'dgx1_1gpu_fp32',
             'config_file': 'wt103_base.yaml',
             'max_step': 500,
             'experiment_name': 'evolution',
@@ -1766,7 +1764,8 @@ if __name__ == '__main__':
     hybrid = False
 
     if args['phase'] == 'run_search':
-        with open(os.path.join(args['results_path'], 'search_config.yaml'), 'w') as f:
+        results_dir = utils.full_path(args['results_path'], create=True)
+        with open(os.path.join(results_dir, 'search_config.yaml'), 'w') as f:
             yaml.dump(args, f)
 
         test_evo_search(args, brute_force=False)
