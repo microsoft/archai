@@ -748,11 +748,15 @@ class MemTransformerLM(nn.Module):
         # default attention
         if self.attn_type == 0:
             self.pos_emb = PositionalEmbedding(self.d_model)
+            # Sets learnable attributes per layer due to possible different sizes of `n_head` and `d_head`
+            # yet the added extra parameters have a negligible training cost (+0.47%)
             for i, _ in enumerate(self.layers):
                 setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
                 setattr(self, f'r_r_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
         # learnable
         elif self.attn_type == 1:
+            # Sets learnable attributes per layer due to possible different sizes of `n_head` and `d_head`
+            # yet the added extra parameters have a negligible training cost (+0.69%)
             for i, _ in enumerate(self.layers):
                 setattr(self, f'r_emb_{i}', nn.Parameter(torch.Tensor(self.max_klen, self.n_head[i], self.d_head[i]).zero_()))
                 setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
@@ -762,8 +766,7 @@ class MemTransformerLM(nn.Module):
             self.pos_emb = PositionalEmbedding(self.d_model)
         # absolute deeper SA
         elif self.attn_type == 3:
-            self.r_emb = nn.Parameter(torch.Tensor(
-                    self.n_layer, self.max_klen, self.d_model).zero_())
+            self.r_emb = nn.Parameter(torch.Tensor(self.n_layer, self.max_klen, self.d_model).zero_())
 
     def reset_length(self, tgt_len, ext_len, mem_len):
         if tgt_len < 1:
