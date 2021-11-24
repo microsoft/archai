@@ -1709,12 +1709,12 @@ if __name__ == '__main__':
 
     # ---- Bigger search-space config
     args = {'default_path': './evo_search',
-            'population_size': 10,
-            'parent_size': 2,
-            'mutation_size': 4,
+            'population_size': 100,
+            'parent_size': 20,
+            'mutation_size': 40,
             'mutation_prob': 0.3,
-            'crossover_size': 4,
-            'n_iter': 3,
+            'crossover_size': 40,
+            'n_iter': 10,
             'n_layer_choice': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'd_model_choice': [128, 256, 512, 650, 800],
             'd_inner_choice': list(range(512, 2049, 50))+list(range(2048, 3072, 200)),
