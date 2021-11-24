@@ -601,7 +601,7 @@ class MemTransformerLM(nn.Module):
         self.n_token = n_token # number of tokens in vocab
 
         def _map_to_list(p):
-            return p if type(p) == list else [p] * n_layer
+            return p if type(p) != int else [p] * n_layer
 
         d_embed = d_model if d_embed is None else d_embed
         d_inner = _map_to_list(d_inner)
