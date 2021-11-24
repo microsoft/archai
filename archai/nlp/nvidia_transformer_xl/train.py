@@ -139,15 +139,15 @@ def parse_args():
     model = parser.add_argument_group('model setup - defaults are for base model')
     model.add_argument('--n_layer', type=int, default=16,
                        help='Number of total layers')
-    model.add_argument('--n_head', type=int, default=8,
+    model.add_argument('--n_head', nargs='+', type=int, default=8,
                        help='Number of heads')
-    model.add_argument('--d_head', type=int, default=64,
+    model.add_argument('--d_head', nargs='+', type=int, default=64,
                        help='Head dimension')
     model.add_argument('--d_embed', type=int, default=-1, # will be set from d_model
                        help='Embedding dimension')
     model.add_argument('--d_model', type=int, default=512,
                        help='Model dimension')
-    model.add_argument('--d_inner', type=int, default=2048,
+    model.add_argument('--d_inner', nargs='+', type=int, default=2048,
                        help='Inner dimension in feedforward layer')
     model.add_argument('--dropout', type=float, default=0.1,
                        help='Global dropout rate')
@@ -323,7 +323,7 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
         'model_config': model_config,
         'model_state': model.state_dict(),
         'optimizer_state': optimizer.state_dict(),
-        'scheduler_state': scheduler.state_dict(),
+        'scheduler_state': scheduler.state_dict() if scheduler else None,
         'vocab': vocab,
         'amp_state': amp_state,
         'epoch': epoch,
