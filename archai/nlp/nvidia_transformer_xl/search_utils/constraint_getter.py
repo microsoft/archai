@@ -160,7 +160,7 @@ def get_yaml_values(value):
         value_string = ''
 
         for v in value:
-            value_string += (str(v) + ',')
+            value_string += (str(v) + ' ')
 
         return value_string[:-1]
 
