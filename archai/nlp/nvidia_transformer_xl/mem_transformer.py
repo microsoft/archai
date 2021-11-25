@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Sized
 from typing import Optional, Tuple
 import functools
 import os
@@ -563,7 +564,9 @@ class AdaptiveEmbedding(nn.Module):
                 embed = F.linear(embed, self.emb_projs[0])
         else:
             param = next(self.parameters())
-            inp_flat = inp.view(-1)
+            # Makes sure that `inp_flat` is spanned across a contiguous dimension
+            # due to the possiiblity of having different layer sizes 
+            inp_flat = inp.contiguous().view(-1)
             emb_flat = torch.zeros([inp_flat.size(0), self.d_proj],
                                    dtype=param.dtype, device=param.device)
             for i in range(len(self.cutoffs)):
@@ -600,7 +603,20 @@ class MemTransformerLM(nn.Module):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
+        def _map_to_list(p):
+            if isinstance(p, Sized):
+                if len(p) == 1:
+                    return p * n_layer
+                return p
+            return [p] * n_layer
+
         d_embed = d_model if d_embed is None else d_embed
+        d_inner = _map_to_list(d_inner)
+        n_head = _map_to_list(n_head)
+        d_head = [d_model // n_h for n_h in n_head] if d_head is None else _map_to_list(d_head)
+
+        assert len(d_inner) == n_layer and len(n_head) == n_layer and len(d_head) == n_layer
+
         self.d_embed = d_embed
         self.d_model = d_model
         self.n_head = n_head
@@ -631,7 +647,7 @@ class MemTransformerLM(nn.Module):
             for i in range(n_layer):
                 self.layers.append(
                     RelPartialLearnableDecoderLayer(
-                        n_head, d_model, d_head, d_inner, dropout,
+                        n_head[i], d_model, d_head[i], d_inner[i], dropout,
                         tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
                         dropatt=dropatt, pre_lnorm=pre_lnorm, primer_conv=primer_conv,
                         primer_sqrt=primer_sqrt, use_cache=use_cache)
@@ -641,7 +657,7 @@ class MemTransformerLM(nn.Module):
             for i in range(n_layer):
                 self.layers.append(
                     RelLearnableDecoderLayer(
-                        n_head, d_model, d_head, d_inner, dropout,
+                        n_head[i], d_model, d_head[i], d_inner[i], dropout,
                         tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
                         dropatt=dropatt, pre_lnorm=pre_lnorm, primer_conv=primer_conv,
                         primer_sqrt=primer_sqrt, use_cache=use_cache)
@@ -651,7 +667,7 @@ class MemTransformerLM(nn.Module):
             for i in range(n_layer):
                 self.layers.append(
                     DecoderLayer(
-                        n_head, d_model, d_head, d_inner, dropout,
+                        n_head[i], d_model, d_head[i], d_inner[i], dropout,
                         dropatt=dropatt, pre_lnorm=pre_lnorm, use_cache=use_cache)
                 )
 
@@ -732,23 +748,25 @@ class MemTransformerLM(nn.Module):
         # default attention
         if self.attn_type == 0:
             self.pos_emb = PositionalEmbedding(self.d_model)
-            self.r_w_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
-            self.r_r_bias = nn.Parameter(torch.Tensor(self.n_head, self.d_head).zero_())
+            # Sets learnable attributes per layer due to possible different sizes of `n_head` and `d_head`
+            # yet the added extra parameters have a negligible training cost (+0.47%)
+            for i, _ in enumerate(self.layers):
+                setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
+                setattr(self, f'r_r_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
         # learnable
         elif self.attn_type == 1:
-            self.r_emb = nn.Parameter(torch.Tensor(
-                    self.n_layer, self.max_klen, self.n_head, self.d_head).zero_())
-            self.r_w_bias = nn.Parameter(torch.Tensor(
-                    self.n_layer, self.n_head, self.d_head).zero_())
-            self.r_bias = nn.Parameter(torch.Tensor(
-                    self.n_layer, self.max_klen, self.n_head).zero_())
+            # Sets learnable attributes per layer due to possible different sizes of `n_head` and `d_head`
+            # yet the added extra parameters have a negligible training cost (+0.69%)
+            for i, _ in enumerate(self.layers):
+                setattr(self, f'r_emb_{i}', nn.Parameter(torch.Tensor(self.max_klen, self.n_head[i], self.d_head[i]).zero_()))
+                setattr(self, f'r_w_bias_{i}', nn.Parameter(torch.Tensor(self.n_head[i], self.d_head[i]).zero_()))
+                setattr(self, f'r_bias_{i}', nn.Parameter(torch.Tensor(self.max_klen, self.n_head[i]).zero_()))
         # absolute standard
         elif self.attn_type == 2:
             self.pos_emb = PositionalEmbedding(self.d_model)
         # absolute deeper SA
         elif self.attn_type == 3:
-            self.r_emb = nn.Parameter(torch.Tensor(
-                    self.n_layer, self.max_klen, self.d_model).zero_())
+            self.r_emb = nn.Parameter(torch.Tensor(self.n_layer, self.max_klen, self.d_model).zero_())
 
     def reset_length(self, tgt_len, ext_len, mem_len):
         if tgt_len < 1:
@@ -841,8 +859,8 @@ class MemTransformerLM(nn.Module):
             for i, (layer, past_key_values_i) in enumerate(zip(self.layers, past_key_values)):
                 hids.append(core_out.detach())
                 mems_i = None if mems is None else mems[i]
-                core_out, past_key_values_i = layer(core_out, pos_emb, self.r_w_bias,
-                                                    self.r_r_bias, dec_attn_mask=dec_attn_mask,
+                core_out, past_key_values_i = layer(core_out, pos_emb, getattr(self, f'r_w_bias_{i}'),
+                                                    getattr(self, f'r_r_bias_{i}'), dec_attn_mask=dec_attn_mask,
                                                     mems=mems_i, past_key_values=past_key_values_i)
                 pasts_key_values = pasts_key_values + (past_key_values_i, )
         # learnable
@@ -851,13 +869,13 @@ class MemTransformerLM(nn.Module):
             for i, (layer, past_key_values_i) in enumerate(zip(self.layers, past_key_values)):
                 hids.append(core_out.detach())
                 if self.clamp_len > 0:
-                    r_emb = self.r_emb[i][-self.clamp_len:]
-                    r_bias = self.r_bias[i][-self.clamp_len:]
+                    r_emb = getattr(self, f'r_emb_{i}')[-self.clamp_len:]
+                    r_bias = getattr(self, f'r_bias_{i}')[-self.clamp_len:]
                 else:
-                    r_emb, r_bias = self.r_emb[i], self.r_bias[i]
+                    r_emb, r_bias = getattr(self, f'r_emb_{i}'), getattr(self, f'r_bias_{i}')
 
                 mems_i = None if mems is None else mems[i]
-                core_out, past_key_values_i = layer(core_out, r_emb, self.r_w_bias[i],
+                core_out, past_key_values_i = layer(core_out, r_emb, getattr(self, f'r_w_bias_{i}'),
                                                     r_bias, dec_attn_mask=dec_attn_mask, mems=mems_i,
                                                     past_key_values=past_key_values_i)
                 pasts_key_values = pasts_key_values + (past_key_values_i, )
@@ -1007,12 +1025,13 @@ def weights_init(m, weight_init_type:str, weight_init_range:float, weight_init_s
         if hasattr(m, 'bias') and m.bias is not None:
             init_bias(m.bias)
     elif classname.find('TransformerLM') != -1:
-        if hasattr(m, 'r_emb'):
-            init_weight(m.r_emb, **weight_init_params)
-        if hasattr(m, 'r_w_bias'):
-            init_weight(m.r_w_bias, **weight_init_params)
-        if hasattr(m, 'r_r_bias'):
-            init_weight(m.r_r_bias, **weight_init_params)
+        for i in range(m.n_layer):
+            if hasattr(m, f'r_emb_{i}'):
+                init_weight(getattr(m, f'r_emb_{i}'), **weight_init_params)
+            if hasattr(m, f'r_w_bias_{i}'):
+                init_weight(getattr(m, f'r_w_bias_{i}'), **weight_init_params)
+            if hasattr(m, f'r_r_bias_{i}'):
+                init_weight(getattr(m, f'r_r_bias_{i}'), **weight_init_params)
         if hasattr(m, 'r_bias'):
             init_bias(m.r_bias)
 
