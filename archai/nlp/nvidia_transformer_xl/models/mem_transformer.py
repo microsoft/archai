@@ -26,6 +26,7 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import Lo
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 from archai.nlp.nvidia_transformer_xl.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
+from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
 
 
 @torch.jit.script
@@ -590,7 +591,7 @@ class AdaptiveEmbedding(nn.Module):
 
         return embed
 
-class MemTransformerLM(nn.Module):
+class MemTransformerLM(ArchaiModel):
     def __init__(self, n_token, n_layer=16, n_head=8, d_model=512, d_head=64, d_inner=2048,
                  dropout=0.1, dropatt=0.0, dtype=None, tie_weight=True, d_embed=512,
                  div_val=1, tie_projs=None, pre_lnorm=False,
@@ -713,36 +714,11 @@ class MemTransformerLM(nn.Module):
         # ensure embedding init is not overridden by out_layer in case of weight sharing
         self.word_emb.apply(functools.partial(weights_init, **weight_init_params))
 
+    def get_non_emb_params(self):
+        return sum([p.nelement() for p in self.layers.parameters()])
+
     def backward_compatible(self):
         self.sample_softmax = -1
-
-    @staticmethod
-    def load_model(path:str, model:Optional['MemTransformerLM']=None, on_cpu:Optional[bool]=False) -> Tuple['MemTransformerLM', dict, dict]:
-        # case for restart
-        if os.path.isdir(path):
-            path = os.path.join(path, 'checkpoint_last.pt')
-
-        logging.info(f'Loading MemformerLM model from: {path}')
-
-        dst = f'cuda:{torch.cuda.current_device()}' \
-            if not on_cpu \
-            else torch.device('cpu')
-
-        # Loads the checkpoint
-        checkpoint = torch.load(path, map_location=dst)
-
-        model_config = checkpoint['model_config']
-
-        # Compatibility with older models
-        # TODO: remove once not needed
-        if 'encoder_like' in model_config:
-            del model_config['encoder_like']
-
-        # Initializes the model
-        model = MemTransformerLM(**model_config) if model is None else model
-        model.load_state_dict(checkpoint['model_state'])
-
-        return model, model_config, checkpoint
 
     def _create_params(self):
         # default attention
