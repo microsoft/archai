@@ -25,7 +25,8 @@ from torch.nn.parallel import DistributedDataParallel
 
 from archai.nlp.nvidia_transformer_xl import lamb
 from archai.nlp.nvidia_transformer_xl.data_utils import get_lm_corpus
-from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
+from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
+from archai.nlp.nvidia_transformer_xl.models.model_list import MODEL_LIST
 from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.data_parallel import BalancedDataParallel
@@ -137,6 +138,9 @@ def parse_args():
                          help='Size of vocabulary')
 
     model = parser.add_argument_group('model setup - defaults are for base model')
+    model.add_argument('--model', default='mem_transformer', type=str,
+                     choices=['mem_transformer', 'hf_gpt2'],
+                     help='Which model type to use')
     model.add_argument('--n_layer', type=int, default=16,
                        help='Number of total layers')
     model.add_argument('--n_head', nargs='+', type=int, default=8,
@@ -799,7 +803,7 @@ def load_data(args, device, get_file_stats=True):
     return  corpus.vocab, train_itr, valid_itr, test_itr, file_stats
 
 
-def create_or_load_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
+def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [] # head cluster projection is never tied with embeddings
     if args.adaptive:
@@ -853,15 +857,16 @@ def create_or_load_model(args, device, ntokens)->Tuple[MemTransformerLM, dict]:
 
     if args.pretrained_path:
         logging.info('Overwriting the provided model config with the pretrained model config.')
-        model, model_config, checkpoint = MemTransformerLM.load_model(args.pretrained_path, on_cpu=False)
+        model, model_config, checkpoint = ArchaiModel.load_model(MODEL_LIST[args.model], args.pretrained_path, on_cpu=False)
     else:
-        model = MemTransformerLM(**model_config)
+        model_cls = MODEL_LIST[args.model]
+        model = model_cls(**model_config)
 
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)
 
-    n_all_param = sum([p.nelement() for p in model.parameters()])
-    n_nonemb_param = sum([p.nelement() for p in model.layers.parameters()])
+    n_all_param = model.get_n_params()
+    n_nonemb_param = model.get_non_emb_params()
     logging.info('#params = {}'.format(n_all_param))
     logging.info('#non emb params = {}'.format(n_nonemb_param))
 
@@ -1021,7 +1026,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = MemTransformerLM.load_model(args.restart, model, on_cpu=False)
+            model, model_config, checkpoint = ArchaiModel.load_model(MODEL_LIST[args.model], args.restart, model, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1096,13 +1101,13 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
 def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
     summary = {
-        'n_all_param': sum([p.nelement() for p in model.parameters()]),
-        'n_nonemb_param': sum([p.nelement() for p in model.layers.parameters()])
+        'n_all_param': model.get_n_params(),
+        'n_nonemb_param': model.get_non_emb_params()
     }
 
     if not args.no_eval and os.path.exists(checkpoint_path):
         # Load the best saved model.
-        model, model_config, checkpoint = MemTransformerLM.load_model(checkpoint_path, model, on_cpu=False)
+        model, model_config, checkpoint = ArchaiModel.load_model(MODEL_LIST[args.model], checkpoint_path, model, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
@@ -1186,7 +1191,7 @@ def main():
     input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
-        lambda: MemTransformerLM.load_model(checkpoint_path, model=None, on_cpu=True))
+        lambda: ArchaiModel.load_model(MODEL_LIST[args.model], checkpoint_path, model=None, on_cpu=True))
 
     summary.update({
         'experiment_name': args.experiment_name,
@@ -1236,7 +1241,7 @@ def main():
 
     if args.post_qat:
         # Loads the model from the best pre-trained checkpoint
-        model, model_config, checkpoint = MemTransformerLM.load_model(checkpoint_path, model, on_cpu=False)
+        model, model_config, checkpoint = ArchaiModel.load_model(MODEL_LIST[args.model], checkpoint_path, model, on_cpu=False)
 
         # Prepares the model with QAT (also allows for distributed training)
         model = prepare_with_qat(model, onnx_compatible=True)
