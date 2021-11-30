@@ -1,5 +1,6 @@
 import os
 import random
+import math as ma
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 from archai.nas.discrete_search_space import DiscreteSearchSpace
@@ -78,6 +79,19 @@ class LocalSearchDartsReg(LocalSearch):
         if self.local_minima:
             best_minimum = max(self.local_minima, key=lambda x:x[1])
             return best_minimum
+        else:
+            # if no local minima encountered, return the best 
+            # encountered so far
+            logger.info('No local minima encountered! Returning best of visited.')
+            max_train_top1 = -ma.inf
+            argmax_arch = None
+            for _, arch in self.eval_cache.items():
+                this_train_top1 = arch.metadata['train_top1']
+                if this_train_top1 > max_train_top1:
+                    max_train_top1 = this_train_top1
+                    argmax_arch = arch
+            return argmax_arch, max_train_top1
+            
 
 
     @overrides
@@ -106,9 +120,9 @@ class LocalSearchDartsReg(LocalSearch):
         train_top1 = trainer_metrics.best_train_top1()
         arch.metadata['train_top1'] = train_top1
 
-        # DEBUG: simulate architecture evaluation
-        train_top1 = random.random()
-        arch.metadata['train_top1'] = train_top1
+        # # DEBUG: simulate architecture evaluation
+        # train_top1 = random.random()
+        # arch.metadata['train_top1'] = train_top1
 
         # cache it
         self.eval_cache[arch_flat_rep] = arch
