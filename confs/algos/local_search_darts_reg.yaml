@@ -9,7 +9,7 @@ nas:
     loader:
       val_ratio: 0.0 # don't need val for local search
     trainer:
-      epochs: 2
+      epochs: 1
 
   eval:
     model_desc:

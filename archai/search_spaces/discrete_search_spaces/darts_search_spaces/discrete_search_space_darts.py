@@ -160,20 +160,21 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         op_nbrs = op_nbrs_regular + op_nbrs_reduction
         assert len(op_nbrs) == 96
 
-        # now create the edge neighbors where the 
-        # only difference is in one of the input edges
-        # there should be 24 of them
-        edge_nbrs_regular = self._get_edge_neighbors(central_regular_cell, central_desc)
-        edge_nbrs_reduction = self._get_edge_neighbors(central_reduction_cell, central_desc)
+        # # now create the edge neighbors where the 
+        # # only difference is in one of the input edges
+        # # there should be 24 of them
+        # edge_nbrs_regular = self._get_edge_neighbors(central_regular_cell, central_desc)
+        # edge_nbrs_reduction = self._get_edge_neighbors(central_reduction_cell, central_desc)
 
-        assert len(edge_nbrs_regular) == 12
-        assert len(edge_nbrs_reduction) == 12
+        # assert len(edge_nbrs_regular) == 12
+        # assert len(edge_nbrs_reduction) == 12
 
-        edge_nbrs = edge_nbrs_regular + edge_nbrs_reduction                                           
-        assert len(edge_nbrs) == 24
+        # edge_nbrs = edge_nbrs_regular + edge_nbrs_reduction                                           
+        # assert len(edge_nbrs) == 24
 
         # Now convert all the model descs to actual Models
-        all_nbrs = op_nbrs + edge_nbrs
+        # all_nbrs = op_nbrs + edge_nbrs
+        all_nbrs = op_nbrs
         all_models = [Model(nbr_desc, self.drop_path_prob, affine=True) for nbr_desc in all_nbrs]
         
         all_arch_meta = []
