@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Optional, Tuple, Type
 
 import os
@@ -39,11 +39,6 @@ class ArchaiModel(nn.Module):
         checkpoint = torch.load(path, map_location=dst)
 
         model_config = checkpoint['model_config']
-
-        # Compatibility with older models
-        # TODO: remove once not needed
-        if 'encoder_like' in model_config:
-            del model_config['encoder_like']
 
         # Initializes the model
         model = model_cls(**model_config) if model is None else model
