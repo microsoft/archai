@@ -220,7 +220,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_darts_space"]
+            "args": ["--full", "--algos", "proxynas_darts_space", "--datasets", "sphericalcifar100"]
         },
         {
             "name": "Proxynas-Darts-Space-Toy",
