@@ -1,9 +1,5 @@
 import random
 
-
-
-
-
 class ConstantDartsSpaceSampler():
     ''' Always returns the same set of random seeds to be used for 
         reproducible sampling of architectures from the DARTS search space'''

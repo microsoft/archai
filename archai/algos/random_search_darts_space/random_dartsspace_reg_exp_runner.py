@@ -12,15 +12,15 @@ from archai.nas.searcher import Searcher, SearchResult
 from archai.nas.finalizers import Finalizers
 from archai.nas.random_finalizers import RandomFinalizers
 from archai.nas.model_desc_builder import ModelDescBuilder
-from archai.algos.random_natsbench.random_natsbench_tss_reg_searcher import RandomNatsbenchTssRegSearcher
+from archai.algos.random_sample_darts_space.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.random_search_darts_space.random_dartsspace_reg_searcher import RandomDartsSpaceRegSearcher
 
-
-class RandomNatsbenchTssRegExpRunner(ExperimentRunner):
-    ''' Runs random search using FastArchRank on Natsbench space '''
+class RandomDartsSpaceRegExpRunner(ExperimentRunner):
+    ''' Runs random search using FastArchRank on DARTS search space '''
 
     @overrides
     def model_desc_builder(self)->Optional[ModelDescBuilder]:
-        return None
+        return RandomModelDescBuilder()
 
     @overrides
     def trainer_class(self)->TArchTrainer:
@@ -28,8 +28,11 @@ class RandomNatsbenchTssRegExpRunner(ExperimentRunner):
 
     @overrides
     def run_search(self, conf_search:Config)->SearchResult:
+        model_desc_builder = self.model_desc_builder()
+        trainer_class = self.trainer_class()
+        finalizers = self.finalizers()
         search = self.searcher()
-        return search.search(conf_search)
+        return search.search(conf_search, model_desc_builder, trainer_class, finalizers)
 
     @overrides
     def run_eval(self, conf_eval:Config)->EvalResult:
@@ -38,7 +41,7 @@ class RandomNatsbenchTssRegExpRunner(ExperimentRunner):
 
     @overrides
     def searcher(self)->Searcher:
-        return RandomNatsbenchTssRegSearcher()
+        return RandomDartsSpaceRegSearcher()
 
     @overrides
     def evaluater(self)->Evaluater:

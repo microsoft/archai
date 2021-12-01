@@ -12,10 +12,10 @@ from archai.nas.searcher import Searcher, SearchResult
 from archai.nas.finalizers import Finalizers
 from archai.nas.random_finalizers import RandomFinalizers
 from archai.nas.model_desc_builder import ModelDescBuilder
-from archai.algos.random_natsbench.random_natsbench_tss_far_post_searcher import RandomNatsbenchTssFarPostSearcher
+from archai.algos.random_sample_natsbench.random_natsbench_tss_far_searcher import RandomNatsbenchTssFarSearcher
 
 
-class RandomNatsbenchTssFarPostExpRunner(ExperimentRunner):
+class RandomNatsbenchTssFarExpRunner(ExperimentRunner):
     ''' Runs random search using FastArchRank on Natsbench space '''
 
     @overrides
@@ -39,7 +39,7 @@ class RandomNatsbenchTssFarPostExpRunner(ExperimentRunner):
 
     @overrides
     def searcher(self)->Searcher:
-        return RandomNatsbenchTssFarPostSearcher()
+        return RandomNatsbenchTssFarSearcher()
 
     @overrides
     def evaluater(self)->Evaluater:
@@ -47,4 +47,6 @@ class RandomNatsbenchTssFarPostExpRunner(ExperimentRunner):
 
     @overrides
     def copy_search_to_eval(self) -> None:
-        return None    
+        return None
+    
+

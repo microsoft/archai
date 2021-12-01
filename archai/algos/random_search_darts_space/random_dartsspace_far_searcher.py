@@ -16,10 +16,12 @@ from archai.common.trainer import Trainer
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.nas.model import Model
-from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.proxynas.conditional_trainer import ConditionalTrainer
+from archai.algos.proxynas.freeze_trainer import FreezeTrainer
+from archai.algos.random_sample_darts_space.random_model_desc_builder import RandomModelDescBuilder
 
 
-class RandomDartsSpaceRegSearcher(Searcher):
+class RandomDartsSpaceFarSearcher(Searcher):
 
     @overrides
     def search(self, conf_search:Config, model_desc_builder:Optional[ModelDescBuilder],
@@ -29,7 +31,8 @@ class RandomDartsSpaceRegSearcher(Searcher):
 
         # region config vars
         max_num_models = conf_search['max_num_models']
-        conf_train = conf_search['trainer']
+        ratio_fastest_duration = conf_search['ratio_fastest_duration']
+        conf_train_freeze = conf_search['freeze_trainer']
         conf_train_full = conf_search['trainer_full']
         conf_loader = conf_search['loader']
         # endregion
@@ -44,6 +47,8 @@ class RandomDartsSpaceRegSearcher(Searcher):
             seeds_for_arch_gen.append(random.randrange(10e18))
 
         best_trains = [(-1, -ma.inf)]
+        fastest_cond_train = ma.inf
+
         for i in range(max_num_models):
             # sample a model from darts search space
             # and evaluate it
@@ -53,25 +58,47 @@ class RandomDartsSpaceRegSearcher(Searcher):
             # as we are creating model based on seed
             model_desc = model_desc_builder.build(conf_model_desc, 
                                                 seed=seeds_for_arch_gen[i])
-            model = Model(model_desc, droppath=True, affine=True)            
+            model = Model(model_desc, droppath=True, affine=True)
 
+            logger.pushd(f'conditional_training_{i}')            
+            data_loaders = self.get_data(conf_loader)
+            time_allowed = ratio_fastest_duration * fastest_cond_train
             checkpoint = None
-            logger.pushd(f'regular_training_{i}')     
-            data_loaders = self.get_data(conf_loader)                   
-            trainer = Trainer(conf_train, model, checkpoint) 
-            trainer_metrics = trainer.fit(data_loaders)
-            train_time = trainer_metrics.total_training_time()
+            cond_trainer = ConditionalTrainer(conf_train_full, model, checkpoint, time_allowed) 
+            cond_trainer_metrics = cond_trainer.fit(data_loaders)
+            cond_train_time = cond_trainer_metrics.total_training_time()
+
+            if cond_train_time >= time_allowed:
+                # this arch exceeded time to reach threshold
+                # cut losses and move to next one
+                logger.info(f'{i} exceeded time allowed. Terminating and ignoring.')
+                logger.popd()
+                continue
+
+            if cond_train_time < fastest_cond_train:
+                fastest_cond_train = cond_train_time
+                logger.info(f'fastest condition train till now: {fastest_cond_train} seconds!')
             logger.popd()
 
-            this_arch_top1 = trainer_metrics.best_train_top1()    
+            # if we did not early terminate in conditional 
+            # training then freeze train
+            # get data with new batch size for freeze training
+            conf_loader_freeze = deepcopy(conf_loader)
+            conf_loader_freeze['train_batch'] = conf_loader['freeze_loader']['train_batch'] 
+
+            logger.pushd(f'freeze_training_{i}')
+            data_loaders = self.get_data(conf_loader_freeze, to_cache=False)
+            # now just finetune the last few layers
+            checkpoint = None
+            trainer = FreezeTrainer(conf_train_freeze, model, checkpoint)
+            freeze_train_metrics = trainer.fit(data_loaders)
+            logger.popd()
+
+            this_arch_top1 = freeze_train_metrics.best_train_top1()    
             if this_arch_top1 > best_trains[-1][1]:
                 best_trains.append((i, this_arch_top1, seeds_for_arch_gen[i]))
-                
-            # dump important things to log
-            logger.pushd(f'best_trains_{i}')
-            logger.info({'best_trains':best_trains})
-            logger.popd()
 
+    
         # Now take the model with best train and fully train it        
         best_trains.sort(key=lambda x:x[1], reverse=True)
         model_seed_best = best_trains[0][2]
@@ -82,17 +109,4 @@ class RandomDartsSpaceRegSearcher(Searcher):
         full_trainer = Trainer(conf_train_full, model_best, checkpoint)
         full_trainer.fit(data_loaders)
         logger.popd()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            
