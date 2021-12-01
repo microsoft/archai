@@ -15,9 +15,9 @@ from archai.nas.evaluater import Evaluater, EvalResult
 
 from archai.common.common import get_expdir, logger
 
-from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.random_sample_darts_space.random_model_desc_builder import RandomModelDescBuilder
 from archai.algos.proxynas.freeze_manual_searcher import ManualFreezeSearcher
-from .darts_space_evaluater import DartsSpaceEvaluater
+from ..random_sample_darts_space.darts_space_evaluater import DartsSpaceEvaluater
 from .freeze_darts_space_evaluater import FreezeDartsSpaceEvaluater
 
 class FreezeDartsSpaceExperimentRunner(ExperimentRunner):
