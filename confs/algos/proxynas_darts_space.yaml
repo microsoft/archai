@@ -21,8 +21,8 @@ nas:
       plotsdir: ''
       epochs: 100
       top1_acc_threshold: 0.60 # after some accuracy we will shift into training only the last 'n' layers
-      train_regular: False # if False the full regular training of the architecture will be bypassed
-      train_fear: True
+      train_regular: True # if False the full regular training of the architecture will be bypassed
+      train_fear: False
       
     freeze_trainer:
       plotsdir: ''
