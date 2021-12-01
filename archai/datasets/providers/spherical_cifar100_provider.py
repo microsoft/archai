@@ -21,7 +21,7 @@ from archai.common import utils
 
 
 def load_spherical_data(path, val_split=0.0):
-    ''' Copied and modified from 
+    ''' Modified from 
     https://github.com/rtu715/NAS-Bench-360/blob/main/backbone/utils_pt.py '''
 
     data_file = os.path.join(path, 's2_cifar100.gz')
@@ -30,11 +30,11 @@ def load_spherical_data(path, val_split=0.0):
 
     train_data = torch.from_numpy(
         dataset["train"]["images"][:, None, :, :].astype(np.float32))
+    train_data = torch.squeeze(train_data)
     train_labels = torch.from_numpy(
         dataset["train"]["labels"].astype(np.int64))
 
     all_train_dataset = data_utils.TensorDataset(train_data, train_labels)
-    print(len(all_train_dataset))
     if val_split == 0.0:
         val_dataset = None
         train_dataset = all_train_dataset
@@ -46,9 +46,9 @@ def load_spherical_data(path, val_split=0.0):
         val_dataset = data_utils.TensorDataset(train_data[ntrain:], train_labels[ntrain:])
         val_dataset.targets = train_labels[ntrain:] # compatibility with stratified sampler
         
-
     test_data = torch.from_numpy(
         dataset["test"]["images"][:, None, :, :].astype(np.float32))
+    test_data = torch.squeeze(test_data)
     test_labels = torch.from_numpy(
         dataset["test"]["labels"].astype(np.int64))
 

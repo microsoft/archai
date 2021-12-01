@@ -3,7 +3,7 @@ import random
 from typing import List, Optional
 from overrides.overrides import overrides
 
-from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.random_sample_darts_space.random_model_desc_builder import RandomModelDescBuilder
 from archai.common.config import Config
 from archai.nas.model import Model
 from archai.nas.arch_meta import ArchWithMetaData

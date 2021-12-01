@@ -30,8 +30,8 @@ from archai.common.checkpoint import CheckPoint
 from archai.nas.evaluater import Evaluater
 from archai.algos.proxynas.freeze_trainer import FreezeTrainer
 from archai.algos.proxynas.conditional_trainer import ConditionalTrainer
-from archai.algos.proxynas.constant_darts_space_sampler import ConstantDartsSpaceSampler
-from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.random_sample_darts_space.constant_darts_space_sampler import ConstantDartsSpaceSampler
+from archai.algos.random_sample_darts_space.random_model_desc_builder import RandomModelDescBuilder
 
 class DartsSpaceEvaluater(Evaluater):
     @overrides
@@ -64,7 +64,8 @@ class DartsSpaceEvaluater(Evaluater):
                                             seed=random_seed_for_model_construction)
 
         # convert from ModelDesc to Genotype for use with nasbench301
-        # NOTE: this is just showing how to potentially connect with 301. 
+        # NOTE: this is just showing how to potentially connect with 301.
+        # This is for future use. 
         genotype = create_nb301_genotype_from_desc(model_desc)
         print(genotype)
 

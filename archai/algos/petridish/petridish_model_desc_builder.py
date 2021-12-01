@@ -11,7 +11,7 @@ from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import MultiOp, Op
 from archai.common.config import Config
-from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.random_sample_darts_space.random_model_desc_builder import RandomModelDescBuilder
 
 from .petridish_op import PetridishOp, TempIdentityOp
 

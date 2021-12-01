@@ -8,12 +8,13 @@ from archai.common import utils
 from archai.nas.exp_runner import ExperimentRunner
 from archai.algos.darts.darts_exp_runner import DartsExperimentRunner
 from archai.algos.petridish.petridish_exp_runner import PetridishExperimentRunner
-from archai.algos.random.random_exp_runner import RandomExperimentRunner
+from archai.algos.random_sample_darts_space.random_exp_runner import RandomExperimentRunner
 from archai.algos.manual.manual_exp_runner import ManualExperimentRunner
 from archai.algos.xnas.xnas_exp_runner import XnasExperimentRunner
 from archai.algos.gumbelsoftmax.gs_exp_runner import GsExperimentRunner
 from archai.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
 from archai.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
+from archai.algos.random_sample_darts_space.darts_space_constant_random_archs_exp_runner import DartsSpaceConstantRandomArchsExperimentRunner
 from archai.algos.proxynas.freeze_darts_space_experiment_runner import FreezeDartsSpaceExperimentRunner
 from archai.algos.proxynas.freeze_natsbench_experiment_runner import FreezeNatsbenchExperimentRunner
 from archai.algos.proxynas.freeze_natsbench_sss_experiment_runner import FreezeNatsbenchSSSExperimentRunner
@@ -28,11 +29,11 @@ from archai.algos.proxynas.freezeaddon_nasbench101_experiment_runner import Free
 from archai.algos.zero_cost_measures.zero_cost_natsbench_experiment_runner import ZeroCostNatsbenchExperimentRunner
 from archai.algos.zero_cost_measures.zero_cost_natsbench_conditional_experiment_runner import ZeroCostConditionalNatsbenchExperimentRunner
 from archai.algos.zero_cost_measures.zero_cost_natsbench_epochs_experiment_runner import ZeroCostNatsbenchEpochsExperimentRunner
-from archai.algos.random_natsbench.random_natsbench_tss_far_exp_runner import RandomNatsbenchTssFarExpRunner
-from archai.algos.random_natsbench.random_natsbench_tss_far_post_exp_runner import RandomNatsbenchTssFarPostExpRunner
-from archai.algos.random_natsbench.random_natsbench_tss_reg_exp_runner import RandomNatsbenchTssRegExpRunner
-from archai.algos.random_darts.random_dartsspace_reg_exp_runner import RandomDartsSpaceRegExpRunner
-from archai.algos.random_darts.random_dartsspace_far_exp_runner import RandomDartsSpaceFarExpRunner
+from archai.algos.random_sample_natsbench.random_natsbench_tss_far_exp_runner import RandomNatsbenchTssFarExpRunner
+from archai.algos.random_sample_natsbench.random_natsbench_tss_far_post_exp_runner import RandomNatsbenchTssFarPostExpRunner
+from archai.algos.random_sample_natsbench.random_natsbench_tss_reg_exp_runner import RandomNatsbenchTssRegExpRunner
+from archai.algos.random_search_darts_space.random_dartsspace_reg_exp_runner import RandomDartsSpaceRegExpRunner
+from archai.algos.random_search_darts_space.random_dartsspace_far_exp_runner import RandomDartsSpaceFarExpRunner
 from archai.algos.local_search_natsbench.local_natsbench_tss_far_exp_runner import LocalNatsbenchTssFarExpRunner
 from archai.algos.local_search_natsbench.local_search_natsbench_tss_fear_exp_runner import LocalSearchNatsbenchTSSFearExpRunner
 from archai.algos.local_search_natsbench.local_search_natsbench_tss_reg_exp_runner import LocalSearchNatsbenchTSSRegExpRunner
@@ -48,6 +49,7 @@ def main():
         'gs': GsExperimentRunner,
         'divnas': DivnasExperimentRunner,
         'didarts': DiDartsExperimentRunner,
+        'darts_space_constant_random_archs': DartsSpaceConstantRandomArchsExperimentRunner,
         'proxynas_darts_space': FreezeDartsSpaceExperimentRunner,
         'proxynas_natsbench_space': FreezeNatsbenchExperimentRunner,
         'proxynas_natsbench_sss_space': FreezeNatsbenchSSSExperimentRunner,
@@ -77,11 +79,12 @@ def main():
     parser.add_argument('--algos', type=str, default='''darts,
                                                         xnas,
                                                         random,
-                                                        didarts,
+                                                        didarts,                                                    
                                                         petridish,
                                                         gs,
                                                         manual,
                                                         divnas,
+                                                        darts_space_constant_random_archs,
                                                         proxynas_manual,
                                                         proxynas_darts_space,
                                                         proxynas_natsbench_space,

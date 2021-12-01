@@ -29,8 +29,8 @@ from archai.common.checkpoint import CheckPoint
 from archai.nas.evaluater import Evaluater
 from archai.algos.proxynas.freeze_trainer import FreezeTrainer
 from archai.algos.proxynas.conditional_trainer import ConditionalTrainer
-from archai.algos.proxynas.constant_darts_space_sampler import ConstantDartsSpaceSampler
-from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.algos.random_sample_darts_space.constant_darts_space_sampler import ConstantDartsSpaceSampler
+from archai.algos.random_sample_darts_space.random_model_desc_builder import RandomModelDescBuilder
 
 class FreezeDartsSpaceEvaluater(Evaluater):
     @overrides

@@ -215,12 +215,20 @@
             "args": ["--algos", "random"]
         },
         {
+            "name": "Darts Space Constant Random Archs",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "darts_space_constant_random_archs", "--datasets", "sphericalcifar100"]
+        },
+        {
             "name": "Proxynas-Darts-Space-Full",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_darts_space", "--datasets", "sphericalcifar100"]
+            "args": ["--full", "--algos", "proxynas_darts_space", "--datasets", "cifar10"]
         },
         {
             "name": "Proxynas-Darts-Space-Toy",
