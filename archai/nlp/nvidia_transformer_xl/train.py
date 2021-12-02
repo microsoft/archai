@@ -664,17 +664,19 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                 is_best = True
 
             model_to_save = model
+            prefix = ''
 
             if args.qat:
                 # Convert the model to a regular FP32 model for saving
                 model_float = copy.deepcopy(model)
                 model_float = qat_to_float_modules(model_float)
                 model_to_save = model_float
+                prefix = 'qat_'
 
             save_checkpoint(args, model_to_save, model_config, optimizer, scheduler,
                             scaler, vocab, epoch, batch, last_iter,
                             train_step, best_val_loss, is_best,
-                            args.work_dir)
+                            args.work_dir, prefix=prefix)
 
             # dev-performance based learning rate annealing
             if args.scheduler == 'dev_perf':
@@ -1250,18 +1252,12 @@ def main():
 
         # QAT-based arguments
         args.restart = None
-        args.no_eval = True
+        args.qat = True
 
         # Performs a QAT fine-tuning
         training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
             model_config, optimizer, optimizer_sparse, scheduler,
             scheduler_sparse, scaler, vocab, file_stats[1])
-        
-        # Changes the model back to fp32 and save its checkpoint
-        model = qat_to_float_modules(model)
-        save_checkpoint(args, model, model_config, optimizer, scheduler,
-            scaler, vocab, -1, -1, -1, -1, best_val_loss,
-            True, args.work_dir, prefix='qat_')
 
 
 if __name__ == "__main__":
