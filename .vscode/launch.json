@@ -220,7 +220,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "darts_space_constant_random_archs", "--datasets", "sphericalcifar100"]
+            "args": ["--full", "--algos", "darts_space_constant_random_archs", "--datasets", "ninapro"]
         },
         {
             "name": "Proxynas-Darts-Space-Full",
