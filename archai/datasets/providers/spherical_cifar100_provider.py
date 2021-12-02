@@ -31,6 +31,9 @@ def load_spherical_data(path, val_split=0.0):
     train_data = torch.from_numpy(
         dataset["train"]["images"][:, None, :, :].astype(np.float32))
     train_data = torch.squeeze(train_data)
+    # DEBUG
+    train_data = torch.nn.functional.interpolate(train_data, size=(32, 32))
+
     train_labels = torch.from_numpy(
         dataset["train"]["labels"].astype(np.int64))
 
@@ -49,6 +52,10 @@ def load_spherical_data(path, val_split=0.0):
     test_data = torch.from_numpy(
         dataset["test"]["images"][:, None, :, :].astype(np.float32))
     test_data = torch.squeeze(test_data)
+
+    # DEBUG
+    test_data = torch.nn.functional.interpolate(test_data, size=(32,32))
+
     test_labels = torch.from_numpy(
         dataset["test"]["labels"].astype(np.int64))
 
