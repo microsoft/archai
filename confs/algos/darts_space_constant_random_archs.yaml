@@ -12,10 +12,10 @@ nas:
       num_edges_to_sample: 2
       n_cells: 8
     loader:
+      aug: ''
+      cutout: -1 # cutout length, use cutout augmentation when > 0
       val_ratio: 0.0
       train_batch: 96
-      freeze_loader:
-        train_batch: 96 # batch size for freeze training  
     trainer:
       use_val: False
       plotsdir: ''
