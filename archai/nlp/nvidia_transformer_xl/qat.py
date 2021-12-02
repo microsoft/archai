@@ -2,6 +2,8 @@ import torch
 from torch.nn import functional as F
 from torch.quantization import MinMaxObserver
 
+import transformers
+
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 
@@ -265,8 +267,97 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
 
         return float_linear
 
-
 class FakeDynamicQuantLinearForOnnx(FakeDynamicQuantLinear):
+    """Allows a QAT-ready Linear layer to be exported with ONNX.
+
+    """
+
+    def __init__(self, *args,  **kwargs):
+        """Initializes a fake quantized Linear layer compatible with ONNX.
+        
+        """
+
+        kwargs['activation_reduce_range'] = False
+        kwargs['onnx_compatible'] = True
+
+        super().__init__(*args, **kwargs)
+
+class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
+    """Translates a transformer Conv1D to QAT-ready.
+
+    """
+
+    _FLOAT_MODULE = transformers.modeling_utils.Conv1D
+
+    def __init__(self,
+                 *args,
+                 dynamic_weight=True,
+                 activation_reduce_range=True,
+                 bits=8,
+                 onnx_compatible=False,
+                 qconfig=None,
+                 **kwargs):
+        """Initializes a fake quantized transformer Conv1D layer.
+        
+        """
+
+        super().__init__(*args, **kwargs)
+
+        self.dynamic_weight = dynamic_weight
+        if dynamic_weight:
+            self.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+                                                      reduce_range=False,
+                                                      bits=bits,
+                                                      onnx_compatible=onnx_compatible)
+
+        self.input_pre_process = FakeDynamicQuant(reduce_range=activation_reduce_range,
+                                                  bits=bits,
+                                                  onnx_compatible=onnx_compatible)
+
+    @property
+    def fake_quant_weight(self):
+        return self.weight_fake_quant(self.weight)
+
+    def forward(self, x):
+        x = self.input_pre_process(x)
+        size_out = x.size()[:-1] + (self.nf,)
+        x = torch.addmm(self.bias, x.view(-1, x.size(-1)), self.fake_quant_weight)
+        x = x.view(*size_out)
+        return x
+
+    @classmethod
+    def from_float(cls, mod, qconfig=None, activation_reduce_range=True, **kwargs):
+        assert type(mod) == cls._FLOAT_MODULE, ' qat.' + cls.__name__ + '.from_float only works for ' + cls._FLOAT_MODULE.__name__
+
+        if not qconfig:
+            assert hasattr(mod, 'qconfig'), 'Input float module must have qconfig defined'
+            assert mod.qconfig, 'Input float module must have a valid qconfig'
+            qconfig = mod.qconfig
+
+        qat_Conv1D = cls(mod.nf,
+                         mod.weight.shape[0],
+                         activation_reduce_range=activation_reduce_range,
+                         qconfig=qconfig,
+                         **kwargs)
+
+        qat_Conv1D.weight = mod.weight
+        qat_Conv1D.bias = mod.bias
+
+        return qat_Conv1D
+
+    def to_float(self):
+        weight = self.weight_fake_quant(self.weight)
+
+        float_Conv1D = transformers.modeling_utils.Conv1D(self.nf,
+                                                          self.weight.shape[0])
+
+        float_Conv1D.weight = torch.nn.Parameter(weight)
+        float_Conv1D.bias = self.bias
+
+        return float_Conv1D
+
+
+class FakeDynamicQuantHFConv1DForOnnx(FakeDynamicQuantHFConv1D):
     """Allows a QAT-ready Linear layer to be exported with ONNX.
 
     """
@@ -385,12 +476,14 @@ class FakeDynamicQuantConv1dForOnnx(FakeDynamicQuantConv1d):
 DYNAMIC_QAT_MODULE_MAPPING = {
     torch.nn.Embedding: FakeQuantEmbedding,
     torch.nn.Linear: FakeDynamicQuantLinear,
-    torch.nn.Conv1d: FakeDynamicQuantConv1d
+    torch.nn.Conv1d: FakeDynamicQuantConv1d,
+    transformers.modeling_utils.Conv1D: FakeDynamicQuantHFConv1D
 }
 DYNAMIC_QAT_MODULE_MAPPING_FOR_ONNX = {
     torch.nn.Embedding: FakeQuantEmbeddingForOnnx,
     torch.nn.Linear: FakeDynamicQuantLinearForOnnx,
-    torch.nn.Conv1d: FakeDynamicQuantConv1dForOnnx
+    torch.nn.Conv1d: FakeDynamicQuantConv1dForOnnx,
+    transformers.modeling_utils.Conv1D: FakeDynamicQuantHFConv1DForOnnx
 }
 
 # Adds placeholder for changing `_compute_logit`
