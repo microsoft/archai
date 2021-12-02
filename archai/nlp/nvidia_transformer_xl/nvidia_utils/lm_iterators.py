@@ -36,7 +36,7 @@ class LMOrderedIterator(object):
         # Partition input_ids for DistributedDataParallel
         world_size = nv_utils.distributed.get_world_size()
         rank = nv_utils.distributed.get_rank()
-        self.input_ids = self.input_ids.chunk(world_size, dim=1)[rank]
+        self.input_ids = self.input_ids.chunk(world_size, dim=0)[rank]
 
         # Number of mini-batches
         self.n_batch = (self.input_ids.size(1) + self.bptt - 1) // self.bptt
