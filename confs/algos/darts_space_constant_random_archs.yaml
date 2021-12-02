@@ -9,6 +9,7 @@ nas:
     dartsspace:
       arch_index: 66
     model_desc:
+      aux_weight: False # AuxTower class assumes specific input size hence breaks with many datasets.
       num_edges_to_sample: 2
       n_cells: 8
     loader:
