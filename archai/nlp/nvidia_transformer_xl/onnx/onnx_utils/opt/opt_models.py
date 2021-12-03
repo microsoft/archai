@@ -5,13 +5,11 @@ from typing import List, Optional, Tuple
 
 from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
                   ValueInfoProto, helper)
-from onnxruntime.transformers.fusion_attention import (AttentionMask,
-                                                       FusionAttention)
+from onnxruntime.transformers.fusion_attention import AttentionMask, FusionAttention
 from onnxruntime.transformers.fusion_layernorm import FusionLayerNormalization
 from onnxruntime.transformers.fusion_reshape import FusionReshape
 from onnxruntime.transformers.fusion_shape import FusionShape
-from onnxruntime.transformers.fusion_skiplayernorm import (FusionBiasSkipLayerNormalization,
-                                                           FusionSkipLayerNormalization)
+from onnxruntime.transformers.fusion_skiplayernorm import FusionBiasSkipLayerNormalization, FusionSkipLayerNormalization
 from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
 
