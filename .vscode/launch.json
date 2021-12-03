@@ -220,7 +220,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "darts_space_constant_random_archs", "--datasets", "ninapro"]
+            "args": ["--full", "--algos", "darts_space_constant_random_archs", "--datasets", "cifar100"]
         },
         {
             "name": "Proxynas-Darts-Space-Full",
@@ -375,6 +375,14 @@
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "zerocost_natsbench_epochs_space"]
+        },
+        {
+            "name": "ZeroCost-Darts-Space-Constant-Random-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "zerocost_darts_space_constant_random", "--datasets", "cifar10"]
         },
         {
             "name": "Natsbench-Regular-Eval-Full",
