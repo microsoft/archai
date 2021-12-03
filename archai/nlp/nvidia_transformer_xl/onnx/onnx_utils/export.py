@@ -8,7 +8,6 @@ from itertools import chain
 from typing import Optional
 
 import torch
-from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
 from onnx import helper, load_model, numpy_helper, save
 
 from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.operators import register_trilu_operator
@@ -71,19 +70,21 @@ def weight_sharing(onnx_model_path: str) -> None:
     save(model, onnx_model_path)
 
 
-def export_onnx_from_pt(model: MemTransformerLM,
+def export_onnx_from_pt(model: torch.nn.Module,
                         model_config: dict,
+                        model_type: str,
                         onnx_model_path: str,
                         share_weights: Optional[bool] = True,
                         do_constant_folding: Optional[bool] = True,
                         use_external_data_format: Optional[bool] = False,
                         enable_onnx_checker: Optional[bool] = True,
-                        opset_version: Optional[int] = 12) -> None:
+                        opset_version: Optional[int] = 13) -> None:
     """Exports a PyTorch-based model to ONNX.
 
     Args:
         model: Input model.
         model_config: Model configuration.
+        model_type: Type of model to be exported.
         onnx_model_path: Path to the output ONNX model file.
         share_weights: Whether embedding/softmax weights should be shared.
         do_constant_folding: Whether to apply constant folding.

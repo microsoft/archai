@@ -5,14 +5,20 @@ from pathlib import Path
 from typing import Optional
 
 from onnx import load_model
+from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 
 from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.load import create_file_name_identifier
 from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.opt.fusion_options import FusionOptions
 from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.opt.model import MemTransformerLMOnnxModel
 
+ONNX_MODELS = {'mem_transformer': MemTransformerLMOnnxModel,
+               'hf_gpt2': Gpt2OnnxModel,
+               'hf_transfo_xl': MemTransformerLMOnnxModel}
+
 
 def optimize_onnx(onnx_model_path: str,
+                  model_type: str,
                   use_gpu: Optional[bool] = False,
                   opt_level: Optional[int] = 0,
                   only_ort: Optional[bool] = False,
@@ -22,6 +28,7 @@ def optimize_onnx(onnx_model_path: str,
 
     Args:
         onnx_model_path: Path to the ONNX model to be optimized.
+        model_type: Type of model to be optimized.
         use_gpu: Whether to use GPU during optimization.
         opt_level: Level of optimization.
         only_ort: Whether to only apply ORT optimization.
@@ -60,8 +67,8 @@ def optimize_onnx(onnx_model_path: str,
         # Loads the ORT-optimized model, optimizer and fusion options
         ort_model = load_model(ort_model_path or onnx_model_path)
         ort_model_path = create_file_name_identifier(Path(onnx_model_path), '_opt')
-        optimizer = MemTransformerLMOnnxModel(ort_model)
-        options = FusionOptions()
+        optimizer = ONNX_MODELS[model_type](ort_model)
+        options = FusionOptions(model_type)
 
         # Optimizes the model
         optimizer.optimize(options)
