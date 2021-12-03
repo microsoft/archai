@@ -57,7 +57,7 @@ if __name__ == '__main__':
     quantization = args.quantization
 
     # Loads the PyTorch model
-    model, model_config = load_from_pt(torch_model_path)
+    model, model_config = load_from_pt(model_type, torch_model_path)
 
     # Exports to ONNX
     export_onnx_from_pt(model, model_config, model_type, onnx_model_path, share_weights=False)
