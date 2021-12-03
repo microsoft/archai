@@ -20,6 +20,12 @@ def parse_args():
                         type=str,
                         help='Path to the output ONNX model file.')
 
+    parser.add_argument('-model_type',
+                        type=str,
+                        default='mem_transformer',
+                        choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
+                        help='Type of model to be exported.')
+
     parser.add_argument('-opt_level',
                         type=int,
                         default=0,
@@ -45,6 +51,7 @@ if __name__ == '__main__':
     # Transforms the command lines arguments into variables
     torch_model_path = args.torch_model_path
     onnx_model_path = args.onnx_model_path
+    model_type = args.model_type
     opt_level = args.opt_level
     optimization = args.optimization
     quantization = args.quantization
@@ -53,11 +60,11 @@ if __name__ == '__main__':
     model, model_config = load_from_pt(torch_model_path)
 
     # Exports to ONNX
-    export_onnx_from_pt(model, model_config, onnx_model_path, share_weights=True)
+    export_onnx_from_pt(model, model_config, model_type, onnx_model_path, share_weights=False)
 
     # Whether optimization should be applied
     if optimization:
-        ort_model_path = optimize_onnx(onnx_model_path, opt_level=opt_level)
+        ort_model_path = optimize_onnx(onnx_model_path, model_type, opt_level=opt_level)
 
         # Caveat to enable quantization after optimization
         onnx_model_path = ort_model_path

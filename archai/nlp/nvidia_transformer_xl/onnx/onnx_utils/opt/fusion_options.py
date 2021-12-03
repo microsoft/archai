@@ -20,19 +20,31 @@ class FusionOptions:
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, model_type: str) -> None:
         """Defines an initialization method.
+
+        Args:
+            model_type: Type of model to be fused.
 
         """
 
+        # GeLU
+        self.enable_gelu = True
+        self.enable_bias_gelu = True
+        self.enable_gelu_approximation = False
+
         # Layer normalization
         self.enable_layer_norm = True
+        self.enable_embed_layer_norm = True
         self.enable_skip_layer_norm = True
         self.enable_bias_skip_layer_norm = True
 
         # Attention
         self.enable_attention = True
         self.attention_mask_format = AttentionMaskFormat.AttentionMask
+
+        if model_type == 'hf_gpt2':
+            self.enable_skip_layer_norm = False
 
     def use_raw_attention_mask(self,
                                use_raw_mask: Optional[bool] = True) -> None:

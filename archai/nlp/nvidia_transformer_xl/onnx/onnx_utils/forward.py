@@ -28,8 +28,8 @@ def forward_with_probs(self,
     else:
         past_key_values = tuple([p.permute([0, 3, 1, 2, 4]) for p in past_key_values])
 
-    # Reshapes to seq_len x batch_size
-    input_ids = input_ids.view(input_ids.size(1), input_ids.size(0))
+    # Transposes to seq_len x batch_size
+    input_ids = input_ids.t()
 
     # Gathers the hidden states
     # Note that we are only exporting the final probability
@@ -40,6 +40,7 @@ def forward_with_probs(self,
 
     # Calculates the output predictions/probabilities
     preds = self.crit(hidden_preds)
+    preds = preds.view(input_ids.size(1), -1) if preds is not None else None
 
     # Reshapes past_key_values back to standard shape
     past_key_values = tuple([p.permute([0, 2, 3, 1, 4]) for p in past_key_values])

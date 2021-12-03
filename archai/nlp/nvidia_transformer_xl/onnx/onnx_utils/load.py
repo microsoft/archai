@@ -10,7 +10,7 @@ import torch
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
 
-from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
+from archai.nlp.nvidia_transformer_xl.models.mem_transformer import MemTransformerLM
 from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.forward import (crit_forward_with_probs,
                                                                       forward_with_probs)
 
