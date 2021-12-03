@@ -19,6 +19,12 @@ def parse_args():
                         type=str,
                         help='Path to the ONNX model file.')
 
+    parser.add_argument('-model_type',
+                        type=str,
+                        default='mem_transformer',
+                        choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
+                        help='Type of model to be exported.')
+
     parser.add_argument('-batch_size',
                         type=int,
                         default=1,
@@ -41,11 +47,12 @@ if __name__ == '__main__':
     # Transforms the command lines arguments into variables
     torch_model_path = args.torch_model_path
     onnx_model_path = args.onnx_model_path
+    model_type = args.model_type
     batch_size = args.batch_size
     seq_len = args.seq_len
 
     # Loads PyTorch and ONNX models
-    model, model_config = load_from_pt(torch_model_path)
+    model, model_config = load_from_pt(model_type, torch_model_path)
     model_onnx = load_from_onnx(onnx_model_path)
 
     # Checks the type of attention to define the `past_key_values`
