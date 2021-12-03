@@ -10,7 +10,7 @@ from typing import Optional
 import torch
 from onnx import helper, load_model, numpy_helper, save
 
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.operators import register_trilu_operator
+from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.operators import tril_onnx, triu_onnx
 
 
 def weight_sharing(onnx_model_path: str) -> None:
@@ -76,9 +76,7 @@ def export_onnx_from_pt(model: torch.nn.Module,
                         onnx_model_path: str,
                         share_weights: Optional[bool] = True,
                         do_constant_folding: Optional[bool] = True,
-                        use_external_data_format: Optional[bool] = False,
-                        enable_onnx_checker: Optional[bool] = True,
-                        opset_version: Optional[int] = 13) -> None:
+                        opset_version: Optional[int] = 12) -> None:
     """Exports a PyTorch-based model to ONNX.
 
     Args:
@@ -88,8 +86,6 @@ def export_onnx_from_pt(model: torch.nn.Module,
         onnx_model_path: Path to the output ONNX model file.
         share_weights: Whether embedding/softmax weights should be shared.
         do_constant_folding: Whether to apply constant folding.
-        use_external_data_format: Whether to use external data format.
-        enable_onnx_checker: Whether to enable ONNX checker.
         opset_version: Version of the operators set.
 
     """
@@ -115,16 +111,17 @@ def export_onnx_from_pt(model: torch.nn.Module,
     }
 
     # Defines the names of ONNX inputs and outputs
-    onnx_past_inputs = [(f'past_{i}', {1: 'batch_size', 3: 'past_seq_len'}) for i in range(n_layer)]
-    onnx_past_outputs = [(f'present_{i}', {1: 'batch_size', 3: 'total_seq_len'}) for i in range(n_layer)]
+    onnx_past_inputs = [(f'past_{i}', {0: str(n_past_values), 1: 'batch_size', 2: str(n_head), 3: 'past_seq_len', 4: str(d_head)}) for i in range(n_layer)]
+    onnx_past_outputs = [(f'present_{i}', {0: str(n_past_values), 1: 'batch_size', 2: str(n_head), 3: 'total_seq_len', 4: str(d_head)}) for i in range(n_layer)]
     onnx_inputs = OrderedDict([('input_ids', {0: 'batch_size', 1: 'seq_len'})] + onnx_past_inputs)
-    onnx_outputs = OrderedDict([('probs', {0: 'batch_size'})] + onnx_past_outputs)
+    onnx_outputs = OrderedDict([('probs', {0: 'batch_size', 1: str(n_token)})] + onnx_past_outputs)
 
     # Creates the dynamic axes based on inputs and outputs
     dynamic_axes = {name: axes for name, axes in chain(onnx_inputs.items(), onnx_outputs.items())}
 
     # Applies a caveat to use unsupported triu/tril by PyTorch
-    register_trilu_operator()
+    torch.triu = triu_onnx
+    torch.tril = tril_onnx
 
     # Exports model to ONNX
     torch.onnx.export(model,
@@ -134,10 +131,7 @@ def export_onnx_from_pt(model: torch.nn.Module,
                       output_names=list(onnx_outputs.keys()),
                       dynamic_axes=dynamic_axes,
                       do_constant_folding=do_constant_folding,
-                      use_external_data_format=use_external_data_format,
-                      enable_onnx_checker=enable_onnx_checker,
-                      opset_version=opset_version,
-                      custom_opsets={'com.microsoft': 1})
+                      opset_version=opset_version)
 
     # Exports configuration to JSON
     model_config['model_type'] = 'transfo-xl'
