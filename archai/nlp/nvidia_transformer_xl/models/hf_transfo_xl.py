@@ -1,14 +1,13 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Optional
 
 import torch
+from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
-from transformers import (
-    CONFIG_MAPPING,
-    AutoModelForCausalLM
-)
-
-from archai.nlp.nvidia_transformer_xl.models.model_utils import map_to_list
 from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
+from archai.nlp.nvidia_transformer_xl.models.model_utils import map_to_list
 
 
 class HfTransfoXL(ArchaiModel):

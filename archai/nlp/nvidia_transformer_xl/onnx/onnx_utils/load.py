@@ -6,11 +6,11 @@ from os import environ
 from pathlib import Path
 from typing import Tuple
 
-import torch
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
+from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
+from archai.nlp.nvidia_transformer_xl.models.available_models import AVAILABLE_MODELS
 
-from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM
 from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.forward import (crit_forward_with_probs,
                                                                       forward_with_probs)
 
@@ -59,38 +59,30 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     return session
 
 
-def load_from_pt(torch_model_path: str) -> Tuple[MemTransformerLM, dict]:
+def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, dict]:
     """Loads a PyTorch-based model from checkpoint.
 
     Args:
+        model_type: Type of model to be loaded.
         torch_model_path: Path to the PyTorch model/checkpoint file.
 
     Returns:
-        (MemTransformerLM, dict): PyTorch model and its configuration.
+        (ArchaiModel, dict): PyTorch model and its configuration.
 
     """
 
-    # Loads the checkpoint
-    # Note we are always enabling cache for usage of `past_key_values`
-    checkpoint = torch.load(torch_model_path, map_location=torch.device('cpu'))
-    checkpoint['model_config']['use_cache'] = True
+    # Loads the model
+    model, model_config, _ = ArchaiModel.load_model(AVAILABLE_MODELS[model_type],
+                                                    torch_model_path,
+                                                    on_cpu=False,
+                                                    on_export=True)
 
-    # Initializes the model
-
-    # Added for compatibility with models trained with an 
-    # older test branch which had this flag
-    # TODO: Remove in the future
-    if 'encoder_like' in checkpoint['model_config']:
-        del checkpoint['model_config']['encoder_like']
-    
-    model = MemTransformerLM(**checkpoint['model_config'])
-    model.load_state_dict(checkpoint['model_state'])
-
-    # Overrides forward functions
-    model.forward = types.MethodType(forward_with_probs, model)
-    model.crit.forward = types.MethodType(crit_forward_with_probs, model.crit)
+    # Overrides forward functions if MemTransformerLM
+    if model_type == 'mem_transformer':
+        model.forward = types.MethodType(forward_with_probs, model)
+        model.crit.forward = types.MethodType(crit_forward_with_probs, model.crit)
 
     # Puts to evaluation model to disable dropout
     model.eval()
 
-    return model, checkpoint['model_config']
+    return model, model_config
