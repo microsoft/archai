@@ -1,21 +1,19 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 
 from transformers import (
     CONFIG_MAPPING,
-    MODEL_FOR_CAUSAL_LM_MAPPING,
-    AutoConfig,
     AutoModelForCausalLM
 )
 
 from archai.nlp.nvidia_transformer_xl.models.model_utils import map_to_list
 from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
 
+
 class HfGPT2(ArchaiModel):
-    """ Adapts HuggingFace GPT2 model (GPT2LMHeadModel) to the transformer_xl codebase.
+    """Adapts HuggingFace GPT2 model (GPT2LMHeadModel) to the transformer_xl codebase.
     """
 
     hyperparam_mapping = {'n_layer': 'n_layer',
