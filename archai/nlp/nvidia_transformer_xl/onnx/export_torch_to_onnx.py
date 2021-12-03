@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     # Whether optimization should be applied
     if optimization:
-        ort_model_path = optimize_onnx(onnx_model_path, model_type, opt_level=opt_level)
+        ort_model_path = optimize_onnx(model_type, onnx_model_path, opt_level=opt_level)
 
         # Caveat to enable quantization after optimization
         onnx_model_path = ort_model_path

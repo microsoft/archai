@@ -3,7 +3,6 @@
 
 from pathlib import Path
 import json
-from collections import OrderedDict
 from itertools import chain
 from typing import Optional
 
@@ -11,6 +10,12 @@ import torch
 from onnx import helper, load_model, numpy_helper, save
 
 from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.operators import tril_onnx, triu_onnx
+from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.configs import MemTransformerLMOnnxConfig
+
+# List of available ONNX configurations
+AVAILABLE_ONNX_CONFIGS = {
+    'mem_transformer': MemTransformerLMOnnxConfig
+}
 
 
 def weight_sharing(onnx_model_path: str) -> None:
@@ -90,34 +95,11 @@ def export_onnx_from_pt(model: torch.nn.Module,
 
     """
 
-    # Constant definitions
-    n_layer = model_config['n_layer']
-    n_token = model_config['n_token']
-    n_head = model_config['n_head']
-    d_head = model_config['d_head']
-    attn_type = model_config['attn_type']
-
-    # Creates the `past_key_values` mockup inputs
-    if attn_type == 0:
-        n_past_values = 3
-    else:
-        n_past_values = 2
-    past_key_values = tuple([torch.zeros(n_past_values, 1, n_head, 32, d_head) for _ in range(n_layer)])
-
-    # Defines some mockup inputs
-    inputs = {
-        'input_ids': torch.randint(0, n_token, (1, 32)),
-        'past_key_values': past_key_values
-    }
-
-    # Defines the names of ONNX inputs and outputs
-    onnx_past_inputs = [(f'past_{i}', {0: str(n_past_values), 1: 'batch_size', 2: str(n_head), 3: 'past_seq_len', 4: str(d_head)}) for i in range(n_layer)]
-    onnx_past_outputs = [(f'present_{i}', {0: str(n_past_values), 1: 'batch_size', 2: str(n_head), 3: 'total_seq_len', 4: str(d_head)}) for i in range(n_layer)]
-    onnx_inputs = OrderedDict([('input_ids', {0: 'batch_size', 1: 'seq_len'})] + onnx_past_inputs)
-    onnx_outputs = OrderedDict([('probs', {0: 'batch_size', 1: str(n_token)})] + onnx_past_outputs)
+    # Gathers the proper ONNX configuration instance
+    onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](model_config)
 
     # Creates the dynamic axes based on inputs and outputs
-    dynamic_axes = {name: axes for name, axes in chain(onnx_inputs.items(), onnx_outputs.items())}
+    dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}
 
     # Applies a caveat to use unsupported triu/tril by PyTorch
     torch.triu = triu_onnx
@@ -125,17 +107,17 @@ def export_onnx_from_pt(model: torch.nn.Module,
 
     # Exports model to ONNX
     torch.onnx.export(model,
-                      (inputs,),
+                      (onnx_config.mockups,),
                       onnx_model_path,
-                      input_names=list(onnx_inputs.keys()),
-                      output_names=list(onnx_outputs.keys()),
+                      input_names=list(onnx_config.inputs.keys()),
+                      output_names=list(onnx_config.outputs.keys()),
                       dynamic_axes=dynamic_axes,
                       do_constant_folding=do_constant_folding,
                       opset_version=opset_version)
 
     # Exports configuration to JSON
-    model_config['model_type'] = 'transfo-xl'
-    model_config['past_key_values'] = n_past_values
+    model_config['model_type'] = onnx_config.config['model_type']
+    model_config['past_key_values'] = onnx_config.config['past_key_values']
 
     config_path = Path(onnx_model_path).parent / 'config.json'
     with open(config_path, 'w') as f:
