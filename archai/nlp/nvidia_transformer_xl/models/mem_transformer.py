@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Sized
 from typing import Optional, Tuple
 import functools
 import os
@@ -27,6 +26,7 @@ from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sa
 from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 from archai.nlp.nvidia_transformer_xl.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
+from archai.nlp.nvidia_transformer_xl.models.model_utils import map_to_list
 
 
 @torch.jit.script
@@ -604,17 +604,10 @@ class MemTransformerLM(ArchaiModel):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
-        def _map_to_list(p):
-            if isinstance(p, Sized):
-                if len(p) == 1:
-                    return p * n_layer
-                return p
-            return [p] * n_layer
-
         d_embed = d_model if d_embed is None else d_embed
-        d_inner = _map_to_list(d_inner)
-        n_head = _map_to_list(n_head)
-        d_head = [d_model // n_h for n_h in n_head] if d_head is None else _map_to_list(d_head)
+        d_inner = map_to_list(d_inner, n_layer)
+        n_head = map_to_list(n_head, n_layer)
+        d_head = [d_model // n_h for n_h in n_head] if d_head is None else map_to_list(d_head, n_layer)
 
         assert len(d_inner) == n_layer and len(n_head) == n_layer and len(d_head) == n_layer
 

@@ -45,5 +45,3 @@ class ArchaiModel(nn.Module):
         model.load_state_dict(checkpoint['model_state'])
 
         return model, model_config, checkpoint
-
-

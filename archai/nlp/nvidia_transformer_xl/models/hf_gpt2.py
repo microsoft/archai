@@ -11,6 +11,7 @@ from transformers import (
     AutoModelForCausalLM
 )
 
+from archai.nlp.nvidia_transformer_xl.models.model_utils import map_to_list
 from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
 
 class HfGPT2(ArchaiModel):
@@ -35,13 +36,15 @@ class HfGPT2(ArchaiModel):
         if kwargs['d_embed'] == -1:
             kwargs['d_embed'] = kwargs['d_model']
 
-        assert all(elem == kwargs['n_head'][0] for elem in kwargs['n_head']), 'GPT2 does not accept heterogenous arch.'
-        assert all(elem == kwargs['d_head'][0] for elem in kwargs['d_head']), 'GPT2 does not accept heterogenous arch.'
-        assert all(elem == kwargs['d_inner'][0] for elem in kwargs['d_inner']), 'GPT2 does not accept heterogenous arch.'
+        d_inner = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
+        n_head = map_to_list(kwargs['n_head'], kwargs['n_layer'])
+        d_head = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] is None else map_to_list(kwargs['d_head'], kwargs['n_layer'])
 
-        kwargs['n_head'] = kwargs['n_head'][0]
-        kwargs['d_head'] = kwargs['d_head'][0]
-        kwargs['d_inner'] = kwargs['d_inner'][0]
+        assert len(d_inner) == kwargs['n_layer'] and len(n_head) == kwargs['n_layer'] and len(d_head) == kwargs['n_layer']
+
+        kwargs['d_inner'] = d_inner[0]
+        kwargs['n_head'] = n_head[0]
+        kwargs['d_head'] = d_head[0]
 
         assert kwargs['d_model'] == kwargs['d_embed'], 'GPT2 does not support d_model != d_embed'
         assert kwargs['n_head'] * kwargs['d_head'] == kwargs['d_embed'], 'GPT2 does not support n_head*d_head != d_embed'
@@ -82,5 +85,3 @@ class HfGPT2(ArchaiModel):
 
     def get_non_emb_params(self):
         return sum([p.nelement() for p in self.model.transformer.h.parameters()])
-
-
