@@ -19,6 +19,7 @@ from typing import Tuple
 
 from . import measure
 
+from archai.nas.model import Model
 
 def get_batch_jacobian(net, x, target, device, split_data):
     x.requires_grad_(True)
@@ -28,9 +29,15 @@ def get_batch_jacobian(net, x, target, device, split_data):
         st=sp*N//split_data
         en=(sp+1)*N//split_data
         y = net(x[st:en])
-        # natsbench sss produces (activation, logits) tuple
-        if isinstance(y, Tuple):
-            y = y[1]
+        
+        # TODO: We have to deal with different output styles of 
+        # different APIs properly
+        # # natsbench sss produces (activation, logits) tuple
+        # if isinstance(outputs, Tuple) and len(outputs) == 2:
+        #     outputs = outputs[1]
+        if isinstance(net, Model):
+            y, aux_logits = y[0], y[1]
+
         y.backward(torch.ones_like(y))
 
     jacob = x.grad.detach()

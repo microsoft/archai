@@ -18,6 +18,7 @@ from archai.nas.evaluater import EvalResult
 from archai.common.common import get_expdir, logger
 from archai.algos.proxynas.freeze_manual_searcher import ManualFreezeSearcher
 from archai.algos.zero_cost_measures.zero_cost_darts_space_constant_random_evaluator import ZeroCostDartsSpaceConstantRandomEvaluator
+from archai.algos.random_sample_darts_space.random_model_desc_builder import RandomModelDescBuilder
 
 from nats_bench import create
 
@@ -26,8 +27,8 @@ class ZeroCostDartsSpaceConstantRandomExperimentRunner(ExperimentRunner):
     which are randomly sampled in a reproducible way"""
 
     @overrides
-    def model_desc_builder(self)->Optional[ModelDescBuilder]:
-        return None
+    def model_desc_builder(self)->RandomModelDescBuilder:
+        return RandomModelDescBuilder()
 
     @overrides
     def trainer_class(self)->TArchTrainer:
