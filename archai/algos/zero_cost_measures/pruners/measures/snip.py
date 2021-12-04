@@ -26,7 +26,7 @@ from . import measure
 from ..p_utils import get_layer_metric_array
 
 from archai.nas.model import Model
-
+from archai.algos.natsbench.lib.models.shape_infers.InferTinyCellNet import DynamicShapeTinyNet
 
 def snip_forward_conv2d(self, x):
         return F.conv2d(x, self.weight * self.weight_mask, self.bias,
@@ -57,11 +57,10 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
         en=(sp+1)*N//split_data
     
         outputs = net.forward(inputs[st:en])
-        # TODO: We have to deal with different output styles of 
-        # different APIs properly
-        # # natsbench sss produces (activation, logits) tuple
-        # if isinstance(outputs, Tuple) and len(outputs) == 2:
-        #     outputs = outputs[1]
+
+        # natsbench sss produces (activation, logits) tuple
+        if isinstance(outputs, DynamicShapeTinyNet) and len(outputs) == 2:
+            outputs = outputs[1]
         if isinstance(net, Model):
             outputs, aux_logits = outputs[0], outputs[1]
         loss = loss_fn(outputs, targets[st:en])

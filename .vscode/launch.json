@@ -350,7 +350,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_natsbench_space", "--datasets", "synthetic_cifar10"]
+            "args": ["--full", "--algos", "zerocost_natsbench_space", "--datasets", "cifar10"]
         },
         {
             "name": "ZeroCost-Natsbench-Space-Toy",

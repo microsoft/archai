@@ -25,6 +25,8 @@ from ..p_utils import get_layer_metric_array
 
 from archai.nas.model import Model
 
+from archai.algos.natsbench.lib.models.shape_infers.InferTinyCellNet import DynamicShapeTinyNet
+
 
 @measure('grasp', bn=True, mode='param')
 def compute_grasp_per_weight(net, inputs, targets, mode, loss_fn, T=1, num_iters=1, split_data=1):
@@ -50,11 +52,9 @@ def compute_grasp_per_weight(net, inputs, targets, mode, loss_fn, T=1, num_iters
             #TODO get new data, otherwise num_iters is useless!
             outputs = net.forward(inputs[st:en])
 
-            # TODO: We have to deal with different output styles of 
-            # different APIs properly
-            # # natsbench sss produces (activation, logits) tuple
-            # if isinstance(outputs, Tuple) and len(outputs) == 2:
-            #     outputs = outputs[1]
+            # natsbench sss produces (activation, logits) tuple
+            if isinstance(outputs, DynamicShapeTinyNet) and len(outputs) == 2:
+                outputs = outputs[1]
             if isinstance(net, Model):
                 outputs, aux_logits = outputs[0], outputs[1]
             

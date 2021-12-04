@@ -21,7 +21,7 @@ from . import measure
 from ..p_utils import get_layer_metric_array
 
 from archai.nas.model import Model
-
+from archai.algos.natsbench.lib.models.shape_infers.InferTinyCellNet import DynamicShapeTinyNet
 
 @measure('synflow', bn=False, mode='param')
 @measure('synflow_bn', bn=True, mode='param')
@@ -55,11 +55,9 @@ def compute_synflow_per_weight(net, inputs, targets, mode, split_data=1, loss_fn
     inputs = torch.ones([1] + input_dim).double().to(device)
     output = net.forward(inputs)
     
-    # TODO: We have to deal with different output styles of 
-    # different APIs properly
-    # # natsbench sss produces (activation, logits) tuple
-    # if isinstance(outputs, Tuple) and len(outputs) == 2:
-    #     outputs = outputs[1]
+    # natsbench sss produces (activation, logits) tuple
+    if isinstance(output, DynamicShapeTinyNet) and len(output) == 2:
+        output = output[1]
     if isinstance(net, Model):
         output, aux_logits = output[0], output[1]
 
