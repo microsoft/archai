@@ -25,6 +25,8 @@ from ..p_utils import get_layer_metric_array, reshape_elements
 
 from archai.nas.model import Model
 
+from archai.algos.natsbench.lib.models.shape_infers.InferTinyCellNet import DynamicShapeTinyNet
+
 
 def fisher_forward_conv2d(self, x):
     x = F.conv2d(x, self.weight, self.bias, self.stride,
@@ -88,11 +90,9 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
 
         net.zero_grad()
         outputs = net(inputs[st:en])
-        # TODO: We have to deal with different output styles of 
-        # different APIs properly
-        # # natsbench sss produces (activation, logits) tuple
-        # if isinstance(outputs, Tuple) and len(outputs) == 2:
-        #     outputs = outputs[1]
+        # natsbench sss produces (activation, logits) tuple
+        if isinstance(outputs, DynamicShapeTinyNet) and len(outputs) == 2:
+            outputs = outputs[1]
         if isinstance(net, Model):
             outputs, aux_logits = outputs[0], outputs[1]
         loss = loss_fn(outputs, targets[st:en])
