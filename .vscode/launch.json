@@ -465,6 +465,14 @@
             "args": ["--algos", "proxynas_nasbench101_space", "--arch-list-index", "0", "--num-archs", "50", "--top1-acc-threshold", "0.6"]
         },
         {
+            "name": "Main Zero Cost Darts Space Constant Random",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main_darts_space_constant_random_archs_zerocost.py",
+            "console": "integratedTerminal",
+            "args": ["--arch-list-index", "0", "--num-archs", "50", "--datasets", "cifar100"]
+        },
+        {
             "name": "Resnet-Toy",
             "type": "python",
             "request": "launch",
