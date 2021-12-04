@@ -37,8 +37,8 @@ class ZeroCostDartsSpaceConstantRandomEvaluator(Evaluater):
     def create_model(self, conf_eval:Config, model_desc_builder:RandomModelDescBuilder,
                       final_desc_filename=None, full_desc_filename=None)->nn.Module:
         
-        assert model_desc_builder is not None, 'DartsSpaceEvaluater requires model_desc_builder'
-        assert final_desc_filename is None, 'DartsSpaceEvaluater creates its own model desc based on arch index'
+        assert model_desc_builder is not None, 'ZeroCostDartsSpaceConstantRandomEvaluator requires model_desc_builder'
+        assert final_desc_filename is None, 'ZeroCostDartsSpaceConstantRandomEvaluator creates its own model desc based on arch index'
         assert type(model_desc_builder) == RandomModelDescBuilder, 'DartsSpaceEvaluater requires RandomModelDescBuilder'
 
         # region conf vars
@@ -48,6 +48,7 @@ class ZeroCostDartsSpaceConstantRandomEvaluator(Evaluater):
             full_desc_filename = conf_eval['full_desc_filename']
         conf_model_desc   = conf_eval['model_desc']
         arch_index = conf_eval['dartsspace']['arch_index']
+        self.num_classes = conf_eval['loader']['dataset']['n_classes']
         # endregion
 
         assert arch_index >= 0
