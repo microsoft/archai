@@ -129,6 +129,8 @@ def main():
                         arch_id_in_bench = confs[key]['nas']['eval']['natsbench']['arch_index']
                     elif 'nasbench101' in list(confs[key]['nas']['eval'].keys()):
                         arch_id_in_bench = confs[key]['nas']['eval']['nasbench101']['arch_index']
+                    elif 'dartsspace' in list(confs[key]['nas']['eval'].keys()):
+                        arch_id_in_bench = confs[key]['nas']['eval']['dartsspace']['arch_index']
                     
                     if arch_id_in_bench not in list(reg_evals_data.keys()):
                         # if the dataset used is not part of the standard benchmark some of the architectures
@@ -149,8 +151,9 @@ def main():
                     all_arch_ids.append(confs[key]['nas']['eval']['natsbench']['arch_index'])
                 elif 'nasbench101' in list(confs[key]['nas']['eval'].keys()):
                     all_arch_ids.append(confs[key]['nas']['eval']['nasbench101']['arch_index'])
+                elif 'dartsspace' in list(confs[key]['nas']['eval'].keys()):
+                    all_arch_ids.append(confs[key]['nas']['eval']['dartsspace']['arch_index'])
                 
-
             except KeyError as err:
                 print(f'KeyError {err} not in {key}')
                 sys.exit()
