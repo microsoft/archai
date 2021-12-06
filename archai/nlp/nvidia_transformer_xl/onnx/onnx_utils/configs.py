@@ -6,6 +6,10 @@ from typing import Any, Dict
 
 import torch
 
+# Mockup constants
+BATCH_SIZE = 1
+SEQ_LEN = 32
+
 
 class OnnxConfig:
     """Provides a foundation for creating ONNX-export configuration instances.
@@ -29,7 +33,7 @@ class OnnxConfig:
         """
 
         return {
-            'input_ids': torch.randint(0, self.config['n_token'], (1, 32)),
+            'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
         }
 
     @property
@@ -64,9 +68,12 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
 
         super().__init__(model_config)
 
+        # Checks the type of attention to define the `past_key_values`
         if self.config['attn_type'] == 0:
+            # `k`, `v` and relative embeddings
             self.config['past_key_values'] = 3
         else:
+            # `k` and `v`
             self.config['past_key_values'] = 2
 
         self.config['model_type'] = 'transfo-xl'
@@ -78,8 +85,8 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
         """
 
         return {
-            'input_ids': torch.randint(0, self.config['n_token'], (1, 32)),
-            'past_key_values': tuple([torch.zeros(self.config['past_key_values'], 1, self.config['n_head'], 32, self.config['d_head']) for _ in range(self.config['n_layer'])])
+            'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
+            'past_key_values': tuple([torch.zeros(self.config['past_key_values'], BATCH_SIZE, self.config['n_head'], SEQ_LEN, self.config['d_head']) for _ in range(self.config['n_layer'])])
         }
 
     @property
@@ -88,6 +95,8 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
         
         """
 
+        # Shape of past states
+        # [past_key_values, batch_size, n_head, past_seq_len, d_head]
         pasts = [(f'past_{i}', {0: str(self.config['past_key_values']), 1: 'batch_size', 2: str(self.config['n_head']), 3: 'past_seq_len', 4: str(self.config['d_head'])}) for i in range(self.config['n_layer'])]
         return OrderedDict([('input_ids', {0: 'batch_size', 1: 'seq_len'})] + pasts)
 
@@ -97,5 +106,8 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
         
         """
 
+        # Shape of present states (past states when outputting)
+        # [past_key_values, batch_size, n_head, total_seq_len, d_head]
+        # Note total_seq_len is current seq_len + past_seq_len
         presents = [(f'present_{i}', {0: str(self.config['past_key_values']), 1: 'batch_size', 2: str(self.config['n_head']), 3: 'total_seq_len', 4: str(self.config['d_head'])}) for i in range(self.config['n_layer'])]
         return OrderedDict([('probs', {0: 'batch_size', 1: str(self.config['n_token'])})] + presents)
