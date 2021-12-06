@@ -75,7 +75,7 @@ def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, d
     model, model_config, _ = ArchaiModel.load_model(AVAILABLE_MODELS[model_type],
                                                     torch_model_path,
                                                     on_cpu=False,
-                                                    on_export=True)
+                                                    for_export=True)
 
     # Overrides forward functions if MemTransformerLM
     if model_type == 'mem_transformer':

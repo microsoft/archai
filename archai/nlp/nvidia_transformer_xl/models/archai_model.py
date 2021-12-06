@@ -25,7 +25,7 @@ class ArchaiModel(nn.Module):
         return sum([p.nelement() for p in self.parameters()])
 
     @staticmethod
-    def load_model(model_cls: Type['ArchaiModel'], path:str, model:Optional['ArchaiModel']=None, on_cpu:Optional[bool]=False, on_export:Optional[bool]=False) -> Tuple['ArchaiModel', dict, dict]:
+    def load_model(model_cls: Type['ArchaiModel'], path:str, model:Optional['ArchaiModel']=None, on_cpu:Optional[bool]=False, for_export:Optional[bool]=False) -> Tuple['ArchaiModel', dict, dict]:
 
         # case for restart
         if os.path.isdir(path):
@@ -39,7 +39,7 @@ class ArchaiModel(nn.Module):
         checkpoint = torch.load(path, map_location=device)
         model_config = checkpoint['model_config']
 
-        if on_export:
+        if for_export:
             model_config['use_cache'] = True
 
         # Initializes the model

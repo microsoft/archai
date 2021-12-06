@@ -12,21 +12,21 @@ from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.quantization import dynami
 def parse_args():
     parser = argparse.ArgumentParser(description='Exports a PyTorch-based model to ONNX.')
 
-    parser.add_argument('torch_model_path',
+    parser.add_argument('--torch_model_path',
                         type=str,
                         help='Path to the PyTorch model/checkpoint file.')
 
-    parser.add_argument('onnx_model_path',
+    parser.add_argument('--onnx_model_path',
                         type=str,
                         help='Path to the output ONNX model file.')
 
-    parser.add_argument('-model_type',
+    parser.add_argument('--model_type',
                         type=str,
                         default='mem_transformer',
                         choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
                         help='Type of model to be exported.')
 
-    parser.add_argument('-opt_level',
+    parser.add_argument('--opt_level',
                         type=int,
                         default=0,
                         help='Level of the ORT optimization.')

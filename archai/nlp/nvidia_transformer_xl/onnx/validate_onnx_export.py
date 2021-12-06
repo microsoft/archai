@@ -11,26 +11,26 @@ from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.load import load_from_onnx
 def parse_args():
     parser = argparse.ArgumentParser(description='Validates between PyTorch and exported ONNX model.')
 
-    parser.add_argument('torch_model_path',
+    parser.add_argument('--torch_model_path',
                         type=str,
                         help='Path to the PyTorch model/checkpoint file.')
 
-    parser.add_argument('onnx_model_path',
+    parser.add_argument('--onnx_model_path',
                         type=str,
                         help='Path to the ONNX model file.')
 
-    parser.add_argument('-model_type',
+    parser.add_argument('--model_type',
                         type=str,
                         default='mem_transformer',
                         choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
                         help='Type of model to be exported.')
 
-    parser.add_argument('-batch_size',
+    parser.add_argument('--batch_size',
                         type=int,
                         default=1,
                         help='Size of the batch.')
 
-    parser.add_argument('-seq_len',
+    parser.add_argument('--seq_len',
                         type=int,
                         default=32,
                         help='Sequence length.')
@@ -56,9 +56,11 @@ if __name__ == '__main__':
     model_onnx = load_from_onnx(onnx_model_path)
 
     # Checks the type of attention to define the `past_key_values`
+    # `k`, `v` and relative embeddings
     if model_config['attn_type'] == 0:
         n_past_values = 3
     else:
+        # `k` and `v`
         n_past_values = 2
 
     # Defines PyTorch inputs

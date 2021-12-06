@@ -40,6 +40,9 @@ def forward_with_probs(self,
 
     # Calculates the output predictions/probabilities
     preds = self.crit(hidden_preds)
+
+    # As we are using batch_size x seq_len for input and outputs
+    # We need to change the view of the predictions if they exist
     preds = preds.view(input_ids.size(1), -1) if preds is not None else None
 
     # Reshapes past_key_values back to standard shape
