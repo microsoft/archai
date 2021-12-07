@@ -9,7 +9,7 @@ from torch.optim.optimizer import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
 
-from overrides import EnforceOverrides
+from overrides import EnforceOverrides, overrides
 
 from archai.common.metrics import Metrics
 from archai.common.tester import Tester
@@ -36,6 +36,7 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
         
         # endregion
 
+    @overrides
     def _train_epoch(self, train_dl: DataLoader)->None:
         steps = len(train_dl)
         self.model.train()
