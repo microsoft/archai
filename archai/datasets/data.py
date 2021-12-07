@@ -57,6 +57,13 @@ def get_data(conf_loader:Config)->DataLoaders:
     test_batch = conf_loader['test_batch']
     test_workers = conf_loader['test_workers']
     conf_apex  = conf_loader['apex']
+    # within try except block for backwards compatibility
+    # since this was added after a while and most 
+    # config files don't specify this option
+    try:
+        use_sampler = conf_loader['use_sampler']
+    except:
+        use_sampler = True
     # endregion
 
     ds_provider = create_dataset_provider(conf_dataset)
@@ -68,7 +75,7 @@ def get_data(conf_loader:Config)->DataLoaders:
         load_test=load_test, test_batch_size=test_batch,
         aug=aug, cutout=cutout,  val_ratio=val_ratio, val_fold=val_fold,
         train_workers=train_workers, test_workers=test_workers,
-        max_batches=max_batches, apex=apex)
+        max_batches=max_batches, apex=apex, use_sampler=use_sampler)
 
     assert train_dl is not None
 
@@ -91,7 +98,7 @@ def get_dataloaders(ds_provider:DatasetProvider,
     load_test:bool, test_batch_size:int,
     aug, cutout:int, val_ratio:float, apex:apex_utils.ApexUtils,
     val_fold=0, train_workers:Optional[int]=None, test_workers:Optional[int]=None,
-    target_lb=-1, max_batches:int=-1) \
+    target_lb=-1, max_batches:int=-1, use_sampler=True) \
         -> Tuple[Optional[DataLoader], Optional[DataLoader], Optional[DataLoader]]:
 
     # if debugging in vscode, workers > 0 gets termination
@@ -128,18 +135,22 @@ def get_dataloaders(ds_provider:DatasetProvider,
                     'max_train_fold': max_train_fold})
 
         # sample validation set from trainset if cv_ratio > 0
-        train_sampler, valid_sampler = _get_sampler(trainset, val_ratio=val_ratio,
-                                                    shuffle=True, apex=apex,
-                                                    max_items=max_train_fold)
-        logger.info({'train_sampler_world_size':train_sampler.world_size,
-                    'train_sampler_rank':train_sampler.rank,
-                    'train_sampler_len': len(train_sampler)})
-        if valid_sampler:
-            logger.info({'valid_sampler_world_size':valid_sampler.world_size,
-                        'valid_sampler_rank':valid_sampler.rank,
-                        'valid_sampler_len': len(valid_sampler)
-                        })
+        train_sampler = None
+        valid_sampler = None
 
+        if use_sampler:
+            train_sampler, valid_sampler = _get_sampler(trainset, val_ratio=val_ratio,
+                                                        shuffle=True, apex=apex,
+                                                        max_items=max_train_fold)
+            logger.info({'train_sampler_world_size':train_sampler.world_size,
+                        'train_sampler_rank':train_sampler.rank,
+                        'train_sampler_len': len(train_sampler)})
+            if valid_sampler:
+                logger.info({'valid_sampler_world_size':valid_sampler.world_size,
+                            'valid_sampler_rank':valid_sampler.rank,
+                            'valid_sampler_len': len(valid_sampler)
+                            })
+        
         # shuffle is performed by sampler at each epoch
         trainloader = DataLoader(trainset,
             batch_size=train_batch_size, shuffle=False,
@@ -159,13 +170,16 @@ def get_dataloaders(ds_provider:DatasetProvider,
         logger.info({'max_test_batches': max_batches,
                     'max_test_fold': max_test_fold})
 
-        test_sampler, test_val_sampler = _get_sampler(testset, val_ratio=None,
-                                       shuffle=False, apex=apex,
-                                       max_items=max_test_fold)
-        logger.info({'test_sampler_world_size':test_sampler.world_size,
-                    'test_sampler_rank':test_sampler.rank,
-                    'test_sampler_len': len(test_sampler)})
-        assert test_val_sampler is None
+        test_sampler = None
+        test_val_sampler = None
+        if use_sampler:
+            test_sampler, test_val_sampler = _get_sampler(testset, val_ratio=None,
+                                            shuffle=False, apex=apex,
+                                            max_items=max_test_fold)
+            logger.info({'test_sampler_world_size':test_sampler.world_size,
+                        'test_sampler_rank':test_sampler.rank,
+                        'test_sampler_len': len(test_sampler)})
+            assert test_val_sampler is None
 
         testloader = DataLoader(testset,
             batch_size=test_batch_size, shuffle=False,
@@ -217,7 +231,7 @@ def _get_sampler(dataset:Dataset, val_ratio:Optional[float], shuffle:bool,
 
     world_size, global_rank = apex.world_size, apex.global_rank
 
-    # we cannot not shuffle just for train or just val because of in distributed mode both must come from same shrad
+    # we cannot not shuffle just for train or just val because of in distributed mode both must come from same shard
     train_sampler = DistributedStratifiedSampler(dataset,
                         val_ratio=val_ratio, is_val=False, shuffle=shuffle,
                         max_items=max_items, world_size=world_size, rank=global_rank)

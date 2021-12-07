@@ -12,12 +12,18 @@ nas:
       aux_weight: False # AuxTower class assumes specific input size hence breaks with many datasets.
       num_edges_to_sample: 2
       n_cells: 8
+      n_reductions: 0 # for dense task we want output at the same resolution as input
+      model_post_op: 'identity' # no pooling at the end as we want dense output
+
     loader:
       aug: ''
       cutout: -1 # cutout length, use cutout augmentation when > 0
       val_ratio: 0.0
       train_batch: 96
+      use_sampler: False # distributed stratified sampler is not compatible with dense tasks
     trainer:
       use_val: False
       plotsdir: ''
       epochs: 100
+      lossfn:
+        type: 'L2Loss'
