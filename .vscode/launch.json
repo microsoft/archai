@@ -223,6 +223,14 @@
             "args": ["--full", "--algos", "darts_space_constant_random_archs", "--datasets", "cifar100"]
         },
         {
+            "name": "Darts Space Constant Random Archs Darcyflow",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "darts_space_constant_random_archs_darcyflow", "--datasets", "darcyflow"]
+        },
+        {
             "name": "Proxynas-Darts-Space-Full",
             "type": "python",
             "request": "launch",

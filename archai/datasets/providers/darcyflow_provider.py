@@ -167,6 +167,7 @@ class DarcyflowProvider(DatasetProvider):
     def __init__(self, conf_dataset:Config):
         super().__init__(conf_dataset)
         self._dataroot = utils.full_path(conf_dataset['dataroot'])
+        self._sub = conf_dataset['sub']
 
     @overrides
     def get_datasets(self, load_train:bool, load_test:bool,
@@ -176,7 +177,7 @@ class DarcyflowProvider(DatasetProvider):
         path_to_data = os.path.join(self._dataroot, 'darcyflow')
 
         # load the dataset but without any validation split
-        trainset, testset = load_darcyflow(path_to_data)
+        trainset, testset = load_darcyflow(path_to_data, self._sub)
 
         return trainset, testset
 
