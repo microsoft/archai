@@ -25,7 +25,7 @@ from archai.common.checkpoint import CheckPoint
 from archai.common.ml_utils import set_optim_lr
 from archai.datasets import data
 
-TFreezeTrainer = Optional[Type['ConditionalTrainer']]
+TConditionalTrainer = Optional[Type['ConditionalTrainer']]
 
 
 class ConditionalTrainer(ArchTrainer, EnforceOverrides):
