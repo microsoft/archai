@@ -1,0 +1,9 @@
+__include__: './dataroot.yaml' # default dataset settings are for cifar
+
+dataset:
+  name: 'darcyflow'
+  n_classes: 1 # not a classification task but a convenient hook. Imagine you have a 3x85x85 input and you want 1x85x85. (Do we need this?) 
+  channels: 3 # number of channels in image
+  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+  sub: 5 # parameter for creating grid used to process data
+  storage_name: 'darcyflow' # name of folder or tar file to copy from cloud storage
