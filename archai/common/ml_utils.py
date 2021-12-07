@@ -17,7 +17,7 @@ import statopt
 
 from .config import Config
 from .cocob import CocobBackprop
-from .ml_losses import SmoothCrossEntropyLoss
+from .ml_losses import SmoothCrossEntropyLoss, LpLoss
 from .warmup_scheduler import GradualWarmupScheduler
 
 
@@ -166,6 +166,8 @@ def get_lossfn(conf_lossfn:Config)->_Loss:
         return nn.CrossEntropyLoss()
     elif type == 'CrossEntropyLabelSmooth':
         return SmoothCrossEntropyLoss(smoothing=conf_lossfn['smoothing'])
+    elif type == 'L2Loss':
+        return LpLoss(d=2, p=2) # constraining dimension to be 2 and p to be 2
     else:
         raise ValueError('criterian type "{}" is not supported'.format(type))
 

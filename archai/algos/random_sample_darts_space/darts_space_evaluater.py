@@ -63,12 +63,6 @@ class DartsSpaceEvaluater(Evaluater):
         model_desc = model_desc_builder.build(conf_model_desc, 
                                             seed=random_seed_for_model_construction)
 
-        # convert from ModelDesc to Genotype for use with nasbench301
-        # NOTE: this is just showing how to potentially connect with 301.
-        # This is for future use. 
-        genotype = create_nb301_genotype_from_desc(model_desc)
-        print(genotype)
-
         # save desc for reference
         model_desc.save(full_desc_filename)
 

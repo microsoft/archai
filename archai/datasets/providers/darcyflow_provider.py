@@ -5,7 +5,9 @@ from typing import List, Tuple, Union, Optional
 import os
 import gzip
 import pickle
-import numpy as np 
+import numpy as np
+from scipy.io import loadmat
+import h5py 
 
 from overrides import overrides, EnforceOverrides
 import torch
@@ -36,7 +38,7 @@ class MatReader(object):
 
     def _load_file(self):
         try:
-            self.data = scipy.io.loadmat(self.file_path)
+            self.data = loadmat(self.file_path)
             self.old_mat = True
         except:
             self.data = h5py.File(self.file_path)

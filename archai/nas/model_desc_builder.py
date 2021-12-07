@@ -283,10 +283,16 @@ class ModelDescBuilder(EnforceOverrides):
 
         in_shapes.append([copy.deepcopy(last_shape)])
 
+        params={'conv': ConvMacroParams(self.get_ch(last_shape),
+                                                         self.get_ch(last_shape))}
+
+        # for dense 2D tasks there is no pool operator at the end  
+        if model_post_op == 'identity':
+            params['stride'] = 1
+
         return OpDesc(model_post_op,
-                         params={'conv': ConvMacroParams(self.get_ch(last_shape),
-                                                         self.get_ch(last_shape))},
-                         in_len=1, trainables=None)
+                        params,
+                        in_len=1, trainables=None)
 
     def build_logits_op(self, in_shapes:TensorShapesList, conf_model_desc:Config)->OpDesc:
         n_classes = self.get_conf_dataset()['n_classes']
