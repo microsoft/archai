@@ -83,6 +83,7 @@ def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, d
         model.crit.forward = types.MethodType(crit_forward_memformer_onnx, model.crit)
 
     if model_type == 'hf_gpt2':
+        model = model.model
         model.forward = types.MethodType(forward_gpt2_onnx, model)
 
     # Puts to evaluation model to disable dropout

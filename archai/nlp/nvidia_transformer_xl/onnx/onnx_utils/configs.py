@@ -44,7 +44,7 @@ class OnnxConfig:
 
         # Shape of past states
         # [past_key_values, batch_size, n_head, past_seq_len, d_head]
-        pasts = [(f'past_{i}', {0: str(self.config['past_key_values']), 1: 'batch_size', 2: str(self.config['n_head']), 3: 'past_seq_len', 4: str(self.config['d_head'])}) for i in range(self.config['n_layer'])]
+        pasts = [(f'past_{i}', {1: 'batch_size', 3: 'past_seq_len'}) for i in range(self.config['n_layer'])]
         return OrderedDict([('input_ids', {0: 'batch_size', 1: 'seq_len'})] + pasts)
 
     @property
@@ -56,8 +56,8 @@ class OnnxConfig:
         # Shape of present states (past states when outputting)
         # [2, batch_size, n_head, total_seq_len, d_head]
         # Note total_seq_len is current seq_len + past_seq_len
-        presents = [(f'present_{i}', {0: str(self.config['past_key_values']), 1: 'batch_size', 2: str(self.config['n_head']), 3: 'total_seq_len', 4: str(self.config['d_head'])}) for i in range(self.config['n_layer'])]
-        return OrderedDict([('probs', {0: 'batch_size', 1: str(self.config['n_token'])})] + presents)
+        presents = [(f'present_{i}', {1: 'batch_size', 3: 'total_seq_len'}) for i in range(self.config['n_layer'])]
+        return OrderedDict([('logits', {0: 'batch_size', 1: 'seq_len'})] + presents)
 
 
 class HfGPT2OnnxConfig(OnnxConfig):

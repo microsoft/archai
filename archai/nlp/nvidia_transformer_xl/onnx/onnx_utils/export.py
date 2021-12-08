@@ -82,7 +82,7 @@ def export_onnx_from_pt(model: torch.nn.Module,
                         onnx_model_path: str,
                         share_weights: Optional[bool] = True,
                         do_constant_folding: Optional[bool] = True,
-                        opset_version: Optional[int] = 12) -> None:
+                        opset_version: Optional[int] = 11) -> None:
     """Exports a PyTorch-based model to ONNX.
 
     Args:

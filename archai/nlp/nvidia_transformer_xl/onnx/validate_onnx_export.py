@@ -56,12 +56,11 @@ if __name__ == '__main__':
     model_onnx = load_from_onnx(onnx_model_path)
 
     # Checks the type of attention to define the `past_key_values`
-    # `k`, `v` and relative embeddings
-    if model_config['attn_type'] == 0:
-        n_past_values = 3
-    else:
-        # `k` and `v`
-        n_past_values = 2
+    n_past_values = 2
+    if model_type == 'mem_transformer':
+        if model_config['attn_type'] == 0:
+            # `k`, `v` and relative embeddings
+            n_past_values = 3
 
     # Defines PyTorch inputs
     torch.manual_seed(0)
