@@ -26,6 +26,11 @@ def parse_args():
                         choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
                         help='Type of model to be exported.')
 
+    parser.add_argument('--opset_version',
+                        type=int,
+                        default=11,
+                        help='Version of ONNX operators.')
+
     parser.add_argument('--opt_level',
                         type=int,
                         default=0,
@@ -57,6 +62,7 @@ if __name__ == '__main__':
     torch_model_path = args.torch_model_path
     onnx_model_path = args.onnx_model_path
     model_type = args.model_type
+    opset_version = args.opset_version
     opt_level = args.opt_level
     num_heads = args.num_heads
     optimization = args.optimization
@@ -66,7 +72,12 @@ if __name__ == '__main__':
     model, model_config = load_from_pt(model_type, torch_model_path)
 
     # Exports to ONNX
-    export_onnx_from_pt(model, model_config, model_type, onnx_model_path, share_weights=False)
+    export_onnx_from_pt(model,
+                        model_config,
+                        model_type,
+                        onnx_model_path,
+                        share_weights=True,
+                        opset_version=opset_version)
 
     # Whether optimization should be applied
     if optimization:
