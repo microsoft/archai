@@ -44,6 +44,7 @@ class FusionOptions:
         self.attention_mask_format = AttentionMaskFormat.AttentionMask
 
         if model_type == 'hf_gpt2':
+            self.enable_embed_layer_norm = False
             self.enable_skip_layer_norm = False
 
     def use_raw_attention_mask(self,
