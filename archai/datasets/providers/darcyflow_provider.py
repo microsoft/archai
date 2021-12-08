@@ -21,7 +21,7 @@ from archai.datasets.dataset_provider import DatasetProvider, register_dataset_p
 from archai.common.config import Config
 from archai.common import utils
 
-
+# modified from nasbench360 code
 class MatReader(object):
     def __init__(self, file_path, to_torch=True, to_cuda=False, to_float=True):
         super(MatReader, self).__init__()
@@ -75,8 +75,7 @@ class MatReader(object):
     def set_float(self, to_float):
         self.to_float = to_float
 
-
-
+# modified from nasbench360 code
 # normalization, pointwise gaussian
 class UnitGaussianNormalizer(object):
     def __init__(self, x, eps=0.00001):
@@ -115,7 +114,7 @@ class UnitGaussianNormalizer(object):
         self.mean = self.mean.cpu()
         self.std = self.std.cpu()
 
-
+# modified from nasbench360 code
 def create_grid(sub):
     '''construct a grid for pde data'''
     s = int(((421 - 1) / sub) + 1)
@@ -128,8 +127,7 @@ def create_grid(sub):
 
     return grid, s
 
-
-
+# modified from nasbench360 code
 def load_darcyflow(path_to_data:str, sub:int):
     TRAIN_PATH = os.path.join(path_to_data, 'piececonst_r421_N1024_smooth1.mat')
     reader = MatReader(TRAIN_PATH)
@@ -147,6 +145,8 @@ def load_darcyflow(path_to_data:str, sub:int):
     y_train = y_normalizer.encode(y_train)
 
     x_train = torch.cat([x_train.reshape(ntrain, s, s, 1), grid.repeat(ntrain, 1, 1, 1)], dim=3)
+    # moving from [1000, 85, 85, 3] -> [1000, 3, 85, 85]
+    x_train = torch.swapaxes(x_train, 1, 3)
     train_data = torch.utils.data.TensorDataset(x_train, y_train)
 
     ntest = 100 # according to the procedure of https://arxiv.org/abs/2010.08895
@@ -157,6 +157,8 @@ def load_darcyflow(path_to_data:str, sub:int):
 
     x_test = x_normalizer.encode(x_test)
     x_test = torch.cat([x_test.reshape(ntest, s, s, 1), grid.repeat(ntest, 1, 1, 1)], dim=3)
+    # moving from [1000, 85, 85, 3] -> [1000, 3, 85, 85]
+    x_test = torch.swapaxes(x_test, 1, 3)
     # also note that y_test is not 
     # encoded according to the procedure of 
     # https://arxiv.org/abs/2010.08895
