@@ -72,8 +72,8 @@ if __name__ == '__main__':
     if optimization:
         ort_model_path = optimize_onnx(model_type,
                                        onnx_model_path,
-                                       opt_level=opt_level,
-                                       num_heads=num_heads)
+                                       num_heads=num_heads,
+                                       opt_level=opt_level)
 
         # Caveat to enable quantization after optimization
         onnx_model_path = ort_model_path
