@@ -72,6 +72,8 @@ _ops_factory:Dict[str, Callable] = {
                             ConcateChannelsOp(op_desc, affine),
     'proj_channels':   lambda op_desc, arch_params, affine:
                             ProjectChannelsOp(op_desc, affine),
+    'proj_channels_no_bn':  lambda op_desc, arch_params, affine:
+                            ProjectChannelsOpNoBN(op_desc, affine),
     'linear':           lambda op_desc, arch_params, affine:
                             LinearOp(op_desc),
     'multi_op':         lambda op_desc, arch_params, affine:
@@ -578,6 +580,21 @@ class ProjectChannelsOp(MergeOp):
     def forward(self, states:List[torch.Tensor]):
         concatenated = torch.cat(states[-self.out_states:], dim=1)
         return self._op(concatenated)
+
+
+class ProjectChannelsOpNoBN(MergeOp):
+    ''' Projects channels to 1 without any BN'''
+    def __init__(self, op_desc:OpDesc, affine:bool)->None:
+        super().__init__(op_desc, affine)
+
+        self._op = nn.Conv2d(self.ch_in, self.ch_out, 1, # 1x1 conv
+                    stride=1, padding=0, bias=False)
+
+    @overrides
+    def forward(self, x:torch.Tensor):
+        return self._op(x)
+
+
 
 
 class DropPath_(nn.Module):
