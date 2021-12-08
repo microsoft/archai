@@ -31,6 +31,8 @@ class Metrics:
 
     The post_step will simply update the running averages while post_epoch updates
     best we have seen for each epoch.
+
+    Note: this class is very much tied to image classification common metrics.    
     """
 
     def __init__(self, title:str, apex:Optional[ApexUtils], logger_freq:int=50) -> None:
