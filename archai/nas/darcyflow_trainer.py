@@ -37,6 +37,15 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
         # endregion
 
     @overrides
+    def pre_step(self, x:Tensor, y:Tensor)->None:
+        pass
+
+    @overrides
+    def post_step(self, x:Tensor, y:Tensor, logits:Tensor, loss:Tensor,
+                  steps:int)->None:
+        pass
+
+    @overrides
     def _train_epoch(self, train_dl: DataLoader)->None:
         steps = len(train_dl)
         self.model.train()
@@ -80,6 +89,7 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
                 loss_sum += loss_c.item() * len(logits_c)
                 loss_count += len(logits_c)
                 logits_chunks.append(logits_c.detach().cpu())
+                logger.info(f"Loss {loss_c/loss_count}")
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
             self._apex.clip_grad(self._grad_clip, self.model, self._multi_optim)
