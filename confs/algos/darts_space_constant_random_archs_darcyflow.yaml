@@ -25,6 +25,6 @@ nas:
     trainer:
       use_val: False
       plotsdir: ''
-      epochs: 100
+      epochs: 2
       lossfn:
         type: 'L2Loss'
