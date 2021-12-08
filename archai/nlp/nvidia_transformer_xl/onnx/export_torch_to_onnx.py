@@ -31,6 +31,11 @@ def parse_args():
                         default=0,
                         help='Level of the ORT optimization.')
 
+    parser.add_argument('--num_heads',
+                        type=int,
+                        default=8,
+                        help='Number of attention heads (for fusion).')
+
     parser.add_argument('--optimization',
                         action='store_true',
                         help='Applies optimization to the exported model.')
@@ -53,6 +58,7 @@ if __name__ == '__main__':
     onnx_model_path = args.onnx_model_path
     model_type = args.model_type
     opt_level = args.opt_level
+    num_heads = args.num_heads
     optimization = args.optimization
     quantization = args.quantization
 
@@ -64,7 +70,10 @@ if __name__ == '__main__':
 
     # Whether optimization should be applied
     if optimization:
-        ort_model_path = optimize_onnx(model_type, onnx_model_path, opt_level=opt_level)
+        ort_model_path = optimize_onnx(model_type,
+                                       onnx_model_path,
+                                       opt_level=opt_level,
+                                       num_heads=num_heads)
 
         # Caveat to enable quantization after optimization
         onnx_model_path = ort_model_path
