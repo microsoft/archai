@@ -37,20 +37,57 @@ class OnnxConfig:
         }
 
     @property
-    def inputs(self) -> None:
+    def inputs(self) -> OrderedDict:
         """Defines the inputs and their shapes to be used when exporting to ONNX.
-
+        
         """
 
-        raise NotImplementedError
+        # Shape of past states
+        # [past_key_values, batch_size, n_head, past_seq_len, d_head]
+        pasts = [(f'past_{i}', {0: str(self.config['past_key_values']), 1: 'batch_size', 2: str(self.config['n_head']), 3: 'past_seq_len', 4: str(self.config['d_head'])}) for i in range(self.config['n_layer'])]
+        return OrderedDict([('input_ids', {0: 'batch_size', 1: 'seq_len'})] + pasts)
 
     @property
-    def outputs(self) -> None:
+    def outputs(self) -> OrderedDict:
         """Defines the outputs and their shapes to be used when exporting to ONNX.
         
         """
 
-        raise NotImplementedError
+        # Shape of present states (past states when outputting)
+        # [2, batch_size, n_head, total_seq_len, d_head]
+        # Note total_seq_len is current seq_len + past_seq_len
+        presents = [(f'present_{i}', {0: str(self.config['past_key_values']), 1: 'batch_size', 2: str(self.config['n_head']), 3: 'total_seq_len', 4: str(self.config['d_head'])}) for i in range(self.config['n_layer'])]
+        return OrderedDict([('probs', {0: 'batch_size', 1: str(self.config['n_token'])})] + presents)
+
+
+class HfGPT2OnnxConfig(OnnxConfig):
+    """Provides an ONNX-export configuration for HfGPT2.
+
+    """
+
+    def __init__(self, model_config: str) -> None:
+        """Initializes the configuration.
+
+        Args:
+            model_config: Model configuration.
+
+        """
+
+        super().__init__(model_config)
+
+        self.config['past_key_values'] = 2
+        self.config['model_type'] = 'gpt2'
+
+    @property
+    def mockups(self) -> Dict[str, Any]:
+        """Defines the mockups (inputs) to be used when exporting to ONNX.
+        
+        """
+
+        return {
+            'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
+            'past_key_values': tuple([torch.zeros(self.config['past_key_values'], BATCH_SIZE, self.config['n_head'], SEQ_LEN, self.config['d_head']) for _ in range(self.config['n_layer'])])
+        }
 
 
 class MemTransformerLMOnnxConfig(OnnxConfig):
@@ -88,26 +125,3 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
             'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
             'past_key_values': tuple([torch.zeros(self.config['past_key_values'], BATCH_SIZE, self.config['n_head'], SEQ_LEN, self.config['d_head']) for _ in range(self.config['n_layer'])])
         }
-
-    @property
-    def inputs(self) -> OrderedDict:
-        """Defines the inputs and their shapes to be used when exporting to ONNX.
-        
-        """
-
-        # Shape of past states
-        # [past_key_values, batch_size, n_head, past_seq_len, d_head]
-        pasts = [(f'past_{i}', {0: str(self.config['past_key_values']), 1: 'batch_size', 2: str(self.config['n_head']), 3: 'past_seq_len', 4: str(self.config['d_head'])}) for i in range(self.config['n_layer'])]
-        return OrderedDict([('input_ids', {0: 'batch_size', 1: 'seq_len'})] + pasts)
-
-    @property
-    def outputs(self) -> OrderedDict:
-        """Defines the outputs and their shapes to be used when exporting to ONNX.
-        
-        """
-
-        # Shape of present states (past states when outputting)
-        # [past_key_values, batch_size, n_head, total_seq_len, d_head]
-        # Note total_seq_len is current seq_len + past_seq_len
-        presents = [(f'present_{i}', {0: str(self.config['past_key_values']), 1: 'batch_size', 2: str(self.config['n_head']), 3: 'total_seq_len', 4: str(self.config['d_head'])}) for i in range(self.config['n_layer'])]
-        return OrderedDict([('probs', {0: 'batch_size', 1: str(self.config['n_token'])})] + presents)

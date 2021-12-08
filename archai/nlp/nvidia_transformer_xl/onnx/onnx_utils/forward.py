@@ -7,10 +7,45 @@ import torch
 import torch.nn.functional as F
 
 
-def forward_with_probs(self,
-                       input_ids: torch.LongTensor,
-                       past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None
-                       ) -> torch.FloatTensor:
+def forward_gpt2_onnx(self,
+                      input_ids: torch.LongTensor,
+                      past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None
+                      ) -> Tuple[torch.FloatTensor, ...]:
+    """Overrides the HfGPT2 forward by returning probabilities.
+
+    Args:
+        input_ids: Input tensor.
+        past_key_values: Past pre-computed key/values tensor.
+
+    Returns:
+        (Tuple[torch.FloatTensor, ...]): Output probabilities and past key/values.
+
+    """
+
+    # Makes sure that past_key_values exist whenever values are supplied or not
+    if past_key_values is None:
+        past_key_values = tuple([None] * self.n_layer)
+    else:
+        past_key_values = tuple([tuple([_p for _p in p]) for p in past_key_values])
+
+    # Takes into account the length of past_key_values sequence
+    input_shape = (input_ids.shape[0], input_ids.shape[1] + 32)
+    outputs = self.model(input_ids=input_ids,
+                         labels=None,
+                         attention_mask=torch.ones(input_shape),
+                         past_key_values=past_key_values)
+
+    # Reshapes predictions and past_key_values to correct sizes
+    preds = F.log_softmax(outputs.logits[:, -1, :], dim=-1)
+    past_key_values = tuple([torch.stack(p, dim=0) for p in past_key_values])
+
+    return preds, past_key_values
+
+
+def forward_memformer_onnx(self,
+                           input_ids: torch.LongTensor,
+                           past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None
+                           ) -> Tuple[torch.FloatTensor, ...]:
     """Overrides the MemTransformerLM forward by returning probabilities.
 
     Args:
@@ -18,7 +53,7 @@ def forward_with_probs(self,
         past_key_values: Past pre-computed key/values tensor.
 
     Returns:
-        (torch.FloatTensor): Output probabilities.
+        (Tuple[torch.FloatTensor, ...]): Output probabilities and past key/values.
 
     """
 
@@ -79,7 +114,7 @@ def _compute_logit(hidden: torch.FloatTensor,
     return logit
 
 
-def crit_forward_with_probs(self, hidden: torch.FloatTensor) -> torch.FloatTensor:
+def crit_forward_memformer_onnx(self, hidden: torch.FloatTensor) -> torch.FloatTensor:
     """Overrides the Projective Adaptive Softmax forward by returning probabilities.
 
     Args:
