@@ -70,7 +70,13 @@ def optimize_onnx(model_type: str,
         # Loads the ORT-optimized model, optimizer and fusion options
         ort_model = load_model(ort_model_path or onnx_model_path)
         ort_model_path = create_file_name_identifier(Path(onnx_model_path), '_opt')
-        optimizer = AVAILABLE_ONNX_OPTS[model_type](ort_model)
+
+        args = (ort_model, )
+
+        if model_type == 'hf_gpt2':
+            args += (8, 32)
+            
+        optimizer = AVAILABLE_ONNX_OPTS[model_type](*args)
         options = FusionOptions(model_type)
 
         # Optimizes the model

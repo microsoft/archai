@@ -10,10 +10,11 @@ import torch
 from onnx import helper, load_model, numpy_helper, save
 
 from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.operators import tril_onnx, triu_onnx
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.configs import MemTransformerLMOnnxConfig
+from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.configs import HfGPT2OnnxConfig, MemTransformerLMOnnxConfig
 
 # List of available ONNX configurations
 AVAILABLE_ONNX_CONFIGS = {
+    'hf_gpt2': HfGPT2OnnxConfig,
     'mem_transformer': MemTransformerLMOnnxConfig
 }
 
@@ -81,7 +82,7 @@ def export_onnx_from_pt(model: torch.nn.Module,
                         onnx_model_path: str,
                         share_weights: Optional[bool] = True,
                         do_constant_folding: Optional[bool] = True,
-                        opset_version: Optional[int] = 12) -> None:
+                        opset_version: Optional[int] = 11) -> None:
     """Exports a PyTorch-based model to ONNX.
 
     Args:
