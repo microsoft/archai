@@ -22,18 +22,13 @@ def forward_gpt2_onnx(self,
 
     """
 
-    input_shape = (input_ids.shape[0], input_ids.shape[1] + 32)
-
-    outputs = self.transformer(input_ids,
-                               past_key_values=past_key_values,
-                               attention_mask=torch.ones(input_shape))
+    outputs = self.transformer(input_ids, past_key_values=past_key_values)
 
     hidden_states = outputs[0]
-    logits = self.lm_head(hidden_states)
+    preds = F.softmax(self.lm_head(hidden_states[:,-1,:]), dim=-1)
+    past_key_values = tuple([torch.cat((p[0].unsqueeze(0), p[1].unsqueeze(0)), dim=0) for p in outputs.past_key_values])
 
-    past_key_values = tuple([torch.cat((p[0].unsqueeze(0), p[1].unsqueeze(0))) for p in past_key_values])
-
-    return logits, past_key_values
+    return preds, past_key_values
 
 
 def forward_memformer_onnx(self,

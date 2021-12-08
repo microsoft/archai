@@ -57,7 +57,7 @@ class OnnxConfig:
         # [2, batch_size, n_head, total_seq_len, d_head]
         # Note total_seq_len is current seq_len + past_seq_len
         presents = [(f'present_{i}', {1: 'batch_size', 3: 'total_seq_len'}) for i in range(self.config['n_layer'])]
-        return OrderedDict([('logits', {0: 'batch_size', 1: 'seq_len'})] + presents)
+        return OrderedDict([('probs', {0: 'batch_size'})] + presents)
 
 
 class HfGPT2OnnxConfig(OnnxConfig):

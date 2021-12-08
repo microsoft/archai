@@ -71,12 +71,14 @@ def optimize_onnx(model_type: str,
         ort_model = load_model(ort_model_path or onnx_model_path)
         ort_model_path = create_file_name_identifier(Path(onnx_model_path), '_opt')
 
-        args = (ort_model, )
-
+        # Puts the arguments for the optimizer
+        optimizer_args = (ort_model, )
         if model_type == 'hf_gpt2':
-            args += (8, 32)
+            # Adds `num_heads` and `hidden_size` as zero
+            # just for retro-compatibility
+            optimizer_args += (0, 0)
             
-        optimizer = AVAILABLE_ONNX_OPTS[model_type](*args)
+        optimizer = AVAILABLE_ONNX_OPTS[model_type](*optimizer_args)
         options = FusionOptions(model_type)
 
         # Optimizes the model
