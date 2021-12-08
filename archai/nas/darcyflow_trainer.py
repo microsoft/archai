@@ -68,7 +68,7 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
                     logits_c, aux_logits = logits_c[0], logits_c[1]
 
                 # darcyflow specific line
-                logits = logits.squeeze()
+                logits_c = logits_c.squeeze()
                 # WARNING, DEBUG: Making code run through for now
                 # this is missing all the y's decoding
 

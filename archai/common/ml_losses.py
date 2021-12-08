@@ -105,8 +105,9 @@ class LabelSmoothing(nn.Module):
 
 
 
-# Credits: https://github.com/rtu715/NAS-Bench-360/blob/d075006848c664371855c34082b0a00cda62be67/darts/gaea-dense/utils.py#L126
-class LpLoss(object):
+# Modified from:
+#  https://github.com/rtu715/NAS-Bench-360/blob/d075006848c664371855c34082b0a00cda62be67/darts/gaea-dense/utils.py#L126
+class LpLoss(nn.Module):
     ''' loss function with rel/abs Lp los '''
     def __init__(self, d=2, p=2, size_average=True, reduction=True):
         super(LpLoss, self).__init__()
@@ -149,5 +150,5 @@ class LpLoss(object):
 
         return diff_norms/y_norms
 
-    def __call__(self, x, y):
-        return self.rel(x, y)
+    def forward(self, x, target):
+        return self.rel(x, target)

@@ -14,6 +14,7 @@ nas:
       n_cells: 8
       n_reductions: 0 # for dense task we want output at the same resolution as input
       model_post_op: 'identity' # no pooling at the end as we want dense output
+      logits_op: 'proj_channels_no_bn' # reduce channels to 1 and keep same resolution as input. we don't really have 'logits' here as we are doing dense classification.
 
     loader:
       aug: ''
