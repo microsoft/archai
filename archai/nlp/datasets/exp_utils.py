@@ -25,7 +25,7 @@ from typing import Optional, Tuple
 import dllogger
 import torch.utils.collect_env
 
-from archai.nlp.datasets import distributed
+from archai.nlp.datasets.distributed_utils import distributed
 
 from archai.common import utils, common
 

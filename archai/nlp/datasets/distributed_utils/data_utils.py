@@ -18,7 +18,7 @@ import re
 
 import sacremoses
 
-from archai.nlp.datasets import distributed
+from archai.nlp.datasets.distributed_utils import distributed
 from archai.nlp.datasets.corpus import Corpus
 
 def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,

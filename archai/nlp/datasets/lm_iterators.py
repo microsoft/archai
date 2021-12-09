@@ -7,7 +7,7 @@
 import numpy as np
 import torch
 
-from archai.nlp.datasets import distributed
+from archai.nlp.datasets.distributed_utils import distributed
 
 
 class LMOrderedIterator(object):

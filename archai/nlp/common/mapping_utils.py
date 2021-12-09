@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Utilities that handles mapping between types.
+"""
+
 from collections.abc import Sized
 from typing import Any, List, Union
 
@@ -11,6 +14,9 @@ def map_to_list(p: Union[Sized, Any], n: int) -> List[Any]:
     Args:
         p: Variable to be mapped.
         n: Size of list to be mapped.
+
+    Returns:
+        (List[Any]): List with a fixed length.
 
     """
 

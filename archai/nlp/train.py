@@ -24,12 +24,12 @@ import yaml
 from torch.nn.parallel import DistributedDataParallel
 
 from archai.nlp.models.model_utils import lamb
-from archai.nlp.datasets.data_utils import get_lm_corpus
+from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
 from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.available_models import AVAILABLE_MODELS
-from archai.nlp.datasets import distributed as nv_distributed
+from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
-from archai.nlp.datasets.data_parallel import BalancedDataParallel
+from archai.nlp.datasets.distributed_utils.data_parallel import BalancedDataParallel
 from archai.nlp.datasets import exp_utils
 from archai.nlp.datasets.exp_utils import AverageMeter
 from archai.nlp.datasets.exp_utils import create_exp_dir
