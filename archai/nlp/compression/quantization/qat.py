@@ -8,22 +8,32 @@ from typing import Any, Dict, Optional
 
 import torch
 
+import transformers
+
 from archai.nlp.compression.quantization.modules import (
-    FakeDynamicQuantConv1d, FakeDynamicQuantConv1dForOnnx,
+    FakeDynamicQuantConv1d, FakeDynamicQuantConv1dForOnnx, FakeDynamicQuantHFConv1D,
     FakeDynamicQuantLinear, FakeDynamicQuantLinearForOnnx, FakeQuantEmbedding,
-    FakeQuantEmbeddingForOnnx)
+    FakeQuantEmbeddingForOnnx, FakeDynamicQuantHFConv1DForOnnx, fake_dynamic_compute_logit)
+from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant
+from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 # Maps between standard and ONNX modules
 DYNAMIC_QAT_MODULE_MAPPING = {
     torch.nn.Embedding: FakeQuantEmbedding,
     torch.nn.Linear: FakeDynamicQuantLinear,
-    torch.nn.Conv1d: FakeDynamicQuantConv1d
+    torch.nn.Conv1d: FakeDynamicQuantConv1d,
+    transformers.modeling_utils.Conv1D: FakeDynamicQuantHFConv1D
+    
 }
 DYNAMIC_QAT_MODULE_MAPPING_FOR_ONNX = {
     torch.nn.Embedding: FakeQuantEmbeddingForOnnx,
     torch.nn.Linear: FakeDynamicQuantLinearForOnnx,
-    torch.nn.Conv1d: FakeDynamicQuantConv1dForOnnx
+    torch.nn.Conv1d: FakeDynamicQuantConv1dForOnnx,
+    transformers.modeling_utils.Conv1D: FakeDynamicQuantHFConv1DForOnnx
 }
+
+# Adds placeholder for changing `_compute_logit`
+COMPUTE_LOGIT = ProjectedAdaptiveLogSoftmax._compute_logit
 
 
 def qat_to_float_modules(model: torch.nn.Module) -> torch.nn.Module:
@@ -47,6 +57,8 @@ def qat_to_float_modules(model: torch.nn.Module) -> torch.nn.Module:
         else:
             # If module can not be mapped, recursively calls the function
             qat_to_float_modules(module)
+
+    ProjectedAdaptiveLogSoftmax._compute_logit = COMPUTE_LOGIT
 
     return model
 
@@ -84,6 +96,14 @@ def float_to_qat_modules(model: torch.nn.Module,
                                  module_mapping=module_mapping,
                                  qconfig=qconfig,
                                  **kwargs)
+
+    # Applies fake quantization to `ProjectedAdaptiveLogSoftmax` as well
+    ProjectedAdaptiveLogSoftmax.hidden_fake_quant = FakeDynamicQuant(reduce_range=False,
+                                                                     onnx_compatible=True)
+    ProjectedAdaptiveLogSoftmax.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+                                                                     reduce_range=False,
+                                                                     onnx_compatible=True)
+    ProjectedAdaptiveLogSoftmax._compute_logit = fake_dynamic_compute_logit
 
     return model
 
