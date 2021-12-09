@@ -19,7 +19,7 @@ AVAILABLE_ONNX_CONFIGS = {
 }
 
 
-def weight_sharing(onnx_model_path: str) -> None:
+def weight_sharing(onnx_model_path: str, model_type: str) -> None:
     """Shares weights between embedding and softmax layers.
 
     Args:
@@ -41,12 +41,24 @@ def weight_sharing(onnx_model_path: str) -> None:
     # Gathers weights and nodes from the loaded model
     weights = {w.name:w for w in model.graph.initializer}
     nodes = {n.name:n for n in model.graph.node}
-    n_emb_weight = len(list(filter(lambda x: 'word_emb.emb_layers' in x, weights.keys())))
-    n_cutoffs = n_emb_weight - 1
+
+    if model_type == 'hf_gpt2':
+        n_emb_weight = 1
+        n_cutoffs = 0
+    elif model_type == 'mem_transformer':
+        n_emb_weight = len(list(filter(lambda x: 'word_emb.emb_layers' in x, weights.keys())))
+        n_cutoffs = n_emb_weight - 1
+    else:
+        raise ValueError(f'Model {model_type} not supported for weight sharing.')
+
 
     for i in range(n_emb_weight):
         # Grabs the embedding weights pointer and removes from the graph
         emb_weight_name = f'word_emb.emb_layers.{i}.weight'
+
+        if model_type == 'hf_gpt2':
+            emb_weight_name = 'transformer.wte.weight'
+
         emb_weight = numpy_helper.to_array(weights[emb_weight_name])
         model.graph.initializer.remove(weights[emb_weight_name])
 

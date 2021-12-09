@@ -26,7 +26,7 @@ def forward_gpt2_onnx(self,
 
     hidden_states = outputs[0]
     preds = F.softmax(self.lm_head(hidden_states[:,-1,:]), dim=-1)
-    past_key_values = tuple([torch.cat((p[0].unsqueeze(0), p[1].unsqueeze(0)), dim=0) for p in outputs.past_key_values])
+    past_key_values = tuple([torch.stack(p) for p in outputs.past_key_values])
 
     return preds, past_key_values
 

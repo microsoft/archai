@@ -86,6 +86,11 @@ def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, d
         model = model.model
         model.forward = types.MethodType(forward_gpt2_onnx, model)
 
+    if type(model_config['d_head']) is list:
+        model_config['d_head'] = model_config['d_head'][0]
+    if type(model_config['n_head']) is list:
+        model_config['n_head'] = model_config['n_head'][0]
+
     # Puts to evaluation model to disable dropout
     model.eval()
 
