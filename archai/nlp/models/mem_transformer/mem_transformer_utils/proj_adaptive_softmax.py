@@ -13,9 +13,11 @@
 # limitations under the License.
 
 from typing import List, Optional
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 
 # same as nn.ParameterList but expect some list items to be None
 class OptionalParameterList(nn.ParameterList):

@@ -4,15 +4,16 @@
 """Vocabulary wrapper for the scoring metrics.
 """
 
-import logging
 import functools
+import logging
 from typing import List, Tuple
 
 import numpy as np
 
 from archai.common.lru_cache import LRUCache
-from archai.nlp.scoring_metrics.scoring_utils import WORD_TOKEN_SEPARATOR_SET, RE_SPLIT
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.scoring_metrics.scoring_utils import (RE_SPLIT,
+                                                      WORD_TOKEN_SEPARATOR_SET)
 
 TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE = 65536
 

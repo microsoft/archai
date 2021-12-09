@@ -12,21 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Tuple
 import functools
-import os
 import logging
+import os
+from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import LogUniformSampler
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
-from archai.nlp.nvidia_transformer_xl.models.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
 from archai.nlp.nvidia_transformer_xl.models.model_utils import map_to_list
+from archai.nlp.nvidia_transformer_xl.models.primer_ez import (
+    DWiseConvPrimerEZ, PositionwiseFFPrimerEZ)
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import (
+    LogUniformSampler, sample_logits)
+from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import \
+    ProjectedAdaptiveLogSoftmax
 
 
 @torch.jit.script

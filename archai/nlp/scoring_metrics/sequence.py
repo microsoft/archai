@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional
 import json
 import logging
 import os
@@ -14,16 +13,16 @@ import re
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
+from typing import Any, List, Optional
 
 import ftfy
-
 import numpy as np
 import pandas as pd
-
 from scipy.interpolate import interp1d
 
 from archai.nlp.scoring_metrics.scoring_utils import get_settings
 from archai.nlp.scoring_metrics.text_predictor import Prediction, TextPredictor
+
 
 @dataclass
 class TextPredictionPosition:

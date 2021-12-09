@@ -7,9 +7,8 @@
 from typing import Any, Dict, Optional, Type
 
 import torch
-from torch.nn import functional as F
-
 import transformers
+from torch.nn import functional as F
 
 from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant
 

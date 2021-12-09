@@ -1,18 +1,17 @@
-from typing import Optional, Tuple
-
-import pprint
-from datetime import datetime
 import argparse
+import copy
 import functools
 import itertools
 import logging
 import math
 import os
+import pprint
 import shutil
 import sys
 import time
 import warnings
-import copy
+from datetime import datetime
+from typing import Optional, Tuple
 
 import dllogger
 import numpy as np
@@ -20,25 +19,23 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import yaml
-
 from torch.nn.parallel import DistributedDataParallel
 
-from archai.nlp.models.model_utils import lamb
-from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
-from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.available_models import AVAILABLE_MODELS
-from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
-from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
-from archai.nlp.datasets.distributed_utils.data_parallel import BalancedDataParallel
+from archai.common import common, ml_perf_utils, utils
+from archai.nlp.compression.quantization.qat import (prepare_with_qat,
+                                                     qat_to_float_modules)
 from archai.nlp.datasets import exp_utils
-from archai.nlp.datasets.exp_utils import AverageMeter
-from archai.nlp.datasets.exp_utils import create_exp_dir
-from archai.nlp.datasets.exp_utils import l2_promote
-from archai.nlp.datasets.exp_utils import log_env_info
-from archai.nlp.compression.quantization.qat import prepare_with_qat, qat_to_float_modules
-from archai.common import ml_perf_utils
-
-from archai.common import utils, common
+from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
+from archai.nlp.datasets.distributed_utils.data_parallel import \
+    BalancedDataParallel
+from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
+from archai.nlp.datasets.exp_utils import (AverageMeter, create_exp_dir,
+                                           l2_promote, log_env_info)
+from archai.nlp.models.available_models import AVAILABLE_MODELS
+from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.models.model_utils import lamb
+from archai.nlp.models.model_utils.cyclic_cosine_scheduler import \
+    CyclicCosineDecayLR
 
 
 def parse_args():

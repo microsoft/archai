@@ -5,13 +5,12 @@
 """
 
 
-from typing import Tuple
-import logging
 import functools
+import logging
 import time
+from typing import Tuple
 
 import numpy as np
-
 import torch
 from torch import nn
 

@@ -4,21 +4,21 @@
 """Corpus-related utilities that defines input data.
 """
 
-import os
-from typing import Optional, Tuple
 import logging
+import os
 from dataclasses import dataclass
+from typing import Optional, Tuple
 
 import numpy as np
 import torch
 
 from archai.common import utils
-from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.datasets.tokenizer_utils.word_vocab import WordVocab
+from archai.nlp.datasets.lm_iterators import (LMOrderedIterator,
+                                              LMShuffledIterator)
 from archai.nlp.datasets.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.datasets.tokenizer_utils.gpt2_vocab import Gpt2Vocab
-
-from archai.nlp.datasets.lm_iterators import LMOrderedIterator, LMShuffledIterator
+from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.datasets.tokenizer_utils.word_vocab import WordVocab
 
 
 @dataclass

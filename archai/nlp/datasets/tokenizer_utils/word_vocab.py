@@ -1,19 +1,17 @@
-import os
 import logging
-from collections import Counter
-from collections import OrderedDict
+import os
+from collections import Counter, OrderedDict
 from typing import List, Optional
-import pathlib
 
 import torch
-
 from overrides import overrides
 
-from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.common import utils
-from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
-from archai.nlp.tokenizer_utils.token_config import TokenConfig
-from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets.tokenizer_utils.token_config import TokenConfig
+from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.datasets.distributed_utils import distributed
+
 
 class WordVocab(VocabBase): # Word vocab is the default
     def __init__(self, save_path:str, min_freq=0, vocab_size=None,
@@ -134,7 +132,7 @@ class WordVocab(VocabBase): # Word vocab is the default
                 break # don't add rare words
             self._add_symbol(sym)
 
-        with nv_utils.distributed.sync_workers() as rank:
+        with distributed.sync_workers() as rank:
             if rank == 0:
                 self._save(self.save_path)
 

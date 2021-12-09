@@ -6,18 +6,17 @@
 
 from __future__ import annotations
 
-from archai.nlp.scoring_metrics.text_predictor import TextPredictor
-
 import logging
 import re
 import time
 
 import numpy as np
-
 import pandas as pd
 
-from archai.nlp.scoring_metrics.sequence import TextPredictionSequence
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.scoring_metrics.sequence import TextPredictionSequence
+from archai.nlp.scoring_metrics.text_predictor import TextPredictor
+
 
 def predict_console(predictor:TextPredictor):
     """Console application showing predictions.

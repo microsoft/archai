@@ -1,16 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from pathlib import Path
 import json
 from itertools import chain
+from pathlib import Path
 from typing import Optional
 
 import torch
 from onnx import helper, load_model, numpy_helper, save
 
-from archai.nlp.compression.onnx.onnx_utils.operators import tril_onnx, triu_onnx
 from archai.nlp.compression.onnx.onnx_utils.configs import HfGPT2OnnxConfig, MemTransformerLMOnnxConfig
+from archai.nlp.compression.onnx.onnx_utils.operators import tril_onnx, triu_onnx
 
 # List of available ONNX configurations
 AVAILABLE_ONNX_CONFIGS = {

@@ -25,9 +25,8 @@ from typing import Optional, Tuple
 import dllogger
 import torch.utils.collect_env
 
+from archai.common import common, utils
 from archai.nlp.datasets.distributed_utils import distributed
-
-from archai.common import utils, common
 
 try:
     from apex import amp

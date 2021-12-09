@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
 import logging
 import re
+from typing import Optional
 
 import sacremoses
 
-from archai.nlp.datasets.distributed_utils import distributed
 from archai.nlp.datasets.corpus import Corpus
+from archai.nlp.datasets.distributed_utils import distributed
+
 
 def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,
                   vocab_size:Optional[int]=None, refresh_cache=False):

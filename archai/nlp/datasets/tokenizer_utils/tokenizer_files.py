@@ -1,5 +1,6 @@
 import os
 
+
 class TokenizerFiles:
     def __init__(self, vocab_file:str, merges_file:str) -> None:
         self.vocab_file = vocab_file
