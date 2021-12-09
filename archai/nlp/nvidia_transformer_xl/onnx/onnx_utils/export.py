@@ -138,4 +138,4 @@ def export_onnx_from_pt(model: torch.nn.Module,
 
     # Applies weight sharing
     if share_weights:
-        weight_sharing(onnx_model_path)
+        weight_sharing(onnx_model_path, model_type)
