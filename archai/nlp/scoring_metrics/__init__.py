@@ -1,5 +1,5 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Archai's Natural Language Processing (NLP) package.
+"""Scoring metrics used to evaluate models for the NLP package.
 """
