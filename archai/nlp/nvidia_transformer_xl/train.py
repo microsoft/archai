@@ -1253,6 +1253,10 @@ def main():
         # QAT-based arguments
         args.restart = None
         args.qat = True
+        args.max_step = 2*args.max_step
+
+        # re-create scheduler
+        scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
         # Performs a QAT fine-tuning
         training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
