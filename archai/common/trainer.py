@@ -65,12 +65,15 @@ class Trainer(EnforceOverrides):
 
         logger.popd()
 
+    def init_metrics(self):
+        return Metrics(self._title, self._apex, logger_freq=self._logger_freq)
+
     def fit(self, data_loaders:data.DataLoaders)->Metrics:
         logger.pushd(self._title)
 
         assert data_loaders.train_dl is not None
 
-        self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
+        self._metrics = self.init_metrics()
 
         # NOTE: critical that pre_fit is called before creating optimizers
         # as otherwise FreezeTrainer does not work correctly    
