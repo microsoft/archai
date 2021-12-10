@@ -12,6 +12,7 @@ from torch.utils.data import DataLoader
 from overrides import EnforceOverrides, overrides
 
 from archai.common.metrics import Metrics
+from archai.common.metrics_dense import MetricsDense
 from archai.common.tester import Tester
 from archai.common.config import Config
 from archai.common import utils, ml_utils
@@ -37,13 +38,8 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
         # endregion
 
     @overrides
-    def pre_step(self, x:Tensor, y:Tensor)->None:
-        pass
-
-    @overrides
-    def post_step(self, x:Tensor, y:Tensor, logits:Tensor, loss:Tensor,
-                  steps:int)->None:
-        pass
+    def init_metrics(self):
+        return MetricsDense(self._title, self._apex, logger_freq=self._logger_freq) 
 
     @overrides
     def _train_epoch(self, train_dl: DataLoader)->None:
@@ -89,7 +85,7 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
                 loss_sum += loss_c.item() * len(logits_c)
                 loss_count += len(logits_c)
                 logits_chunks.append(logits_c.detach().cpu())
-                logger.info(f"Loss {loss_c/loss_count}")
+                # logger.info(f"Loss {loss_c/loss_count}")
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
             self._apex.clip_grad(self._grad_clip, self.model, self._multi_optim)
