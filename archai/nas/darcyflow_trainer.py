@@ -17,6 +17,7 @@ from archai.common.tester import Tester
 from archai.common.config import Config
 from archai.common import utils, ml_utils
 from archai.common.common import logger
+from archai.common.tester_dense import TesterDense
 from archai.datasets import data
 from archai.common.checkpoint import CheckPoint
 from archai.common.apex_utils import ApexUtils
@@ -38,8 +39,14 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
         # endregion
 
     @overrides
+    def init_tester(self, conf_validation, model):
+        self._tester = TesterDense(conf_validation, model, self._apex) \
+                        if conf_validation else None
+
+    @overrides
     def init_metrics(self):
-        return MetricsDense(self._title, self._apex, logger_freq=self._logger_freq) 
+        return MetricsDense(self._title, self._apex, logger_freq=self._logger_freq)
+ 
 
     @overrides
     def _train_epoch(self, train_dl: DataLoader)->None:
