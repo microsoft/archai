@@ -51,10 +51,9 @@ class Trainer(EnforceOverrides):
         self.model = model
 
         self._lossfn = ml_utils.get_lossfn(conf_lossfn)
-        # using separate apex for Tester is not possible because we must use
-        # same distributed model as Trainer and hence they must share apex
-        self._tester = Tester(conf_validation, model, self._apex) \
-                        if conf_validation else None
+        
+        self.init_tester(conf_validation, model)
+
         self._metrics:Optional[Metrics] = None
 
         self._droppath_module = self._get_droppath_module()
@@ -64,6 +63,12 @@ class Trainer(EnforceOverrides):
         self._start_epoch = -1 # nothing is started yet
 
         logger.popd()
+
+    def init_tester(self, conf_validation, model):
+        # using separate apex for Tester is not possible because we must use
+        # same distributed model as Trainer and hence they must share apex
+        self._tester = Tester(conf_validation, model, self._apex) \
+                        if conf_validation else None
 
     def init_metrics(self):
         return Metrics(self._title, self._apex, logger_freq=self._logger_freq)

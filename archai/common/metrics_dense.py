@@ -294,9 +294,9 @@ class RunMetricsDense:
 
     def best_epoch(self)->Tuple[EpochMetricsDense, Optional[EpochMetricsDense],
                                 Optional[EpochMetricsDense]]: # [train, val, test]
-        best_train = max(self.epochs_metrics, key=lambda e:e.loss.avg)
+        best_train = min(self.epochs_metrics, key=lambda e:e.loss.avg)
 
-        best_val = max(self.epochs_metrics,
+        best_val = min(self.epochs_metrics,
             key=lambda e:e.val_metrics.loss.avg if e.val_metrics else -1)
             
         best_val = best_val.val_metrics if best_val.val_metrics else None
