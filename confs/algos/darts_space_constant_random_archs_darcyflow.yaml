@@ -15,7 +15,6 @@ nas:
       n_reductions: 0 # for dense task we want output at the same resolution as input
       model_post_op: 'identity' # no pooling at the end as we want dense output
       logits_op: 'proj_channels_no_bn' # reduce channels to 1 and keep same resolution as input. we don't really have 'logits' here as we are doing dense classification.
-
     loader:
       aug: ''
       cutout: -1 # cutout length, use cutout augmentation when > 0
@@ -25,6 +24,9 @@ nas:
     trainer:
       use_val: False
       plotsdir: ''
-      epochs: 2
+      epochs: 3
       lossfn:
         type: 'L2Loss'
+      validation:
+        lossfn:
+          type: 'L2Loss'
