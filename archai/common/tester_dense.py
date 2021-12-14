@@ -1,3 +1,4 @@
+import os
 from typing import Tuple, Optional
 from overrides import EnforceOverrides, overrides
 
@@ -11,12 +12,29 @@ from .common import logger
 from archai.common.apex_utils import ApexUtils
 from .tester import Tester
 from .metrics_dense import MetricsDense
+from archai.common.common import get_conf
+from archai.datasets.providers.darcyflow_provider import UnitGaussianNormalizer
 
 
 class TesterDense(Tester, EnforceOverrides):
 
     def __init__(self, conf_val: Config, model: nn.Module, apex: ApexUtils) -> None:
         super().__init__(conf_val, model, apex)
+
+        # create x_normalizer and y_normalizer from disk
+        conf = get_conf()
+        dataroot = conf['dataset']['dataroot']
+        datasetname = conf['dataset']['name']
+        x_normalizer_name = os.path.join(dataroot, datasetname, 'x_normalizer.pt')
+        y_normalizer_name = os.path.join(dataroot, datasetname, 'y_normalizer.pt')
+        self.x_normalizer = UnitGaussianNormalizer(x=None, 
+                                                eps=0.00001, 
+                                                saved_filename=x_normalizer_name)
+        self.x_normalizer.cuda()
+        self.y_normalizer = UnitGaussianNormalizer(x=None, 
+                                                eps=0.00001, 
+                                                saved_filename=y_normalizer_name)
+        self.y_normalizer.cuda()
     
 
     @overrides
@@ -57,8 +75,10 @@ class TesterDense(Tester, EnforceOverrides):
                     logits_c = logits_c.squeeze()
                     # WARNING, DEBUG: Making code run through for now
                     # this is missing all the y's decoding
+                    yc_decoded = self.y_normalizer.decode(yc)
+                    logits_decoded = self.y_normalizer.decode(logits_c)
 
-                    loss_c = self._lossfn(logits_c, yc)
+                    loss_c = self._lossfn(logits_decoded, yc_decoded)
 
                     loss_sum += loss_c.item() * len(logits_c)
                     loss_count += len(logits_c)

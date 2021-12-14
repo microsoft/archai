@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import os
 from typing import Callable, Tuple, Optional, Type
 
 import torch
@@ -24,6 +25,7 @@ from archai.common.apex_utils import ApexUtils
 from archai.common.multi_optim import MultiOptim, OptimSched
 from archai.nas.nas_utils import get_model_stats
 from archai.nas.arch_trainer import ArchTrainer
+from archai.common.common import get_conf
 from archai.datasets.providers.darcyflow_provider import UnitGaussianNormalizer
 
 TDarcyflowTrainer = Optional[Type['DarcyflowTrainer']]
@@ -34,9 +36,25 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
                  checkpoint:Optional[CheckPoint]) -> None:
         super().__init__(conf_train, model, checkpoint)
 
-        # region config vars specific to Darcyflow trainer
-        
+        # region config vars specific 
+        # to Darcyflow trainer if any
+        # 
         # endregion
+        
+        # create x_normalizer and y_normalizer from disk
+        conf = get_conf()
+        dataroot = conf['dataset']['dataroot']
+        datasetname = conf['dataset']['name']
+        x_normalizer_name = os.path.join(dataroot, datasetname, 'x_normalizer.pt')
+        y_normalizer_name = os.path.join(dataroot, datasetname, 'y_normalizer.pt')
+        self.x_normalizer = UnitGaussianNormalizer(x=None, 
+                                                eps=0.00001, 
+                                                saved_filename=x_normalizer_name)
+        self.x_normalizer.cuda()
+        self.y_normalizer = UnitGaussianNormalizer(x=None, 
+                                                eps=0.00001, 
+                                                saved_filename=y_normalizer_name)
+        self.y_normalizer.cuda()
 
     @overrides
     def init_tester(self, conf_validation, model):
@@ -83,8 +101,10 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
                 logits_c = logits_c.squeeze()
                 # WARNING, DEBUG: Making code run through for now
                 # this is missing all the y's decoding
+                yc_decoded = self.y_normalizer.decode(yc)
+                logits_decoded = self.y_normalizer.decode(logits_c)
 
-                loss_c = self.compute_loss(self._lossfn, yc, logits_c,
+                loss_c = self.compute_loss(self._lossfn, yc_decoded, logits_decoded,
                                         self._aux_weight, aux_logits)
 
                 self._apex.backward(loss_c, self._multi_optim)
