@@ -78,13 +78,31 @@ class MatReader(object):
 # modified from nasbench360 code
 # normalization, pointwise gaussian
 class UnitGaussianNormalizer(object):
-    def __init__(self, x, eps=0.00001):
+    def __init__(self, x, eps=0.00001, saved_filename:str = None):
         super(UnitGaussianNormalizer, self).__init__()
+        self.eps = eps
 
         # x could be in shape of ntrain*n or ntrain*T*n or ntrain*n*T
-        self.mean = torch.mean(x, 0)
-        self.std = torch.std(x, 0)
-        self.eps = eps
+        if x is not None:
+            self.mean = torch.mean(x, 0)
+            self.std = torch.std(x, 0)    
+        else:
+            # load from disk
+            assert saved_filename
+            self.load(saved_filename)
+            
+            
+    def save(self, filename:str)->None:
+        assert self.mean is not None
+        assert self.std is not None
+        self.cpu()
+        save_dict = {'mean': self.mean, 'std': self.std}
+        torch.save(save_dict, filename)
+
+    def load(self, filename:str)->None:
+        load_dict = torch.load(filename)
+        self.mean = load_dict['mean']
+        self.std = load_dict['std']
 
     def encode(self, x):
         x = (x - self.mean) / (self.std + self.eps)
@@ -128,7 +146,7 @@ def create_grid(sub):
     return grid, s
 
 # modified from nasbench360 code
-def load_darcyflow(path_to_data:str, sub:int):
+def load_darcyflow(path_to_data:str, sub:int, save_folder:str):
     TRAIN_PATH = os.path.join(path_to_data, 'piececonst_r421_N1024_smooth1.mat')
     reader = MatReader(TRAIN_PATH)
     grid, s = create_grid(sub)
@@ -140,9 +158,11 @@ def load_darcyflow(path_to_data:str, sub:int):
 
     x_normalizer = UnitGaussianNormalizer(x_train)
     x_train = x_normalizer.encode(x_train)
+    x_normalizer.save(os.path.join(save_folder, 'x_normalizer.pt'))
 
     y_normalizer = UnitGaussianNormalizer(y_train)
     y_train = y_normalizer.encode(y_train)
+    y_normalizer.save(os.path.join(save_folder, 'y_normalizer.pt'))
 
     x_train = torch.cat([x_train.reshape(ntrain, s, s, 1), grid.repeat(ntrain, 1, 1, 1)], dim=3)
     # moving from [1000, 85, 85, 3] -> [1000, 3, 85, 85]
@@ -181,7 +201,7 @@ class DarcyflowProvider(DatasetProvider):
         path_to_data = os.path.join(self._dataroot, 'darcyflow')
 
         # load the dataset but without any validation split
-        trainset, testset = load_darcyflow(path_to_data, self._sub)
+        trainset, testset = load_darcyflow(path_to_data, self._sub, path_to_data)
 
         return trainset, testset
 
