@@ -70,7 +70,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 8
+    num_workers = 12
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -85,9 +85,10 @@ def main():
             logs.pop(key)
 
     # check for problematic logs
-    for key in logs.keys():
+    for key in list(logs.keys()):
         if 'best_test' not in logs[key]['regular_evaluate']['eval_arch']['eval_train']:
             print(f'problem in {key}')
+            logs.pop(key)
 
     archid_testacc = {}
     archid_params = {}
@@ -106,7 +107,9 @@ def main():
 
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
-                sys.exit()    
+                sys.exit()
+
+    print(f'Number of archs in benchmark {len(archid_params)}')    
 
     savename = os.path.join(out_dir, 'darts_benchmark.yaml')
     with open(savename, 'w') as f:

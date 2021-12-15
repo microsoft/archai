@@ -69,7 +69,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 12
+    num_workers = 20
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -111,7 +111,7 @@ def main():
         reg_eval = logs[key]['eval_arch']['eval_train']['best_test']['top1']
         arch_id_reg_eval[arch_id] = reg_eval
 
-    savename = os.path.join(out_dir, 'arch_id_test_accuracy_synthetic_cifar10.yaml')
+    savename = os.path.join(out_dir, 'arch_id_test_accuracy.yaml')
     with open(savename, 'w') as f:
         yaml.dump(arch_id_reg_eval, f)
 
