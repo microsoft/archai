@@ -70,7 +70,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 12
+    num_workers = 48
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -92,18 +92,20 @@ def main():
 
     archid_testacc = {}
     archid_params = {}
+    archid_flops = {}
     for key in logs.keys():
         if 'eval' in key:
             try:
                 test_acc = logs[key]['regular_evaluate']['eval_arch']['eval_train']['best_test']['top1']
                 arch_id = confs[key]['nas']['eval']['dartsspace']['arch_index']
-                print(f'arch_index {arch_id}, test_acc {test_acc}')
                 archid_testacc[arch_id] = test_acc
-
+                
                 # get the number of params if in logs (most have it unless the early part is missing)
                 if 'num_params' in logs[key]['regular_evaluate']['eval_arch']['eval_train']:
                     num_params = logs[key]['regular_evaluate']['eval_arch']['eval_train']['num_params']
                     archid_params[arch_id] = num_params
+                    mega_flops_per_batch = logs[key]['regular_evaluate']['eval_arch']['eval_train']['mega_flops_per_batch']
+                    archid_flops[arch_id] = mega_flops_per_batch
 
             except KeyError as err:
                 print(f'KeyError {err} not in {key}!')
@@ -119,11 +121,14 @@ def main():
     # to see how the distribution looks
     testaccs = []
     params = []
+    flops = []
     for archid in archid_params.keys():
         num_params = archid_params[archid]
         test_acc = archid_testacc[archid]
+        num_flops = archid_flops[archid]
         testaccs.append(test_acc)
         params.append(num_params)
+        flops.append(num_flops)
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=params, y=testaccs, mode='markers'))
@@ -137,8 +142,13 @@ def main():
 
     # compute spearman correlation of #params vs. test accuracy
     param_spe, param_sp_value = spearmanr(testaccs, params)
+    flop_spe, flop_sp_value = spearmanr(testaccs, flops)
     print(f'Spearman correlation of #params vs. test accuracy is {param_spe}')
-
+    print(f'Spearman correlation of #flops vs. test accuracy is {flop_spe}')
+    savename = os.path.join(out_dir, 'darts_space_params_flops_spe.txt')
+    with open(savename, 'w') as f:
+        f.write(f'Spe #params vs. test accuracy: {param_spe}')
+        f.write(f'Spe #flops vs. test accuracy: {flop_spe}')
     
 
 

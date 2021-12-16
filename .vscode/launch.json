@@ -627,7 +627,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_create_darts_space_benchmark.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/darts_constant_random_cifar100",
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/darts_constant_random_scifar100",
             "--out-dir", "/home/dedey/archai_experiment_reports"]
         },
         {
@@ -702,7 +702,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_nonstandard_generate_benchmark.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/natsbench_constant_random_scifar100",
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/natsbench_constant_random_cifar100",
                 "--out-dir", "/home/dedey/archai_experiment_reports"]
         },
         {
@@ -750,7 +750,9 @@
             "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/natsbench_constant_random_zerocost_scifar100",
                 "--out-dir", "/home/dedey/archai_experiment_reports", 
                 "--reg-evals-file", 
-                "/home/dedey/archai_experiment_reports/natsbench_constant_random_scifar100/arch_id_test_accuracy.yaml"]
+                "/home/dedey/archai_experiment_reports/natsbench_constant_random_cifar100/arch_id_test_accuracy.yaml",
+                "--params-flops-file",
+                "/home/dedey/archai_experiment_reports/natsbench_constant_random_cifar100/arch_id_params_flops.yaml"]
         },
         {
             "name": "Analysis Zero Cost Natsbench Epochs Experiments",
