@@ -152,10 +152,11 @@ def main():
                     if params_flops_data:
                         params = params_flops_data[arch_id_in_bench]['params']
                         flops = params_flops_data[arch_id_in_bench]['flops']
+                        all_params_evals.append(params)
+                        all_flops_evals.append(flops)
     
                 all_reg_evals.append(reg_eval_top1)
-                all_params_evals.append(params)
-                all_flops_evals.append(flops)
+                
 
                 # zerocost initial scores
                 #-------------------------------
@@ -180,23 +181,28 @@ def main():
     for measure in ZEROCOST_MEASURES:
         assert len(all_reg_evals) == len(all_zerocost_init_evals[measure])
     assert len(all_reg_evals) == len(all_arch_ids)
+    
     if params_flops_data:
         assert len(all_reg_evals) == len(all_params_evals)
         assert len(all_reg_evals) == len(all_flops_evals)
 
-    spe_params, _ = spearmanr(all_reg_evals, all_params_evals)
-    spe_flops, _ = spearmanr(all_reg_evals, all_flops_evals)
+        spe_params, _ = spearmanr(all_reg_evals, all_params_evals)
+        spe_flops, _ = spearmanr(all_reg_evals, all_flops_evals)
 
-    # Store some key numbers in results.txt
+        # Store some key numbers in results.txt
+        results_savename = os.path.join(out_dir, 'results.txt')
+        with open(results_savename, 'w') as f:
+            f.write(f'Total valid archs processed: {len(all_reg_evals)} \n')
+            f.write(f'Spearman wrt params: {spe_params}')
+            f.write(f'Spearman wrt flops: {spe_flops}')
+
+        print(f'Total valid archs processed: {len(all_reg_evals)}')
+        print(f'Spearman wrt params: {spe_params}')
+        print(f'Spearman wrt flops: {spe_flops}')
+
     results_savename = os.path.join(out_dir, 'results.txt')
     with open(results_savename, 'w') as f:
         f.write(f'Total valid archs processed: {len(all_reg_evals)} \n')
-        f.write(f'Spearman wrt params: {spe_params}')
-        f.write(f'Spearman wrt flops: {spe_flops}')
-
-    print(f'Total valid archs processed: {len(all_reg_evals)}')
-    print(f'Spearman wrt params: {spe_params}')
-    print(f'Spearman wrt flops: {spe_flops}')
 
 
     top_percent_range = range(2, 101, 2)
