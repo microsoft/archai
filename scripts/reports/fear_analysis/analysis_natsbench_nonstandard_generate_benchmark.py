@@ -6,7 +6,7 @@ from typing import Dict, List, Type, Iterator, Tuple
 import glob
 import os
 import pathlib
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict, defaultdict, namedtuple
 from scipy.stats.stats import _two_sample_transform
 import yaml
 from inspect import getsourcefile
@@ -69,7 +69,11 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
+<<<<<<< HEAD
     num_workers = 12
+=======
+    num_workers = 48
+>>>>>>> 88356eb6 (Added params and flops based spearman correlation computation.)
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -104,16 +108,27 @@ def main():
 
     
     # create a dict with arch_id: regular eval score as entries
-    # and save since synthetic cifar10 is not part of the benchmark
+    # and save since synthetic cifar10 or other new datasets 
+    # are not part of the benchmark
     arch_id_reg_eval = {}
+    arch_id_params_flops = {}
+
     for key in logs.keys():
         arch_id = confs[key]['nas']['eval']['natsbench']['arch_index']
         reg_eval = logs[key]['eval_arch']['eval_train']['best_test']['top1']
+        num_params = logs[key]['eval_arch']['eval_train']['num_params']
+        mega_flops_per_batch = logs[key]['eval_arch']['eval_train']['mega_flops_per_batch']
+        # store
         arch_id_reg_eval[arch_id] = reg_eval
+        arch_id_params_flops[arch_id] = {'params': num_params, 'flops': mega_flops_per_batch}
 
     savename = os.path.join(out_dir, 'arch_id_test_accuracy_synthetic_cifar10.yaml')
     with open(savename, 'w') as f:
         yaml.dump(arch_id_reg_eval, f)
+
+    savename = os.path.join(out_dir, 'arch_id_params_flops.yaml')
+    with open(savename, 'w') as f:
+        yaml.dump(arch_id_params_flops, f)
 
     # now create a list of regular evaluation and corresponding synflow scores
     # to compute spearman's correlation
