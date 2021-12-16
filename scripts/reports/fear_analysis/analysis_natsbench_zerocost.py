@@ -48,6 +48,9 @@ def main():
     parser.add_argument('--reg-evals-file', '-r', type=str, default=None,
                         help='optional yaml file which contains full evaluation \
                             of architectures on new datasets not part of natsbench')
+    parser.add_argument('--params-flops-file', '-p', type=str, default=None,
+                        help='optional yaml file which contains params flops information \
+                            of architectures on new datasets not part of natsbench')
     args, extra_args = parser.parse_known_args()
 
     # root dir where all results are stored
@@ -63,9 +66,16 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
 
     # if optional regular evaluation lookup file is provided
+    reg_evals_data = None
     if args.reg_evals_file:
         with open(args.reg_evals_file, 'r') as f:
             reg_evals_data = yaml.load(f, Loader=yaml.Loader)
+    
+    # if optional params flops lookup file is provided
+    params_flops_data = None
+    if args.params_flops_file:
+        with open(args.params_flops_file, 'r') as f:
+            params_flops_data = yaml.load(f, Loader=yaml.Loader)
 
     # get list of all structured logs for each job
     logs = {}
@@ -78,7 +88,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 12
+    num_workers = 20
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -106,15 +116,16 @@ def main():
             logs.pop(key)
             continue
 
-    
+
     all_arch_ids = []
     all_reg_evals = []
+    all_params_evals = []
+    all_flops_evals = []
     all_zerocost_init_evals = defaultdict(list)
 
     for key in logs.keys():
         if 'eval' in key:
-            try:
-                
+            try:                
                 # regular evaluation 
                 # important to get this first since if it is not 
                 # available for non-benchmark datasets we need to 
@@ -137,7 +148,14 @@ def main():
                         # may not have full evaluation accuracies available. Remove them from consideration.
                         continue
                     reg_eval_top1 = reg_evals_data[arch_id_in_bench]
+
+                    if params_flops_data:
+                        params = params_flops_data[arch_id_in_bench]['params']
+                        flops = params_flops_data[arch_id_in_bench]['flops']
+    
                 all_reg_evals.append(reg_eval_top1)
+                all_params_evals.append(params)
+                all_flops_evals.append(flops)
 
                 # zerocost initial scores
                 #-------------------------------
@@ -158,17 +176,28 @@ def main():
                 print(f'KeyError {err} not in {key}')
                 sys.exit()
 
-    # Store some key numbers in results.txt
-    results_savename = os.path.join(out_dir, 'results.txt')
-    with open(results_savename, 'w') as f:
-        f.write(f'Total valid archs processed: {len(all_reg_evals)} \n')
-
-    print(f'Total valid archs processed: {len(all_reg_evals)}')
-
     # Sanity check
     for measure in ZEROCOST_MEASURES:
         assert len(all_reg_evals) == len(all_zerocost_init_evals[measure])
     assert len(all_reg_evals) == len(all_arch_ids)
+    if params_flops_data:
+        assert len(all_reg_evals) == len(all_params_evals)
+        assert len(all_reg_evals) == len(all_flops_evals)
+
+    spe_params, _ = spearmanr(all_reg_evals, all_params_evals)
+    spe_flops, _ = spearmanr(all_reg_evals, all_flops_evals)
+
+    # Store some key numbers in results.txt
+    results_savename = os.path.join(out_dir, 'results.txt')
+    with open(results_savename, 'w') as f:
+        f.write(f'Total valid archs processed: {len(all_reg_evals)} \n')
+        f.write(f'Spearman wrt params: {spe_params}')
+        f.write(f'Spearman wrt flops: {spe_flops}')
+
+    print(f'Total valid archs processed: {len(all_reg_evals)}')
+    print(f'Spearman wrt params: {spe_params}')
+    print(f'Spearman wrt flops: {spe_flops}')
+
 
     top_percent_range = range(2, 101, 2)
     # Rank correlations at top n percent of architectures
