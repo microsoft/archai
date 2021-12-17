@@ -166,7 +166,7 @@ def load_darcyflow(path_to_data:str, sub:int, save_folder:str):
 
     x_train = torch.cat([x_train.reshape(ntrain, s, s, 1), grid.repeat(ntrain, 1, 1, 1)], dim=3)
     # moving from [1000, 85, 85, 3] -> [1000, 3, 85, 85]
-    x_train = torch.swapaxes(x_train, 1, 3)
+    x_train = torch.transpose(x_train, 1, 3)
     train_data = torch.utils.data.TensorDataset(x_train, y_train)
 
     ntest = 100 # according to the procedure of https://arxiv.org/abs/2010.08895
