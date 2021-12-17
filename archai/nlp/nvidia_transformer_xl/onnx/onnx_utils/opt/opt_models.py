@@ -306,7 +306,7 @@ class MemTransformerLMOnnxModel(OnnxModel):
         self.fuse_shape()
 
         # Removes useless Reshape nodes that are staling through the graph
-        self.utils.remove_useless_reshape_nodes(self)
+        self.utils.remove_useless_reshape_nodes()
 
         # Post-processing step
         self.clean_graph()

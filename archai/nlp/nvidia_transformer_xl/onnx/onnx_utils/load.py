@@ -8,11 +8,11 @@ from typing import Tuple
 
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
+
 from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
 from archai.nlp.nvidia_transformer_xl.models.available_models import AVAILABLE_MODELS
-
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.forward import (crit_forward_with_probs,
-                                                                      forward_with_probs)
+from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx,
+                                                                      forward_memformer_onnx)
 
 # Constants available in onnxruntime
 # that enables performance optimization
@@ -79,8 +79,17 @@ def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, d
 
     # Overrides forward functions if MemTransformerLM
     if model_type == 'mem_transformer':
-        model.forward = types.MethodType(forward_with_probs, model)
-        model.crit.forward = types.MethodType(crit_forward_with_probs, model.crit)
+        model.forward = types.MethodType(forward_memformer_onnx, model)
+        model.crit.forward = types.MethodType(crit_forward_memformer_onnx, model.crit)
+
+    if model_type == 'hf_gpt2':
+        model = model.model
+        model.forward = types.MethodType(forward_gpt2_onnx, model)
+
+    if type(model_config['d_head']) is list:
+        model_config['d_head'] = model_config['d_head'][0]
+    if type(model_config['n_head']) is list:
+        model_config['n_head'] = model_config['n_head'][0]
 
     # Puts to evaluation model to disable dropout
     model.eval()

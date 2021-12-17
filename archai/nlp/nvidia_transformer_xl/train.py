@@ -138,7 +138,7 @@ def parse_args():
                          help='Size of vocabulary')
 
     model = parser.add_argument_group('model setup - defaults are for base model')
-    model.add_argument('--model', default='mem_transformer', type=str,
+    model.add_argument('--model_type', default='mem_transformer', type=str,
                      choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
                      help='Which model type to use')
     model.add_argument('--n_layer', type=int, default=16,
@@ -859,9 +859,9 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
 
     if args.pretrained_path:
         logging.info('Overwriting the provided model config with the pretrained model config.')
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model], args.pretrained_path, on_cpu=False)
+        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], args.pretrained_path, on_cpu=False)
     else:
-        model_cls = AVAILABLE_MODELS[args.model]
+        model_cls = AVAILABLE_MODELS[args.model_type]
         model = model_cls(**model_config)
 
     if args.qat:
@@ -1028,7 +1028,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model], args.restart, model, on_cpu=False)
+            model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], args.restart, model, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1109,7 +1109,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
 
     if not args.no_eval and os.path.exists(checkpoint_path):
         # Load the best saved model.
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model], checkpoint_path, model, on_cpu=False)
+        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, model, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
@@ -1193,7 +1193,7 @@ def main():
     input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
-        lambda: ArchaiModel.load_model(AVAILABLE_MODELS[args.model], checkpoint_path, model=None, on_cpu=True))
+        lambda: ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, model=None, on_cpu=True))
 
     summary.update({
         'experiment_name': args.experiment_name,
@@ -1243,7 +1243,7 @@ def main():
 
     if args.post_qat:
         # Loads the model from the best pre-trained checkpoint
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model], checkpoint_path, model, on_cpu=False)
+        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, model, on_cpu=False)
 
         # Prepares the model with QAT (also allows for distributed training)
         model = prepare_with_qat(model, onnx_compatible=True)
@@ -1253,6 +1253,10 @@ def main():
         # QAT-based arguments
         args.restart = None
         args.qat = True
+        args.max_step = 2*args.max_step
+
+        # re-create scheduler
+        scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
         # Performs a QAT fine-tuning
         training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,

@@ -22,6 +22,7 @@ AVAILABLE_ONNX_OPTS = {
 
 def optimize_onnx(model_type: str,
                   onnx_model_path: str,
+                  num_heads: Optional[int] = 8,
                   use_gpu: Optional[bool] = False,
                   opt_level: Optional[int] = 0,
                   only_ort: Optional[bool] = False,
@@ -32,6 +33,7 @@ def optimize_onnx(model_type: str,
     Args:
         model_type: Type of model to be optimized.
         onnx_model_path: Path to the ONNX model to be optimized.
+        num_heads: Number of attention heads.
         use_gpu: Whether to use GPU during optimization.
         opt_level: Level of optimization.
         only_ort: Whether to only apply ORT optimization.
@@ -70,7 +72,15 @@ def optimize_onnx(model_type: str,
         # Loads the ORT-optimized model, optimizer and fusion options
         ort_model = load_model(ort_model_path or onnx_model_path)
         ort_model_path = create_file_name_identifier(Path(onnx_model_path), '_opt')
-        optimizer = AVAILABLE_ONNX_OPTS[model_type](ort_model)
+
+        # Puts the arguments for the optimizer
+        optimizer_args = (ort_model, )
+        if model_type == 'hf_gpt2':
+            # Adds `hidden_size` as zero
+            # just for retro-compatibility
+            optimizer_args += (num_heads, 0)
+            
+        optimizer = AVAILABLE_ONNX_OPTS[model_type](*optimizer_args)
         options = FusionOptions(model_type)
 
         # Optimizes the model
