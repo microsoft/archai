@@ -19,14 +19,17 @@ nas:
       aug: ''
       cutout: -1 # cutout length, use cutout augmentation when > 0
       val_ratio: 0.0
-      train_batch: 96
+      train_batch: 4
       use_sampler: False # distributed stratified sampler is not compatible with dense tasks
     trainer:
+      drop_path_prob: 0.2
       use_val: False
       plotsdir: ''
-      epochs: 10
+      epochs: 150
       lossfn:
         type: 'L2Loss'
+      lr_schedule:
+        min_lr: 0.0
       validation:
         lossfn:
           type: 'L2Loss'

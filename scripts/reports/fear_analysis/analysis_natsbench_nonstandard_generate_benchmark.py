@@ -69,11 +69,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-<<<<<<< HEAD
-    num_workers = 12
-=======
     num_workers = 48
->>>>>>> 88356eb6 (Added params and flops based spearman correlation computation.)
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
