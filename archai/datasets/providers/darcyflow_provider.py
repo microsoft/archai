@@ -178,8 +178,8 @@ def load_darcyflow(path_to_data:str, sub:int, save_folder:str):
     x_test = x_normalizer.encode(x_test)
     x_test = torch.cat([x_test.reshape(ntest, s, s, 1), grid.repeat(ntest, 1, 1, 1)], dim=3)
     # moving from [1000, 85, 85, 3] -> [1000, 3, 85, 85]
-    x_test = torch.swapaxes(x_test, 1, 3)
-    # also note that y_test is not 
+    x_test = torch.transpose(x_test, 1, 3)
+    # also note that y_test is not
     # encoded according to the procedure of 
     # https://arxiv.org/abs/2010.08895
     test_data = torch.utils.data.TensorDataset(x_test, y_test)
