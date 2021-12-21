@@ -4,7 +4,7 @@
 """Huggingface's Open AI GPT-2.
 """
 
-from typing import Optional
+from typing import Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -15,22 +15,27 @@ from archai.nlp.models.model_base import ArchaiModel
 
 
 class HfGPT2(ArchaiModel):
-    """Adapts HuggingFace GPT2 model (GPT2LMHeadModel) to the transformer_xl codebase.
+    """Huggingface's Open AI GPT-2.
+
     """
 
-    hyperparam_mapping = {'n_layer': 'n_layer',
-                          'n_head': 'n_head',
-                          'd_head': 'd_head',
-                          'd_embed': 'n_embd',
-                          'd_model': 'n_embd',
-                          'd_inner': 'n_inner',
-                          'dropout': 'resid_pdrop',
-                          'dropatt': 'attn_pdrop',
-                          'tgt_len': 'n_positions',
-                          'n_token': 'vocab_size',
-                          'weight_init_std': 'initializer_range'}
+    HYPERPARAMETER_MAPPING = {'n_layer': 'n_layer',
+                              'n_head': 'n_head',
+                              'd_head': 'd_head',
+                              'd_embed': 'n_embd',
+                              'd_model': 'n_embd',
+                              'd_inner': 'n_inner',
+                              'dropout': 'resid_pdrop',
+                              'dropatt': 'attn_pdrop',
+                              'tgt_len': 'n_positions',
+                              'n_token': 'vocab_size',
+                              'weight_init_std': 'initializer_range'}
 
     def __init__(self, **kwargs) -> None:
+        """Overrides initialization method.
+
+        """
+
         super(HfGPT2, self).__init__()
 
         if kwargs['d_embed'] == -1:
@@ -49,39 +54,84 @@ class HfGPT2(ArchaiModel):
         assert kwargs['d_model'] == kwargs['d_embed'], 'GPT2 does not support d_model != d_embed'
         assert kwargs['n_head'] * kwargs['d_head'] == kwargs['d_embed'], 'GPT2 does not support n_head*d_head != d_embed'
 
-        # Translate hyperparams into HuggingFace GPT2 params
+        # Translate the hyperparameters into Huggingface's GPT-2 hyperparameters,
+        # and creates the model with the proper configuration
         self.config = self._generate_config(**kwargs)
-
-        # Create model
         self.model = AutoModelForCausalLM.from_config(self.config)
 
         if kwargs['tie_weight']:
             self.model.tie_weights()
 
-    def _generate_config(self, **kwargs):
+    def _generate_config(self, **kwargs) -> None:
+        """Generates a proper configuration according to mapped hyperparameters.
+
+        """
 
         config = CONFIG_MAPPING['gpt2']()
 
-        for param, gpt2_param in HfGPT2.hyperparam_mapping.items():
+        for param, gpt2_param in HfGPT2.HYPERPARAMETER_MAPPING.items():
             setattr(config, gpt2_param, kwargs[param])
 
         return config
 
-    def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor], mems:Optional[torch.Tensor],
-                past_key_values:Optional[torch.Tensor]=None, output_loss=True, output_prediction_scores=False):
+    def forward(self,
+                input_ids: torch.Tensor,
+                labels: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None,
+                output_loss: Optional[bool] = True,
+                output_prediction_scores: Optional[bool] = False
+                ) -> Tuple[torch.Tensor, ...]:
+        """Performs forward pass over the model.
+
+        Args:
+            input_ids: Input tokens.
+            labels: Input labels (same as tokens).
+            mems: Memory tensor.
+            past_key_values: Tensor with past key/values.
+            output_loss: Whether loss should be outputted.
+            output_prediction_scores: Whether prediction scores should be outputted.
+
+        Returns:
+            (Tuple[torch.Tensor, ...]): Outputs, such as loss, prediction scores,
+                memories and past key/values.
+
+        """
 
         assert mems is None, 'GPT2 does not support memory (mems)'
 
-        # Labels in GPT2LMHeadModel are the same as inputs, the offset between inputs annd labels is done
-        # inside the model. The causal attention mask is also created inside the model.
-        hf_out = self.model(input_ids=input_ids, labels=input_ids, attention_mask=torch.ones_like(input_ids))
+        # Labels in Huggingface's GPT-2 are the same as inputs_ids and they will be shifted inside the model
+        # Causal attention mask is created inside the model
+        hf_out = self.model(input_ids=input_ids,
+                            labels=input_ids,
+                            attention_mask=torch.ones_like(input_ids))
 
-        # GPT2LMHeadModel only outputs logits, so we convert it using log_softmax
+        # GPT-2 only outputs the logits, so we need to convert them
+        # by using log softmax
         return (hf_out.loss, F.log_softmax(hf_out.logits, dim=-1), None, past_key_values)
 
-    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int):
-        # We don't have memory as in transformer xl
+    def reset_length(self,
+                     tgt_len: int,
+                     ext_len: int,
+                     mem_len: int) -> None:
+        """Resets the length of the memory.
+
+        Args:
+            tgt_len: Length of target sample.
+            ext_len: Length of extended memory.
+            mem_len: Length of the memory.
+
+        """
+
+        # There is no memory in GPT-2
         pass
 
-    def get_non_emb_params(self):
+    def get_non_emb_params(self) -> int:
+        """Returns the number of non-embedding parameters.
+
+        Returns:
+            (int): Number of non-embedding parameters.
+
+        """
+
         return sum([p.nelement() for p in self.model.transformer.h.parameters()])

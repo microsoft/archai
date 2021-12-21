@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Full training, evaluation and metrics for NLP-based models.
+"""
+
 import argparse
 import copy
 import functools

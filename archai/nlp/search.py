@@ -1,6 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Performs evolutionary search to find optimal architectures.
+"""
+
+
 import copy
 import os
 import pickle
