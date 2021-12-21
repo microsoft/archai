@@ -1,6 +1,11 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Corpus-related utilities that defines input data.
+"""
+
 from typing import List, Optional
 
-from archai.common import utils
 from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 

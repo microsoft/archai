@@ -5,8 +5,7 @@ from typing import Any, Dict
 
 import torch
 
-from archai.nlp.nvidia_transformer_xl._onnx.onnx_utils.configs import (
-    BATCH_SIZE, SEQ_LEN, OnnxConfig)
+from archai.nlp.compression.onnx.onnx_utils.configs import OnnxConfig, BATCH_SIZE, SEQ_LEN
 
 
 class MemTransformerLMOnnxConfig(OnnxConfig):

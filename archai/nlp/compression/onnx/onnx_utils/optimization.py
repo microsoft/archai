@@ -1,23 +1,23 @@
-# # Copyright (c) Microsoft Corporation.
-# # Licensed under the MIT license.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
-# from pathlib import Path
-# from typing import Optional
+from pathlib import Path
+from typing import Optional
 
-# from onnx import load_model
-# from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
-# from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
+from onnx import load_model
+from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
+from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 
-# from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.load import create_file_name_identifier
-# from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.opt.fusion_options import FusionOptions
-# from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.opt.opt_models import MemTransformerLMOnnxModel
+from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.load import create_file_name_identifier
+from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.opt.fusion_options import FusionOptions
+from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.opt.opt_models import MemTransformerLMOnnxModel
 
-# # List of available ONNX models to be optimized
-# AVAILABLE_ONNX_OPTS = {
-#     'mem_transformer': MemTransformerLMOnnxModel,
-#     'hf_gpt2': Gpt2OnnxModel,
-#     'hf_transfo_xl': MemTransformerLMOnnxModel
-# }
+# List of available ONNX models to be optimized
+AVAILABLE_ONNX_OPTS = {
+    'mem_transformer': MemTransformerLMOnnxModel,
+    'hf_gpt2': Gpt2OnnxModel,
+    'hf_transfo_xl': MemTransformerLMOnnxModel
+}
 
 
 def optimize_onnx(model_type: str,

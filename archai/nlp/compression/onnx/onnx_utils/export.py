@@ -9,14 +9,8 @@ from typing import Optional
 import torch
 from onnx import helper, load_model, numpy_helper, save
 
-from archai.nlp.compression.onnx.onnx_utils.configs import HfGPT2OnnxConfig, MemTransformerLMOnnxConfig
 from archai.nlp.compression.onnx.onnx_utils.operators import tril_onnx, triu_onnx
-
-# List of available ONNX configurations
-AVAILABLE_ONNX_CONFIGS = {
-    'hf_gpt2': HfGPT2OnnxConfig,
-    'mem_transformer': MemTransformerLMOnnxConfig
-}
+from archai.nlp.common.lazy_loader import load
 
 
 def weight_sharing(onnx_model_path: str, model_type: str) -> None:
@@ -109,7 +103,9 @@ def export_onnx_from_pt(model: torch.nn.Module,
     """
 
     # Gathers the proper ONNX configuration instance
-    onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](model_config)
+    onnx_config = load(model_type, cls_type='config', model_config=model_config)
+
+    print(onnx_config)
 
     # Creates the dynamic axes based on inputs and outputs
     dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}

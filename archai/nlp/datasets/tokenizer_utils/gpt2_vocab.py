@@ -1,3 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""GPT-2 vocabulary.
+"""
+
 from typing import Optional
 
 from archai.nlp.datasets.tokenizer_utils.bbpe_vocab import BbpeVocab

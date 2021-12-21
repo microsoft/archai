@@ -1,12 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Pipeline for performing ONNX-based Post-Training Quantization (PTQ).
-"""
-
 from pathlib import Path
 
 import onnx
+import torch
 from onnx import onnx_pb as onnx_proto
 from onnx.onnx_ml_pb2 import NodeProto
 from onnxruntime.quantization.onnx_quantizer import ONNXQuantizer
@@ -15,7 +13,9 @@ from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
-from archai.nlp.common.file_naming_utils import create_file_name_identifier
+from archai.nlp.compression.onnx.onnx_utils.load import create_file_name_identifier
+from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.models.available_models import AVAILABLE_MODELS
 
 
 class GemmQuant(QuantOperatorBase):
@@ -96,7 +96,7 @@ class GemmQuant(QuantOperatorBase):
 
 def add_new_quant_operators() -> None:
     """Adds support for new quantization operators by changing
-        internal onnxruntime registry dictionaries.
+    internal onnxruntime registry dictionaries.
 
     """
 
@@ -105,7 +105,7 @@ def add_new_quant_operators() -> None:
     IntegerOpsRegistry['Gemm'] = GemmQuant
 
 
-def dynamic_quantization(onnx_model_path: str) -> Path:
+def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
     """Performs the dynamic quantization over an ONNX model.
 
     Args:
@@ -129,3 +129,37 @@ def dynamic_quantization(onnx_model_path: str) -> Path:
                      optimize_model=False)
 
     return qnt_model_path
+
+
+def dynamic_quantization_torch(torch_model_path: str,
+                               model_type: str) -> torch.nn.Module:
+    """Performs the dynamic quantization over a PyTorch model.
+
+    Args:
+        torch_model_path: Path to the PyTorch model to be quantized.
+        model_type: Type of model to be loaded.
+
+    Returns:
+        (torch.nn.Module): Dynamic quantized PyTorch model.
+
+    """
+
+    # Sets the number of threads
+    # Quantized model only uses maximum of 1 thread
+    torch.set_num_threads(1)
+
+    # Loads the pre-trained model
+    model = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type],
+                                   torch_model_path,
+                                   on_cpu=False)
+
+    # Performs an initial dynamic quantization
+    model_qnt = torch.quantization.quantize_dynamic(model, {torch.nn.Linear})
+    
+    # Currently, code below works as a caveat to quantize the embedding layers
+    # Prepares the model for quantization and quantizes it
+    model_qnt.transformer.word_emb.qconfig = torch.quantization.float_qparams_weight_only_qconfig
+    torch.quantization.prepare(model_qnt, inplace=True)
+    torch.quantization.convert(model_qnt, inplace=True)
+
+    return model_qnt
