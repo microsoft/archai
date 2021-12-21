@@ -11,8 +11,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import torch
 
-# Path to the `models` module
-LIBRARY_PATH = 'archai.nlp.models'
+from archai.nlp.common.constants import LIBRARY_PATH
 
 
 class ClassType(Enum):
@@ -67,6 +66,8 @@ def load(model_type: str,
         cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
     elif cls_string in [ClassType.ONNX_MODEL, ClassType.ONNX_CONFIG]:
         cls_module = import_module(f'{LIBRARY_PATH}.{model_type}.onnx_{model_type}')
+    else:
+        raise NotImplementedError
 
     # Gathers the name of the class to be loaded
     cls_name = getattr(ModelDict, model_type.upper())
@@ -107,11 +108,12 @@ def load_from_checkpoint(model_type: str,
     model_cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
 
     # Gathers the name of the class to be loaded
+    cls_string = getattr(ClassType, 'model'.upper())
     cls_name = getattr(ModelDict, model_type.upper())
 
     # Attempts to load the class
     try:
-        model_cls_instance = getattr(model_cls_module, cls_name['model'])
+        model_cls_instance = getattr(model_cls_module, cls_name[cls_string.value])
     except:
         raise ModuleNotFoundError
 

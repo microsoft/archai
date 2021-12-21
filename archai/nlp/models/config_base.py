@@ -9,7 +9,7 @@ from typing import Any, Dict
 
 import torch
 
-import archai.nlp.common.constants as c
+from archai.nlp.common.constants import BATCH_SIZE, SEQ_LEN
 
 
 class OnnxConfig:
@@ -34,7 +34,7 @@ class OnnxConfig:
         """
 
         return {
-            'input_ids': torch.randint(0, self.config['n_token'], (c.BATCH_SIZE, c.SEQ_LEN)),
+            'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
         }
 
     @property
