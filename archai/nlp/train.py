@@ -21,7 +21,7 @@ import yaml
 from torch.nn.parallel import DistributedDataParallel
 
 from archai.common import ml_perf_utils, utils
-from archai.nlp.common.lazy_loader import load
+from archai.nlp.common.lazy_loader import load, load_from_checkpoint
 from archai.nlp.compression.quantization.qat import prepare_with_qat, qat_to_float_modules
 from archai.nlp.datasets import exp_utils
 from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
@@ -703,8 +703,6 @@ def init():
     # Initialize device and distributed backend
     device = 'cpu'
 
-    print(args.cuda)
-
     if args.cuda:
         device = 'cuda'
         torch.cuda.set_device(args.local_rank)
@@ -852,8 +850,6 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
         logging.warning('QAT usually starts from a pretrained model. Check the --pretrained_path argument.')
 
     model = load(args.model_type, cls_type='model', **model_config)
-
-    print(model)
 
     if args.pretrained_path:
         model.update_with_checkpoint(args.pre_trained_path, on_cpu=False)
@@ -1103,7 +1099,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
 
     if not args.no_eval and os.path.exists(checkpoint_path):
         # Load the best saved model.
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, model, on_cpu=False)
+        model, model_config = load_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
@@ -1152,11 +1148,10 @@ def main():
     args, device = init()
 
     # load tokenizer and datasets
-    # vocab, train_itr, valid_itr, test_itr, file_stats = load_data(args, device)
+    vocab, train_itr, valid_itr, test_itr, file_stats = load_data(args, device)
 
     # create model
-    # ntokens = len(vocab)
-    ntokens=1
+    ntokens = len(vocab)
     model, model_config = create_or_load_model(args, device, ntokens)
 
     # create optimizer
@@ -1188,7 +1183,7 @@ def main():
     input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
-        lambda: ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, model=None, on_cpu=True))
+        lambda: load_from_checkpoint(args.model_type, checkpoint_path, on_cpu=True))
 
     summary.update({
         'experiment_name': args.experiment_name,

@@ -126,7 +126,8 @@ def load_from_checkpoint(model_type: str,
         model_config['use_cache'] = True
 
     # Loads the model
-    model = model_cls_instance(model_config)
+    model = model_cls_instance(**model_config)
     model.load_state_dict(checkpoint['model_state'])
+    model.to(device)
 
     return model, model_config

@@ -108,7 +108,7 @@ def export_onnx_from_torch(model: torch.nn.Module,
     """
 
     # Gathers the proper ONNX configuration instance
-    onnx_config = load(model_type, cls_type='config', model_config=model_config)
+    onnx_config = load(model_type, cls_type='onnx_config', model_config=model_config)
 
     # Creates the dynamic axes based on inputs and outputs
     dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}
