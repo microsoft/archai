@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Pipeline for performing Post-Training Quantization (PTQ).
+"""
+
 from pathlib import Path
 
 import onnx
@@ -13,9 +16,8 @@ from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
+from archai.nlp.common.lazy_loader import load
 from archai.nlp.compression.onnx.onnx_utils.load import create_file_name_identifier
-from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.available_models import AVAILABLE_MODELS
 
 
 class GemmQuant(QuantOperatorBase):
@@ -149,9 +151,8 @@ def dynamic_quantization_torch(torch_model_path: str,
     torch.set_num_threads(1)
 
     # Loads the pre-trained model
-    model = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type],
-                                   torch_model_path,
-                                   on_cpu=False)
+    model = load(model_type, cls_type='model')
+    model.update_with_checkpoint(torch_model_path, on_cpu=True)
 
     # Performs an initial dynamic quantization
     model_qnt = torch.quantization.quantize_dynamic(model, {torch.nn.Linear})

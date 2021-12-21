@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""ONNX-related options to fuse nodes.
+"""
+
 from typing import Optional
 
 

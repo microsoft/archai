@@ -5,19 +5,11 @@ from pathlib import Path
 from typing import Optional
 
 from onnx import load_model
-from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.load import create_file_name_identifier
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.opt.fusion_options import FusionOptions
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.opt.opt_models import MemTransformerLMOnnxModel
-
-# List of available ONNX models to be optimized
-AVAILABLE_ONNX_OPTS = {
-    'mem_transformer': MemTransformerLMOnnxModel,
-    'hf_gpt2': Gpt2OnnxModel,
-    'hf_transfo_xl': MemTransformerLMOnnxModel
-}
+from archai.nlp.common.file_naming_utils import create_file_name_identifier
+from archai.nlp.compression.onnx.onnx_utils.opt.fusion_options import FusionOptions
+from archai.nlp.common.lazy_loader import load
 
 
 def optimize_onnx(model_type: str,
@@ -80,7 +72,7 @@ def optimize_onnx(model_type: str,
             # just for retro-compatibility
             optimizer_args += (num_heads, 0)
             
-        optimizer = AVAILABLE_ONNX_OPTS[model_type](*optimizer_args)
+        optimizer = load(model_type, *optimizer_args, cls_type='onnx_model')
         options = FusionOptions(model_type)
 
         # Optimizes the model

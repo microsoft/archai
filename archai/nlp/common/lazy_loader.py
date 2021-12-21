@@ -5,9 +5,11 @@
 on demand.
 """
 
+import torch
+
 from enum import Enum
 from importlib import import_module
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 # Path to the `models` module
 LIBRARY_PATH = 'archai.nlp.models'
@@ -19,10 +21,9 @@ class ClassType(Enum):
     """
 
     # Types of classes
-    CONFIG = 0
+    MODEL = 0
     ONNX_CONFIG = 1
-    MODEL = 2
-    ONNX_MODEL = 3
+    ONNX_MODEL = 2
 
 
 class ModelDict(Dict):
@@ -33,20 +34,18 @@ class ModelDict(Dict):
     """
 
     # Huggingface's Open AI GPT-2
-    HF_GPT2 = ('HfGPT2Config', 'HfGPT2OnnxConfig',
-               'HfGPT2', 'HfGPT2OnnxModel')
+    HF_GPT2 = ('HfGPT2', 'HfGPT2OnnxConfig', 'HfGPT2OnnxModel')
 
     # Huggingface's Transformer-XL
-    HF_TRANSFO_XL = ('HfTransfoXLConfig', 'HfTransfoXLOnnxConfig',
-                     'HfTransfoXL', 'HfTransfoXLOnnxModel')
+    HF_TRANSFO_XL = ('HfTransfoXL', 'HfTransfoXLOnnxConfig', 'HfTransfoXLOnnxModel')
 
     # NVIDIA's Memory Transfomer (Transformer-XL)
-    MEM_TRANSFORMER = ('MemTransformerConfig', 'MemTransformerLMOnnxConfig',
-                       'MemTransformerLM', 'MemTransformerLMOnnxModel')
+    MEM_TRANSFORMER = ('MemTransformerLM', 'MemTransformerLMOnnxConfig', 'MemTransformerLMOnnxModel')
 
 
 def load(model_type: str,
-         cls_type: Optional[str] = 'config',
+         *args,
+         cls_type: Optional[str] = 'model',
          **kwargs) -> Any:
     """Performs the lazy loading of a pre-defined model and its
         corresponding class.
@@ -64,11 +63,9 @@ def load(model_type: str,
     cls_string = getattr(ClassType, cls_type.upper())
 
     # Finds the corresponding module based on the class
-    if cls_string in [ClassType.CONFIG, ClassType.ONNX_CONFIG]:
-        cls_module = import_module(f'.{model_type}.configs_{model_type}', LIBRARY_PATH)
-    elif cls_string in [ClassType.MODEL]:
+    if cls_string in [ClassType.MODEL]:
         cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
-    elif cls_string in [ClassType.ONNX_MODEL]:
+    elif cls_string in [ClassType.ONNX_MODEL, ClassType.ONNX_CONFIG]:
         cls_module = import_module(f'{LIBRARY_PATH}.{model_type}.onnx_{model_type}')
 
     # Gathers the name of the class to be loaded
@@ -81,6 +78,53 @@ def load(model_type: str,
         raise ModuleNotFoundError
 
     # Initializes the class
-    instance = cls_instance(**kwargs)
+    instance = cls_instance(*args, **kwargs)
 
     return instance
+
+
+def load_from_checkpoint(model_type: str,
+                         checkpoint_path: str,
+                         on_cpu: Optional[bool] = False,
+                         for_export: Optional[bool] = False) -> Tuple[torch.nn.Module, Dict[str, Any]]:
+    """Performs the lazy loading of a pre-defined model and its configuration.
+
+    Args:
+        model_type: Type of model to be loaded.
+        checkpoint_path: Path of the checkpoint to be loaded.
+        on_cpu: Whether model should be loaded on CPU or not.
+        for_export: If model should support export or not.
+
+    Returns:
+        (Tuple[torch.nn.Module, Dict[str, Any]]): Model and its configuration loaded from a checkpoint.
+
+    """
+
+    # Gathers the proper device
+    device = f'cuda:{torch.cuda.current_device()}' if not on_cpu and torch.cuda.is_available() else torch.device('cpu')
+
+    # Finds the corresponding module based on the class
+    model_cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
+
+    # Gathers the name of the class to be loaded
+    cls_name = getattr(ModelDict, model_type.upper())
+
+    # Attempts to load the class
+    try:
+        model_cls_instance = getattr(model_cls_module, cls_name['model'])
+    except:
+        raise ModuleNotFoundError
+
+    # Loads the checkpoint
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+    model_config = checkpoint['model_config']
+
+    # Checks whether model is supposed to be exported
+    if for_export:
+        model_config['use_cache'] = True
+
+    # Loads the model
+    model = model_cls_instance(model_config)
+    model.load_state_dict(checkpoint['model_state'])
+
+    return model, model_config

@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Handles every ONNX-related export methods.
+"""
+
 import json
 from itertools import chain
 from pathlib import Path

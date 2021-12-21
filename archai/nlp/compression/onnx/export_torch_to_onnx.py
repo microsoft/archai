@@ -7,9 +7,10 @@
 import argparse
 
 from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_pt
-from archai.nlp.compression.onnx.onnx_utils.load import load_from_pt
 from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
 from archai.nlp.compression.quantization.ptq import dynamic_quantization
+
+from archai.nlp.common.lazy_loader import load_from_checkpoint
 
 
 def parse_args():
@@ -72,7 +73,10 @@ if __name__ == '__main__':
     quantization = args.quantization
 
     # Loads the PyTorch model
-    model, model_config = load_from_pt(model_type, torch_model_path)
+    model, model_config = load_from_checkpoint(model_type,
+                                               torch_model_path,
+                                               on_cpu=True,
+                                               for_export=True)
 
     # Exports to ONNX
     export_onnx_from_pt(model,

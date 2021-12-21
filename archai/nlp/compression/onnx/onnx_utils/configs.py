@@ -1,6 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Configuration objects needed by ONNX when performing
+export, quantization or any sort of operation.
+"""
+
 from collections import OrderedDict
 from typing import Any, Dict
 
