@@ -24,9 +24,9 @@ class DWiseConvPrimerEZ(nn.Module):
         self.dconv = nn.Conv1d(d_model*3, d_model*3, kernel_size=kernel_size, groups=d_model*3)
 
     def forward(self, inp):
+        """Input should be Length x Batch x Features.
+        
         """
-        """
-        ''' Input should be Length x Batch x Features'''
 
         # LxBxF -> BxFxL
         w_heads = inp.permute((1, 2, 0))

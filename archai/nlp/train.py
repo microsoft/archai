@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import argparse
 import copy
 import functools
@@ -64,7 +67,7 @@ def parse_args():
     general = parser.add_argument_group('general setup')
     general.add_argument('--work_dir', default='~/logdir', type=str,
                          help='Directory for the results')
-    general.add_argument('--experiment_name', default='nv_xformer_xl', type=str,
+    general.add_argument('--experiment_name', default='mem_transformer', type=str,
                          help='Directory for the results')
     general.add_argument('--append_dataset', action='store_true',
                          help='Automatically append dataset name to work_dir')

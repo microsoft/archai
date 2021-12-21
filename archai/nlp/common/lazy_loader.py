@@ -42,10 +42,10 @@ class ModelDict(Dict):
     MEM_TRANSFORMER = ('MemTransformerLM', 'MemTransformerLMOnnxConfig', 'MemTransformerLMOnnxModel')
 
 
-def load(model_type: str,
-         *args,
-         cls_type: Optional[str] = 'model',
-         **kwargs) -> Any:
+def load_from_args(model_type: str,
+                   *args,
+                   cls_type: Optional[str] = 'model',
+                   **kwargs) -> Any:
     """Performs the lazy loading of a pre-defined model and its
         corresponding class.
 

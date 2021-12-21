@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Text Prediction.
+"""Text prediction.
 """
 
 from __future__ import annotations

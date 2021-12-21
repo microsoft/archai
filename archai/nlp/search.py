@@ -1,10 +1,12 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import copy
 import os
 import pickle
 import random
 import re
 import time
-import types
 
 import imageio
 import matplotlib.pyplot as plt
@@ -14,9 +16,9 @@ import yaml
 from numpy.core.numeric import indices
 
 from archai.common import utils
-from archai.nlp.nvidia_transformer_xl.search_utils.constraint_getter import (
+from archai.nlp.nas.constraint_getter import (
     get_latency, get_model, get_yaml_values, process_parameters)
-from archai.nlp.nvidia_transformer_xl.search_utils.info_getter import (
+from archai.nlp.nas.info_getter import (
     get_metrics, get_results)
 
 model_config_defaults = {'d_head': None,

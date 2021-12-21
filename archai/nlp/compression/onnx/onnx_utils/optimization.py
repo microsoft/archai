@@ -11,7 +11,7 @@ from onnx import load_model
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 
 from archai.nlp.common.file_naming_utils import create_file_name_identifier
-from archai.nlp.common.lazy_loader import load
+from archai.nlp.common.lazy_loader import load_from_args
 from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
 
 
@@ -75,7 +75,9 @@ def optimize_onnx(model_type: str,
             # just for retro-compatibility
             optimizer_args += (num_heads, 0)
             
-        optimizer = load(model_type, *optimizer_args, cls_type='onnx_model')
+        optimizer = load_from_args(model_type,
+                                   *optimizer_args,
+                                   cls_type='onnx_model')
         options = FusionOptions(model_type)
 
         # Optimizes the model

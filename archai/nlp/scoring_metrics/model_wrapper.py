@@ -4,7 +4,6 @@
 """Score-based model wrapper.
 """
 
-
 import functools
 import logging
 import time

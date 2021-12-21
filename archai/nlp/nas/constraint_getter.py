@@ -4,7 +4,6 @@
 """Constraint getters for search-related tasks.
 """
 
-
 import os
 
 import numpy as np
