@@ -74,23 +74,22 @@ if __name__ == '__main__':
 
         # Defines random inputs and zero-valued past states
         inputs = {'input_ids': np.random.randint(0, 10000, (batch_size, seq_len), dtype=np.int64)}
-        for i in range(3):
+        for i in range(2):
             key = f'past_{i}'
             inputs[key] = np.zeros((2, batch_size, 8, 0, past_seq_len), dtype=np.float32)
 
         # 1st inference (full pass with initial inputs)
-        probs, past_key_values_0, past_key_values_1, past_key_values_2 = model_onnx.run(None, inputs)
+        probs, past_key_values_0, past_key_values_1 = model_onnx.run(None, inputs)
 
         # 2nd inference (partial pass with only `new_token_id`)
         inputs_p = {'input_ids': np.array([[new_token_id]], dtype=np.int64)}
         inputs_p['past_0'] = past_key_values_0
         inputs_p['past_1'] = past_key_values_1
-        inputs_p['past_2'] = past_key_values_2
-        probs_partial, past_key_values_0, past_key_values_1, past_key_values_2 = model_onnx.run(None, inputs_p)
+        probs_partial, past_key_values_0, past_key_values_1 = model_onnx.run(None, inputs_p)
 
         # 3rd inference (full pass with initial inputs and `new_token_id`)
         inputs['input_ids'] = np.expand_dims(np.append(inputs['input_ids'], new_token_id), 0)
-        probs_full, _, _, _ = model_onnx.run(None, inputs)
+        probs_full, _, _ = model_onnx.run(None, inputs)
 
         # Calculates the accuracy
         accuracy += np.argmax(probs_partial) == np.argmax(probs_full)

@@ -56,10 +56,7 @@ if __name__ == '__main__':
     seq_len = args.seq_len
 
     # Loads PyTorch and ONNX models
-    model, model_config = load_from_torch_for_export(model_type,
-                                                     torch_model_path,
-                                                     on_cpu=True,
-                                                     for_export=True)
+    model, model_config = load_from_torch_for_export(model_type, torch_model_path)
     model_onnx = load_from_onnx(onnx_model_path)
 
     # Checks the type of attention to define the `past_key_values`

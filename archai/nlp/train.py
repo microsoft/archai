@@ -24,7 +24,7 @@ import yaml
 from torch.nn.parallel import DistributedDataParallel
 
 from archai.common import ml_perf_utils, utils
-from archai.nlp.common.lazy_loader import load, load_from_checkpoint
+from archai.nlp.common.lazy_loader import load_from_args, load_from_checkpoint
 from archai.nlp.compression.quantization.qat import prepare_with_qat, qat_to_float_modules
 from archai.nlp.datasets import exp_utils
 from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
@@ -852,7 +852,7 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.qat and not args.pretrained_path:
         logging.warning('QAT usually starts from a pretrained model. Check the --pretrained_path argument.')
 
-    model = load(args.model_type, cls_type='model', **model_config)
+    model = load_from_args(args.model_type, **model_config)
 
     if args.pretrained_path:
         model.update_with_checkpoint(args.pre_trained_path, on_cpu=False)
