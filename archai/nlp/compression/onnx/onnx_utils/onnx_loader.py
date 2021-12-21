@@ -11,9 +11,10 @@ from typing import Tuple
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
 
-from archai.nlp.compression.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
-from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.common.lazy_loader import load_from_checkpoint
+from archai.nlp.compression.onnx.onnx_utils.forward import (
+    crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
+from archai.nlp.models.model_base import ArchaiModel
 
 # Constants available in onnxruntime
 # that enables performance optimization

@@ -1,12 +1,22 @@
-import torch
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Primer-EZ primitives.
+"""
+
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 class DWiseConvPrimerEZ(nn.Module):
-    ''' Implements Depthwise convolutinon according to https://arxiv.org/abs/2109.08668'''
+    """Implements Depthwise convolutinon according to https://arxiv.org/abs/2109.08668.
+
+    """
 
     def __init__(self, d_model:int, kernel_size:int=3):
+        """
+        """
+
         super(DWiseConvPrimerEZ, self).__init__()
 
         self.kernel_size = kernel_size
@@ -14,6 +24,8 @@ class DWiseConvPrimerEZ(nn.Module):
         self.dconv = nn.Conv1d(d_model*3, d_model*3, kernel_size=kernel_size, groups=d_model*3)
 
     def forward(self, inp):
+        """
+        """
         ''' Input should be Length x Batch x Features'''
 
         # LxBxF -> BxFxL
@@ -27,8 +39,14 @@ class DWiseConvPrimerEZ(nn.Module):
         return w_heads
 
 class PositionwiseFFPrimerEZ(nn.Module):
-    ''' Implements ReLU squared according to https://arxiv.org/abs/2109.08668'''
+    """Implements ReLU squared according to https://arxiv.org/abs/2109.08668.
+    
+    """
+
     def __init__(self, d_model, d_inner, dropout, pre_lnorm=False):
+        """
+        """
+
         super(PositionwiseFFPrimerEZ, self).__init__()
 
         self.d_model = d_model

@@ -10,7 +10,7 @@ import shutil
 import sys
 import time
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Tuple
 
 import dllogger
 import numpy as np
@@ -21,6 +21,7 @@ import yaml
 from torch.nn.parallel import DistributedDataParallel
 
 from archai.common import common, ml_perf_utils, utils
+from archai.nlp.common.lazy_loader import load
 from archai.nlp.compression.quantization.qat import (prepare_with_qat,
                                                      qat_to_float_modules)
 from archai.nlp.datasets import exp_utils
@@ -35,8 +36,6 @@ from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_utils import lamb
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import \
     CyclicCosineDecayLR
-
-from archai.nlp.common.lazy_loader import load
 
 
 def parse_args():

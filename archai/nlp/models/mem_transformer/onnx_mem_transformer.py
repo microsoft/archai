@@ -1,26 +1,27 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""MemTransformerLM ONNX-related classes and methods.
+"""NVIDIA's Memory Transformer (Transformer-XL) for ONNX.
 """
 
+from typing import Any, Dict, List, Optional, Tuple
+
 import torch
-
-from typing import Any, Dict
-from typing import List, Optional, Tuple
-
 from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
                   ValueInfoProto, helper)
-from onnxruntime.transformers.fusion_attention import AttentionMask, FusionAttention
+from onnxruntime.transformers.fusion_attention import (AttentionMask,
+                                                       FusionAttention)
 from onnxruntime.transformers.fusion_layernorm import FusionLayerNormalization
 from onnxruntime.transformers.fusion_reshape import FusionReshape
 from onnxruntime.transformers.fusion_shape import FusionShape
-from onnxruntime.transformers.fusion_skiplayernorm import FusionBiasSkipLayerNormalization, FusionSkipLayerNormalization
+from onnxruntime.transformers.fusion_skiplayernorm import (
+    FusionBiasSkipLayerNormalization, FusionSkipLayerNormalization)
 from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
 
-from archai.nlp.compression.onnx.onnx_utils.configs import OnnxConfig, BATCH_SIZE, SEQ_LEN
+import archai.nlp.common.constants as c
 from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
+from archai.nlp.models.config_base import OnnxConfig
 
 
 class MemTransformerLMOnnxConfig(OnnxConfig):
@@ -55,8 +56,8 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
         """
 
         return {
-            'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
-            'past_key_values': tuple([torch.zeros(self.config['past_key_values'], BATCH_SIZE, self.config['n_head'], SEQ_LEN, self.config['d_head']) for _ in range(self.config['n_layer'])])
+            'input_ids': torch.randint(0, self.config['n_token'], (c.BATCH_SIZE, c.SEQ_LEN)),
+            'past_key_values': tuple([torch.zeros(self.config['past_key_values'], c.BATCH_SIZE, self.config['n_head'], c.SEQ_LEN, self.config['d_head']) for _ in range(self.config['n_layer'])])
         }
 
 

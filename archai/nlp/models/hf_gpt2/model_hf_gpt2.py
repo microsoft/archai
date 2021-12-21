@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Hugginface's GPT-2.
+"""Huggingface's Open AI GPT-2.
 """
 
 from typing import Optional
@@ -10,8 +10,8 @@ import torch
 import torch.nn.functional as F
 from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
-from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.common.mapping_utils import map_to_list
+from archai.nlp.models.model_base import ArchaiModel
 
 
 class HfGPT2(ArchaiModel):

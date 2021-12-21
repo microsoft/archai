@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""NVIDIA's Memory Tansformer.
+"""NVIDIA's Memory Transformer (Transformer-XL).
 """
 
 import functools
@@ -22,11 +22,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.common.mapping_utils import map_to_list
-from archai.nlp.models.model_utils.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
-from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import LogUniformSampler, sample_logits
-from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import (
+    LogUniformSampler, sample_logits)
+from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import \
+    ProjectedAdaptiveLogSoftmax
+from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.models.model_utils.primer_ez import (DWiseConvPrimerEZ,
+                                                     PositionwiseFFPrimerEZ)
 
 
 @torch.jit.script

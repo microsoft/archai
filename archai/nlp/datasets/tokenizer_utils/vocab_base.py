@@ -4,8 +4,6 @@
 """Base vocabulary.
 """
 
-from abc import abstractmethod
-from typing import List, Optional
 import logging
 from abc import abstractmethod
 from collections import abc
@@ -14,7 +12,8 @@ from typing import List, Optional
 import torch
 from overrides import EnforceOverrides, overrides
 
-from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets.tokenizer_utils.special_token_enum import \
+    SpecialTokenEnum
 
 
 class VocabBase(EnforceOverrides, abc.Sized):

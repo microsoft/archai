@@ -1,14 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Huggingface's Open AI GPT-2 for ONNX.
+"""
+
+from typing import Any, Dict
+
 import torch
-
-from typing import Dict, Any
-
-from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel as HfGPT2OnnxModel
-from archai.nlp.models.config_base import OnnxConfig
+from onnxruntime.transformers.onnx_model_gpt2 import \
+    Gpt2OnnxModel as HfGPT2OnnxModel
 
 import archai.nlp.common.constants as c
+from archai.nlp.models.config_base import OnnxConfig
+
 
 class HfGPT2OnnxConfig(OnnxConfig):
     """Provides an ONNX-export configuration for HfGPT2.

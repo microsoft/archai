@@ -4,8 +4,6 @@
 """Base model class, used to defined some common functionalities.
 """
 
-from abc import abstractmethod
-
 import torch.nn as nn
 
 
@@ -14,7 +12,6 @@ class ArchaiModel(nn.Module):
     
     """
 
-    @abstractmethod
     def reset_length(self,
                      tgt_len: int,
                      ext_len: int,
@@ -28,9 +25,8 @@ class ArchaiModel(nn.Module):
 
         """
 
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def get_non_emb_params(self) -> int:
         """Returns the number of non-embedding parameters.
 
@@ -39,7 +35,7 @@ class ArchaiModel(nn.Module):
 
         """
 
-        pass
+        raise NotImplementedError
 
     def get_n_params(self) -> int:
         """Returns the number of total parameters.

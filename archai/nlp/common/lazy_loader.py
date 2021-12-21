@@ -5,11 +5,11 @@
 on demand.
 """
 
-import torch
-
 from enum import Enum
 from importlib import import_module
 from typing import Any, Dict, Optional, Tuple
+
+import torch
 
 # Path to the `models` module
 LIBRARY_PATH = 'archai.nlp.models'

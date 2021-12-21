@@ -6,11 +6,11 @@
 
 import argparse
 
-from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
+from archai.nlp.common.lazy_loader import load_from_checkpoint
+from archai.nlp.compression.onnx.onnx_utils.export import \
+    export_onnx_from_torch
 from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
-
-from archai.nlp.common.lazy_loader import load_from_checkpoint
 
 
 def parse_args():

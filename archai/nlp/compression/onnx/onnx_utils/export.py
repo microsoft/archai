@@ -12,8 +12,9 @@ from typing import Optional
 import torch
 from onnx import helper, load_model, numpy_helper, save
 
-from archai.nlp.compression.onnx.onnx_utils.operators import tril_onnx, triu_onnx
 from archai.nlp.common.lazy_loader import load
+from archai.nlp.compression.onnx.onnx_utils.operators import (tril_onnx,
+                                                              triu_onnx)
 
 
 def weight_sharing(onnx_model_path: str, model_type: str) -> None:
