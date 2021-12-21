@@ -236,4 +236,3 @@ class WordVocab(VocabBase): # Word vocab is the default
     @overrides
     def __len__(self):
         return len(self.idx2sym)
-

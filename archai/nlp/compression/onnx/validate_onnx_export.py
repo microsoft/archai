@@ -8,7 +8,7 @@ import argparse
 
 import torch
 
-from archai.nlp.compression.onnx.onnx_utils.load import load_from_onnx, load_from_pt
+from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_onnx, load_from_torch_for_export
 
 
 def parse_args():
@@ -55,7 +55,10 @@ if __name__ == '__main__':
     seq_len = args.seq_len
 
     # Loads PyTorch and ONNX models
-    model, model_config = load_from_pt(model_type, torch_model_path)
+    model, model_config = load_from_torch_for_export(model_type,
+                                                     torch_model_path,
+                                                     on_cpu=True,
+                                                     for_export=True)
     model_onnx = load_from_onnx(onnx_model_path)
 
     # Checks the type of attention to define the `past_key_values`

@@ -1,9 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""ONNX-loading utilities that enable exports.
+"""
+
 import types
 from os import environ
-from pathlib import Path
 from typing import Tuple
 
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
@@ -11,6 +13,7 @@ from onnxruntime import (GraphOptimizationLevel, InferenceSession,
 
 from archai.nlp.compression.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
 from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.common.lazy_loader import load_from_checkpoint
 
 # Constants available in onnxruntime
 # that enables performance optimization
@@ -41,8 +44,9 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     return session
 
 
-def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, dict]:
-    """Loads a PyTorch-based model from checkpoint.
+def load_from_torch_for_export(model_type: str,
+                               torch_model_path: str) -> Tuple[ArchaiModel, dict]:
+    """Loads a PyTorch-based model from checkpoint with export-ready.
 
     Args:
         model_type: Type of model to be loaded.
@@ -54,16 +58,17 @@ def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, d
     """
 
     # Loads the model
-    model, model_config, _ = ArchaiModel.load_model(AVAILABLE_MODELS[model_type],
-                                                    torch_model_path,
-                                                    on_cpu=False,
-                                                    for_export=True)
+    model, model_config = load_from_checkpoint(model_type,
+                                               torch_model_path,
+                                               on_cpu=True,
+                                               for_export=True)
 
     # Overrides forward functions if MemTransformerLM
     if model_type == 'mem_transformer':
         model.forward = types.MethodType(forward_memformer_onnx, model)
         model.crit.forward = types.MethodType(crit_forward_memformer_onnx, model.crit)
 
+    # Overrides forward functions if HfGPT2
     if model_type == 'hf_gpt2':
         model = model.model
         model.forward = types.MethodType(forward_gpt2_onnx, model)

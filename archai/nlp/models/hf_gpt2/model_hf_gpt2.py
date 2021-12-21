@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Hugginface's GPT-2.
+"""
+
 from typing import Optional
 
 import torch

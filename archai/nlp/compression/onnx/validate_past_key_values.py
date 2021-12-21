@@ -9,7 +9,7 @@ import argparse
 import numpy as np
 import torch
 
-from archai.nlp.compression.onnx.onnx_utils.load import load_from_onnx
+from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_onnx
 
 
 def parse_args():

@@ -6,9 +6,9 @@
 
 import argparse
 
-from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_pt
+from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
 from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
-from archai.nlp.compression.quantization.ptq import dynamic_quantization
+from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
 
 from archai.nlp.common.lazy_loader import load_from_checkpoint
 
@@ -79,12 +79,12 @@ if __name__ == '__main__':
                                                for_export=True)
 
     # Exports to ONNX
-    export_onnx_from_pt(model,
-                        model_config,
-                        model_type,
-                        onnx_model_path,
-                        share_weights=True,
-                        opset_version=opset_version)
+    export_onnx_from_torch(model,
+                           model_config,
+                           model_type,
+                           onnx_model_path,
+                           share_weights=True,
+                           opset_version=opset_version)
 
     # Whether optimization should be applied
     if optimization:
@@ -98,4 +98,4 @@ if __name__ == '__main__':
 
     # Whether dynamic quantization should be applied
     if quantization:
-        qnt_model_path = dynamic_quantization(onnx_model_path)
+        qnt_model_path = dynamic_quantization_onnx(onnx_model_path)

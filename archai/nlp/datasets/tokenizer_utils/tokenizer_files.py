@@ -21,4 +21,3 @@ class TokenizerFiles:
     def from_path(save_dir:str, save_prefix='tokenizer')->'TokenizerFiles':
         return TokenizerFiles(vocab_file=os.path.join(save_dir, save_prefix + '-vocab.json'),
                             merges_file=os.path.join(save_dir, save_prefix + '-merges.txt'))
-
