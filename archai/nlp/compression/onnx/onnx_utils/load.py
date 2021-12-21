@@ -19,22 +19,6 @@ environ['OMP_NUM_THREADS'] = str(1)
 environ['OMP_WAIT_POLICY'] = 'ACTIVE'
 
 
-def create_file_name_identifier(file_name: Path,
-                                identifier: str) -> Path:
-    """Adds an identifier (suffix) to the end of the file name.
-
-    Args:
-        file_name: Path to have a suffix added.
-        identifier: Identifier to be added to file_name.
-
-    Returns:
-        (Path): Path with `file_name` plus added identifier.
-
-    """
-
-    return file_name.parent.joinpath(file_name.stem + identifier).with_suffix(file_name.suffix)
-
-
 def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     """Loads an ONNX-based model from file.
 

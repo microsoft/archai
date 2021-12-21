@@ -13,19 +13,11 @@ from typing import List, Optional
 import torch
 from overrides import overrides
 
-<<<<<<< Updated upstream
-from archai.common import utils
-from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
-from archai.nlp.datasets.tokenizer_utils.token_config import TokenConfig
-from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.datasets.distributed_utils import distributed
-=======
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
 from archai.common import utils
 from archai.nlp.datasets.distributed_utils import distributed
 from archai.nlp.datasets.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
->>>>>>> Stashed changes
 
 
 class WordVocab(VocabBase): # Word vocab is the default

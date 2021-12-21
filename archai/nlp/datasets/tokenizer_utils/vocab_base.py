@@ -16,11 +16,6 @@ from overrides import EnforceOverrides, overrides
 
 from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
-<<<<<<< Updated upstream
-=======
-from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
-
->>>>>>> Stashed changes
 
 class VocabBase(EnforceOverrides, abc.Sized):
     @abstractmethod

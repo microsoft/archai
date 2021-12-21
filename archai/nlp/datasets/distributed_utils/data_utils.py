@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Input data-related utilities.
+"""
+
 import logging
 import re
 from typing import Optional

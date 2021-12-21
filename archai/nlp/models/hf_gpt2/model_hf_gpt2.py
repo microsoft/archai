@@ -7,8 +7,8 @@ import torch
 import torch.nn.functional as F
 from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
-from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
-from archai.nlp.nvidia_transformer_xl.models.model_utils import map_to_list
+from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.common.mapping_utils import map_to_list
 
 
 class HfGPT2(ArchaiModel):

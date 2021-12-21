@@ -9,7 +9,6 @@ import pprint
 import shutil
 import sys
 import time
-import warnings
 from datetime import datetime
 from typing import Optional, Tuple
 
@@ -31,11 +30,13 @@ from archai.nlp.datasets.distributed_utils.data_parallel import \
 from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
 from archai.nlp.datasets.exp_utils import (AverageMeter, create_exp_dir,
                                            l2_promote, log_env_info)
-from archai.nlp.models.available_models import AVAILABLE_MODELS
+# from archai.nlp.models.available_models import AVAILABLE_MODELS
 from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_utils import lamb
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import \
     CyclicCosineDecayLR
+
+from archai.nlp.common.lazy_loader import load
 
 
 def parse_args():
@@ -59,7 +60,7 @@ def parse_args():
     config_args, _ = cfg_parser.parse_known_args()
 
     if config_args.config is not None and config_args.config_file is not None:
-        config_file_path = utils.full_path(os.path.join('.', 'archai', 'nlp', 'nvidia_transformer_xl', config_args.config_file))
+        config_file_path = utils.full_path(os.path.join('.', 'confs', 'nlp', config_args.config_file))
         with open(config_file_path) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)[config_args.config]['train']
     else:
@@ -705,9 +706,14 @@ def init():
     #     print(f'{args.local_rank}: thread affinity: {affinity}')
 
     # Initialize device and distributed backend
-    torch.cuda.set_device(args.local_rank)
-    l2_promote()
-    device = torch.device('cuda' if args.cuda else 'cpu')
+    device = 'cpu'
+
+    print(args.cuda)
+
+    if args.cuda:
+        device = 'cuda'
+        torch.cuda.set_device(args.local_rank)
+
     nv_distributed.init_distributed(args.cuda)
 
     args.data, args.work_dir, args.pretrained_path, args.cache_dir, args.dataroot = \
@@ -850,12 +856,12 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.qat and not args.pretrained_path:
         logging.warning('QAT usually starts from a pretrained model. Check the --pretrained_path argument.')
 
+    model = load(args.model_type, cls_type='model', **model_config)
+
+    print(model)
+
     if args.pretrained_path:
-        logging.info('Overwriting the provided model config with the pretrained model config.')
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], args.pretrained_path, on_cpu=False)
-    else:
-        model_cls = AVAILABLE_MODELS[args.model_type]
-        model = model_cls(**model_config)
+        model.update_with_checkpoint(args.pre_trained_path, on_cpu=False)
 
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)
@@ -1151,10 +1157,11 @@ def main():
     args, device = init()
 
     # load tokenizer and datasets
-    vocab, train_itr, valid_itr, test_itr, file_stats = load_data(args, device)
+    # vocab, train_itr, valid_itr, test_itr, file_stats = load_data(args, device)
 
     # create model
-    ntokens = len(vocab)
+    # ntokens = len(vocab)
+    ntokens=1
     model, model_config = create_or_load_model(args, device, ntokens)
 
     # create optimizer
