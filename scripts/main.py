@@ -31,6 +31,7 @@ from archai.algos.zero_cost_measures.zero_cost_natsbench_experiment_runner impor
 from archai.algos.zero_cost_measures.zero_cost_natsbench_conditional_experiment_runner import ZeroCostConditionalNatsbenchExperimentRunner
 from archai.algos.zero_cost_measures.zero_cost_natsbench_epochs_experiment_runner import ZeroCostNatsbenchEpochsExperimentRunner
 from archai.algos.zero_cost_measures.zero_cost_darts_space_constant_random_experiment_runner import ZeroCostDartsSpaceConstantRandomExperimentRunner
+from archai.algos.zero_cost_measures.zero_cost_darts_space_constant_random_darcyflow_exprunner import ZeroCostDartsSpaceConstantRandomDarcyFlowExpRunner
 from archai.algos.random_sample_natsbench.random_natsbench_tss_far_exp_runner import RandomNatsbenchTssFarExpRunner
 from archai.algos.random_sample_natsbench.random_natsbench_tss_far_post_exp_runner import RandomNatsbenchTssFarPostExpRunner
 from archai.algos.random_sample_natsbench.random_natsbench_tss_reg_exp_runner import RandomNatsbenchTssRegExpRunner
@@ -64,6 +65,7 @@ def main():
         'zerocost_conditional_natsbench_space': ZeroCostConditionalNatsbenchExperimentRunner,
         'zerocost_natsbench_epochs_space': ZeroCostNatsbenchEpochsExperimentRunner,
         'zerocost_darts_space_constant_random': ZeroCostDartsSpaceConstantRandomExperimentRunner,
+        'zerocost_darts_space_constant_random_darcyflow': ZeroCostDartsSpaceConstantRandomDarcyFlowExpRunner,
         'natsbench_regular_eval': NatsbenchRegularExperimentRunner,
         'natsbench_sss_regular_eval': NatsbenchSSSRegularExperimentRunner,
         'nb101_regular_eval': Nb101RegularExperimentRunner,

@@ -99,8 +99,7 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
 
                 # darcyflow specific line
                 logits_c = logits_c.squeeze()
-                # WARNING, DEBUG: Making code run through for now
-                # this is missing all the y's decoding
+                # decode
                 yc_decoded = self.y_normalizer.decode(yc)
                 logits_decoded = self.y_normalizer.decode(logits_c)
 
@@ -112,7 +111,6 @@ class DarcyflowTrainer(ArchTrainer, EnforceOverrides):
                 loss_sum += loss_c.item() * len(logits_c)
                 loss_count += len(logits_c)
                 logits_chunks.append(logits_c.detach().cpu())
-                # logger.info(f"Loss {loss_c/loss_count}")
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
             self._apex.clip_grad(self._grad_clip, self.model, self._multi_optim)
