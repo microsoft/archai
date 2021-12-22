@@ -88,7 +88,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 20
+    num_workers = 48
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -184,12 +184,23 @@ def main():
         assert len(all_reg_evals) == len(all_params_evals)
         assert len(all_reg_evals) == len(all_flops_evals)
 
-    spe_params, _ = spearmanr(all_reg_evals, all_params_evals)
-    spe_flops, _ = spearmanr(all_reg_evals, all_flops_evals)
+        spe_params, _ = spearmanr(all_reg_evals, all_params_evals)
+        spe_flops, _ = spearmanr(all_reg_evals, all_flops_evals)
+
+        # Store some key numbers in results.txt
+        results_savename = os.path.join(out_dir, 'results.txt')
+        with open(results_savename, 'w') as f:
+            f.write(f'Total valid archs processed: {len(all_reg_evals)} \n')
+            f.write(f'Spearman wrt params: {spe_params} \n')
+            f.write(f'Spearman wrt flops: {spe_flops} \n')
+
+        print(f'Total valid archs processed: {len(all_reg_evals)}')
+        print(f'Spearman wrt params: {spe_params} \n')
+        print(f'Spearman wrt flops: {spe_flops} \n')
 
     # Store some key numbers in results.txt
     results_savename = os.path.join(out_dir, 'results.txt')
-    with open(results_savename, 'w') as f:
+    with open(results_savename, 'a') as f:
         f.write(f'Total valid archs processed: {len(all_reg_evals)} \n')
         f.write(f'Spearman wrt params: {spe_params}')
         f.write(f'Spearman wrt flops: {spe_flops}')
@@ -197,7 +208,6 @@ def main():
     print(f'Total valid archs processed: {len(all_reg_evals)}')
     print(f'Spearman wrt params: {spe_params}')
     print(f'Spearman wrt flops: {spe_flops}')
-
 
     top_percent_range = range(2, 101, 2)
     # Rank correlations at top n percent of architectures
@@ -214,9 +224,14 @@ def main():
             top_percents.append(top_percent)
             num_to_keep = int(ma.floor(len(reg_init) * top_percent * 0.01))
             top_percent_evals = reg_init[:num_to_keep]
-            top_percent_reg = [x[0] for x in top_percent_evals]
-            top_percent_init = [x[1] for x in top_percent_evals]
-        
+            # sometimes jacob_cov has a nan here and there. ignore those.
+            top_percent_reg = [x[0] for x in top_percent_evals 
+                                if not ma.isnan(x[0]) and not ma.isnan(x[1])]
+            top_percent_init = [x[1] for x in top_percent_evals 
+                                if not ma.isnan(x[0]) and not ma.isnan(x[1])]
+
+            assert len(top_percent_reg) == len(top_percent_init)
+
             spe_init, _ = spearmanr(top_percent_reg, top_percent_init)
             spe_top_percents_init[measure].append(spe_init)
 
@@ -254,6 +269,14 @@ def main():
         
     # save data                    
     save_data(spe_top_percents_init, cr_init_top_percents, out_dir)
+
+    # print out summary in pretty format to text file
+    with open(results_savename, 'a') as f:
+        f.write('spearman correlations: \n')
+        for measure in ZEROCOST_MEASURES:
+            f.write(f'{measure}: {spe_top_percents_init[measure][-1]} \n')
+            print(f'{measure}: {spe_top_percents_init[measure][-1]} \n')
+    
 
 
 def save_data(spe_top_percents:List[float], cr_top_percents:List[float], savefolder:str):
