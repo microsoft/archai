@@ -5,10 +5,10 @@
 """
 
 from collections.abc import Sized
-from typing import Any, List, Union
+from typing import Any, Union
 
 
-def map_to_list(p: Union[Sized, Any], n: int) -> List[Any]:
+def map_to_list(p: Union[Sized, Any], n: int) -> Sized[Any]:
     """Maps variables to lists with fixed lengths.
 
     Args:
@@ -16,7 +16,7 @@ def map_to_list(p: Union[Sized, Any], n: int) -> List[Any]:
         n: Size of list to be mapped.
 
     Returns:
-        (List[Any]): List with a fixed length.
+        (Sized[Any]): List with a fixed length.
 
     """
 

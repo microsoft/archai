@@ -84,10 +84,11 @@ def load_from_args(model_type: str,
     return instance
 
 
-def load_from_checkpoint(model_type: str,
-                         checkpoint_path: str,
-                         on_cpu: Optional[bool] = False,
-                         for_export: Optional[bool] = False) -> Tuple[torch.nn.Module, Dict[str, Any]]:
+def load_model_from_checkpoint(model_type: str,
+                               checkpoint_path: str,
+                               on_cpu: Optional[bool] = False,
+                               for_export: Optional[bool] = False
+                               ) -> Tuple[torch.nn.Module, Dict[str, Any]]:
     """Performs the lazy loading of a pre-defined model and its configuration.
 
     Args:

@@ -12,3 +12,7 @@ SEQ_LEN = 32
 
 # Path to the `models` module
 LIBRARY_PATH = 'archai.nlp.models'
+
+# ONNX-related
+OMP_NUM_THREADS = 1
+OMP_WAIT_POLICY = 'ACTIVE'

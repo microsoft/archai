@@ -129,10 +129,11 @@ def export_onnx_from_torch(model: torch.nn.Module,
                       do_constant_folding=do_constant_folding,
                       opset_version=opset_version)
 
-    # Exports configuration to JSON
+    # Adds missing configurations
     model_config['model_type'] = onnx_config.config['model_type']
     model_config['past_key_values'] = onnx_config.config['past_key_values']
 
+    # Exports configuration to JSON
     config_path = Path(onnx_model_path).parent / 'config.json'
     with open(config_path, 'w') as f:
         json.dump(model_config, f)

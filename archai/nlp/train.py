@@ -27,7 +27,7 @@ import yaml
 from torch.nn.parallel import DistributedDataParallel
 
 from archai.common import ml_perf_utils, utils
-from archai.nlp.common.lazy_loader import load_from_args, load_from_checkpoint
+from archai.nlp.common.lazy_loader import load_from_args, load_model_from_checkpoint
 from archai.nlp.compression.quantization.qat import prepare_with_qat, qat_to_float_modules
 from archai.nlp.datasets import exp_utils
 from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
@@ -1105,7 +1105,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
 
     if not args.no_eval and os.path.exists(checkpoint_path):
         # Load the best saved model.
-        model, model_config = load_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
+        model, model_config = load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
@@ -1189,7 +1189,7 @@ def main():
     input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
-        lambda: load_from_checkpoint(args.model_type, checkpoint_path, on_cpu=True))
+        lambda: load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=True))
 
     summary.update({
         'experiment_name': args.experiment_name,

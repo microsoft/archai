@@ -16,7 +16,7 @@ from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
-from archai.nlp.common.lazy_loader import load_from_checkpoint
+from archai.nlp.common.lazy_loader import load_model_from_checkpoint
 from archai.nlp.common.file_naming_utils import create_file_name_identifier
 
 
@@ -151,16 +151,16 @@ def dynamic_quantization_torch(torch_model_path: str,
     torch.set_num_threads(1)
 
     # Loads the pre-trained model
-    model = load_from_checkpoint(model_type,
-                                 torch_model_path,
-                                 on_cpu=True)
+    model = load_model_from_checkpoint(model_type,
+                                       torch_model_path,
+                                       on_cpu=True)
 
     # Performs an initial dynamic quantization
-    model_qnt = torch.quantization.quantize_dynamic(model, {torch.nn.Linear})
-    
     # Currently, code below works as a caveat to quantize the embedding layers
-    # Prepares the model for quantization and quantizes it
+    model_qnt = torch.quantization.quantize_dynamic(model, {torch.nn.Linear})
     model_qnt.transformer.word_emb.qconfig = torch.quantization.float_qparams_weight_only_qconfig
+    
+    # Prepares the model for quantization and quantizes it
     torch.quantization.prepare(model_qnt, inplace=True)
     torch.quantization.convert(model_qnt, inplace=True)
 
