@@ -10,6 +10,7 @@ from collections import OrderedDict
 import yaml
 from inspect import getsourcefile
 import re
+import math as ma
 
 from runstats import Statistics
 
@@ -313,19 +314,25 @@ def find_valid_log(subdir:str)->str:
 
         # sometimes some job may have been run multiple times
         # resulting in multiple log files. here we take the 
-        # earliest one.
+        # largest one as that has the most chance of being complete.
 
         # get list of files
         list_of_files = filter(lambda x: os.path.isfile(os.path.join(dist_folder, x)),
                         os.listdir(dist_folder))
-        
-        # sort in ascending order of time
-        list_of_files = sorted(list_of_files, 
-                        key = lambda x: os.path.getmtime(os.path.join(dist_folder, x)))
+                
+        # find the largest yaml file
+        size = -ma.inf
+        largest_log_file = ''
+        list_of_yamls = [f for f in list_of_files if f.endswith(".yaml")]
+        for f in list_of_yamls:
+            this_size = os.path.getsize(os.path.join(dist_folder, f))
+            if this_size > size:
+                size = this_size
+                largest_log_file = f
+        assert largest_log_file != ''
+        return os.path.join(dist_folder, largest_log_file) 
 
-        for f in list_of_files:
-            if f.endswith(".yaml"):
-                return os.path.join(dist_folder, f)
+        
 
 
 def parse_a_job(job_dir:pathlib.Path)->Dict:
