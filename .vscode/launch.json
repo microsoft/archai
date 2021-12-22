@@ -393,6 +393,14 @@
             "args": ["--full", "--algos", "zerocost_darts_space_constant_random", "--datasets", "synthetic_cifar10"]
         },
         {
+            "name": "ZeroCost-Darts-Space-Constant-Random-Darcyflow-Full",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "zerocost_darts_space_constant_random_darcyflow", "--datasets", "darcyflow"]
+        },
+        {
             "name": "Natsbench-Regular-Eval-Full",
             "type": "python",
             "request": "launch",
