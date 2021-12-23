@@ -16,7 +16,7 @@
 """
 
 import functools
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -1010,16 +1010,81 @@ class AdaptiveEmbedding(nn.Module):
         return embed
 
 class MemTransformerLM(ArchaiModel):
-    def __init__(self, n_token, n_layer=16, n_head=8, d_model=512, d_head=64, d_inner=2048,
-                 dropout=0.1, dropatt=0.0, dtype=None, tie_weight=True, d_embed=512,
-                 div_val=1, tie_projs=None, pre_lnorm=False,
-                 tgt_len=192, ext_len=0, mem_len=192,
-                 cutoffs=None, adaptive=False,
-                 same_length=False, attn_type=0, clamp_len=-1, sample_softmax=-1,
-                 weight_init_type='normal', weight_init_range=0.1, weight_init_std=0.02,
-                 proj_init_std=0.01, init_std=0.02,
-                 primer_conv=False, primer_sqrt=False, use_cache=False):
+    """Implements the Memory Transformer for language modeling (Transformer-XL).
+
+    """
+
+    def __init__(self,
+                 n_token: int,
+                 n_layer: Optional[int] = 16,
+                 n_head: Optional[int] = 8,
+                 d_model: Optional[int] = 512,
+                 d_head: Optional[int] = 64,
+                 d_inner: Optional[int] = 2048,
+                 dropout: Optional[float] = 0.1,
+                 dropatt: Optional[float] = 0.0,
+                 dtype: Optional[str] = None,
+                 tie_weight: Optional[bool] = True,
+                 d_embed: Optional[int] = 512,
+                 div_val: Optional[int] = 1,
+                 tie_projs: Optional[List[bool]] = None,
+                 pre_lnorm: Optional[bool] = False,
+                 tgt_len: Optional[int] = 192,
+                 ext_len: Optional[int] = 0,
+                 mem_len: Optional[int] = 192,
+                 cutoffs: Optional[List[int]] = None,
+                 adaptive: Optional[bool] = False,
+                 same_length: Optional[bool] = False,
+                 attn_type: Optional[int] = 0,
+                 clamp_len: Optional[int] = -1,
+                 sample_softmax: Optional[int] = -1,
+                 weight_init_type: Optional[str] ='normal',
+                 weight_init_range: Optional[float] = 0.1,
+                 weight_init_std: Optional[float] = 0.02,
+                 proj_init_std: Optional[float] = 0.01,
+                 init_std: Optional[float] = 0.02,
+                 primer_conv: Optional[bool] = False,
+                 primer_sqrt: Optional[bool] = False,
+                 use_cache: Optional[bool] = False) -> None:
+        """Overrides inialization.
+
+        Args:
+            n_token: Number of maximum tokens.
+            n_layer: Number of layers.
+            n_head: Number of attention heads.
+            d_model: Dimensionality of the model.
+            d_head: Dimensionality of the attention head.
+            d_inner: Dimensionality of the inner state.
+            dropout: Dropout ratio.
+            dropatt: Dropout ratio for attention.
+            dtype: Type of variables.
+            tie_weight: Whether weights should be tied or not.
+            d_embed: Dimensionality of the embeddings.
+            div_val: Dividend for adaptive softmax.
+            tie_projs: Whether projections should be tied or not.
+            pre_lnorm: Whether to apply layer normalization before activation.
+            tgt_len: Target sequence length.
+            ext_len: Extended context length.
+            mem_len: Memory length.
+            cutoffs: Cutoffs for the adaptive softmax.
+            adaptive: Whether should use adaptive softmax or not.
+            same_length: Whether passes should have the same length or not.
+            attn_type: Type of attention layer.
+            clamp_len: Maximum length of the positional embeddings.
+            sample_softmax: Whether to sample from the softmax layer or not.
+            weight_init_type: Type of weights initialization.
+            weight_init_range: Range of weights initialization.
+            weight_init_std: Standard deviation of weights initialization.
+            proj_init_std: Standard deviation of projections initialization.
+            init_std: Standard deviation of initialization.
+            primer_conv: Whether to use the Primer-EZ convolution primitive.
+            primer_sqrt: Whether to use the Primer-EZ squared ReLU primitive.
+            use_cache: Whether should save and use past key/values states.
+
+        """
+
         super(MemTransformerLM, self).__init__()
+
         self.n_token = n_token # number of tokens in vocab
 
         d_embed = d_model if d_embed is None else d_embed
@@ -1125,13 +1190,28 @@ class MemTransformerLM(ArchaiModel):
         # ensure embedding init is not overridden by out_layer in case of weight sharing
         self.word_emb.apply(functools.partial(weights_init, **weight_init_params))
 
-    def get_non_emb_params(self):
+    def get_non_emb_params(self) -> int:
+        """Returns the number of non-embedding parameters.
+
+        Returns:
+            (int): Number of non-embedding parameters.
+
+        """
+
         return sum([p.nelement() for p in self.layers.parameters()])
 
-    def backward_compatible(self):
+    def backward_compatible(self) -> None:
+        """Allows for backward compatibility of the class.
+
+        """
+
         self.sample_softmax = -1
 
-    def _create_params(self):
+    def _create_params(self) -> None:
+        """Creates the model's parameters.
+
+        """
+
         # default attention
         if self.attn_type == 0:
             self.pos_emb = PositionalEmbedding(self.d_model)
@@ -1155,18 +1235,38 @@ class MemTransformerLM(ArchaiModel):
         elif self.attn_type == 3:
             self.r_emb = nn.Parameter(torch.Tensor(self.n_layer, self.max_klen, self.d_model).zero_())
 
-    def reset_length(self, tgt_len, ext_len, mem_len):
+    def reset_length(self,
+                     tgt_len: int,
+                     ext_len: int,
+                     mem_len: int) -> None:
+        """Resets the length of the memory.
+
+        Args:
+            tgt_len: Length of target sample.
+            ext_len: Length of extended memory.
+            mem_len: Length of the memory.
+
+        """
+
         if tgt_len < 1:
             raise RuntimeError(f'tgt_len should be >= 1, but got {tgt_len}')
         if ext_len < 0:
             raise RuntimeError(f'ext_len should be >= 0, but got {ext_len}')
         if mem_len < 0:
             raise RuntimeError(f'mem_len should be >= 0, but got {mem_len}')
+
         self.tgt_len = tgt_len
         self.mem_len = mem_len
         self.ext_len = ext_len
 
-    def init_mems(self):
+    def init_mems(self) -> Union[torch.Tensor, None]:
+        """Initializes the memories.
+
+        Returns:
+            Union[torch.Tensor, None]: Memories.
+
+        """
+
         if self.mem_len > 0:
             param = next(self.parameters())
             mems = torch.empty(self.n_layer, 0, dtype=param.dtype,
@@ -1175,7 +1275,24 @@ class MemTransformerLM(ArchaiModel):
         else:
             return None
 
-    def _update_mems(self, hids, mems, qlen, mlen):
+    def _update_mems(self,
+                     hids: torch.Tensor,
+                     mems: torch.Tensor,
+                     qlen: int,
+                     mlen: int) -> Union[torch.Tensor, None]:
+        """Updates the memories.
+        
+        Args:
+            hids: Hidden states tensor.
+            mems: Memories tensor.
+            qlen: Length of the queries (Q).
+            mlen: Length of the memory.
+
+        Returns:
+            Union[torch.Tensor, None]: Memories.
+
+        """
+
         # does not deal with None
         if mems is None:
             return None
@@ -1207,7 +1324,23 @@ class MemTransformerLM(ArchaiModel):
 
         return new_mems
 
-    def _forward(self, dec_inp, mems=None, past_key_values=None):
+    def _forward(self,
+                 dec_inp: torch.Tensor,
+                 mems: Optional[torch.Tensor] = None,
+                 past_key_values: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor]:
+        """Performs the inner structure forward pass.
+
+        Args:
+            dec_inp: Input tensor.
+            mems: Memories tensor.
+            past_key_values: Past key/values states.
+
+        Returns:
+            (Tuple[torch.Tensor]): Output tuple holding output tensor, memories
+                and current past_key_values.
+
+        """
+
         qlen, bsz = dec_inp.size()
 
         word_emb = self.word_emb(dec_inp)
@@ -1311,8 +1444,29 @@ class MemTransformerLM(ArchaiModel):
 
         return core_out, new_mems, pasts_key_values
 
-    def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor], mems:Optional[torch.Tensor],
-                past_key_values:Optional[torch.Tensor]=None, output_loss=True, output_prediction_scores=False):
+    def forward(self,
+                input_ids: torch.Tensor,
+                labels: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None,
+                output_loss: Optional[bool] = True,
+                output_prediction_scores: Optional[bool] = False
+                ) -> Tuple[float, torch.Tensor]:
+        """Performs the language modeling task forward pass.
+
+        Args:
+            input_ids: Input tokens.
+            labels: Input labels.
+            mems: Memories tensor.
+            past_key_values: Past key/values states.
+            output_loss: Whether loss should be outputted or not.
+            output_prediction_scores: Whether prediction scores (logits) should be outputted or not.
+
+        Returns:
+            (Tuple[float, torch.Tensor]): Output containing loss, prediction_scores,
+                memories and current past_key_values.
+        """
+
         # input_ids and labels are transposed within the code to avoid major changes
         # input_ids -> [seq_len, batch_size], labels -> [seq_len, batch_size]
         # Returns:
@@ -1360,18 +1514,51 @@ class MemTransformerLM(ArchaiModel):
 
         return (loss, prediction_scores, mems, past_key_values)
 
-def init_weight(weight, weight_init_type:str, weight_init_range:float, weight_init_std:float):
-    """Intialize given parameters using specified strategy"""
+def init_weight(weight: torch.Tensor,
+                weight_init_type: str,
+                weight_init_range: float,
+                weight_init_std: float) -> None:
+    """Intializes given parameters using specified strategy.
+
+    Args:
+        weight: Weights tensor.
+        weight_init_type: Type of weights initialization.
+        weight_init_range: Range of weights initialization.
+        weight_init_std: Standard deviation of weights initialization.
+
+    """
+
     if weight_init_type == 'uniform':
         nn.init.uniform_(weight, -weight_init_range, weight_init_range)
     elif weight_init_type == 'normal': # default
         nn.init.normal_(weight, 0.0, weight_init_std)
 
-def init_bias(bias):
+def init_bias(bias: torch.Tensor) -> None:
+    """Initializes the bias.
+
+    Args:
+        bias: Bias tensor.
+
+    """
+
     nn.init.constant_(bias, 0.0)
 
-def weights_init(m, weight_init_type:str, weight_init_range:float, weight_init_std:float, proj_init_std:float):
-    """Initialize weights of module using specified strategy"""
+def weights_init(m: nn.Module,
+                 weight_init_type: str,
+                 weight_init_range: float,
+                 weight_init_std: float,
+                 proj_init_std: float) -> None:
+    """Initializes module weights using specified strategy.
+
+    Args:
+        m: Module.
+        weight_init_type: Type of weights initialization.
+        weight_init_range: Range of weights initialization.
+        weight_init_std: Standard deviation of weights initialization.
+        proj_init_std: Standard deviation of projections initialization.
+    
+    """
+
     classname = m.__class__.__name__
 
     weight_init_params = {
