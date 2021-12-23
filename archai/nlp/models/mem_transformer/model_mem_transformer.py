@@ -16,7 +16,7 @@
 """
 
 import functools
-from typing import Optional
+from typing import Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -38,7 +38,18 @@ def add_and_scale(tensor1, tensor2, alpha: float):
 
 
 class PositionalEmbedding(nn.Module):
-    def __init__(self, demb):
+    """Implements a Positional Embedding layer.
+
+    """
+
+    def __init__(self, demb: int) -> None:
+        """Overrides method with a custom implementation.
+
+        Args:
+            demb: Dimensionality of the embeddings.
+
+        """
+
         super(PositionalEmbedding, self).__init__()
 
         self.demb = demb
@@ -46,7 +57,20 @@ class PositionalEmbedding(nn.Module):
         inv_freq = 1 / (10000 ** (torch.arange(0.0, demb, 2.0) / demb))
         self.register_buffer('inv_freq', inv_freq)
 
-    def forward(self, pos_seq, bsz=None):
+    def forward(self,
+                pos_seq: torch.Tensor,
+                bsz: Optional[int] = None) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            pos_seq: Input tensor with positional sequences.
+            bsz: Size of the batch.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         sinusoid_inp = torch.ger(pos_seq, self.inv_freq)
         pos_emb = torch.cat([sinusoid_inp.sin(), sinusoid_inp.cos()], dim=-1)
 
@@ -57,7 +81,25 @@ class PositionalEmbedding(nn.Module):
 
 
 class PositionwiseFF(nn.Module):
-    def __init__(self, d_model, d_inner, dropout, pre_lnorm=False):
+    """Implements a Position-Wise Feed-Forward layer.
+    
+    """
+
+    def __init__(self,
+                 d_model: int,
+                 d_inner: int,
+                 dropout: float,
+                 pre_lnorm: Optional[bool] = False) -> None:
+        """Overrides method with a custom implementation.
+
+        Args:
+            d_model: Dimensionality of hidden states.
+            d_inner: Dimensionally of inner feed-forward layer.
+            dropout: Dropout ratio.
+            pre_lnorm: Whether to apply layer normalization before activation.
+
+        """
+
         super(PositionwiseFF, self).__init__()
 
         self.d_model = d_model
@@ -75,7 +117,17 @@ class PositionwiseFF(nn.Module):
 
         self.pre_lnorm = pre_lnorm
 
-    def forward(self, inp):
+    def forward(self, inp: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            inp: Input tensor.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         if self.pre_lnorm:
             # layer normalization + positionwise feed-forward
             core_out = self.CoreNet(self.layer_norm(inp))
@@ -93,8 +145,31 @@ class PositionwiseFF(nn.Module):
 
 
 class MultiHeadAttn(nn.Module):
-    def __init__(self, n_head, d_model, d_head, dropout, dropatt=0,
-                 pre_lnorm=False, use_cache=False):
+    """Implements a Multi-Head Attention layer.
+
+    """
+
+    def __init__(self,
+                 n_head: int,
+                 d_model: int,
+                 d_head: int,
+                 dropout: float,
+                 dropatt: Optional[float] = 0.0,
+                 pre_lnorm: Optional[bool] = False,
+                 use_cache: Optional[bool] = False) -> None:
+        """Overrides initialization method.
+
+        Args:
+            n_head: Number of attention heads.
+            d_model: Dimensionality of models.
+            d_head: Dimensionality of attention heads.
+            dropout: Dropout ratio.
+            dropatt: Dropout ratio in attention.
+            pre_lnorm: Whether to apply layer normalization before activation.
+            use_cache: Whether should save and use past key/values states.
+
+        """
+
         super(MultiHeadAttn, self).__init__()
 
         self.n_head = n_head
@@ -116,7 +191,24 @@ class MultiHeadAttn(nn.Module):
 
         self.pre_lnorm = pre_lnorm
 
-    def forward(self, h, attn_mask=None, mems=None, past_key_values=None):
+    def forward(self,
+                h: torch.Tensor,
+                attn_mask: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            h: Input tensor.
+            attn_mask: Attention mask.
+            mems: Pre-computed hidden states.
+            past_key_values: Past key/values states.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         # multihead attention
         # [hlen x bsz x n_head x d_head]
 
@@ -179,9 +271,40 @@ class MultiHeadAttn(nn.Module):
 
 
 class RelMultiHeadAttn(nn.Module):
-    def __init__(self, n_head, d_model, d_head, dropout, dropatt=0,
-                 tgt_len=None, ext_len=None, mem_len=None, pre_lnorm=False,
-                 primer_ez=False, use_cache=False):
+    """Implements a Relational Multi-Head Attention layer.
+
+    """
+
+    def __init__(self,
+                 n_head: int,
+                 d_model: int,
+                 d_head: int,
+                 dropout: float,
+                 dropatt: Optional[float] = 0.0,
+                 tgt_len: Optional[int] = None,
+                 ext_len: Optional[int] = None,
+                 mem_len: Optional[int] = None,
+                 pre_lnorm: Optional[bool] = False,
+                 primer_ez: Optional[bool] = False,
+                 use_cache: Optional[bool] = False) -> None:
+        """Overrides method with a custom implementation.
+
+        Args:
+            n_head: Number of attention heads.
+            d_model: Dimensionality of hidden states.
+            d_rank: Dimensionality of low-ranks.
+            d_head: Dimensionaly of attention heads.
+            dropout: Dropout ratio.
+            dropatt: Attention dropout ratio.
+            tgt_len: Target sequence length.
+            ext_len: Extended context length.
+            mem_len: Memory length.
+            pre_lnorm: Whether to apply layer normalization before activation.
+            primer_ez: Whether to use Primer-EZ primitives or not.
+            use_cache: Whether should save and use past key/values states.
+
+        """
+
         super(RelMultiHeadAttn, self).__init__()
 
         self.n_head = n_head
@@ -206,7 +329,22 @@ class RelMultiHeadAttn(nn.Module):
 
         self.pre_lnorm = pre_lnorm
 
-    def _parallelogram_mask(self, h, w, left=False):
+    def _parallelogram_mask(self,
+                            h: torch.Tensor,
+                            w: torch.Tensor,
+                            left: Optional[bool] = False) -> torch.Tensor:
+        """Creates a parallelogram-based mask.
+
+        Args:
+            h: Input tensor with hidden states.
+            w: Weights tensor.
+            left: Whether to perform left or right shift.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         mask = torch.ones((h, w)).byte()
         m = min(h, w)
         mask[:m, :m] = torch.triu(mask[:m, :m])
@@ -217,7 +355,26 @@ class RelMultiHeadAttn(nn.Module):
         else:
             return mask.flip(0).bool()
 
-    def _shift(self, x, qlen, klen, mask, left=False):
+    def _shift(self,
+               x: torch.Tensor,
+               qlen: int,
+               klen: int,
+               mask: torch.Tensor,
+               left: Optional[bool] = False) -> torch.Tensor:
+        """Performs a shift over the inputs.
+
+        Args:
+            x: Input tensor.
+            qlen: Length of the queries (Q).
+            klen: Length of the keys (K).
+            mask: Mask to be used during shift.
+            left: Whether to perform left or right shift.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         if qlen > 1:
             zero_pad = torch.zeros((x.size(0), qlen-1, x.size(2), x.size(3)),
                                    device=x.device, dtype=x.dtype)
@@ -235,7 +392,20 @@ class RelMultiHeadAttn(nn.Module):
 
         return x
 
-    def _rel_shift(self, x, zero_triu=False):
+    def _rel_shift(self,
+                   x: torch.Tensor,
+                   zero_triu: Optional[bool] = False) -> torch.Tensor:
+        """Performs a relational shift over the inputs.
+
+        Args:
+            x: Input tensor.
+            zero_triu: Whethet to use a zero-based triu operator.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         zero_pad = torch.zeros((x.size(0), x.size(1), x.size(2), 1),
                                device=x.device, dtype=x.dtype)
         x_padded = torch.cat([zero_pad, x], dim=3)
@@ -250,17 +420,65 @@ class RelMultiHeadAttn(nn.Module):
 
         return x
 
-    def forward(self, w, r, attn_mask=None, mems=None):
+    def forward(self,
+                w: torch.Tensor,
+                r: torch.Tensor,
+                attn_mask: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            w: Weights tensor.
+            r: Embeddings tensor.
+            attn_mask: Attention mask.
+            mems: Pre-computed hidden states.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         raise NotImplementedError
 
 
 class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
-    def __init__(self, *args, **kwargs):
+    """Implements a Relational Partial-Learnable Multi-Head Attention layer.
+
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        """Overrides initialization method.
+
+        """
+
         super(RelPartialLearnableMultiHeadAttn, self).__init__(*args, **kwargs)
 
         self.r_net = nn.Linear(self.d_model, self.n_head * self.d_head, bias=False)
 
-    def forward(self, w, r, r_w_bias, r_r_bias, attn_mask=None, mems=None, past_key_values=None):
+    def forward(self,
+                w: torch.Tensor,
+                r: torch.Tensor,
+                r_w_bias: torch.Tensor,
+                r_r_bias: torch.Tensor,
+                attn_mask: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            w: Input tensor.
+            r: Relatiove positional embeddings.
+            r_w_bias: `u` parameter to be learned.
+            r_r_bias: `v` parameter to be learned.
+            attn_mask: Attention mask.
+            mems: Pre-computed hidden states.
+            past_key_values: Past key/values states.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         qlen, rlen, bsz = w.size(0), r.size(0), w.size(1)
 
         if mems is not None:
@@ -354,10 +572,41 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
 
 
 class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
-    def __init__(self, *args, **kwargs):
+    """Implements a Relational Learnable Multi-Head Attention layer.
+
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        """Overrides initialization method.
+
+        """
+
         super(RelLearnableMultiHeadAttn, self).__init__(*args, **kwargs)
 
-    def forward(self, w, r_emb, r_w_bias, r_bias, attn_mask=None, mems=None, past_key_values=None):
+    def forward(self,
+                w: torch.Tensor,
+                r_emb: torch.Tensor,
+                r_w_bias: torch.Tensor,
+                r_bias: torch.Tensor,
+                attn_mask: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            w: Input tensor.
+            r_emb: Relatiove positional embeddings to be learned.
+            r_w_bias: `u` parameter to be learned.
+            r_bias: `v` parameter to be learned.
+            attn_mask: Attention mask.
+            mems: Pre-computed hidden states.
+            past_key_values: Past key/values states.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         # r_emb: [klen, n_head, d_head], used for term B
         # r_w_bias: [n_head, d_head], used for term C
         # r_bias: [klen, n_head], used for term D
@@ -461,14 +710,53 @@ class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
 
 
 class DecoderLayer(nn.Module):
-    def __init__(self, n_head, d_model, d_head, d_inner, dropout, use_cache=False, **kwargs):
+    """Implements a Decoder layer.
+
+    """
+
+    def __init__(self,
+                 n_head: int,
+                 d_model: int,
+                 d_head: int,
+                 d_inner: int,
+                 dropout: float,
+                 use_cache: Optional[bool] = False,
+                 **kwargs) -> None:
+        """Overrides initialization method.
+
+        Args:
+            n_head: Number of attention heads.
+            d_model: Dimensionality of the model.
+            d_head: Dimensionality of the attention heads.
+            d_inner: Dimensionality of the inner states.
+            dropout: Dropout ratio.
+            use_cache: Whether should save and use past key/values states.
+
+        """
+
         super(DecoderLayer, self).__init__()
 
         self.dec_attn = MultiHeadAttn(n_head, d_model, d_head, dropout, use_cache=use_cache, **kwargs)
         self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
                                      pre_lnorm=kwargs.get('pre_lnorm'))
 
-    def forward(self, dec_inp, dec_attn_mask=None, mems=None, past_key_values=None):
+    def forward(self,
+                dec_inp: torch.Tensor,
+                dec_attn_mask: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            dec_inp: Input tensor.
+            dec_attn_mask: Attention mask.
+            mems: Pre-computed hidden states.
+            past_key_values: Past key/values states.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
 
         output, present_key_values = self.dec_attn(dec_inp, attn_mask=dec_attn_mask,
                                                    mems=mems, past_key_values=past_key_values)
@@ -478,8 +766,34 @@ class DecoderLayer(nn.Module):
 
 
 class RelLearnableDecoderLayer(nn.Module):
-    def __init__(self, n_head, d_model, d_head, d_inner, dropout,
-                 primer_conv=False, primer_sqrt=False, use_cache=False, **kwargs):
+    """Implements a Relational Learnable Decoder layer.
+
+    """
+
+    def __init__(self,
+                 n_head: int,
+                 d_model: int,
+                 d_head: int,
+                 d_inner: int,
+                 dropout: float,
+                 primer_conv: Optional[bool] = False,
+                 primer_sqrt: Optional[bool] = False,
+                 use_cache: Optional[bool] = False,
+                 **kwargs) -> None:
+        """Overrides initialization method.
+
+        Args:
+            n_head: Number of attention heads.
+            d_model: Dimensionality of the model.
+            d_head: Dimensionality of the attention heads.
+            d_inner: Dimensionality of the inner states.
+            dropout: Dropout ratio.
+            primer_conv: Whether to use the Primer-EZ convolution primitive.
+            primer_sqrt: Whether to use the Primer-EZ squared ReLU primitive.
+            use_cache: Whether should save and use past key/values states.
+
+        """
+
         super(RelLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelLearnableMultiHeadAttn(n_head, d_model, d_head,
@@ -493,7 +807,29 @@ class RelLearnableDecoderLayer(nn.Module):
             self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
                                          pre_lnorm=kwargs.get('pre_lnorm'))
 
-    def forward(self, dec_inp, r_emb, r_w_bias, r_bias, dec_attn_mask=None, mems=None, past_key_values=None):
+    def forward(self,
+                dec_inp: torch.Tensor,
+                r_emb: torch.Tensor,
+                r_w_bias: torch.Tensor,
+                r_bias: torch.Tensor,
+                dec_attn_mask: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            dec_inp: Input tensor.
+            r_emb: Relative positional embeddings.
+            r_w_bias: `u` parameter to be learned.
+            r_bias: `v` parameter to be learned.
+            dec_attn_mask: Attention mask.
+            mems: Pre-computed hidden states.
+            past_key_values: Past key/values states.  
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
 
         output, present_key_values = self.dec_attn(dec_inp, r_emb, r_w_bias, r_bias,
                                                    attn_mask=dec_attn_mask,
@@ -504,8 +840,34 @@ class RelLearnableDecoderLayer(nn.Module):
 
 
 class RelPartialLearnableDecoderLayer(nn.Module):
-    def __init__(self, n_head, d_model, d_head, d_inner, dropout,
-                 primer_conv=False, primer_sqrt=False, use_cache=False, **kwargs):
+    """Implements a Relational Partial-Learnable Decoder layer.
+
+    """
+
+    def __init__(self,
+                 n_head: int,
+                 d_model: int,
+                 d_head: int,
+                 d_inner: int,
+                 dropout: float,
+                 primer_conv: Optional[bool] = False,
+                 primer_sqrt: Optional[bool] = False,
+                 use_cache: Optional[bool] = False,
+                 **kwargs) -> None:
+        """Overrides initialization method.
+
+        Args:
+            n_head: Number of attention heads.
+            d_model: Dimensionality of the model.
+            d_head: Dimensionality of the attention heads.
+            d_inner: Dimensionality of the inner states.
+            dropout: Dropout ratio.
+            primer_conv: Whether to use the Primer-EZ convolution primitive.
+            primer_sqrt: Whether to use the Primer-EZ squared ReLU primitive.
+            use_cache: Whether should save and use past key/values states.
+
+        """
+
         super(RelPartialLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelPartialLearnableMultiHeadAttn(n_head, d_model,
@@ -520,7 +882,29 @@ class RelPartialLearnableDecoderLayer(nn.Module):
             self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
                                          pre_lnorm=kwargs.get('pre_lnorm'))
 
-    def forward(self, dec_inp, r, r_w_bias, r_r_bias, dec_attn_mask=None, mems=None, past_key_values=None):
+    def forward(self,
+                dec_inp: torch.Tensor,
+                r: torch.Tensor,
+                r_w_bias: torch.Tensor,
+                r_r_bias: torch.Tensor,
+                dec_attn_mask: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            dec_inp: Input tensor.
+            r: Relative positional embeddings.
+            r_w_bias: `u` parameter to be learned.
+            r_r_bias: `v` parameter to be learned.
+            dec_attn_mask: Attention mask.
+            mems: Pre-computed hidden states.
+            past_key_values: Past key/values states.  
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
 
         output, present_key_values = self.dec_attn(dec_inp, r, r_w_bias, r_r_bias,
                                                    attn_mask=dec_attn_mask,
@@ -531,8 +915,29 @@ class RelPartialLearnableDecoderLayer(nn.Module):
 
 
 class AdaptiveEmbedding(nn.Module):
-    def __init__(self, n_token, d_embed, d_proj, cutoffs, div_val=1,
-                 sample_softmax=False):
+    """Implements an Adaptive Embedding layer.
+
+    """
+
+    def __init__(self,
+                 n_token: int,
+                 d_embed: int,
+                 d_proj: int,
+                 cutoffs: Tuple[int],
+                 div_val: Optional[int] = 1,
+                 sample_softmax: Optional[bool] = False) -> None:
+        """Overrides initialization method.
+
+        Args:
+            n_token: Vocabulary size.
+            d_embed: Dimensionality of the embeddings.
+            d_proj: Dimensionality of the projections.
+            cutoffs: Cutoffs for the adaptive softmax.
+            div_val: Divident value for adapative input and softmax.
+            sample_sofmax: Whether to sample the softmax layer.
+
+        """
+
         super(AdaptiveEmbedding, self).__init__()
 
         self.n_token = n_token
@@ -561,7 +966,17 @@ class AdaptiveEmbedding(nn.Module):
                 self.emb_layers.append(nn.Embedding(r_idx-l_idx, d_emb_i))
                 self.emb_projs.append(nn.Parameter(torch.Tensor(d_proj, d_emb_i).zero_()))
 
-    def forward(self, inp):
+    def forward(self, inp: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            inp: Input tensor.
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
+
         if self.div_val == 1:
             embed = self.emb_layers[0](inp)
             if self.d_proj != self.d_embed:
@@ -1014,13 +1429,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='unit test')
 
     parser.add_argument('--n_layer', type=int, default=16, help='')
-    parser.add_argument('--n_token', type=int, default=267735, help='') # 267735
+    parser.add_argument('--n_token', type=int, default=267735, help='')
     parser.add_argument('--n_head', type=int, default=8, help='')
     parser.add_argument('--d_head', type=int, default=64, help='')
     parser.add_argument('--d_model', type=int, default=512, help='')
     parser.add_argument('--d_embed', type=int, default=512, help='')
     parser.add_argument('--d_inner', type=int, default=2048, help='')
-    parser.add_argument('--div_val', type=int, default=1, help='') # Dividend value for adaptive input and softmax
+    parser.add_argument('--div_val', type=int, default=1, help='')
     parser.add_argument('--dropout', type=float, default=0.1, help='')
     parser.add_argument('--cuda', action='store_true', help='')
     parser.add_argument('--seed', type=int, default=42, help='')
@@ -1033,33 +1448,15 @@ if __name__ == '__main__':
     tie_projs = [False] + [True] * len(cutoffs)
 
     model = MemTransformerLM(args.n_token, args.n_layer, args.n_head,
-                                args.d_model, args.d_head, args.d_inner,
-                                args.dropout, dropatt=args.dropout,
-                                tie_weight=True, d_embed=args.d_embed,
-                                div_val=args.div_val, tie_projs=tie_projs,
-                                pre_lnorm=True, tgt_len=tgt_len,
-                                ext_len=ext_len, mem_len=mem_len,
-                                cutoffs=cutoffs, attn_type=0,
-                                dtype=None)
+                             args.d_model, args.d_head, args.d_inner,
+                             args.dropout, dropatt=args.dropout,
+                             tie_weight=True, d_embed=args.d_embed,
+                             div_val=args.div_val, tie_projs=tie_projs,
+                             pre_lnorm=True, tgt_len=tgt_len,
+                             ext_len=ext_len, mem_len=mem_len,
+                             cutoffs=cutoffs, attn_type=0,
+                             dtype=None)
 
     print('# total params', sum(p.numel() for p in model.parameters()))
     print('# embd params', sum(p.numel() for p in model.word_emb.parameters()))
     print('# layer params', sum(p.numel() for p in model.layers[0].parameters()))
-
-    # sample run
-
-    # from archai.nlp.nvidia_transformer_xl.nvidia_utils import lm_iterators
-
-    # device = torch.device("cuda" if args.cuda else "cpu")
-    # model.to(device)
-
-    # B = 4 # bytes per input_ids element
-    # input_len = tgt_len * 20
-    # input_ids = torch.LongTensor(input_len*B).random_(0, args.n_token).to(device)
-    # diter = lm_iterators.LMOrderedIterator(input_ids, B, tgt_len, device=device, ext_len=ext_len)
-
-    # mems = None
-    # for idx, (input_ids, labels, seqlen, _) in enumerate(diter):
-    #     print('batch {}'.format(idx))
-    #     _, _, mems = model(input_ids, labels, mems)
-

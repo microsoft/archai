@@ -11,11 +11,11 @@ from typing import Any, Dict, Sized, Tuple
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
 
+from archai.nlp.common.constants import OMP_NUM_THREADS, OMP_WAIT_POLICY
 from archai.nlp.common.lazy_loader import load_model_from_checkpoint
 from archai.nlp.compression.onnx.onnx_utils.forward import (
     crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
 from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.common.constants import OMP_NUM_THREADS, OMP_WAIT_POLICY
 
 # Constants available in onnxruntime
 # that enables performance optimization

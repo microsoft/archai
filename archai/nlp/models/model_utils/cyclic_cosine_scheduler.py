@@ -25,46 +25,47 @@
 
 from collections.abc import Iterable
 from math import cos, floor, log, pi
+from typing import Optional, Union
 
 from torch.optim.lr_scheduler import _LRScheduler
+from torch.optim.optimizer import Optimizer
 
 
 class CyclicCosineDecayLR(_LRScheduler):
-    """ Implements Cyclic Cosine annealing.
+    """Implements the Cyclic Cosine annealing.
 
-        This learning rate scheduler is useful when doing QAT provinding
-        a ~0.3 ppl boost over the traditional cosine annealing scheduler.
+    This learning rate scheduler is useful when doing QAT provinding
+    a ~0.3 ppl boost over the traditional cosine annealing scheduler.
 
-        Code and additional documentation: https://github.com/abhuse/cyclic-cosine-decay
+    Code and additional documentation: https://github.com/abhuse/cyclic-cosine-decay.
+
     """
-    def __init__(self,
-                 optimizer,
-                 init_decay_epochs,
-                 min_decay_lr,
-                 restart_interval=None,
-                 restart_interval_multiplier=None,
-                 restart_lr=None,
-                 warmup_epochs=None,
-                 warmup_start_lr=None,
-                 last_epoch=-1,
-                 verbose=False):
-        """
-        Initialize new CyclicCosineDecayLR object.
 
-        :param optimizer: (Optimizer) - Wrapped optimizer.
-        :param init_decay_epochs: (int) - Number of initial decay epochs.
-        :param min_decay_lr: (float or iterable of floats) - Learning rate at the end of decay.
-        :param restart_interval: (int) - Restart interval for fixed cycles.
-            Set to None to disable cycles. Default: None.
-        :param restart_interval_multiplier: (float) - Multiplication coefficient for geometrically increasing cycles.
-            Default: None.
-        :param restart_lr: (float or iterable of floats) - Learning rate when cycle restarts.
-            If None, optimizer's learning rate will be used. Default: None.
-        :param warmup_epochs: (int) - Number of warmup epochs. Set to None to disable warmup. Default: None.
-        :param warmup_start_lr: (float or iterable of floats) - Learning rate at the beginning of warmup.
-            Must be set if warmup_epochs is not None. Default: None.
-        :param last_epoch: (int) - The index of the last epoch. This parameter is used when resuming a training job. Default: -1.
-        :param verbose: (bool) - If True, prints a message to stdout for each update. Default: False.
+    def __init__(self,
+                 optimizer: Optimizer,
+                 init_decay_epochs: int,
+                 min_decay_lr: Union[float, Iterable[float]],
+                 restart_interval: Optional[int] = None,
+                 restart_interval_multiplier: Optional[float] = None,
+                 restart_lr: Optional[Union[float, Iterable[float]]] = None,
+                 warmup_epochs: Optional[int] = None,
+                 warmup_start_lr: Optional[Union[float, Iterable[float]]] = None,
+                 last_epoch: Optional[int] = -1,
+                 verbose: Optional[bool] = False) -> None:
+        """Initializes a new CyclicCosineDecayLR object.
+
+        Args:
+            optimizer: Wrapped optimizer.
+            init_decay_epochs: Number of initial decay epochs.
+            min_decay_lr: Learning rate at the end of decay.
+            restart_interval: Restart interval for fixed cycles.
+            restart_interval_multiplier: Multiplication coefficient for geometrically increasing cycles.
+            restart_lr: Learning rate when cycle restarts.
+            warmup_epochs: Number of warmup epochs.
+            warmup_start_lr: Learning rate at the beginning of warmup.
+            last_epoch: The index of the last epoch. This parameter is used when resuming a training job.
+            verbose: If true, prints a message to stdout for each update.
+
         """
 
         if not isinstance(init_decay_epochs, int) or init_decay_epochs < 1:
@@ -103,6 +104,7 @@ class CyclicCosineDecayLR(_LRScheduler):
                                  "got {} and {} instead".format(len(warmup_start_lr), len(optimizer.param_groups)))
 
         group_num = len(optimizer.param_groups)
+
         self._warmup_start_lr = [warmup_start_lr] * group_num if isinstance(warmup_start_lr, float) else warmup_start_lr
         self._warmup_epochs = 0 if warmup_epochs is None else warmup_epochs
         self._init_decay_epochs = init_decay_epochs
@@ -110,9 +112,16 @@ class CyclicCosineDecayLR(_LRScheduler):
         self._restart_lr = [restart_lr] * group_num if isinstance(restart_lr, float) else restart_lr
         self._restart_interval = restart_interval
         self._restart_interval_multiplier = restart_interval_multiplier
+
         super(CyclicCosineDecayLR, self).__init__(optimizer, last_epoch, verbose=verbose)
 
-    def get_lr(self):
+    def get_lr(self) -> float:
+        """Gets current learning rate.
+
+        Returns:
+            (float): Learning rate.
+
+        """
 
         if self._warmup_epochs > 0 and self.last_epoch < self._warmup_epochs:
             return self._calc(self.last_epoch,
@@ -125,36 +134,79 @@ class CyclicCosineDecayLR(_LRScheduler):
                               self._init_decay_epochs,
                               self.base_lrs,
                               self._min_decay_lr)
+
         else:
             if self._restart_interval is not None:
                 if self._restart_interval_multiplier is None:
                     cycle_epoch = (self.last_epoch - self._init_decay_epochs - self._warmup_epochs) % self._restart_interval
                     lrs = self.base_lrs if self._restart_lr is None else self._restart_lr
+
                     return self._calc(cycle_epoch,
                                       self._restart_interval,
                                       lrs,
                                       self._min_decay_lr)
+
                 else:
                     n = self._get_n(self.last_epoch - self._warmup_epochs - self._init_decay_epochs)
                     sn_prev = self._partial_sum(n)
                     cycle_epoch = self.last_epoch - sn_prev - self._warmup_epochs - self._init_decay_epochs
                     interval = self._restart_interval * self._restart_interval_multiplier ** n
                     lrs = self.base_lrs if self._restart_lr is None else self._restart_lr
+
                     return self._calc(cycle_epoch,
                                       interval,
                                       lrs,
                                       self._min_decay_lr)
+
             else:
                 return self._min_decay_lr
 
-    def _calc(self, t, T, lrs, min_lrs):
+    def _calc(self,
+              t: int,
+              T: int,
+              lrs: Union[float, Iterable[float]],
+              min_lrs: Union[float, Iterable[float]]) -> float:
+        """Calculates the current learning rate according to schedule.
+
+        Args:
+            t: Current timestep.
+            T: Maximum timesteps.
+            lrs: Learning rates.
+            min_lrs: Minimum learning rates.
+
+        Returns:
+            (float): Learning rate.
+
+        """
+
         return [min_lr + (lr - min_lr) * ((1 + cos(pi * t / T)) / 2)
                 for lr, min_lr in zip(lrs, min_lrs)]
 
-    def _get_n(self, epoch):
+    def _get_n(self, epoch: int) -> float:
+        """Gets the number of current timestep.
+
+        Args:
+            epoch: Epoch value.
+        
+        Returns:
+            (float): Current timestep.
+
+        """
+
         _t = 1 - (1 - self._restart_interval_multiplier) * epoch / self._restart_interval
+
         return floor(log(_t, self._restart_interval_multiplier))
 
-    def _partial_sum(self, n):
+    def _partial_sum(self, n: int) -> float:
+        """Calculates the partial sum.
+
+        Args:
+            n: Number of items to be summed.
+
+        Returns:
+            (float): Partial sum.
+
+        """
+
         return self._restart_interval * (1 - self._restart_interval_multiplier ** n) / (
                     1 - self._restart_interval_multiplier)

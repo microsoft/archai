@@ -16,8 +16,8 @@ from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
-from archai.nlp.common.lazy_loader import load_model_from_checkpoint
 from archai.nlp.common.file_naming_utils import create_file_name_identifier
+from archai.nlp.common.lazy_loader import load_model_from_checkpoint
 
 
 class GemmQuant(QuantOperatorBase):

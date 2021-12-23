@@ -6,8 +6,10 @@
 
 import argparse
 
-from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
-from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_torch_for_export
+from archai.nlp.compression.onnx.onnx_utils.export import \
+    export_onnx_from_torch
+from archai.nlp.compression.onnx.onnx_utils.onnx_loader import \
+    load_from_torch_for_export
 from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
 

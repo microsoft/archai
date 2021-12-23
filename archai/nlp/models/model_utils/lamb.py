@@ -37,33 +37,39 @@
 """Lamb-based optimization algorithm.
 """
 
+from typing import Iterable, Optional, Tuple
+
 import torch
 from torch.optim import Optimizer
 
 
 class Lamb(Optimizer):
-    r"""Implements Lamb algorithm.
+    """Implements the Lamb algorithm.
 
-    It has been proposed in `Large Batch Optimization for Deep Learning: Training BERT in 76 minutes`_.
+    Large Batch Optimization for Deep Learning: Training BERT in 76 minutes
+    https://arxiv.org/abs/1904.00962
 
-    Arguments:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float, optional): learning rate (default: 1e-3)
-        betas (Tuple[float, float], optional): coefficients used for computing
-            running averages of gradient and its square (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve
-            numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        adam (bool, optional): always use trust ratio = 1, which turns this into
-            Adam. Useful for comparison purposes.
-
-    .. _Large Batch Optimization for Deep Learning: Training BERT in 76 minutes:
-        https://arxiv.org/abs/1904.00962
     """
 
-    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-6,
-                 weight_decay=0, adam=False):
+    def __init__(self,
+                 params: Iterable,
+                 lr: Optional[float] = 1e-3,
+                 betas: Optional[Tuple[float]] = (0.9, 0.999),
+                 eps: Optional[float] = 1e-6,
+                 weight_decay: Optional[float] = 0.0,
+                 adam: Optional[bool] = False) -> None:
+        """Overrides the initialization method.
+
+        Args:
+            params: Iterable of parameters.
+            lr: Learning rate.
+            betas: Coefficients used for computing running averages.
+            eps: Term added to the denominator to improve numerical stability.
+            weight_decay: Weight decay.
+            adam: Whether to turn current optimizer into Adam.
+
+        """
+
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= eps:
@@ -77,13 +83,17 @@ class Lamb(Optimizer):
         self.adam = adam
         super(Lamb, self).__init__(params, defaults)
 
-    def step(self, closure=None):
+    def step(self, closure: Optional[callable] = None) -> torch.FloatTensor:
         """Performs a single optimization step.
 
-        Arguments:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
+        Args:
+            closure: Reevaluates the model and returns the loss.
+
+        Returns:
+            (torch.TensorFloat): Loss value.
+            
         """
+
         loss = None
         if closure is not None:
             loss = closure()
@@ -148,8 +158,16 @@ class Lamb(Optimizer):
 
 
 @torch.jit.script
-def lamb_kernel(param, grad, exp_avg, exp_avg_sq, beta1: float,
-                beta2: float, step_size: float, eps: float, weight_decay: float):
+def lamb_kernel(param: torch.Tensor,
+                grad: torch.Tensor,
+                exp_avg: torch.Tensor,
+                exp_avg_sq: torch.Tensor,
+                beta1: float,
+                beta2: float,
+                step_size: float,
+                eps: float,
+                weight_decay: float) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+
     exp_avg = exp_avg * beta1 + (1 - beta1) * grad
     exp_avg_sq = exp_avg_sq * beta2 + (1 - beta2) * (grad * grad)
 
@@ -169,28 +187,32 @@ def lamb_kernel(param, grad, exp_avg, exp_avg_sq, beta1: float,
 
 
 class JITLamb(Optimizer):
-    r"""Implements Lamb algorithm.
+    """Implements the JIT-based Lamb algorithm.
 
-    It has been proposed in `Large Batch Optimization for Deep Learning: Training BERT in 76 minutes`_.
+    Large Batch Optimization for Deep Learning: Training BERT in 76 minutes
+    https://arxiv.org/abs/1904.00962
 
-    Arguments:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float, optional): learning rate (default: 1e-3)
-        betas (Tuple[float, float], optional): coefficients used for computing
-            running averages of gradient and its square (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve
-            numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-        adam (bool, optional): always use trust ratio = 1, which turns this into
-            Adam. Useful for comparison purposes.
-
-    .. _Large Batch Optimization for Deep Learning: Training BERT in 76 minutes:
-        https://arxiv.org/abs/1904.00962
     """
 
-    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-6,
-                 weight_decay=0, adam=False):
+    def __init__(self,
+                 params: Iterable,
+                 lr: Optional[float] = 1e-3,
+                 betas: Optional[Tuple[float]] = (0.9, 0.999),
+                 eps: Optional[float] = 1e-6,
+                 weight_decay: Optional[float] = 0.0,
+                 adam: Optional[bool] = False) -> None:
+        """Overrides the initialization method.
+
+        Args:
+            params: Iterable of parameters.
+            lr: Learning rate.
+            betas: Coefficients used for computing running averages.
+            eps: Term added to the denominator to improve numerical stability.
+            weight_decay: Weight decay.
+            adam: Whether to turn current optimizer into Adam.
+
+        """
+
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= eps:
@@ -204,13 +226,17 @@ class JITLamb(Optimizer):
         self.adam = adam
         super().__init__(params, defaults)
 
-    def step(self, closure=None):
+    def step(self, closure: Optional[callable] = None) -> torch.FloatTensor:
         """Performs a single optimization step.
 
-        Arguments:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
+        Args:
+            closure: Reevaluates the model and returns the loss.
+
+        Returns:
+            (torch.TensorFloat): Loss value.
+            
         """
+
         loss = None
         if closure is not None:
             loss = closure()

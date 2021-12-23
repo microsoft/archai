@@ -27,17 +27,21 @@ import yaml
 from torch.nn.parallel import DistributedDataParallel
 
 from archai.common import ml_perf_utils, utils
-from archai.nlp.common.lazy_loader import load_from_args, load_model_from_checkpoint
-from archai.nlp.compression.quantization.qat import prepare_with_qat, qat_to_float_modules
+from archai.nlp.common.lazy_loader import (load_from_args,
+                                           load_model_from_checkpoint)
+from archai.nlp.compression.quantization.qat import (prepare_with_qat,
+                                                     qat_to_float_modules)
 from archai.nlp.datasets import exp_utils
 from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
-from archai.nlp.datasets.distributed_utils.data_parallel import BalancedDataParallel
+from archai.nlp.datasets.distributed_utils.data_parallel import \
+    BalancedDataParallel
 from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
 from archai.nlp.datasets.exp_utils import (AverageMeter, create_exp_dir,
                                            log_env_info)
 from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_utils import lamb
-from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
+from archai.nlp.models.model_utils.cyclic_cosine_scheduler import \
+    CyclicCosineDecayLR
 
 
 def parse_args():
