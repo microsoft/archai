@@ -95,7 +95,11 @@ def main():
     for key in logs.keys():
         if 'eval' in key:
             try:
-                test_acc = logs[key]['regular_evaluate']['eval_arch']['eval_train']['best_test']['top1']
+                dataset_name = confs[key]['dataset']['name']
+                if dataset_name == 'darcyflow':
+                    test_acc = -logs[key]['regular_evaluate']['eval_arch']['eval_train']['best_test']['loss']
+                else:    
+                    test_acc = logs[key]['regular_evaluate']['eval_arch']['eval_train']['best_test']['top1']
                 arch_id = confs[key]['nas']['eval']['dartsspace']['arch_index']
                 archid_testacc[arch_id] = test_acc
                 
