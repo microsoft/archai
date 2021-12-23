@@ -23,9 +23,8 @@
 """Cyclic Cosine learning rate annealing.
 """
 
-from collections.abc import Iterable
 from math import cos, floor, log, pi
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer

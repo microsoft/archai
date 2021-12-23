@@ -8,7 +8,7 @@ from collections.abc import Sized
 from typing import Any, Union
 
 
-def map_to_list(p: Union[Sized, Any], n: int) -> Sized[Any]:
+def map_to_list(p: Union[Sized, Any], n: int) -> Sized:
     """Maps variables to lists with fixed lengths.
 
     Args:
@@ -16,7 +16,7 @@ def map_to_list(p: Union[Sized, Any], n: int) -> Sized[Any]:
         n: Size of list to be mapped.
 
     Returns:
-        (Sized[Any]): List with a fixed length.
+        (Sized): List with a fixed length.
 
     """
 

@@ -16,6 +16,7 @@
 """
 
 from typing import Type
+
 import torch
 from torch import nn
 
