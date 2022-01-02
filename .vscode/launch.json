@@ -374,7 +374,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_natsbench_epochs_space", "--datasets", "cifar100"]
+            "args": ["--full", "--algos", "zerocost_natsbench_epochs_space", "--datasets", "sphericalcifar100"]
         },
         {
             "name": "ZeroCost-Natsbench-Epochs-Space-Toy",
@@ -844,7 +844,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_nonstandard_generate_benchmark.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/natsbench_constant_random_cifar100",
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/nb_reg_b256_e200_sc10",
                 "--out-dir", "/home/dedey/archai_experiment_reports"]
         },
         {
@@ -889,10 +889,12 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_zerocost.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/darts_constant_random_zerocost_darcyflow",
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/zc_synthetic_cifar10",
                 "--out-dir", "/home/dedey/archai_experiment_reports", 
                 "--reg-evals-file", 
-                "/home/dedey/archai_experiment_reports/darts_constant_random_darcyflow/darts_benchmark.yaml",
+                "/home/dedey/archai_experiment_reports/nb_reg_b256_e200_sc10/arch_id_test_accuracy.yaml",
+                "--params-flops-file",
+                "/home/dedey/archai_experiment_reports/nb_reg_b256_e200_sc10/arch_id_params_flops.yaml"
                 ]
         },
         {
