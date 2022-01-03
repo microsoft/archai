@@ -15,7 +15,7 @@ from torch import nn
 
 
 class ModelWrapper:
-    """Wraps the model for the text prediction.
+    """Wraps the model for the TextPrediction.
 
     """
 

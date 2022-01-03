@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Simulates user experience when using Text Prediction.
+"""Simulates user experience when using TextPrediction.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import re
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import ftfy
 import numpy as np
@@ -26,7 +26,7 @@ from archai.nlp.scoring_metrics.text_predictor import Prediction, TextPredictor
 
 @dataclass
 class TextPredictionPosition:
-    """Represents a single position for the Text Prediction.
+    """Represents a single position for the TextPrediction.
 
     """
 
@@ -42,7 +42,7 @@ class TextPredictionPosition:
         """Creates a TextPredictionPosition from SmartCompose ljson line.
 
         Args:
-            line ([type]): SmartCompose ljson line
+            line: SmartCompose ljson line.
 
         Returns:
             (TextPredictionPosition): Instance with parameters obtained from the ljson line.
@@ -100,17 +100,15 @@ class TextPredictionPosition:
 
         """
 
-        result:OrderedDict[str,Any] = OrderedDict({
-            'UniqueId': self.unique_id,
-            'Body': self.body,
-            'BodyContinued': self.body_continued})
+        result = OrderedDict({'UniqueId': self.unique_id,
+                              'Body': self.body,
+                              'BodyContinued': self.body_continued})
 
         if not self.time is None:
             result['Time'] = self.time
 
         if self.prediction is None:
             result['Suggestions'] = []
-
         else:
             result['Suggestions'] = [{'Suggestion': self.prediction.show(),
                                       'Probability':  self.prediction.probability,
@@ -120,14 +118,14 @@ class TextPredictionPosition:
 
 
 class TextPredictionSequence(OrderedDict):
-    """Represents a sequence of Text Prediction to simulate
+    """Represents a sequence of TextPrediction to simulate
         the user experience of predicting text.
 
     Example:
-        >>> model = create_model("transformers", "distilgpt2", max_seq_len=1024)
-        >>> tokenizer = create_tokenizer("transformers", "gpt2")
+        >>> model = create_model('transformers', 'distilgpt2', max_seq_len=1024)
+        >>> tokenizer = create_tokenizer('transformers', 'gpt2')
         >>> tp = TextPredictor(model, tokenizer)
-        >>> seq = TextPredictionSequence.from_smart_compose_file("GSuiteCompete10pc.ljson", tp)
+        >>> seq = TextPredictionSequence.from_smart_compose_file('GSuiteCompete10pc.ljson', tp)
         >>> seq.predict()
         >>> score = seq.score([1, 1.5, 2, 2.5, 3, 3.5, 4, 5], expected_match_rate = 0.5)
         >>> print(json.dumps(score, indent=2))
@@ -136,20 +134,20 @@ class TextPredictionSequence(OrderedDict):
 
     def __init__(self,
                  predictor: Optional[TextPredictor] = None,
-                 max_body_len: Optional[int] = 1_000_000,
+                 max_body_len: Optional[int] = 1000000,
                  min_pred_len: Optional[int] = 6,
                  min_score: Optional[float] = 1.0,
-                 save_step: Optional[int] = 100_000,
+                 save_step: Optional[int] = 100000,
                  current_paragraph_only: Optional[bool] = False) -> None:
         """Overrides initialization method.
 
         Args:
-            predictor:
-            max_body_len:
-            min_pred_len:
-            min_score:
-            save_step:
-            current_paragraph_only:
+            predictor: Instance of the predictor.
+            max_body_len: Maximum size of the input body.
+            min_pred_len: Minimum length of the prediction.
+            min_score: Minimum score of the prediction.
+            save_step: From which step prediction should be saved.
+            current_paragraph_only: Whether should predict current paragraph or not.
 
         """
 
@@ -174,23 +172,23 @@ class TextPredictionSequence(OrderedDict):
                   file_type: str,
                   predictor: Optional[TextPredictor] = None,
                   **kwargs) -> TextPredictionSequence:
-        """Loads Text Prediction sequence from file.
+        """Loads TextPrediction sequence from file.
 
         Args:
-            file_name:
-            file_type:
-            predictor:
+            file_name: Name of the input file.
+            file_type: Type of the input file.
+            predictor: Instance of the predictor.
 
         Returns:
-            (TextPredictionSequence):
+            (TextPredictionSequence): TextPrediction sequence.
 
         """
 
         # TODO:Fixme - put more file formats
-        if file_type == "smartcompose":
+        if file_type == 'smartcompose':
             return TextPredictionSequence.from_smart_compose_file(file_name, predictor, **kwargs)
 
-        if file_type == "text":
+        if file_type == 'text':
             return TextPredictionSequence.from_text_file(file_name, predictor=predictor, **kwargs)
 
         return NotImplementedError
@@ -200,18 +198,18 @@ class TextPredictionSequence(OrderedDict):
                                 file_name: str,
                                 predictor: Optional[TextPredictor] = None,
                                 **kwargs) -> TextPredictionSequence:
-        """Loads Text Prediction sequence from SmartCompose .json file.
+        """Loads TextPrediction sequence from SmartCompose .json file.
 
         Args:
-            file_name:
-            predictor:
+            file_name: Name of the input file.
+            predictor: Instance of the predictor.
 
         Returns:
-            (TextPredictionSequence):
+            (TextPredictionSequence): TextPrediction sequence.
 
         """
 
-        logging.info(f"Loading smartcompose file from {file_name}")
+        logging.info(f'Loading smartcompose file from {file_name}')
 
         lines = []
         with open(file_name) as f:
@@ -221,7 +219,7 @@ class TextPredictionSequence(OrderedDict):
 
         for line in lines:
             if len(line) < 10:
-                logging.warning(f"Skipping line '{line}'")
+                logging.warning(f'Skipping line `{line}`')
                 continue
 
             position = TextPredictionPosition.from_smart_compose_ljson(line)
@@ -232,25 +230,24 @@ class TextPredictionSequence(OrderedDict):
     @classmethod
     def from_text_file(cls: TextPredictionSequence,
                        file_name: str,
-                       new_document_re: Optional[str] = "\\n\\n+",
+                       new_document_re: Optional[str] = '\\n\\n+',
                        predictor: Optional[TextPredictor] = None,
                        **kwargs) -> TextPredictionSequence:
         """Loads TextPredictionSequence from a text file.
 
         Args:
-            file_name (str): file to load the text from
-            new_document_re (str, optional): Regular expression that splits the file into separate documents in TextPredictionSequence
-            (Defaults to "\n\n+")
-            predictor (TextPredictionSequence, optional): [description]. Defaults to None.
+            file_name: Name of the input file.
+            new_document_re: Regular expression that splits the file into separate documents.
+            predictor: Instance of the predictor.
 
         Returns:
-            (TextPredictionSequence): [description]
+            (TextPredictionSequence): TextPrediction sequence.
             
         """
 
-        logging.info(f"Loading text file from {file_name}")
+        logging.info(f'Loading text file from {file_name}')
 
-        with open(file_name, encoding="utf-8") as f:
+        with open(file_name, encoding='utf-8') as f:
             text = f.read()
 
         lines = re.split(new_document_re, text, flags=re.DOTALL | re.MULTILINE)
@@ -262,16 +259,15 @@ class TextPredictionSequence(OrderedDict):
             line = ftfy.fix_text(line)
 
             if len(line) < 2:
-                logging.warning(f"Skipping line '{line}' with line_id '{line_id}'")
+                logging.warning(f'Skipping line `{line}` with line_id `{line_id}`')
 
             for char_id in range(len(line)):
-                position = TextPredictionPosition(
-                    line_id=line_id,
-                    char_id=char_id,
-                    body=line[:char_id],
-                    body_continued=line[char_id:],
-                    prediction=None,
-                    time=None)
+                position = TextPredictionPosition(line_id=line_id,
+                                                  char_id=char_id,
+                                                  body=line[:char_id],
+                                                  body_continued=line[char_id:],
+                                                  prediction=None,
+                                                  time=None)
 
                 seq[position.unique_id] = position
 
@@ -281,11 +277,11 @@ class TextPredictionSequence(OrderedDict):
         """Saves SmartCompose file to an output file.
 
         Args:
-            output_filepath:
+            output_filepath: Path to the output file.
 
         """
 
-        output = [pos.to_smart_compose_ljson() + "\n" for pos in self.values()]
+        output = [pos.to_smart_compose_ljson() + '\n' for pos in self.values()]
 
         with open(output_filepath, 'w') as f:
             f.writelines(output)
@@ -294,12 +290,12 @@ class TextPredictionSequence(OrderedDict):
         """Saves the score summary to an output file.
 
         Args:
-            summary_file: 
+            summary_file: Path to the output file.
 
         """
 
         if self._score_summary_list is None:
-            logging.warning("Scores not calculated yet - not saving them")
+            logging.warning('Scores not calculated yet - not saving them')
 
             return
 
@@ -311,7 +307,7 @@ class TextPredictionSequence(OrderedDict):
         """Saves settings to an output file.
 
         Args:
-            settings_file:
+            settings_file: Path to the output file.
 
         """
 
@@ -321,17 +317,18 @@ class TextPredictionSequence(OrderedDict):
 
     def save_all(self,
                  output_dir: str,
-                 predict_file: Optional[str] = "Output.ljson",
-                 summary_file: Optional[str] = "summary.json",
-                 settings_file: Optional[str] = "settings.json",
-                 triggered_file: Optional[str] = "triggered.csv") -> None:
+                 predict_file: Optional[str] = 'Output.ljson',
+                 summary_file: Optional[str] = 'summary.json',
+                 settings_file: Optional[str] = 'settings.json',
+                 triggered_file: Optional[str] = 'triggered.csv') -> None:
         """Saves result, scoring and settings to a specified directory.
 
         Args:
-            output_dir (str): Directory to save results to
-            predict_file (str|None): Smartcompose file with all the predictions
-            summary_file (str|None): File with scoring summary
-            settings_file (str|None): File with all the settings
+            output_dir: Directory to save the results.
+            predict_file: SmartCompose file with all the predictions.
+            summary_file: File with scoring summary.
+            settings_file: File with all the settings.
+            triggered_file: File with the triggered results.
 
         """
 
@@ -343,61 +340,70 @@ class TextPredictionSequence(OrderedDict):
 
         if summary_file is not None:
             summary_file_path = os.path.join(output_dir, summary_file)
-            logging.info(f"Saving scoring summary to '{summary_file_path}' file")
+            logging.info(f'Saving scoring summary to `{summary_file_path}` file')
             self.save_score_summary(summary_file_path)
 
         if settings_file is not None:
             settings_file_path = os.path.join(output_dir, settings_file)
-            logging.info(f"Saving settings info to '{settings_file_path}' file")
+            logging.info(f'Saving settings info to `{settings_file_path}` file')
             self.save_settings(settings_file_path)
 
         if triggered_file is not None:
             if self._triggered_df is not None:
                 triggered_file_path = os.path.join(output_dir, triggered_file)
-                logging.info(f"Saving triggered info to '{triggered_file_path}' file")
+                logging.info(f'Saving triggered info to `{triggered_file_path}` file')
                 self._triggered_df.to_csv(index=False)
 
             else:
-                logging.info("triggered_df not defined - not saving")
+                logging.info('triggered_df not defined - not saving')
 
 
-    def settings(self) -> dict:
-        """Return settable parameters of this object.
-        """
-
-
-        settings = get_settings(self)
-        settings["sequence_len"] = len(self)
-        return settings
-
-    def filter_keys_char_id(self, char_id: int = None) -> List[str]:
-        """Filter the keys of the TextPredictionSequence based on char_id
+    def settings(self) -> Dict[str, Any]:
+        """Returns settable parameters of current object.
 
         Returns:
-            list(str): list of keys that have given char_id
+            (Dict[str, Any]): Settable parameters.
+
+        """
+
+        settings = get_settings(self)
+        settings['sequence_len'] = len(self)
+
+        return settings
+
+    def filter_keys_char_id(self,
+                            char_id: Optional[int] = None) -> List[str]:
+        """Filters the keys of the TextPredictionSequence based on char identifier.
+
+        Args:
+            char_id: Character identifier.
+
+        Returns:
+            (List[str]): List of keys that have the given char identifier.
+
         """
 
         keys = [k for k, v in self.items() if v.char_id == char_id]
 
         return keys
 
-    def predict(self, output_filepath: str = None) -> None:
-        """Run the TextPredictor at every point and record the observed output
+    def predict(self, output_filepath: Optional[str] = None) -> None:
+        """Runs the TextPredictor at every point and records the observed output.
 
         Args:
-            output_filepath (str, optional): Save the file at SAVE_STEP intervals,
-            if given.
+            output_filepath: Saves the file at SAVE_STEP intervals, if given.
+
         """
 
         if self.predictor is None:
-            raise ValueError("TextPredictor must be defined to run text prediction")
+            raise ValueError('TextPredictor must be defined to run text prediction')
 
         for i, pos in enumerate(self.values()):
             start_time = time.time()
             text = pos.body
 
             if self.current_paragraph_only:
-                text = re.sub("^(.*\n)", "", text, flags=re.M)
+                text = re.sub('^(.*\n)', '', text, flags=re.M)
 
             if len(text) > self.max_body_len:
                 text = pos.body[(-1*self.max_body_len):] # Truncate
@@ -416,11 +422,12 @@ class TextPredictionSequence(OrderedDict):
                 self.save(output_filepath)
 
     @property
-    def perplexity(self):
-        """Perplexity property, so that you can access it as:
-        obj.perplexity
+    def perplexity(self) -> float:
+        """Perplexity, which will be evaluated only if it was not calculated beforehand.
 
-        It will evaluate it only if it was not calculated beforehand.
+        Returns:
+            (float): Perplexity value.
+
         """
 
         if hasattr(self, '_perplexity') and self._perplexity is not None:
@@ -428,15 +435,17 @@ class TextPredictionSequence(OrderedDict):
 
         return self.get_perplexity()
 
-    def get_perplexity(self):
-        """Returns perplexity of the predicted text
+    def get_perplexity(self) -> float:
+        """Returns the perplexity of the predicted text.
 
         Returns:
-            float: perplexity
+            (float): Perplexity value.
+            
         """
 
         if self.predictor is None:
-            logging.warning("TextPredictor not defined. Perplexity not calculated")
+            logging.warning('TextPredictor not defined. Perplexity not calculated')
+
             return None
 
         loss_sum = 0.0
@@ -457,8 +466,12 @@ class TextPredictionSequence(OrderedDict):
         return perplexity
 
     @property
-    def word_count(self):
-        """
+    def word_count(self) -> int:
+        """Counts the amount of words.
+
+        Returns:
+            (int): Amount of words.
+
         """
 
         if hasattr(self, '_word_count') and self._word_count is not None:
@@ -467,9 +480,12 @@ class TextPredictionSequence(OrderedDict):
         return self.get_word_count()
 
     def get_word_count(self) -> int:
-        """Returns:
-            int: word count of the TextPredictionSequence,
-            defined as # of continuous non-space characters
+        """Gets the amount of words.
+        
+        Returns:
+            (int): Word count of the TextPredictionSequence, which is defined as
+                number of continuous non-space characters.
+
         """
 
         word_count = 0
@@ -482,11 +498,12 @@ class TextPredictionSequence(OrderedDict):
 
         return word_count
 
-    def get_predictions(self) -> pd.Series:
-        """Extract predictions from the TextPredictionSequence and return them in DataFrame format.
+    def get_predictions(self) -> pd.DataFrame:
+        """Extracts predictions from the TextPredictionSequence.
 
         Returns:
-            pd.DataFrame: predictions
+            (pd.DataFrame): DataFrame holding the predictions.
+
         """
 
         predictions_list = []
@@ -508,39 +525,50 @@ class TextPredictionSequence(OrderedDict):
 
             else:
                 body_continued, min_len, last_match_char = True, 0, 0
-                prediction_odict = OrderedDict(
-                    [('Text', ''), ('Probability', 0.0), ('Length', 0), ('Complete', False), ('Match', None), ('PAccept', 0.0), ('Score', 0.0), ('CharAccepted', 0.0), ('WordCount', 0), ('Tokens', None)]
-                    )
+
+                prediction_odict = OrderedDict([('Text', ''),
+                                                ('Probability', 0.0),
+                                                ('Length', 0),
+                                                ('Complete', False),
+                                                ('Match', None),
+                                                ('PAccept', 0.0),
+                                                ('Score', 0.0),
+                                                ('CharAccepted', 0.0),
+                                                ('WordCount', 0),
+                                                ('Tokens', None)])
                 length_type = ''
                 p_accept_given_match = 0.0
 
-            prediction_odict["Line"] = pos.line_id
-            prediction_odict["Char"] = pos.char_id
-            prediction_odict["BodyContinued"] = body_continued
-            prediction_odict["Type"] = length_type
-            prediction_odict["LastMatchChar"] = last_match_char
-            prediction_odict["NextTrigger"] = pos.char_id + last_match_char + 1
-            prediction_odict["PAcceptGivenMatch"] = p_accept_given_match
+            prediction_odict['Line'] = pos.line_id
+            prediction_odict['Char'] = pos.char_id
+            prediction_odict['BodyContinued'] = body_continued
+            prediction_odict['Type'] = length_type
+            prediction_odict['LastMatchChar'] = last_match_char
+            prediction_odict['NextTrigger'] = pos.char_id + last_match_char + 1
+            prediction_odict['PAcceptGivenMatch'] = p_accept_given_match
             predictions_list.append(prediction_odict)
 
         predictions_df = pd.DataFrame(predictions_list)
 
-        predictions_df_columns = ["Line", "Char", "Text", "BodyContinued"]
+        predictions_df_columns = ['Line', 'Char', 'Text', 'BodyContinued']
         predictions_df_columns = predictions_df_columns + predictions_df.columns.drop(predictions_df_columns + ["Complete", "Tokens"]).tolist()
         predictions_df = predictions_df[predictions_df_columns]
 
         return predictions_df
 
-    def calc_triggered_predictions(self, min_score: float, predictions_df:Optional[pd.Series] = None) -> pd.DataFrame:
-        """Simulate user experience and calculate which predictions were actually triggered.
+    def calc_triggered_predictions(self,
+                                   min_score: float,
+                                   predictions_df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+        """Simulates the user experience and calculates which predictions were actually triggered.
 
         Args:
-            min_score (float): min_score that results in showing the predictions
-            predictions_df (pd.DataFrame, optional): DataFrame with all the predictions.
-            It is recalculated internally if not given.
+            min_score: Minimum score that results in showing the predictions.
+            predictions_df: DataFrame with all the predictions, which is
+                re-calculated internally if not given.
 
         Returns:
-            pd.DataFrame: DataFrame with triggered predictions
+            (pd.DataFrame): DataFrame with triggered predictions.
+
         """
 
         if predictions_df is None:
@@ -556,13 +584,13 @@ class TextPredictionSequence(OrderedDict):
         #  0 - score OK, but something is being shown and current suggestion could not be shown
         #  1 - suggestion shown
         triggered = np.full((len(predictions_df.index),), -1)
-        score_values = predictions_df["Score"].values
+        score_values = predictions_df['Score'].values
 
         for i in range(predictions_df.shape[0]):
             if score_values[i] < min_score:
                 continue
 
-            if predictions_df["Line"][i] < curr_line:
+            if predictions_df['Line'][i] < curr_line:
                 msg = f"Incorrect order of lines in the file (current line = {curr_line}, "
                 msg += f"processed line = {predictions_df['Line'][i]}; current char = {curr_char}, "
                 msg += f"processed char = {predictions_df['Char'][i]}"
@@ -570,87 +598,92 @@ class TextPredictionSequence(OrderedDict):
 
             triggered[i] = 0
 
-            if predictions_df["Line"][i] > curr_line or predictions_df["Char"][i] > curr_char:
+            if predictions_df['Line'][i] > curr_line or predictions_df['Char'][i] > curr_char:
                 d = predictions_df.iloc[i].to_dict()
 
-                curr_line = d["Line"]
-                curr_char = d["Char"] + d["LastMatchChar"]
+                curr_line = d['Line']
+                curr_char = d['Char'] + d['LastMatchChar']
 
                 triggered_list.append(d)
                 triggered[i] = 1
 
         triggered_df = pd.DataFrame(triggered_list)
-        trigger_column_name = f"Trigger:{min_score}"
+        trigger_column_name = f'Trigger:{min_score}'
 
         predictions_df[trigger_column_name] = triggered
 
         if len(triggered_df.index) == 0:
-            logging.warning("No suggestions found for min_score %s", min_score)
+            logging.warning('No suggestions found for min_score %s', min_score)
 
         return triggered_df
 
-    def score_triggered_predictions(self, triggered_df: pd.DataFrame, min_score: float = None) -> OrderedDict:
-        """It calculates statistics/scores for triggered predictions.
+    def score_triggered_predictions(self,
+                                    triggered_df: pd.DataFrame,
+                                    min_score: Optional[float] = None) -> OrderedDict:
+        """Calculates statistics/scores for triggered predictions.
 
         Args:
-            triggered_df (pd.DataFrame): DataFrame with triggered predictions
-            min_score (float, optional): Minimum score, only used in output summary.
+            triggered_df: DataFrame with triggered predictions.
+            min_score: Minimum score, only used in output summary.
 
         Returns:
-            OrderedDict: [description]
+            (OrderedDict): Dictionary with the statistics/scores for the triggered predictions.
+
         """
 
         summary = OrderedDict()
 
-        summary["Score"] = min_score
-        summary["TotalEvalPoints"] = len(self)
-        summary["TotalWordCount"] = self.word_count
-        summary["Perplexity"] = self.perplexity
-        summary["SuggestionsShown"] = len(triggered_df.index)
-        summary["SuggestionsMatched"] = int(np.sum(triggered_df["Match"])) \
+        summary['Score'] = min_score
+        summary['TotalEvalPoints'] = len(self)
+        summary['TotalWordCount'] = self.word_count
+        summary['Perplexity'] = self.perplexity
+        summary['SuggestionsShown'] = len(triggered_df.index)
+        summary['SuggestionsMatched'] = int(np.sum(triggered_df['Match'])) \
             if len(triggered_df.columns) else 0
-        summary["SuggestionsAccepted"] = int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"])) \
+        summary['SuggestionsAccepted'] = int(np.sum(triggered_df['Match'] * triggered_df['PAcceptGivenMatch'])) \
             if len(triggered_df.columns) else 0
-        summary["SuggestionRatePerWord"] = summary["SuggestionsShown"]/summary["TotalWordCount"]
-        summary["SuggestionRatePerChar"] = summary["SuggestionsShown"]/summary["TotalEvalPoints"]
-        summary["MatchRate"] = np.mean(triggered_df["Match"]) \
+        summary['SuggestionRatePerWord'] = summary['SuggestionsShown']/summary['TotalWordCount']
+        summary['SuggestionRatePerChar'] = summary['SuggestionsShown']/summary['TotalEvalPoints']
+        summary['MatchRate'] = np.mean(triggered_df['Match']) \
             if len(triggered_df.columns) else 0
-        summary["AcceptRate"] = np.mean(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"]) \
+        summary['AcceptRate'] = np.mean(triggered_df['Match'] * triggered_df['PAcceptGivenMatch']) \
             if len(triggered_df.columns) else 0
-        summary["CharMatched"] = int(np.sum(triggered_df["Match"] * triggered_df["Length"])) \
+        summary['CharMatched'] = int(np.sum(triggered_df['Match'] * triggered_df['Length'])) \
             if len(triggered_df.columns) else 0
-        summary["CharAccepted"] = int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"] * triggered_df["Length"])) \
+        summary['CharAccepted'] = int(np.sum(triggered_df['Match'] * triggered_df['PAcceptGivenMatch'] * triggered_df['Length'])) \
             if len(triggered_df.columns) else 0
-        summary["CharMatchRate"] = summary["CharMatched"]/summary["TotalEvalPoints"]
-        summary["CharAcceptRate"] = summary["CharAccepted"]/summary["TotalEvalPoints"]
-        summary["SuggestionsShownByType"] = triggered_df.groupby(["Type"]).size().to_dict() \
+        summary['CharMatchRate'] = summary['CharMatched']/summary['TotalEvalPoints']
+        summary['CharAcceptRate'] = summary['CharAccepted']/summary['TotalEvalPoints']
+        summary['SuggestionsShownByType'] = triggered_df.groupby(['Type']).size().to_dict() \
             if len(triggered_df.columns) else None
-        summary["SuggestionsMatchedByType"] = triggered_df[triggered_df["Match"]].groupby(["Type"]).size().to_dict() \
+        summary['SuggestionsMatchedByType'] = triggered_df[triggered_df['Match']].groupby(['Type']).size().to_dict() \
             if len(triggered_df.columns) else 0
-        summary["MatchRateByType"] = triggered_df.groupby(["Type"]).agg({"Match":"mean"}).to_dict()["Match"] \
+        summary['MatchRateByType'] = triggered_df.groupby(['Type']).agg({'Match':'mean'}).to_dict()['Match'] \
             if len(triggered_df.columns) else None
-        summary["SuggestionsShownByWordCount"] = triggered_df.groupby(["WordCount"]).size().to_dict() \
+        summary['SuggestionsShownByWordCount'] = triggered_df.groupby(['WordCount']).size().to_dict() \
             if len(triggered_df.columns) else None
-        summary["SuggestionsMatchedByWordCount"] = triggered_df[triggered_df["Match"]].groupby(["WordCount"]).size().to_dict() \
+        summary['SuggestionsMatchedByWordCount'] = triggered_df[triggered_df['Match']].groupby(['WordCount']).size().to_dict() \
             if len(triggered_df.columns) else None
-        summary["MatchRateByWordCount"] = triggered_df.groupby(["WordCount"]).agg({"Match":"mean"}).to_dict()["Match"] \
+        summary['MatchRateByWordCount'] = triggered_df.groupby(['WordCount']).agg({'Match':'mean'}).to_dict()['Match'] \
             if len(triggered_df.columns) else None
 
         return summary
 
-    def score(self, min_scores: list|float, expected_match_rate: float = None) -> list:
-        """Score the text prediction sequence.
+    def score(self,
+              min_scores: Union[List[float], float],
+              expected_match_rate: Optional[float] = None) -> List[OrderedDict]:
+        """Scores the TextPredictionSequence.
 
-        This function extracts predictions, calculates which one will be triggered at specific min_scores
-        and can estimate score for expected match rate.
+        This function extracts predictions, calculates which one will be triggered at specific
+        minimum scores and can estimate the score for the expected match rate.
 
         Args:
-            min_scores (list|float): min_score to show the predictions
-            expected_match_rate (float, optional): If given, estimate score for the given expected match rate.
-            (provided as float from 0 to 1)
+            min_scores: Minimum scores to show the predictions.
+            expected_match_rate: If given, estimates score for the given expected match rate.
 
         Returns:
-            list: Summary list with all the metrics
+            (List[OrderedDict]): List with all the metrics.
+
         """
 
         if isinstance(min_scores, (float, int)):
@@ -667,18 +700,18 @@ class TextPredictionSequence(OrderedDict):
         for min_score in min_scores:
             if min_score is None:
                 # Perform a fit of quadratic equation
-                match_rates = [summ["MatchRate"] for summ in summary_list]
-                scores = [summ["Score"] for summ in summary_list]
+                match_rates = [summ['MatchRate'] for summ in summary_list]
+                scores = [summ['Score'] for summ in summary_list]
 
                 if len(match_rates) < 2:
-                    logging.warning("Not enough points to calculate score for the expected match rate of %.3f", expected_match_rate)
+                    logging.warning('Not enough points to calculate score for the expected match rate of %.3f', expected_match_rate)
                     continue
 
-                f = interp1d(match_rates, scores, bounds_error=False, kind="linear", fill_value="extrapolate")
+                f = interp1d(match_rates, scores, bounds_error=False, kind='linear', fill_value='extrapolate')
                 # f = np.poly1d(np.polyfit(match_rates, scores, 2))
                 min_score = float(f(expected_match_rate))
 
-                logging.debug("Expected_score = %s at %s", min_score, expected_match_rate)
+                logging.debug('Expected_score = %s at %s', min_score, expected_match_rate)
 
             triggered_df = self.calc_triggered_predictions(min_score, predictions_df)
             self._triggered_df = triggered_df
