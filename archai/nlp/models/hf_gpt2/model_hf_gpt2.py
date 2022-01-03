@@ -4,6 +4,7 @@
 """Huggingface's Open AI GPT-2.
 """
 
+import types
 from typing import Optional, Tuple
 
 import torch
@@ -12,6 +13,7 @@ from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
 from archai.nlp.common.mapping_utils import map_to_list
 from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.models.model_utils.primer_ez import forward_gpt2_mlp_primer_ez
 
 
 class HfGPT2(ArchaiModel):
@@ -62,6 +64,10 @@ class HfGPT2(ArchaiModel):
         if kwargs['tie_weight']:
             self.model.tie_weights()
 
+        if kwargs['primer_square']:
+            for block in self.model.transformer.h:
+                block.mlp.forward = types.MethodType(forward_gpt2_mlp_primer_ez, block.mlp)
+
     def _generate_config(self, **kwargs) -> None:
         """Generates a proper configuration according to mapped hyperparameters.
 
@@ -71,6 +77,10 @@ class HfGPT2(ArchaiModel):
 
         # Embedding dropout we always set to zero
         config.embd_pdrop = kwargs['dropatt']
+        
+        # Checks if it is supposed to use PrimerEZ squared ReLU
+        if kwargs['primer_square']:
+            config.activation_function = 'relu'
 
         for param, gpt2_param in HfGPT2.HYPERPARAMETER_MAPPING.items():
             setattr(config, gpt2_param, kwargs[param])

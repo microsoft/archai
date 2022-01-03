@@ -117,3 +117,23 @@ class PositionwiseFFPrimerEZ(nn.Module):
             output = self.layer_norm(output)
 
         return output
+
+
+def forward_gpt2_mlp_primer_ez(self, hidden_states: torch.Tensor) -> torch.Tensor:
+    """Re-implements the forward method of HfGPT2 Multi-Layer Perceptron (GPT2MLP)
+        to use squared ReLU from PrimerEZ.
+
+    Args:
+        hidden_states: Input hidden states.
+
+    Returns:
+        (torch.Tensor): Output states.
+
+    """
+
+    hidden_states = self.c_fc(hidden_states)
+    hidden_states = self.act(hidden_states) ** 2
+    hidden_states = self.c_proj(hidden_states)
+    hidden_states = self.dropout(hidden_states)
+
+    return hidden_states
