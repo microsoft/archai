@@ -1247,8 +1247,17 @@ def main():
     dllogger.log(step=tuple(), data=summary)
 
     if args.post_qat:
+        # Creates a dictionary of replacement configs
+        replace_config = {
+            'dropout': 0.0,
+            'dropatt': 0.0
+        }
+
         # Loads the model from the best pre-trained checkpoint
-        model, model_config, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
+        model, model_config, _ = load_model_from_checkpoint(args.model_type,
+                                                            checkpoint_path,
+                                                            replace_config=replace_config,
+                                                            on_cpu=False)
 
         # Prepares the model with QAT (also allows for distributed training)
         model = prepare_with_qat(model, onnx_compatible=True)

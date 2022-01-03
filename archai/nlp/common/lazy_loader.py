@@ -86,6 +86,7 @@ def load_from_args(model_type: str,
 
 def load_model_from_checkpoint(model_type: str,
                                checkpoint_path: str,
+                               replace_config: Optional[Dict[str, Any]] = None,
                                on_cpu: Optional[bool] = False,
                                for_export: Optional[bool] = False
                                ) -> Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]:
@@ -94,6 +95,7 @@ def load_model_from_checkpoint(model_type: str,
     Args:
         model_type: Type of model to be loaded.
         checkpoint_path: Path of the checkpoint to be loaded.
+        replace_config: Dictionary with keys that should replace the model's configuration.
         on_cpu: Whether model should be loaded on CPU or not.
         for_export: If model should support export or not.
 
@@ -121,6 +123,11 @@ def load_model_from_checkpoint(model_type: str,
     # Loads the checkpoint
     checkpoint = torch.load(checkpoint_path, map_location=device)
     model_config = checkpoint['model_config']
+
+    # Replaces keys that were provided in the `replace_config` dictionary
+    if replace_config is not None:
+        for k, v in replace_config.items():
+            model_config[k] = v
 
     # Checks whether model is supposed to be exported
     if for_export:
