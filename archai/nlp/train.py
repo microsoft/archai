@@ -183,7 +183,7 @@ def parse_args():
                        help='Parameters initialized by N(0, init_std)')
     model.add_argument('--proj_init_std', type=float, default=0.01,
                        help='Parameters initialized by N(0, init_std)')
-    model.add_argument('--primer_sqrt', action='store_true',
+    model.add_argument('--primer_square', action='store_true',
                        help='Use Primer EZ arch modifications (squared relu)')
     model.add_argument('--primer_conv', action='store_true',
                        help='Use Primer EZ arch modifications (DConv)')
@@ -854,7 +854,7 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
         'weight_init_std': args.init_std,
         'proj_init_std': args.proj_init_std,
 
-        'primer_sqrt': args.primer_sqrt,
+        'primer_square': args.primer_square,
         'primer_conv': args.primer_conv,
         'use_cache': args.use_cache
         }
@@ -1226,7 +1226,7 @@ def main():
         'mem_len': model_config['mem_len'],
         'cutoffs': model_config['cutoffs'],
         'primer_conv': model_config['primer_conv'],
-        'primer_sqrt': model_config['primer_sqrt'],
+        'primer_square': model_config['primer_square'],
         'pt_ops_mem': pt_ops_mem,
         'pt_ops_time_us': pt_ops_time,
         'pt_ops_flops': pt_ops_flops,

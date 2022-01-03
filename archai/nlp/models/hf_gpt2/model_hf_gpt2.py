@@ -69,6 +69,9 @@ class HfGPT2(ArchaiModel):
 
         config = CONFIG_MAPPING['gpt2']()
 
+        # Embedding dropout we always set to zero
+        config.embd_pdrop = kwargs['dropatt']
+
         for param, gpt2_param in HfGPT2.HYPERPARAMETER_MAPPING.items():
             setattr(config, gpt2_param, kwargs[param])
 
