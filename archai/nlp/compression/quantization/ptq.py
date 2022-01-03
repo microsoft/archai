@@ -151,9 +151,9 @@ def dynamic_quantization_torch(torch_model_path: str,
     torch.set_num_threads(1)
 
     # Loads the pre-trained model
-    model = load_model_from_checkpoint(model_type,
-                                       torch_model_path,
-                                       on_cpu=True)
+    model, _, _ = load_model_from_checkpoint(model_type,
+                                             torch_model_path,
+                                             on_cpu=True)
 
     # Performs an initial dynamic quantization
     # Currently, code below works as a caveat to quantize the embedding layers

@@ -203,6 +203,9 @@ def parse_args():
     opt.add_argument('--scheduler', default='cosine', type=str,
                      choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
                      help='LR scheduler to use')
+    opt.add_argument('--scheduler_qat', default='cyclic_cosine', type=str,
+                     choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
+                     help='LR scheduler to use during QAT')
     opt.add_argument('--max_step_scheduler', type=int, default=None,
                      help='Max number of training steps for LR scheduler')
     opt.add_argument('--warmup_step', type=int, default=1000,
@@ -956,8 +959,10 @@ def distributed_model(args, model, device):
 
 def create_scheduler(args, optimizer, optimizer_sparse):
     scheduler, scheduler_sparse = None, None
+    scheduler_name = args.scheduler_qat if args.qat else args.scheduler
+
     # scheduler
-    if args.scheduler == 'cosine':
+    if scheduler_name == 'cosine':
         if args.max_step_scheduler:
             max_step = args.max_step_scheduler
         else:
@@ -971,7 +976,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                 eta_min=args.eta_min)
         else:
             scheduler_sparse = None
-    elif args.scheduler == 'inv_sqrt':
+    elif scheduler_name == 'inv_sqrt':
         # originally used for Transformer (in Attention is all you need)
         def lr_lambda(step):
             # return a multiplier instead of a learning rate
@@ -988,7 +993,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                 )
         else:
             scheduler_sparse = None
-    elif args.scheduler == 'dev_perf':
+    elif scheduler_name == 'dev_perf':
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer, factor=args.decay_rate, patience=args.patience,
             min_lr=args.lr_min,
@@ -1000,7 +1005,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                 )
         else:
             scheduler_sparse = None
-    elif args.scheduler == 'cyclic_cosine':
+    elif scheduler_name == 'cyclic_cosine':
         init_decay_epochs = int((args.max_step-args.warmup_step) / 2)
         restart_interval = int((args.max_step-args.warmup_step) / 4)
 
@@ -1011,7 +1016,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                                         warmup_epochs=args.warmup_step, warmup_start_lr=args.lr*0.01)
         else:
             scheduler_sparse = None
-    elif args.scheduler == 'constant':
+    elif scheduler_name == 'constant':
         pass
 
     return scheduler, scheduler_sparse
@@ -1028,7 +1033,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], args.restart, model, on_cpu=False)
+            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1109,7 +1114,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
 
     if not args.no_eval and os.path.exists(checkpoint_path):
         # Load the best saved model.
-        model, model_config = load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
+        model, _, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
 
         # Run on test data.
         test_start_time = time.time()
@@ -1243,7 +1248,7 @@ def main():
 
     if args.post_qat:
         # Loads the model from the best pre-trained checkpoint
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, model, on_cpu=False)
+        model, model_config, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
 
         # Prepares the model with QAT (also allows for distributed training)
         model = prepare_with_qat(model, onnx_compatible=True)
@@ -1253,15 +1258,23 @@ def main():
         # QAT-based arguments
         args.restart = None
         args.qat = True
-        args.max_step = 2*args.max_step
+        args.max_step = 5000
+        args.lr = args.lr / 100
+        args.eta_min = args.eta_min / 100
+        args.eval_interval = 500
+        args.warmup_step = 500
+        args.optim = 'adam'
+
+        # re-create optimizer
+        optimizer, optimizer_sparse = create_optimizer(args, model)
 
         # re-create scheduler
         scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
         # Performs a QAT fine-tuning
-        training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
-            model_config, optimizer, optimizer_sparse, scheduler,
-            scheduler_sparse, scaler, vocab, file_stats[1])
+        training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
+                                                          model_config, optimizer, optimizer_sparse, scheduler,
+                                                          scheduler_sparse, scaler, vocab, file_stats[1])
 
 
 if __name__ == "__main__":

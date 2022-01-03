@@ -88,7 +88,7 @@ def load_model_from_checkpoint(model_type: str,
                                checkpoint_path: str,
                                on_cpu: Optional[bool] = False,
                                for_export: Optional[bool] = False
-                               ) -> Tuple[torch.nn.Module, Dict[str, Any]]:
+                               ) -> Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]:
     """Performs the lazy loading of a pre-defined model and its configuration.
 
     Args:
@@ -98,7 +98,7 @@ def load_model_from_checkpoint(model_type: str,
         for_export: If model should support export or not.
 
     Returns:
-        (Tuple[torch.nn.Module, Dict[str, Any]]): Model and its configuration loaded from a checkpoint.
+        (Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]): Model, configuration and checkpoint loaded from a checkpoint path.
 
     """
 
@@ -131,4 +131,4 @@ def load_model_from_checkpoint(model_type: str,
     model.load_state_dict(checkpoint['model_state'])
     model.to(device)
 
-    return model, model_config
+    return model, model_config, checkpoint

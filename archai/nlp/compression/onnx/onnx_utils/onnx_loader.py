@@ -10,6 +10,7 @@ from typing import Any, Dict, Sized, Tuple
 
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
+from onnxruntime.transformers import quantize_helper
 
 from archai.nlp.common.constants import OMP_NUM_THREADS, OMP_WAIT_POLICY
 from archai.nlp.common.lazy_loader import load_model_from_checkpoint
@@ -60,10 +61,10 @@ def load_from_torch_for_export(model_type: str,
     """
 
     # Loads the model
-    model, model_config = load_model_from_checkpoint(model_type,
-                                                     torch_model_path,
-                                                     on_cpu=True,
-                                                     for_export=True)
+    model, model_config, _ = load_model_from_checkpoint(model_type,
+                                                       torch_model_path,
+                                                       on_cpu=True,
+                                                       for_export=True)
 
     # Overrides forward functions if MemTransformerLM
     if model_type == 'mem_transformer':
@@ -74,6 +75,9 @@ def load_from_torch_for_export(model_type: str,
     if model_type == 'hf_gpt2':
         model = model.model
         model.forward = types.MethodType(forward_gpt2_onnx, model)
+
+        for layer in model.transformer.h:
+            quantize_helper.conv1d_to_linear(layer.mlp)
 
     if isinstance(model_config['d_head'], Sized):
         model_config['d_head'] = model_config['d_head'][0]
