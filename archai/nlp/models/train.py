@@ -23,23 +23,23 @@ import yaml
 
 from torch.nn.parallel import DistributedDataParallel
 
-from archai.nlp.nvidia_transformer_xl import lamb
-from archai.nlp.nvidia_transformer_xl.data_utils import get_lm_corpus
-from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
-from archai.nlp.nvidia_transformer_xl.models.available_models import AVAILABLE_MODELS
-from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.data_parallel import BalancedDataParallel
-from archai.nlp.nvidia_transformer_xl.nvidia_utils import exp_utils
+from archai.nlp.models import lamb
+from archai.nlp.models.data_utils import get_lm_corpus
+from archai.nlp.models.models.archai_model import ArchaiModel
+from archai.nlp.models.models.available_models import AVAILABLE_MODELS
+from archai.nlp.models.nvidia_utils import distributed as nv_distributed
+from archai.nlp.models.nvidia_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
+from archai.nlp.models.nvidia_utils.data_parallel import BalancedDataParallel
+from archai.nlp.models.nvidia_utils import exp_utils
 # from archai.nlp.nvidia_transformer_xl.nvidia_utils import gpu_affinity
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import AverageMeter
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import TimeoutHandler
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import benchmark
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import create_exp_dir
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import l2_promote
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import log_env_info
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.exp_utils import register_ignoring_timeout_handler
-from archai.nlp.nvidia_transformer_xl.qat import prepare_with_qat, qat_to_float_modules
+from archai.nlp.models.nvidia_utils.exp_utils import AverageMeter
+from archai.nlp.models.nvidia_utils.exp_utils import TimeoutHandler
+from archai.nlp.models.nvidia_utils.exp_utils import benchmark
+from archai.nlp.models.nvidia_utils.exp_utils import create_exp_dir
+from archai.nlp.models.nvidia_utils.exp_utils import l2_promote
+from archai.nlp.models.nvidia_utils.exp_utils import log_env_info
+from archai.nlp.models.nvidia_utils.exp_utils import register_ignoring_timeout_handler
+from archai.nlp.models.qat import prepare_with_qat, qat_to_float_modules
 from archai.common import ml_perf_utils
 
 from archai.common import utils, common

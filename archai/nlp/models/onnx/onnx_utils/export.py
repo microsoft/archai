@@ -9,8 +9,8 @@ from typing import Optional
 import torch
 from onnx import helper, load_model, numpy_helper, save
 
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.operators import tril_onnx, triu_onnx
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.configs import HfGPT2OnnxConfig, MemTransformerLMOnnxConfig
+from archai.nlp.models.onnx.onnx_utils.operators import tril_onnx, triu_onnx
+from archai.nlp.models.onnx.onnx_utils.configs import HfGPT2OnnxConfig, MemTransformerLMOnnxConfig
 
 # List of available ONNX configurations
 AVAILABLE_ONNX_CONFIGS = {

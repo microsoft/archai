@@ -4,7 +4,7 @@ from torch.quantization import MinMaxObserver
 
 import transformers
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from archai.nlp.models.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 
 class OnnxDynamicObserver(object):

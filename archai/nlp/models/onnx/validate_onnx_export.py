@@ -5,7 +5,7 @@ import argparse
 
 import torch
 
-from archai.nlp.nvidia_transformer_xl.onnx.onnx_utils.load import load_from_onnx, load_from_pt
+from archai.nlp.models.onnx.onnx_utils.load import load_from_onnx, load_from_pt
 
 
 def parse_args():

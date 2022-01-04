@@ -13,7 +13,7 @@ from archai.nlp.tokenizer_utils.word_vocab import WordVocab
 from archai.nlp.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.tokenizer_utils.gpt2_vocab import Gpt2Vocab
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
+from archai.nlp.models.nvidia_utils.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
 
 
 @dataclass

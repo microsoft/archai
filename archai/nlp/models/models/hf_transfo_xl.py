@@ -6,8 +6,8 @@ from typing import Optional
 import torch
 from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
-from archai.nlp.nvidia_transformer_xl.models.archai_model import ArchaiModel
-from archai.nlp.nvidia_transformer_xl.models.model_utils import map_to_list
+from archai.nlp.models.models.archai_model import ArchaiModel
+from archai.nlp.models.models.model_utils import map_to_list
 
 
 class HfTransfoXL(ArchaiModel):

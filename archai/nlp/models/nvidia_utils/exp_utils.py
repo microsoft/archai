@@ -25,7 +25,7 @@ from typing import Optional, Tuple
 import dllogger
 import torch.utils.collect_env
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils import distributed as nv_distributed
+from archai.nlp.models.nvidia_utils import distributed as nv_distributed
 
 from archai.common import utils, common
 

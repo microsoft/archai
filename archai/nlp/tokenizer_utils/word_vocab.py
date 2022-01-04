@@ -11,7 +11,7 @@ from overrides import overrides
 
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.common import utils
-from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
+from archai.nlp.models import nvidia_utils as nv_utils
 from archai.nlp.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
 

@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.utils.benchmark as benchmark
 
-from archai.nlp.nvidia_transformer_xl.mem_transformer import (
+from archai.nlp.models.mem_transformer import (
     AdaptiveEmbedding, DecoderLayer, MemTransformerLM,
     MultiHeadAttn, PositionwiseFF, ProjectedAdaptiveLogSoftmax,
     RelLearnableMultiHeadAttn, RelPartialLearnableMultiHeadAttn)
