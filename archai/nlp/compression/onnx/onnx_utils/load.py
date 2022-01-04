@@ -9,8 +9,8 @@ from typing import Tuple
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
 
-from archai.nlp.models.models.archai_model import ArchaiModel
-from archai.nlp.models.models.available_models import AVAILABLE_MODELS
+from archai.nlp.models.archai_model import ArchaiModel
+from archai.nlp.models.available_models import AVAILABLE_MODELS
 from archai.nlp.models.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx,
                                                                       forward_memformer_onnx)
 

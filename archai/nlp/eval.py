@@ -31,16 +31,16 @@ try:
 except ModuleNotFoundError:
     warnings.warn('PyProf is unavailable')
 
-from archai.nlp.models import data_utils
+from archai.nlp.datasets.distributed_utils import data_utils
 from archai.nlp.models import nvidia_utils
-from archai.nlp.models.nvidia_utils import exp_utils
-from archai.nlp.models.data_utils import get_lm_corpus
-from archai.nlp.models.data_utils import tokenize_raw
-from archai.nlp.models.nvidia_utils.exp_utils import AverageMeter
-from archai.nlp.models.nvidia_utils.exp_utils import benchmark
-from archai.nlp.models.nvidia_utils.exp_utils import create_exp_dir
-from archai.nlp.models.nvidia_utils.exp_utils import l2_promote
-from archai.nlp.models.nvidia_utils.exp_utils import log_env_info
+from archai.nlp.datasets import exp_utils
+from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
+from archai.nlp.datasets.distributed_utils.data_utils import tokenize_raw
+from archai.nlp.datasets.exp_utils import AverageMeter
+from archai.nlp.datasets.exp_utils import benchmark
+from archai.nlp.datasets.exp_utils import create_exp_dir
+from archai.nlp.datasets.exp_utils import l2_promote
+from archai.nlp.datasets.exp_utils import log_env_info
 
 
 def parse_args():

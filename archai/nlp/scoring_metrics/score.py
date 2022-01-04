@@ -22,7 +22,7 @@ import torch
 
 from archai.nlp.scoring.sequence import TextPredictionSequence
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.models.nvidia_utils import exp_utils
+from archai.nlp.datasets import exp_utils
 
 def predict_console(predictor:TextPredictor):
     """Console application showing predictions.

@@ -6,7 +6,7 @@ import os
 from archai.common import utils, common
 
 from archai.nlp.tokenizer_utils.bbpe_vocab import BbpeVocab
-from archai.nlp.models.nvidia_utils import exp_utils
+from archai.nlp.datasets import exp_utils
 
 def basic_test():
     logging.basicConfig(level=logging.INFO)

@@ -6,7 +6,7 @@ from typing import Optional
 import torch
 from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
-from archai.nlp.models.models.archai_model import ArchaiModel
+from archai.nlp.models.archai_model import ArchaiModel
 from archai.nlp.models.models.model_utils import map_to_list
 
 
