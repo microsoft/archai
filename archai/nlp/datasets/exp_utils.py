@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Experiment-related utilities that healps loading data.
+"""Experiment-related utilities that helps loading data.
 """
 
 import ctypes
@@ -23,7 +23,7 @@ import shutil
 import signal
 import sys
 import time
-from typing import Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import dllogger
 import torch.utils.collect_env
@@ -37,15 +37,31 @@ except ModuleNotFoundError:
 
 
 class AverageMeter:
+    """Computes and stores the average and current value.
+
     """
-    Computes and stores the average and current value
-    """
-    def __init__(self, warmup=0, keep=False):
+
+    def __init__(self,
+                 warmup: Optional[int] = 0,
+                 keep: Optional[bool] = False) -> None:
+        """Overrides initialization method.
+
+        Args:
+            warmup: Number of warmup steps.
+            keep: Whether to keep stored values or not.
+
+        """
+
         self.reset()
+
         self.warmup = warmup
         self.keep = keep
 
-    def reset(self):
+    def reset(self) -> None:
+        """Resets the meter.
+
+        """
+
         self.val = 0
         self.avg = 0
         self.sum = 0
@@ -53,7 +69,15 @@ class AverageMeter:
         self.iters = 0
         self.vals = []
 
-    def update(self, val, n=1):
+    def update(self, val: Any, n: Optional[int] = 1) -> None:
+        """Updates the meter.
+
+        Args:
+            val: Value.
+            n: Number of updates.
+
+        """
+
         self.iters += 1
         self.val = val
 
@@ -66,10 +90,25 @@ class AverageMeter:
 
 
 class TimeoutHandler:
-    def __init__(self, sig=signal.SIGTERM):
+    """Handles whenever a timeout is called.
+
+    """
+
+    def __init__(self, sig: Optional[str] = signal.SIGTERM) -> None:
+        """Overrides initialization method.
+        
+        Args:
+            sig: Signal to be handled.
+
+        """
+
         self.sig = sig
 
-    def __enter__(self):
+    def __enter__(self) -> None:
+        """Handles whenever a timeout enters.
+
+        """
+
         self.interrupted = False
         self.released = False
         self.original_handler = signal.getsignal(self.sig)
@@ -77,45 +116,84 @@ class TimeoutHandler:
         def handler(signum, frame):
             self.release()
             self.interrupted = True
+
             logging.info(f'Received SIGTERM')
 
         signal.signal(self.sig, handler)
+
         return self
 
-    def __exit__(self, type, value, tb):
+    def __exit__(self):
+        """Handles whenever a timeout exits.
+
+        """
+
         self.release()
 
-    def release(self):
+    def release(self) -> None:
+        """Releases the handler.
+
+        """
+
         if self.released:
             return False
 
         signal.signal(self.sig, self.original_handler)
         self.released = True
+
         return True
 
 
-def register_ignoring_timeout_handler(sig=signal.SIGTERM):
+def register_ignoring_timeout_handler(sig: Optional[str] = signal.SIGTERM) -> None:
+    """Register a timeout handler ignoring.
+
+    Args:
+        sig: Signal to be handled.
+
+    """
+
     def handler(signum, frame):
         logging.info('Received SIGTERM, ignoring')
+
     signal.signal(sig, handler)
 
 
-def log_env_info():
+def log_env_info() -> None:
+    """Prints information about execution environment.
+
     """
-    Prints information about execution environment.
-    """
+
     logging.info('Collecting environment information...')
+
     env_info = torch.utils.collect_env.get_pretty_env_info()
+
     logging.info(f'{env_info}')
 
 
-def benchmark(test_perplexity=None, target_perplexity=None,
-              test_throughput=None, target_throughput=None):
+def benchmark(test_perplexity: Optional[float] = None,
+              target_perplexity: Optional[float] = None,
+              test_throughput: Optional[float] = None,
+              target_throughput: Optional[float] = None) -> bool:
+    """Benchmarks between test and target perplexity/throughput.
+    
+    Args:
+        test_perplexity: Test perplexity.
+        target_perplexity: Target perplexity.
+        test_throughput: Test throughput.
+        target_throughput: Target throughput.
+
+    Returns:
+        (bool): Whether benchmark has passed or not.
+
+    """
+
     def test(achieved, target, name, higher_better=True):
         passed = True
+
         if target is not None and achieved is not None:
             logging.info(f'{name} achieved: {achieved:.2f} '
                          f'target: {target:.2f}')
+
             if higher_better:
                 result = (achieved >= target)
             else:
@@ -126,22 +204,35 @@ def benchmark(test_perplexity=None, target_perplexity=None,
             else:
                 logging.info(f'{name} test failed')
                 passed = False
+
         return passed
 
     passed = True
+
     passed &= test(test_perplexity, target_perplexity, 'Perplexity', False)
     passed &= test(test_throughput, target_throughput, 'Throughput')
+
     return passed
 
 
-def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
-    """
-    Configures logging.
+def setup_logging(log_all_ranks: Optional[bool] = True,
+                  filename: Optional[str] = os.devnull,
+                  filemode: Optional[str] = 'w') -> None:
+    """Configures logging.
+
     By default logs from all workers are printed to the console, entries are
     prefixed with "N: " where N is the rank of the worker. Logs printed to the
     console don't include timestaps.
+
     Full logs with timestamps are saved to the log_file file.
+
+    Args:
+        log_all_ranks: Whether to log from all ranks or not.
+        filename: File to be logged.
+        filemode: Mode used to open the logging file.
+
     """
+
     class RankFilter(logging.Filter):
         def __init__(self, rank, log_all_ranks):
             self.rank = rank
@@ -149,6 +240,7 @@ def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
 
         def filter(self, record):
             record.rank = self.rank
+
             if self.log_all_ranks:
                 return True
             else:
@@ -158,9 +250,10 @@ def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
     rank_filter = RankFilter(rank, log_all_ranks)
 
     if log_all_ranks:
-        logging_format = "%(asctime)s - %(levelname)s - %(rank)s - %(message)s"
+        logging_format = '%(asctime)s - %(levelname)s - %(rank)s - %(message)s'
     else:
-        logging_format = "%(asctime)s - %(levelname)s - %(message)s"
+        logging_format = '%(asctime)s - %(levelname)s - %(message)s'
+
         if rank != 0:
             filename = os.devnull
 
@@ -170,48 +263,83 @@ def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
 
     logging.basicConfig(level=logging.DEBUG,
                         format=logging_format,
-                        datefmt="%Y-%m-%d %H:%M:%S",
+                        datefmt='%Y-%m-%d %H:%M:%S',
                         filename=filename,
                         filemode=filemode)
+
     console = logging.StreamHandler(sys.stdout)
     console.setLevel(logging.INFO)
+
     if log_all_ranks:
         formatter = logging.Formatter('%(rank)s: %(message)s')
     else:
         formatter = logging.Formatter('%(message)s')
+
     console.setFormatter(formatter)
+
     logging.getLogger('').addHandler(console)
     logging.getLogger('').addFilter(rank_filter)
 
 
-def setup_dllogger(enabled=True, filename=os.devnull):
+def setup_dllogger(enabled: Optional[bool] = True,
+                   filename: Optional[str] = os.devnull) -> None:
+    """Setups the distributed logger.
+
+    Args:
+        enabled: Whether distributed logger should be enabled or not.
+        filename: File to be logged.
+
+    """
+
     rank = distributed.get_rank()
 
     if enabled and rank == 0:
-        backends = [
-            dllogger.JSONStreamBackend(
-                dllogger.Verbosity.VERBOSE,
-                filename,
-                ),
-            ]
+        backends = [dllogger.JSONStreamBackend(dllogger.Verbosity.VERBOSE, filename)]
+
         dllogger.init(backends)
     else:
         dllogger.init([])
 
 
-def create_exp_dir(dir_path, scripts_to_save=None, debug=False):
+def create_exp_dir(dir_path: str,
+                   scripts_to_save: Optional[List[str]] = None,
+                   debug: Optional[bool] = False) -> None:
+    """Creates the experiment folder.
+
+    Args:
+        dir_path: Folder to be created.
+        scripts_to_save: Files to be saved inside created folder.
+        debug: Whether to display additional logging or not.
+
+    """
+
     os.makedirs(dir_path, exist_ok=True)
 
     print('Experiment dir : {}'.format(dir_path))
+
     if scripts_to_save is not None:
         script_path = os.path.join(dir_path, 'scripts')
         os.makedirs(script_path, exist_ok=True)
+
         for script in scripts_to_save:
             dst_file = os.path.join(dir_path, 'scripts', os.path.basename(script))
             shutil.copyfile(script, dst_file)
 
 
-def build_work_dir_name(work_dir, dataset, append_dataset, append_time):
+def build_work_dir_name(work_dir: str,
+                        dataset: str,
+                        append_dataset: bool,
+                        append_time: bool) -> None:
+    """Builds the work directory name.
+
+    Args:
+        work_dir: Work directory.
+        dataset: Dataset identifier.
+        append_dataset: Whether to append dataset name to directory path or not.
+        append_time: Whether to append time to directory path or not.
+
+    """
+
     if append_dataset:
         work_dir = '{}-{}'.format(work_dir, dataset)
 
@@ -221,20 +349,37 @@ def build_work_dir_name(work_dir, dataset, append_dataset, append_time):
         now_str = datetime.datetime.fromtimestamp(now_max).strftime('%Y%m%d-%H%M%S')
 
         work_dir = os.path.join(work_dir, now_str)
+
     return work_dir
 
 
-def l2_promote():
+def l2_promote() -> None:
+    """Sets a device limit on current GPU.
+
+    """
+
     if not utils.is_windows():
         _libcudart = ctypes.CDLL('libcudart.so')
+
         # Set device limit on the current device
         # cudaLimitMaxL2FetchGranularity = 0x05
         pValue = ctypes.cast((ctypes.c_int*1)(), ctypes.POINTER(ctypes.c_int))
         _libcudart.cudaDeviceSetLimit(ctypes.c_int(0x05), ctypes.c_int(128))
         _libcudart.cudaDeviceGetLimit(pValue, ctypes.c_int(0x05))
+
         assert pValue.contents.value == 128
 
-def dataset_dir_name(dataset:str)->str:
+def dataset_dir_name(dataset: str) -> str:
+    """Gathers the directory name based on dataset's identifier.
+
+    Args:
+        dataset: Dataset identifier.
+
+    Returns:
+        (str): Directory name.
+
+    """
+
     if dataset=='wt103':
         return 'wikitext-103'
     if dataset=='wt2':
@@ -247,11 +392,30 @@ def dataset_dir_name(dataset:str)->str:
         raise RuntimeError(f'dataset "{dataset}" is not supported yet')
     if dataset=='text8':
         raise RuntimeError(f'dataset "{dataset}" is not supported yet')
+
     raise RuntimeError(f'dataset "{dataset}" is not known')
 
-def get_create_dirs(dataroot:Optional[str], dataset_name:str,
-                    experiment_name='nv_xformer_xl', output_dir='~/logdir',
-                    pretrained_path:Optional[str]=None, cache_dir:Optional[str]=None)->Tuple[str,str,str,str,str]:
+def get_create_dirs(dataroot: str,
+                    dataset_name: str,
+                    experiment_name: Optional[str] = 'nv_xformer_xl',
+                    output_dir: Optional[str] = '~/logdir',
+                    pretrained_path: Optional[str] = None,
+                    cache_dir: Optional[str] = None) -> Tuple[str,str,str,str,str]:
+    """Creates experiment-based directories.
+
+    Args:
+        dataroot: Root path.
+        dataset_name: Dataset name.
+        experiment_name: Experiment name.
+        output_dir: Directory to be used to save files.
+        pretrained_path: Pre-trained model path.
+        cache_dir: Cache directory.
+
+    Returns:
+        (Tuple[str,str,str,str,str]): Tuple containing the dataset directory, output directory,
+            pre-trained model path, cache directory and root path.
+
+    """
 
     pt_data_dir, pt_output_dir = common.pt_dirs()
     dataroot = dataroot or pt_data_dir or common.default_dataroot()
@@ -272,8 +436,12 @@ def get_create_dirs(dataroot:Optional[str], dataset_name:str,
 
     return dataset_dir, output_dir, pretrained_path, cache_dir, dataroot
 
-def script_init():
-        # Disable profiling executor
+def script_init() -> None:
+    """Initializes the APEX script.
+
+    """
+
+    # Disable profiling executor
     try:
         torch._C._jit_set_profiling_executor(False)
         torch._C._jit_set_profiling_mode(False)
