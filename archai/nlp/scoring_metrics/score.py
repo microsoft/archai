@@ -20,8 +20,8 @@ import numpy as np
 import pandas as pd
 import torch
 
-from archai.nlp.scoring.sequence import TextPredictionSequence
-from archai.nlp.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.scoring_metrics.sequence import TextPredictionSequence
+from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.datasets import exp_utils
 
 def predict_console(predictor:TextPredictor):

@@ -66,7 +66,7 @@ def parse_args():
     config_args, _ = cfg_parser.parse_known_args()
 
     if config_args.config is not None and config_args.config_file is not None:
-        config_file_path = utils.full_path(os.path.join('.', 'archai', 'nlp', 'nvidia_transformer_xl', config_args.config_file))
+        config_file_path = utils.full_path(os.path.join('.', 'archai', 'nlp', config_args.config_file))
         with open(config_file_path) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)[config_args.config]['train']
     else:
