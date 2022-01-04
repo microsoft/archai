@@ -13,12 +13,12 @@ from typing import Tuple
 
 from torch import nn
 
-from archai.nlp.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.scoring.vocab_wrapper import VocabWrapper
-from archai.nlp.scoring.model_wrapper import ModelWrapper
-from archai.nlp.scoring.scoring_utils import WORD_TOKEN_SEPARATOR_SET
-from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
-from archai.nlp.scoring.scoring_utils import get_settings
+from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.scoring_metrics.vocab_wrapper import VocabWrapper
+from archai.nlp.scoring_metrics.model_wrapper import ModelWrapper
+from archai.nlp.scoring_metrics.scoring_utils import WORD_TOKEN_SEPARATOR_SET
+from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.scoring_metrics.scoring_utils import get_settings
 
 class Prediction:
     """Represents a single prediction.

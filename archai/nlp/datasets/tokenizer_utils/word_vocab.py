@@ -9,11 +9,11 @@ import torch
 
 from overrides import overrides
 
-from archai.nlp.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
 from archai.common import utils
-from archai.nlp.models import nvidia_utils as nv_utils
-from archai.nlp.tokenizer_utils.token_config import TokenConfig
-from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets import distributed_utils as nv_utils
+from archai.nlp.datasets.tokenizer_utils.token_config import TokenConfig
+from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class WordVocab(VocabBase): # Word vocab is the default
     def __init__(self, save_path:str, min_freq=0, vocab_size=None,

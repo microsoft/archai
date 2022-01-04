@@ -11,7 +11,7 @@ from onnxruntime import (GraphOptimizationLevel, InferenceSession,
 
 from archai.nlp.models.archai_model import ArchaiModel
 from archai.nlp.models.available_models import AVAILABLE_MODELS
-from archai.nlp.models.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx,
+from archai.nlp.compression.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx,
                                                                       forward_memformer_onnx)
 
 # Constants available in onnxruntime

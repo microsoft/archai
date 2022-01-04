@@ -20,8 +20,8 @@ import pandas as pd
 
 from scipy.interpolate import interp1d
 
-from archai.nlp.scoring.scoring_utils import get_settings
-from archai.nlp.scoring.text_predictor import Prediction, TextPredictor # pylint: disable=misplaced-future
+from archai.nlp.scoring_metrics.scoring_utils import get_settings
+from archai.nlp.scoring_metrics.text_predictor import Prediction, TextPredictor # pylint: disable=misplaced-future
 
 @dataclass
 class TextPredictionPosition:

@@ -32,7 +32,7 @@ except ModuleNotFoundError:
     warnings.warn('PyProf is unavailable')
 
 from archai.nlp.datasets.distributed_utils import data_utils
-from archai.nlp.models import nvidia_utils
+from archai.nlp.datasets import distributed_utils as nvidia_utils
 from archai.nlp.datasets import exp_utils
 from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
 from archai.nlp.datasets.distributed_utils.data_utils import tokenize_raw

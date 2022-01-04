@@ -3,8 +3,8 @@
 # Copyright (c) Microsoft Corporation
 
 from __future__ import annotations
-from archai.nlp.scoring.text_predictor import TextPredictor # pylint: disable=misplaced-future
-from archai.nlp.scoring.scoring_utils import WORD_TOKEN_SEPARATOR_SET
+from archai.nlp.scoring_metrics.text_predictor import TextPredictor # pylint: disable=misplaced-future
+from archai.nlp.scoring_metrics.scoring_utils import WORD_TOKEN_SEPARATOR_SET
 
 import argparse
 import json

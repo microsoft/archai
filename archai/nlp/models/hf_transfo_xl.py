@@ -7,7 +7,7 @@ import torch
 from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
 from archai.nlp.models.archai_model import ArchaiModel
-from archai.nlp.models.models.model_utils import map_to_list
+from archai.nlp.models.model_utils.utils import map_to_list
 
 
 class HfTransfoXL(ArchaiModel):
