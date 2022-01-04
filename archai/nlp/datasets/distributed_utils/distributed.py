@@ -17,62 +17,90 @@
 
 import os
 from contextlib import contextmanager
+from typing import Optional
 
 import torch
 
 
-def init_distributed(cuda):
-    """
-    Initializes distributed backend.
+def init_distributed(cuda: bool) -> bool:
+    """Initializes the distributed backend.
 
-    :param cuda: (bool) if True initializes nccl backend, if False initializes
-        gloo backend
+    Args:
+        cuda: Whether to initialize the nccl backend (True) or gloo backend (False).
+
+    Returns:
+        (bool): Boolean defining which backend has been initialized.
+
     """
+
     world_size = int(os.environ.get('WORLD_SIZE', 1))
     distributed = (world_size > 1)
+
     if distributed:
         backend = 'nccl' if cuda else 'gloo'
+
         torch.distributed.init_process_group(backend=backend,
                                              init_method='env://')
+
         assert torch.distributed.is_initialized()
+
     return distributed
 
 
-def barrier():
+def barrier() -> None:
+    """Calls torch.distributed.barrier() if distributed is in use.
+
     """
-    Call torch.distributed.barrier() if distritubed is in use
-    """
+
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         torch.distributed.barrier()
 
 
-def get_rank():
+def get_rank() -> int:
+    """Gets the distributed rank or returns zero if distributed is not initialized.
+
+    Returns:
+        (int): Distributed rank.
+
     """
-    Gets distributed rank or returns zero if distributed is not initialized.
-    """
+
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         rank = torch.distributed.get_rank()
     else:
         rank = 0
+
     return rank
 
 
-def get_world_size():
+def get_world_size() -> int:
+    """Gets the total number of distributed workers or returns one if distributed is
+        not initialized.
+
+    Returns:
+        (int): Size of the distributed workers.
+
     """
-    Gets total number of distributed workers or returns one if distributed is
-    not initialized.
-    """
+
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         world_size = torch.distributed.get_world_size()
     else:
         world_size = 1
+
     return world_size
 
 
-def all_reduce_item(value, op='sum'):
+def all_reduce_item(value: torch.Tensor, op: Optional[str] = 'sum') -> torch.Tensor:
+    """All-reduces single scalar value if distributed is in use.
+
+    Args:
+        value: Value to be reduced.
+        op: Operator to be used in reduction.
+
+    Returns:
+        (torch.Tensor): Reduced tensor.
+
     """
-    All-reduces single scalar value if distributed is in use
-    """
+
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         if op == 'sum' or op == 'mean':
             dop = torch.distributed.ReduceOp.SUM
@@ -86,6 +114,7 @@ def all_reduce_item(value, op='sum'):
             raise RuntimeError('Unsupported reduce op')
 
         backend = torch.distributed.get_backend()
+
         if backend == torch.distributed.Backend.NCCL:
             device = torch.device('cuda')
         elif backend == torch.distributed.Backend.GLOO:
@@ -95,19 +124,28 @@ def all_reduce_item(value, op='sum'):
 
         tensor = torch.tensor(value, device=device)
         torch.distributed.all_reduce(tensor, dop)
+
         if op == 'mean':
             tensor /= get_world_size()
+
         ret = tensor.item()
     else:
         ret = value
+
     return ret
 
 
 @contextmanager
-def sync_workers():
+def sync_workers() -> int:
+    """Yields distributed rank and synchronizes all workers on exit.
+
+    Yields:
+        (int): Distributed rank.
+        
     """
-    Yields distributed rank and synchronizes all workers on exit.
-    """
+
     rank = get_rank()
+
     yield rank
+
     barrier()

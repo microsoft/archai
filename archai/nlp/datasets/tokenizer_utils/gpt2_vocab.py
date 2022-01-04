@@ -10,11 +10,41 @@ from archai.nlp.datasets.tokenizer_utils.bbpe_vocab import BbpeVocab
 
 
 class Gpt2Vocab(BbpeVocab):
-    def __init__(self, save_path:str, vocab_size:int=50257, pad_vocab_size=True,
-                 bos_token:Optional[str]="<|endoftext|>", eos_token:Optional[str]="<|endoftext|>",
-                 unk_token:Optional[str]="<|unk|>", pad_token:Optional[str]=None,
-                 min_frequency:Optional[int]=None, model_max_length:Optional[int]=1024,
-                 add_prefix_space=True,add_prefix_new_line=True, sorted_vocab=True) -> None:
+    """GPT-2 vocabulary.
+
+    """
+
+    def __init__(self,
+                 save_path: str,
+                 vocab_size: Optional[int] = 50257,
+                 pad_vocab_size: Optional[bool] = True,
+                 bos_token: Optional[str] = '<|endoftext|>',
+                 eos_token: Optional[str] = '<|endoftext|>',
+                 unk_token: Optional[str] = '<|unk|>',
+                 pad_token: Optional[str] = None,
+                 min_frequency: Optional[int] = None,
+                 model_max_length: Optional[int] = 1024,
+                 add_prefix_space: Optional[bool] = True,
+                 add_prefix_new_line: Optional[bool] = True,
+                 sorted_vocab: Optional[bool] = True) -> None:
+        """Overrides initialization method.
+
+        Args:
+            save_path: Output path.
+            vocab_size: Vocabulary size.
+            pad_vocab_size: Whether to pad to vocabulary size or not.
+            bos_token: Begin-of-sentence token.
+            eos_token: End-of-sentence token.
+            unk_token: Unknown token.
+            pad_token: Padding token.
+            min_frequency: Minimum frequency of tokens.
+            model_max_length: Truncate encoding to maximum length.
+            add_prefix_space: Whether to add a space prefix or not.
+            add_prefix_new_line: Whether to add a new line prefix or not.
+            sorted_vocab: Whether to sort the vocabulary or not.
+
+        """
+
         # GPT2Tokenizer
         # vocab_size: 50257
         # bos = eos = unk = '<|endoftext|>'

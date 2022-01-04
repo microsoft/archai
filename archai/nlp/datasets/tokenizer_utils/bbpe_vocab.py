@@ -22,17 +22,52 @@ from transformers import PreTrainedTokenizerFast
 
 
 class BbpeVocab(VocabBase):
-    def __init__(self, save_path:str, vocab_size:int, pad_vocab_size=False,
-                 bos_token:Optional[str]="_BOS_", eos_token:Optional[str]=None,
-                 unk_token:Optional[str]="_OOV_", pad_token:Optional[str]=None,
-                 min_frequency:Optional[int]=None, model_max_length:Optional[int]=None,
-                 add_prefix_space=True,add_prefix_new_line=False, sorted_vocab=True,
-                 encode_special_tokens=False, decode_special_tokens=False) -> None:
+    """Byte-level Byte-Pair Encoding vocabulary.
+
+    """
+
+    def __init__(self,
+                 save_path: str,
+                 vocab_size: int,
+                 pad_vocab_size: Optional[bool] = False,
+                 bos_token: Optional[str] = '_BOS_',
+                 eos_token: Optional[str] = None,
+                 unk_token: Optional[str] = '_OOV_',
+                 pad_token: Optional[str] = None,
+                 min_frequency: Optional[int] = None,
+                 model_max_length: Optional[int] = None,
+                 add_prefix_space: Optional[bool] = True,
+                 add_prefix_new_line: Optional[bool] = False,
+                 sorted_vocab: Optional[bool] = True,
+                 encode_special_tokens: Optional[bool] = False,
+                 decode_special_tokens: Optional[bool] = False) -> None:
+        """Overrides initialization method.
+
+        Args:
+            save_path: Output path.
+            vocab_size: Vocabulary size.
+            pad_vocab_size: Whether to pad to vocabulary size or not.
+            bos_token: Begin-of-sentence token.
+            eos_token: End-of-sentence token.
+            unk_token: Unknown token.
+            pad_token: Padding token.
+            min_frequency: Minimum frequency of tokens.
+            model_max_length: Truncate encoding to maximum length.
+            add_prefix_space: Whether to add a space prefix or not.
+            add_prefix_new_line: Whether to add a new line prefix or not.
+            sorted_vocab: Whether to sort the vocabulary or not.
+            encode_special_tokens: Whether to decode special tokens or not.
+            decode_special_tokens: Whether to decode special tokens or not.
+
+        """
+
         self._config = TokenConfig(bos_token=bos_token, eos_token=eos_token,
                                    unk_token=unk_token, pad_token=pad_token,
                                    add_prefix_space=add_prefix_space, add_prefix_new_line=add_prefix_new_line)
+
         self._tokenizer:Optional[PreTrainedTokenizerFast] = None # will load existing or create new
         self._tokenizer_filepath = os.path.join(utils.full_path(save_path, create=True), 'bbpe_tokenizer.json')
+
         self.vocab_size = vocab_size
         self.sorted_vocab = sorted_vocab
         self.min_frequency = min_frequency
@@ -49,6 +84,13 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def train(self, filepaths: List[str]) -> None:
+        """Trains a new vocabulary.
+
+        Args:
+            filepaths: Path to the input files.
+
+        """
+
         with distributed.sync_workers() as rank:
             if rank == 0:
                 logging.info(f'Training BBPE Vocab for size {self.vocab_size} at "{self._tokenizer_filepath}" ...')
@@ -57,22 +99,57 @@ class BbpeVocab(VocabBase):
                 if self.sorted_vocab:
                     self.load()
                     self._rewrite_json_sorted(filepaths)
+
         self.load()
 
     @overrides
-    def special_token_id(self, sp:SpecialTokenEnum)->Optional[int]:
+    def special_token_id(self, sp: SpecialTokenEnum) -> int:
+        """Gets the special token identifier.
+
+        Args:
+            sp: Special token enumerator.
+
+        Returns:
+            (int): Special token identifier.
+
+        """
+
         return self.token_to_id(self._config.special_token_name(sp))
 
     @overrides
-    def token_to_id(self, t:str)->int:
+    def token_to_id(self, t: str) -> int:
+        """Converts string-based token to identifier.
+
+        Args:
+            t: String-based token.
+
+        Returns:
+            (int): Token identifier.
+
+        """
+
         return self._tokenizer.convert_tokens_to_ids(t)
 
     @overrides
-    def id_to_token(self, id:int)->str:
+    def id_to_token(self, id: int) -> str:
+        """Converts token identifier to string-based token.
+
+        Args:
+            id: Token identifier.
+
+        Returns:
+            (str): String-based token.
+
+        """
+
         return self._tokenizer.convert_ids_to_tokens(id)
 
     @overrides
-    def load(self)->None:
+    def load(self) -> None:
+        """Loads a pre-trained vocabulary.
+
+        """
+
         # TODO: below shouldn't be required: https://github.com/huggingface/transformers/issues/664
         #tokenizer.padding_side = "left"
 
@@ -88,38 +165,54 @@ class BbpeVocab(VocabBase):
         self.bos_id = [] if not self._config.bos_token else [self.token_to_id(self._config.bos_token)]
         self.eos_id = [] if not self._config.eos_token else [self.token_to_id(self._config.eos_token)]
 
-        logging.info(f'tokenizer len: {len(self._tokenizer)}')
-        logging.info(f'tokenizer filepath: {self._tokenizer_filepath}')
+        logging.info(f'Tokenizer len: {len(self._tokenizer)}')
+        logging.info(f'Tokenizer filepath: {self._tokenizer_filepath}')
 
-    def _rewrite_json_sorted(self, filepaths:List[str]):
+    def _rewrite_json_sorted(self, filepaths: List[str]) -> None:
+        """Re-writes vocabulary to a sorted .json file.
+
+        Args:
+            filepaths: Path to the input files.
+
+        """
 
         tokens_counter = self._count_token_freq(filepaths)
 
         logging.info('Saving sorted vocab file...')
+
         tokens_counter.update(list(range(len(self._tokenizer)))) # add 1 to each value, to ensure that all of them > 0
+        
         min_sort_id = 256 + len(self._config.get_special_tokens())
         sorted_ids = list(range(min_sort_id)) + \
                             [int(token_id) for token_id, _ in tokens_counter.most_common() if int(token_id) >= min_sort_id]
 
         t_map = [(new, old) for new, old in enumerate(sorted_ids)]
         t_map.sort(key=lambda t:t[1])
+
         orig2sorted_ids = [t[0] for t in t_map]
 
         with open(self._tokenizer_filepath, encoding="utf-8") as f:
             tok_json = json.load(f)
+
         vocab_orig = tok_json['model']['vocab']
 
         assert len(vocab_orig) == len(orig2sorted_ids)
+
         v_map = OrderedDict([(vocab, orig2sorted_ids[idx]) for vocab, idx in vocab_orig.items()])
 
         # save unsorted file
         utils.copy_file(self._tokenizer_filepath, self._tokenizer_filepath + '.unsorted.json')
 
         tok_json['model']['vocab'] = v_map
+
         with open(self._tokenizer_filepath, 'w', encoding="utf-8") as f:
             f.write(json.dumps(tok_json, ensure_ascii=False, indent=2))
 
-    def _finalize_tokenizer(self):
+    def _finalize_tokenizer(self) -> None:
+        """Finalizes the tokenizer by adding post-processing tokens.
+
+        """
+
         # TODO: EOT is supposed to be added at the end of the file but currently its not done
         # self.EOT = self.tokenizer.bos_token_id # .encoder['<|endoftext|>']
 
@@ -132,12 +225,29 @@ class BbpeVocab(VocabBase):
                 self._tokenizer.add_tokens([token])
 
     @overrides
-    def is_trained(self)->bool:
+    def is_trained(self) -> bool:
+        """Checks whether vocabulary has already been trained.
+
+        Returns:
+            (bool): Whether vocabulary has already been trained.
+
+        """
+
         # if any files exist in the directory
         return os.path.isfile(self._tokenizer_filepath)
 
     @overrides
-    def encode_text(self, text:str)->List[int]:
+    def encode_text(self, text: str) -> List[int]:
+        """Encodes input text into a list of tokens.
+
+        Args:
+            text: Input text.
+
+        Returns:
+            (List[int]): Encoded tokens.
+
+        """
+
         text = self._preprocess_text(text)
 
         # we always set add_special_tokens=False because Huggingface implementation is buggy
@@ -151,14 +261,41 @@ class BbpeVocab(VocabBase):
         return toks
 
     @overrides
-    def decode_text(self, ids:List[int])->str:
+    def decode_text(self, ids: List[int]) -> str:
+        """Decodes tokens into a string-based text.
+
+        Args:
+            ids: Tokens identifiers.
+
+        Returns:
+            (str): Decoded tokens.
+
+        """
+
         return self._tokenizer.decode(ids, skip_special_tokens=self.decode_special_tokens)
 
     @overrides
-    def __len__(self):
+    def __len__(self) -> int:
+        """Calculates the size of the vocabulary.
+
+        Args:
+            (int): Size of vocabulary.
+
+        """
+
         return len(self._tokenizer)
 
-    def _preprocess_text(self, text:str)->str:
+    def _preprocess_text(self, text: str) -> str:
+        """Pre-process the input text.
+
+        Args:
+            text: Text to be pre-processed.
+
+        Returns:
+            (str): Pre-processed text.
+
+        """
+
         text = text.strip()
 
         # Do not add space for empty lines
@@ -171,10 +308,22 @@ class BbpeVocab(VocabBase):
             text = '\n' + text
         if self._config.lower_case:
             text = text.lower()
+
         return text
 
-    def _count_token_freq(self, filepaths:List[str])->Counter:
+    def _count_token_freq(self, filepaths: List[str]) -> Counter:
+        """Counts the frequency of tokens.
+
+        Args:
+            filepaths: Path to the input files.
+
+        Returns:
+            (Counter): Tokens frequencies.
+
+        """
+
         logging.info('Counting token frequencies...')
+
         tokens_counter = Counter()
         tokens_counter.update(list(range(len(self._tokenizer)))) # add each token
 
@@ -185,13 +334,25 @@ class BbpeVocab(VocabBase):
             for i,l in enumerate(lines):
                 if ((i+1)%100000)==0:
                     logging.info(f'Counted tokens for line {i+1}...')
+
                 toks = self.encode_text(l)
                 tokens_counter.update(toks)
 
         return tokens_counter
 
-    def _train_tokenizer(self, filepaths:List[str], dropout: float = None,
-                        added_tokens: List[str] = []) -> None:
+    def _train_tokenizer(self,
+                         filepaths: List[str],
+                         dropout: Optional[float] = None,
+                         added_tokens: Optional[List[str]] = []) -> None:
+        """Trains a new tokenizers.
+
+        Args:
+            filepaths: Path to the input files.
+            dropout: Whether to apply tokenization dropout.
+            added_tokens: Additional tokens to be added to tokenizer.
+
+        """
+
         logging.info('Training tokenizer...')
 
         special_tokens = self._config.get_special_tokens()
@@ -224,5 +385,3 @@ class BbpeVocab(VocabBase):
 
         # generates save_prefix-vocab.json and save_prefix-merges.txt
         tokenizer.save(self._tokenizer_filepath, pretty=True)
-
-
