@@ -21,7 +21,7 @@ import sacremoses
 import torch
 
 from archai.nlp.models import nvidia_utils as nv_utils
-from archai.nlp.models.nvidia_utils.corpus import Corpus
+from archai.nlp.datasets.corpus import Corpus
 
 def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,
                   vocab_size:Optional[int]=None, refresh_cache=False):
