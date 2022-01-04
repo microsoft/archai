@@ -10,7 +10,7 @@ from overrides import overrides
 from tokenizers import ByteLevelBPETokenizer
 from transformers import PreTrainedTokenizerFast, PreTrainedTokenizer
 
-from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
+from archai.nlp.models import nvidia_utils as nv_utils
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.tokenizer_utils.token_config import TokenConfig
 from archai.common import utils, common

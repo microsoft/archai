@@ -8,7 +8,7 @@ from overrides import overrides
 from transformers import PreTrainedTokenizerFast, PreTrainedTokenizerBase, GPT2TokenizerFast, GPT2Tokenizer, PreTrainedTokenizer
 from tokenizers import ByteLevelBPETokenizer
 
-from archai.nlp.nvidia_transformer_xl import nvidia_utils as nv_utils
+from archai.nlp.models import nvidia_utils as nv_utils
 from archai.nlp.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.tokenizer_utils.tokenizer_files import TokenizerFiles
 from archai.nlp.tokenizer_utils.token_config import TokenConfig
