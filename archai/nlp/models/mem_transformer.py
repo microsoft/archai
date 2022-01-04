@@ -21,11 +21,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.models.nvidia_utils.log_uniform_sampler import LogUniformSampler
-from archai.nlp.models.nvidia_utils.log_uniform_sampler import sample_logits
-from archai.nlp.models.nvidia_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
-from archai.nlp.models.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
-from archai.nlp.models.models.archai_model import ArchaiModel
+from archai.nlp.models.log_uniform_sampler import LogUniformSampler
+from archai.nlp.models.log_uniform_sampler import sample_logits
+from archai.nlp.models.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from archai.nlp.models.model_utils.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
+from archai.nlp.models.archai_model import ArchaiModel
 from archai.nlp.models.models.model_utils import map_to_list
 
 
