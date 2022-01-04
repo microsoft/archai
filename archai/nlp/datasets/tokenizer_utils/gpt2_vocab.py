@@ -8,12 +8,12 @@ from overrides import overrides
 from transformers import PreTrainedTokenizerFast, PreTrainedTokenizerBase, GPT2TokenizerFast, GPT2Tokenizer, PreTrainedTokenizer
 from tokenizers import ByteLevelBPETokenizer
 
-from archai.nlp.models import nvidia_utils as nv_utils
-from archai.nlp.tokenizer_utils.bbpe_vocab import BbpeVocab
-from archai.nlp.tokenizer_utils.tokenizer_files import TokenizerFiles
-from archai.nlp.tokenizer_utils.token_config import TokenConfig
+from archai.nlp.datasets import distributed_utils as nv_utils
+from archai.nlp.datasets.tokenizer_utils.bbpe_vocab import BbpeVocab
+from archai.nlp.datasets.tokenizer_utils.tokenizer_files import TokenizerFiles
+from archai.nlp.datasets.tokenizer_utils.token_config import TokenConfig
 from archai.common import utils, common
-from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class Gpt2Vocab(BbpeVocab):
     def __init__(self, save_path:str, vocab_size:int=50257, pad_vocab_size=True,

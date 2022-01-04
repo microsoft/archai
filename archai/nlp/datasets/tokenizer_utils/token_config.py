@@ -1,7 +1,7 @@
 from typing import List, Optional
 from archai.common import utils
 
-from archai.nlp.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 
 class TokenConfig:

@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 
-from archai.nlp.models import nvidia_utils as nv_utils
+from archai.nlp.datasets import distributed_utils as nv_utils
 
 class LMOrderedIterator(object):
     def __init__(self, input_ids, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True):

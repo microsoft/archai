@@ -26,7 +26,7 @@ from archai.nlp.models.log_uniform_sampler import sample_logits
 from archai.nlp.models.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 from archai.nlp.models.model_utils.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 from archai.nlp.models.archai_model import ArchaiModel
-from archai.nlp.models.models.model_utils import map_to_list
+from archai.nlp.models.model_utils.utils import map_to_list
 
 
 @torch.jit.script
