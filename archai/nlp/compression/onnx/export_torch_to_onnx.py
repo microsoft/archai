@@ -3,10 +3,10 @@
 
 import argparse
 
-from archai.nlp.models.onnx.onnx_utils.export import export_onnx_from_pt
-from archai.nlp.models.onnx.onnx_utils.load import load_from_pt
-from archai.nlp.models.onnx.onnx_utils.optimization import optimize_onnx
-from archai.nlp.models.onnx.onnx_utils.quantization import dynamic_quantization
+from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_pt
+from archai.nlp.compression.onnx.onnx_utils.load import load_from_pt
+from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
+from archai.nlp.compression.onnx.onnx_utils.quantization import dynamic_quantization
 
 
 def parse_args():

@@ -13,7 +13,7 @@ from onnxruntime.transformers.fusion_skiplayernorm import FusionBiasSkipLayerNor
 from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
 
-from archai.nlp.models.onnx.onnx_utils.opt.fusion_options import FusionOptions
+from archai.nlp.compression.onnx.onnx_utils.opt.fusion_options import FusionOptions
 
 
 class MemTransformerLMOnnxModel(OnnxModel):
