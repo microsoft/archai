@@ -9,7 +9,6 @@ import logging
 from typing import List, Optional, Set, Tuple
 
 import numpy as np
-
 from archai.common.lru_cache import LRUCache
 from archai.nlp.common.constants import (RE_SPLIT,
                                          TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE,

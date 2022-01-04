@@ -8,7 +8,6 @@ from typing import Any, Dict, Optional
 
 import torch
 import transformers
-
 from archai.nlp.compression.quantization.modules import (
     FakeDynamicQuantConv1d, FakeDynamicQuantConv1dForOnnx,
     FakeDynamicQuantHFConv1D, FakeDynamicQuantHFConv1DForOnnx,

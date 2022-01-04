@@ -5,10 +5,10 @@
 """
 
 from collections.abc import Sized
-from typing import Any, Union
+from typing import Any
 
 
-def map_to_list(p: Union[Sized, Any], n: int) -> Sized:
+def map_to_list(p: Any, n: int) -> Sized:
     """Maps variables to lists with fixed lengths.
 
     Args:

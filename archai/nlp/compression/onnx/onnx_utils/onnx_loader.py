@@ -8,15 +8,14 @@ import types
 from os import environ
 from typing import Any, Dict, Sized, Tuple
 
-from onnxruntime import (GraphOptimizationLevel, InferenceSession,
-                         SessionOptions)
-from onnxruntime.transformers import quantize_helper
-
 from archai.nlp.common.constants import OMP_NUM_THREADS, OMP_WAIT_POLICY
 from archai.nlp.common.lazy_loader import load_model_from_checkpoint
 from archai.nlp.compression.onnx.onnx_utils.forward import (
     crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
 from archai.nlp.models.model_base import ArchaiModel
+from onnxruntime import (GraphOptimizationLevel, InferenceSession,
+                         SessionOptions)
+from onnxruntime.transformers import quantize_helper
 
 # Constants available in onnxruntime
 # that enables performance optimization
@@ -62,9 +61,9 @@ def load_from_torch_for_export(model_type: str,
 
     # Loads the model
     model, model_config, _ = load_model_from_checkpoint(model_type,
-                                                       torch_model_path,
-                                                       on_cpu=True,
-                                                       for_export=True)
+                                                        torch_model_path,
+                                                        on_cpu=True,
+                                                        for_export=True)
 
     # Overrides forward functions if MemTransformerLM
     if model_type == 'mem_transformer':

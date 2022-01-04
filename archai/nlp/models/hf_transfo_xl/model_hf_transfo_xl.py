@@ -7,10 +7,9 @@
 from typing import Optional, Tuple
 
 import torch
-from transformers import CONFIG_MAPPING, AutoModelForCausalLM
-
 from archai.nlp.common.mapping_utils import map_to_list
 from archai.nlp.models.model_base import ArchaiModel
+from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
 
 class HfTransfoXL(ArchaiModel):

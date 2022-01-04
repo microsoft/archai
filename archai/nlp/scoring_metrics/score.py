@@ -13,7 +13,6 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.scoring_metrics.model_wrapper import ModelWrapper
 from archai.nlp.scoring_metrics.sequence import TextPredictionSequence

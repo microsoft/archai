@@ -35,7 +35,6 @@ class LogUniformSampler:
             range_max: Maximum range of sampler.
             n_sample: Number of samples.
 
-
         Reference:
             https://github.com/tensorflow/tensorflow/blob/r1.10/tensorflow/python/ops/candidate_sampling_ops.py
             

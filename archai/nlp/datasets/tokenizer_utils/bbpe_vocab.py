@@ -10,16 +10,15 @@ import os
 from collections import OrderedDict
 from typing import Counter, List, Optional
 
-from overrides import overrides
-from tokenizers import ByteLevelBPETokenizer
-from transformers import PreTrainedTokenizerFast
-
 from archai.common import utils
 from archai.nlp.datasets.distributed_utils import distributed
 from archai.nlp.datasets.tokenizer_utils.special_token_enum import \
     SpecialTokenEnum
 from archai.nlp.datasets.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
+from overrides import overrides
+from tokenizers import ByteLevelBPETokenizer
+from transformers import PreTrainedTokenizerFast
 
 
 class BbpeVocab(VocabBase):

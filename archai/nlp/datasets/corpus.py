@@ -11,7 +11,6 @@ from typing import Optional, Tuple
 
 import numpy as np
 import torch
-
 from archai.common import utils
 from archai.nlp.datasets.lm_iterators import (LMOrderedIterator,
                                               LMShuffledIterator)

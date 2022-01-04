@@ -10,10 +10,9 @@ from collections import abc
 from typing import List, Optional
 
 import torch
-from overrides import EnforceOverrides, overrides
-
 from archai.nlp.datasets.tokenizer_utils.special_token_enum import \
     SpecialTokenEnum
+from overrides import EnforceOverrides, overrides
 
 
 class VocabBase(EnforceOverrides, abc.Sized):

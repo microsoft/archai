@@ -9,7 +9,6 @@ import os
 import numpy as np
 import torch
 import torch.utils.benchmark as benchmark
-
 from archai.nlp.models.mem_transformer.model_mem_transformer import (
     AdaptiveEmbedding, DecoderLayer, MemTransformerLM, MultiHeadAttn,
     PositionwiseFF, ProjectedAdaptiveLogSoftmax, RelLearnableMultiHeadAttn,

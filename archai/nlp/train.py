@@ -24,8 +24,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import yaml
-from torch.nn.parallel import DistributedDataParallel
-
 from archai.common import ml_perf_utils, utils
 from archai.nlp.common.lazy_loader import (load_from_args,
                                            load_model_from_checkpoint)
@@ -42,6 +40,7 @@ from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_utils import lamb
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import \
     CyclicCosineDecayLR
+from torch.nn.parallel import DistributedDataParallel
 
 
 def parse_args():

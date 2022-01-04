@@ -8,7 +8,6 @@ from collections import OrderedDict
 from typing import Any, Dict
 
 import torch
-
 from archai.nlp.common.constants import BATCH_SIZE, SEQ_LEN
 
 
@@ -31,6 +30,9 @@ class OnnxConfig:
     def mockups(self) -> Dict[str, Any]:
         """Defines the mockups (inputs) to be used when exporting to ONNX.
 
+        Returns:
+            (Dict[str, Any]): Mockups used to export with ONNX.
+
         """
 
         return {
@@ -40,6 +42,9 @@ class OnnxConfig:
     @property
     def inputs(self) -> OrderedDict:
         """Defines the inputs and their shapes to be used when exporting to ONNX.
+
+        Returns:
+            (OrderedDict): Inputs used to export with ONNX.
         
         """
 
@@ -51,6 +56,9 @@ class OnnxConfig:
     @property
     def outputs(self) -> OrderedDict:
         """Defines the outputs and their shapes to be used when exporting to ONNX.
+
+        Returns:
+            (OrderedDict): Outputs used to export with ONNX.
         
         """
 

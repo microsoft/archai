@@ -7,6 +7,9 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 import torch
+from archai.nlp.common.constants import BATCH_SIZE, SEQ_LEN
+from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
+from archai.nlp.models.config_base import OnnxConfig
 from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
                   ValueInfoProto, helper)
 from onnxruntime.transformers.fusion_attention import (AttentionMask,
@@ -18,10 +21,6 @@ from onnxruntime.transformers.fusion_skiplayernorm import (
     FusionBiasSkipLayerNormalization, FusionSkipLayerNormalization)
 from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
-
-from archai.nlp.common.constants import BATCH_SIZE, SEQ_LEN
-from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
-from archai.nlp.models.config_base import OnnxConfig
 
 
 class MemTransformerLMOnnxConfig(OnnxConfig):
@@ -52,6 +51,9 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
     @property
     def mockups(self) -> Dict[str, Any]:
         """Defines the mockups (inputs) to be used when exporting to ONNX.
+
+        Returns:
+            (Dict[str, Any]): Mockups used to export with ONNX.
         
         """
 

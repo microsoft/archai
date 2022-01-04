@@ -17,13 +17,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import yaml
-from numpy.core.numeric import indices
-
 from archai.common import utils
 from archai.nlp.nas.constraint_getter import (get_latency, get_model,
                                               get_yaml_values,
                                               process_parameters)
 from archai.nlp.nas.info_getter import get_metrics, get_results
+from numpy.core.numeric import indices
 
 model_config_defaults = {'d_head': None,
                          'n_token': 267736,

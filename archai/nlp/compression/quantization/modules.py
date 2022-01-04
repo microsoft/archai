@@ -8,9 +8,8 @@ from typing import Any, Dict, Optional, Type
 
 import torch
 import transformers
-from torch.nn import functional as F
-
 from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant
+from torch.nn import functional as F
 
 
 class FakeQuantEmbedding(torch.nn.Embedding):

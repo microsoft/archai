@@ -7,7 +7,6 @@
 from typing import Any, Dict
 
 import torch
-
 from archai.nlp.common.constants import BATCH_SIZE, SEQ_LEN
 from archai.nlp.models.config_base import OnnxConfig
 from archai.nlp.models.mem_transformer.onnx_mem_transformer import \
@@ -34,6 +33,9 @@ class HfTransfoXLOnnxConfig(OnnxConfig):
     @property
     def mockups(self) -> Dict[str, Any]:
         """Defines the mockups (inputs) to be used when exporting to ONNX.
+
+        Returns:
+            (Dict[str, Any]): Mockups used to export with ONNX.
         
         """
 

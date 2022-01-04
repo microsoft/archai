@@ -18,10 +18,9 @@ from typing import Any, Dict, List, Optional, Union
 import ftfy
 import numpy as np
 import pandas as pd
-from scipy.interpolate import interp1d
-
 from archai.nlp.scoring_metrics.scoring_utils import get_settings
 from archai.nlp.scoring_metrics.text_predictor import Prediction, TextPredictor
+from scipy.interpolate import interp1d
 
 
 @dataclass

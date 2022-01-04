@@ -21,7 +21,6 @@ from typing import List, Optional, Tuple, Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from archai.nlp.common.mapping_utils import map_to_list
 from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import (
     LogUniformSampler, sample_logits)

@@ -10,7 +10,6 @@ from importlib import import_module
 from typing import Any, Dict, Optional, Tuple
 
 import torch
-
 from archai.nlp.common.constants import LIBRARY_PATH
 
 
