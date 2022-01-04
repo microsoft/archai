@@ -7,8 +7,8 @@ import torch
 
 from archai.nlp.scoring import score
 from archai.nlp.models.mem_transformer import MemTransformerLM
-from archai.nlp.models.data_utils import get_lm_corpus
-from archai.nlp.models.nvidia_utils import exp_utils
+from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
+from archai.nlp.datasets import exp_utils
 from archai.common import utils, common
 from archai.nlp.tokenizer_utils.vocab_base import VocabBase
 
