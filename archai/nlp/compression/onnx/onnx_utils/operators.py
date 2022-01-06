@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Additional operators that are not natively supported by ONNX.
+"""
+
 from typing import Optional
 
 import torch
@@ -48,7 +51,7 @@ def tril_onnx(inputs: torch.FloatTensor,
     return inputs.masked_fill(mask == 0, 0)
 
 
-def register_trilu_operator():
+def register_trilu_operator() -> None:
     """Register triu/tril operators to make them available at ORT.
 
     """

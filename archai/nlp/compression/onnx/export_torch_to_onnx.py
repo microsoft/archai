@@ -1,12 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Exports PyTorch-based saved models to ONNX.
+"""
+
 import argparse
 
-from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_pt
-from archai.nlp.compression.onnx.onnx_utils.load import load_from_pt
+from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
+from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_torch_for_export
 from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
-from archai.nlp.compression.onnx.onnx_utils.quantization import dynamic_quantization
+from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
 
 
 def parse_args():
@@ -69,15 +72,15 @@ if __name__ == '__main__':
     quantization = args.quantization
 
     # Loads the PyTorch model
-    model, model_config = load_from_pt(model_type, torch_model_path)
+    model, model_config = load_from_torch_for_export(model_type, torch_model_path)
 
     # Exports to ONNX
-    export_onnx_from_pt(model,
-                        model_config,
-                        model_type,
-                        onnx_model_path,
-                        share_weights=True,
-                        opset_version=opset_version)
+    export_onnx_from_torch(model,
+                           model_config,
+                           model_type,
+                           onnx_model_path,
+                           share_weights=True,
+                           opset_version=opset_version)
 
     # Whether optimization should be applied
     if optimization:
@@ -91,4 +94,4 @@ if __name__ == '__main__':
 
     # Whether dynamic quantization should be applied
     if quantization:
-        qnt_model_path = dynamic_quantization(onnx_model_path)
+        qnt_model_path = dynamic_quantization_onnx(onnx_model_path)

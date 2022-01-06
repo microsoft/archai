@@ -8,7 +8,7 @@ from onnx import load_model
 from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 
-from archai.nlp.compression.onnx.onnx_utils.load import create_file_name_identifier
+from archai.nlp.compression.onnx.onnx_utils.onnx_loader import create_file_name_identifier
 from archai.nlp.compression.onnx.onnx_utils.opt.fusion_options import FusionOptions
 from archai.nlp.compression.onnx.onnx_utils.opt.opt_models import MemTransformerLMOnnxModel
 
