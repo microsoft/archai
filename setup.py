@@ -10,15 +10,15 @@ install_requires=[
     'pystopwatch2 @ git+https://github.com/ildoonet/pystopwatch2.git',
     'hyperopt', #  @ git+https://github.com/hyperopt/hyperopt.git
     'tensorwatch>=0.9.1', 'tensorboard',
-    'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib', 'psutil',
+    'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib',
     'requests', 'seaborn', 'h5py', 'rarfile',
     'gorilla', 'pyyaml', 'overrides==3.1.0', 'runstats', 'psutil', 'statopt',
-    'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash',
+    'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash', 'plotly',
     'transformers', 'pytorch_lightning', 'tokenizers', 'datasets', 'nats_bench',
     'ftfy', # needed for text scoring, fixes text for you
     # nvidia transformer-xl
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
-    'pytorch-transformers', 'sacremoses', 'pynvml'
+    'pytorch-transformers', 'sacremoses', 'pynvml', 'kaleido'
 ]
 
 setuptools.setup(
