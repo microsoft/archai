@@ -16,7 +16,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-from scipy.stats import kendalltau, spearmanr
+from scipy.stats import kendalltau, spearmanr, pearsonr
 
 from runstats import Statistics
 
@@ -27,6 +27,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from multiprocessing import Pool
 from collections import namedtuple
+from itertools import product
 
 
 from archai.common import utils
@@ -180,6 +181,9 @@ def main():
     for measure in ZEROCOST_MEASURES:
         assert len(all_reg_evals) == len(all_zerocost_init_evals[measure])
     assert len(all_reg_evals) == len(all_arch_ids)
+    
+    # if params flops is present compute spearman wrt params and flops
+    # also compute scatter plots for params vs synflow
     if params_flops_data:
         assert len(all_reg_evals) == len(all_params_evals)
         assert len(all_reg_evals) == len(all_flops_evals)
@@ -198,7 +202,46 @@ def main():
         print(f'Spearman wrt params: {spe_params} \n')
         print(f'Spearman wrt flops: {spe_flops} \n')
 
-    # Store some key numbers in results.txt
+        # scatter params vs. synflow
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=all_params_evals, y=all_zerocost_init_evals['synflow'], mode='markers'))
+        fig.update_layout(xaxis_title="Parameters",
+                        yaxis_title="Synflow")
+        fig.update_layout(font=dict(size=36)) # font size
+        fig.update_traces(marker=dict(size=20)) # marker size
+        savename_html = os.path.join(out_dir, f'params_vs_synflow.html')
+        savename_png = os.path.join(out_dir, f'params_vs_synflow.png')
+        fig.write_html(savename_html)
+        fig.write_image(savename_png, width=1500, height=1500, scale=1)
+
+        # create heatmap of all pairs of proxies along with params, flops, gt
+        ZEROCOST_MEASURES_PF = ZEROCOST_MEASURES + ['params', 'flops', 'gt']
+        all_zerocost_init_evals['params'] = all_params_evals
+        all_zerocost_init_evals['flops'] = all_flops_evals
+        all_zerocost_init_evals['gt'] = all_reg_evals
+        hm = np.zeros((len(ZEROCOST_MEASURES_PF), len(ZEROCOST_MEASURES_PF))) 
+        for i, m1 in enumerate(ZEROCOST_MEASURES_PF):
+            for j, m2 in enumerate(ZEROCOST_MEASURES_PF):
+                # sometimes jacob_cov has a nan here and there. ignore those.
+                m1_scores = all_zerocost_init_evals[m1]
+                m2_scores = all_zerocost_init_evals[m2]
+                valid_scores = [x for x in zip(m1_scores, m2_scores) if not ma.isnan(x[0]) and not ma.isnan(x[1])]
+                m1_valid = [x[0] for x in valid_scores]
+                m2_valid = [x[1] for x in valid_scores]
+                spe, _ = spearmanr(m1_valid, m2_valid)
+                hm[i][j] = spe
+
+        fig = px.imshow(hm, text_auto="0.1f", x=ZEROCOST_MEASURES_PF, y=ZEROCOST_MEASURES_PF)
+        savename_html = os.path.join(out_dir, f'all_pairs_zc_spe.html')
+        savename_png = os.path.join(out_dir, f'all_pairs_zc_spe.png')
+        fig.write_html(savename_html)
+        fig.write_image(savename_png, width=1500, height=1500, scale=1)
+
+
+
+
+
+
     results_savename = os.path.join(out_dir, 'results.txt')
     with open(results_savename, 'a') as f:
         f.write(f'Total valid archs processed: {len(all_reg_evals)} \n')
@@ -233,6 +276,22 @@ def main():
             assert len(top_percent_reg) == len(top_percent_init)
 
             spe_init, _ = spearmanr(top_percent_reg, top_percent_init)
+            # for the entire bin of archs scatter plot 
+            # groundtruth accuracy (x-axis) vs. measure and save 
+            if top_percent == 100:
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=top_percent_reg, y=top_percent_init, mode='markers'))
+                fig.update_layout(xaxis_title="Test Accuracy",
+                                yaxis_title=f"{measure}")
+                fig.update_layout(font=dict(size=36)) # font size
+                fig.update_traces(marker=dict(size=20)) # marker size
+                savename_html = os.path.join(out_dir, f'test_accuracy_vs_{measure}.html')
+                savename_png = os.path.join(out_dir, f'test_accuracy_vs_{measure}.png')
+                fig.write_html(savename_html)
+                fig.write_image(savename_png, width=1500, height=1500, scale=1)
+                #fig.show()
+
+
             spe_top_percents_init[measure].append(spe_init)
 
         spe_top_percents_init['top_percents'] = top_percents

@@ -78,7 +78,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 12
+    num_workers = 64
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -188,7 +188,7 @@ def main():
             epoch_num_spe[epoch_num] = spe        
         measures_res[measure] = epoch_num_spe
     
-    # plot
+    # plot static image first
     fig = go.Figure()
     for measure in ZEROCOST_MEASURES:
         xs = [key for key in measures_res[measure].keys()]
@@ -206,7 +206,29 @@ def main():
     savename_pdf = os.path.join(out_dir, 'zerocost_epochs_vs_spe.pdf')
     fig.write_image(savename_pdf, engine="kaleido", width=1500, height=750, scale=1)
 
-    fig.show()
+    #fig.show()
+
+    # plot images for animation
+    
+    # using a particular measure to get epoch numbers
+    # assuming all measures have same total epochs
+    for epoch_num in measures_res['synflow'].keys():
+        fig_anim = go.Figure()
+        for measure in ZEROCOST_MEASURES:
+            xs = [i for i in range(epoch_num)]
+            ys = [measures_res[measure][e_num] for e_num in xs]
+            fig_anim.add_trace(go.Scatter(x=xs, y=ys, name=measure, mode='markers+lines', showlegend=True))
+        fig_anim.update_layout(xaxis_title='Epochs',
+                    yaxis_title='Spearman Corr.')
+        fig_anim.update_layout(font=dict(size=48))
+        fig_anim.update_xaxes(range=[0,200])
+        fig_anim.update_yaxes(range=[-1,1])
+        #fig_anim.update_xaxes(type="log")
+        savename_png = os.path.join(out_dir, f'epoch_{epoch_num:06d}.png')
+        fig_anim.write_image(savename_png, width=1500, height=1000, scale=1)
+        
+            
+
 
 
 

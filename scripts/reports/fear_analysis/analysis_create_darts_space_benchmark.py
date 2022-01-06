@@ -114,9 +114,21 @@ def main():
                 print(f'KeyError {err} not in {key}!')
                 sys.exit()    
 
-    savename = os.path.join(out_dir, 'darts_benchmark.yaml')
+    # save accuracies
+    savename = os.path.join(out_dir, 'arch_id_test_accuracy.yaml')
     with open(savename, 'w') as f:
         yaml.dump(archid_testacc, f)
+
+    # save params flops
+    arch_id_params_flops = dict()
+    savename = os.path.join(out_dir, 'arch_id_params_flops.yaml')
+    for archid in archid_params.keys():
+        num_params = archid_params[archid]
+        num_flops = archid_flops[archid]
+        arch_id_params_flops[archid] = {'params': num_params, 'flops': num_flops}
+
+    with open(savename, 'w') as f:
+        yaml.dump(arch_id_params_flops, f)
 
     # plot test accuracy vs. number of params 
     # to see how the distribution looks
@@ -132,14 +144,17 @@ def main():
         flops.append(num_flops)
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=params, y=testaccs, mode='markers'))
-    fig.update_layout(title_text="Test accuracy vs. number of params on Darts Space Samples",
-                    xaxis_title="Params", 
-                    yaxis_title="Test Accuracy")
+    fig.add_trace(go.Scatter(x=testaccs, y=params, mode='markers'))
+    fig.update_layout(xaxis_title="Test Accuracy", 
+                    yaxis_title="Parameters")
+    fig.update_layout(font=dict(size=36)) # font size
+    fig.update_traces(marker=dict(size=20)) # marker size
 
     savename_html = os.path.join(out_dir, 'darts_space_params_vs_test_acc.html')
     fig.write_html(savename_html)
-    fig.show()
+
+    savename_png = os.path.join(out_dir, 'darts_space_params_vs_test_acc.png')
+    fig.write_image(savename_png, width=1500, height=1500, scale=1)
 
     # compute spearman correlation of #params vs. test accuracy
     param_spe, param_sp_value = spearmanr(testaccs, params)
