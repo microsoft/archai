@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Additional operators that are not natively supported by ONNX.
+"""
+
 from typing import Optional
 
 import torch
