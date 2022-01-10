@@ -15,14 +15,12 @@ Use NLP with Archai if you need a package or wish to:
 
  * [Data Loading and Utilities](#data-loading-and-utilities)
     * [Corpus](#corpus)
-    * [Vocabularies](#vocabularies)
-    * [Tokenizers](#tokenizers)
-    * [Language Modeling Iterators](#language-modeling-iterators)
+    * [Vocabularies and Tokenizers](#vocabularies-and-tokenizers)
+    * [Iterators](#iterators)
  * [Transformer-based Architectures](#transformer-based-architectures)
-    * [NVIDIA's Memory Transformer](#nvidia's-memory-transformer)
-    * [Huggingface's GPT-2](#huggingface's-gpt-2)
-    * [Huggingface's Transformer-XL](#huggingface's-transformer-xl)
-    * [Adding New Models](#adding-new-models)
+    * [Available Architectures](#available-architectures)
+    * [Adding New Architectures](#adding-new-architectures)
+    * [Training a New Model](#training-a-new-model)
  * [Neural Architecture Search](#neural-architecture-search)
     * [Evolutionary Search](#evolutionary-search)
     * [Finding the Pareto Frontier](#finding-the-pareto-frontier)
@@ -35,6 +33,63 @@ Use NLP with Archai if you need a package or wish to:
     * [Team](#team)
     * [License](#license)
     * [Trademark](#trademark)
+
+## Data Loading and Utilities
+
+In a Natural Language Processng task, the first step is to encode raw pieces of information (e.g., text) into more appropriate structures, such as numerical vectors/tensors. Essentially, the general data loading pipeline is performed as follows:
+
+📄 **Data**: acquisition, cleaning and pre-processing;
+📰 ️**Corpus**: creation;
+📑 ️**Vocabulary/Tokenizer**: creation and tokenizer training;
+🔖 **Iterator**: task-related iteraring, such as causal language modeling.
+
+### Corpus
+
+### Vocabularies and Tokenizers
+
+### Iterators
+
+#### Causal Language Modeling
+
+#### Masked Language Modeling
+
+*Currently, this type of iterator is not supported by Archai.*
+
+## Transformer-based Architectures
+
+### Available Architectures
+
+#### NVIDIA's Memory Transformer
+
+#### Huggingface's GPT-2
+
+#### Huggingface's Transformer-XL
+
+### Adding New Architectures
+
+### Training a New Model
+
+## Neural Architecture Search
+
+### Evolutionary Search
+
+### Finding the Pareto Frontier
+
+## Architecture Compression
+
+### ONNX Exporting
+
+After the training has been conducted, it is fairly straightforward to produce an ONNX-based model, which defaults to the type of model that is being shipped for production-ready environments. Archai provides an ONNX pipeline with custom classes and methods that will allow the supported architectures to be better exported and optimized.
+
+```bash
+python archai/nlp/compression/onnx/export_torch_to_onnx.py --help
+```
+
+*When exporting a new model with ONNX, one can use the `--optimization` and `--quantization` arguments to enable both graph optimization and quantization, which reduces the model's footprint (less disk space due to int8 precision and less memory consumption).*
+
+### Quantization
+
+## Metrics Scoring
 
 ## Support
 
