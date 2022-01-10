@@ -4,56 +4,58 @@
 """Hugginface's Transformer-XL.
 """
 
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 import torch
-from transformers import CONFIG_MAPPING, AutoModelForCausalLM
-
-from archai.common.utils import map_to_list
+from archai.nlp.common.mapping_utils import map_to_list
 from archai.nlp.models.model_base import ArchaiModel
+from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
 
 class HfTransfoXL(ArchaiModel):
-    HYPERPARAMETER_MAPPING = {
-        'n_layer': 'n_layer',
-        'n_head': 'n_head',
-        'd_head': 'd_head',
-        'd_embed': 'd_embed',
-        'd_model': 'd_model',
-        'd_inner': 'd_inner',
-        'dropout': 'dropout',
-        'dropatt': 'dropatt',
-        'n_token': 'vocab_size',
-        'div_val': 'div_val',
-        'pre_lnorm': 'pre_lnorm',
-        'cutoffs': 'cutoffs',
-        'mem_len': 'mem_len',
-        'same_length': 'same_length',
-        'attn_type': 'attn_type',
-        'clamp_len': 'clamp_len',
-        'sample_softmax': 'sample_softmax',
-        'adaptive': 'adaptive',
-        'weight_init_type': 'init',
-        'weight_init_range': 'init_range',
-        'weight_init_std': 'init_std',
-        'proj_init_std': 'proj_init_std'
-    }
+    """Huggingface's Transformer-XL.
+
+    """
+
+    HYPERPARAMETER_MAPPING = {'n_layer': 'n_layer',
+                              'n_head': 'n_head',
+                              'd_head': 'd_head',
+                              'd_embed': 'd_embed',
+                              'd_model': 'd_model',
+                              'd_inner': 'd_inner',
+                              'dropout': 'dropout',
+                              'dropatt': 'dropatt',
+                              'n_token': 'vocab_size',
+                              'div_val': 'div_val',
+                              'pre_lnorm': 'pre_lnorm',
+                              'cutoffs': 'cutoffs',
+                              'mem_len': 'mem_len',
+                              'same_length': 'same_length',
+                              'attn_type': 'attn_type',
+                              'clamp_len': 'clamp_len',
+                              'sample_softmax': 'sample_softmax',
+                              'adaptive': 'adaptive',
+                              'weight_init_type': 'init',
+                              'weight_init_range': 'init_range',
+                              'weight_init_std': 'init_std',
+                              'proj_init_std': 'proj_init_std'}
 
     def __init__(self, **kwargs) -> None:
+        """Overrides initialization method.
+
+        """
+
         super(HfTransfoXL, self).__init__()
 
-        kwargs['d_inner'] = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
-        kwargs['n_head'] = map_to_list(kwargs['n_head'], kwargs['n_layer'])
-        kwargs['d_head'] = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] < 0 else map_to_list(kwargs['d_head'], kwargs['n_layer'])
+        d_inner = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
+        n_head = map_to_list(kwargs['n_head'], kwargs['n_layer'])
+        d_head = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] is None else map_to_list(kwargs['d_head'], kwargs['n_layer'])
 
-        assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
+        assert len(d_inner) == kwargs['n_layer'] and len(n_head) == kwargs['n_layer'] and len(d_head) == kwargs['n_layer']
 
-        kwargs['d_inner'] = kwargs['d_inner'][0]
-        kwargs['n_head'] = kwargs['n_head'][0]
-        kwargs['d_head'] = kwargs['d_head'][0]
-
-        if kwargs['d_embed'] < 0:
-            kwargs['d_embed'] = kwargs['d_model']
+        kwargs['d_inner'] = d_inner[0]
+        kwargs['n_head'] = n_head[0]
+        kwargs['d_head'] = d_head[0]
 
         # Translate the hyperparameters into Huggingface's TransfoXL hyperparameters,
         # and creates the model with the proper configuration
@@ -64,6 +66,10 @@ class HfTransfoXL(ArchaiModel):
             self.model.tie_weights()
 
     def _generate_config(self, **kwargs) -> None:
+        """Generates a proper configuration according to mapped hyperparameters.
+
+        """
+
         config = CONFIG_MAPPING['transfo-xl']()
 
         for param, transfo_xl_param in HfTransfoXL.HYPERPARAMETER_MAPPING.items():
@@ -79,6 +85,22 @@ class HfTransfoXL(ArchaiModel):
                 output_loss: Optional[bool] = True,
                 output_prediction_scores: Optional[bool] = False
                 ) -> Tuple[torch.Tensor, ...]:
+        """Performs forward pass over the model.
+
+        Args:
+            input_ids: Input tokens.
+            labels: Input labels (same as tokens).
+            mems: Memory tensor.
+            past_key_values: Tensor with past key/values.
+            output_loss: Whether loss should be outputted.
+            output_prediction_scores: Whether prediction scores should be outputted.
+
+        Returns:
+            (Tuple[torch.Tensor, ...]): Outputs, such as loss, prediction scores,
+                memories and past key/values.
+
+        """
+
         # Labels in Huggingface's TransfoXL are the same as inputs_ids,
         # and they will be shifted inside the model
         if output_loss:
@@ -94,7 +116,19 @@ class HfTransfoXL(ArchaiModel):
                                 
             return (None, hf_out.logits, hf_out.mems, past_key_values)
 
-    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
+    def reset_length(self,
+                     tgt_len: int,
+                     ext_len: int,
+                     mem_len: int) -> None:
+        """Resets the length of the memory.
+
+        Args:
+            tgt_len: Length of target sample.
+            ext_len: Length of extended memory.
+            mem_len: Length of the memory.
+
+        """
+
         if tgt_len < 1:
             raise RuntimeError(f'tgt_len should be >= 1, but got {tgt_len}')
         if ext_len < 0:
@@ -106,15 +140,12 @@ class HfTransfoXL(ArchaiModel):
         self.model.config.mem_len = mem_len
         self.model.config.ext_len = ext_len
 
-    def get_params(self) -> Dict[str, int]:
-        params = {}
+    def get_non_emb_params(self) -> int:
+        """Returns the number of non-embedding parameters.
 
-        params['embedding'] = self.get_params_from_layer(['AdaptiveEmbedding'])
-        params['softmax'] = self.get_params_from_layer(['ProjectedAdaptiveLogSoftmax'])
-        params['attention'] = self.get_params_from_layer(['RelPartialLearnableMultiHeadAttn'])
-        params['ff'] = self.get_params_from_layer(['PositionwiseFF'])
+        Returns:
+            (int): Number of non-embedding parameters.
 
-        params['non_embedding'] = params['attention'] + params['ff']
-        params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']
+        """
 
-        return params
+        return sum([p.nelement() for p in self.model.transformer.layers.parameters()])

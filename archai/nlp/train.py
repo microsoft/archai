@@ -25,9 +25,7 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from archai.common import ml_perf_utils, utils
-from archai.nlp.models.model_mixed_qat import MixedQATModel
-from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
-from archai.nlp.models.model_loader import (load_model_from_config,
+from archai.nlp.common.lazy_loader import (load_from_args,
                                            load_model_from_checkpoint)
 from archai.nlp.compression.quantization.qat import (prepare_with_qat,
                                                      qat_to_float_modules)
@@ -202,7 +200,7 @@ def parse_args():
     opt.add_argument('--scheduler', default='cosine', type=str,
                      choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
                      help='LR scheduler to use')
-    opt.add_argument('--scheduler_qat', default='cosine', type=str,
+    opt.add_argument('--scheduler_qat', default='cyclic_cosine', type=str,
                      choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
                      help='LR scheduler to use during QAT')
     opt.add_argument('--max_step_scheduler', type=int, default=None,
@@ -861,14 +859,10 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.qat and not args.pretrained_path:
         logging.warning('QAT usually starts from a pretrained model. Check the --pretrained_path argument.')
 
-    if args.qat and args.mixed_qat:
-        raise ValueError('QAT and Mixed QAT cannot be used at the same time.')
-
     if args.pretrained_path:
-        logging.info('Overwriting the provided model config with the pretrained model config.')
-        model, model_config, _ = load_model_from_checkpoint(args.model_type, args.pretrained_path, replace_model_config=args, on_cpu=False)
+        model = load_model_from_checkpoint(args.model_type, args.pre_trained_path, on_cpu=False)
     else:
-        model = load_model_from_config(args.model_type, model_config)
+        model = load_from_args(args.model_type, **model_config)
 
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)
@@ -1040,7 +1034,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, replace_model_config=args, on_cpu=False)
+            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1117,7 +1111,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
     }
 
     if not args.no_eval and os.path.exists(checkpoint_path):
-        # Load the best saved model
+        # Load the best saved model.
         model, _, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
 
         # Run on test data
@@ -1252,13 +1246,16 @@ def main():
 
     if args.post_qat:
         # Creates a dictionary of replacement configs
-        replace_model_config = {
+        replace_config = {
             'dropout': 0.0,
             'dropatt': 0.0
         }
 
         # Loads the model from the best pre-trained checkpoint
-        model, model_config, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, replace_model_config=replace_model_config, on_cpu=False)
+        model, model_config, _ = load_model_from_checkpoint(args.model_type,
+                                                            checkpoint_path,
+                                                            replace_config=replace_config,
+                                                            on_cpu=False)
 
         # Prepares the model with QAT (also allows for distributed training)
         model = prepare_with_qat(model, onnx_compatible=True)
@@ -1268,11 +1265,11 @@ def main():
         # QAT-based arguments
         args.restart = None
         args.qat = True
-        args.max_step = 10000
+        args.max_step = 5000
         args.lr = args.lr / 100
         args.eta_min = args.eta_min / 100
-        args.eval_interval = 1000
-        args.warmup_step = 1000
+        args.eval_interval = 500
+        args.warmup_step = 500
         args.optim = 'adam'
 
         # re-create optimizer
@@ -1282,9 +1279,9 @@ def main():
         scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
         # Performs a QAT fine-tuning
-        training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
-            model_config, optimizer, optimizer_sparse, scheduler,
-            scheduler_sparse, scaler, vocab, file_stats[1])
+        training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
+                                                          model_config, optimizer, optimizer_sparse, scheduler,
+                                                          scheduler_sparse, scaler, vocab, file_stats[1])
 
 
 if __name__ == "__main__":

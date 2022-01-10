@@ -8,19 +8,14 @@ import types
 from os import environ
 from typing import Any, Dict, Sized, Tuple
 
+from archai.nlp.common.constants import OMP_NUM_THREADS, OMP_WAIT_POLICY
+from archai.nlp.common.lazy_loader import load_model_from_checkpoint
+from archai.nlp.compression.onnx.onnx_utils.forward import (
+    crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
+from archai.nlp.models.model_base import ArchaiModel
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
 from onnxruntime.transformers import quantize_helper
-
-from archai.nlp.models.model_loader import load_model_from_checkpoint
-from archai.nlp.compression.onnx.onnx_utils.forward import (crit_forward_mem_transformer_onnx,
-                                                            forward_hf_gpt2_onnx,
-                                                            forward_mem_transformer_onnx)
-from archai.nlp.models.model_base import ArchaiModel
-
-# ONNX-loading constants
-OMP_NUM_THREADS = 1
-OMP_WAIT_POLICY = 'ACTIVE'
 
 # Constants available in onnxruntime
 # that enables performance optimization
@@ -51,8 +46,9 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     return session
 
 
-def load_from_torch_for_export(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, dict]:
-    """Loads a PyTorch-based model from checkpoint.
+def load_from_torch_for_export(model_type: str,
+                               torch_model_path: str) -> Tuple[ArchaiModel, Dict[str, Any]]:
+    """Loads a PyTorch-based model from checkpoint with export-ready.
 
     Args:
         model_type: Type of model to be loaded.
@@ -75,9 +71,12 @@ def load_from_torch_for_export(model_type: str, torch_model_path: str) -> Tuple[
         model.crit.forward = types.MethodType(crit_forward_mem_transformer_onnx, model.crit)
 
     # Overrides forward functions if HfGPT2
-    if model_type in ['hf_gpt2', 'hf_gpt2_flex']:
+    if model_type == 'hf_gpt2':
         model = model.model
         model.forward = types.MethodType(forward_hf_gpt2_onnx, model)
+
+        for layer in model.transformer.h:
+            quantize_helper.conv1d_to_linear(layer.mlp)
 
         for layer in model.transformer.h:
             quantize_helper.conv1d_to_linear(layer.mlp)

@@ -10,11 +10,10 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-from onnx import helper, load_model, numpy_helper, save
-
-from archai.nlp.models.model_loader import load_onnx_config
+from archai.nlp.common.lazy_loader import load_from_args
 from archai.nlp.compression.onnx.onnx_utils.operators import (tril_onnx,
                                                               triu_onnx)
+from onnx import helper, load_model, numpy_helper, save
 
 
 def weight_sharing(onnx_model_path: str, model_type: str) -> None:
@@ -44,16 +43,18 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
     if model_type in ['hf_gpt2', 'hf_gpt2_flex']:
         n_emb_weight = 1
         n_cutoffs = 0
+
     elif model_type == 'mem_transformer':
         n_emb_weight = len(list(filter(lambda x: 'word_emb.emb_layers' in x, weights.keys())))
         n_cutoffs = n_emb_weight - 1
+
     else:
-        raise ValueError(f'model_type: {model_type} not supported for weight sharing.')
+        raise ValueError(f'Model {model_type} not supported for weight sharing.')
 
     for i in range(n_emb_weight):
         # Grabs the embedding weights pointer and removes from the graph
         emb_weight_name = f'word_emb.emb_layers.{i}.weight'
-        if model_type in ['hf_gpt2', 'hf_gpt2_flex']:
+        if model_type == 'hf_gpt2':
             emb_weight_name = 'transformer.wte.weight'
 
         emb_weight = numpy_helper.to_array(weights[emb_weight_name])
@@ -86,12 +87,12 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
 
 
 def export_onnx_from_torch(model: torch.nn.Module,
-                        model_config: dict,
-                        model_type: str,
-                        onnx_model_path: str,
-                        share_weights: Optional[bool] = True,
-                        do_constant_folding: Optional[bool] = True,
-                        opset_version: Optional[int] = 11) -> None:
+                           model_config: dict,
+                           model_type: str,
+                           onnx_model_path: str,
+                           share_weights: Optional[bool] = True,
+                           do_constant_folding: Optional[bool] = True,
+                           opset_version: Optional[int] = 11) -> None:
     """Exports a PyTorch-based model to ONNX.
 
     Args:
@@ -106,7 +107,9 @@ def export_onnx_from_torch(model: torch.nn.Module,
     """
 
     # Gathers the proper ONNX configuration instance
-    onnx_config = load_onnx_config(model_type, model_config)
+    onnx_config = load_from_args(model_type,
+                                 cls_type='onnx_config',
+                                 model_config=model_config)
 
     # Creates the dynamic axes based on inputs and outputs
     dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}

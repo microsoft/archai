@@ -4,51 +4,45 @@
 """Base model class, used to defined some common functionalities.
 """
 
-from typing import Dict, List, Optional
-
-import torch
+import torch.nn as nn
 
 
-def _get_layers_from_module(module: torch.nn.Module,
-                            layer_type: Optional[str] = None) -> List[torch.nn.Module]:
-    sub_module = list(module.children())
-    layers = []
+class ArchaiModel(nn.Module):
+    """Base model that abstracts further models definitions.
+    
+    """
 
-    if layer_type is not None:
-        for lt in layer_type:
-            if module.__class__.__name__ == lt:
-                return module
-    else:
-        if len(sub_module) == 0 and len(list(module.parameters())) > 0:
-            return module
+    def reset_length(self,
+                     tgt_len: int,
+                     ext_len: int,
+                     mem_len: int) -> None:
+        """Resets the length of the memory (used by Transformer-XL).
 
-    for m in sub_module:
-        try:
-            layers.extend(_get_layers_from_module(m, layer_type))
-        except TypeError:
-            layers.append(_get_layers_from_module(m, layer_type))
+        Args:
+            tgt_len: Length of target sample.
+            ext_len: Length of extended memory.
+            mem_len: Length of the memory.
 
-    return layers
+        """
 
-
-class ArchaiModel(torch.nn.Module):
-    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
         raise NotImplementedError
 
-    def get_params_from_layer(self, layer_type: str) -> int:
-        layers = _get_layers_from_module(self, layer_type)
-        n_params = {}
+    def get_non_emb_params(self) -> int:
+        """Returns the number of non-embedding parameters.
 
-        for i, layer in enumerate(layers):
-            layer_name = layer.__class__.__name__ + '_' + str(i)
-            n_params[layer_name] = sum([p.nelement() for p in layer.parameters()])
+        Returns:
+            (int): Number of non-embedding parameters.
+
+        """
+
+        raise NotImplementedError
+
+    def get_n_params(self) -> int:
+        """Returns the number of total parameters.
+
+        Returns:
+            (int): Number of total parameters.
+            
+        """
         
-        return sum(list(n_params.values()))
-
-    def get_params(self) -> Dict[str, int]:
-        params = {}
-
-        params['total'] = 0
-        params['non_embedding'] = 0
-
-        return params
+        return sum([p.nelement() for p in self.parameters()])
