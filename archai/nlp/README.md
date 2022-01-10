@@ -22,6 +22,7 @@ Use NLP with Archai if you need a package or wish to:
     * [NVIDIA's Memory Transformer](#nvidia's-memory-transformer)
     * [Huggingface's GPT-2](#huggingface's-gpt-2)
     * [Huggingface's Transformer-XL](#huggingface's-transformer-xl)
+    * [Adding New Models](#adding-new-models)
  * [Neural Architecture Search](#neural-architecture-search)
     * [Evolutionary Search](#evolutionary-search)
     * [Finding the Pareto Frontier](#finding-the-pareto-frontier)

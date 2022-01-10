@@ -7,9 +7,8 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 import torch
-from archai.nlp.common.constants import BATCH_SIZE, SEQ_LEN
 from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
-from archai.nlp.models.config_base import OnnxConfig
+from archai.nlp.models.config_base import BATCH_SIZE, SEQ_LEN, OnnxConfig
 from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
                   ValueInfoProto, helper)
 from onnxruntime.transformers.fusion_attention import (AttentionMask,

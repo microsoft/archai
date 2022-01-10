@@ -8,7 +8,10 @@ from collections import OrderedDict
 from typing import Any, Dict
 
 import torch
-from archai.nlp.common.constants import BATCH_SIZE, SEQ_LEN
+
+# ONNX-export constants
+BATCH_SIZE = 1
+SEQ_LEN = 32
 
 
 class OnnxConfig:
