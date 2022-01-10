@@ -856,10 +856,10 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.qat and not args.pretrained_path:
         logging.warning('QAT usually starts from a pretrained model. Check the --pretrained_path argument.')
 
-    model = load_from_args(args.model_type, **model_config)
-
     if args.pretrained_path:
-        model.update_with_checkpoint(args.pre_trained_path, on_cpu=False)
+        model = load_model_from_checkpoint(args.model_type, args.pre_trained_path, on_cpu=False)
+    else:
+        model = load_from_args(args.model_type, **model_config)
 
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)
