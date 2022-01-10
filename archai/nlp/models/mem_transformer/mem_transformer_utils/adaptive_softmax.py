@@ -1,10 +1,47 @@
+# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Adaptive Log-Softmax layer.
+"""
+
+from typing import Optional, Tuple
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 class AdaptiveLogSoftmax(nn.Module):
-    def __init__(self, in_features, n_classes, cutoffs, keep_order=False):
+    """Implements a Adaptive Log-Softmax layer.
+    
+    """
+
+    def __init__(self,
+                 in_features: int,
+                 n_classes: int,
+                 cutoffs: Tuple[int],
+                 keep_order: Optional[bool] = False) -> None:
+        """Overrides method with a custom implementation.
+
+        Args:
+            in_features: Dimensionality of inner features.
+            n_classes: Number of classes.
+            cutoffs: Cutoffs for the adaptive softmax.
+            keep_order: Whether to keep the order of the outputs.
+
+        """
+
         super(AdaptiveLogSoftmax, self).__init__()
 
         cutoffs = list(cutoffs)
@@ -32,7 +69,26 @@ class AdaptiveLogSoftmax(nn.Module):
 
         self.keep_order = keep_order
 
-    def forward(self, hidden, target, weight, bias, keep_order=False):
+    def forward(self,
+                hidden: torch.Tensor,
+                target: torch.Tensor,
+                weight: torch.Tensor,
+                bias: torch.Tensor,
+                keep_order: Optional[bool] = False) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            hidden: Hidden states tensor.
+            target: Labels tensor.
+            weight: Weights tensor.
+            bias: Bias tensor.
+            keep_order: Whether to keep the order of the outputs.
+
+        Returns:
+            (torch.FloatTensor): Output tensor.
+
+        """
+
         if hidden.size(0) != target.size(0):
             raise RuntimeError('Input and target should have the same size '
                                'in the batch dimension.')

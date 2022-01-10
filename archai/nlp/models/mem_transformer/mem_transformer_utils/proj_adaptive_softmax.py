@@ -12,15 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional
+"""Projected Adaptive Log-Softmax layer.
+"""
+
+from typing import List, Optional, Union
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# same as nn.ParameterList but expect some list items to be None
+
 class OptionalParameterList(nn.ParameterList):
-    def extra_repr(self):
+    """Overrides PyTorch ParameterList to avoid printing `None` parameters.
+
+    """
+
+    def extra_repr(self) -> str:
+        """Avoids printing `None` parameters.
+
+        Returns:
+            String representation of the class.
+            
+        """
+
         child_lines = []
+
         for k, p in self._parameters.items():
             if p is not None:
                 size_str = 'x'.join(str(size) for size in p.size())
@@ -28,20 +44,44 @@ class OptionalParameterList(nn.ParameterList):
                 parastr = 'Parameter containing: [{} of size {}{}]'.format(
                     torch.typename(p), size_str, device_str)
                 child_lines.append('  (' + str(k) + '): ' + parastr)
+
         tmpstr = '\n'.join(child_lines)
+
         return tmpstr
 
 
 class ProjectedAdaptiveLogSoftmax(nn.Module):
-    def __init__(self, n_token, d_embed, d_proj,
-                 cutoffs:Optional[List[int]],
-                 adaptive:bool,
-                 div_val=1,
-                 tie_projs:Optional[List[bool]]=None, # which clusters should share projection matrix with input embeddings? Head cluster projection is never shared
-                 out_layers_weights=None, # output layer weights, if not supplied then create new (typically shared with embedding layer weights)
-                 out_projs=None,
-                 keep_order=False # return nll tensor in same order as sequence
-                 ):
+    """Implements a Projected Adaptive Log-Softmax layer.
+
+    """
+
+    def __init__(self,
+                 n_token: int,
+                 d_embed: int,
+                 d_proj: int,
+                 cutoffs: Optional[List[int]],
+                 adaptive: bool,
+                 div_val: Optional[int] = 1,
+                 tie_projs: Optional[List[bool]] = None,
+                 out_layers_weights: Optional[torch.Tensor] = None,
+                 out_projs: Optional[torch.Tensor] = None,
+                 keep_order: Optional[bool] = False) -> None:
+        """Overrides method with a custom implementation.
+
+        Args:
+            n_token: Number of tokens (vocabulary size).
+            d_embed: Dimensionality of the embeddings.
+            d_proj: Dimensionality of the inputs states.
+            cutoffs: Cutoffs for the adaptive softmax.
+            adaptive: Whether to use adaptive softmax or not.
+            div_val: Divident value for adapative input and softmax.
+            tie_projs: Whether to tie projections or not.
+            out_layers_weights: Tensor holding the embedding layer weights.
+            out_projs: Tensor holding the embedding layer projections.
+            keep_order: Whether to keep the order of the outputs.
+
+        """
+
         super().__init__()
 
         self.n_token = n_token # vocab size
@@ -119,7 +159,24 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
 
         self.keep_order = keep_order
 
-    def _compute_logit(self, hidden, weight, bias, proj):
+    def _compute_logit(self,
+                       hidden: torch.Tensor,
+                       weight: torch.Tensor,
+                       bias: torch.Tensor,
+                       proj: torch.Tensor) -> torch.Tensor:
+        """Computes the logits through a linear activation.
+
+        Args:
+            hidden: Input tensor with hidden states.
+            weight: Weight tensor.
+            bias: Bias tensor.
+            proj: Projection tensor.
+
+        Returns:
+            (torch.Tensor): Output logits.
+
+        """
+
         # if no projection then simply multiply hidden values with wights
         # else apply projection to hidden and then multiply with weight matrix
         if proj is None:
@@ -134,22 +191,49 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         return logit
 
     @staticmethod
-    def default_cutoffs(n_token:int)->List[int]:
-        return [19997, 39997, 199997, n_token]
-        # cutoffs, cutoff = [], 20000
-        # while cutoff < n_token-10000:
-        #     cutoffs.append(cutoff)
-        #     cutoff *= 3
+    def default_cutoffs(n_token: int) -> List[int]:
+        """Gathers the default cutoffs.
 
-        # cutoffs.append(n_token)
-        # return cutoffs
+        Args:
+            n_token: Maximum number of tokens.
+
+        Returns:
+            (List[int]): Cutoffs.
+
+        """
+
+        return [19997, 39997, 199997, n_token]
 
     @staticmethod
-    def default_tie_proj(cutoffs:List[int], adaptive:bool)->List[bool]:
+    def default_tie_proj(cutoffs: List[int],
+                         adaptive: bool) -> List[bool]:
+        """Gathers the default tied projections.
+
+        Args:
+            cutoffs: Cutoffs.
+            adaptive: Whether to use adaptive softmax or not.
+
+        Returns:
+            (List[bool]): Default tied projections.
+
+        """
+
         return [not adaptive] + [True] * (len(cutoffs)-1)
 
     @staticmethod
-    def clean_cutoffs(cutoffs:Optional[List[int]], n_token:int):
+    def clean_cutoffs(cutoffs: Optional[List[int]],
+                      n_token: int) -> List[int]:
+        """Cleans the cutoffs.
+
+        Args:
+            cutoffs: Cutoffs.
+            n_token: Maximum number of tokens.
+
+        Returns:
+            (List[int]): Cleaned cutoffs.
+            
+        """
+
         if cutoffs is None:
             cutoffs = ProjectedAdaptiveLogSoftmax.default_cutoffs(n_token)
 
@@ -177,14 +261,40 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         return cutoffs
 
     @staticmethod
-    def clean_tie_projs(tie_projs:Optional[List[bool]], cutoffs:List[int], adaptive:bool, n_token:int):
+    def clean_tie_projs(tie_projs: Optional[List[bool]],
+                        cutoffs: List[int],
+                        adaptive: bool,
+                        n_token: int) -> List[bool]:
+        """Cleans the tied projections.
+
+        Args:
+            tie_projs: Tied projections.
+            cutoffs: Cutoffs.
+            adaptive: Whether to use adaptive softmax or not.
+            n_token: Maximum number of tokens.
+
+        Returns:
+            (List[bool]): Cleaned tied projections.
+
+        """
+
         if not tie_projs:
             tie_projs = ProjectedAdaptiveLogSoftmax.default_tie_proj(cutoffs, adaptive)
-        
         assert isinstance(tie_projs, list)
+
         return tie_projs[:len(cutoffs)]
 
-    def get_out_proj(self, i):
+    def get_out_proj(self, i: int) -> Union[None, torch.FloatTensor]:
+        """Gathers a shared projection whenever it is valid and available.
+
+        Args:
+            i: Index of the projection.
+
+        Returns:
+            (Union[None, torch.FloatTensor]): Tensor holding the projection.
+
+        """
+
         if self.tie_projs[i]:
             if len(self.shared_out_projs) == 0:
                 return None
@@ -195,12 +305,25 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         else:
             return self.out_projs[i]
 
-    def forward(self, hidden:torch.Tensor, target:Optional[torch.Tensor],
-                keep_order=False, output_loss=True, output_prediction_scores=False):
-        '''
-            hidden :: [len*bsz x d_proj]
-            target :: [len*bsz]
-        '''
+    def forward(self,
+                hidden: torch.Tensor,
+                target: torch.Tensor,
+                keep_order: Optional[bool] = False,
+                output_loss: Optional[bool] = True,
+                output_prediction_scores: Optional[bool] = False) -> torch.Tensor:
+        """Forward pass through the class.
+
+        Args:
+            hidden: Input tensor with hidden states of shape [len*bsz, d_proj]
+            target: Labels tensor with shape of [len*bsz]
+            keep_order: Whether to keep the order of the outputs.
+            output_loss: Whether to output the loss.
+            output_prediction_scores: Whethet to output the prediction scores (logits).
+
+        Returns:
+            (torch.Tensor): Output tensor.
+
+        """
 
         if target is not None and hidden.size(0) != target.size(0):
             raise RuntimeError('Input and target should have the same size '
@@ -274,7 +397,6 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                     target_i = target.index_select(0, indices_i) - l_idx
                     head_logprob_i = head_logprob.index_select(0, indices_i)
                     hidden_i = hidden.index_select(0, indices_i)
-
 
                 # now compute nll_i and fill up log_probs
                 # nll_i will be used to fill up nll tensor
