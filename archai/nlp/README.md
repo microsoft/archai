@@ -1,6 +1,6 @@
 # Natural Language Processing with Archai
 
-Natural Language Processing (NLP) models take advantage of hardware advancements to solve more complex tasks. Nevertheless, such advancements also lead to an increased number of parameters, raising concerns regarding production-ready environments and low-resource devices.
+Natural Language Processing (NLP) models use hardware advancements to solve more complex tasks. Nevertheless, such advancements also lead to an increased number of parameters, raising concerns regarding production-ready environments and low-resource devices.
 
 Archai provides a straightforward alternative to find more efficient models through Neural Architecture Search (NAS), furnishing an ideal place to prototype and implement autoregressive transformer-based architectures. Essentially, the idea is to keep everything simple while offering developers and researchers every single tool to fulfill their needs.
 
@@ -36,20 +36,46 @@ Use NLP with Archai if you need a package or wish to:
 
 ## Data Loading and Utilities
 
-In a Natural Language Processng task, the first step is to encode raw pieces of information (e.g., text) into more appropriate structures, such as numerical vectors/tensors. Essentially, the general data loading pipeline is performed as follows:
+In a Natural Language Processing task, the first step is to encode raw pieces of information (e.g., text) into more appropriate structures, such as numerical vectors/tensors. Essentially, the general data loading pipeline is implemented by the `datasets` package performed as follows:
 
 📄 **Data**: acquisition, cleaning and pre-processing;
-📰 ️**Corpus**: creation;
-📑 ️**Vocabulary/Tokenizer**: creation and tokenizer training;
-🔖 **Iterator**: task-related iteraring, such as causal language modeling.
+
+📰 **Corpus**: creation;
+
+📑 **Vocabulary/Tokenizer**: creation and tokenizer training;
+
+🔖 **Iterator**: task-related iterating, such as causal language modeling.
 
 ### Corpus
 
+As aforementioned, the corpus stands for a collection of pre-processed texts, which will be converted/trained into vocabularies and tokenizers. Although it is straightforward to add a new corpus, Archai implements the following ones out-of-the-box in the `datasets/corpus` module:
+
+* [WikiText-2 and WikiText-103](https://arxiv.org/abs/1609.07843);
+* [Penn Treebank (ptb)](https://catalog.ldc.upenn.edu/LDC99T42);
+* [1 Billion Word (lm1b)](http://www.statmt.org/lm-benchmark);
+* [English Wikipedia (enwik8 and text8)](http://mattmahoney.net/dc/textdata.html).
+
 ### Vocabularies and Tokenizers
+
+After defining the loaded data (dataset type), one can produce a new vocabulary and train a new tokenizer. There are several vocabulary/tokenization methods, depending on the task that will be employed or the model that will be used. Thus, Archai implements in the `datasets/tokenizer_utils` package the following vocabularies and tokenizers:
+
+* [Word-based](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/tokenizer_utils/word_vocab.py);
+* [Byte-Level Byte-Pair Encoding (BBPE)](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/tokenizer_utils/bbpe_vocab.py);
+* [GPT-2](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/tokenizer_utils/gpt2_vocab.py).
 
 ### Iterators
 
+Finally, the last step of creating datasets and data loaders is to provide a task-compliant iterator, i.e., a data loader that produces samples and labels according to the desired task.
+
+Note that every implemented iterator is available at the `datasets/lm_iterators` module, while their corresponding tasks are briefly described in the following sections.
+
 #### Causal Language Modeling
+
+The Causal Language Modeling (CLM) task aims to predict a `t+1` token based on the previous `t` tokens, i.e., predict a token followed by a sequence of tokens. In such a task, the model only attends to the left part of the context (previously seen tokens), which is often the setting used by auto-regressive and text-generation models. Archai implements three types of CLM iterators, as follows:
+
+* [Ordered iterator](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/lm_iterators.py#L7);
+* [Shuffled iterator](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/lm_iterators.py#L97);
+* [Multi-file iterator](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/lm_iterators.py#L177).
 
 #### Masked Language Modeling
 
@@ -57,13 +83,31 @@ In a Natural Language Processng task, the first step is to encode raw pieces of 
 
 ## Transformer-based Architectures
 
+Transformers have become one of the most employed architectures throughout the last years, mainly due to their handling of sequential data. Their architecture is often structured in layers composed of self-attention mechanisms, which capture and weigh the significance of each part of the data throughout the timesteps.
+
+Although Archai has been built to be independent of models and architectures, i.e., fosters every type of neural architectures search, we opted to implement a `models` package and provide a few state-of-the-art architectures and samples that can be used out-of-the-box.
+
 ### Available Architectures
+
+Archai provides a lazy-loading system that loads desired classes on-demand, which removes the user from the burden of knowing how every aspect of the library works. Thus, with such a system in hands, one can only care about the [model's dictionary](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py) and provide the correct classes to be loaded.
 
 #### NVIDIA's Memory Transformer
 
+A reasonably new architecture that can deal with more extended context has been proposed by [Dai et al.](https://arxiv.org/abs/1901.02860), denoted as Transformer-XL. Such an architecture has been re-implemented by NVIDIA with optimization and faster training time in mind, being baptized as [NVIDIA's Memory Transformer](https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/LanguageModeling/Transformer-XL/pytorch).
+
+*This architecture is implemented by Archai within the `mem_transformer` reference and is available at the `models/mem_transformer` package.*
+
 #### Huggingface's GPT-2
 
+One of the most well-known transformer-based architectures is the Generative Pre-Trained Transformer (GPT), widely implemented in software, applications, and natural language systems. Currently, we only support [Huggingface's GPT-2](https://github.com/huggingface/transformers/tree/master/src/transformers/models/gpt2) implementation.
+
+*This architecture is implemented by Archai within the `hf_gpt2` reference and is available at the `models/hf_gpt2` package.*
+
 #### Huggingface's Transformer-XL
+
+Archai also supports [Huggingface's Transformer-XL](https://github.com/huggingface/transformers/tree/master/src/transformers/models/transfo_xl) implementation, which is also derived from NVIDIA's code, with slight differences, such as learnable embedding parameters per layer instead of per model. Also, such a code is compliant with Huggingface's Transformers package, though not as fast as NVIDIA's Memory Transformer.
+
+*This architecture is implemented by Archai within the `hf_transfo_xl` reference and is available at the `models/hf_transfo_xl` package.*
 
 ### Adding New Architectures
 
@@ -79,13 +123,13 @@ In a Natural Language Processng task, the first step is to encode raw pieces of 
 
 ### ONNX Exporting
 
-After the training has been conducted, it is fairly straightforward to produce an ONNX-based model, which defaults to the type of model that is being shipped for production-ready environments. Archai provides an ONNX pipeline with custom classes and methods that will allow the supported architectures to be better exported and optimized.
+After the training has been conducted, it is relatively straightforward to produce an ONNX-based model, which defaults to the type of model shipped for production-ready environments. Archai provides an ONNX pipeline with custom classes and methods to allow the supported architectures to be better exported and optimized.
 
 ```bash
 python archai/nlp/compression/onnx/export_torch_to_onnx.py --help
 ```
 
-*When exporting a new model with ONNX, one can use the `--optimization` and `--quantization` arguments to enable both graph optimization and quantization, which reduces the model's footprint (less disk space due to int8 precision and less memory consumption).*
+*When exporting a new model with ONNX, one can use the `--optimization` and `-quantization` arguments to enable graph optimization and quantization, reducing the model's footprint (less disk space due to int8 precision with less memory consumption).*
 
 ### Quantization
 
