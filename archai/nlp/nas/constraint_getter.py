@@ -4,10 +4,10 @@ import numpy as np
 import torch
 import torch.utils.benchmark as benchmark
 
-from archai.nlp.models.mem_transformer import (
-    AdaptiveEmbedding, DecoderLayer, MemTransformerLM,
-    MultiHeadAttn, PositionwiseFF, ProjectedAdaptiveLogSoftmax,
-    RelLearnableMultiHeadAttn, RelPartialLearnableMultiHeadAttn)
+from archai.nlp.models.mem_transformer.model_mem_transformer import (
+    AdaptiveEmbedding, DecoderLayer, MemTransformerLM, MultiHeadAttn,
+    PositionwiseFF, ProjectedAdaptiveLogSoftmax, RelLearnableMultiHeadAttn,
+    RelPartialLearnableMultiHeadAttn)
 
 
 def get_list_of_layers(module, layer_type=None):
