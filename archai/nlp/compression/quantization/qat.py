@@ -14,7 +14,7 @@ from archai.nlp.compression.quantization.modules import (
     FakeDynamicQuantLinear, FakeDynamicQuantLinearForOnnx, FakeQuantEmbedding,
     FakeQuantEmbeddingForOnnx, fake_dynamic_compute_logit)
 from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant
-from archai.nlp.models.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 # Maps between standard and ONNX modules
 DYNAMIC_QAT_MODULE_MAPPING = {
