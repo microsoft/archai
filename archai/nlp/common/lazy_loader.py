@@ -5,40 +5,15 @@
 on demand.
 """
 
-from enum import Enum
 from importlib import import_module
 from typing import Any, Dict, Optional, Tuple
 
 import torch
-from archai.nlp.common.constants import LIBRARY_PATH
 
+from archai.nlp.common.model_dict import ClassType, ModelDict
 
-class ClassType(Enum):
-    """An enumerator that defines the type of available classes to be loaded.
-
-    """
-
-    # Types of classes
-    MODEL = 0
-    ONNX_CONFIG = 1
-    ONNX_MODEL = 2
-
-
-class ModelDict(Dict):
-    """Dictionary that defines the type of available models to be loaded.
-
-    The order of classes must be asserted to the same defined by ClassType.
-
-    """
-
-    # Huggingface's Open AI GPT-2
-    HF_GPT2 = ('HfGPT2', 'HfGPT2OnnxConfig', 'HfGPT2OnnxModel')
-
-    # Huggingface's Transformer-XL
-    HF_TRANSFO_XL = ('HfTransfoXL', 'HfTransfoXLOnnxConfig', 'HfTransfoXLOnnxModel')
-
-    # NVIDIA's Memory Transfomer (Transformer-XL)
-    MEM_TRANSFORMER = ('MemTransformerLM', 'MemTransformerLMOnnxConfig', 'MemTransformerLMOnnxModel')
+# Lazy loading constants
+LIBRARY_PATH = 'archai.nlp.models'
 
 
 def load_from_args(model_type: str,

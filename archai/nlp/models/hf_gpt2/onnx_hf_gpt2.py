@@ -7,10 +7,8 @@
 from typing import Any, Dict
 
 import torch
-from archai.nlp.common.constants import BATCH_SIZE, SEQ_LEN
-from archai.nlp.models.config_base import OnnxConfig
-from onnxruntime.transformers.onnx_model_gpt2 import \
-    Gpt2OnnxModel as HfGPT2OnnxModel
+from archai.nlp.models.config_base import BATCH_SIZE, SEQ_LEN, OnnxConfig
+from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel as HfGPT2OnnxModel
 
 
 class HfGPT2OnnxConfig(OnnxConfig):
