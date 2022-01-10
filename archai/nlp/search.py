@@ -1,21 +1,27 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Performs evolutionary search to find optimal architectures.
+"""
+
 import copy
 import os
 import pickle
 import random
 import re
 import time
-import types
 
 import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import yaml
-from numpy.core.numeric import indices
-
 from archai.common import utils
-from archai.nlp.nas.constraint_getter import get_latency, get_model, process_parameters, get_yaml_values
+from archai.nlp.nas.constraint_getter import (get_latency, get_model,
+                                              get_yaml_values,
+                                              process_parameters)
 from archai.nlp.nas.info_getter import get_metrics, get_results
+
 
 model_config_defaults = {'d_head': None,
                          'n_token': 267736,
@@ -36,7 +42,7 @@ model_config_defaults = {'d_head': None,
                          'tie_weight': True,
                          'dtype': None,
                          'primer_conv': False,
-                         'primer_sqrt': False,
+                         'primer_square': False,
                          'use_cache': False}
 
 
