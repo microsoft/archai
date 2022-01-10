@@ -12,7 +12,7 @@ plt.rcParams.update({'font.size': 18})
 model_config_keys = ['n_token', 'n_layer', 'n_head', 'd_model', 'd_head', 'd_inner', 'dropout', 'dropatt',
                      'd_embed', 'div_val', 'pre_lnorm', 'tgt_len', 'ext_len', 'mem_len',
                      'same_length', 'attn_type', 'clamp_len', 'sample_softmax',
-                     'primer_conv', 'primer_sqrt', 'use_cache']
+                     'primer_conv', 'primer_squared', 'use_cache']
 
 
 def get_label(baseline_config, new_config):
