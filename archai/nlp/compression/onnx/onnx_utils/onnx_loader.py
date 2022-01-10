@@ -1,39 +1,26 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""ONNX-loading utilities that enable exports.
+"""
+
 import types
 from os import environ
-from pathlib import Path
-from typing import Tuple
+from typing import Any, Dict, Sized, Tuple
 
+from archai.nlp.common.constants import OMP_NUM_THREADS, OMP_WAIT_POLICY
+from archai.nlp.common.lazy_loader import load_model_from_checkpoint
+from archai.nlp.compression.onnx.onnx_utils.forward import (
+    crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
+from archai.nlp.models.model_base import ArchaiModel
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
-
-from archai.nlp.models.archai_model import ArchaiModel
-from archai.nlp.models.available_models import AVAILABLE_MODELS
-from archai.nlp.compression.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx,
-                                                                      forward_memformer_onnx)
+from onnxruntime.transformers import quantize_helper
 
 # Constants available in onnxruntime
 # that enables performance optimization
-environ['OMP_NUM_THREADS'] = str(1)
-environ['OMP_WAIT_POLICY'] = 'ACTIVE'
-
-
-def create_file_name_identifier(file_name: Path,
-                                identifier: str) -> Path:
-    """Adds an identifier (suffix) to the end of the file name.
-
-    Args:
-        file_name: Path to have a suffix added.
-        identifier: Identifier to be added to file_name.
-
-    Returns:
-        (Path): Path with `file_name` plus added identifier.
-
-    """
-
-    return file_name.parent.joinpath(file_name.stem + identifier).with_suffix(file_name.suffix)
+environ['OMP_NUM_THREADS'] = str(OMP_NUM_THREADS)
+environ['OMP_WAIT_POLICY'] = OMP_WAIT_POLICY
 
 
 def load_from_onnx(onnx_model_path: str) -> InferenceSession:
@@ -49,7 +36,7 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
 
     # Defines the ONNX loading options
     options = SessionOptions()
-    options.intra_op_num_threads = 1
+    options.intra_op_num_threads = OMP_NUM_THREADS
     options.graph_optimization_level = GraphOptimizationLevel.ORT_ENABLE_ALL
 
     # Creates an inference session
@@ -59,36 +46,41 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     return session
 
 
-def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, dict]:
-    """Loads a PyTorch-based model from checkpoint.
+def load_from_torch_for_export(model_type: str,
+                               torch_model_path: str) -> Tuple[ArchaiModel, Dict[str, Any]]:
+    """Loads a PyTorch-based model from checkpoint with export-ready.
 
     Args:
         model_type: Type of model to be loaded.
         torch_model_path: Path to the PyTorch model/checkpoint file.
 
     Returns:
-        (ArchaiModel, dict): PyTorch model and its configuration.
+        (ArchaiModel, Dict[str, Any]): PyTorch model and its configuration.
 
     """
 
     # Loads the model
-    model, model_config, _ = ArchaiModel.load_model(AVAILABLE_MODELS[model_type],
-                                                    torch_model_path,
-                                                    on_cpu=False,
-                                                    for_export=True)
+    model, model_config, _ = load_model_from_checkpoint(model_type,
+                                                        torch_model_path,
+                                                        on_cpu=True,
+                                                        for_export=True)
 
     # Overrides forward functions if MemTransformerLM
     if model_type == 'mem_transformer':
         model.forward = types.MethodType(forward_memformer_onnx, model)
         model.crit.forward = types.MethodType(crit_forward_memformer_onnx, model.crit)
 
+    # Overrides forward functions if HfGPT2
     if model_type == 'hf_gpt2':
         model = model.model
         model.forward = types.MethodType(forward_gpt2_onnx, model)
 
-    if type(model_config['d_head']) is list:
+        for layer in model.transformer.h:
+            quantize_helper.conv1d_to_linear(layer.mlp)
+
+    if isinstance(model_config['d_head'], Sized):
         model_config['d_head'] = model_config['d_head'][0]
-    if type(model_config['n_head']) is list:
+    if isinstance(model_config['n_head'], Sized):
         model_config['n_head'] = model_config['n_head'][0]
 
     # Puts to evaluation model to disable dropout
