@@ -1,9 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Pipeline for performing Post-Training Quantization (PTQ).
+"""
+
 from pathlib import Path
 
 import onnx
+
 from onnx import onnx_pb as onnx_proto
 from onnx.onnx_ml_pb2 import NodeProto
 from onnxruntime.quantization.onnx_quantizer import ONNXQuantizer
@@ -12,7 +16,7 @@ from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
-from archai.nlp.compression.onnx.onnx_utils.load import create_file_name_identifier
+from archai.nlp.compression.onnx.onnx_utils.onnx_loader import create_file_name_identifier
 
 
 class GemmQuant(QuantOperatorBase):
@@ -102,7 +106,7 @@ def add_new_quant_operators() -> None:
     IntegerOpsRegistry['Gemm'] = GemmQuant
 
 
-def dynamic_quantization(onnx_model_path: str) -> Path:
+def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
     """Performs the dynamic quantization over an ONNX model.
 
     Args:

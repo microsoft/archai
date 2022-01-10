@@ -1,6 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+"""Changes the forward functions to comply with ONNX exports.
+"""
+
 from typing import Optional, Tuple
 
 import torch
