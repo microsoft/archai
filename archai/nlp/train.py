@@ -864,8 +864,9 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)
 
-    n_all_param = model.get_n_params()
-    n_nonemb_param = model.get_non_emb_params()
+    n_params = model.get_params()
+    n_all_param = n_params['total']
+    n_nonemb_param = n_params['non_embedding']
     logging.info('#params = {}'.format(n_all_param))
     logging.info('#non emb params = {}'.format(n_nonemb_param))
 
@@ -1101,9 +1102,10 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
 
 def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
+    n_params = model.get_params()
     summary = {
-        'n_all_param': model.get_n_params(),
-        'n_nonemb_param': model.get_non_emb_params()
+        'n_all_param': n_params['total'],
+        'n_nonemb_param': n_params['non_embedding']
     }
 
     if not args.no_eval and os.path.exists(checkpoint_path):

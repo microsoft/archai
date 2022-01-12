@@ -7,15 +7,18 @@
 import json
 import os
 import re
+import time
 from typing import Any, Dict, List, Optional, Tuple
 
+import numpy as np
 import yaml
 
 # Keys that can be parsed from a model's configuration
 KEYS_MODEL_CONFIG = ['n_token', 'n_layer', 'n_head', 'd_model', 'd_head', 'd_inner',
                      'dropout', 'dropatt', 'd_embed', 'div_val', 'pre_lnorm',
                      'tgt_len', 'ext_len', 'mem_len', 'same_length', 'attn_type',
-                     'clamp_len', 'sample_softmax', 'primer_conv', 'primer_squared', 'use_cache']
+                     'clamp_len', 'sample_softmax', 'primer_conv', 'primer_squared',
+                     'use_cache']
 
 
 def parse_config_name_from_job(job_str: str) -> str:
@@ -25,7 +28,7 @@ def parse_config_name_from_job(job_str: str) -> str:
         job_str: Log string to be parsed.
 
     Returns:
-        str: Parsed configuration name from the job string.
+        (str): Parsed configuration name from the job string.
 
     """
 
@@ -314,6 +317,77 @@ def parse_results_from_experiment(exp_name: str,
                             results[config_name] = logs
 
     return results
+
+
+def parse_results_from_amulet(n_population: int,
+                              exp_name: str,
+                              results_path: str,
+                              n_trials: int,
+                              n_configs: int,
+                              start_config: int) -> Tuple[List[float], List[Dict[str, Any]]]:
+    """Parses results from an Amulet experiment.
+
+    Args:
+        n_population: Number of agents (genes) in the population.
+        exp_name: Name of the experiment.
+        results_path: Path to the directory holding the results' files.
+        n_trials: Number of trials.
+        n_configs: Number of configurations.
+        start_config: From which config parsing should start.
+
+    Returns:
+        (Tuple[List[float], List[Dict[str, Any]]]): Validation perplexities and sorted list
+            of configuration files.
+
+    """
+
+    keys = []
+
+    for i in range(start_config, start_config + n_configs):
+        for j in range(n_trials):
+            if len(keys) == n_population:
+                break
+            keys.append(f'config_{i}_j{j}')
+
+    def found_all_jobs(keys, results):
+        for k in keys:
+            if k not in results.keys():
+                return False
+        return True
+
+    results = parse_results_from_experiment(exp_name, results_path, file_type='.json')
+
+    while not found_all_jobs(keys, results):
+        time.sleep(60)
+
+        results = parse_results_from_experiment(exp_name, results_path, file_type='.json')
+
+    configs = parse_results_from_experiment(exp_name, results_path, file_type='.yaml')
+
+    exp_results = {k: results[k] for k in keys}
+    configs_from_jobs = {k: {'d_model': configs[k]['d_model'], 'n_layer': configs[k]['n_layer'],
+                             'd_inner': configs[k]['d_inner'], 'n_head': configs[k]['n_head']} for k in keys}
+
+    configs_list = []
+    indices = []
+
+    val_ppls = np.zeros(n_population)
+
+    for k, v in exp_results.items():
+        config_num = int(re.search('config_([0-9]+)', k).group(1))
+        job_num = int(re.search('j([0-9]+)', k).group(1))
+
+        val_ppls[(config_num * n_trials) + job_num] = v['valid_perplexity']
+
+        configs_list.append(configs_from_jobs[k])
+        indices.append((config_num * n_trials) + job_num)
+
+    configs_list_sorted = []
+    for i in range(len(configs_list)):
+        idx = indices.index(i)
+        configs_list_sorted.append(configs_list[idx])
+
+    return val_ppls, configs_list_sorted
 
 
 def parse_values_from_yaml(value: Any) -> str:

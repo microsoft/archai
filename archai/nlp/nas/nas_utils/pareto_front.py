@@ -14,7 +14,7 @@ import numpy as np
 import yaml
 from matplotlib import pyplot as plt
 
-from archai.nlp.nas.constraints import get_model, process_parameters
+from archai.nlp.nas.constraints import get_model
 from archai.nlp.nas.nas_utils.metrics import spearman_ranking
 from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
 
@@ -490,7 +490,9 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
                     model_config.update(alg.converter.gene2config(gene))
                     model = get_model(model_config)
 
-                    _, _, _, params_attention, params_ff = process_parameters(model, verbose=False)
+                    params = model.get_params()
+                    params_attention = params['attention']
+                    params_ff = params['ff']
 
                     gt_val_ppls.append(result['valid_perplexity'])
                     gt_latencies.append(latencies[key])
@@ -549,7 +551,9 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
                         model_config.update(alg.converter.gene2config(gene))
                         model = get_model(model_config, train=False)
 
-                        _, _, _, params_attention, params_ff = process_parameters(model, verbose=False)
+                        params = model.get_params()
+                        params_attention = params['attention']
+                        params_ff = params['ff']
 
                         all_params.append(params_attention + params_ff)
                     else:
