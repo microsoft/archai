@@ -70,7 +70,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 48
+    num_workers = 60
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -87,22 +87,38 @@ def main():
     # check for problematic logs
     for key in list(logs.keys()):
         if 'best_test' not in logs[key]['regular_evaluate']['eval_arch']['eval_train']:
-            print(f'problem in {key}')
+            print(f'problem in {key}.')
             logs.pop(key)
+
+    for key in list(logs.keys()):
+        if '0' not in logs[key]['regular_evaluate']['eval_arch']['eval_train']['epochs']:
+            print(f'problem in {key}. missing training epoch 0 somehow.')
+            logs.pop(key)
+        
+    for key in list(logs.keys()):
+        if '99' not in logs[key]['regular_evaluate']['eval_arch']['eval_train']['epochs']:
+            print(f'problem in {key}. missing training epoch 99 somehow.')
+            logs.pop(key)
+
 
     archid_testacc = {}
     archid_params = {}
     archid_flops = {}
+    archid_trainacc_at_n_epoch = {}
+    n_epoch = '99'
     for key in logs.keys():
         if 'eval' in key:
             try:
                 dataset_name = confs[key]['dataset']['name']
                 if dataset_name == 'darcyflow':
                     test_acc = -logs[key]['regular_evaluate']['eval_arch']['eval_train']['best_test']['loss']
+                    train_acc_at_n = -logs[key]['regular_evaluate']['eval_arch']['eval_train']['epochs'][n_epoch]['train']['loss']
                 else:    
                     test_acc = logs[key]['regular_evaluate']['eval_arch']['eval_train']['best_test']['top1']
+                    train_acc_at_n = logs[key]['regular_evaluate']['eval_arch']['eval_train']['epochs'][n_epoch]['train']['top1']
                 arch_id = confs[key]['nas']['eval']['dartsspace']['arch_index']
                 archid_testacc[arch_id] = test_acc
+                archid_trainacc_at_n_epoch[arch_id] = train_acc_at_n
                 
                 # get the number of params if in logs (most have it unless the early part is missing)
                 if 'num_params' in logs[key]['regular_evaluate']['eval_arch']['eval_train']:
@@ -115,7 +131,12 @@ def main():
                 print(f'KeyError {err} not in {key}!')
                 sys.exit()
 
-    print(f'Number of archs in benchmark {len(archid_params)}')    
+    print(f'Number of archs in benchmark {len(archid_params)}')
+
+    # sanity check
+    assert len(archid_testacc) == len(archid_flops)   
+    assert len(archid_testacc) == len(archid_params)
+    assert len(archid_testacc) == len(archid_trainacc_at_n_epoch)    
 
     # save accuracies
     savename = os.path.join(out_dir, 'arch_id_test_accuracy.yaml')
@@ -137,14 +158,17 @@ def main():
     # to see how the distribution looks
     testaccs = []
     params = []
-    flops = []
+    flops = [] 
+    trainaccs = []
     for archid in archid_params.keys():
         num_params = archid_params[archid]
         test_acc = archid_testacc[archid]
         num_flops = archid_flops[archid]
+        trainacc = archid_trainacc_at_n_epoch[archid]
         testaccs.append(test_acc)
         params.append(num_params)
         flops.append(num_flops)
+        trainaccs.append(trainacc)
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=testaccs, y=params, mode='markers'))
@@ -168,6 +192,12 @@ def main():
     with open(savename, 'w') as f:
         f.write(f'Spe #params vs. test accuracy: {param_spe}')
         f.write(f'Spe #flops vs. test accuracy: {flop_spe}')
+
+    # compute spearman correlation of training acc at 'n' epoch vs. test accuracy
+    n_epoch_spe, _ = spearmanr(testaccs, trainaccs)
+    print(f'Spe training acc at {n_epoch}: {n_epoch_spe}')
+
+    
     
 
 
