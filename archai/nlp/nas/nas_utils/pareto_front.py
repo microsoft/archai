@@ -354,8 +354,8 @@ def get_gt_pareto(args, alg, exp_name, path_to_dir, start_config, ppl_eps=0.1, l
     gt_keys = []
 
     for job_name, result in gt_results.items():
-        gene = alg.converter.config2gene(result)
-        key = alg.converter.gene2key(gene)
+        gene = alg.converter.config_to_gene(result)
+        key = alg.converter.gene_to_str(gene)
 
         if key in latencies.keys() and not key in gt_keys:
             config_number = re.search('config_([0-9]+)_', job_name).group(1)
@@ -474,8 +474,8 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
     gt_keys = []
 
     for job_name, result in gt_results.items():
-        gene = alg.converter.config2gene(result)
-        key = alg.converter.gene2key(gene)
+        gene = alg.converter.config_to_gene(result)
+        key = alg.converter.gene_to_str(gene)
 
         if key in latencies.keys() and not key in gt_keys:
             print(job_name)
@@ -487,7 +487,7 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
             try:
                 if not check_pareto or ((loaded_pareto and loaded_pareto[key]) or (not loaded_pareto and 'pareto' in job_name)):
                     model_config = copy.deepcopy(model_config_defaults)
-                    model_config.update(alg.converter.gene2config(gene))
+                    model_config.update(alg.converter.gene_to_config(gene))
                     model = load_from_args('mem_transformer', **model_config)
 
                     params = model.get_params()
@@ -536,7 +536,7 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
             idx = len(all_population)
 
         for j, gene in enumerate(pop):
-            key = alg.converter.gene2key(gene)
+            key = alg.converter.gene_to_str(gene)
             if not key in seen_keys:
                 seen_keys.append(key)
                 all_population.append(gene)
@@ -548,7 +548,7 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
                 else:
                     if (args['start_train'] < args['n_iter']) and (i >= args['start_train']):
                         model_config = copy.deepcopy(model_config_defaults)
-                        model_config.update(alg.converter.gene2config(gene))
+                        model_config.update(alg.converter.gene_to_config(gene))
                         model = load_from_args('mem_transformer', **model_config)
 
                         params = model.get_params()

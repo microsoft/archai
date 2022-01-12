@@ -20,17 +20,19 @@ class HfGPT2(ArchaiModel):
 
     """
 
-    HYPERPARAMETER_MAPPING = {'n_layer': 'n_layer',
-                              'n_head': 'n_head',
-                              'd_head': 'd_head',
-                              'd_embed': 'n_embd',
-                              'd_model': 'n_embd',
-                              'd_inner': 'n_inner',
-                              'dropout': 'resid_pdrop',
-                              'dropatt': 'attn_pdrop',
-                              'tgt_len': 'n_positions',
-                              'n_token': 'vocab_size',
-                              'weight_init_std': 'initializer_range'}
+    HYPERPARAMETER_MAPPING = {
+        'n_layer': 'n_layer',
+        'n_head': 'n_head',
+        'd_head': 'd_head',
+        'd_embed': 'n_embd',
+        'd_model': 'n_embd',
+        'd_inner': 'n_inner',
+        'dropout': 'resid_pdrop',
+        'dropatt': 'attn_pdrop',
+        'tgt_len': 'n_positions',
+        'n_token': 'vocab_size',
+        'weight_init_std': 'initializer_range'
+    }
 
     def __init__(self, **kwargs) -> None:
         """Overrides initialization method.

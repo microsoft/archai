@@ -14,6 +14,28 @@ BATCH_SIZE = 1
 SEQ_LEN = 32
 
 
+class Config:
+    """Provides a foundation for creating configuration instances.
+
+    """
+
+    def __init__(self, **kwargs) -> None:
+        """Initializes the configuration and sets keywords as attributes.
+
+        """
+
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    @property
+    def default(self) -> Dict[str, Any]:
+        """Defines the default configuration used by the class.
+
+        """
+
+        return {}
+
+
 class OnnxConfig:
     """Provides a foundation for creating ONNX-export configuration instances.
 

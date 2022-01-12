@@ -4,32 +4,29 @@
 """Converts from parameters to genes and vice-versa.
 """
 
-
-model_config_defaults = {'d_head': None,
-                         'n_token': 267736,
-                         'dropout': 0.1,
-                         'dropatt': 0.0,
-                         'd_embed': None,
-                         'div_val': 4,
-                         'pre_lnorm': False,
-                         'tgt_len': 192,
-                         'ext_len': 0,
-                         'mem_len': 192,
-                         'same_length': False,
-                         'attn_type': 0,
-                         'clamp_len': -1,
-                         'sample_softmax': -1,
-                         'cutoffs': [19997, 39997, 199997],
-                         'tie_projs': [False, True, True, True],
-                         'tie_weight': True,
-                         'dtype': None,
-                         'primer_conv': False,
-                         'primer_square': False,
-                         'use_cache': False}
+from typing import Any, Dict, List, Optional
 
 
 class Converter:
-    def __init__(self, n_layer_choice, d_model_choice, d_inner_choice, n_head_choice, **kwargs):
+    """Enables conversion from genes to configuration dictionaries and vice-versa.
+
+    """
+
+    def __init__(self,
+                 n_layer_choice: int,
+                 d_model_choice: int,
+                 d_inner_choice: int,
+                 n_head_choice: int) -> None:
+        """Overrides initialization method.
+
+        Args:
+            n_layer_choice: Possible number of layers.
+            d_model_choice: Possible model's dimension.
+            d_inner_choice: Possible inner dimension.
+            n_head_choice: Possible number of heads.
+
+        """
+
         self.n_layer_choice = n_layer_choice
         self.d_model_choice = d_model_choice
         self.d_inner_choice = d_inner_choice
@@ -37,7 +34,17 @@ class Converter:
 
         self.max_n_layer = self.n_layer_choice[-1]
 
-    def config2gene(self, config):
+    def config_to_gene(self, config: Dict[str, Any]) -> List[Any]:
+        """Converts a configuration dictionary into a gene.
+
+        Args:
+            config: Configuration dictionary.
+
+        Returns:
+            (List[Any]): Encoded gene ready for the search.
+
+        """
+
         gene = []
 
         sample_n_layer = config['n_layer']
@@ -65,7 +72,17 @@ class Converter:
 
         return gene
 
-    def gene2config(self, gene):
+    def gene_to_config(self, gene: List[Any]) -> Dict[str, Any]:
+        """Converts a gene into a configuration dictionary.
+
+        Args:
+            gene: Encoded gene.
+
+        Returns:
+            (Dict[str, Any]): Configuration dictionary.
+
+        """
+
         config = {'d_model': None,
                   'n_layer': None,
                   'd_inner': None,
@@ -87,7 +104,17 @@ class Converter:
 
         return config
 
-    def gene2key(self, gene):
+    def gene_to_str(self, gene: List[Any]) -> str:
+        """Converts a gene into a configuration string.
+
+        Args:
+            gene: Encoded gene.
+
+        Returns:
+            (str): Configuration string.
+
+        """
+
         key_list = []
 
         current_index = 0
@@ -106,7 +133,17 @@ class Converter:
 
         return ','.join(str(k) for k in key_list)
 
-    def get_gene_choice(self, d_inner_min=None):
+    def get_gene_choice(self, d_inner_min: Optional[int] = None) -> List[List[Any]]:
+        """Gathers all possible gene choices.
+
+        Args:
+            d_inner_min: Minimum value for the inner dimension.
+
+        Returns:
+            (List[List[Any]]): List of possible gene choices.
+            
+        """
+
         gene_choice = []
 
         gene_choice.append(self.d_model_choice)

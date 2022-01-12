@@ -166,7 +166,7 @@ def submit_gt_jobs(args, alg, max_step=500, start_config=0, bundle_count=50, n_g
     pareto_pop = logs['pareto'][-1]['population']
 
     for gene in pareto_pop:
-        key = alg.converter.gene2key(gene)  # ','.join([str(g) for g in gene])
+        key = alg.converter.gene_to_str(gene)  # ','.join([str(g) for g in gene])
         if not key in pareto_keys:
             pareto_keys.append(key)
 
@@ -183,11 +183,11 @@ def submit_gt_jobs(args, alg, max_step=500, start_config=0, bundle_count=50, n_g
         unseen = 0
 
         for idx, gene in enumerate(pop):
-            key = alg.converter.gene2key(gene)
+            key = alg.converter.gene_to_str(gene)
 
             if not key in seen.keys():
                 seen[key] = 1
-                model_config = alg.converter.gene2config(gene)
+                model_config = alg.converter.gene_to_config(gene)
                 all_population.append(model_config)
                 unseen += 1
 
@@ -229,11 +229,11 @@ def submit_pareto_front_jobs(args, alg, is_pareto_dict, max_step=500, start_conf
 
     for iter, pop in enumerate(logs['population']):
         for idx, gene in enumerate(pop):
-            key = alg.converter.gene2key(gene)
+            key = alg.converter.gene_to_str(gene)
 
             if not key in seen.keys():
                 seen[key] = 1
-                model_config = alg.converter.gene2config(gene)
+                model_config = alg.converter.gene_to_config(gene)
                 if is_pareto_dict[key]:
                     pareto_population.append(model_config)
 
