@@ -170,7 +170,6 @@ def main():
     for arch_id in all_zerocost_evals.keys():
         assert num_epochs == len(all_zerocost_evals[arch_id])
 
-
     # for each epoch num compute Spearman's correlation
     # for each measure
     # measure -> epoch_num -> spe

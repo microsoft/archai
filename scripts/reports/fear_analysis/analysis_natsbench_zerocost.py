@@ -215,7 +215,7 @@ def main():
         fig.write_image(savename_png, width=1500, height=1500, scale=1)
 
         # create heatmap of all pairs of proxies along with params, flops, gt
-        ZEROCOST_MEASURES_PF = ZEROCOST_MEASURES + ['params', 'flops', 'gt']
+        ZEROCOST_MEASURES_PF = ['grad_norm', 'snip', 'grasp', 'fisher', 'jacob_cov', 'synflow', 'params', 'flops', 'gt']
         all_zerocost_init_evals['params'] = all_params_evals
         all_zerocost_init_evals['flops'] = all_flops_evals
         all_zerocost_init_evals['gt'] = all_reg_evals
@@ -232,6 +232,7 @@ def main():
                 hm[i][j] = spe
 
         fig = px.imshow(hm, text_auto="0.1f", x=ZEROCOST_MEASURES_PF, y=ZEROCOST_MEASURES_PF)
+        fig.update_layout(font=dict(size=36)) # font size
         savename_html = os.path.join(out_dir, f'all_pairs_zc_spe.html')
         savename_png = os.path.join(out_dir, f'all_pairs_zc_spe.png')
         fig.write_html(savename_html)
