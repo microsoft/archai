@@ -1020,6 +1020,15 @@
                     "--out-dir", "/home/dedey/archai_experiment_reports"]
         },
         {
+            "name": "Analysis Create Average Heatmaps",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_create_average_heatmaps.py",
+            "console": "integratedTerminal",
+            "args": ["--list-of-npys", "/home/dedey/archai_experiment_reports/transnasbench_heatmaps/list.txt",
+                    "--out-dir", "/home/dedey/archai_experiment_reports/transnasbench_heatmaps"]
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",
