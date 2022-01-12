@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Auxiliary tool that dispatches new jobs when conducting searches.
+"""Auxiliary methods that dispatches traning/evaluation jobs.
 """
 
 import copy
@@ -12,8 +12,8 @@ import time
 
 import numpy as np
 import yaml
-from archai.nlp.nas.constraint_getter import get_yaml_values
 
+from archai.nlp.nas.nas_utils.parser import parse_values_from_yaml
 
 model_config_defaults = {'d_head': None,
                          'n_token': 267736,
@@ -82,7 +82,7 @@ def get_bundle_run_command(configs, max_step, n_gpus, gpu_config, is_pareto=None
         curr_config['d_head'] = [curr_config['d_model'] // n_head for n_head in curr_config['n_head']]
 
         for k, v in curr_config.items():
-            curr_config[k] = str(get_yaml_values(v))
+            curr_config[k] = str(parse_values_from_yaml(v))
 
         exp_name = 'j' + str(i) + ('_pareto' if (is_pareto is not None and is_pareto[i]) else '')
 
