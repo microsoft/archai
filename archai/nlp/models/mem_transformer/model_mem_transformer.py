@@ -16,7 +16,7 @@
 """
 
 import functools
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
@@ -1189,15 +1189,25 @@ class MemTransformerLM(ArchaiModel):
         # ensure embedding init is not overridden by out_layer in case of weight sharing
         self.word_emb.apply(functools.partial(weights_init, **weight_init_params))
 
-    def get_non_emb_params(self) -> int:
-        """Returns the number of non-embedding parameters.
+    def get_params(self) -> Dict[str, int]:
+        """Returns a dictionary of total parameters per implemented layer.
 
         Returns:
-            (int): Number of non-embedding parameters.
+            (Dict[str, int]): Number of total parameters.
 
         """
 
-        return sum([p.nelement() for p in self.layers.parameters()])
+        params = {}
+
+        params['embedding'] = self.get_params_from_layer([AdaptiveEmbedding])
+        params['softmax'] = self.get_params_from_layer([ProjectedAdaptiveLogSoftmax])
+        params['attention'] = self.get_params_from_layer([MultiHeadAttn, RelPartialLearnableMultiHeadAttn, RelLearnableMultiHeadAttn])
+        params['ff'] = self.get_params_from_layer([PositionwiseFF])
+
+        params['non_embedding'] = params['attention'] + params['ff']
+        params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']
+
+        return params
 
     def backward_compatible(self) -> None:
         """Allows for backward compatibility of the class.

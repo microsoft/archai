@@ -867,9 +867,6 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)
 
-    if args.mixed_qat:
-        model = MixedQATModel(model)
-
     n_params = model.get_params()
     n_all_param = n_params['total']
     n_nonemb_param = n_params['non_embedding']

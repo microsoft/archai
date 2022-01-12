@@ -16,13 +16,12 @@ import yaml
 from matplotlib import pyplot as plt
 
 from archai.common import utils
-from archai.nlp.nas.constraints import (get_latency, get_model,
-                                        process_parameters)
+from archai.nlp.nas.constraints import get_latency, get_model
 from archai.nlp.nas.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
 from archai.nlp.nas.nas_utils.pareto_front import get_convex_hull
-from archai.nlp.nas.nas_utils.parser import parse_values_from_yaml
-from archai.nlp.nas.nas_utils.results_gather import gather_amulet_results
+from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
+                                             parse_values_from_yaml)
 
 model_config_defaults = {'d_head': None,
                          'n_token': 267736,
@@ -275,7 +274,7 @@ class Evolution:
             command = 'amlt results {} -I "*.yaml"  -o {} --no-md5'.format(exp_name, path_to_results)
             os.system(command)
 
-            val_ppls, configs_from_jobs = gather_amulet_results(len(genes), exp_name, path_to_results, bundle_count, n_configs, start_config)
+            val_ppls, configs_from_jobs = parse_results_from_amulet(len(genes), exp_name, path_to_results, bundle_count, n_configs, start_config)
             t1 = time.time()
             train_time = t1-t0
 
@@ -331,7 +330,10 @@ class Evolution:
 
                     os.system(f'rm {log_file}')
             else:
-                _, _, _, params_attention, params_ff = process_parameters(model, verbose=False)
+                params = model.get_params()
+                params_attention = params['attention']
+                params_ff = params['ff']
+
                 params.append(params_attention + params_ff)
 
             latency = get_latency(model, model_config, n_threads=self.n_threads, repeat=self.latency_repeat)
@@ -366,7 +368,9 @@ class Evolution:
         model_config.update(config)
         model = get_model(model_config)
 
-        _, _, _, params_attention, params_ff = process_parameters(model, verbose=False)
+        params = model.get_params()
+        params_attention = params['attention']
+        params_ff = params['ff']
 
         satisfy = True
 
@@ -481,7 +485,9 @@ class Evolution:
 
         biggest_model = get_model(model_config)
 
-        _, _, _, params_attention, params_ff = process_parameters(biggest_model, verbose=False)
+        params = biggest_model.get_params()
+        params_attention = params['attention']
+        params_ff = params['ff']
 
         self.max_latency = get_latency(biggest_model, model_config)
         self.max_n_params = params_attention + params_ff
