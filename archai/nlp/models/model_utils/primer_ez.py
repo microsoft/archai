@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class DWiseConvPrimerEZ(nn.Module):
     ''' Implements Depthwise convolutinon according to https://arxiv.org/abs/2109.08668'''
 

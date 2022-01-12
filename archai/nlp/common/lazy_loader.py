@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Lazy-loading utilities to import required classes
-on demand.
+"""Lazy-loading utilities to import required classes on demand.
 """
 
 from importlib import import_module
