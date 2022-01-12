@@ -15,28 +15,6 @@ import yaml
 
 from archai.nlp.nas.nas_utils.parser import parse_values_from_yaml
 
-model_config_defaults = {'d_head': None,
-                         'n_token': 267736,
-                         'dropout': 0.1,
-                         'dropatt': 0.0,
-                         'd_embed': None,
-                         'div_val': 4,
-                         'pre_lnorm': False,
-                         'tgt_len': 192,
-                         'ext_len': 0,
-                         'mem_len': 192,
-                         'same_length': False,
-                         'attn_type': 0,
-                         'clamp_len': -1,
-                         'sample_softmax': -1,
-                         'cutoffs': [19997, 39997, 199997],
-                         'tie_projs': [False, True, True, True],
-                         'tie_weight': True,
-                         'dtype': None,
-                         'primer_conv': False,
-                         'primer_square': False,
-                         'use_cache': False}
-
 
 def check_job_status(exp_name, n_configs, start_config=0):
     pass_count = 0
@@ -78,6 +56,7 @@ def check_job_status(exp_name, n_configs, start_config=0):
 def get_bundle_run_command(configs, max_step, n_gpus, gpu_config, is_pareto=None):
     command = []
     for i, curr_config in enumerate(configs):
+        curr_config['div_val'] = 4
         curr_config['d_embed'] = curr_config['d_model']
         curr_config['d_head'] = [curr_config['d_model'] // n_head for n_head in curr_config['n_head']]
 
@@ -90,7 +69,7 @@ def get_bundle_run_command(configs, max_step, n_gpus, gpu_config, is_pareto=None
                        --config_file wt103_base.yaml --n_layer %s --n_head %s --d_model %s --d_head %s \
                        --d_inner %s --d_embed %s --div_val %s --max_step %d --experiment_name %s'
                        % (str(n_gpus), gpu_config, curr_config['n_layer'], curr_config['n_head'], curr_config['d_model'], curr_config['d_head'], curr_config['d_inner'],
-                       curr_config['d_embed'], model_config_defaults['div_val'], max_step, exp_name))
+                       curr_config['d_embed'], curr_config['div_val'], max_step, exp_name))
 
     return command
 

@@ -5,6 +5,7 @@
 """
 
 from typing import Any, Dict
+
 from archai.nlp.models.config_base import Config
 
 

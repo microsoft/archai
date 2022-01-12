@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""File naming utilities to create and modify
-input identifiers.
+"""File naming utilities to create and modify input identifiers.
 """
 
 from pathlib import Path

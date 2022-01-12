@@ -7,8 +7,6 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 import torch
-from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
-from archai.nlp.models.config_base import BATCH_SIZE, SEQ_LEN, OnnxConfig
 from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
                   ValueInfoProto, helper)
 from onnxruntime.transformers.fusion_attention import (AttentionMask,
@@ -20,6 +18,9 @@ from onnxruntime.transformers.fusion_skiplayernorm import (
     FusionBiasSkipLayerNormalization, FusionSkipLayerNormalization)
 from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
+
+from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
+from archai.nlp.models.config_base import BATCH_SIZE, SEQ_LEN, OnnxConfig
 
 
 class MemTransformerLMOnnxConfig(OnnxConfig):

@@ -6,9 +6,13 @@
 
 from typing import Any, Dict
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> b64935ed (chore(nlp): Adds configuration classes to every available model.)
+=======
+
+>>>>>>> 929e81d1 (chore(nlp): Removing the need of model configuration defaults on NAS.)
 from archai.nlp.models.config_base import Config
 
 

@@ -9,10 +9,11 @@ from typing import Optional, Tuple
 
 import torch
 import torch.nn.functional as F
+from transformers import CONFIG_MAPPING, AutoModelForCausalLM
+
 from archai.nlp.common.mapping_utils import map_to_list
 from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_utils.primer_ez import forward_gpt2_mlp_primer_ez
-from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
 
 class HfGPT2(ArchaiModel):

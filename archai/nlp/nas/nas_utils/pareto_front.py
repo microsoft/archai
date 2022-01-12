@@ -5,7 +5,6 @@
 """
 
 
-import copy
 import os
 import pickle
 import re
@@ -17,28 +16,6 @@ from matplotlib import pyplot as plt
 from archai.nlp.common.lazy_loader import load_from_args
 from archai.nlp.nas.nas_utils.metrics import spearman_ranking
 from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
-
-model_config_defaults = {'d_head': None,
-                         'n_token': 267736,
-                         'dropout': 0.1,
-                         'dropatt': 0.0,
-                         'd_embed': None,
-                         'div_val': 4,
-                         'pre_lnorm': False,
-                         'tgt_len': 192,
-                         'ext_len': 0,
-                         'mem_len': 192,
-                         'same_length': False,
-                         'attn_type': 0,
-                         'clamp_len': -1,
-                         'sample_softmax': -1,
-                         'cutoffs': [19997, 39997, 199997],
-                         'tie_projs': [False, True, True, True],
-                         'tie_weight': True,
-                         'dtype': None,
-                         'primer_conv': False,
-                         'primer_square': False,
-                         'use_cache': False}
 
 
 def get_convex_hull(xs, ys, eps=None, allow_decrease=False, allow_increase=False, results_path=None):
@@ -486,7 +463,7 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
 
             try:
                 if not check_pareto or ((loaded_pareto and loaded_pareto[key]) or (not loaded_pareto and 'pareto' in job_name)):
-                    model_config = copy.deepcopy(model_config_defaults)
+                    model_config = load_from_args('mem_transformer', cls_type='config')
                     model_config.update(alg.converter.gene_to_config(gene))
                     model = load_from_args('mem_transformer', **model_config)
 
@@ -547,7 +524,7 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
 
                 else:
                     if (args['start_train'] < args['n_iter']) and (i >= args['start_train']):
-                        model_config = copy.deepcopy(model_config_defaults)
+                        model_config = load_from_args('mem_transformer', cls_type='config')
                         model_config.update(alg.converter.gene_to_config(gene))
                         model = load_from_args('mem_transformer', **model_config)
 
