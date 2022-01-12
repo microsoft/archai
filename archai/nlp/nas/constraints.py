@@ -4,40 +4,43 @@
 """Defines constraints that are used throughout the search space.
 """
 
-from typing import Dict, List, Optional
-import numpy as np
+from typing import Any, Dict, Optional
 import torch
 import torch.utils.benchmark as benchmark
 
-from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
 
+def measure_latency(model: torch.nn.Module,
+                    model_config: Dict[str, Any],
+                    n_threads: Optional[int] = 1,
+                    n_trials: Optional[int] = 10) -> float:
+    """Measures a model's inference latency.
 
-def get_model(model_config, train=False):
-    model = MemTransformerLM(**model_config)
+    Args:
+        model: Model instance.
+        model_config: Model's configuration.
+        n_threads: Number of inference threads.
+        n_trials: Number of times to repeat the measurement.
 
-    if not train:
-        model = model.to(device='cpu')
-        model.eval()
+    Returns:
+        (float): Mean latency.
 
-    return model
+    """
 
-
-def get_latency(model, model_config, n_threads=1, repeat=10):
     if n_threads > 1:
         torch.set_num_threads(n_threads)
 
     model = model.to(device='cpu')
 
-    t0 = benchmark.Timer(stmt='model(input_ids, labels, mems)',
-                         setup='',
-                         globals={'input_ids': torch.LongTensor(model_config['tgt_len']).random_(0, model_config['n_token']).unsqueeze(0), 'labels': None, 'mems': None, 'model': model},
-                         num_threads=n_threads,
-                         label='Multithreaded model execution')
+    timer = benchmark.Timer(stmt='model(input_ids, labels, mems)',
+                            setup='',
+                            globals={'input_ids': torch.LongTensor(model_config['tgt_len']).random_(0, model_config['n_token']).unsqueeze(0), 'labels': None, 'mems': None, 'model': model},
+                            num_threads=n_threads,
+                            label='Multithreaded model execution')
 
-    info = t0.timeit(repeat)
-    info._lazy_init()
+    timer_runner = timer.timeit(n_trials)
+    timer_runner._lazy_init()
 
-    latency = info._mean
+    latency = timer_runner._mean
 
     return latency
     

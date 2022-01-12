@@ -16,7 +16,8 @@ import yaml
 from matplotlib import pyplot as plt
 
 from archai.common import utils
-from archai.nlp.nas.constraints import get_latency, get_model
+from archai.nlp.common.lazy_loader import load_from_args
+from archai.nlp.nas.constraints import measure_latency
 from archai.nlp.nas.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
 from archai.nlp.nas.nas_utils.pareto_front import get_convex_hull
@@ -289,7 +290,7 @@ class Evolution:
         for i, config in enumerate(configs):
             model_config = copy.deepcopy(model_config_defaults)
             model_config.update(config)
-            model = get_model(model_config, train=(do_train and train_local))
+            model = load_from_args('mem_transformer', **model_config)
 
             if configs_from_jobs is not None:
                 print('checking trained models match with the population')
@@ -336,7 +337,7 @@ class Evolution:
 
                 params.append(params_attention + params_ff)
 
-            latency = get_latency(model, model_config, n_threads=self.n_threads, repeat=self.latency_repeat)
+            latency = measure_latency(model, model_config, n_threads=self.n_threads, n_trials=self.latency_repeat)
             latencies.append(latency)
 
             if do_train:
@@ -366,7 +367,7 @@ class Evolution:
 
         model_config = copy.deepcopy(model_config_defaults)
         model_config.update(config)
-        model = get_model(model_config)
+        model = load_from_args('mem_transformer', **model_config)
 
         params = model.get_params()
         params_attention = params['attention']
@@ -379,7 +380,7 @@ class Evolution:
             return False
 
         if self.latency_constraint is not None:
-            latency = get_latency(model, model_config, n_threads=self.n_threads, repeat=self.latency_repeat)
+            latency = measure_latency(model, model_config, n_threads=self.n_threads, n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint:
                 print('gene {} did not satisfy latency threshold: {}>{}'.format(gene, latency, self.latency_constraint))
@@ -483,13 +484,13 @@ class Evolution:
         model_config = copy.deepcopy(model_config_defaults)
         model_config.update(config)
 
-        biggest_model = get_model(model_config)
+        biggest_model = load_from_args('mem_transformer', **model_config)
 
         params = biggest_model.get_params()
         params_attention = params['attention']
         params_ff = params['ff']
 
-        self.max_latency = get_latency(biggest_model, model_config)
+        self.max_latency = measure_latency(biggest_model, model_config)
         self.max_n_params = params_attention + params_ff
 
         print('In this search-space -> maximum number of parameters: {}, maximum latency: {}'.format(self.max_n_params, self.max_latency))

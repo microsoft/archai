@@ -14,7 +14,7 @@ import numpy as np
 import yaml
 from matplotlib import pyplot as plt
 
-from archai.nlp.nas.constraints import get_model
+from archai.nlp.common.lazy_loader import load_from_args
 from archai.nlp.nas.nas_utils.metrics import spearman_ranking
 from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
 
@@ -488,7 +488,7 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
                 if not check_pareto or ((loaded_pareto and loaded_pareto[key]) or (not loaded_pareto and 'pareto' in job_name)):
                     model_config = copy.deepcopy(model_config_defaults)
                     model_config.update(alg.converter.gene2config(gene))
-                    model = get_model(model_config)
+                    model = load_from_args('mem_transformer', **model_config)
 
                     params = model.get_params()
                     params_attention = params['attention']
@@ -549,7 +549,7 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
                     if (args['start_train'] < args['n_iter']) and (i >= args['start_train']):
                         model_config = copy.deepcopy(model_config_defaults)
                         model_config.update(alg.converter.gene2config(gene))
-                        model = get_model(model_config, train=False)
+                        model = load_from_args('mem_transformer', **model_config)
 
                         params = model.get_params()
                         params_attention = params['attention']
