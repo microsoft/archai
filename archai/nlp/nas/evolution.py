@@ -4,24 +4,25 @@
 """Evolutionary search-related classes and methods.
 """
 
-import imageio
 import copy
 import os
 import pickle
 import random
 import time
-from matplotlib import pyplot as plt
 
+import imageio
 import numpy as np
 import yaml
+from matplotlib import pyplot as plt
+
 from archai.common import utils
-from archai.nlp.nas.constraint_getter import get_latency, get_model, get_yaml_values, process_parameters
-
+from archai.nlp.nas.constraints import (get_latency, get_model,
+                                        process_parameters)
 from archai.nlp.nas.converter import Converter
-from archai.nlp.nas.nas_utils.jobs_dispatcher import check_job_status, create_jobs
-from archai.nlp.nas.nas_utils.pareto import get_convex_hull
+from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
+from archai.nlp.nas.nas_utils.pareto_front import get_convex_hull
+from archai.nlp.nas.nas_utils.parser import parse_values_from_yaml
 from archai.nlp.nas.nas_utils.results_gather import gather_amulet_results
-
 
 model_config_defaults = {'d_head': None,
                          'n_token': 267736,
@@ -309,8 +310,8 @@ class Evolution:
                         command = 'python -m torch.distributed.launch --nproc_per_node="%s" ' % n_gpus
 
                     command += 'archai/nlp/nvidia_transformer_xl/train.py --work_dir %s --experiment_name %s --config %s --config_file wt103_base.yaml --n_layer %s --n_head %s --d_model %s --d_inner %s --d_embed %s --div_val %s --max_step %d --scheduler constant --summary_path %s' \
-                                % (path_to_results, experiment_name, gpu_config, model_config['n_layer'], get_yaml_values(model_config['n_head']), model_config['d_model'],
-                                get_yaml_values(model_config['d_inner']), model_config['d_model'], model_config_defaults['div_val'], max_step, path_to_results)
+                                % (path_to_results, experiment_name, gpu_config, model_config['n_layer'], parse_values_from_yaml(model_config['n_head']), model_config['d_model'],
+                                parse_values_from_yaml(model_config['d_inner']), model_config['d_model'], model_config_defaults['div_val'], max_step, path_to_results)
                     os.system(command)
 
                     log_file = os.path.join(os.path.join(path_to_results, experiment_name), 'summary.yaml')

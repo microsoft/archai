@@ -4,11 +4,9 @@
 """Converts from parameters to genes and vice-versa.
 """
 
-
 import copy
 
-from archai.nlp.nas.constraint_getter import get_model
-
+from archai.nlp.nas.constraints import get_model
 
 model_config_defaults = {'d_head': None,
                          'n_token': 267736,
@@ -111,26 +109,6 @@ class Converter:
 
         return ','.join(str(k) for k in key_list)
 
-    def key2dict(self, key):
-        key_list = key.split(',')
-        key_list = [int(k) for k in key_list]
-
-        model_dict = {}
-        current_index = 0
-
-        model_dict['d_model'] = key_list[current_index]  # d_model
-        current_index += 1
-
-        model_dict['n_layer'] = key_list[current_index]  # n_layer
-        current_index += 1
-
-        model_dict['d_inner'] = key_list[current_index: current_index + key_list[1]] # d_inner
-        current_index += key_list[1]
-
-        model_dict['n_head'] = key_list[current_index: current_index + key_list[1]] # n_head
-
-        return model_dict
-
     def get_gene_choice(self, d_inner_min=None):
         gene_choice = []
 
@@ -147,28 +125,3 @@ class Converter:
             gene_choice.append(self.n_head_choice)
 
         return gene_choice
-
-def test_converter():
-    config = {'d_model': 512,
-              'n_layer': 5,
-              'd_inner': [2048, 2049, 2050, 2051, 2052],
-              'n_head': [4, 6, 7, 8, 9]}
-
-    args = {'n_layer_choice': [5, 6, 7, 8],
-            'd_model_choice': [128, 256, 512],
-            'd_inner_choice': list(range(512, 2049, 100)),
-            'n_head_choice': [2, 4, 8]}
-
-    converter = Converter(**args)
-    gene_get = converter.config2gene(config)
-    print('generated gene:', gene_get)
-
-    config_get = converter.gene2config(gene_get)
-    print('gene -> config:', config_get)
-
-    model_config = copy.deepcopy(model_config_defaults)
-    model_config.update(config_get)
-    model = get_model(model_config)
-
-    print(model)
-    print('gene choices:', converter.get_gene_choice())

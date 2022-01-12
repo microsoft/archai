@@ -1,4 +1,8 @@
-import os
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Defines constraints that are used throughout the search space.
+"""
 
 import numpy as np
 import torch
@@ -117,52 +121,4 @@ def get_latency(model, model_config, n_threads=1, repeat=10):
     latency = info._mean
 
     return latency
-
-
-def recurse_dir(pth, filename='config.yaml', path_to_ref=None):
-    content = os.listdir(pth)
-
-    for c in content:
-        curr_pth = os.path.join(pth, c)
-
-        if os.path.isfile(curr_pth) and filename in c:
-            path_to_ref = curr_pth
-        elif os.path.isdir(curr_pth):
-            path_to_ref = recurse_dir(curr_pth, filename, path_to_ref)
-
-    return path_to_ref
-
-
-def config2key(config):
-    key = []
-
-    sample_n_layer = config['n_layer']
-    key.append(config['d_model'])
-    key.append(sample_n_layer)
-
-    for i in range(sample_n_layer):
-        if isinstance(config['d_inner'], list):
-            key.append(config['d_inner'][i])
-        else:
-            key.append(config['d_inner'])
-
-    for i in range(sample_n_layer):
-        if isinstance(config['n_head'], list):
-            key.append(config['n_head'][i])
-        else:
-            key.append(config['n_head'])
-
-    return key
-
-
-def get_yaml_values(value):
-    if isinstance(value, list):
-        value_string = ''
-
-        for v in value:
-            value_string += (str(v) + ' ')
-
-        return value_string[:-1]
-
-    else:
-        return value
+    

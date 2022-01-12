@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Pareto frontier calculation.
+"""Utilities that calculates the Pareto front.
 """
 
 
@@ -9,14 +9,14 @@ import copy
 import os
 import pickle
 import re
-from matplotlib import pyplot as plt
+
 import numpy as np
 import yaml
+from matplotlib import pyplot as plt
 
-from archai.nlp.nas.constraint_getter import (get_model,
-                                              process_parameters)
-from archai.nlp.nas.info_getter import get_metrics, get_results
-
+from archai.nlp.nas.constraints import get_model, process_parameters
+from archai.nlp.nas.nas_utils.metrics import spearman_ranking
+from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
 
 model_config_defaults = {'d_head': None,
                          'n_token': 267736,
@@ -320,7 +320,7 @@ def get_diff_with_pareto(gt_latencies, gt_val_ppls, is_gt_pareto, is_proxy_paret
 
 def get_gt_pareto(args, alg, exp_name, path_to_dir, start_config, ppl_eps=0.1, latency_eps=0.01, hybrid=False, use_convex_hull=False,
                   min_acceptable_latency_diff=0, baseline_exp=None):
-    gt_results = get_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+    gt_results = parse_results_from_experiment(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
     
     print('found %d model configurations' % len(gt_results.keys()))
     print('Loading the latencies from log file')
@@ -431,7 +431,7 @@ def get_gt_pareto(args, alg, exp_name, path_to_dir, start_config, ppl_eps=0.1, l
 
 def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_eps=0.1, latency_eps=0.01, hybrid=False, use_convex_hull=False,
                        min_acceptable_latency_diff=0, baseline_exp=None, check_pareto=True):
-    gt_results = get_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+    gt_results = parse_results_from_experiment(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
     
     print('found %d model configurations' % len(gt_results.keys()))
     print('Loading the latencies from log file')
@@ -454,7 +454,7 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
     sorted_val_ppls_baseline = np.argsort(val_ppls_baseline)
 
     print('################# baseline')
-    common_ratio, spr_rank = get_metrics(100, sorted_val_ppls_baseline, sorted_target=sorted_params_baseline,
+    common_ratio, spr_rank = spearman_ranking(100, sorted_val_ppls_baseline, sorted_target=sorted_params_baseline,
                                          val_ppl_list_gt=val_ppls_baseline, val_ppl_list_target=params_baseline)
 
     # load previous pareto
@@ -650,7 +650,7 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
 
 
 def analyze_baseline(args, exp_name, path_to_dir):
-    baseline_results = get_results(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+    baseline_results = parse_results_from_experiment(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
 
     with open(os.path.join(path_to_dir, exp_name, 'latency_summary_{}.yaml'.format(args['device_name'])), 'r') as f:
         latencies = yaml.load(f)

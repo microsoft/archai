@@ -13,9 +13,9 @@ import torch
 import yaml
 from archai.common import utils
 from archai.nlp.nas.evolution import Evolution, test_evo_search
-from archai.nlp.nas.info_getter import get_results
-from archai.nlp.nas.nas_utils.jobs_dispatcher import submit_gt_jobs, submit_pareto_front_jobs
-from archai.nlp.nas.nas_utils.pareto import compare_w_baseline, get_final_pareto_front, get_gt_pareto
+from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
+from archai.nlp.nas.nas_utils.dispatcher import submit_gt_jobs, submit_pareto_front_jobs
+from archai.nlp.nas.nas_utils.pareto_front import compare_w_baseline, get_final_pareto_front, get_gt_pareto
 
 
 if __name__ == '__main__':
@@ -229,7 +229,7 @@ if __name__ == '__main__':
         with open('amlt_logs/evolution_40000/params_summary.yaml') as f:
             n_all_params = yaml.load(f)
 
-        gt_results = get_results('evolution_40000', 'amlt_logs/evolution_40000', filetypes=['.json'], verbose=False)
+        gt_results = parse_results_from_experiment('evolution_40000', 'amlt_logs/evolution_40000', filetypes=['.json'], verbose=False)
 
         params_list = []
         val_ppl_list = []
