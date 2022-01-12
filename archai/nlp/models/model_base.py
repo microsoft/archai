@@ -4,13 +4,13 @@
 """Base model class, used to defined some common functionalities.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 import torch
 import torch.nn as nn
 
 
 def _get_layers_from_module(module: torch.nn.Module,
-                            layer_type: Optional[torch.nn.Module] = None) -> List[torch.nn.Module]:
+                            layer_type: Optional[str] = None) -> List[torch.nn.Module]:
     """Gathers layers (including children ones) based on an input module.
 
     Args:
@@ -27,7 +27,7 @@ def _get_layers_from_module(module: torch.nn.Module,
 
     if layer_type is not None:
         for lt in layer_type:
-            if isinstance(module, lt):
+            if module.__class__.__name__ == lt:
                 return module
     else:
         if len(sub_module) == 0 and len(list(module.parameters())) > 0:
@@ -59,7 +59,7 @@ class ArchaiModel(nn.Module):
 
         raise NotImplementedError
 
-    def get_params_from_layer(self, layer_type: torch.nn.Module) -> int:
+    def get_params_from_layer(self, layer_type: str) -> int:
         """Returns the number of parameters based on a layer type.
 
         Args:
@@ -87,4 +87,9 @@ class ArchaiModel(nn.Module):
 
         """
 
-        raise NotImplementedError
+        params = {}
+
+        params['total'] = 0
+        params['non_embedding'] = 0
+
+        return params

@@ -1199,10 +1199,10 @@ class MemTransformerLM(ArchaiModel):
 
         params = {}
 
-        params['embedding'] = self.get_params_from_layer([AdaptiveEmbedding])
-        params['softmax'] = self.get_params_from_layer([ProjectedAdaptiveLogSoftmax])
-        params['attention'] = self.get_params_from_layer([MultiHeadAttn, RelPartialLearnableMultiHeadAttn, RelLearnableMultiHeadAttn])
-        params['ff'] = self.get_params_from_layer([PositionwiseFF])
+        params['embedding'] = self.get_params_from_layer(['AdaptiveEmbedding'])
+        params['softmax'] = self.get_params_from_layer(['ProjectedAdaptiveLogSoftmax'])
+        params['attention'] = self.get_params_from_layer(['MultiHeadAttn', 'RelPartialLearnableMultiHeadAttn', 'RelLearnableMultiHeadAttn'])
+        params['ff'] = self.get_params_from_layer(['PositionwiseFF'])
 
         params['non_embedding'] = params['attention'] + params['ff']
         params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']

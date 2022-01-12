@@ -4,7 +4,7 @@
 """Hugginface's Transformer-XL.
 """
 
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import torch
 from archai.nlp.common.mapping_utils import map_to_list
@@ -116,10 +116,7 @@ class HfTransfoXL(ArchaiModel):
                                 
             return (None, hf_out.logits, hf_out.mems, past_key_values)
 
-    def reset_length(self,
-                     tgt_len: int,
-                     ext_len: int,
-                     mem_len: int) -> None:
+    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
         """Resets the length of the memory.
 
         Args:
@@ -139,13 +136,3 @@ class HfTransfoXL(ArchaiModel):
         self.model.config.tgt_len = tgt_len
         self.model.config.mem_len = mem_len
         self.model.config.ext_len = ext_len
-
-    def get_non_emb_params(self) -> int:
-        """Returns the number of non-embedding parameters.
-
-        Returns:
-            (int): Number of non-embedding parameters.
-
-        """
-
-        return sum([p.nelement() for p in self.model.transformer.layers.parameters()])

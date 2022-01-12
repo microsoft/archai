@@ -122,10 +122,7 @@ class HfGPT2(ArchaiModel):
         # by using log softmax
         return (hf_out.loss, F.log_softmax(hf_out.logits, dim=-1), None, past_key_values)
 
-    def reset_length(self,
-                     tgt_len: int,
-                     ext_len: int,
-                     mem_len: int) -> None:
+    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
         """Resets the length of the memory.
 
         Args:
@@ -137,13 +134,3 @@ class HfGPT2(ArchaiModel):
 
         # There is no memory in GPT-2
         pass
-
-    def get_non_emb_params(self) -> int:
-        """Returns the number of non-embedding parameters.
-
-        Returns:
-            (int): Number of non-embedding parameters.
-
-        """
-
-        return sum([p.nelement() for p in self.model.transformer.h.parameters()])
