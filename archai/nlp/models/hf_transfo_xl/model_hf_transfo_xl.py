@@ -17,28 +17,30 @@ class HfTransfoXL(ArchaiModel):
 
     """
 
-    HYPERPARAMETER_MAPPING = {'n_layer': 'n_layer',
-                              'n_head': 'n_head',
-                              'd_head': 'd_head',
-                              'd_embed': 'd_embed',
-                              'd_model': 'd_model',
-                              'd_inner': 'd_inner',
-                              'dropout': 'dropout',
-                              'dropatt': 'dropatt',
-                              'n_token': 'vocab_size',
-                              'div_val': 'div_val',
-                              'pre_lnorm': 'pre_lnorm',
-                              'cutoffs': 'cutoffs',
-                              'mem_len': 'mem_len',
-                              'same_length': 'same_length',
-                              'attn_type': 'attn_type',
-                              'clamp_len': 'clamp_len',
-                              'sample_softmax': 'sample_softmax',
-                              'adaptive': 'adaptive',
-                              'weight_init_type': 'init',
-                              'weight_init_range': 'init_range',
-                              'weight_init_std': 'init_std',
-                              'proj_init_std': 'proj_init_std'}
+    HYPERPARAMETER_MAPPING = {
+        'n_layer': 'n_layer',
+        'n_head': 'n_head',
+        'd_head': 'd_head',
+        'd_embed': 'd_embed',
+        'd_model': 'd_model',
+        'd_inner': 'd_inner',
+        'dropout': 'dropout',
+        'dropatt': 'dropatt',
+        'n_token': 'vocab_size',
+        'div_val': 'div_val',
+        'pre_lnorm': 'pre_lnorm',
+        'cutoffs': 'cutoffs',
+        'mem_len': 'mem_len',
+        'same_length': 'same_length',
+        'attn_type': 'attn_type',
+        'clamp_len': 'clamp_len',
+        'sample_softmax': 'sample_softmax',
+        'adaptive': 'adaptive',
+        'weight_init_type': 'init',
+        'weight_init_range': 'init_range',
+        'weight_init_std': 'init_std',
+        'proj_init_std': 'proj_init_std'
+    }
 
     def __init__(self, **kwargs) -> None:
         """Overrides initialization method.

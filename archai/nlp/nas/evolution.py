@@ -24,27 +24,7 @@ from archai.nlp.nas.nas_utils.pareto_front import get_convex_hull
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
 
-model_config_defaults = {'d_head': None,
-                         'n_token': 267736,
-                         'dropout': 0.1,
-                         'dropatt': 0.0,
-                         'd_embed': None,
-                         'div_val': 4,
-                         'pre_lnorm': False,
-                         'tgt_len': 192,
-                         'ext_len': 0,
-                         'mem_len': 192,
-                         'same_length': False,
-                         'attn_type': 0,
-                         'clamp_len': -1,
-                         'sample_softmax': -1,
-                         'cutoffs': [19997, 39997, 199997],
-                         'tie_projs': [False, True, True, True],
-                         'tie_weight': True,
-                         'dtype': None,
-                         'primer_conv': False,
-                         'primer_square': False,
-                         'use_cache': False}
+model_config_defaults = load_from_args('mem_transformer', cls_type='config').default
 
 
 class Evolution:
@@ -157,7 +137,7 @@ class Evolution:
             else:
                 sorted_ind = np.array(population_scores).argsort()[::-1][:self.parent_size]
 
-                self.best_config = self.converter.gene2config(population[sorted_ind[0]])
+                self.best_config = self.converter.gene_to_config(population[sorted_ind[0]])
                 self.best_param = population_params[sorted_ind[0]]
                 self.best_latency = population_latencies[sorted_ind[0]]
 
@@ -252,7 +232,7 @@ class Evolution:
                    max_step=500, experiment_name='evolution', scheduler='constant', use_valid=True, start_config=0):
         configs = []
         for gene in genes:
-            configs.append(self.converter.gene2config(gene))
+            configs.append(self.converter.gene_to_config(gene))
 
         configs_from_jobs = None
         if do_train and not train_local:
@@ -358,7 +338,7 @@ class Evolution:
         return scores, params, latencies
 
     def satisfy_constraints(self, gene):
-        config = self.converter.gene2config(gene)
+        config = self.converter.gene_to_config(gene)
 
         for d_inner in config['d_inner']:
             if d_inner < int(1.7*config['d_model']):
@@ -440,7 +420,7 @@ class Evolution:
 
             sorted_ind = np.array(population_scores).argsort()[::-1]
 
-            self.best_config = self.converter.gene2config(self.all_population[sorted_ind[0]])
+            self.best_config = self.converter.gene_to_config(self.all_population[sorted_ind[0]])
             self.best_param = self.all_params[sorted_ind[0]]
             self.best_latency = self.all_latencies[sorted_ind[0]]
 
@@ -464,7 +444,7 @@ class Evolution:
 
         sorted_ind = np.array(population_scores).argsort()[::-1]
 
-        self.best_config = self.converter.gene2config(population[sorted_ind[0]])
+        self.best_config = self.converter.gene_to_config(population[sorted_ind[0]])
         self.best_param = self.all_params[sorted_ind[0]]
         self.best_latency = self.all_latencies[sorted_ind[0]]
 
@@ -477,7 +457,7 @@ class Evolution:
 
     def profile(self):
         gene = [self.gene_choice[i][-1] for i in range(self.gene_len)]
-        config = self.converter.gene2config(gene)
+        config = self.converter.gene_to_config(gene)
 
         print('biggest config:', config)
 

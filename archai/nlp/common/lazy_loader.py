@@ -38,8 +38,10 @@ def load_from_args(model_type: str,
     # Finds the corresponding module based on the class
     if cls_string in [ClassType.MODEL]:
         cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
+    elif cls_string in [ClassType.CONFIG]:
+        cls_module = import_module(f'.{model_type}.config_{model_type}', LIBRARY_PATH)
     elif cls_string in [ClassType.ONNX_MODEL, ClassType.ONNX_CONFIG]:
-        cls_module = import_module(f'{LIBRARY_PATH}.{model_type}.onnx_{model_type}')
+        cls_module = import_module(f'.{model_type}.onnx_{model_type}', LIBRARY_PATH)
     else:
         raise NotImplementedError
 
