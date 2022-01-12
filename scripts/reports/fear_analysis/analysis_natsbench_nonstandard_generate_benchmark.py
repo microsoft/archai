@@ -69,7 +69,7 @@ def main():
     #     a = parse_a_job(job_dir)
 
     # parallel parsing of yaml logs
-    num_workers = 48
+    num_workers = 60
     with Pool(num_workers) as p:
         a = p.map(parse_a_job, job_dirs)
 
@@ -108,14 +108,18 @@ def main():
     # are not part of the benchmark
     arch_id_reg_eval = {}
     arch_id_params_flops = {}
+    arch_id_trainacc_at_n_epoch = {}
+    n_epoch = '3'
 
     for key in logs.keys():
         arch_id = confs[key]['nas']['eval']['natsbench']['arch_index']
         reg_eval = logs[key]['eval_arch']['eval_train']['best_test']['top1']
+        train_acc_at_n = logs[key]['eval_arch']['eval_train']['epochs'][n_epoch]['train']['top1']
         num_params = logs[key]['eval_arch']['eval_train']['num_params']
         mega_flops_per_batch = logs[key]['eval_arch']['eval_train']['mega_flops_per_batch']
         # store
         arch_id_reg_eval[arch_id] = reg_eval
+        arch_id_trainacc_at_n_epoch[arch_id] = train_acc_at_n
         arch_id_params_flops[arch_id] = {'params': num_params, 'flops': mega_flops_per_batch}
 
     savename = os.path.join(out_dir, 'arch_id_test_accuracy.yaml')
@@ -129,9 +133,13 @@ def main():
     # now create a list of regular evaluation and corresponding synflow scores
     # to compute spearman's correlation
     all_reg_evals = []
-    all_synflow = []
+    all_epochs_at_n = []
     for arch_id in arch_id_reg_eval.keys():
         all_reg_evals.append(arch_id_reg_eval[arch_id])
+        all_epochs_at_n.append(arch_id_trainacc_at_n_epoch[arch_id])
+
+    spe_epochs_at_n, _ = spearmanr(all_reg_evals, all_epochs_at_n)
+    print(f'Spearman corr. {n_epoch}: {spe_epochs_at_n}')
         
     print(f'num valid architectures used for analysis {len(logs)}')
 
@@ -139,7 +147,7 @@ def main():
     fig = px.histogram(all_reg_evals, labels={'x': 'Test Accuracy', 'y': 'Counts'})
     savename = os.path.join(out_dir, 'distribution_of_test_accuracies.html')
     fig.write_html(savename)
-    fig.show()
+    #fig.show()
 
     # plot histogram of training scores
     all_train_accs = []
@@ -150,7 +158,7 @@ def main():
     fig1 = px.histogram(all_train_accs, labels={'x': 'Train Accuracy', 'y': 'Counts'})
     savename = os.path.join(out_dir, 'distribution_of_train_accuracies.html')
     fig1.write_html(savename)
-    fig1.show()
+    #fig1.show()
 
     
 

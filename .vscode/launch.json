@@ -654,8 +654,8 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_regular_darts_space.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "F:\\archaiphilly\\phillytools\\ft_dt_fb96_ftlr0.025_fte10_ct96_ftt0.6_fixed",
-            "--out-dir", "F:\\archai_experiment_reports", "--reg-evals-file", 
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/darts_constant_random_cifar100",
+            "--out-dir", "/home/dedey/archai_experiments_reports", "--reg-evals-file", 
             "F:\\archai_experiment_reports\\ft_dt_fb96_ftlr0.025_fte10_ct96_ftt0.6\\darts_benchmark.yaml"]
         },
         {
@@ -710,7 +710,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_nonstandard_generate_benchmark.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/nb_reg_b256_e200_sc10",
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/natsbench_constant_random_cifar100",
                 "--out-dir", "/home/dedey/archai_experiment_reports"]
         },
         {
@@ -755,12 +755,12 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_zerocost.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/natsbench_constant_random_zerocost_scifar100",
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/zc_synthetic_cifar10",
                 "--out-dir", "/home/dedey/archai_experiment_reports", 
                 "--reg-evals-file", 
-                "/home/dedey/archai_experiment_reports/natsbench_constant_random_scifar100/arch_id_test_accuracy.yaml",
+                "/home/dedey/archai_experiment_reports/nb_reg_b256_e200_sc10/arch_id_test_accuracy.yaml",
                 "--params-flops-file",
-                "/home/dedey/archai_experiment_reports/natsbench_constant_random_scifar100/arch_id_params_flops.yaml"
+                "/home/dedey/archai_experiment_reports/nb_reg_b256_e200_sc10/arch_id_params_flops.yaml"
                 ]
         },
         {
@@ -769,8 +769,10 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_zerocost_epochs.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/zc_eachepoch_c10",
-                "--out-dir", "/home/dedey/archai_experiment_reports"]
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/natsbench_constant_random_zerocost_epochs_scifar100",
+                "--out-dir", "/home/dedey/archai_experiment_reports",
+                "--reg-evals-file",
+                "/home/dedey/archai_experiment_reports/natsbench_constant_random_scifar100/arch_id_test_accuracy.yaml"]
         },
         {
             "name": "Analysis Zero Cost Conditional Natsbench Experiments",
@@ -889,6 +891,15 @@
             "console": "integratedTerminal",
             "args": ["--nb301-logs-dir", "C:\\Users\\dedey\\dataroot\\nasbench301\\nasbench301_full_data\\nb_301_v13_toy",
                 "--out-dir", "F:\\archai_experiment_reports", "--scorer", "train_accuracy"]
+        },
+        {
+            "name": "Analysis TransNasBench",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/reports/fear_analysis/analysis_transnasbench.py",
+            "console": "integratedTerminal",
+            "args": ["--transnasbench-results-json", "/home/dedey/transnasbench.json",
+                    "--out-dir", "/home/dedey/archai_experiment_reports"]
         },
         {
             "name": "CurrentFile",
