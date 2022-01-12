@@ -4,9 +4,6 @@
 """Converts from parameters to genes and vice-versa.
 """
 
-import copy
-
-from archai.nlp.nas.constraints import get_model
 
 model_config_defaults = {'d_head': None,
                          'n_token': 267736,
