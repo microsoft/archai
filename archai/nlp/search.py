@@ -42,17 +42,17 @@ def parse_args():
 
     parser.add_argument('--population_size',
                         type=int,
-                        default=10,
+                        default=100,
                         help='Size of the population.')
 
     parser.add_argument('--parent_size',
                         type=int,
-                        default=2,
+                        default=20,
                         help='Size of the parent genes.')
 
     parser.add_argument('--mutation_size',
                         type=int,
-                        default=4,
+                        default=40,
                         help='Size of the mutated genes.')
     
     parser.add_argument('--mutation_prob',
@@ -62,7 +62,7 @@ def parse_args():
 
     parser.add_argument('--crossover_size',
                         type=int,
-                        default=4,
+                        default=40,
                         help='Size of the crossovered genes.')
 
     parser.add_argument('--n_iter',
@@ -220,7 +220,7 @@ if __name__ == '__main__':
 
     # Gathers the latency constraint based on device
     latency_constraint = {
-        'XeonE5-2690': 1.3,
+        'XeonE5-2690': 0.5,
         'corei7': 0.5,
         'corei5': 0.6,
         'D3_V2': 0.8

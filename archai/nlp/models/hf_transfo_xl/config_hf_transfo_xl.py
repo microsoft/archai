@@ -29,16 +29,22 @@ class HfTransfoXLConfig(Config):
 
         return {
             'd_head': None,
-            'vocab_size': 267736,
+            'd_embed': 512,
             'dropout': 0.1,
             'dropatt': 0.0,
-            'd_embed': None,
+            'n_token': 267736,
             'div_val': 4,
             'pre_lnorm': False,
+            'cutoffs': [19997, 39997, 199997],
             'mem_len': 192,
             'same_length': False,
             'attn_type': 0,
             'clamp_len': -1,
             'sample_softmax': -1,
-            'cutoffs': [19997, 39997, 199997]
+            'adaptive': True,
+            'weight_init_type': 'normal',
+            'weight_init_range': 0.01,
+            'weight_init_std': 0.02,
+            'proj_init_std': 0.01,
+            'tie_weight': True
         }

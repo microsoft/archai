@@ -445,7 +445,7 @@ class Evolution:
 
                 params.append(n_params_attention + n_params_ff)
 
-            latency = measure_latency(model, model_config, n_threads=self.n_threads, n_trials=self.latency_repeat)
+            latency = measure_latency(model, n_threads=self.n_threads, n_trials=self.latency_repeat)
             latencies.append(latency)
 
             if do_train:
@@ -498,7 +498,7 @@ class Evolution:
             return False
 
         if self.latency_constraint is not None:
-            latency = measure_latency(model, model_config, n_threads=self.n_threads, n_trials=self.latency_repeat)
+            latency = measure_latency(model, n_threads=self.n_threads, n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint:
                 print('gene {} did not satisfy latency threshold: {}>{}'.format(gene, latency, self.latency_constraint))
@@ -654,7 +654,7 @@ class Evolution:
         n_params_attention = n_params['attention']
         n_params_ff = n_params['ff']
 
-        self.max_latency = measure_latency(biggest_model, model_config)
+        self.max_latency = measure_latency(biggest_model)
         self.max_n_params = n_params_attention + n_params_ff
 
         print('In this search-space -> maximum number of parameters: {}, maximum latency: {}'.format(self.max_n_params, self.max_latency))

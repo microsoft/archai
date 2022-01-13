@@ -139,3 +139,23 @@ class HfTransfoXL(ArchaiModel):
         self.model.config.tgt_len = tgt_len
         self.model.config.mem_len = mem_len
         self.model.config.ext_len = ext_len
+
+    def get_params(self) -> Dict[str, int]:
+        """Returns a dictionary of total parameters per implemented layer.
+
+        Returns:
+            (Dict[str, int]): Number of total parameters.
+
+        """
+
+        params = {}
+
+        params['embedding'] = self.get_params_from_layer(['AdaptiveEmbedding'])
+        params['softmax'] = self.get_params_from_layer(['ProjectedAdaptiveLogSoftmax'])
+        params['attention'] = self.get_params_from_layer(['RelPartialLearnableMultiHeadAttn'])
+        params['ff'] = self.get_params_from_layer(['PositionwiseFF'])
+
+        params['non_embedding'] = params['attention'] + params['ff']
+        params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']
+
+        return params
