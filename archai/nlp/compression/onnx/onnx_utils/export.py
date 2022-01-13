@@ -87,12 +87,12 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
 
 
 def export_onnx_from_torch(model: torch.nn.Module,
-                           model_config: dict,
-                           model_type: str,
-                           onnx_model_path: str,
-                           share_weights: Optional[bool] = True,
-                           do_constant_folding: Optional[bool] = True,
-                           opset_version: Optional[int] = 11) -> None:
+                        model_config: dict,
+                        model_type: str,
+                        onnx_model_path: str,
+                        share_weights: Optional[bool] = True,
+                        do_constant_folding: Optional[bool] = True,
+                        opset_version: Optional[int] = 11) -> None:
     """Exports a PyTorch-based model to ONNX.
 
     Args:

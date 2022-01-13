@@ -15,7 +15,13 @@ from archai.nlp.compression.onnx.onnx_utils.forward import (
 from archai.nlp.models.model_base import ArchaiModel
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
+
 from onnxruntime.transformers import quantize_helper
+
+from archai.nlp.models.archai_model import ArchaiModel
+from archai.nlp.models.available_models import AVAILABLE_MODELS
+from archai.nlp.compression.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx,
+                                                                      forward_memformer_onnx)
 
 # Constants available in onnxruntime
 # that enables performance optimization
@@ -46,9 +52,8 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     return session
 
 
-def load_from_torch_for_export(model_type: str,
-                               torch_model_path: str) -> Tuple[ArchaiModel, Dict[str, Any]]:
-    """Loads a PyTorch-based model from checkpoint with export-ready.
+def load_from_torch_for_export(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, dict]:
+    """Loads a PyTorch-based model from checkpoint.
 
     Args:
         model_type: Type of model to be loaded.
@@ -78,9 +83,11 @@ def load_from_torch_for_export(model_type: str,
         for layer in model.transformer.h:
             quantize_helper.conv1d_to_linear(layer.mlp)
 
-    if isinstance(model_config['d_head'], Sized):
+    if type(model_config['d_head']) is list:
+        assert all(model_config['d_head'][0] == d_head for d_head in model_config['d_head']), 'We do not support different number of heads for export.'
         model_config['d_head'] = model_config['d_head'][0]
-    if isinstance(model_config['n_head'], Sized):
+    if type(model_config['n_head']) is list:
+        assert all(model_config['n_head'][0] == d_head for d_head in model_config['n_head']), 'We do not support different number of heads for export.'
         model_config['n_head'] = model_config['n_head'][0]
 
     # Puts to evaluation model to disable dropout
