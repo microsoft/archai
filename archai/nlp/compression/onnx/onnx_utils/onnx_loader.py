@@ -9,6 +9,8 @@ from typing import Tuple
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
 
+from onnxruntime.transformers import quantize_helper
+
 from archai.nlp.models.archai_model import ArchaiModel
 from archai.nlp.models.available_models import AVAILABLE_MODELS
 from archai.nlp.compression.onnx.onnx_utils.forward import (crit_forward_memformer_onnx, forward_gpt2_onnx,
@@ -59,7 +61,7 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     return session
 
 
-def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, dict]:
+def load_from_torch_for_export(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, dict]:
     """Loads a PyTorch-based model from checkpoint.
 
     Args:
@@ -86,9 +88,15 @@ def load_from_pt(model_type: str, torch_model_path: str) -> Tuple[ArchaiModel, d
         model = model.model
         model.forward = types.MethodType(forward_gpt2_onnx, model)
 
+        # if we dont do this the export/fusion operations break with relu squared
+        for layer in model.transformer.h:
+            quantize_helper.conv1d_to_linear(layer.mlp)
+
     if type(model_config['d_head']) is list:
+        assert all(model_config['d_head'][0] == d_head for d_head in model_config['d_head']), 'We do not support different number of heads for export.'
         model_config['d_head'] = model_config['d_head'][0]
     if type(model_config['n_head']) is list:
+        assert all(model_config['n_head'][0] == d_head for d_head in model_config['n_head']), 'We do not support different number of heads for export.'
         model_config['n_head'] = model_config['n_head'][0]
 
     # Puts to evaluation model to disable dropout
