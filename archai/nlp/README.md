@@ -23,7 +23,9 @@ Use NLP with Archai if you need a package or wish to:
     * [Training a Model](#training-a-model)
  * [Neural Architecture Search](#neural-architecture-search)
     * [Evolutionary Search](#evolutionary-search)
-    * [Finding the Pareto Frontier](#finding-the-pareto-frontier)
+    * [Finding the Groud-Truth](#finding-the-ground-truth)
+    * [Extracting the Pareto Frontier](#extracting-the-pareto-frontier)
+    * [Comparing the Frontiers](#comparing-the-frontiers)
  * [Architecture Compression](#architecture-compression)
     * [ONNX](#onnx)
     * [Quantization](#quantization)
@@ -132,9 +134,59 @@ python archai/nlp/train.py --help
 
 ## Neural Architecture Search
 
+One of the foremost goals of Archai is to perform efficient Neural Architecture Searches and find optimal architectures that meet some desired guidelines. Thus, we offer a `nas` module that implements some customizable pipelines that enable users to find their most suitable architectures given a set of constraints.
+
+The Transformer-based NAS pipeline is organized as follows:
+
+* Conduct the evolutionary search to find suitable samples (architecture configurations);
+* Submit ground-truth jobs for the entire population that has been found during the search;
+* Extract a proxy Pareto frontier from all samples seen during the evolutionary search;
+* Find candidate points in the proxy Pareto frontier and submit them for full training;
+* Compare between ground-truth and proxy Pareto frontiers.
+
 ### Evolutionary Search
 
-### Finding the Pareto Frontier
+The whole NAS idea is structured as an evolutionary search for transformer-based architectures, where users can define the parameters to be searched and also their constraints that should be met.
+
+The first step is to conduct the search and find a set of Pareto points that meet the constraints, as follows:
+
+```bash
+python archai/nlp/train.py --phase run_search --help 
+```
+
+Essentially, the search will find the best configuration file (which can be used to create the model) for the desired architecture under the input constraints. Traditionally, our search considers the number of non-embedding parameters and the model's latency.
+
+### Finding the Ground-Truth
+
+After finding possible configurations through the evolutionary search, we can submit some ground-truth jobs for further comparison:
+
+```bash
+python archai/nlp/train.py --phase submit_gt_jobs --help 
+```
+
+*Such a step is valid to determine whether proxy points (without training) and close or distant from the ground-truth points (with training).*
+
+### Extracting the Pareto Frontier
+
+Alternatively, our `search.py` script allows users in extracting ground-truth Pareto frontier from all samples seen during the evolutionary search, which can be invoked as follows:
+
+```bash
+python archai/nlp/train.py --phase extract_pareto --help 
+```
+
+Further, it is also possible to match the proxy Pareto frontier points (found in the previous step) with the baseline and submit the selected points on the Pareto frontier for full training, as follows:
+
+```bash
+python archai/nlp/train.py --phase select_pareto --help 
+```
+
+### Comparing the Frontiers
+
+Finally, we can compare between the ground-truth and proxy Pareto frontiers, as follows:
+
+```bash
+python archai/nlp/train.py --phase gt_pareto --help
+```
 
 ## Architecture Compression
 
@@ -142,7 +194,7 @@ Apart from finding more efficient architectures, it is also possible to compress
 
 ### ONNX
 
-The Open Neural Network Exchange (ONNX) format is built using a graph with pre-defined operations implemented upon common standards. Additionally, several frameworks are implemented with such a format in mind, accelerating its inference and training, such as TensorRT and ONNXRuntime (ORT).
+The Open Neural Network Exchange (ONNX) format uses a graph with pre-defined operations implemented upon common standards. Additionally, several frameworks are implemented with such a format in mind, accelerating its inference and training, such as TensorRT and ONNXRuntime (ORT).
 
 #### Exporting with ONNX
 
