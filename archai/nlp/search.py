@@ -12,10 +12,10 @@ import numpy as np
 import torch
 import yaml
 from archai.common import utils
-from archai.nlp.nas.evolution import Evolution, test_evo_search
+from archai.nlp.nas.evolution import Evolution, run_search
 from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
-from archai.nlp.nas.nas_utils.dispatcher import submit_gt_jobs, submit_pareto_front_jobs
-from archai.nlp.nas.nas_utils.pareto_front import compare_w_baseline, get_final_pareto_front, get_gt_pareto
+from archai.nlp.nas.nas_utils.dispatcher import submit_ground_truth_jobs, submit_pareto_front_jobs
+from archai.nlp.nas.nas_utils.pareto_front import compare_pareto_fronts, find_final_pareto_front, find_ground_truth_pareto
 
 
 if __name__ == '__main__':
@@ -105,13 +105,13 @@ if __name__ == '__main__':
         with open(os.path.join(results_dir, 'search_config.yaml'), 'w') as f:
             yaml.dump(args, f)
 
-        test_evo_search(args, brute_force=False)
+        run_search(args, brute_force=False)
 
     elif args['phase'] == 'submit_gt_jobs':
         # --------------- submit ground-truth training jobs over the entire population after search
         alg = Evolution(**args)
-        submit_gt_jobs(args, alg, max_step=40000, start_config=0, bundle_count=20,
-                       n_gpus=8, gpu_config='dgx1_8gpu_fp32', targets=['NLX-NDv2'])
+        submit_ground_truth_jobs(args, alg, max_step=40000, start_config=0, bundle_count=20,
+                                 n_gpus=8, gpu_config='dgx1_8gpu_fp32', targets=['NLX-NDv2'])
 
     elif args['phase'] == 'extract_pareto':
         # --------------- extract proxy pareto from all samples seen during the evolutionary search
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         param_eps = 0.01  # nomarlized parameter diff for extracting the pareto
         eps = ppl_eps if (args['start_train'] < args['n_iter'] and hybrid) else param_eps
         alg = Evolution(**args)
-        get_final_pareto_front(args, alg, eps=eps, hybrid=hybrid, use_convex_hull=use_convex_hull)
+        find_final_pareto_front(args, alg, eps=eps, hybrid=hybrid, use_convex_hull=use_convex_hull)
 
     elif args['phase'] == 'select_pareto':
         # --------------- match proxy pareto front points with the baseline and submit selected points on the pareto front for full training
@@ -204,7 +204,7 @@ if __name__ == '__main__':
         # --------------- compare baseline with pareto NAS results
         training_exp_name = 'pareto_{}'.format(args['device_name'])
         alg = Evolution(**args)
-        compare_w_baseline(args, alg, exp_name=training_exp_name, path_to_dir=path_to_amlt_results,
+        compare_pareto_fronts(args, alg, exp_name=training_exp_name, path_to_dir=path_to_amlt_results,
                            start_config=0, baseline_exp='evolution_baselines', check_pareto=False)
 
     elif args['phase'] == 'gt_pareto':
@@ -219,10 +219,10 @@ if __name__ == '__main__':
         os.system(command)
         
         alg = Evolution(**args)
-        get_gt_pareto(args, alg, exp_name=gt_exp_name, path_to_dir=path_to_amlt_results, start_config=0,
+        find_ground_truth_pareto(args, alg, exp_name=gt_exp_name, path_to_dir=path_to_amlt_results, start_config=0,
                       ppl_eps=0.1, latency_eps=0.01, hybrid=hybrid, use_convex_hull=use_convex_hull, min_acceptable_latency_diff=2, baseline_exp=None)  # 'evolution_baselines')
         alg = Evolution(**args)
-        compare_w_baseline(args, alg, exp_name=gt_exp_name, path_to_dir=path_to_amlt_results,
+        compare_pareto_fronts(args, alg, exp_name=gt_exp_name, path_to_dir=path_to_amlt_results,
                            start_config=0, baseline_exp='evolution_baselines', check_pareto=True)
 
         # ---------------- compare final val ppl with nparams pareto

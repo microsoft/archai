@@ -9,6 +9,7 @@ import os
 import pickle
 import random
 import time
+from typing import Any, Dict, List, Optional, Tuple
 
 import imageio
 import numpy as np
@@ -20,17 +21,57 @@ from archai.nlp.common.lazy_loader import load_from_args
 from archai.nlp.nas.constraints import measure_latency
 from archai.nlp.nas.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
-from archai.nlp.nas.nas_utils.pareto_front import get_convex_hull
+from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
 
-model_config_defaults = load_from_args('mem_transformer', cls_type='config').default
-
 
 class Evolution:
-    def __init__(self, results_path, population_size=125, parent_size=25, mutation_size=50, mutation_prob=0.3, crossover_size=50, n_iter=30,
-                 n_layer_choice=[5, 6, 7, 8], d_model_choice=[64, 128, 256, 512], d_inner_choice=list(range(512, 2048, 50)), n_head_choice=[2, 4, 8],
-                 param_constraint=4e6, latency_scale=1., n_threads=1, latency_repeat=5, latency_constraint=None, **kwargs):
+    """Implements the evolutionary search (Genetic Algorithm).
+
+    """
+
+    def __init__(self,
+                 results_path: str,
+                 population_size: Optional[int] = 125,
+                 parent_size: Optional[int] = 25,
+                 mutation_size: Optional[int] = 50,
+                 mutation_prob: Optional[float] = 0.3,
+                 crossover_size: Optional[int] = 50,
+                 n_iter: Optional[int] = 30,
+                 n_layer_choice: Optional[List[int]] = [5, 6, 7, 8],
+                 d_model_choice: Optional[List[int]] = [64, 128, 256, 512],
+                 d_inner_choice: Optional[List[int]] = list(range(512, 2048, 50)),
+                 n_head_choice: Optional[List[int]] = [2, 4, 8],
+                 param_constraint: Optional[int] = 4e6,
+                 latency_scale: Optional[float] = 1.0,
+                 n_threads: Optional[int] = 1,
+                 latency_repeat: Optional[int] = 5,
+                 latency_constraint: Optional[float] = None,
+                 model_type: Optional[str] = 'mem_transformer',
+                 **kwargs) -> None:
+        """Initializes attributes.
+
+        Args:
+            results_path: Path to the folder that will save the results.
+            population_size: Size of the population.
+            parent_size: Size of the parent genes.
+            mutation_size: Size of the mutated genes.
+            mutation_prob: Probability of mutation.
+            crossover_size: Size of the crossovered genes.
+            n_iter: Number of search iterations.
+            n_layer_choice: Possible number of layers.
+            d_model_choice: Possible model's dimensions.
+            d_inner_choice: Possible inner dimensions.
+            n_head_choice: Possible number of attention heads.
+            param_constraint: Number of parameters contraints.
+            latency_scale: How much latencies should be scaled.
+            n_threads: Number of inference threads.
+            latency_repeat: Number of latency measurements.
+            latency_constraint: Latency constraint.
+            model_type: Type of model.
+
+        """
 
         self.results_path = results_path
         os.makedirs(self.results_path, exist_ok=True)
@@ -45,18 +86,19 @@ class Evolution:
         self.n_iter = n_iter
 
         self.converter = Converter(n_layer_choice, d_model_choice, d_inner_choice, n_head_choice)
-        self.gene_choice = self.converter.get_gene_choice()
+        self.gene_choice = self.converter.get_allowed_genes()
         self.gene_len = len(self.gene_choice)
 
         self.param_constraint = param_constraint
         self.latency_constraint = latency_constraint
-
-        self.profile()
         
         self.max_val_ppl = 70
         self.latency_scale = latency_scale
         self.n_threads = n_threads  # number of threads for latency measurement
         self.latency_repeat = latency_repeat # number of runs for mean latency computation
+        
+        self.model_type = model_type
+        self.model_config_defaults = load_from_args(model_type, cls_type='config').default
 
         self.best_config = None
         self.pareto = {'population': [],
@@ -71,12 +113,47 @@ class Evolution:
 
         self.counts = {}
 
-    def run_evo_search(self, pareto_search=False, eps=None, use_convex_hull=False, start_train=0, train_local=False, n_gpus=1, gpu_config='dgx1_1gpu_fp32', config_file='wt103_base.yaml',
-                       max_step=500, experiment_name='evolution', scheduler='constant', use_valid=True, **kwargs):
+        self.profile()
+
+    def search(self,
+               pareto_search: Optional[bool] = False,
+               eps: Optional[float] = None,
+               use_convex_hull: Optional[bool] = False,
+               start_train: Optional[int] = 0,
+               train_local: Optional[bool] = False,
+               n_gpus: Optional[int] = 1,
+               gpu_config: Optional[str] = 'dgx1_1gpu_fp32',
+               config_file: Optional[str] = 'wt103_base.yaml',
+               max_step: Optional[int] = 500,
+               experiment_name: Optional[str] = 'evolution',
+               scheduler: Optional[str] = 'constant',
+               use_valid: Optional[bool] = True,
+               **kwargs) -> Dict[str, Any]:
+        """Performs the actual search.
+
+        Args:
+            pareto_search: Whether to search in the vicinity of the maximum score or not.
+            eps: Epsilon value.
+            use_convex_hull: Whether should calculate convex hull or not.
+            start_train: Search iteration that training should start.
+            train_local: Whether samples should be locally trained or not.
+            n_gpus: Number of GPUs.
+            gpu_config: GPU configuration.
+            config_file: Configuration file.
+            max_step: Maximum number of training steps.
+            experiment_name: Name of the experiment.
+            scheduler: Learning rate scheduler.
+            use_valid: Whether validation set should be used or not.
+
+        Returns:
+            (Dict[str, Any]): Best configuration.
+
+        """
+
         # if pareto_search is False, only searches in the vicinity of the maximum score seen
         print('Performing {} search'.format('full-pareto' if pareto_search else 'best sample'))
 
-        population = self.random_sample(self.population_size)
+        population = self.sample_random_population(self.population_size)
 
         self.all_population = population
         self.update_counts(population)
@@ -110,7 +187,7 @@ class Evolution:
                 self.all_params = []
                 self.all_latencies = []
 
-            population_scores_unseen, population_params_unseen, population_latencies_unseen = self.get_scores(population[idx:], do_train, train_local, n_gpus, gpu_config, config_file, max_step,
+            population_scores_unseen, population_params_unseen, population_latencies_unseen = self.calculate_score(population[idx:], do_train, train_local, n_gpus, gpu_config, config_file, max_step,
                                                                                                               experiment_name, scheduler, use_valid)
             population_scores = parents_score + population_scores_unseen
             population_params = parents_params + population_params_unseen
@@ -126,7 +203,7 @@ class Evolution:
             self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
 
             if pareto_search:
-                count_weights = self.get_count_weights()
+                count_weights = self.calculate_weighted_count()
                 selected_ind = np.random.choice(len(self.pareto['population']), size=self.parent_size, p=count_weights)
 
                 parents_population = [self.pareto['population'][m] for m in selected_ind]
@@ -154,9 +231,9 @@ class Evolution:
 
             k = 0
             while k < self.mutation_size:
-                mutated_gene = self.mutate(random.choices(parents_population)[0])
+                mutated_gene = self.mutation(random.choices(parents_population)[0])
 
-                if self.satisfy_constraints(mutated_gene):
+                if self.check_constraints(mutated_gene):
                     mutate_population.append(mutated_gene)
                     k += 1
 
@@ -165,7 +242,7 @@ class Evolution:
             while k < self.crossover_size:
                 crossovered_gene = self.crossover(random.sample(parents_population, 2))
 
-                if self.satisfy_constraints(crossovered_gene):
+                if self.check_constraints(crossovered_gene):
                     crossover_population.append(crossovered_gene)
                     k += 1
 
@@ -200,7 +277,17 @@ class Evolution:
 
         return self.best_config
 
-    def crossover(self, genes):
+    def crossover(self, genes: List[List[Any]]) -> List[List[Any]]:
+        """Performs the crossover between genes.
+
+        Args:
+            genes: List of genes.
+
+        Returns:
+            (List[List[Any]]): Crossovered genes.
+
+        """
+
         crossovered_gene = []
 
         for i in range(self.gene_len):
@@ -211,7 +298,17 @@ class Evolution:
 
         return crossovered_gene
 
-    def mutate(self, gene):
+    def mutation(self, gene: List[Any]) -> List[Any]:
+        """Performs mutation over a single gene.
+
+        Args:
+            gene: Gene.
+
+        Returns:
+            (List[Any]): Mutated gene.
+
+        """
+
         mutated_gene = []
         d_inner_min = None
         gene_choice = self.gene_choice
@@ -219,7 +316,7 @@ class Evolution:
         for i in range(self.gene_len):
             if i == 1:
                 d_inner_min = int(1.7 * mutated_gene[-1])
-                gene_choice = self.converter.get_gene_choice(d_inner_min=d_inner_min)
+                gene_choice = self.converter.get_allowed_genes(d_inner_min=d_inner_min)
 
             if np.random.uniform() < self.mutation_prob:
                 mutated_gene.append(random.choices(gene_choice[i])[0])
@@ -228,8 +325,39 @@ class Evolution:
 
         return mutated_gene
 
-    def get_scores(self, genes, do_train=False, train_local=False, n_gpus=8, gpu_config='dgx1_1gpu_fp32', config_file='wt103_base.yaml',
-                   max_step=500, experiment_name='evolution', scheduler='constant', use_valid=True, start_config=0):
+    def calculate_score(self,
+                        genes: List[List[Any]],
+                        do_train: Optional[bool] = False,
+                        train_local: Optional[bool] = False,
+                        n_gpus: Optional[int] = 8,
+                        gpu_config: Optional[str] = 'dgx1_1gpu_fp32',
+                        config_file: Optional[str] = 'wt103_base.yaml',
+                        max_step: Optional[int] = 500,
+                        experiment_name: Optional[str] = 'evolution',
+                        scheduler: Optional[str] = 'constant',
+                        use_valid: Optional[bool] = True,
+                        start_config: Optional[int] = 0) -> Tuple[List[float], List[int], List[float]]:
+        """Calculates the scoring (objective) function.
+
+        Args:
+            genes: List of genes.
+            do_train: Whether samples should be trained or not.
+            train_local: Whether samples should be locally trained or not.
+            n_gpus: Number of GPUs.
+            gpu_config: GPU configuration.
+            config_file: Configuration file.
+            max_step: Maximum number of training steps.
+            experiment_name: Name of the experiment.
+            scheduler: Learning rate scheduler.
+            use_valid: Whether validation set should be used or not.
+            start_config: Starting range of the configuration to be scored.
+
+        Returns:
+            (Tuple[List[float], List[int], List[float]]): List of scores, number of parameters
+                and latencies.
+
+        """
+
         configs = []
         for gene in genes:
             configs.append(self.converter.gene_to_config(gene))
@@ -268,9 +396,9 @@ class Evolution:
         avg_time = []
 
         for i, config in enumerate(configs):
-            model_config = copy.deepcopy(model_config_defaults)
+            model_config = copy.deepcopy(self.model_config_defaults)
             model_config.update(config)
-            model = load_from_args('mem_transformer', **model_config)
+            model = load_from_args(self.model_type, **model_config)
 
             if configs_from_jobs is not None:
                 print('checking trained models match with the population')
@@ -291,7 +419,7 @@ class Evolution:
 
                     command += 'archai/nlp/nvidia_transformer_xl/train.py --work_dir %s --experiment_name %s --config %s --config_file wt103_base.yaml --n_layer %s --n_head %s --d_model %s --d_inner %s --d_embed %s --div_val %s --max_step %d --scheduler constant --summary_path %s' \
                                 % (path_to_results, experiment_name, gpu_config, model_config['n_layer'], parse_values_from_yaml(model_config['n_head']), model_config['d_model'],
-                                parse_values_from_yaml(model_config['d_inner']), model_config['d_model'], model_config_defaults['div_val'], max_step, path_to_results)
+                                parse_values_from_yaml(model_config['d_inner']), model_config['d_model'], self.model_config_defaults['div_val'], max_step, path_to_results)
                     os.system(command)
 
                     log_file = os.path.join(os.path.join(path_to_results, experiment_name), 'summary.yaml')
@@ -337,7 +465,17 @@ class Evolution:
 
         return scores, params, latencies
 
-    def satisfy_constraints(self, gene):
+    def check_constraints(self, gene: List[Any]) -> bool:
+        """Checks whether gene fulfill constraints or not.
+
+        Args:
+            gene: Gene.
+
+        Returns:
+            (bool): Whether gene has fulfilled constraints or not.
+
+        """
+
         config = self.converter.gene_to_config(gene)
 
         for d_inner in config['d_inner']:
@@ -345,9 +483,9 @@ class Evolution:
                 print('gene {} did not satisfy d_inner constraint: {}<1.7*{}={}'.format(gene, d_inner, config['d_model'], int(1.7*config['d_model'])))
                 return False
 
-        model_config = copy.deepcopy(model_config_defaults)
+        model_config = copy.deepcopy(self.model_config_defaults)
         model_config.update(config)
-        model = load_from_args('mem_transformer', **model_config)
+        model = load_from_args(self.model_type, **model_config)
 
         params = model.get_params()
         params_attention = params['attention']
@@ -368,7 +506,17 @@ class Evolution:
 
         return satisfy
 
-    def random_sample(self, sample_num):
+    def sample_random_population(self, sample_num: int) -> List[List[Any]]:
+        """Samples a random population.
+
+        Args:
+            sample_num: Number of genes to be sampled.
+
+        Returns:
+            (List[List[Any]]): Randomly sampled population.
+
+        """
+
         popu = []
         gene_choice = self.gene_choice
 
@@ -379,18 +527,50 @@ class Evolution:
             for k in range(self.gene_len):
                 if k == 1:
                     d_inner_min = int(1.7 * samp_gene[-1])
-                    gene_choice = self.converter.get_gene_choice(d_inner_min=d_inner_min)
+                    gene_choice = self.converter.get_allowed_genes(d_inner_min=d_inner_min)
 
                 samp_gene.append(random.choices(gene_choice[k])[0])
 
-            if self.satisfy_constraints(samp_gene):
+            if self.check_constraints(samp_gene):
                 popu.append(samp_gene)
                 i += 1
 
         return popu
 
-    def semi_brute_force(self, nsamples, batch=1000, eps=None, use_convex_hull=False, do_train=False, train_local=False, n_gpus=1, gpu_config='dgx1_1gpu_fp32', config_file='wt103_base.yaml',
-                         max_step=500, experiment_name='evolution', scheduler='constant', use_valid=True, **kwargs):
+    def semi_brute_force(self,
+                         nsamples: int,
+                         batch: Optional[int] = 1000,
+                         eps: Optional[float] = None,
+                         use_convex_hull: Optional[bool] = False,
+                         do_train: Optional[bool] = False,
+                         train_local: Optional[bool] = False,
+                         n_gpus: Optional[int] = 1,
+                         gpu_config: Optional[str] = 'dgx1_1gpu_fp32',
+                         config_file: Optional[str] = 'wt103_base.yaml',
+                         max_step: Optional[int] = 500,
+                         experiment_name: Optional[str] = 'evolution',
+                         scheduler: Optional[str] = 'constant',
+                         use_valid: Optional[bool] = True,
+                         **kwargs) -> None:
+        """Performs the semi brute-force.
+
+        Args:
+            nsamples: Number of genes to be sampled.
+            batch: Number of batched genes to conduct the brute force.
+            eps: Epsilon value.
+            use_convex_hull: Whether should calculate convex hull or not.
+            do_train: Whether samples should be trained or not.
+            train_local: Whether samples should be locally trained or not.
+            n_gpus: Number of GPUs.
+            gpu_config: GPU configuration.
+            config_file: Configuration file.
+            max_step: Maximum number of training steps.
+            experiment_name: Name of the experiment.
+            scheduler: Learning rate scheduler.
+            use_valid: Whether validation set should be used or not.
+
+        """
+
         path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl')
         
         if os.path.exists(path_to_population):
@@ -400,7 +580,7 @@ class Evolution:
             population = population[:nsamples]
 
         else:
-            population = self.random_sample(nsamples)
+            population = self.sample_random_population(nsamples)
 
             with open(path_to_population, 'wb') as f:
                 pickle.dump(population, f)
@@ -409,7 +589,7 @@ class Evolution:
 
         for idx in range(0, nsamples, batch):
             curr_population = population[idx:idx+batch]
-            curr_population_scores, curr_population_params, curr_population_latencies = self.get_scores(curr_population, do_train, train_local, n_gpus, gpu_config, config_file, max_step,
+            curr_population_scores, curr_population_params, curr_population_latencies = self.calculate_score(curr_population, do_train, train_local, n_gpus, gpu_config, config_file, max_step,
                                                                                                         experiment_name, scheduler, use_valid)
             population_scores += curr_population_scores
 
@@ -455,16 +635,20 @@ class Evolution:
         self.plot_samples(from_training=do_train)
         self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
 
-    def profile(self):
+    def profile(self) -> None:
+        """Profiles the search space.
+
+        """
+
         gene = [self.gene_choice[i][-1] for i in range(self.gene_len)]
         config = self.converter.gene_to_config(gene)
 
         print('biggest config:', config)
 
-        model_config = copy.deepcopy(model_config_defaults)
+        model_config = copy.deepcopy(self.model_config_defaults)
         model_config.update(config)
 
-        biggest_model = load_from_args('mem_transformer', **model_config)
+        biggest_model = load_from_args(self.model_type, **model_config)
 
         params = biggest_model.get_params()
         params_attention = params['attention']
@@ -475,9 +659,19 @@ class Evolution:
 
         print('In this search-space -> maximum number of parameters: {}, maximum latency: {}'.format(self.max_n_params, self.max_latency))
 
-        return
+    def update_pareto_front(self,
+                            eps: Optional[float] = None,
+                            allow_decrease: Optional[bool] = True,
+                            use_convex_hull: Optional[bool] = False) -> None:
+        """Updates the Pareto front of the evolutionary search.
 
-    def update_pareto_front(self, eps=None, allow_decrease=True, use_convex_hull=False):
+        Args:
+            eps: Epsilon value.
+            allow_decrease: Whether Pareto front is decreasing or not.
+            use_convex_hull: Whether should calculate convex hull or not.
+
+        """
+
         self.pareto = {'population': [],
                        'scores': [],
                        'params': [],
@@ -487,7 +681,7 @@ class Evolution:
             xs = self.all_params
             ys = self.all_latencies
 
-            hull_indices, eps_indices = get_convex_hull(xs, ys, eps, allow_decrease)
+            hull_indices, eps_indices = calculate_convex_hull(xs, ys, eps, allow_decrease)
 
             all_indices = hull_indices + eps_indices
 
@@ -516,9 +710,14 @@ class Evolution:
 
         print('number of points on the pareto front:', len(self.pareto['params']))
 
-        return
+    def update_counts(self, population: List[List[Any]]) -> None:
+        """Updates the number of repeated genes.
 
-    def update_counts(self, population):
+        Args:
+            population: Current population.
+
+        """
+
         n_repeated = 0
 
         for gene in population:
@@ -530,7 +729,14 @@ class Evolution:
             else:
                 self.counts[key] = 1
 
-    def get_count_weights(self):
+    def calculate_weighted_count(self) -> np.array:
+        """Calculates the weighted count of the population.
+
+        Returns:
+            (np.array): Weighted count.
+
+        """
+
         pareto_counts = []
 
         for gene in self.pareto['population']:
@@ -548,7 +754,19 @@ class Evolution:
 
         return count_weights
 
-    def plot_samples(self, iter=None, parents=None, from_training=False):
+    def plot_samples(self,
+                     iter: Optional[int] = None,
+                     parents: Dict[str, Any] = None,
+                     from_training: Optional[bool] = False) -> None:
+        """Plots a set of samples from the population.
+
+        Args:
+            iter: Current iteration number.
+            parents: Dictionary with parent samples.
+            from_training: Whether samples have been trained or not.
+
+        """
+
         if from_training:
             x_axis = np.asarray(self.all_latencies) * 1000.
             x_axis_pareto = np.asarray(self.pareto['latencies']) * 1000.
@@ -604,14 +822,22 @@ class Evolution:
         plt.savefig(os.path.join(self.results_path, fname), bbox_inches="tight")
 
 
-def test_evo_search(args, brute_force=False):
+def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> None:
+    """Runs the evolutionary search.
+
+    Args:
+        args: Additional arguments.
+        brute_force: Whether to employ semi brute-force to the search or not.
+
+    """
+
     alg = Evolution(**args)
 
     if brute_force:
         alg.semi_brute_force(**args)
 
     else:
-        best_config = alg.run_evo_search(**args)
+        best_config = alg.search(**args)
         print(best_config)
 
         images = []
