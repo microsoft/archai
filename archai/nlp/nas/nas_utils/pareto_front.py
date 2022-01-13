@@ -539,13 +539,13 @@ def compare_pareto_fronts(args: Dict[str, Any],
                     model_config.update(alg.converter.gene_to_config(gene))
                     model = load_from_args('hf_gpt2', **model_config)
 
-                    params = model.get_params()
-                    params_attention = params['attention']
-                    params_ff = params['ff']
+                    n_params = model.get_params()
+                    n_params_attention = n_params['attention']
+                    n_params_ff = n_params['ff']
 
                     gt_val_ppls.append(result['valid_perplexity'])
                     gt_latencies.append(latencies[key])
-                    gt_params.append(params_attention + params_ff)
+                    gt_params.append(n_params_attention + n_params_ff)
                     gt_keys.append(key)
             except:
                 pass
@@ -612,11 +612,11 @@ def find_final_pareto_front(args: Dict[str, Any],
                         model_config.update(alg.converter.gene_to_config(gene))
                         model = load_from_args('hf_gpt2', **model_config)
 
-                        params = model.get_params()
-                        params_attention = params['attention']
-                        params_ff = params['ff']
+                        n_params = model.get_params()
+                        n_params_attention = n_params['attention']
+                        n_params_ff = n_params['ff']
 
-                        all_params.append(params_attention + params_ff)
+                        all_params.append(n_params_attention + n_params_ff)
                     else:
                         all_params.append(logs['params'][i][j])
 

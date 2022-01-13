@@ -32,7 +32,7 @@ class HfGPT2Config(Config):
             'n_token': 267736,
             'dropout': 0.1,
             'dropatt': 0.0,
-            'd_embed': None,
+            'd_embed': 512,
             'div_val': 4,
             'pre_lnorm': False,
             'tgt_len': 192,

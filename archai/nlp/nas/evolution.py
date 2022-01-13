@@ -64,7 +64,7 @@ class Evolution:
             d_model_choice: Possible model's dimensions.
             d_inner_choice: Possible inner dimensions.
             n_head_choice: Possible number of attention heads.
-            param_constraint: Number of parameters contraints.
+            param_constraint: Number of parameters contraint.
             latency_scale: How much latencies should be scaled.
             n_threads: Number of inference threads.
             latency_repeat: Number of latency measurements.
@@ -377,10 +377,10 @@ class Evolution:
             path_to_results = './amlt_logs'
             os.mkdir(path_to_results)
 
-            command = 'amlt results {} -I "*.json"  -o {} --no-md5'.format(exp_name, path_to_results)
+            command = 'amlt results {} -I "*.json"  -o {}'.format(exp_name, path_to_results)
             os.system(command)
 
-            command = 'amlt results {} -I "*.yaml"  -o {} --no-md5'.format(exp_name, path_to_results)
+            command = 'amlt results {} -I "*.yaml"  -o {}'.format(exp_name, path_to_results)
             os.system(command)
 
             val_ppls, configs_from_jobs = parse_results_from_amulet(len(genes), exp_name, path_to_results, bundle_count, n_configs, start_config)
@@ -439,11 +439,11 @@ class Evolution:
 
                     os.system(f'rm {log_file}')
             else:
-                params = model.get_params()
-                params_attention = params['attention']
-                params_ff = params['ff']
+                n_params = model.get_params()
+                n_params_attention = n_params['attention']
+                n_params_ff = n_params['ff']
 
-                params.append(params_attention + params_ff)
+                params.append(n_params_attention + n_params_ff)
 
             latency = measure_latency(model, model_config, n_threads=self.n_threads, n_trials=self.latency_repeat)
             latencies.append(latency)
@@ -452,8 +452,8 @@ class Evolution:
                 score = (params[i]*1./self.max_val_ppl) - (latency*1./self.max_latency) * self.latency_scale
                 print('indvidual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
             else:
-                score = ((params_attention + params_ff)*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale
-                print('indvidual %d -> params: %d, latency: %.4f, score: %.4f' % (i, params_attention+params_ff, latency, score))
+                score = ((n_params_attention + n_params_ff)*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale
+                print('indvidual %d -> params: %d, latency: %.4f, score: %.4f' % (i, n_params_attention + n_params_ff, latency, score))
 
             scores.append(score)
 
@@ -487,14 +487,14 @@ class Evolution:
         model_config.update(config)
         model = load_from_args(self.model_type, **model_config)
 
-        params = model.get_params()
-        params_attention = params['attention']
-        params_ff = params['ff']
+        n_params = model.get_params()
+        n_params_attention = n_params['attention']
+        n_params_ff = n_params['ff']
 
         satisfy = True
 
-        if (params_attention + params_ff) < self.param_constraint:
-            print('gene {} did not satisfy nparam threshold: {}<{}'.format(gene, params_attention + params_ff, self.param_constraint))
+        if (n_params_attention + n_params_ff) < self.param_constraint:
+            print('gene {} did not satisfy nparam threshold: {}<{}'.format(gene, n_params_attention + n_params_ff, self.param_constraint))
             return False
 
         if self.latency_constraint is not None:
@@ -650,12 +650,12 @@ class Evolution:
 
         biggest_model = load_from_args(self.model_type, **model_config)
 
-        params = biggest_model.get_params()
-        params_attention = params['attention']
-        params_ff = params['ff']
+        n_params = biggest_model.get_params()
+        n_params_attention = n_params['attention']
+        n_params_ff = n_params['ff']
 
         self.max_latency = measure_latency(biggest_model, model_config)
-        self.max_n_params = params_attention + params_ff
+        self.max_n_params = n_params_attention + n_params_ff
 
         print('In this search-space -> maximum number of parameters: {}, maximum latency: {}'.format(self.max_n_params, self.max_latency))
 
