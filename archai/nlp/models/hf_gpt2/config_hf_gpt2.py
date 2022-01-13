@@ -29,25 +29,12 @@ class HfGPT2Config(Config):
 
         return {
             'd_head': None,
-            'n_token': 267736,
+            'd_embed': 512,
             'dropout': 0.1,
             'dropatt': 0.0,
-            'd_embed': 512,
-            'div_val': 4,
-            'pre_lnorm': False,
             'tgt_len': 192,
-            'ext_len': 0,
-            'mem_len': 192,
-            'same_length': False,
-            'attn_type': 0,
-            'clamp_len': -1,
-            'sample_softmax': -1,
-            'cutoffs': [19997, 39997, 199997],
-            'tie_projs': [False, True, True, True],
+            'n_token': 267736,
+            'weight_init_std': 0.0,
             'tie_weight': True,
-            'dtype': None,
-            'primer_conv': False,
-            'primer_square': False,
-            'use_cache': False,
-            'weight_init_std': 0.0
+            'primer_square': False
         }

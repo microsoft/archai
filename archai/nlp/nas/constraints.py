@@ -4,21 +4,19 @@
 """Defines constraints that are used throughout the search space.
 """
 
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import torch
 import torch.utils.benchmark as benchmark
 
 
 def measure_latency(model: torch.nn.Module,
-                    model_config: Dict[str, Any],
                     n_threads: Optional[int] = 1,
                     n_trials: Optional[int] = 10) -> float:
     """Measures a model's inference latency.
 
     Args:
         model: Model instance.
-        model_config: Model's configuration.
         n_threads: Number of inference threads.
         n_trials: Number of times to repeat the measurement.
 
@@ -34,7 +32,7 @@ def measure_latency(model: torch.nn.Module,
 
     timer = benchmark.Timer(stmt='model(input_ids, labels, mems)',
                             setup='',
-                            globals={'input_ids': torch.LongTensor(model_config['tgt_len']).random_(0, model_config['n_token']).unsqueeze(0), 'labels': None, 'mems': None, 'model': model},
+                            globals={'input_ids': torch.zeros((1, 192), dtype=torch.int64), 'labels': None, 'mems': None, 'model': model},
                             num_threads=n_threads,
                             label='Multithreaded model execution')
 
