@@ -88,7 +88,7 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
     save(model, onnx_model_path)
 
 
-def export_onnx_from_pt(model: torch.nn.Module,
+def export_onnx_from_torch(model: torch.nn.Module,
                         model_config: dict,
                         model_type: str,
                         onnx_model_path: str,
