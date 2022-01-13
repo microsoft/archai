@@ -88,7 +88,7 @@ def load_from_torch_for_export(model_type: str, torch_model_path: str) -> Tuple[
         model = model.model
         model.forward = types.MethodType(forward_gpt2_onnx, model)
 
-        # if we dont do this the export/fusion operations break
+        # if we dont do this the export/fusion operations break with relu squared
         for layer in model.transformer.h:
             quantize_helper.conv1d_to_linear(layer.mlp)
 
