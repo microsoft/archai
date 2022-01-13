@@ -133,8 +133,8 @@ class Converter:
 
         return ','.join(str(k) for k in key_list)
 
-    def get_gene_choice(self, d_inner_min: Optional[int] = None) -> List[List[Any]]:
-        """Gathers all possible gene choices.
+    def get_allowed_genes(self, d_inner_min: Optional[int] = None) -> List[List[Any]]:
+        """Gathers all allowed gene choices.
 
         Args:
             d_inner_min: Minimum value for the inner dimension.
@@ -144,18 +144,18 @@ class Converter:
             
         """
 
-        gene_choice = []
+        allowed_genes = []
 
-        gene_choice.append(self.d_model_choice)
-        gene_choice.append(self.n_layer_choice)
+        allowed_genes.append(self.d_model_choice)
+        allowed_genes.append(self.n_layer_choice)
 
         for _ in range(self.max_n_layer):
             if d_inner_min is not None:
-                gene_choice.append(list(range(d_inner_min, self.d_inner_choice[-1], 50)))
+                allowed_genes.append(list(range(d_inner_min, self.d_inner_choice[-1], 50)))
             else:
-                gene_choice.append(self.d_inner_choice)
+                allowed_genes.append(self.d_inner_choice)
 
         for _ in range(self.max_n_layer):
-            gene_choice.append(self.n_head_choice)
+            allowed_genes.append(self.n_head_choice)
 
-        return gene_choice
+        return allowed_genes

@@ -13,6 +13,9 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import yaml
 
+import matplotlib.pyplot as plt
+import pickle
+
 # Keys that can be parsed from a model's configuration
 KEYS_MODEL_CONFIG = ['n_token', 'n_layer', 'n_head', 'd_model', 'd_head', 'd_inner',
                      'dropout', 'dropatt', 'd_embed', 'div_val', 'pre_lnorm',
@@ -349,15 +352,15 @@ def parse_results_from_amulet(n_population: int,
                 break
             keys.append(f'config_{i}_j{j}')
 
-    def found_all_jobs(keys, results):
+    results = parse_results_from_experiment(exp_name, results_path, file_type='.json')
+
+    def _found_all_jobs(keys: List[str], results: Dict[str, Any]) -> bool:
         for k in keys:
             if k not in results.keys():
                 return False
         return True
 
-    results = parse_results_from_experiment(exp_name, results_path, file_type='.json')
-
-    while not found_all_jobs(keys, results):
+    while not _found_all_jobs(keys, results):
         time.sleep(60)
 
         results = parse_results_from_experiment(exp_name, results_path, file_type='.json')
@@ -388,6 +391,47 @@ def parse_results_from_amulet(n_population: int,
         configs_list_sorted.append(configs_list[idx])
 
     return val_ppls, configs_list_sorted
+
+
+def parse_results_from_baseline_experiment(args: Dict[str, Any],
+                                           exp_name: str,
+                                           dir_path: str) -> None:
+    """Parses results from a baseline experiment.
+
+    Args:
+        args: Additional arguments.
+        exp_name: Name of the experiment.
+        dir_path: Path to the directory holding the experiment's files.
+
+    """
+
+    baseline_results = parse_results_from_experiment(exp_name, os.path.join(dir_path, exp_name), file_type=['config.yaml', '.json'], verbose=False)
+
+    with open(os.path.join(dir_path, exp_name, 'latency_summary_{}.yaml'.format(args['device_name'])), 'r') as f:
+        latencies = yaml.load(f)
+
+    with open(os.path.join(dir_path, exp_name, 'params.pkl'), 'rb') as f:
+        params = pickle.load(f)
+
+    latencies_list = []
+    params_list = []
+    val_ppls = []
+
+    for config_name, latency in latencies.items():
+        latencies_list.append(latency)
+        params_list.append(params[config_name])
+        val_ppls.append(baseline_results[config_name]['valid_perplexity'])
+
+    print(f'summarized {len(latencies.keys())} baseline jobs')
+
+    plt.figure()
+    plt.scatter(np.asarray(latencies_list) * 1000., val_ppls, s=5)
+    plt.xlabel('Latency (ms)')
+    plt.ylabel('Val PPL')
+    plt.grid(axis='y')
+    plt.savefig(os.path.join(args['results_path'], 'baseline_pareto_latency.png'), bbox_inches="tight")
+
+    return latencies_list, params_list, val_ppls
 
 
 def parse_values_from_yaml(value: Any) -> str:

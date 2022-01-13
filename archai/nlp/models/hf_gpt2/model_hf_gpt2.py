@@ -5,7 +5,7 @@
 """
 
 import types
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -50,7 +50,7 @@ class HfGPT2(ArchaiModel):
         d_head = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] is None else map_to_list(kwargs['d_head'], kwargs['n_layer'])
 
         assert len(d_inner) == kwargs['n_layer'] and len(n_head) == kwargs['n_layer'] and len(d_head) == kwargs['n_layer']
-
+        
         kwargs['d_inner'] = d_inner[0]
         kwargs['n_head'] = n_head[0]
         kwargs['d_head'] = d_head[0]
@@ -137,3 +137,22 @@ class HfGPT2(ArchaiModel):
 
         # There is no memory in GPT-2
         pass
+
+    def get_params(self) -> Dict[str, int]:
+        """Returns a dictionary of total parameters per implemented layer.
+
+        Returns:
+            (Dict[str, int]): Number of total parameters.
+
+        """
+
+        params = {}
+
+        params['embedding'] = self.get_params_from_layer(['nn.Embedding'])
+        params['attention'] = self.get_params_from_layer(['GPT2Attention'])
+        params['ff'] = self.get_params_from_layer(['GPT2MLP'])
+
+        params['non_embedding'] = params['attention'] + params['ff']
+        params['total'] = params['non_embedding'] + params['embedding']
+
+        return params
