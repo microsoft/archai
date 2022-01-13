@@ -9,8 +9,6 @@ from typing import List, Optional
 
 import onnx
 import torch
-from archai.nlp.common.file_naming_utils import create_file_name_identifier
-from archai.nlp.common.lazy_loader import load_model_from_checkpoint
 from onnx import onnx_pb as onnx_proto
 from onnx.onnx_ml_pb2 import NodeProto
 from onnxruntime.quantization.onnx_quantizer import ONNXQuantizer
@@ -18,6 +16,9 @@ from onnxruntime.quantization.operators.base_operator import QuantOperatorBase
 from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
+
+from archai.nlp.common.file_naming_utils import create_file_name_identifier
+from archai.nlp.common.lazy_loader import load_model_from_checkpoint
 
 
 class GemmQuant(QuantOperatorBase):
