@@ -6,15 +6,14 @@
 
 import json
 import os
+import pickle
 import re
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import yaml
-
-import matplotlib.pyplot as plt
-import pickle
 
 # Keys that can be parsed from a model's configuration
 KEYS_MODEL_CONFIG = ['n_token', 'n_layer', 'n_head', 'd_model', 'd_head', 'd_inner',

@@ -9,6 +9,7 @@ import os
 import pickle
 import re
 import time
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import yaml
@@ -16,7 +17,18 @@ import yaml
 from archai.nlp.nas.nas_utils.parser import parse_values_from_yaml
 
 
-def check_job_status(exp_name, n_configs, start_config=0):
+def check_job_status(exp_name: str,
+                     n_configs: int,
+                     start_config: Optional[int] = 0) -> None:
+    """Checks the status of a particular job.
+
+    Args:
+        exp_name: Name of the experiment.
+        n_configs: Number of configurations to check.
+        start_config: Starting range of the configuration to be checked.
+
+    """
+
     pass_count = 0
 
     while pass_count < n_configs:
@@ -36,46 +48,92 @@ def check_job_status(exp_name, n_configs, start_config=0):
 
             if ':config_' in l[0]:
                 config_idx = int(re.search(':config_([0-9]+)', l[0]).group(1))
-                print(f'checking status of job {config_idx}')
+                print(f'Checking status of job {config_idx}')
 
                 if (config_idx < start_config) or (config_idx >= (start_config + n_configs)):
-                    print('This job index is not in range')
+                    print('Supplied index is not in valid range')
                     continue
 
                 if 'pass' in l:
                     pass_count += 1
 
                 elif 'failed' in l:
-                    assert False, f'experiment {exp_name}, job :config_{config_idx} failed'
+                    assert False, f'Experiment {exp_name}, job :config_{config_idx} failed'
 
-        print(f'{pass_count} total amlt jobs finished so far.')
+        print(f'{pass_count} total jobs finished.')
 
     os.system('rm tmp.txt')
 
 
-def get_bundle_run_command(configs, max_step, n_gpus, gpu_config, is_pareto=None):
-    command = []
-    for i, curr_config in enumerate(configs):
-        curr_config['div_val'] = 4
-        curr_config['d_embed'] = curr_config['d_model']
-        curr_config['d_head'] = [curr_config['d_model'] // n_head for n_head in curr_config['n_head']]
+def create_job_command(configs: List[Dict[str, Any]],
+                       max_step: int,
+                       n_gpus: int,
+                       gpu_config: str,
+                       is_pareto: Optional[bool] = None) -> str:
+    """Creates a command-line command that launches a new job.
 
-        for k, v in curr_config.items():
-            curr_config[k] = str(parse_values_from_yaml(v))
+    Args:
+        configs: List of configuration dictionaries.
+        max_step: Maximum number of training steps.
+        n_gpus: Number of GPUs.
+        gpu_config: GPU configuration to be used.
+        is_pareto: Whether job is from pareto front or not.
+
+    Returns:
+        (str): Command-line command.
+
+    """
+
+    command = []
+
+    for i, config in enumerate(configs):
+        config['div_val'] = 4
+        config['d_embed'] = config['d_model']
+        config['d_head'] = [config['d_model'] // n_head for n_head in config['n_head']]
+
+        for k, v in config.items():
+            config[k] = str(parse_values_from_yaml(v))
 
         exp_name = 'j' + str(i) + ('_pareto' if (is_pareto is not None and is_pareto[i]) else '')
 
         command.append('python -m torch.distributed.launch --nproc_per_node="%s" archai/nlp/nvidia_transformer_xl/train.py --config %s \
                        --config_file wt103_base.yaml --n_layer %s --n_head %s --d_model %s --d_head %s \
                        --d_inner %s --d_embed %s --div_val %s --max_step %d --experiment_name %s'
-                       % (str(n_gpus), gpu_config, curr_config['n_layer'], curr_config['n_head'], curr_config['d_model'], curr_config['d_head'], curr_config['d_inner'],
-                       curr_config['d_embed'], curr_config['div_val'], max_step, exp_name))
+                       % (str(n_gpus), gpu_config, config['n_layer'], config['n_head'], config['d_model'], config['d_head'], config['d_inner'],
+                       config['d_embed'], config['div_val'], max_step, exp_name))
 
     return command
 
 
-def create_jobs(all_population, start_config=0, bundle_count=50, max_step=500, n_gpus=8, gpu_config='dgx1_8gpu_fp32', target='NLX-NDv2',
-                exp_name='midevolution_training_', is_pareto=None, path_to_save=None):
+def create_jobs(all_population: List[List[Any]],
+                start_config: Optional[int] = 0,
+                n_jobs: Optional[int] = 50,
+                max_step: Optional[int] = 500,
+                n_gpus: Optional[int] = 8,
+                gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
+                target: Optional[str] = 'NLX-NDv2',
+                exp_name: Optional[str] = 'midevolution_training_',
+                is_pareto: Optional[bool] = None,
+                path_to_save: Optional[str] = None) -> Tuple[str, str, int]:
+    """Creates a batch of jobs.
+
+    Args:
+        all_population: List of genes that belongs to the population.
+        start_config: Starting range of the configuration to be checked.
+        n_jobs: Number of jobs to be created.
+        max_step: Number of maximum steps to train the models.
+        n_gpus: Number of GPUs to be used.
+        gpu_config: GPU configuration.
+        target: Target machine to deploy the jobs.
+        exp_name: Name of the experiment.
+        is_pareto: Whether job is from pareto front or not.
+        path_to_save: Folder that output files should be saved on.
+
+    Returns:
+        (Tuple[str, str, int]): Experiment name, bash file with created commands and range
+            of configurations that will be deployed.
+    """
+
     path_to_configs = os.path.join('./archai/nlp/nvidia_transformer_xl', 'configs') if path_to_save is None else path_to_save
     os.makedirs(path_to_configs, exist_ok=True)
 
@@ -104,9 +162,9 @@ def create_jobs(all_population, start_config=0, bundle_count=50, max_step=500, n
         amlt_config['jobs'][0]['command'] = ['set -e -o xtrace', 'pip install --user -e .']
 
         if is_pareto is not None:
-            amlt_config['jobs'][0]['command'] += get_bundle_run_command(copy.deepcopy(all_population[c:c+bundle_count]), max_step, n_gpus, gpu_config, is_pareto=is_pareto[c:c+bundle_count])
+            amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
         else:
-            amlt_config['jobs'][0]['command'] += get_bundle_run_command(copy.deepcopy(all_population[c:c+bundle_count]), max_step, n_gpus, gpu_config)
+            amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, gpu_config)
 
         config_file = 'nv_train_'+str(config_idx)+'.yaml'
 
@@ -114,7 +172,7 @@ def create_jobs(all_population, start_config=0, bundle_count=50, max_step=500, n
         with open(f_name, 'w') as file:
             yaml.dump(amlt_config, file)
 
-        c += bundle_count
+        c += n_jobs
         config_idx += 1
 
     exp_name = exp_name + str(max_step)
@@ -132,7 +190,28 @@ def create_jobs(all_population, start_config=0, bundle_count=50, max_step=500, n
     return exp_name, bash_file, config_idx-start_config
 
 
-def submit_gt_jobs(args, alg, max_step=500, start_config=0, bundle_count=50, n_gpus=8, gpu_config='dgx1_8gpu_fp32', targets=['NLX-NDv2']):
+def submit_ground_truth_jobs(args: Dict[str, Any],
+                             alg: Any,
+                             max_step: Optional[int] = 500,
+                             start_config: Optional[int] = 0,
+                             n_jobs: Optional[int] = 50,
+                             n_gpus: Optional[int] = 8,
+                             gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
+                             targets: Optional[List[str]] = ['NLX-NDv2']) -> None:
+    """Submits a batch of ground-truth jobs.
+
+    Args:
+        args: Additional arguments.
+        alg: Evolutionary algorithm.
+        max_step: Number of maximum steps to train the models.
+        start_config: Starting range of the configuration to be checked.
+        n_jobs: Number of jobs to be created.
+        n_gpus: Number of GPUs to be used.
+        gpu_config: GPU configuration.
+        targets: Target machines to deploy the experiments.
+
+    """
+
     # get amlt bash files for running all jobs to get the ground-truth Pareto
     results_path = args['results_path']
     path_to_logs = os.path.join(results_path, 'logs.pkl')
@@ -190,11 +269,34 @@ def submit_gt_jobs(args, alg, max_step=500, start_config=0, bundle_count=50, n_g
     with open(path_to_pkl, 'wb') as f:
         pickle.dump(is_pareto_dict, f)
 
-    create_jobs(all_population, start_config, bundle_count, max_step, n_gpus,
+    create_jobs(all_population, start_config, n_jobs, max_step, n_gpus,
                 gpu_config, targets[0], exp_name='evolution_', is_pareto=is_pareto)
 
 
-def submit_pareto_front_jobs(args, alg, is_pareto_dict, max_step=500, start_config=0, bundle_count=50, n_gpus=8, gpu_config='dgx1_8gpu_fp32', targets=['NLX-NDv2']):
+def submit_pareto_front_jobs(args: Dict[str, Any],
+                             alg: Any,
+                             is_pareto_dict: Dict[str, Any],
+                             max_step: Optional[int] = 500,
+                             start_config: Optional[int] = 0,
+                             n_jobs: Optional[int] = 50,
+                             n_gpus: Optional[int] = 8,
+                             gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
+                             targets: Optional[List[str]] = ['NLX-NDv2']) -> None:
+    """Submits a batch of Pareto front jobs.
+
+    Args:
+        args: Additional arguments.
+        alg: Evolutionary algorithm.
+        is_pareto_dict: Pareto front configurations.
+        max_step: Number of maximum steps to train the models.
+        start_config: Starting range of the configuration to be checked.
+        n_jobs: Number of jobs to be created.
+        n_gpus: Number of GPUs to be used.
+        gpu_config: GPU configuration.
+        targets: Target machines to deploy the experiments.
+
+    """
+    
     # get amlt bash files for training jobs of selected Pareto points
     results_path = args['results_path']
     path_to_logs = os.path.join(results_path, 'logs.pkl')
@@ -226,5 +328,5 @@ def submit_pareto_front_jobs(args, alg, is_pareto_dict, max_step=500, start_conf
     with open(path_to_pkl, 'wb') as f:
         pickle.dump(pareto_latencies, f)
 
-    create_jobs(pareto_population, start_config, bundle_count, max_step, n_gpus, gpu_config, targets[0],
+    create_jobs(pareto_population, start_config, n_jobs, max_step, n_gpus, gpu_config, targets[0],
                 exp_name='evolution_', path_to_save=os.path.join('../archaiphilly/transformer_nas', 'pareto_'+args['device_name']))

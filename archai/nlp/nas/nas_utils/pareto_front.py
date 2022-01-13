@@ -4,28 +4,44 @@
 """Utilities that calculates the Pareto front.
 """
 
-
 import os
 import pickle
 import re
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-import yaml
 from matplotlib import pyplot as plt
 
 from archai.nlp.common.lazy_loader import load_from_args
 from archai.nlp.nas.nas_utils.metrics import spearman_ranking
-from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
+from archai.nlp.nas.nas_utils.parser import parse_results_from_baseline_experiment, parse_results_from_experiment
 
 
-def get_convex_hull(xs, ys, eps=None, allow_decrease=False, allow_increase=False, results_path=None):
-    """
-    Andrew's Monotone Chain Algorithm: (https://en.wikipedia.org/wiki/Graham_scan)
-    Assume the data are sorted in order of xs, then the computation complexity is O(n)
-    If not sorted, then a sort by x-value is applied first. The complexity becomes O(nlog(n))
-    Return:
-    hull_indices (list): indices for the points on the hull exactly
-    eps_indices (list): indices for the points on the hull + eps tolerance
+def calculate_convex_hull(xs: List[Any],
+                          ys: List[Any],
+                          eps: Optional[float] = None,
+                          allow_decrease: Optional[bool] = False,
+                          allow_increase: Optional[bool] = False,
+                          results_path: Optional[str] = None) -> Tuple[List[Tuple], List[Tuple]]:
+    """Calculates the convex hull between input points.
+
+    Andrew's Monotone Chain Algorithm: (https://en.wikipedia.org/wiki/Graham_scan).
+
+    Assumes the data is sorted in order of xs, then the computation complexity is O(n).
+    If not sorted, then a sort by x-value is applied first, thus, complexity becomes O(nlog(n)).
+
+    Args:
+        xs: Input `x` points.
+        ys: Input `y` points.
+        eps: Epsilon value.
+        allow_decrease: Whether convex hull should be decreased or not.
+        allow_increase: Whether convex hull should be increased or not.
+        results_path: Path to save the output files.
+
+    Returns:
+        (Tuple[List[Tuple], List[Tuple]]): Indices for the points on the hull and
+            on the hull + epsilon.
+
     """
     
     xs = list(xs)
@@ -42,12 +58,11 @@ def get_convex_hull(xs, ys, eps=None, allow_decrease=False, allow_increase=False
     if not is_monotone:
         indices.sort(key=lambda i: (xs[i], ys[i]))
 
-    def _is_on_ray_left(x1, y1, x2, y2, x3, y3, inclusive=False, epsilon=0):
-        """
-        Return whether x3,y3 is on the left side of the ray x1,y1 -> x2,y2.
-        If inclusive, then the answer is left or on the ray.
-        If otherwise, then the answer is strictly left.
-        """
+    def _is_on_ray_left(x1: Any, y1: Any,
+                        x2: Any, y2: Any,
+                        x3: Any, y3: Any,
+                        inclusive: Optional[bool] = False,
+                        epsilon: Optional[float] = 0.0) -> bool:
 
         val = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)
 
@@ -56,7 +71,7 @@ def get_convex_hull(xs, ys, eps=None, allow_decrease=False, allow_increase=False
 
         return val > epsilon
 
-    def _remove_non_hull_idx(x1, y1, idxs):
+    def _remove_non_hull_idx(x1: Any, y1: Any, idxs: List[int]) -> List[int]:
         while len(idxs) > 1:
             x2, y2 = xs[idxs[-1]], ys[idxs[-1]]
             x3, y3 = xs[idxs[-2]], ys[idxs[-2]]
@@ -153,39 +168,25 @@ def get_convex_hull(xs, ys, eps=None, allow_decrease=False, allow_increase=False
     return hull_indices, eps_indices
 
 
-def test_convex_hull(args):
-    results_path = args['results_path']
+def find_vanilla_pareto(args: Dict[str, Any],
+                       xs: List[Any],
+                       ys: List[Any],
+                       eps: Optional[float] = 0.01,
+                       decreasing: Optional[bool] = True) -> List[int]:
+    """Finds the initial Pareto front.
 
-    np.random.seed(0)
-    xs = np.random.uniform(size=100)
-    ys = np.random.uniform(size=100) + xs + 1.0
-    eps = 0
+    Args:
+        args: Additional arguments.
+        xs: Input `x` points.
+        ys: Input `y` points.
+        eps: Epsilon value.
+        decreasing: Whether it is a decreasing Pareto front or not.
 
-    hull_indices, indices = get_convex_hull(xs, ys, eps, allow_decrease=False, allow_increase=True)
+    Returns:
+        (List[int]): Indices of Pareto front points.
 
-    hull_xs = [xs[i] for i in indices]
-    hull_ys = [ys[i] for i in indices]
+    """
 
-    bound_xs = [xs[i] for i in hull_indices]
-    bound_ys = [ys[i] * (1+eps) for i in hull_indices]
-
-    plt.plot(bound_xs, bound_ys, c='red', label='eps-bound')
-    plt.scatter(xs, ys, label='pts')
-    plt.scatter(hull_xs, hull_ys, c='black', marker='+', label='eps-hull')
-    plt.show()
-    plt.savefig(os.path.join(results_path, 'debug_convex_hull.png'), dpi=plt.gcf().dpi, bbox_inches='tight')
-
-
-def test_pareto(args, eps=0.01, decreasing=True):
-    np.random.seed(0)
-    xs = np.random.uniform(size=1000)
-    scale_x = (-1) if decreasing else (1)
-    ys = np.random.uniform(size=1000) + (scale_x * xs) + 1.0
-
-    get_vanilla_pareto(args, xs, ys, eps, decreasing)
-
-
-def get_vanilla_pareto(args, xs, ys, eps=0.01, decreasing=True):
     results_path = args['results_path']
 
     range_x = np.max(xs) - np.min(xs)
@@ -243,7 +244,25 @@ def get_vanilla_pareto(args, xs, ys, eps=0.01, decreasing=True):
     return pareto_indices_pruned
 
 
-def get_diff_with_pareto(gt_latencies, gt_val_ppls, is_gt_pareto, is_proxy_pareto, min_acceptable_latency_diff=0):
+def find_diff_between_paretos(gt_latencies: List[float],
+                              gt_val_ppls: List[float],
+                              is_gt_pareto: List[bool],
+                              is_proxy_pareto: List[bool],
+                              min_acceptable_latency_diff: Optional[float] = 0.0) -> float:
+    """Finds difference between ground-truth Pareto front and found Pareto front.
+
+    Args:
+        gt_latencies: Ground-truth latencies.
+        gt_val_ppls: Ground-truth validation perplexities.
+        is_gt_pareto: Whether point is in ground-truth Pareto or not.
+        is_proxy_pareto: Whether point is in proxy Pareto or not.
+        min_acceptable_latency_diff: Minimum acceptable latency difference.
+
+    Returns:
+        (float): Perplexity difference between ground-truth and found Paretos.
+
+    """
+
     sorted_idx = np.argsort(gt_latencies)
 
     ppl_diff = []
@@ -295,9 +314,35 @@ def get_diff_with_pareto(gt_latencies, gt_val_ppls, is_gt_pareto, is_proxy_paret
     return np.mean(ppl_diff)
 
 
-def get_gt_pareto(args, alg, exp_name, path_to_dir, start_config, ppl_eps=0.1, latency_eps=0.01, hybrid=False, use_convex_hull=False,
-                  min_acceptable_latency_diff=0, baseline_exp=None):
-    gt_results = parse_results_from_experiment(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+def find_ground_truth_pareto(args: Dict[str, Any],
+                             alg: Any,
+                             exp_name: str,
+                             path_to_dir: str,
+                             start_config: int,
+                             ppl_eps: Optional[float] = 0.1,
+                             latency_eps: Optional[float] = 0.01,
+                             hybrid: Optional[bool] = False,
+                             use_convex_hull: Optional[bool] = False,
+                             min_acceptable_latency_diff: Optional[float] = 0.0,
+                             baseline_exp: Optional[str] = None) -> None:
+    """Find the ground-truth Pareto front.
+
+    Args:
+        args: Additional arguments.
+        alg: Evolutionary algorithm.
+        exp_name: Name of experiment.
+        path_to_dir: Path to the experiment's files directory.
+        start_config: Starting range of the configuration to be checked.
+        ppl_eps: Perplexity epsilon.
+        latency_eps: Latency epsilon.
+        hybrid: Whether is a hybrid Pareto front or not.
+        use_convex_hull: Whether convex hull calculation should be used or not.
+        min_acceptable_latency_diff: Minimum acceptable latency difference.
+        baseline_exp: Baseline experiment name.
+
+    """
+
+    gt_results = parse_results_from_experiment(exp_name, os.path.join(path_to_dir, exp_name), file_type=['config.yaml', '.json'], verbose=False)
     
     print('found %d model configurations' % len(gt_results.keys()))
     print('Loading the latencies from log file')
@@ -312,7 +357,7 @@ def get_gt_pareto(args, alg, exp_name, path_to_dir, start_config, ppl_eps=0.1, l
 
     if baseline_exp is not None:
         print('Loading the baseline')
-        latencies_baseline, params_baseline, val_ppls_baseline = analyze_baseline(args, exp_name=baseline_exp, path_to_dir=path_to_dir)
+        latencies_baseline, params_baseline, val_ppls_baseline = parse_results_from_baseline_experiment(args, exp_name=baseline_exp, path_to_dir=path_to_dir)
 
     # load previous pareto
     loaded_pareto = None
@@ -364,12 +409,12 @@ def get_gt_pareto(args, alg, exp_name, path_to_dir, start_config, ppl_eps=0.1, l
         xs = gt_latencies
         ys = np.asarray(gt_val_ppls)
 
-        gt_pareto_indices, _ = get_convex_hull(xs, ys, eps=0., allow_decrease=True, allow_increase=False)
+        gt_pareto_indices, _ = calculate_convex_hull(xs, ys, eps=0., allow_decrease=True, allow_increase=False)
 
         is_gt_pareto[gt_pareto_indices] = 1.0
     else:
         # extract the actual pareto front based on val ppl and latency
-        pareto_indices = get_vanilla_pareto(args, xs=gt_latencies, ys=gt_val_ppls, eps=latency_eps, decreasing=True)
+        pareto_indices = find_vanilla_pareto(args, xs=gt_latencies, ys=gt_val_ppls, eps=latency_eps, decreasing=True)
         is_gt_pareto = np.zeros_like(is_pareto)
 
         for i in range(len(gt_val_ppls)):
@@ -383,7 +428,7 @@ def get_gt_pareto(args, alg, exp_name, path_to_dir, start_config, ppl_eps=0.1, l
     
     print(f'TPR={TPR}% and TNR={TNR}%')
 
-    mean_ppl_difference = get_diff_with_pareto(gt_latencies, gt_val_ppls, is_gt_pareto, is_pareto, min_acceptable_latency_diff=min_acceptable_latency_diff)
+    mean_ppl_difference = find_diff_between_paretos(gt_latencies, gt_val_ppls, is_gt_pareto, is_pareto, min_acceptable_latency_diff=min_acceptable_latency_diff)
     
     print('mean ppl difference between proxy and gt pareto: {:.1f}%'.format(mean_ppl_difference))
 
@@ -405,10 +450,37 @@ def get_gt_pareto(args, alg, exp_name, path_to_dir, start_config, ppl_eps=0.1, l
     plt.savefig(os.path.join(results_path, fname), bbox_inches="tight")
 
 
+def compare_pareto_fronts(args: Dict[str, Any],
+                          alg: Any,
+                          exp_name: str,
+                          path_to_dir: str,
+                          start_config: int,
+                          ppl_eps: Optional[float] = 0.1,
+                          latency_eps: Optional[float] = 0.01,
+                          hybrid: Optional[bool] = False,
+                          use_convex_hull: Optional[bool] = False,
+                          min_acceptable_latency_diff: Optional[float] = 0.0,
+                          baseline_exp: Optional[str] = None,
+                          check_pareto: Optional[bool] = True) -> None:
+    """Compare Pareto fronts (baseline and proxy).
 
-def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_eps=0.1, latency_eps=0.01, hybrid=False, use_convex_hull=False,
-                       min_acceptable_latency_diff=0, baseline_exp=None, check_pareto=True):
-    gt_results = parse_results_from_experiment(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
+    Args:
+        args: Additional arguments.
+        alg: Evolutionary algorithm.
+        exp_name: Name of experiment.
+        path_to_dir: Path to the experiment's files directory.
+        start_config: Starting range of the configuration to be checked.
+        ppl_eps: Perplexity epsilon.
+        latency_eps: Latency epsilon.
+        hybrid: Whether is a hybrid Pareto front or not.
+        use_convex_hull: Whether convex hull calculation should be used or not.
+        min_acceptable_latency_diff: Minimum acceptable latency difference.
+        baseline_exp: Baseline experiment name.
+        check_pareto: Whether Pareto front should be checked or not.
+
+    """
+
+    gt_results = parse_results_from_experiment(exp_name, os.path.join(path_to_dir, exp_name), file_type=['config.yaml', '.json'], verbose=False)
     
     print('found %d model configurations' % len(gt_results.keys()))
     print('Loading the latencies from log file')
@@ -425,7 +497,7 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
     assert baseline_exp is not None, 'please provide a baseline'
 
     print('Loading the baseline')
-    latencies_baseline, params_baseline, val_ppls_baseline = analyze_baseline(args, exp_name=baseline_exp, path_to_dir=path_to_dir)
+    latencies_baseline, params_baseline, val_ppls_baseline = parse_results_from_baseline_experiment(args, exp_name=baseline_exp, path_to_dir=path_to_dir)
 
     sorted_params_baseline = np.argsort(params_baseline)
     sorted_val_ppls_baseline = np.argsort(val_ppls_baseline)
@@ -463,9 +535,9 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
 
             try:
                 if not check_pareto or ((loaded_pareto and loaded_pareto[key]) or (not loaded_pareto and 'pareto' in job_name)):
-                    model_config = load_from_args('mem_transformer', cls_type='config')
+                    model_config = load_from_args('hf_gpt2', cls_type='config')
                     model_config.update(alg.converter.gene_to_config(gene))
-                    model = load_from_args('mem_transformer', **model_config)
+                    model = load_from_args('hf_gpt2', **model_config)
 
                     params = model.get_params()
                     params_attention = params['attention']
@@ -483,11 +555,23 @@ def compare_w_baseline(args, alg, exp_name, path_to_dir, start_config=None, ppl_
 
     print(f'found {len(gt_val_ppls)} models on the proxy pareto')
 
-    return
 
+def find_final_pareto_front(args: Dict[str, Any],
+                            alg: Any,
+                            eps: Optional[float] = 0.05,
+                            hybrid: Optional[bool] = False,
+                            use_convex_hull: Optional[bool] = False) -> None:
+    """Finds final Pareto front (after evolutionary search has been conducted).
 
-def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=False):
-    # exract final pareto after evolutionary search has finished
+        Args:
+        args: Additional arguments.
+        alg: Evolutionary algorithm.
+        eps: Epsilon.
+        hybrid: Whether is a hybrid Pareto front or not.
+        use_convex_hull: Whether convex hull calculation should be used or not.
+
+    """
+
     if use_convex_hull:
         print(f'extracting the pareto using the convex hull')
     else:
@@ -524,9 +608,9 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
 
                 else:
                     if (args['start_train'] < args['n_iter']) and (i >= args['start_train']):
-                        model_config = load_from_args('mem_transformer', cls_type='config')
+                        model_config = load_from_args('hf_gpt2', cls_type='config')
                         model_config.update(alg.converter.gene_to_config(gene))
-                        model = load_from_args('mem_transformer', **model_config)
+                        model = load_from_args('hf_gpt2', **model_config)
 
                         params = model.get_params()
                         params_attention = params['attention']
@@ -555,7 +639,7 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
             xs = all_params[idx:]
             ys = all_latencies[idx:]
 
-        pareto_indices, _ = get_convex_hull(xs, ys, eps=0., allow_decrease=False)
+        pareto_indices, _ = calculate_convex_hull(xs, ys, eps=0., allow_decrease=False)
 
         for i in range(len(all_params)):
             if i < idx and hybrid:
@@ -570,7 +654,7 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
                 is_pareto_dict[seen_keys[i]] = is_pareto
     else:
         ################# faster vanilla pareto extraction on sorted values #################
-        pareto_indices = get_vanilla_pareto(args, xs=all_params, ys=all_latencies, eps=eps, decreasing=False)
+        pareto_indices = find_vanilla_pareto(args, xs=all_params, ys=all_latencies, eps=eps, decreasing=False)
         
         for i in range(len(all_params)):
             if i in pareto_indices:
@@ -626,36 +710,3 @@ def get_final_pareto_front(args, alg, eps=0.05, hybrid=False, use_convex_hull=Fa
     plt.title('Pareto Curve')
     plt.grid(axis='y')
     plt.savefig(os.path.join(results_path, 'final_search_pareto{}.png'.format('' if hybrid else '_params')), bbox_inches="tight")
-
-
-
-
-def analyze_baseline(args, exp_name, path_to_dir):
-    baseline_results = parse_results_from_experiment(exp_name, os.path.join(path_to_dir, exp_name), filetypes=['config.yaml', '.json'], verbose=False)
-
-    with open(os.path.join(path_to_dir, exp_name, 'latency_summary_{}.yaml'.format(args['device_name'])), 'r') as f:
-        latencies = yaml.load(f)
-
-    with open(os.path.join(path_to_dir, exp_name, 'params.pkl'), 'rb') as f:
-        params = pickle.load(f)
-
-    latencies_list = []
-    params_list = []
-    val_ppls = []
-
-    for config_name, latency in latencies.items():
-        latencies_list.append(latency)
-        params_list.append(params[config_name])
-        val_ppls.append(baseline_results[config_name]['valid_perplexity'])
-
-    print(f'summarized {len(latencies.keys())} baseline jobs')
-
-    plt.figure()
-    plt.scatter(np.asarray(latencies_list) * 1000., val_ppls, s=5)
-    plt.xlabel('Latency (ms)')
-    plt.ylabel('Val PPL')
-    plt.grid(axis='y')
-    fname = 'baseline_pareto_latency.png'
-    plt.savefig(os.path.join(args['results_path'], fname), bbox_inches="tight")
-
-    return latencies_list, params_list, val_ppls
