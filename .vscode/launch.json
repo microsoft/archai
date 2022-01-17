@@ -755,12 +755,12 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_natsbench_zerocost.py",
             "console": "integratedTerminal",
-            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/zc_synthetic_cifar10",
+            "args": ["--results-dir", "/home/dedey/archaiphilly/amlt/darts_constant_random_zerocost_darcyflow",
                 "--out-dir", "/home/dedey/archai_experiment_reports", 
                 "--reg-evals-file", 
-                "/home/dedey/archai_experiment_reports/nb_reg_b256_e200_sc10/arch_id_test_accuracy.yaml",
+                "/home/dedey/archai_experiment_reports/darts_constant_random_darcyflow/arch_id_test_accuracy.yaml",
                 "--params-flops-file",
-                "/home/dedey/archai_experiment_reports/nb_reg_b256_e200_sc10/arch_id_params_flops.yaml"
+                "/home/dedey/archai_experiment_reports/darts_constant_random_darcyflow/arch_id_params_flops.yaml"
                 ]
         },
         {
@@ -907,8 +907,8 @@
             "request": "launch",
             "program": "${cwd}/scripts/reports/fear_analysis/analysis_create_average_heatmaps.py",
             "console": "integratedTerminal",
-            "args": ["--list-of-npys", "/home/dedey/archai_experiment_reports/transnasbench_heatmaps/list.txt",
-                    "--out-dir", "/home/dedey/archai_experiment_reports/transnasbench_heatmaps"]
+            "args": ["--list-of-npys", "/home/dedey/archai_experiment_reports/allavg_heatmaps/list.txt",
+                    "--out-dir", "/home/dedey/archai_experiment_reports/allavg_heatmaps"]
         },
         {
             "name": "CurrentFile",

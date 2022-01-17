@@ -239,9 +239,9 @@ def main():
         fig.write_html(savename_html)
         fig.write_image(savename_png, width=1500, height=1500, scale=1)
 
-
-
-
+        # save heatmap in npy form for later averaging
+        with open(os.path.join(out_dir, 'heatmap.npy'), 'wb') as f:
+            np.save(f, hm)
 
 
     results_savename = os.path.join(out_dir, 'results.txt')
