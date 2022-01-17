@@ -42,6 +42,7 @@ def main():
 
     avg_heatmap = sum(npys)/len(npys)
 
+    # agreed upon order.
     ZEROCOST_MEASURES_PF = ['grad_norm', 'snip', 'grasp', 'fisher', 'jacob_cov', 'synflow', 'params', 'flops', 'gt']
     
     fig = px.imshow(avg_heatmap, text_auto="0.1f", x=ZEROCOST_MEASURES_PF, y=ZEROCOST_MEASURES_PF)
