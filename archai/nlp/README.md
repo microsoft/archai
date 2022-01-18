@@ -151,7 +151,7 @@ The whole NAS idea is structured as an evolutionary search for transformer-based
 The first step is to conduct the search and find a set of Pareto points that meet the constraints, as follows:
 
 ```bash
-python archai/nlp/train.py --phase run_search --help 
+python archai/nlp/search.py --phase run_search --help 
 ```
 
 Essentially, the search will find the best configuration file (which can be used to create the model) for the desired architecture under the input constraints. Traditionally, our search considers the number of non-embedding parameters and the model's latency.
@@ -161,7 +161,7 @@ Essentially, the search will find the best configuration file (which can be used
 After finding possible configurations through the evolutionary search, we can submit some ground-truth jobs for further comparison:
 
 ```bash
-python archai/nlp/train.py --phase submit_gt_jobs --help 
+python archai/nlp/search.py --phase submit_gt_jobs --help 
 ```
 
 *Such a step is valid to determine whether proxy points (without training) and close or distant from the ground-truth points (with training).*
@@ -171,13 +171,13 @@ python archai/nlp/train.py --phase submit_gt_jobs --help
 Alternatively, our `search.py` script allows users in extracting ground-truth Pareto frontier from all samples seen during the evolutionary search, which can be invoked as follows:
 
 ```bash
-python archai/nlp/train.py --phase extract_pareto --help 
+python archai/nlp/search.py --phase extract_pareto --help 
 ```
 
 Further, it is also possible to match the proxy Pareto frontier points (found in the previous step) with the baseline and submit the selected points on the Pareto frontier for full training, as follows:
 
 ```bash
-python archai/nlp/train.py --phase select_pareto --help 
+python archai/nlp/search.py --phase select_pareto --help 
 ```
 
 ### Comparing the Frontiers
@@ -185,7 +185,7 @@ python archai/nlp/train.py --phase select_pareto --help
 Finally, we can compare between the ground-truth and proxy Pareto frontiers, as follows:
 
 ```bash
-python archai/nlp/train.py --phase gt_pareto --help
+python archai/nlp/search.py --phase gt_pareto --help
 ```
 
 ## Architecture Compression
