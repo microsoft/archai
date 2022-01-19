@@ -49,6 +49,7 @@ class Evolution:
                  latency_repeat: Optional[int] = 5,
                  latency_constraint: Optional[float] = None,
                  model_type: Optional[str] = 'mem_transformer',
+                 use_quantization: Optional[bool] = False,
                  **kwargs) -> None:
         """Initializes attributes.
 
@@ -70,6 +71,7 @@ class Evolution:
             latency_repeat: Number of latency measurements.
             latency_constraint: Latency constraint.
             model_type: Type of model.
+            use_quantization: Whether should use quantization or not.
 
         """
 
@@ -96,6 +98,7 @@ class Evolution:
         self.latency_scale = latency_scale
         self.n_threads = n_threads  # number of threads for latency measurement
         self.latency_repeat = latency_repeat # number of runs for mean latency computation
+        self.use_quantization = use_quantization
         
         self.model_type = model_type
         self.model_config_defaults = load_from_args(model_type, cls_type='config').default
@@ -445,7 +448,10 @@ class Evolution:
 
                 params.append(n_params_attention + n_params_ff)
 
-            latency = measure_inference_latency(model, n_threads=self.n_threads, n_trials=self.latency_repeat)
+            latency = measure_inference_latency(model,
+                                                is_quantized=self.use_quantization,
+                                                n_threads=self.n_threads,
+                                                n_trials=self.latency_repeat)
             latencies.append(latency)
 
             if do_train:
@@ -498,7 +504,10 @@ class Evolution:
             return False
 
         if self.latency_constraint is not None:
-            latency = measure_inference_latency(model, n_threads=self.n_threads, n_trials=self.latency_repeat)
+            latency = measure_inference_latency(model,
+                                                is_quantized=self.use_quantization,
+                                                n_threads=self.n_threads,
+                                                n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint:
                 print('gene {} did not satisfy latency threshold: {}>{}'.format(gene, latency, self.latency_constraint))
@@ -655,7 +664,7 @@ class Evolution:
         n_params_attention = n_params['attention']
         n_params_ff = n_params['ff']
 
-        self.max_latency = measure_inference_latency(biggest_model)
+        self.max_latency = measure_inference_latency(biggest_model, is_quantized=self.use_quantization)
         self.max_n_params = n_params_attention + n_params_ff
 
         print('In this search-space -> maximum number of parameters: {}, maximum latency: {}'.format(self.max_n_params, self.max_latency))

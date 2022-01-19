@@ -193,6 +193,10 @@ def parse_args():
                         action='store_true',
                         help='Whether validation set should be used or not.')
 
+    parser.add_argument('--use_quantization',
+                        action='store_true',
+                        help='Whether quantization should be used or not.')
+
     parser.add_argument('--model_type',
                         type=str,
                         default='mem_transformer',
