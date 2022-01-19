@@ -171,7 +171,7 @@ def _dynamic_quantization_torch(model: torch.nn.Module,
 
 
 def dynamic_quantization_torch_from_model(model: torch.nn.Module,
-                                          embedding_layers: Optional[List[str]] = ['word_emb', 'wpe', 'wte']
+                                          embedding_layers: Optional[List[str]] = ['word_emb', 'model.transformer.wpe', 'model.transformer.wte']
                                           ) -> torch.nn.Module:
     """Performs the dynamic quantization over a PyTorch model.
 
@@ -192,7 +192,7 @@ def dynamic_quantization_torch_from_model(model: torch.nn.Module,
 
 def dynamic_quantization_torch_from_path(model_type: str,
                                          torch_model_path: Optional[str] = None,
-                                         embedding_layers: Optional[List[str]] = ['word_emb', 'wpe', 'wte']
+                                         embedding_layers: Optional[List[str]] = ['word_emb', 'model.transformer.wpe', 'model.transformer.wte']
                                          ) -> torch.nn.Module:
     """Performs the dynamic quantization over a PyTorch model path.
 
