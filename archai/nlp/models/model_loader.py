@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Lazy-loading utilities to import required classes on demand.
+"""Loading utilities to import models and their configurations on demand.
 """
 
 from importlib import import_module
@@ -9,9 +9,9 @@ from typing import Any, Dict, Optional, Tuple
 
 import torch
 
-from archai.nlp.common.model_dict import ClassType, ModelDict
+from archai.nlp.models.model_dict import ClassType, ModelDict
 
-# Lazy loading constants
+# loading constants
 LIBRARY_PATH = 'archai.nlp.models'
 
 
@@ -19,7 +19,7 @@ def load_from_args(model_type: str,
                    *args,
                    cls_type: Optional[str] = 'model',
                    **kwargs) -> Any:
-    """Performs the lazy loading of a pre-defined model and its
+    """Performs the loading of a pre-defined model and its
         corresponding class.
 
     Args:
@@ -65,7 +65,7 @@ def load_model_from_checkpoint(model_type: str,
                                on_cpu: Optional[bool] = False,
                                for_export: Optional[bool] = False
                                ) -> Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]:
-    """Performs the lazy loading of a pre-defined model and its configuration.
+    """Performs the loading of a pre-defined model and its configuration.
 
     Args:
         model_type: Type of model to be loaded.

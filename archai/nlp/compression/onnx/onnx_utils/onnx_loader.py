@@ -12,7 +12,7 @@ from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
 from onnxruntime.transformers import quantize_helper
 
-from archai.nlp.common.lazy_loader import load_model_from_checkpoint
+from archai.nlp.models.model_loader import load_model_from_checkpoint
 from archai.nlp.compression.onnx.onnx_utils.forward import (
     crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
 from archai.nlp.models.model_base import ArchaiModel
