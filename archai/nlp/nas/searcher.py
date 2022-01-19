@@ -13,10 +13,7 @@ from opytimizer.spaces import SearchSpace
 
 from archai.nlp.nas.search_utils.objectives import zero_cost_objective
 
-#
-LOWER_BOUND_IDX = 0
-UPPER_BOUND_IDX = 1
-PER_LAYER_IDX = 2
+from archai.nlp.nas.search_utils.conversions import params_to_bound, LOWER_BOUND_IDX, UPPER_BOUND_IDX, PER_LAYER_IDX
 
 
 class Searcher:
@@ -36,8 +33,8 @@ class Searcher:
         max_n_layer = params['n_layer'][UPPER_BOUND_IDX]
 
         #
-        lower_bound = self._calculate_bound(params, max_n_layer, is_lower_bound=True)
-        upper_bound = self._calculate_bound(params, max_n_layer, is_lower_bound=False)
+        lower_bound = params_to_bound(params, max_n_layer, is_lower_bound=True)
+        upper_bound = params_to_bound(params, max_n_layer, is_lower_bound=False)
 
         #
         assert len(lower_bound) == len(upper_bound)
@@ -63,23 +60,6 @@ class Searcher:
 
         for k, v in params.items():
             assert v[LOWER_BOUND_IDX] <= v[UPPER_BOUND_IDX], f'{k}: lower_bound should <= upper_bound'
-
-    def _calculate_bound(self, params, max_n_layer, is_lower_bound=True):
-        """
-        """
-
-        #
-        index = LOWER_BOUND_IDX if is_lower_bound else UPPER_BOUND_IDX
-
-        #
-        bound = []
-        for p in params.values():
-            if not p[PER_LAYER_IDX]:
-                bound += [p[index]]
-            else:
-                bound += [p[index]] * max_n_layer
-
-        return bound
 
     def run(self, n_iterations=1):
         """
@@ -107,8 +87,8 @@ if __name__ == '__main__':
     h = Searcher('mem_transformer', params, n_agents=25)
     h.run(n_iterations=100)
 
-    from archai.nlp.nas.converter import params_to_config
+    from archai.nlp.nas.converter import position_to_config
 
-    print(params_to_config(h.params, h.max_n_layer, h.task.space.best_agent.position))
+    print(position_to_config(h.params, h.max_n_layer, h.task.space.best_agent.position))
 
-    # h.params_to_config(h.task.space.agents[0].position)
+    # h.position_to_config(h.task.space.agents[0].position)

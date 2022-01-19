@@ -4,7 +4,7 @@ from archai.nlp.models.model_loader import load_from_args
 from archai.nlp.nas.search_utils.constraints import (measure_inference_latency,
                                         measure_parameters,
                                         measure_peak_memory)
-from archai.nlp.nas.converter import params_to_config
+from archai.nlp.nas.search_utils.conversions import position_to_config
 
 
 def zero_cost_objective(model_type, params, max_n_layer):
@@ -19,7 +19,7 @@ def zero_cost_objective(model_type, params, max_n_layer):
         model_config = load_from_args(model_type, cls_type='config').default
 
         #
-        config = params_to_config(params, max_n_layer, x)
+        config = position_to_config(x, params, max_n_layer)
         model_config.update(config)
 
         #

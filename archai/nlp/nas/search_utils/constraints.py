@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Defines constraints that are used throughout the search procedure.
+"""Constraints that are used throughout the search procedure.
 """
 
 from typing import Dict, List, Optional
