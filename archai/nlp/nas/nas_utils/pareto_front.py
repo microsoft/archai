@@ -12,9 +12,10 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from matplotlib import pyplot as plt
 
-from archai.nlp.common.lazy_loader import load_from_args
+from archai.nlp.models.model_loader import load_from_args
 from archai.nlp.nas.nas_utils.metrics import spearman_ranking
-from archai.nlp.nas.nas_utils.parser import parse_results_from_baseline_experiment, parse_results_from_experiment
+from archai.nlp.nas.nas_utils.parser import (
+    parse_results_from_baseline_experiment, parse_results_from_experiment)
 
 
 def calculate_convex_hull(xs: List[Any],

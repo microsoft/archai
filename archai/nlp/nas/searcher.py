@@ -5,16 +5,13 @@
 """
 
 import numpy as np
-
-from opytimizer.spaces import SearchSpace
+from opytimizer import Opytimizer
 from opytimizer.core import Function
 from opytimizer.optimizers.evolutionary import GA
 from opytimizer.optimizers.swarm import PSO
+from opytimizer.spaces import SearchSpace
 
-from opytimizer import Opytimizer
-
-from archai.nlp.nas.objectives import zero_cost_objective
-
+from archai.nlp.nas.search_utils.objectives import zero_cost_objective
 
 #
 LOWER_BOUND_IDX = 0
@@ -103,7 +100,7 @@ if __name__ == '__main__':
 
     params = {
         'n_head': (2, 8, True),
-        'd_model': (32, 512, False),
+        'd_inner': (32, 512, False),
         'n_layer': (3, 12, False)
     }
     
