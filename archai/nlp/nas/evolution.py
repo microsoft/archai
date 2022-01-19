@@ -450,10 +450,10 @@ class Evolution:
 
             if do_train:
                 score = (params[i]*1./self.max_val_ppl) - (latency*1./self.max_latency) * self.latency_scale
-                print('indvidual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
+                print('individual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
             else:
                 score = ((n_params_attention + n_params_ff)*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale
-                print('indvidual %d -> params: %d, latency: %.4f, score: %.4f' % (i, n_params_attention + n_params_ff, latency, score))
+                print('individual %d -> params: %d, latency: %.4f, score: %.4f' % (i, n_params_attention + n_params_ff, latency, score))
 
             scores.append(score)
 
@@ -522,7 +522,6 @@ class Evolution:
 
         i = 0
         while i < sample_num:
-            print(i)
             samp_gene = []
 
             for k in range(self.gene_len):

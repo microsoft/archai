@@ -304,7 +304,8 @@
                     "--parent_size", "2", 
                     "--mutation_size", "4", 
                     "--crossover_size", "4",
-                    "--pareto_search"]
+                    "--pareto_search",
+                    "--model_type", "mem_transformer"]
         },
         {
             "name": "CurrentFile",
