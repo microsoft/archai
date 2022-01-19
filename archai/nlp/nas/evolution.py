@@ -17,13 +17,13 @@ import yaml
 from matplotlib import pyplot as plt
 
 from archai.common import utils
-from archai.nlp.common.lazy_loader import load_from_args
-from archai.nlp.nas.constraints import measure_latency
+from archai.nlp.models.model_loader import load_from_args
 from archai.nlp.nas.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
 from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
+from archai.nlp.nas.search_utils.constraints import measure_inference_latency
 
 
 class Evolution:
@@ -445,7 +445,7 @@ class Evolution:
 
                 params.append(n_params_attention + n_params_ff)
 
-            latency = measure_latency(model, n_threads=self.n_threads, n_trials=self.latency_repeat)
+            latency = measure_inference_latency(model, n_threads=self.n_threads, n_trials=self.latency_repeat)
             latencies.append(latency)
 
             if do_train:
@@ -498,7 +498,7 @@ class Evolution:
             return False
 
         if self.latency_constraint is not None:
-            latency = measure_latency(model, n_threads=self.n_threads, n_trials=self.latency_repeat)
+            latency = measure_inference_latency(model, n_threads=self.n_threads, n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint:
                 print('gene {} did not satisfy latency threshold: {}>{}'.format(gene, latency, self.latency_constraint))
@@ -655,7 +655,7 @@ class Evolution:
         n_params_attention = n_params['attention']
         n_params_ff = n_params['ff']
 
-        self.max_latency = measure_latency(biggest_model)
+        self.max_latency = measure_inference_latency(biggest_model)
         self.max_n_params = n_params_attention + n_params_ff
 
         print('In this search-space -> maximum number of parameters: {}, maximum latency: {}'.format(self.max_n_params, self.max_latency))

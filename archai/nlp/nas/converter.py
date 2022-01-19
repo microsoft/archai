@@ -6,10 +6,6 @@
 
 from typing import Any, Dict, List, Optional
 
-import numpy as np
-
-PER_LAYER_IDX = 2
-
 
 class Converter:
     """Enables conversion from genes to configuration dictionaries and vice-versa.
@@ -163,31 +159,3 @@ class Converter:
             allowed_genes.append(self.n_head_choice)
 
         return allowed_genes
-
-
-def params_to_config(params, max_n_layer, x):
-        """
-        """
-
-        #
-        x = np.squeeze(x, -1)
-
-        #
-        param_idx = 0
-        config = {}
-
-        #
-        for k, v in params.items():
-            if not v[PER_LAYER_IDX]:
-                config[k] = np.round(x[param_idx]).astype(int)
-                param_idx += 1
-            else:
-                config[k] = np.round(x[param_idx: param_idx + max_n_layer]).astype(int).tolist()
-                param_idx += max_n_layer
-
-        #
-        for k, v in config.items():
-            if isinstance(v, list):
-                config[k] = config[k][:config['n_layer']]
-
-        return config

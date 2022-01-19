@@ -19,7 +19,8 @@ install_requires=[
     'ftfy', # needed for text scoring, fixes text for you
     # nvidia transformer-xl
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
-    'pytorch-transformers', 'sacremoses', 'pynvml'
+    'pytorch-transformers', 'sacremoses', 'pynvml',
+    'memory-profiler', 'opytimizer'
 ]
 
 setup(
