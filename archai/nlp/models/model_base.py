@@ -7,7 +7,6 @@
 from typing import Dict, List, Optional
 
 import torch
-import torch.nn as nn
 
 
 def _get_layers_from_module(module: torch.nn.Module,
@@ -43,7 +42,7 @@ def _get_layers_from_module(module: torch.nn.Module,
     return layers
 
 
-class ArchaiModel(nn.Module):
+class ArchaiModel(torch.nn.Module):
     """Base model that abstracts further models definitions.
     
     """

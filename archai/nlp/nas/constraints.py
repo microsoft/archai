@@ -4,10 +4,24 @@
 """Defines constraints that are used throughout the search space.
 """
 
+import copy
+
 from typing import Optional
 
 import torch
 import torch.utils.benchmark as benchmark
+
+
+
+
+def measure_parameters(model):
+    """
+    """
+
+    #
+
+
+    return model.get_params()
 
 
 def measure_latency(model: torch.nn.Module,

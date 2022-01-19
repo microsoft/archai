@@ -25,7 +25,7 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from archai.common import ml_perf_utils, utils
-from archai.nlp.common.lazy_loader import (load_from_args,
+from archai.nlp.models.model_loader import (load_from_args,
                                            load_model_from_checkpoint)
 from archai.nlp.compression.quantization.qat import (prepare_with_qat,
                                                      qat_to_float_modules)
