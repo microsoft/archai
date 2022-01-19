@@ -25,7 +25,7 @@ After installing all the requirements, one can train a default model (NVIDIA's T
 python archai/nlp/train.py
 ```
 
-Finally, with another single command line, one can extract the Pareto front of the default search (also with NVIDIA's Transfomer-XL), as follows:
+Finally, with another single command line, one can extract the Pareto front of the default search (also with NVIDIA's Transformer-XL), as follows:
 
 ```bash
 python archai/nlp/search.py
@@ -171,10 +171,24 @@ The whole NAS idea is structured as an evolutionary search for transformer-based
 The first step is to conduct the search and find a set of Pareto points that meet the constraints, as follows:
 
 ```bash
-python archai/nlp/search.py --phase run_search --help 
+python archai/nlp/search.py --phase run_search --pareto_search --help 
 ```
 
 Essentially, the search will find the best configuration file (which can be used to create the model) for the desired architecture under the input constraints. Traditionally, our search considers the number of non-embedding parameters and the model's latency.
+
+Examples:
+
+```bash
+python archai/nlp/search.py --phase run_search --pareto_search --model_type mem_transformer
+```
+
+```bash
+python archai/nlp/search.py --phase run_search --pareto_search --model_type hf_gpt2 --d_model_choice 256
+```
+
+```bash
+python archai/nlp/search.py --phase run_search --pareto_search --use_quantization --model_type hf_gpt2 --d_model_choice 128 256 512 --n_head_choice 2 4 8
+```
 
 ### Finding the Ground-Truth
 
