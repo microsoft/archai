@@ -522,6 +522,7 @@ class Evolution:
 
         i = 0
         while i < sample_num:
+            print(i)
             samp_gene = []
 
             for k in range(self.gene_len):
