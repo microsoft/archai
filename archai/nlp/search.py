@@ -219,11 +219,13 @@ if __name__ == '__main__':
     torch.manual_seed(args.seed)
 
     # Gathers the latency constraint based on device
+    # TODO: this should get moved to config file with a command line override
+    # NOTE: Making values large to make code run through faster 
     latency_constraint = {
-        'XeonE5-2690': 0.5,
-        'corei7': 0.5,
-        'corei5': 0.6,
-        'D3_V2': 0.8
+        'XeonE5-2690': 10.0,
+        'corei7': 10.0,
+        'corei5': 10.0,
+        'D3_V2': 10.0,
     }
     args.latency_constraint = latency_constraint[args.device_name]
 
@@ -239,6 +241,7 @@ if __name__ == '__main__':
     if args.start_train < args.n_iter:
         dir_name += '_wTrain'
 
+    # TODO: the default path is ./evo_search which is inside the code repo!
     args.results_path = os.path.join(args.default_path, dir_name+'_'+args.device_name)
 
     # Standard evolutionary search

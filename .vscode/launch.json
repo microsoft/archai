@@ -295,6 +295,18 @@
             }
         },
         {
+            "name": "Search Autoregressive",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/archai/nlp/search.py",
+            "console": "integratedTerminal",
+            "args": ["--population_size", "10", 
+                    "--parent_size", "2", 
+                    "--mutation_size", "4", 
+                    "--crossover_size", "4",
+                    "--pareto_search"]
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",
