@@ -18,12 +18,12 @@ from matplotlib import pyplot as plt
 
 from archai.common import utils
 from archai.nlp.models.model_loader import load_from_args
-from archai.nlp.nas.search_utils.constraints import measure_inference_latency
 from archai.nlp.nas.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
 from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
+from archai.nlp.nas.search_utils.constraints import measure_inference_latency
 
 
 class Evolution:

@@ -11,8 +11,11 @@ import torch
 import torch.utils.benchmark as benchmark
 from memory_profiler import memory_usage
 
+from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
+
 
 def measure_inference_latency(model: torch.nn.Module,
+                              is_quantized: Optional[bool] = False,
                               use_median: Optional[bool] = False,
                               seq_len: Optional[int] = 192,
                               n_threads: Optional[int] = 1,
@@ -22,6 +25,7 @@ def measure_inference_latency(model: torch.nn.Module,
 
     Args:
         model: Model instance.
+        is_quantized: Whether latency should be calculated with quantizated model or not.
         use_median: Whether should use median instead of mean for latency measurement.
         seq_len: Sequence length to measure the latency.
         n_threads: Number of inference threads.
@@ -32,6 +36,9 @@ def measure_inference_latency(model: torch.nn.Module,
         (float): Mean or median latency.
 
     """
+
+    if is_quantized:
+        model = dynamic_quantization_torch_from_model(model)
 
     torch.set_num_threads(n_threads)
 
