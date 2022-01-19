@@ -265,6 +265,7 @@ if __name__ == '__main__':
                                  start_config=0,
                                  n_jobs=20,
                                  n_gpus=8,
+                                 model_type=args.model_type,
                                  gpu_config='dgx1_8gpu_fp32',
                                  targets=['NLX-NDv2'])
 
