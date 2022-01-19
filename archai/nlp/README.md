@@ -2,7 +2,7 @@
 
 Natural Language Processing (NLP) models use hardware advancements to solve more complex tasks. Nevertheless, such advancements also lead to an increased number of parameters, raising concerns regarding production-ready environments and low-resource devices.
 
-Archai provides a straightforward alternative to find more efficient models through Neural Architecture Search (NAS), furnishing an ideal place to prototype and implement autoregressive transformer-based architectures. Essentially, the idea is to keep everything simple while offering developers and researchers every single tool to fulfill their needs.
+Archai provides a straightforward alternative to find more efficient models through Neural Architecture Search (NAS), furnishing an ideal place to prototype and implement searches of autoregressive transformer-based architectures. Essentially, the idea is to keep everything simple while offering developers and researchers every single tool to fulfill their needs.
 
 Use NLP with Archai if you need a package or wish to:
 
@@ -10,6 +10,26 @@ Use NLP with Archai if you need a package or wish to:
 * 📂 Design or use pre-loaded language modeling tasks;
 * 📈 Increase your efficiency without losing effectiveness;
 * 🔬 Find new architectures under certain constraints.
+
+## Getting started: 60 seconds with Archai-NLP
+
+Installation of the bleeding-edge version is easy as pie. Please clone this repository and run the following command line:
+
+```bash
+pip install -e .
+```
+
+After installing all the requirements, one can train a default model (NVIDIA's Transformer-XL) with just a single command line, as follows:
+
+```bash
+python archai/nlp/train.py
+```
+
+Finally, with another single command line, one can extract the Pareto front of the default search (also with NVIDIA's Transformer-XL), as follows:
+
+```bash
+python archai/nlp/search.py
+```
 
 ## Table of contents
 
@@ -151,10 +171,24 @@ The whole NAS idea is structured as an evolutionary search for transformer-based
 The first step is to conduct the search and find a set of Pareto points that meet the constraints, as follows:
 
 ```bash
-python archai/nlp/search.py --phase run_search --help 
+python archai/nlp/search.py --phase run_search --pareto_search --help 
 ```
 
 Essentially, the search will find the best configuration file (which can be used to create the model) for the desired architecture under the input constraints. Traditionally, our search considers the number of non-embedding parameters and the model's latency.
+
+Examples:
+
+```bash
+python archai/nlp/search.py --phase run_search --pareto_search --model_type mem_transformer
+```
+
+```bash
+python archai/nlp/search.py --phase run_search --pareto_search --model_type hf_gpt2 --d_model_choice 256
+```
+
+```bash
+python archai/nlp/search.py --phase run_search --pareto_search --use_quantization --model_type hf_gpt2 --d_model_choice 128 256 512 --n_head_choice 2 4 8
+```
 
 ### Finding the Ground-Truth
 
@@ -234,7 +268,7 @@ Note that such an approach is implemented by the `compression/quantization/ptq` 
 
 On the other hand, if a model suffers significant performance degradation when being dynamically quantized, one can opt to use the Quantization Aware Training pipeline, which models the quantization errors in both forward and backward passes through simulated (fake) quantization modules. Essentially, the idea is to better estimate the scale factors and zero-points during training, which leads to a better-quantized model at the end of the procedure.
 
-QAT with Archai is straightforward to be used, as it only requires a `--qat` or `--post_qat` flag to be employed in the training script. Nonetheless, if additional operators, observers quantizers need to be implemented, every QAT-related file can be found under the `compression/quantization` package.
+QAT with Archai is straightforward to be used, as it only requires a `--qat` or `--post_qat` flag to be employed in the training script. Nonetheless, if additional operators, observers, or quantizers need to be implemented, every QAT-related file can be found under the `compression/quantization` package.
 
 ## Metrics Scoring
 

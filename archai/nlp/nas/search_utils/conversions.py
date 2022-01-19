@@ -6,6 +6,7 @@ to another and bridge between Archai and Opytimizer.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 
 # Matching indexes from the optimization parameters tuple
@@ -15,13 +16,11 @@ PER_LAYER_IDX = 2
 
 
 def params_to_bound(opt_params: Dict[str, Tuple[int, int, bool]],
-                    max_n_layer: int,
                     is_lower_bound: Optional[bool] = True) -> List[Any]:
     """Converts a dictionary of optimization parameters to a bound list.
 
     Args:
         opt_params: Parameters that are currently being optimized.
-        max_n_layer: Maximum number of layers.
         is_lower_bound: Whether should convert to lower or upper bounds.
 
     Returns:
@@ -31,6 +30,9 @@ def params_to_bound(opt_params: Dict[str, Tuple[int, int, bool]],
 
     # Gathers the appropriate index depending on selected bound
     index = LOWER_BOUND_IDX if is_lower_bound else UPPER_BOUND_IDX
+
+    # Retrieves the maximum number of layers
+    max_n_layer = opt_params['n_layer'][UPPER_BOUND_IDX]
 
     # Iterates through all optimization parameters
     # and calculates the corresponding bound
@@ -46,14 +48,12 @@ def params_to_bound(opt_params: Dict[str, Tuple[int, int, bool]],
 
 
 def position_to_config(positions: np.array,
-                       opt_params: Dict[str, Tuple[int, int, bool]],
-                       max_n_layer: int) -> Dict[str, Any]:
+                       opt_params: Dict[str, Tuple[int, int, bool]]) -> Dict[str, Any]:
     """Converts an array of positions to a configuration dictionary.
 
     Args:
         positions: Array of positions retrieved from the search space.
         opt_params: Parameters that are currently being optimized.
-        max_n_layer: Maximum number of layers.
 
     Returns:
         (Dict[str, Any]): Configuration dictionary.
@@ -62,6 +62,9 @@ def position_to_config(positions: np.array,
 
     # Removes the extra dimension from array of positions
     positions = np.squeeze(positions, -1)
+
+    # Retrieves the maximum number of layers
+    max_n_layer = opt_params['n_layer'][UPPER_BOUND_IDX]
 
     # Defines an empty index for iteration
     # and an empty configuration object

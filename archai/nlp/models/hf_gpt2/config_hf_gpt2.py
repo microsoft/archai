@@ -29,7 +29,7 @@ class HfGPT2Config(Config):
 
         return {
             'd_head': None,
-            'd_embed': 512,
+            'd_embed': -1,
             'dropout': 0.1,
             'dropatt': 0.0,
             'tgt_len': 192,
