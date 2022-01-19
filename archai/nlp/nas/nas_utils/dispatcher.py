@@ -68,6 +68,7 @@ def check_job_status(exp_name: str,
 def create_job_command(configs: List[Dict[str, Any]],
                        max_step: int,
                        n_gpus: int,
+                       model_type: str,
                        gpu_config: str,
                        is_pareto: Optional[bool] = None) -> str:
     """Creates a command-line command that launches a new job.
@@ -76,6 +77,7 @@ def create_job_command(configs: List[Dict[str, Any]],
         configs: List of configuration dictionaries.
         max_step: Maximum number of training steps.
         n_gpus: Number of GPUs.
+        model_type: Type of model.
         gpu_config: GPU configuration to be used.
         is_pareto: Whether job is from pareto front or not.
 
@@ -96,10 +98,10 @@ def create_job_command(configs: List[Dict[str, Any]],
 
         exp_name = 'j' + str(i) + ('_pareto' if (is_pareto is not None and is_pareto[i]) else '')
 
-        command.append('python -m torch.distributed.launch --nproc_per_node="%s" archai/nlp/nvidia_transformer_xl/train.py --config %s \
+        command.append('python -m torch.distributed.launch --nproc_per_node="%s" archai/nlp/train.py --model_type %s --config %s \
                        --config_file wt103_base.yaml --n_layer %s --n_head %s --d_model %s --d_head %s \
                        --d_inner %s --d_embed %s --div_val %s --max_step %d --experiment_name %s'
-                       % (str(n_gpus), gpu_config, config['n_layer'], config['n_head'], config['d_model'], config['d_head'], config['d_inner'],
+                       % (str(n_gpus), model_type, gpu_config, config['n_layer'], config['n_head'], config['d_model'], config['d_head'], config['d_inner'],
                        config['d_embed'], config['div_val'], max_step, exp_name))
 
     return command
@@ -110,6 +112,7 @@ def create_jobs(all_population: List[List[Any]],
                 n_jobs: Optional[int] = 50,
                 max_step: Optional[int] = 500,
                 n_gpus: Optional[int] = 8,
+                model_type: Optional[str] = 'mem_transformer',
                 gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
                 target: Optional[str] = 'NLX-NDv2',
                 exp_name: Optional[str] = 'midevolution_training_',
@@ -123,6 +126,7 @@ def create_jobs(all_population: List[List[Any]],
         n_jobs: Number of jobs to be created.
         max_step: Number of maximum steps to train the models.
         n_gpus: Number of GPUs to be used.
+        model_type: Type of model.
         gpu_config: GPU configuration.
         target: Target machine to deploy the jobs.
         exp_name: Name of the experiment.
@@ -143,18 +147,19 @@ def create_jobs(all_population: List[List[Any]],
     config_idx = start_config
 
     while c < n_configs:
-        with open('../archaiphilly/nv_train.yaml') as file:
-            amlt_config = yaml.safe_load(file)
+        amlt_config = {}
+        # with open('../archaiphilly/nv_train.yaml') as file:
+            # amlt_config = yaml.safe_load(file)
 
-        amlt_config['environment']['setup'] = ['set -e -o xtrace', 'pip install --user tensorboard']
+        # amlt_config['environment']['setup'] = ['set -e -o xtrace', 'pip install --user tensorboard']
 
-        if target == 'NLX-NDV2':
-            amlt_config['environment']['image'] = 'mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.0.3-cudnn8-ubuntu18.04:latest'
-            amlt_config['environment']['registry'] = 'mcr.microsoft.com'
-        else:
-            amlt_config['environment']['image'] = 'debadeepta/pytorch:1.7.0-cuda11.0-cudnn8-devel'
+        # if target == 'NLX-NDV2':
+            # amlt_config['environment']['image'] = 'mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.0.3-cudnn8-ubuntu18.04:latest'
+            # amlt_config['environment']['registry'] = 'mcr.microsoft.com'
+        # else:
+            # amlt_config['environment']['image'] = 'debadeepta/pytorch:1.7.0-cuda11.0-cudnn8-devel'
 
-        del amlt_config['search']
+        # del amlt_config['search']
 
         amlt_config['jobs'] = [{}]
         amlt_config['jobs'][0]['name'] = 'config_{}'.format(str(config_idx))
@@ -162,9 +167,9 @@ def create_jobs(all_population: List[List[Any]],
         amlt_config['jobs'][0]['command'] = ['set -e -o xtrace', 'pip install --user -e .']
 
         if is_pareto is not None:
-            amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
+            amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
         else:
-            amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, gpu_config)
+            amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config)
 
         config_file = 'nv_train_'+str(config_idx)+'.yaml'
 
@@ -196,6 +201,7 @@ def submit_ground_truth_jobs(args: Dict[str, Any],
                              start_config: Optional[int] = 0,
                              n_jobs: Optional[int] = 50,
                              n_gpus: Optional[int] = 8,
+                             model_type: Optional[str] = 'mem_transformer',
                              gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
                              targets: Optional[List[str]] = ['NLX-NDv2']) -> None:
     """Submits a batch of ground-truth jobs.
@@ -207,6 +213,7 @@ def submit_ground_truth_jobs(args: Dict[str, Any],
         start_config: Starting range of the configuration to be checked.
         n_jobs: Number of jobs to be created.
         n_gpus: Number of GPUs to be used.
+        model_type: Type of model.
         gpu_config: GPU configuration.
         targets: Target machines to deploy the experiments.
 
@@ -270,7 +277,7 @@ def submit_ground_truth_jobs(args: Dict[str, Any],
         pickle.dump(is_pareto_dict, f)
 
     create_jobs(all_population, start_config, n_jobs, max_step, n_gpus,
-                gpu_config, targets[0], exp_name='evolution_', is_pareto=is_pareto)
+                model_type, gpu_config, targets[0], exp_name='evolution_', is_pareto=is_pareto)
 
 
 def submit_pareto_front_jobs(args: Dict[str, Any],
