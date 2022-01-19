@@ -51,7 +51,7 @@ def tril_onnx(inputs: torch.FloatTensor,
     return inputs.masked_fill(mask == 0, 0)
 
 
-def register_trilu_operator() -> None:
+def register_trilu_operator():
     """Register triu/tril operators to make them available at ORT.
 
     """
