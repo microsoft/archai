@@ -1,4 +1,5 @@
-# Implementation taken from: https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
+# Copyright (c) https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
+# Licensed under the MIT license.
 
 """Recursive attributes getters and setters.
 """
@@ -8,7 +9,7 @@ from typing import Any
 
 
 def rsetattr(obj: Any, attr: Any, val: Any) -> callable:
-    """Recursively sets an attribute.
+    """Recursively sets an attribute, i.e., works for multi-nested attributes.
 
     Args:
         obj: Object that holds the attribute.
@@ -26,7 +27,7 @@ def rsetattr(obj: Any, attr: Any, val: Any) -> callable:
 
 
 def rgetattr(obj: Any, attr: Any, *args) -> callable:
-    """Recursively gets an attribute.
+    """Recursively gets an attribute, i.e., works for multi-nested attributes.
 
     Args:
         obj: Object that holds the attribute.
