@@ -141,7 +141,7 @@ Briefly speaking, these are the steps to implement a new architecture:
 
 1. Create a new folder with the model's identifier inside the `models` package, for example, `transformer`;
 2. Inside the created folder, create a `model_transformer.py` to hold the model's architecture and a `config_transformer.py` if the model should be available with ONNX exports;
-3. Adds the corresponding implemented classes to the `ModelDict` under an uppercased string key that reflects the model's identifier, e.g., `TRANSFORMER`. The key values should come in a tuple format and follow the types defined by the [`ClassType`](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py#L12), i.e., `MODEL`, `ONNX_CONFIG` and `ONNX_MODEL`.
+3. Adds the corresponding implemented classes to the `ModelDict` under an uppercased string key that reflects the model's identifier, e.g., `TRANSFORMER`. The key values should come in a tuple format and follow the types defined by the [`ModelClassType`](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py#L12), i.e., `MODEL`, `ONNX_CONFIG` and `ONNX_MODEL`.
 4. Finally, the new model can be directly used within the training script, as long as it is available within the `--model` flag.
 
 ### Training a Model

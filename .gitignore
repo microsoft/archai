@@ -106,4 +106,6 @@ venv.bak/
 .VSCodeCounter/
 .vscode/settings.json
 
+# additional files
 model.th
+*.log*

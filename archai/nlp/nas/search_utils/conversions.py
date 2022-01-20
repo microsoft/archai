@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Conversions that enables changing from data types
-to another and bridge between Archai and Opytimizer.
+"""Conversions that enables changing from data types throughout the search.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
