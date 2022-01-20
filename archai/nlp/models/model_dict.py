@@ -17,8 +17,8 @@ class ModelClassType(Enum):
     # Types of classes
     MODEL = 0
     CONFIG = 1
-    ONNX_CONFIG = 2
-    ONNX_MODEL = 3
+    ONNX_MODEL = 2
+    ONNX_CONFIG = 3
 
 
 class ModelDict(Dict):
@@ -29,10 +29,10 @@ class ModelDict(Dict):
     """
 
     # Huggingface's Open AI GPT-2
-    HF_GPT2 = ('HfGPT2', 'HfGPT2Config', 'HfGPT2OnnxConfig', 'HfGPT2OnnxModel')
+    HF_GPT2 = ('HfGPT2', 'HfGPT2Config', 'HfGPT2OnnxModel', 'HfGPT2OnnxConfig')
 
     # Huggingface's Transformer-XL
-    HF_TRANSFO_XL = ('HfTransfoXL', 'HfTransfoXLConfig', 'HfTransfoXLOnnxConfig', 'HfTransfoXLOnnxModel')
+    HF_TRANSFO_XL = ('HfTransfoXL', 'HfTransfoXLConfig', 'HfTransfoXLOnnxModel', 'HfTransfoXLOnnxConfig')
 
     # NVIDIA's Memory Transfomer (Transformer-XL)
-    MEM_TRANSFORMER = ('MemTransformerLM', 'MemTransformerLMConfig', 'MemTransformerLMOnnxConfig', 'MemTransformerLMOnnxModel')
+    MEM_TRANSFORMER = ('MemTransformerLM', 'MemTransformerLMConfig', 'MemTransformerLMOnnxModel', 'MemTransformerLMOnnxConfig')

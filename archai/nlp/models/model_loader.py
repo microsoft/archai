@@ -11,14 +11,12 @@ import torch
 
 from archai.nlp.models.model_dict import ModelClassType, ModelDict
 
-# Loading constants
-LIBRARY_PATH = 'archai.nlp.models'
+# Path to the `models` package
+PACKAGE_PATH = 'archai.nlp.models'
 
 
-def load_from_args(model_type: str,
-                   *args,
-                   cls_type: Optional[str] = 'model',
-                   **kwargs) -> Any:
+def load_from_args(model_type: str, *args,
+                   cls_type: Optional[str] = 'model', **kwargs) -> Any:
     """Performs the loading of a pre-defined model and its
         corresponding class.
 
@@ -31,25 +29,27 @@ def load_from_args(model_type: str,
 
     """
 
-    # Transforms the input class type into an enumerator value
-    cls_string = getattr(ModelClassType, cls_type.upper())
+    # Gathers the name and index of corresponding type of class
+    cls_type = getattr(ModelClassType, cls_type.upper())
+    cls_type_idx = cls_type.value
 
     # Finds the corresponding module based on the class
-    if cls_string in [ModelClassType.MODEL]:
-        cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
-    elif cls_string in [ModelClassType.CONFIG]:
-        cls_module = import_module(f'.{model_type}.config_{model_type}', LIBRARY_PATH)
-    elif cls_string in [ModelClassType.ONNX_MODEL, ModelClassType.ONNX_CONFIG]:
-        cls_module = import_module(f'.{model_type}.onnx_{model_type}', LIBRARY_PATH)
+    if cls_type in [ModelClassType.MODEL]:
+        cls_module = import_module(f'.{model_type}.model_{model_type}', PACKAGE_PATH)
+    elif cls_type in [ModelClassType.CONFIG]:
+        cls_module = import_module(f'.{model_type}.config_{model_type}', PACKAGE_PATH)
+    elif cls_type in [ModelClassType.ONNX_MODEL, ModelClassType.ONNX_CONFIG]:
+        cls_module = import_module(f'.{model_type}.onnx_{model_type}', PACKAGE_PATH)
     else:
-        raise NotImplementedError
+        raise ModuleNotFoundError
 
-    # Gathers the name of the class to be loaded
-    cls_name = getattr(ModelDict, model_type.upper())
+    # Gathers the available tuple to be loaded and its corresponding class name
+    cls_tuple = getattr(ModelDict, model_type.upper())
+    cls_name = cls_tuple[cls_type_idx]
 
     # Attempts to load the class
     try:
-        cls_instance = getattr(cls_module, cls_name[cls_string.value])
+        cls_instance = getattr(cls_module, cls_name)
     except:
         raise ModuleNotFoundError
 
@@ -82,16 +82,18 @@ def load_model_from_checkpoint(model_type: str,
     # Gathers the proper device
     device = f'cuda:{torch.cuda.current_device()}' if not on_cpu and torch.cuda.is_available() else torch.device('cpu')
 
-    # Finds the corresponding module based on the class
-    model_cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
+    # Gathers the name and index of corresponding type of class
+    cls_type = ModelClassType.MODEL
+    cls_type_idx = cls_type.value
 
-    # Gathers the name of the class to be loaded
-    cls_string = getattr(ModelClassType, 'model'.upper())
-    cls_name = getattr(ModelDict, model_type.upper())
+    # Gathers the available tuple to be loaded and its corresponding class name
+    cls_tuple = getattr(ModelDict, model_type.upper())
+    cls_name = cls_tuple[cls_type_idx]
 
     # Attempts to load the class
     try:
-        model_cls_instance = getattr(model_cls_module, cls_name[cls_string.value])
+        cls_module = import_module(f'.{model_type}.model_{model_type}', PACKAGE_PATH)
+        cls_instance = getattr(cls_module, cls_name)
     except:
         raise ModuleNotFoundError
 
@@ -109,7 +111,7 @@ def load_model_from_checkpoint(model_type: str,
         model_config['use_cache'] = True
 
     # Loads the model
-    model = model_cls_instance(**model_config)
+    model = cls_instance(**model_config)
     model.load_state_dict(checkpoint['model_state'])
     model.to(device)
 
