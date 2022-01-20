@@ -25,7 +25,7 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from archai.common import ml_perf_utils, utils
-from archai.nlp.models.model_loader import (load_from_args,
+from archai.nlp.models.model_loader import (load_model_from_args,
                                            load_model_from_checkpoint)
 from archai.nlp.compression.quantization.qat import (prepare_with_qat,
                                                      qat_to_float_modules)
@@ -862,7 +862,7 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.pretrained_path:
         model = load_model_from_checkpoint(args.model_type, args.pre_trained_path, on_cpu=False)
     else:
-        model = load_from_args(args.model_type, **model_config)
+        model = load_model_from_args(args.model_type, **model_config)
 
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)

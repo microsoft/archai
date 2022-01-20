@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from matplotlib import pyplot as plt
 
-from archai.nlp.models.model_loader import load_from_args
+from archai.nlp.models.model_loader import load_model_from_args
 from archai.nlp.nas.nas_utils.metrics import spearman_ranking
 from archai.nlp.nas.nas_utils.parser import (
     parse_results_from_baseline_experiment, parse_results_from_experiment)
@@ -536,9 +536,9 @@ def compare_pareto_fronts(args: Dict[str, Any],
 
             try:
                 if not check_pareto or ((loaded_pareto and loaded_pareto[key]) or (not loaded_pareto and 'pareto' in job_name)):
-                    model_config = load_from_args('hf_gpt2', cls_type='config')
+                    model_config = load_model_from_args('hf_gpt2', cls_type='config')
                     model_config.update(alg.converter.gene_to_config(gene))
-                    model = load_from_args('hf_gpt2', **model_config)
+                    model = load_model_from_args('hf_gpt2', **model_config)
 
                     n_params = model.get_params()
                     n_params_attention = n_params['attention']
@@ -609,9 +609,9 @@ def find_final_pareto_front(args: Dict[str, Any],
 
                 else:
                     if (args['start_train'] < args['n_iter']) and (i >= args['start_train']):
-                        model_config = load_from_args('hf_gpt2', cls_type='config')
+                        model_config = load_model_from_args('hf_gpt2', cls_type='config')
                         model_config.update(alg.converter.gene_to_config(gene))
-                        model = load_from_args('hf_gpt2', **model_config)
+                        model = load_model_from_args('hf_gpt2', **model_config)
 
                         n_params = model.get_params()
                         n_params_attention = n_params['attention']
