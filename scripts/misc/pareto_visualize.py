@@ -60,6 +60,7 @@ def main():
     fig.add_trace(go.Scatter(x=p_points[:,0], y=p_points[:,1], mode='markers', marker_color='red'))
     fig.show()
 
+    # generate 3D random points
     points3 = rng.standard_normal((1000,3))
     p_inds3 = find_pareto_points(points3, is_decreasing=False)
     p_points3 = points3[p_inds3]
