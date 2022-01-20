@@ -38,7 +38,7 @@ def measure_inference_latency(model: torch.nn.Module,
     """
 
     if is_quantized:
-        model = dynamic_quantization_torch_from_model(model)
+        dynamic_quantization_torch_from_model(model)
 
     torch.set_num_threads(n_threads)
 
@@ -76,6 +76,7 @@ def measure_parameters(model: torch.nn.Module,
 
 
 def measure_peak_memory(model: torch.nn.Module,
+                        is_quantized: Optional[bool] = False,
                         use_median: Optional[bool] = False,
                         seq_len: Optional[int] = 192,
                         n_threads: Optional[int] = 1,
@@ -85,6 +86,7 @@ def measure_peak_memory(model: torch.nn.Module,
 
     Args:
         model: Model instance.
+        is_quantized: Whether latency should be calculated with quantizated model or not.
         use_median: Whether should use median instead of mean for peak memory measurement.
         seq_len: Sequence length to measure the peak memory.
         n_threads: Number of inference threads.
@@ -98,6 +100,9 @@ def measure_peak_memory(model: torch.nn.Module,
 
     def _track_peak_memory(model: torch.nn.Module, inputs: Dict[str, torch.Tensor]) -> None:
         return model(**inputs)
+
+    if is_quantized:
+        dynamic_quantization_torch_from_model(model)
 
     torch.set_num_threads(n_threads)
 
