@@ -9,7 +9,6 @@ from typing import Optional, Tuple, Type
 import torch
 import torch.nn as nn
 
-
 class ArchaiModel(nn.Module):
     """Abstract model that is compatible with nvidia's transformer xl code base"""
 
@@ -25,7 +24,7 @@ class ArchaiModel(nn.Module):
         return sum([p.nelement() for p in self.parameters()])
 
     @staticmethod
-    def load_model(model_cls: Type['ArchaiModel'], path:str, model:Optional['ArchaiModel']=None, on_cpu:Optional[bool]=False, for_export:Optional[bool]=False) -> Tuple['ArchaiModel', dict, dict]:
+    def load_model(model_cls: Type['ArchaiModel'], path:str, args, model:Optional['ArchaiModel']=None, on_cpu:Optional[bool]=False, for_export:Optional[bool]=False) -> Tuple['ArchaiModel', dict, dict]:
 
         # case for restart
         if os.path.isdir(path):
@@ -39,11 +38,17 @@ class ArchaiModel(nn.Module):
         checkpoint = torch.load(path, map_location=device)
         model_config = checkpoint['model_config']
 
+        if args is not None:
+            logging.warning('Overwritting loaded model dropout config')
+            model_config['dropout'] = args.dropout
+            model_config['dropatt'] = args.dropatt
+
         if for_export:
             model_config['use_cache'] = True
 
         # Initializes the model
         model = model_cls(**model_config) if model is None else model
         model.load_state_dict(checkpoint['model_state'])
+        model.to(device)
 
         return model, model_config, checkpoint
