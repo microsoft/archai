@@ -33,6 +33,10 @@ def load_from_args(model_type: str, *args,
     cls_type = getattr(ModelClassType, cls_type.upper())
     cls_type_idx = cls_type.value
 
+    # Gathers the available tuple to be loaded and its corresponding class name
+    cls_tuple = getattr(ModelDict, model_type.upper())
+    cls_name = cls_tuple[cls_type_idx]
+
     # Finds the corresponding module based on the class
     if cls_type in [ModelClassType.MODEL]:
         cls_module = import_module(f'.{model_type}.model_{model_type}', PACKAGE_PATH)
@@ -42,10 +46,6 @@ def load_from_args(model_type: str, *args,
         cls_module = import_module(f'.{model_type}.onnx_{model_type}', PACKAGE_PATH)
     else:
         raise ModuleNotFoundError
-
-    # Gathers the available tuple to be loaded and its corresponding class name
-    cls_tuple = getattr(ModelDict, model_type.upper())
-    cls_name = cls_tuple[cls_type_idx]
 
     # Attempts to load the class
     try:
