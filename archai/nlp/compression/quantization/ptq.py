@@ -136,15 +136,12 @@ def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
 
 
 def _dynamic_quantization_torch(model: torch.nn.Module,
-                                embedding_layers: List[str]) -> torch.nn.Module:
+                                embedding_layers: List[str]) -> None:
     """Wraps the inner core of dynamic quantization with a PyTorch model.
 
     Args:
         torch_model: PyTorch model to be quantized.
         embedding_layers: List with string-based identifiers of embedding layers.
-
-    Returns:
-        (torch.nn.Module): Dynamic quantized PyTorch model.
 
     """
 
@@ -153,56 +150,46 @@ def _dynamic_quantization_torch(model: torch.nn.Module,
     torch.set_num_threads(1)
 
     # Performs an initial dynamic quantization
-    model_qnt = torch.quantization.quantize_dynamic(model, {torch.nn.Linear})
+    torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, inplace=True)
 
     # Currently, code below works as a caveat to quantize the embedding layers
     for l in embedding_layers:
         # Checks if supplied embedding layer really exists
-        if rgetattr(model_qnt, l, 0):
+        if rgetattr(model, l, 0):
             # Sets the appropriate `qconfig` for embedding layers
             attr = l + '.qconfig'
-            rsetattr(model_qnt, attr, torch.quantization.float_qparams_weight_only_qconfig)
+            rsetattr(model, attr, torch.quantization.float_qparams_weight_only_qconfig)
     
     # Prepares the model for quantization and quantizes it
-    torch.quantization.prepare(model_qnt, inplace=True)
-    torch.quantization.convert(model_qnt, inplace=True)
-
-    return model_qnt
+    torch.quantization.prepare(model, inplace=True)
+    torch.quantization.convert(model, inplace=True)
 
 
 def dynamic_quantization_torch_from_model(model: torch.nn.Module,
                                           embedding_layers: Optional[List[str]] = ['word_emb', 'model.transformer.wpe', 'model.transformer.wte']
-                                          ) -> torch.nn.Module:
+                                          ) -> None:
     """Performs the dynamic quantization over a PyTorch model.
 
     Args:
         model: PyTorch model to be quantized.
         embedding_layers: List with string-based identifiers of embedding layers.
 
-    Returns:
-        (torch.nn.Module): Dynamic quantized PyTorch model.
-
     """
 
     # Performs the dynamic quantization
-    model_qnt = _dynamic_quantization_torch(model, embedding_layers)
-
-    return model_qnt
+    _dynamic_quantization_torch(model, embedding_layers)
 
 
 def dynamic_quantization_torch_from_path(model_type: str,
                                          torch_model_path: Optional[str] = None,
                                          embedding_layers: Optional[List[str]] = ['word_emb', 'model.transformer.wpe', 'model.transformer.wte']
-                                         ) -> torch.nn.Module:
+                                         ) -> None:
     """Performs the dynamic quantization over a PyTorch model path.
 
     Args:
         model_type: Type of model to be loaded.
         torch_model_path: Path to the PyTorch model to be quantized.
         embedding_layers: List with string-based identifiers of embedding layers.
-
-    Returns:
-        (torch.nn.Module): Dynamic quantized PyTorch model.
 
     """
 
@@ -213,6 +200,4 @@ def dynamic_quantization_torch_from_path(model_type: str,
                                                  on_cpu=True)
 
     # Performs the dynamic quantization
-    model_qnt = _dynamic_quantization_torch(model, embedding_layers)
-
-    return model_qnt
+    _dynamic_quantization_torch(model, embedding_layers)
