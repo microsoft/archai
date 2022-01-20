@@ -7,7 +7,8 @@
 from importlib import import_module
 from typing import Any
 
-from archai.nlp.nas.heuristics.heuristic_dict import HeuristicClassType, HeuristicDict
+from archai.nlp.nas.search_utils.heuristics.heuristic_dict import (HeuristicClassType,
+                                                                   HeuristicDict)
 
 # Path to the `optimizers` package
 PACKAGE_PATH = 'opytimizer.optimizers'
