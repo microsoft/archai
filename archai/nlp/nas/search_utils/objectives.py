@@ -7,7 +7,7 @@
 import numpy as np
 from typing import Dict, Tuple
 
-from archai.nlp.models.model_loader import load_from_args
+from archai.nlp.models.model_loader import load_model_from_args
 from archai.nlp.nas.search_utils.constraints import measure_parameters
 from archai.nlp.nas.search_utils.conversions import position_to_config
 
@@ -38,7 +38,7 @@ def zero_cost_objective(model_type: str,
         """
 
         # Retrieves the default configuration based on model's type
-        model_config = load_from_args(model_type, cls_type='config').default
+        model_config = load_model_from_args(model_type, cls_type='config').default
 
         # Converts current position into a configuration dictionary
         # and updates the model's configuration
@@ -46,7 +46,7 @@ def zero_cost_objective(model_type: str,
         model_config.update(config)
 
         # Loads the model
-        model = load_from_args(model_type, **model_config)
+        model = load_model_from_args(model_type, **model_config)
 
         # Measures its number of parameters
         n_params = measure_parameters(model)

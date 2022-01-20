@@ -17,7 +17,7 @@ import yaml
 from matplotlib import pyplot as plt
 
 from archai.common import utils
-from archai.nlp.models.model_loader import load_from_args
+from archai.nlp.models.model_loader import load_model_from_args
 from archai.nlp.nas.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
 from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull
@@ -101,7 +101,7 @@ class Evolution:
         self.use_quantization = use_quantization
         
         self.model_type = model_type
-        self.model_config_defaults = load_from_args(model_type, cls_type='config').default
+        self.model_config_defaults = load_model_from_args(model_type, cls_type='config').default
 
         self.best_config = None
         self.pareto = {'population': [],
@@ -428,7 +428,7 @@ class Evolution:
         for i, config in enumerate(configs):
             model_config = copy.deepcopy(self.model_config_defaults)
             model_config.update(config)
-            model = load_from_args(self.model_type, **model_config)
+            model = load_model_from_args(self.model_type, **model_config)
 
             if configs_from_jobs is not None:
                 print('checking trained models match with the population')
@@ -526,7 +526,7 @@ class Evolution:
 
         model_config = copy.deepcopy(self.model_config_defaults)
         model_config.update(config)
-        model = load_from_args(self.model_type, **model_config)
+        model = load_model_from_args(self.model_type, **model_config)
 
         n_params = model.get_params()
         n_params_attention = n_params['attention']
@@ -692,7 +692,7 @@ class Evolution:
         model_config = copy.deepcopy(self.model_config_defaults)
         model_config.update(config)
 
-        biggest_model = load_from_args(self.model_type, **model_config)
+        biggest_model = load_model_from_args(self.model_type, **model_config)
 
         n_params = biggest_model.get_params()
         n_params_attention = n_params['attention']
