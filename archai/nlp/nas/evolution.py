@@ -10,6 +10,7 @@ import pickle
 import random
 import time
 from typing import Any, Dict, List, Optional, Tuple
+from collections import defaultdict
 
 import imageio
 import numpy as np
@@ -720,10 +721,7 @@ class Evolution:
 
         """
 
-        self.pareto = {'population': [],
-                       'scores': [],
-                       'params': [],
-                       'latencies': []}
+        self.pareto = defaultdict(list)
 
         if use_convex_hull:
             xs = self.all_params
@@ -737,12 +735,10 @@ class Evolution:
             self.pareto['scores'] = [self.all_scores[i] for i in all_indices]
             self.pareto['params'] = [self.all_params[i] for i in all_indices]
             self.pareto['latencies'] = [self.all_latencies[i] for i in all_indices]
+            self.pareto['memories'] = [self.all_memories[i] for i in all_indices]
 
         else:
             # TODO: insert new pareto-frontier method here to test
-
-
-
 
             # earlier method
             for i in range(len(self.all_population)):
@@ -761,6 +757,7 @@ class Evolution:
                     self.pareto['scores'].append(self.all_scores[i])
                     self.pareto['params'].append(self.all_params[i])
                     self.pareto['latencies'].append(self.all_latencies[i])
+                    self.pareto['memories'].append(self.all_memories[i])
 
         print('number of points on the pareto front:', len(self.pareto['params']))
 
