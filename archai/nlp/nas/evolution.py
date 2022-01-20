@@ -166,6 +166,7 @@ class Evolution:
         logs = {'population': [],
                 'params': [],
                 'latencies': [],
+                'memories': [],
                 'parents': [],
                 'parents_scores': [],
                 'best_config': [],
@@ -482,15 +483,16 @@ class Evolution:
                                                 n_trials=self.latency_repeat)
             latencies.append(latency)
 
-            memory = measure_peak_memory(model)
+            memory = measure_peak_memory(model,
+                                         is_quantized=self.use_quantization)
             memories.append(memory)
 
             if do_train:
                 score = (params[i]*1./self.max_val_ppl) - (latency*1./self.max_latency) * self.latency_scale
                 print('individual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
             else:
-                score = ((n_params_attention + n_params_ff)*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale
-                print('individual %d -> params: %d, latency: %.4f, score: %.4f' % (i, n_params_attention + n_params_ff, latency, score))
+                score = ((n_params_attention + n_params_ff)*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale - (memory*1./self.max_peak_memory)
+                print('individual %d -> params: %d, latency: %.4f, peak memory: %.4f, score: %.4f' % (i, n_params_attention + n_params_ff, latency, memory, score))
 
             scores.append(score)
 
@@ -700,9 +702,10 @@ class Evolution:
         n_params_ff = n_params['ff']
 
         self.max_latency = measure_inference_latency(biggest_model, is_quantized=self.use_quantization)
+        self.max_peak_memory = measure_peak_memory(biggest_model, is_quantized=self.use_quantization)
         self.max_n_params = n_params_attention + n_params_ff
 
-        print('In this search-space -> maximum number of parameters: {}, maximum latency: {}'.format(self.max_n_params, self.max_latency))
+        print('In this search-space -> maximum number of parameters: {}, maximum latency: {}, maximum peak memory: {}'.format(self.max_n_params, self.max_latency, self.max_peak_memory))
 
     def update_pareto_front(self,
                             eps: Optional[float] = None,
