@@ -26,5 +26,29 @@ class HeuristicDict(Dict):
 
     """
 
+    # Bat Algorithm
+    BA = ('swarm', 'BA')
+
+    # Black Hole
+    BH = ('science', 'BH')
+
+    # Brain Storm Optimization
+    BSO = ('social', 'BSO')
+
+    # Differential Evolution
+    DE = ('evolutionary', 'DE')
+
+    # Firefly Algorithm
+    FA = ('swarm', 'FA')
+
+    # Genetic Algorithm
+    GA = ('evolutionary', 'GA')
+
+    # Hill Climbing
+    HC = ('misc', 'HC')
+
     # Particle Swarm Optimization
     PSO = ('swarm', 'PSO')
+
+    # Simulated Annealing
+    SA = ('science', 'SA')

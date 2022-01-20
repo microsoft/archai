@@ -4,8 +4,9 @@
 """Objectives (fitness functions) used to conduct optimization tasks.
 """
 
-import numpy as np
 from typing import Dict, Tuple
+
+import numpy as np
 
 from archai.nlp.models.model_loader import load_model_from_args
 from archai.nlp.nas.search_utils.constraints import measure_parameters

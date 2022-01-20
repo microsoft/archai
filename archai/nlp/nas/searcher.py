@@ -10,11 +10,11 @@ from opytimizer import Opytimizer
 from opytimizer.core import Function
 from opytimizer.spaces import SearchSpace
 
-from archai.nlp.nas.heuristics.heuristic_loader import load_heuristic_from_args
 from archai.nlp.nas.search_utils.conversions import (LOWER_BOUND_IDX,
                                                      UPPER_BOUND_IDX,
                                                      params_to_bound,
                                                      position_to_config)
+from archai.nlp.nas.search_utils.heuristics.heuristic_loader import load_heuristic_from_args
 from archai.nlp.nas.search_utils.objectives import zero_cost_objective
 
 

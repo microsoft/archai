@@ -36,15 +36,13 @@ def spearman_ranking(top_k: int,
 
     correct = len(np.intersect1d(sorted_target_binned, sorted_gt_binned))
     total = len(sorted_target_binned)
-
     common_ratio = correct * 1 / total
-
-    print('Correctly ranked top %d %% (%d) with %.2f accuracy' %(top_k, total, common_ratio))
 
     top_k_val_ppl_gt = [val_ppl_gt[i] for i in range(len(val_ppl_gt)) if i in sorted_gt_binned]
     top_k_val_ppl_target = [val_ppl_target[i] for i in range(len(val_ppl_target)) if i in sorted_gt_binned]
     spr_rank, _ = spearmanr(top_k_val_ppl_gt, top_k_val_ppl_target)
 
+    print('Correctly ranked top %d %% (%d) with %.2f accuracy' %(top_k, total, common_ratio))
     print('Spearman Correlation on top %d %% (%d): %.3f' % (top_k, len(top_k_val_ppl_gt), spr_rank))
 
     return common_ratio, spr_rank

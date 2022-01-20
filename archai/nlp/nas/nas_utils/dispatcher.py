@@ -138,7 +138,7 @@ def create_jobs(all_population: List[List[Any]],
             of configurations that will be deployed.
     """
 
-    path_to_configs = os.path.join('./archai/nlp/nvidia_transformer_xl', 'configs') if path_to_save is None else path_to_save
+    path_to_configs = os.path.join('~/', 'configs') if path_to_save is None else path_to_save
     os.makedirs(path_to_configs, exist_ok=True)
 
     # create corresponding yaml files for amulet jobs
@@ -148,23 +148,7 @@ def create_jobs(all_population: List[List[Any]],
 
     while c < n_configs:
         amlt_config = {}
-        # with open('../archaiphilly/nv_train.yaml') as file:
-            # amlt_config = yaml.safe_load(file)
-
-        # amlt_config['environment']['setup'] = ['set -e -o xtrace', 'pip install --user tensorboard']
-
-        # if target == 'NLX-NDV2':
-            # amlt_config['environment']['image'] = 'mcr.microsoft.com/azureml/openmpi4.1.0-cuda11.0.3-cudnn8-ubuntu18.04:latest'
-            # amlt_config['environment']['registry'] = 'mcr.microsoft.com'
-        # else:
-            # amlt_config['environment']['image'] = 'debadeepta/pytorch:1.7.0-cuda11.0-cudnn8-devel'
-
-        # del amlt_config['search']
-
         amlt_config['jobs'] = [{}]
-        amlt_config['jobs'][0]['name'] = 'config_{}'.format(str(config_idx))
-        amlt_config['jobs'][0]['sku'] = f'G{n_gpus}'
-        amlt_config['jobs'][0]['command'] = ['set -e -o xtrace', 'pip install --user -e .']
 
         if is_pareto is not None:
             amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
@@ -174,8 +158,8 @@ def create_jobs(all_population: List[List[Any]],
         config_file = 'nv_train_'+str(config_idx)+'.yaml'
 
         f_name = os.path.join(path_to_configs, config_file)
-        with open(f_name, 'w') as file:
-            yaml.dump(amlt_config, file)
+        with open(f_name, 'w') as f:
+            yaml.dump(amlt_config, f)
 
         c += n_jobs
         config_idx += 1
