@@ -9,9 +9,9 @@ from typing import Any, Dict, Optional, Tuple
 
 import torch
 
-from archai.nlp.models.model_dict import ClassType, ModelDict
+from archai.nlp.models.model_dict import ModelClassType, ModelDict
 
-# loading constants
+# Loading constants
 LIBRARY_PATH = 'archai.nlp.models'
 
 
@@ -32,14 +32,14 @@ def load_from_args(model_type: str,
     """
 
     # Transforms the input class type into an enumerator value
-    cls_string = getattr(ClassType, cls_type.upper())
+    cls_string = getattr(ModelClassType, cls_type.upper())
 
     # Finds the corresponding module based on the class
-    if cls_string in [ClassType.MODEL]:
+    if cls_string in [ModelClassType.MODEL]:
         cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
-    elif cls_string in [ClassType.CONFIG]:
+    elif cls_string in [ModelClassType.CONFIG]:
         cls_module = import_module(f'.{model_type}.config_{model_type}', LIBRARY_PATH)
-    elif cls_string in [ClassType.ONNX_MODEL, ClassType.ONNX_CONFIG]:
+    elif cls_string in [ModelClassType.ONNX_MODEL, ModelClassType.ONNX_CONFIG]:
         cls_module = import_module(f'.{model_type}.onnx_{model_type}', LIBRARY_PATH)
     else:
         raise NotImplementedError
@@ -86,7 +86,7 @@ def load_model_from_checkpoint(model_type: str,
     model_cls_module = import_module(f'.{model_type}.model_{model_type}', LIBRARY_PATH)
 
     # Gathers the name of the class to be loaded
-    cls_string = getattr(ClassType, 'model'.upper())
+    cls_string = getattr(ModelClassType, 'model'.upper())
     cls_name = getattr(ModelDict, model_type.upper())
 
     # Attempts to load the class

@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Dict
 
 
-class ClassType(Enum):
+class ModelClassType(Enum):
     """An enumerator that defines the type of available classes to be loaded.
 
     """
@@ -24,7 +24,7 @@ class ClassType(Enum):
 class ModelDict(Dict):
     """Dictionary that defines the type of available models to be loaded.
 
-    The order of classes must be asserted to the same defined by ClassType.
+    The order of classes must be asserted to the same defined by ModelClassType.
 
     """
 
