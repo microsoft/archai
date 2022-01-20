@@ -25,6 +25,7 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from archai.common import ml_perf_utils, utils
+from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
 from archai.nlp.models.model_loader import (load_model_from_args,
                                            load_model_from_checkpoint)
 from archai.nlp.compression.quantization.qat import (prepare_with_qat,
@@ -1081,13 +1082,9 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
                 break
 
         if args.dynamic_quantization:
-            model_qnt = torch.quantization.quantize_dynamic(model.cpu())
+            dynamic_quantization_torch_from_model(model.cpu())
 
-            model_qnt.word_emb.qconfig = torch.quantization.float_qparams_weight_only_qconfig
-            torch.quantization.prepare(model_qnt, inplace=True)
-            torch.quantization.convert(model_qnt, inplace=True)
-
-            save_checkpoint(args, model_qnt, model_config, optimizer, scheduler,
+            save_checkpoint(args, model, model_config, optimizer, scheduler,
                             scaler, vocab, epoch, last_batch, last_iter,
                             train_step, best_val_loss, False,
                             args.work_dir, prefix='qnt-')
