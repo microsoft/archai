@@ -8,13 +8,13 @@ from typing import Dict, Optional, Tuple
 
 from opytimizer import Opytimizer
 from opytimizer.core import Function
-from opytimizer.optimizers.swarm import PSO
 from opytimizer.spaces import SearchSpace
 
-from archai.nlp.nas.converter import position_to_config
+from archai.nlp.nas.heuristics.heuristic_loader import load_heuristic_from_args
 from archai.nlp.nas.search_utils.conversions import (LOWER_BOUND_IDX,
                                                      UPPER_BOUND_IDX,
-                                                     params_to_bound)
+                                                     params_to_bound,
+                                                     position_to_config)
 from archai.nlp.nas.search_utils.objectives import zero_cost_objective
 
 
@@ -25,6 +25,7 @@ class ArchaiSearcher:
 
     def __init__(self,
                  model_type: str,
+                 heuristic_type: str,
                  opt_params: Dict[str, Tuple[int, int, bool]],
                  n_agents: Optional[int] = 1,
                  save_agents: Optional[bool] = True) -> None:
@@ -32,6 +33,7 @@ class ArchaiSearcher:
 
         Args:
             model_type: Type of model.
+            heuristic_type: Type of heuristic.
             opt_params: Optimization parameters.
             n_agents: Number of agents.
             save_agents: Whether to save all agents into search history.
@@ -61,7 +63,7 @@ class ArchaiSearcher:
 
         # Creates function, heuristic and optimization task
         function = Function(objective)
-        heuristic = PSO()
+        heuristic = load_heuristic_from_args(heuristic_type)
         task = Opytimizer(space, heuristic, function, save_agents=save_agents)
 
         # Attaches important properties
@@ -98,7 +100,7 @@ if __name__ == '__main__':
         'n_layer': (3, 12, False)
     }
     
-    h = ArchaiSearcher('mem_transformer', params, n_agents=10)
+    h = ArchaiSearcher('mem_transformer', 'pso', params, n_agents=10)
     h.run(n_iterations=5)
 
     print(position_to_config(h.task.space.best_agent.position, h.params))

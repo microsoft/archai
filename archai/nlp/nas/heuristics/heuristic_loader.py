@@ -13,7 +13,7 @@ from archai.nlp.nas.heuristics.heuristic_dict import HeuristicClassType, Heurist
 PACKAGE_PATH = 'opytimizer.optimizers'
 
 
-def load_from_args(heuristic_type: str, **kwargs) -> Any:
+def load_heuristic_from_args(heuristic_type: str, **kwargs) -> Any:
     """Performs the loading of a pre-defined heuristic and its
         corresponding class.
 
