@@ -43,8 +43,8 @@ class HfGPT2(ArchaiModel):
         assert kwargs['d_model'] == kwargs['d_embed'], 'GPT2 does not support d_model != d_embed'
 
         assert all(kwargs['d_inner'][0] == d_inner for d_inner in kwargs['d_inner']), 'GPT2 does not support heterogenous arch.'
-        assert all(kwargs['d_head'][0] == d_inner for d_inner in kwargs['d_head']), 'GPT2 does not support heterogenous arch.'
-        assert all(kwargs['n_head'][0] == d_inner for d_inner in kwargs['n_head']), 'GPT2 does not support heterogenous arch.'
+        assert all(kwargs['d_head'][0] == d_head for d_head in kwargs['d_head']), 'GPT2 does not support heterogenous arch.'
+        assert all(kwargs['n_head'][0] == n_head for n_head in kwargs['n_head']), 'GPT2 does not support heterogenous arch.'
 
         kwargs['d_inner'] = kwargs['d_inner'][0]
         kwargs['d_head'] = kwargs['d_head'][0]

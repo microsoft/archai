@@ -42,8 +42,8 @@ class HfGPT2Flex(ArchaiModel):
         assert all([n_head * d_head == kwargs['d_embed'] for n_head, d_head in zip(kwargs['n_head'], kwargs['d_head'])]), 'GPT2 does not support n_head*d_head != d_embed'
         assert kwargs['d_model'] == kwargs['d_embed'], 'GPT2 does not support d_model != d_embed'
 
-        assert all(kwargs['d_inner'][0] == d_inner for d_inner in kwargs['d_inner']), 'GPT2 does not support heterogenous arch.'
-        assert all(kwargs['d_head'][0] == d_inner for d_inner in kwargs['d_head']), 'GPT2 does not support heterogenous arch.'
+        assert all(kwargs['d_head'][0] == d_head for d_head in kwargs['d_head']), 'GPT2 Flex does not support different att heads.'
+        assert all(kwargs['n_head'][0] == n_head for n_head in kwargs['n_head']), 'GPT2 Flex does not support different att heads.'
 
         # Translate hyperparams into HuggingFace GPT2 params
         self.config = self._generate_config(**kwargs)
