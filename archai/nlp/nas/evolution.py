@@ -736,6 +736,12 @@ class Evolution:
             self.pareto['latencies'] = [self.all_latencies[i] for i in all_indices]
 
         else:
+            # TODO: insert new pareto-frontier method here to test
+
+
+
+
+            # earlier method
             for i in range(len(self.all_population)):
                 this_params, this_latency = self.all_params[i], self.all_latencies[i]
                 is_pareto = True
