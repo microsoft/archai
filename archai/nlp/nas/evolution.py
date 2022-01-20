@@ -23,7 +23,7 @@ from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
 from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
-from archai.nlp.nas.search_utils.constraints import measure_inference_latency
+from archai.nlp.nas.search_utils.constraints import measure_inference_latency, measure_peak_memory
 
 
 class Evolution:
@@ -113,6 +113,7 @@ class Evolution:
         self.all_scores = []
         self.all_params = []
         self.all_latencies = []
+        self.all_memories = []
 
         self.counts = {}
 
@@ -172,6 +173,7 @@ class Evolution:
         parents_score = []
         parents_params = []
         parents_latencies = []
+        parents_memories = []
 
         for i in range(self.n_iter):
             idx = 0 if i == 0 else self.parent_size
@@ -184,24 +186,42 @@ class Evolution:
                 parents_score = []
                 parents_params = []
                 parents_latencies = []
+                parents_memories = []
 
                 self.all_population = population
                 self.all_scores = []
                 self.all_params = []
                 self.all_latencies = []
+                self.all_memories = []
 
-            population_scores_unseen, population_params_unseen, population_latencies_unseen = self.calculate_score(population[idx:], do_train, train_local, n_gpus, gpu_config, config_file, max_step,
-                                                                                                              experiment_name, scheduler, use_valid)
+            population_scores_unseen, population_params_unseen, population_latencies_unseen, population_memories_unseen = \
+                self.calculate_score(population[idx:], 
+                                    do_train, 
+                                    train_local, 
+                                    n_gpus, 
+                                    gpu_config, 
+                                    config_file, 
+                                    max_step,                                    
+                                    experiment_name, 
+                                    scheduler, 
+                                    use_valid)
+
             population_scores = parents_score + population_scores_unseen
             population_params = parents_params + population_params_unseen
             population_latencies = parents_latencies + population_latencies_unseen
+            population_memories = parents_memories + population_memories_unseen
             assert len(population_scores) == self.population_size
             print(f"| Iteration {i}, Max score: {max(population_scores)}")
 
             self.all_scores += population_scores_unseen
             self.all_params += population_params_unseen
             self.all_latencies += population_latencies_unseen
-            print('all_population len:', len(self.all_population), 'all_scores len:', len(self.all_scores), 'all_params len:', len(self.all_params), 'all_latencies len:', len(self.all_latencies))
+            self.all_memories += population_memories_unseen
+            print('all_population len:', len(self.all_population), 
+            'all_scores len:', len(self.all_scores), 
+            'all_params len:', len(self.all_params), 
+            'all_latencies len:', len(self.all_latencies),
+            'all_memories len:', len(self.all_memories))
 
             self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
 
@@ -213,6 +233,7 @@ class Evolution:
                 parents_score = [self.pareto['scores'][m] for m in selected_ind]
                 parents_params = [self.pareto['params'][m] for m in selected_ind]
                 parents_latencies = [self.pareto['latencies'][m] for m in selected_ind]
+                parents_memories = [self.pareto['memories'][m] for m in selected_ind]
 
             else:
                 sorted_ind = np.array(population_scores).argsort()[::-1][:self.parent_size]
@@ -220,15 +241,18 @@ class Evolution:
                 self.best_config = self.converter.gene_to_config(population[sorted_ind[0]])
                 self.best_param = population_params[sorted_ind[0]]
                 self.best_latency = population_latencies[sorted_ind[0]]
+                self.best_memory = population_memories[sorted_ind[0]]
 
                 print(f"| Config for highest score model: {self.best_config}")
                 print(f"| nParams for highest score model: {population_params[sorted_ind[0]]}")
                 print(f"| Latency for highest score model: {population_latencies[sorted_ind[0]]}")
+                print(f"| Memory for highest score model: {population_memories[sorted_ind[0]]}")
 
                 parents_population = [population[m] for m in sorted_ind]
                 parents_score = [population_scores[m] for m in sorted_ind]
                 parents_params = [population_params[m] for m in sorted_ind]
                 parents_latencies = [population_latencies[m] for m in sorted_ind]
+                parents_memories = [population_memories[m] for m in sorted_ind]
 
             mutate_population = []
 
@@ -252,6 +276,7 @@ class Evolution:
             logs['population'].append(copy.deepcopy(population))
             logs['params'].append(copy.deepcopy(population_params))
             logs['latencies'].append(copy.deepcopy(population_latencies))
+            logs['memories'].append(copy.deepcopy(population_memories))
             logs['parents'].append(copy.deepcopy(parents_population))
             logs['parents_scores'].append(copy.deepcopy(parents_score))
             logs['best_config'].append(copy.deepcopy(self.best_config))
@@ -262,6 +287,7 @@ class Evolution:
                 pickle.dump({'population': logs['population'][-1],
                              'params': logs['params'][-1],
                              'latencies': logs['latencies'][-1],
+                             'memories': logs['memories'][-1],
                              'parents': logs['parents'][-1],
                              'parents_scores': logs['parents_scores'][-1],
                              'best_config': logs['best_config'][-1],
@@ -272,7 +298,7 @@ class Evolution:
 
             self.all_population += mutate_population + crossover_population
 
-            self.plot_samples(iter=i, parents={'params': parents_params, 'latencies': parents_latencies}, from_training=do_train)
+            self.plot_samples(iter=i, parents={'params': parents_params, 'latencies': parents_latencies, 'memories': parents_memories}, from_training=do_train)
 
         path_to_pkl = os.path.join(self.results_path, 'logs.pkl')
         with open(path_to_pkl, 'wb') as f:
@@ -396,6 +422,7 @@ class Evolution:
         else:
             params = []
         latencies = []
+        memories = []
         avg_time = []
 
         for i, config in enumerate(configs):
@@ -454,6 +481,9 @@ class Evolution:
                                                 n_trials=self.latency_repeat)
             latencies.append(latency)
 
+            memory = measure_peak_memory(model)
+            memories.append(memory)
+
             if do_train:
                 score = (params[i]*1./self.max_val_ppl) - (latency*1./self.max_latency) * self.latency_scale
                 print('individual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
@@ -469,7 +499,12 @@ class Evolution:
         if do_train:
             print('average time for training samples was %.2fs' % train_time)
 
-        return scores, params, latencies
+        # sanity check
+        assert len(scores) == len(params)
+        assert len(scores) == len(latencies)
+        assert len(scores) == len(memories)
+
+        return scores, params, latencies, memories
 
     def check_constraints(self, gene: List[Any]) -> bool:
         """Checks whether gene fulfill constraints or not.
@@ -598,7 +633,7 @@ class Evolution:
 
         for idx in range(0, nsamples, batch):
             curr_population = population[idx:idx+batch]
-            curr_population_scores, curr_population_params, curr_population_latencies = self.calculate_score(curr_population, do_train, train_local, n_gpus, gpu_config, config_file, max_step,
+            curr_population_scores, curr_population_params, curr_population_latencies, curr_population_memories = self.calculate_score(curr_population, do_train, train_local, n_gpus, gpu_config, config_file, max_step,
                                                                                                         experiment_name, scheduler, use_valid)
             population_scores += curr_population_scores
 
