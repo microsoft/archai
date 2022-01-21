@@ -4,12 +4,11 @@
 """Constraints that are used throughout the search procedure.
 """
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 
-import numpy as np
 import torch
 import torch.utils.benchmark as benchmark
-from memory_profiler import memory_usage
+from torch.profiler import profile, ProfilerActivity
 
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
 
@@ -77,29 +76,22 @@ def measure_parameters(model: torch.nn.Module,
 
 def measure_peak_memory(model: torch.nn.Module,
                         is_quantized: Optional[bool] = False,
-                        use_median: Optional[bool] = False,
                         seq_len: Optional[int] = 192,
                         n_threads: Optional[int] = 1,
-                        n_trials: Optional[int] = 10,
                         device: Optional[str] = 'cpu') -> float:
-    """Measures a model's peak memory.
+    """Measures a model's peak memory during inference.
 
     Args:
         model: Model instance.
         is_quantized: Whether latency should be calculated with quantizated model or not.
-        use_median: Whether should use median instead of mean for peak memory measurement.
         seq_len: Sequence length to measure the peak memory.
         n_threads: Number of inference threads.
-        n_trials: Number of times to repeat the measurement.
         device: Device where peak memory should be measured.
 
     Returns:
-        (float): Mean or median peak memory.
+        (float): Peak memory during inference.
 
     """
-
-    def _track_peak_memory(model: torch.nn.Module, inputs: Dict[str, torch.Tensor]) -> None:
-        return model(**inputs)
 
     if is_quantized:
         dynamic_quantization_torch_from_model(model)
@@ -111,13 +103,13 @@ def measure_peak_memory(model: torch.nn.Module,
         'input_ids': torch.zeros((1, seq_len), dtype=torch.int64).to(device)
     }
 
-    peak_memory = []
-    for _ in range(n_trials):
-        rss = memory_usage(proc=(_track_peak_memory, (model, inputs)),
-                           max_usage=True,
-                           backend='psutil',
-                           include_children=False,
-                           multiprocess=True)
-        peak_memory.append(rss)
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+                 profile_memory=True) as p:
+        model(**inputs)
 
-    return np.median(peak_memory) if use_median else np.mean(peak_memory)
+    if device == 'cpu':
+        peak_memory = sum([key.cpu_memory_usage for key in p.key_averages()])
+    else:
+        peak_memory = sum([key.cuda_memory_usage for key in p.key_averages()])
+
+    return peak_memory
