@@ -110,7 +110,8 @@ class Evolution:
         self.pareto = {'population': [],
                        'scores': [],
                        'params': [],
-                       'latencies': []}
+                       'latencies': [],
+                       'memories': []}
 
         self.all_population = []
         self.all_scores = []
@@ -118,6 +119,8 @@ class Evolution:
         self.all_latencies = []
         self.all_memories = []
 
+        # TODO: change to collections.Counter
+        # update counts code will be more robust
         self.counts = {}
 
         self.profile()
@@ -229,7 +232,8 @@ class Evolution:
 
             self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
 
-            if pareto_search:
+            # select parents for the next iteration
+            if pareto_search: 
                 count_weights = self.calculate_weighted_count()
                 selected_ind = np.random.choice(len(self.pareto['population']), size=self.parent_size, p=count_weights)
 
@@ -298,6 +302,7 @@ class Evolution:
                              'pareto': logs['pareto'][-1]}, f)
 
             population = parents_population + mutate_population + crossover_population
+            assert len(population) == self.population_size
             self.update_counts(population)
 
             self.all_population += mutate_population + crossover_population
@@ -745,7 +750,7 @@ class Evolution:
             # we convert params to a decreasing quantity
             # since the pareto finding function needs all of them
             # to be either decreasing or increasing.
-            xs = np.array(self.all_params).reshape(-1,1) - np.array(max(self.all_params))
+            xs = np.array(max(self.all_params)) - np.array(self.all_params).reshape(-1,1)
             ys = np.array(self.all_latencies).reshape(-1, 1)
             zs = np.array(self.all_memories).reshape(-1,1)
             points = np.concatenate((xs, ys, zs), axis=1)
@@ -803,13 +808,16 @@ class Evolution:
                 self.counts[key] = 1
 
     def calculate_weighted_count(self) -> np.array:
-        """Calculates the weighted count of the population.
-
+        """ Assigns a weight to each member of the 
+        pareto frontier such that it is inversely 
+        proportional to the number of times it has already
+        been in the pareto frontier. This is to prevent
+        the same architectures from always being in the parent pool
+        
         Returns:
             (np.array): Weighted count.
 
         """
-
         pareto_counts = []
 
         for gene in self.pareto['population']:
@@ -824,6 +832,8 @@ class Evolution:
         scaled_counts = [(count - counts_min) / counts_range for count in pareto_counts]
         count_weights = [1.0/(scaled_count + 1) for scaled_count in scaled_counts]
         count_weights = np.asarray(count_weights) / np.sum(count_weights)
+
+        assert count_weights.size == len(self.pareto['population'])
 
         return count_weights
 
