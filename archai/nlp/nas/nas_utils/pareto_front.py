@@ -711,3 +711,62 @@ def find_final_pareto_front(args: Dict[str, Any],
     plt.title('Pareto Curve')
     plt.grid(axis='y')
     plt.savefig(os.path.join(results_path, 'final_search_pareto{}.png'.format('' if hybrid else '_params')), bbox_inches="tight")
+
+
+def find_pareto_points(all_points:np.array,
+                    is_decreasing:bool=True)->List[int]:
+    '''Takes in a list of n-dimensional points, 
+    one per row, returns the list of row indices
+    which are pareto-frontier points. Assumes that 
+    lower values on every dimension are better.'''
+
+    # for each point see if there exists 
+    # any other point which dominates it on all dimensions
+    # if that is true, then it is not a pareto point
+    # and vice-versa.
+
+    # input should be two dimensional array
+    assert len(all_points.shape) == 2
+
+    pareto_inds = []
+
+    dim = all_points.shape[1]
+
+    for i in range(all_points.shape[0]):
+        this_point = all_points[i,:]
+        is_pareto = True
+        for j in range(all_points.shape[0]):
+            if j == i:
+                continue
+            other_point = all_points[j,:]
+            if is_decreasing:
+                diff = this_point - other_point
+            else:
+                diff = other_point - this_point
+            if sum(diff>0) == dim:
+                # other point is smaller/larger on all dimensions
+                # so we have found at least one dominating point
+                is_pareto = False
+        if is_pareto:
+            pareto_inds.append(i)
+
+    return pareto_inds
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

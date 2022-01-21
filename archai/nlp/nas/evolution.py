@@ -5,6 +5,7 @@
 """
 
 import copy
+from operator import is_
 import os
 import pickle
 import random
@@ -21,7 +22,7 @@ from archai.common import utils
 from archai.nlp.models.model_loader import load_model_from_args
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
-from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull
+from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull, find_pareto_points
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
 from archai.nlp.nas.search_utils.constraints import (measure_inference_latency,
@@ -738,26 +739,47 @@ class Evolution:
             self.pareto['memories'] = [self.all_memories[i] for i in all_indices]
 
         else:
-            # TODO: insert new pareto-frontier method here to test
+            # pareto over params, latency, memory
+            # since params higher is better for performance
+            # and memory and latency decreasing is better
+            # we convert params to a decreasing quantity
+            # since the pareto finding function needs all of them
+            # to be either decreasing or increasing.
+            xs = np.array(self.all_params).reshape(-1,1) - np.array(max(self.all_params))
+            ys = np.array(self.all_latencies).reshape(-1, 1)
+            zs = np.array(self.all_memories).reshape(-1,1)
+            points = np.concatenate((xs, ys, zs), axis=1)
+            p_inds = find_pareto_points(points, is_decreasing=True)
 
-            # earlier method
-            for i in range(len(self.all_population)):
-                this_params, this_latency = self.all_params[i], self.all_latencies[i]
-                is_pareto = True
+            assert points.shape[0] == len(self.all_population)
+            assert points.shape[0] == len(self.all_params)
+            assert points.shape[0] == len(self.all_latencies)
+            assert points.shape[0] == len(self.all_memories)
+            
+            self.pareto['population'] = [self.all_population[i] for i in p_inds]
+            self.pareto['scores'] = [self.all_scores[i] for i in p_inds]
+            self.pareto['params'] = [self.all_params[i] for i in p_inds]
+            self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
+            self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
+            
+            # earlier method but that works reasonably well on latency vs. params
+            # for i in range(len(self.all_population)):
+            #     this_params, this_latency = self.all_params[i], self.all_latencies[i]
+            #     is_pareto = True
 
-                for j in range(len(self.all_params)):
-                    params, latency = self.all_params[j], self.all_latencies[j]
+            #     for j in range(len(self.all_params)):
+            #         params, latency = self.all_params[j], self.all_latencies[j]
 
-                    if (params > this_params) and (latency < this_latency):
-                        is_pareto = False
-                        break
+            #         if (params > this_params) and (latency < this_latency):
+            #             is_pareto = False
+            #             break
 
-                if is_pareto:
-                    self.pareto['population'].append(self.all_population[i])
-                    self.pareto['scores'].append(self.all_scores[i])
-                    self.pareto['params'].append(self.all_params[i])
-                    self.pareto['latencies'].append(self.all_latencies[i])
-                    self.pareto['memories'].append(self.all_memories[i])
+            #     if is_pareto:
+            #         self.pareto['population'].append(self.all_population[i])
+            #         self.pareto['scores'].append(self.all_scores[i])
+            #         self.pareto['params'].append(self.all_params[i])
+            #         self.pareto['latencies'].append(self.all_latencies[i])
+            #         self.pareto['memories'].append(self.all_memories[i])
 
         print('number of points on the pareto front:', len(self.pareto['params']))
 

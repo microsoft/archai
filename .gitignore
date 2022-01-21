@@ -109,3 +109,4 @@ venv.bak/
 # additional files
 model.th
 *.log*
+evo_search/
