@@ -121,3 +121,4 @@ dmypy.json
 # additional files
 model.th
 *.log*
+evo_search/
