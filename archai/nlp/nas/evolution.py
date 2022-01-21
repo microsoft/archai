@@ -708,8 +708,8 @@ class Evolution:
         print(f'''Largest model in this space has: 
                 {self.max_n_params} total params
                 {self.max_decoder_params} decoder params
-                {self.latency} latency
-                {self.max_peak_memory} memory''')
+                {self.max_latency} (UNITS?) latency
+                {self.max_peak_memory} MB memory''')
 
 
     def update_pareto_front(self,
