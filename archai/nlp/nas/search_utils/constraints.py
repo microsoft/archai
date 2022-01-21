@@ -89,7 +89,7 @@ def measure_peak_memory(model: torch.nn.Module,
         device: Device where peak memory should be measured.
 
     Returns:
-        (float): Peak memory during inference.
+        (float): Peak memory during inference in megabytes.
 
     """
 
@@ -112,4 +112,6 @@ def measure_peak_memory(model: torch.nn.Module,
     else:
         peak_memory = sum([key.cuda_memory_usage for key in p.key_averages()])
 
-    return peak_memory
+    peak_memory_mb = peak_memory / (1024*1024)
+
+    return peak_memory_mb

@@ -25,7 +25,7 @@ from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
 from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull, find_pareto_points
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
-from archai.nlp.nas.search_utils.constraints import (measure_inference_latency,
+from archai.nlp.nas.search_utils.constraints import (measure_inference_latency, measure_parameters,
                                                      measure_peak_memory)
 
 
@@ -477,12 +477,9 @@ class Evolution:
                     model.eval()
 
                     os.system(f'rm {log_file}')
-            else:
-                n_params = model.get_params()
-                n_params_attention = n_params['attention']
-                n_params_ff = n_params['ff']
-
-                params.append(n_params_attention + n_params_ff)
+            else:                
+                decoder_params = measure_parameters(model, ['attention', 'ff'])
+                params.append(decoder_params)
 
             latency = measure_inference_latency(model,
                                                 is_quantized=self.use_quantization,
@@ -498,8 +495,8 @@ class Evolution:
                 score = (params[i]*1./self.max_val_ppl) - (latency*1./self.max_latency) * self.latency_scale
                 print('individual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
             else:
-                score = ((n_params_attention + n_params_ff)*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale - (memory*1./self.max_peak_memory)
-                print('individual %d -> params: %d, latency: %.4f, peak memory: %.4f, score: %.4f' % (i, n_params_attention + n_params_ff, latency, memory, score))
+                score = (decoder_params*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale - (memory*1./self.max_peak_memory)
+                print('individual %d -> params: %d, latency: %.4f, peak memory: %.4f, score: %.4f' % (i, decoder_params, latency, memory, score))
 
             scores.append(score)
 
@@ -538,14 +535,12 @@ class Evolution:
         model_config.update(config)
         model = load_model_from_args(self.model_type, **model_config)
 
-        n_params = model.get_params()
-        n_params_attention = n_params['attention']
-        n_params_ff = n_params['ff']
+        decoder_params = measure_parameters(model, ['attention', 'ff'])
 
         satisfy = True
 
-        if (n_params_attention + n_params_ff) < self.param_constraint:
-            print('gene {} did not satisfy nparam threshold: {}<{}'.format(gene, n_params_attention + n_params_ff, self.param_constraint))
+        if (decoder_params) < self.param_constraint:
+            print('gene {} did not satisfy nparam threshold: {}<{}'.format(gene, decoder_params, self.param_constraint))
             return False
 
         if self.latency_constraint is not None:
@@ -704,15 +699,18 @@ class Evolution:
 
         biggest_model = load_model_from_args(self.model_type, **model_config)
 
-        n_params = biggest_model.get_params()
-        n_params_attention = n_params['attention']
-        n_params_ff = n_params['ff']
-
+        self.max_n_params =  measure_parameters(biggest_model, [])
+        self.max_decoder_params = measure_parameters(biggest_model, ['attention', 'ff'])
         self.max_latency = measure_inference_latency(biggest_model, is_quantized=self.use_quantization)
         self.max_peak_memory = measure_peak_memory(biggest_model, is_quantized=self.use_quantization)
-        self.max_n_params = n_params_attention + n_params_ff
+        
+        
+        print(f'''Largest model in this space has: 
+                {self.max_n_params} total params
+                {self.max_decoder_params} decoder params
+                {self.latency} latency
+                {self.max_peak_memory} memory''')
 
-        print('In this search-space -> maximum number of parameters: {}, maximum latency: {}, maximum peak memory: {}'.format(self.max_n_params, self.max_latency, self.max_peak_memory))
 
     def update_pareto_front(self,
                             eps: Optional[float] = None,
