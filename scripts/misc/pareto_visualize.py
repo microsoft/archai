@@ -68,6 +68,7 @@ def main():
     fig3 = go.Figure()
     fig3.add_trace(go.Scatter3d(x=points3[:,0], y=points3[:,1], z=points3[:,2], mode='markers', marker_color='blue'))
     fig3.add_trace(go.Scatter3d(x=p_points3[:,0], y=p_points3[:,1], z=p_points3[:,2], mode='markers', marker_color='red'))
+    fig3.update_layout(scene = dict(xaxis_title = "blah", yaxis_title = "blih", zaxis_title = 'bloh'))
     fig3.show()
 
 
