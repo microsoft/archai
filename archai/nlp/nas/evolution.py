@@ -46,11 +46,12 @@ class Evolution:
                  d_model_choice: Optional[List[int]] = [64, 128, 256, 512],
                  d_inner_choice: Optional[List[int]] = list(range(512, 2048, 50)),
                  n_head_choice: Optional[List[int]] = [2, 4, 8],
-                 param_constraint: Optional[int] = 4e6,
+                 param_constraint_lower: Optional[int] = 5e6,
+                 param_constraint_upper: Optional[int] = 12e6,
                  latency_scale: Optional[float] = 1.0,
                  n_threads: Optional[int] = 1,
                  latency_repeat: Optional[int] = 5,
-                 latency_constraint: Optional[float] = None,
+                 latency_constraint_upper: Optional[float] = None,
                  model_type: Optional[str] = 'mem_transformer',
                  use_quantization: Optional[bool] = False,
                  **kwargs) -> None:
@@ -68,11 +69,12 @@ class Evolution:
             d_model_choice: Possible model's dimensions.
             d_inner_choice: Possible inner dimensions.
             n_head_choice: Possible number of attention heads.
-            param_constraint: Number of parameters contraint.
+            param_constraint_lower: Any candidate below this will get rejected.
+            param_constraint_upper: Any candidate above this will get rejected.
             latency_scale: How much latencies should be scaled.
             n_threads: Number of inference threads.
             latency_repeat: Number of latency measurements.
-            latency_constraint: Latency constraint.
+            latency_constraint_upper: Any model which has higher latency is rejected.
             model_type: Type of model.
             use_quantization: Whether should use quantization or not.
 
@@ -94,8 +96,9 @@ class Evolution:
         self.gene_choice = self.converter.get_allowed_genes()
         self.gene_len = len(self.gene_choice)
 
-        self.param_constraint = param_constraint
-        self.latency_constraint = latency_constraint
+        self.param_constraint_lower = param_constraint_lower
+        self.param_constraint_upper = param_constraint_upper
+        self.latency_constraint_upper = latency_constraint_upper
         
         self.max_val_ppl = 70
         self.latency_scale = latency_scale
@@ -480,6 +483,7 @@ class Evolution:
             else:                
                 decoder_params = measure_parameters(model, ['attention', 'ff'])
                 params.append(decoder_params)
+                total_params = measure_parameters(model, ['total'])
 
             latency = measure_inference_latency(model,
                                                 is_quantized=self.use_quantization,
@@ -496,7 +500,7 @@ class Evolution:
                 print('individual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
             else:
                 score = (decoder_params*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale - (memory*1./self.max_peak_memory)
-                print('individual %d -> params: %d, latency: %.4f, peak memory: %.4f, score: %.4f' % (i, decoder_params, latency, memory, score))
+                print(f'individual {i} -> decoder params: {decoder_params/1e6:0.2f} M, total params: {total_params/1e6:0.2f}, latency: {latency:.4f} (UNITS???), peak memory: {memory:.4f} MB, score: {score:.4f}')
 
             scores.append(score)
 
@@ -535,22 +539,26 @@ class Evolution:
         model_config.update(config)
         model = load_model_from_args(self.model_type, **model_config)
 
-        decoder_params = measure_parameters(model, ['attention', 'ff'])
+        total_params = measure_parameters(model, ['total'])
 
         satisfy = True
 
-        if (decoder_params) < self.param_constraint:
-            print('gene {} did not satisfy nparam threshold: {}<{}'.format(gene, decoder_params, self.param_constraint))
+        if total_params < self.param_constraint_lower:
+            print(f'gene {gene} has lower parameters {total_params} than lower threshold {self.param_constraint_lower}')
             return False
 
-        if self.latency_constraint is not None:
+        if total_params > self.param_constraint_upper:
+            print(f'gene {gene} has higher parameters {total_params} than upper threshold {self.param_constraint_upper}')
+            return False
+
+        if self.latency_constraint_upper is not None:
             latency = measure_inference_latency(model,
                                                 is_quantized=self.use_quantization,
                                                 n_threads=self.n_threads,
                                                 n_trials=self.latency_repeat)
             
-            if latency > self.latency_constraint:
-                print('gene {} did not satisfy latency threshold: {}>{}'.format(gene, latency, self.latency_constraint))
+            if latency > self.latency_constraint_upper:
+                print(f'gene {gene} has higher latency than upper latency threshold {self.latency_constraint_upper}')
                 return False
 
         return satisfy
@@ -699,7 +707,7 @@ class Evolution:
 
         biggest_model = load_model_from_args(self.model_type, **model_config)
 
-        self.max_n_params =  measure_parameters(biggest_model, [])
+        self.max_n_params =  measure_parameters(biggest_model, ['total'])
         self.max_decoder_params = measure_parameters(biggest_model, ['attention', 'ff'])
         self.max_latency = measure_inference_latency(biggest_model, is_quantized=self.use_quantization)
         self.max_peak_memory = measure_peak_memory(biggest_model, is_quantized=self.use_quantization)

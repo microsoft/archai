@@ -25,7 +25,7 @@ from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Evolutionary search with language models.')
+    parser = argparse.ArgumentParser(description='Evolutionary search for autoregressive language models.')
 
     parser.add_argument('--default_path',
                         type=str,
@@ -94,10 +94,15 @@ def parse_args():
                         default=[2, 4, 8],
                         help='Possible number of attention heads.')
 
-    parser.add_argument('--param_constraint',
+    parser.add_argument('--param_constraint_upper',
+                        type=int,
+                        default=12e6,
+                        help='Any candidate above total parameters will be rejected.')
+
+    parser.add_argument('--param_constraint_lower',
                         type=int,
                         default=5e6,
-                        help='Number of parameters contraint.')
+                        help='Any candidate below total parameters will be rejected.')
 
     parser.add_argument('--latency_scale',
                         type=float,
@@ -231,11 +236,11 @@ if __name__ == '__main__':
         'corei5': 10.0,
         'D3_V2': 10.0,
     }
-    args.latency_constraint = latency_constraint[args.device_name]
+    args.latency_constraint_upper = latency_constraint[args.device_name]
 
     # Initializes the directory name
     path_to_amlt_results = './amlt_logs'
-    dir_name = 'param_threshold_{}'.format(args.param_constraint / 1e6)
+    dir_name = f'lower_param_thresh_{args.param_constraint_lower/1e6}_upper_param_thresh_{args.param_constraint_upper/1e6}_latency_upper_thresh_{args.latency_constraint_upper/1e6}'
     
     # Adds missing strings to the directory name
     if args.pareto_search:
