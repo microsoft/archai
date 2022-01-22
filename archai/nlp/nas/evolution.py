@@ -16,7 +16,7 @@ from collections import defaultdict
 import imageio
 import numpy as np
 import yaml
-from matplotlib import pyplot as plt
+import plotly.graph_objects as go
 
 from archai.common import utils
 from archai.nlp.models.model_loader import load_model_from_args
@@ -853,62 +853,175 @@ class Evolution:
             iter: Current iteration number.
             parents: Dictionary with parent samples.
             from_training: Whether samples have been trained or not.
-
         """
 
-        if from_training:
-            x_axis = np.asarray(self.all_latencies) * 1000.
-            x_axis_pareto = np.asarray(self.pareto['latencies']) * 1000.
+        all_decoder_params = np.asarray(self.all_params)
+        all_latencies = np.asarray(self.all_latencies)
+        all_memories = np.asarray(self.all_memories)
 
-            y_axis = -np.asarray(self.all_params)
-            y_axis_pareto = -np.asarray(self.pareto['params'])
-
-            x_label = 'Latency (ms)'
-            y_label = 'Val ppl'
-
-            if self.best_config:
-                x_best = self.best_latency * 1000.
-                y_best = -self.best_param
-
-            if parents:
-                x_parents = np.asarray(parents['latencies']) * 1000.
-                y_parents = -np.asarray(parents['params'])
-        else:
-            x_axis = np.asarray(self.all_params)
-            x_axis_pareto = np.asarray(self.pareto['params'])
-
-            y_axis = np.asarray(self.all_latencies) * 1000.
-            y_axis_pareto = np.asarray(self.pareto['latencies']) * 1000.
-
-            x_label = 'Decoder nParams'
-            y_label = 'Latency (ms)'
-
-            if self.best_config:
-                x_best = self.best_param
-                y_best = self.best_latency * 1000.
-
-            if parents:
-                x_parents = parents['params']
-                y_parents = np.asarray(parents['latencies']) * 1000.
-
-        plt.figure()
-        plt.scatter(x_axis, y_axis, s=10)
-        plt.scatter(x_axis_pareto, y_axis_pareto, s=10)
-
-        if self.best_config:
-            plt.scatter(x_best, y_best, c='y', s=50, marker='*', edgecolors='k', alpha=0.3)
+        pareto_decoder_params = np.asarray(self.pareto['params'])
+        pareto_latencies = np.asarray(self.pareto['latencies'])
+        pareto_memories = np.asarray(self.pareto['memories'])
 
         if parents:
-            plt.scatter(x_parents, y_parents, s=5, color='tab:green')
+            parents_decoder_params = np.asarray(parents['params'])
+            parents_latencies = np.asarray(parents['latencies'])
+            parents_memories = np.asarray(parents['memories'])
 
-        plt.ylabel(y_label)
-        plt.xlabel(x_label)
+        # 2D plot #decoder params vs latencies 
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=all_decoder_params, 
+                                y=all_latencies, 
+                                mode='markers',
+                                marker_color='blue',
+                                showlegend=True,
+                                name='All visited architectures'))
+        fig.add_trace(go.Scatter(x=pareto_decoder_params,
+                                y=pareto_latencies,
+                                mode='markers',
+                                marker_color='red',
+                                showlegend=True,
+                                name='Pareto architectures'))
+        if parents:
+            fig.add_trace(go.Scatter(x=parents_decoder_params,
+                                    y=parents_latencies,
+                                    mode='markers',
+                                    marker_color='green',
+                                    showlegend=True,
+                                    name='Parent architectures'))
+        fig.update_layout(title_text=f"Decoder params vs. Latency (s) at Iteration {iter}",
+                         xaxis_title="Decoder params",
+                         yaxis_title="Latency (s)")
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iter}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iter}.png')
+        fig.write_html(savename_html)
+        fig.write_image(savename_png, engine="kaleido", width=1500, height=1500, scale=1)
 
-        plt.title('Pareto Curve')
-        plt.grid(axis='y')
 
-        fname = 'pareto_latency_iter{}.png'.format(iter) if iter is not None else 'pareto_latency_bruteforce.png'
-        plt.savefig(os.path.join(self.results_path, fname), bbox_inches="tight")
+        # 2D plot #decoder params vs memories
+        fig1 = go.Figure()
+        fig1.add_trace(go.Scatter(x=all_decoder_params, 
+                                y=all_memories, 
+                                mode='markers',
+                                marker_color='blue',
+                                showlegend=True,
+                                name='All visited architectures'))
+        fig1.add_trace(go.Scatter(x=pareto_decoder_params,
+                                y=pareto_memories,
+                                mode='markers',
+                                marker_color='red',
+                                showlegend=True,
+                                name='Pareto architectures'))
+        if parents:
+            fig1.add_trace(go.Scatter(x=parents_decoder_params,
+                                    y=parents_memories,
+                                    mode='markers',
+                                    marker_color='green',
+                                    showlegend=True,
+                                    name='Parent architectures'))
+        fig1.update_layout(title_text=f"Decoder params vs. Memory (s) at Iteration {iter}",
+                         xaxis_title="Decoder params",
+                         yaxis_title="Memory (MB)")
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iter}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iter}.png')
+        fig1.write_html(savename_html)
+        fig1.write_image(savename_png, engine="kaleido", width=1500, height=1500, scale=1)
+
+        # 3D plot decoder params vs. latencies vs. memories
+        fig3 = go.Figure()
+        fig3.add_trace(go.Scatter3d(x=all_decoder_params, 
+                                y=all_memories,
+                                z=all_latencies, 
+                                mode='markers',
+                                marker_color='blue',
+                                showlegend=True,
+                                name='All visited architectures'))
+        fig3.add_trace(go.Scatter3d(x=pareto_decoder_params,
+                                y=pareto_memories,
+                                z=pareto_latencies,
+                                mode='markers',
+                                marker_color='red',
+                                showlegend=True,
+                                name='Pareto architectures'))
+        if parents:
+            fig3.add_trace(go.Scatter3d(x=parents_decoder_params,
+                                    y=parents_memories,
+                                    z=parents_latencies,
+                                    mode='markers',
+                                    marker_color='green',
+                                    showlegend=True,
+                                    name='Parent architectures'))
+        fig3.update_layout(scene = dict(
+                                        xaxis_title="Decoder params",
+                                        yaxis_title="Memory (MB)",
+                                        zaxis_title="Latency (s)"))
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{iter}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_latency_iter_{iter}.png')
+        fig3.write_html(savename_html)
+        fig3.write_image(savename_png, engine="kaleido", width=1500, height=1500, scale=1)
+
+
+        
+
+        
+
+
+
+        # # earlier plotting 
+        # if from_training:
+        #     x_axis = np.asarray(self.all_latencies) * 1000.
+        #     x_axis_pareto = np.asarray(self.pareto['latencies']) * 1000.
+
+        #     y_axis = -np.asarray(self.all_params)
+        #     y_axis_pareto = -np.asarray(self.pareto['params'])
+
+        #     x_label = 'Latency (ms)'
+        #     y_label = 'Val ppl'
+
+        #     if self.best_config:
+        #         x_best = self.best_latency * 1000.
+        #         y_best = -self.best_param
+
+        #     if parents:
+        #         x_parents = np.asarray(parents['latencies']) * 1000.
+        #         y_parents = -np.asarray(parents['params'])
+        # else:
+        #     x_axis = np.asarray(self.all_params)
+        #     x_axis_pareto = np.asarray(self.pareto['params'])
+
+        #     # ERROR: if all_latencies is already in seconds?     
+        #     y_axis = np.asarray(self.all_latencies) * 1000.
+        #     y_axis_pareto = np.asarray(self.pareto['latencies']) * 1000.
+
+        #     x_label = 'Decoder nParams'
+        #     y_label = 'Latency (ms)'
+
+        #     if self.best_config:
+        #         x_best = self.best_param
+        #         y_best = self.best_latency * 1000.
+
+        #     if parents:
+        #         x_parents = parents['params']
+        #         y_parents = np.asarray(parents['latencies']) * 1000.
+
+        # plt.figure()
+        # plt.scatter(x_axis, y_axis, s=10)
+        # plt.scatter(x_axis_pareto, y_axis_pareto, s=10)
+
+        # if self.best_config:
+        #     plt.scatter(x_best, y_best, c='y', s=50, marker='*', edgecolors='k', alpha=0.3)
+
+        # if parents:
+        #     plt.scatter(x_parents, y_parents, s=5, color='tab:green')
+
+        # plt.ylabel(y_label)
+        # plt.xlabel(x_label)
+
+        # plt.title('Pareto Curve')
+        # plt.grid(axis='y')
+
+        # fname = 'pareto_latency_iter{}.png'.format(iter) if iter is not None else 'pareto_latency_bruteforce.png'
+        # plt.savefig(os.path.join(self.results_path, fname), bbox_inches="tight")
 
 
 def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> None:
@@ -929,10 +1042,4 @@ def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> Non
         best_config = alg.search(**args)
         print(best_config)
 
-        images = []
-
-        for i in range(args['n_iter']):
-            fname = os.path.join(args['results_path'], 'pareto_latency_iter{}.png'.format(i))
-            images.append(imageio.imread(fname))
-
-        imageio.mimsave(os.path.join(args['results_path'], 'search_animation.gif'), images)
+        
