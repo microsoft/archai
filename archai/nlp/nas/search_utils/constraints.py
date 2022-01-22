@@ -32,7 +32,7 @@ def measure_inference_latency(model: torch.nn.Module,
         device: Device where latency should be measured.
 
     Returns:
-        (float): Mean or median latency.
+        (float): Mean or median latency in seconds.
 
     """
 

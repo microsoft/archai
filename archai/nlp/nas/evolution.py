@@ -500,7 +500,7 @@ class Evolution:
                 print('individual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
             else:
                 score = (decoder_params*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale - (memory*1./self.max_peak_memory)
-                print(f'individual {i} -> decoder params: {decoder_params/1e6:0.2f} M, total params: {total_params/1e6:0.2f}, latency: {latency:.4f} (UNITS???), peak memory: {memory:.4f} MB, score: {score:.4f}')
+                print(f'individual {i} -> decoder params: {decoder_params/1e6:0.2f} M, total params: {total_params/1e6:0.2f}, latency: {latency:.4f} s, peak memory: {memory:.4f} MB, score: {score:.4f}')
 
             scores.append(score)
 
