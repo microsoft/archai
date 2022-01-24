@@ -5,7 +5,6 @@
 """
 
 import copy
-from operator import is_
 import os
 import pickle
 import random
@@ -13,7 +12,6 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 from collections import defaultdict
 
-import imageio
 import numpy as np
 import yaml
 import plotly.graph_objects as go
@@ -106,7 +104,7 @@ class Evolution:
         self.max_val_ppl = 70
         self.latency_scale = latency_scale
         self.n_threads = n_threads  # number of threads for latency measurement
-        self.latency_repeat = latency_repeat # number of runs for mean latency computation
+        self.latency_repeat = latency_repeat # number of runs for latency measurement
         self.use_quantization = use_quantization
         
         self.model_type = model_type
@@ -190,7 +188,7 @@ class Evolution:
 
         for i in range(self.n_iter):
             idx = 0 if i == 0 else self.parent_size
-            print(f"| Start Iteration {i}:")
+            print(f'| Start Iteration {i}:')
 
             do_train = True if (i >= start_train) else False
 
@@ -223,13 +221,15 @@ class Evolution:
             population_params = parents_params + population_params_unseen
             population_latencies = parents_latencies + population_latencies_unseen
             population_memories = parents_memories + population_memories_unseen
+
             assert len(population_scores) == self.population_size
-            print(f"| Iteration {i}, Max score: {max(population_scores)}")
+            print(f'| Iteration {i}, Max score: {max(population_scores)}')
 
             self.all_scores += population_scores_unseen
             self.all_params += population_params_unseen
             self.all_latencies += population_latencies_unseen
             self.all_memories += population_memories_unseen
+
             print('all_population len:', len(self.all_population), 
             'all_scores len:', len(self.all_scores), 
             'all_params len:', len(self.all_params), 
@@ -238,7 +238,7 @@ class Evolution:
 
             self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
 
-            # select parents for the next iteration
+            # Select parents for the next iteration
             if pareto_search: 
                 count_weights = self.calculate_weighted_count()
                 selected_ind = np.random.choice(len(self.pareto['population']), size=self.parent_size, p=count_weights)
@@ -257,10 +257,10 @@ class Evolution:
                 self.best_latency = population_latencies[sorted_ind[0]]
                 self.best_memory = population_memories[sorted_ind[0]]
 
-                print(f"| Config for highest score model: {self.best_config}")
-                print(f"| nParams for highest score model: {population_params[sorted_ind[0]]}")
-                print(f"| Latency for highest score model: {population_latencies[sorted_ind[0]]}")
-                print(f"| Memory for highest score model: {population_memories[sorted_ind[0]]}")
+                print(f'| Config for highest score model: {self.best_config}')
+                print(f'| nParams for highest score model: {population_params[sorted_ind[0]]}')
+                print(f'| Latency for highest score model: {population_latencies[sorted_ind[0]]}')
+                print(f'| Memory for highest score model: {population_memories[sorted_ind[0]]}')
 
                 parents_population = [population[m] for m in sorted_ind]
                 parents_score = [population_scores[m] for m in sorted_ind]
@@ -268,23 +268,20 @@ class Evolution:
                 parents_latencies = [population_latencies[m] for m in sorted_ind]
                 parents_memories = [population_memories[m] for m in sorted_ind]
 
-            mutate_population = []
-
-            k = 0
+            mutated_population, k = [], 0
             while k < self.mutation_size:
                 mutated_gene = self.mutation(random.choices(parents_population)[0])
 
                 if self.check_constraints(mutated_gene):
-                    mutate_population.append(mutated_gene)
+                    mutated_population.append(mutated_gene)
                     k += 1
 
-            crossover_population = []
-            k = 0
+            crossovered_population, k = [], 0
             while k < self.crossover_size:
                 crossovered_gene = self.crossover(random.sample(parents_population, 2))
 
                 if self.check_constraints(crossovered_gene):
-                    crossover_population.append(crossovered_gene)
+                    crossovered_population.append(crossovered_gene)
                     k += 1
 
             logs['population'].append(copy.deepcopy(population))
@@ -307,12 +304,11 @@ class Evolution:
                              'best_config': logs['best_config'][-1],
                              'pareto': logs['pareto'][-1]}, f)
 
-            population = parents_population + mutate_population + crossover_population
+            population = parents_population + mutated_population + crossovered_population
             assert len(population) == self.population_size
+
             self.update_counts(population)
-
-            self.all_population += mutate_population + crossover_population
-
+            self.all_population += mutated_population + crossovered_population
             self.plot_samples(iter=i, parents={'params': parents_params, 'latencies': parents_latencies, 'memories': parents_memories}, from_training=do_train)
 
         path_to_pkl = os.path.join(self.results_path, 'logs.pkl')
@@ -429,12 +425,13 @@ class Evolution:
             val_ppls, configs_from_jobs = parse_results_from_amulet(len(genes), exp_name, path_to_results, bundle_count, n_configs, start_config)
             t1 = time.time()
             train_time = t1-t0
-
-        scores = []
+        
         if do_train and not train_local:
             params = copy.deepcopy((val_ppls*-1).tolist())
         else:
             params = []
+
+        scores = []
         latencies = []
         memories = []
         avg_time = []
@@ -483,9 +480,9 @@ class Evolution:
 
                     os.system(f'rm {log_file}')
             else:                
+                total_params = measure_parameters(model, ['total'])
                 decoder_params = measure_parameters(model, ['attention', 'ff'])
                 params.append(decoder_params)
-                total_params = measure_parameters(model, ['total'])
 
             latency = measure_inference_latency(model,
                                                 is_quantized=self.use_quantization,
@@ -493,16 +490,15 @@ class Evolution:
                                                 n_trials=self.latency_repeat)
             latencies.append(latency)
 
-            memory = measure_peak_memory(model,
-                                         is_quantized=self.use_quantization)
+            memory = measure_peak_memory(model, is_quantized=self.use_quantization)
             memories.append(memory)
 
             if do_train:
                 score = (params[i]*1./self.max_val_ppl) - (latency*1./self.max_latency) * self.latency_scale
-                print('individual %d -> ppl: %d, latency: %.4f, score: %.4f' % (i, -params[i], latency, score))
+                print(f'individual {i} -> ppl: {-params[i]}, latency: {latency:.4f}s, score: {score:.4f}')
             else:
                 score = (decoder_params*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale - (memory*1./self.max_peak_memory)
-                print(f'individual {i} -> decoder params: {decoder_params/1e6:0.2f} M, total params: {total_params/1e6:0.2f}, latency: {latency:.4f} s, peak memory: {memory:.4f} MB, score: {score:.4f}')
+                print(f'individual {i} -> decoder params: {decoder_params/1e6:0.2f} M, total params: {total_params/1e6:0.2f}, latency: {latency:.4f}s, peak memory: {memory:.4f}MB, score: {score:.4f}')
 
             scores.append(score)
 
@@ -512,7 +508,7 @@ class Evolution:
         if do_train:
             print('average time for training samples was %.2fs' % train_time)
 
-        # sanity check
+        # Sanity checking
         assert len(scores) == len(params)
         assert len(scores) == len(latencies)
         assert len(scores) == len(memories)
@@ -602,7 +598,7 @@ class Evolution:
         return population
 
     def semi_brute_force(self,
-                         nsamples: int,
+                         n_samples: int,
                          batch: Optional[int] = 1000,
                          eps: Optional[float] = None,
                          use_convex_hull: Optional[bool] = False,
@@ -619,7 +615,7 @@ class Evolution:
         """Performs the semi brute-force.
 
         Args:
-            nsamples: Number of genes to be sampled.
+            n_samples: Number of genes to be sampled.
             batch: Number of batched genes to conduct the brute force.
             eps: Epsilon value.
             use_convex_hull: Whether should calculate convex hull or not.
@@ -641,17 +637,17 @@ class Evolution:
             with open(path_to_population, 'rb') as f:
                 population = pickle.load(f)
 
-            population = population[:nsamples]
+            population = population[:n_samples]
 
         else:
-            population = self.sample_random_population(nsamples)
+            population = self.sample_random_population(n_samples)
 
             with open(path_to_population, 'wb') as f:
                 pickle.dump(population, f)
 
         population_scores = []
 
-        for idx in range(0, nsamples, batch):
+        for idx in range(0, n_samples, batch):
             curr_population = population[idx:idx+batch]
             curr_population_scores, curr_population_params, curr_population_latencies, curr_population_memories = self.calculate_score(curr_population, do_train, train_local, n_gpus, gpu_config, config_file, max_step,
                                                                                                         experiment_name, scheduler, use_valid)
@@ -668,9 +664,9 @@ class Evolution:
             self.best_param = self.all_params[sorted_ind[0]]
             self.best_latency = self.all_latencies[sorted_ind[0]]
 
-            print(f"| Config for highest score model: {self.best_config}")
-            print(f"| nParams for highest score model: {self.best_param}")
-            print(f"| Latency for highest score model: {self.best_latency}")
+            print(f'| Config for highest score model: {self.best_config}')
+            print(f'| nParams for highest score model: {self.best_param}')
+            print(f'| Latency for highest score model: {self.best_latency}')
 
             self.plot_samples(from_training=do_train)
 
@@ -683,7 +679,7 @@ class Evolution:
             path_to_pkl = os.path.join(self.results_path, 'logs_bruteforce_{}.pkl'.format(idx))
 
             with open(path_to_pkl, 'wb') as f:
-                print(f"=> Saving indices {idx}-{idx+batch}")
+                print(f'=> Saving indices {idx}-{idx+batch}')
                 pickle.dump(logs, f)
 
         sorted_ind = np.array(population_scores).argsort()[::-1]
@@ -692,9 +688,9 @@ class Evolution:
         self.best_param = self.all_params[sorted_ind[0]]
         self.best_latency = self.all_latencies[sorted_ind[0]]
 
-        print(f"| Config for highest score model: {self.best_config}")
-        print(f"| nParams for highest score model: {self.best_param}")
-        print(f"| Latency for highest score model: {self.best_latency}")
+        print(f'| Config for highest score model: {self.best_config}')
+        print(f'| nParams for highest score model: {self.best_param}')
+        print(f'| Latency for highest score model: {self.best_latency}')
 
         self.plot_samples(from_training=do_train)
         self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
@@ -707,8 +703,6 @@ class Evolution:
         gene = [self.gene_choice[k][-1] for k in range(self.gene_len)]
         config = self.converter.gene_to_config(gene)
 
-        print('biggest config:', config)
-
         model_config = copy.deepcopy(self.model_config_defaults)
         model_config.update(config)
 
@@ -719,13 +713,12 @@ class Evolution:
         self.max_latency = measure_inference_latency(biggest_model, is_quantized=self.use_quantization)
         self.max_peak_memory = measure_peak_memory(biggest_model, is_quantized=self.use_quantization)
         
-        
         print(f'''Largest model in this space has: 
+                {config}
                 {self.max_n_params} total params
                 {self.max_decoder_params} decoder params
-                {self.max_latency} (UNITS?) latency
-                {self.max_peak_memory} MB memory''')
-
+                {self.max_latency:.4f}s latency
+                {self.max_peak_memory:.4f}MB memory''')
 
     def update_pareto_front(self,
                             eps: Optional[float] = None,
@@ -821,16 +814,16 @@ class Evolution:
                 self.counts[key] = 1
 
     def calculate_weighted_count(self) -> np.array:
-        """ Assigns a weight to each member of the 
-        pareto frontier such that it is inversely 
-        proportional to the number of times it has already
-        been in the pareto frontier. This is to prevent
-        the same architectures from always being in the parent pool
+        """Assigns a weight to each member of the  pareto frontier such that it is inversely 
+            proportional to the number of times it has already been in the pareto frontier.
+            
+        This is to prevent the same architectures from always being in the parent pool.
         
         Returns:
             (np.array): Weighted count.
 
         """
+
         pareto_counts = []
 
         for gene in self.pareto['population']:
@@ -841,7 +834,7 @@ class Evolution:
         counts_min = min(pareto_counts)
         counts_range = counts_max if (counts_max == counts_min) else (counts_max-counts_min)
 
-        # ------- scale between [0,1] to avoid numerical issues
+        # Scales between [0,1] to avoid numerical issues
         scaled_counts = [(count - counts_min) / counts_range for count in pareto_counts]
         count_weights = [1.0/(scaled_count + 1) for scaled_count in scaled_counts]
         count_weights = np.asarray(count_weights) / np.sum(count_weights)
@@ -899,11 +892,12 @@ class Evolution:
         fig.update_layout(title_text=f"Decoder params vs. Latency (s) at Iteration {iter}",
                          xaxis_title="Decoder params",
                          yaxis_title="Latency (s)")
+
         savename_html = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iter}.html')
         savename_png = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iter}.png')
-        fig.write_html(savename_html)
-        fig.write_image(savename_png, engine="kaleido", width=1500, height=1500, scale=1)
 
+        fig.write_html(savename_html)
+        fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
 
         # 2D plot #decoder params vs memories
         fig1 = go.Figure()
@@ -926,13 +920,15 @@ class Evolution:
                                     marker_color='green',
                                     showlegend=True,
                                     name='Parent architectures'))
-        fig1.update_layout(title_text=f"Decoder params vs. Memory (s) at Iteration {iter}",
+        fig1.update_layout(title_text=f"Decoder params vs. Memory (MB) at Iteration {iter}",
                          xaxis_title="Decoder params",
                          yaxis_title="Memory (MB)")
+
         savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iter}.html')
         savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iter}.png')
+
         fig1.write_html(savename_html)
-        fig1.write_image(savename_png, engine="kaleido", width=1500, height=1500, scale=1)
+        fig1.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
 
         # 3D plot decoder params vs. latencies vs. memories
         fig3 = go.Figure()
@@ -962,17 +958,12 @@ class Evolution:
                                         xaxis_title="Decoder params",
                                         yaxis_title="Memory (MB)",
                                         zaxis_title="Latency (s)"))
+
         savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{iter}.html')
         savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_latency_iter_{iter}.png')
+
         fig3.write_html(savename_html)
-        fig3.write_image(savename_png, engine="kaleido", width=1500, height=1500, scale=1)
-
-
-        
-
-        
-
-
+        fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
 
         # # earlier plotting 
         # if from_training:
@@ -1048,5 +1039,3 @@ def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> Non
     else:
         best_config = alg.search(**args)
         print(best_config)
-
-        

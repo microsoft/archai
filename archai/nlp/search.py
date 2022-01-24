@@ -141,7 +141,7 @@ def parse_args():
                         action='store_true',
                         help='Whether is a hybrid Pareto front or not.')
 
-    parser.add_argument('--nsamples',
+    parser.add_argument('--n_samples',
                         type=int,
                         default=20000,
                         help='Number of genes to be sampled.')
