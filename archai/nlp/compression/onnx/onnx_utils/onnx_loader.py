@@ -14,7 +14,7 @@ from onnxruntime.transformers import quantize_helper
 
 from archai.nlp.models.model_loader import load_model_from_checkpoint
 from archai.nlp.compression.onnx.onnx_utils.forward import (
-    crit_forward_memformer_onnx, forward_gpt2_onnx, forward_memformer_onnx)
+    crit_forward_memformer_onnx, forward_hf_gpt2_onnx, forward_memformer_onnx)
 from archai.nlp.models.model_base import ArchaiModel
 
 # ONNX-loading constants
@@ -78,9 +78,6 @@ def load_from_torch_for_export(model_type: str,
     if model_type == 'hf_gpt2':
         model = model.model
         model.forward = types.MethodType(forward_hf_gpt2_onnx, model)
-
-        for layer in model.transformer.h:
-            quantize_helper.conv1d_to_linear(layer.mlp)
 
         for layer in model.transformer.h:
             quantize_helper.conv1d_to_linear(layer.mlp)
