@@ -4,24 +4,29 @@
 """Utilities that handles mapping between types.
 """
 
-from collections.abc import Sized
-from typing import Any
+from typing import Union, Sized
 
 
-def map_to_list(p: Any, n: int) -> Sized:
+def map_to_list(variable: Union[int, float, Sized], size: int) -> Sized:
     """Maps variables to lists with fixed lengths.
 
     Args:
-        p: Variable to be mapped.
-        n: Size of list to be mapped.
+        variable: Variable to be mapped.
+        size: Size of list to be mapped.
 
     Returns:
         (Sized): List with a fixed length.
 
     """
 
-    if isinstance(p, Sized):
-        if len(p) == 1:
-            return p * n
-        return p
-    return [p] * n
+    if isinstance(variable, Sized):
+        size_diff = size - len(variable)
+
+        if size_diff < 0:
+            return variable[:size]
+        elif size_diff == 0:
+            return variable
+        elif size_diff > 0:
+            return variable + [variable[0]] * size_diff
+
+    return [variable] * size
