@@ -309,7 +309,7 @@ class Evolution:
 
             self.update_counts(population)
             self.all_population += mutated_population + crossovered_population
-            self.plot_samples(iter=i, parents={'params': parents_params, 'latencies': parents_latencies, 'memories': parents_memories}, from_training=do_train)
+            self.plot_samples(iter=i, parents={'params': parents_params, 'latencies': parents_latencies, 'memories': parents_memories})
 
         path_to_pkl = os.path.join(self.results_path, 'logs.pkl')
         with open(path_to_pkl, 'wb') as f:
@@ -668,7 +668,7 @@ class Evolution:
             print(f'| nParams for highest score model: {self.best_param}')
             print(f'| Latency for highest score model: {self.best_latency}')
 
-            self.plot_samples(from_training=do_train)
+            self.plot_samples()
 
             logs = {'population': population,
                     'params': curr_population_params,
@@ -692,7 +692,7 @@ class Evolution:
         print(f'| nParams for highest score model: {self.best_param}')
         print(f'| Latency for highest score model: {self.best_latency}')
 
-        self.plot_samples(from_training=do_train)
+        self.plot_samples()
         self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
 
     def profile(self) -> None:
@@ -845,14 +845,13 @@ class Evolution:
 
     def plot_samples(self,
                      iter: Optional[int] = None,
-                     parents: Dict[str, Any] = None,
-                     from_training: Optional[bool] = False) -> None:
+                     parents: Dict[str, Any] = None) -> None:
         """Plots a set of samples from the population.
 
         Args:
             iter: Current iteration number.
             parents: Dictionary with parent samples.
-            from_training: Whether samples have been trained or not.
+
         """
 
         all_decoder_params = np.asarray(self.all_params)
