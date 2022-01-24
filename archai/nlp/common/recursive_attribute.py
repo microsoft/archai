@@ -8,16 +8,13 @@ import functools
 from typing import Any
 
 
-def rsetattr(obj: Any, attr: Any, val: Any) -> callable:
+def rsetattr(obj: Any, attr: Any, val: Any) -> None:
     """Recursively sets an attribute, i.e., works for multi-nested attributes.
 
     Args:
         obj: Object that holds the attribute.
         attr: Attribute to be set.
         val: Value to be set.
-    
-    Returns:
-        (callable): Recursive call of function.
         
     """
 
@@ -26,7 +23,7 @@ def rsetattr(obj: Any, attr: Any, val: Any) -> callable:
     return setattr(rgetattr(obj, pre) if pre else obj, post, val)
 
 
-def rgetattr(obj: Any, attr: Any, *args) -> callable:
+def rgetattr(obj: Any, attr: Any, *args) -> Any:
     """Recursively gets an attribute, i.e., works for multi-nested attributes.
 
     Args:
@@ -34,11 +31,11 @@ def rgetattr(obj: Any, attr: Any, *args) -> callable:
         attr: Attribute to be gathered.
     
     Returns:
-        (callable): Recursive call of function.
+        (Any): Recursively gathered attribute.
         
     """
 
-    def _getattr(obj: Any, attr: Any) -> callable:
+    def _getattr(obj: Any, attr: Any) -> Any:
         return getattr(obj, attr, *args)
 
     return functools.reduce(_getattr, [obj] + attr.split('.'))
