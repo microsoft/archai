@@ -10,10 +10,10 @@ import torch
 import torch.nn.functional as F
 
 
-def forward_gpt2_onnx(self,
-                      input_ids: torch.LongTensor,
-                      past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None
-                      ) -> Tuple[torch.FloatTensor, ...]:
+def forward_hf_gpt2_onnx(self,
+                         input_ids: torch.LongTensor,
+                         past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None
+                         ) -> Tuple[torch.FloatTensor, ...]:
     """Overrides the HfGPT2 forward by returning probabilities and past key/values.
 
     Args:
