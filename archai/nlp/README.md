@@ -19,17 +19,19 @@ Installation of the bleeding-edge version is easy as pie. Please clone this repo
 pip install -e .
 ```
 
-After installing all the requirements, one can train a default model (NVIDIA's Transformer-XL) with just a single command line, as follows:
+After installing all the requirements, one can train a default model (NVIDIA's Memory Transformer) with just a single command line, as follows:
 
 ```bash
 python archai/nlp/train.py
 ```
 
-Finally, with another single command line, one can extract the Pareto front of the default search (also with NVIDIA's Transformer-XL), as follows:
+Finally, with another single command line, one can extract the Pareto front of the default search (also with NVIDIA's Memory Transformer), as follows:
 
 ```bash
 python archai/nlp/search.py
 ```
+
+*Please refer to the `--help` argument to invoke additional command-line arguments that modify the search's constraints and spaces.*
 
 ## Table of contents
 
@@ -44,8 +46,8 @@ python archai/nlp/search.py
  * [Neural Architecture Search](#neural-architecture-search)
     * [Evolutionary Search](#evolutionary-search)
     * [Finding the Groud-Truth](#finding-the-ground-truth)
-    * [Extracting the Pareto Frontier](#extracting-the-pareto-frontier)
-    * [Comparing the Frontiers](#comparing-the-frontiers)
+    * [Extracting the Pareto Front](#extracting-the-pareto-front)
+    * [Comparing the Fronts](#comparing-the-fronts)
  * [Architecture Compression](#architecture-compression)
     * [ONNX](#onnx)
     * [Quantization](#quantization)
@@ -107,11 +109,11 @@ The Causal Language Modeling (CLM) task aims to predict a `t+1` token based on t
 
 Transformers have become one of the most employed architectures throughout the last years, mainly due to their handling of sequential data. Their architecture is often structured in layers composed of self-attention mechanisms, which capture and weigh the significance of each part of the data throughout the timesteps.
 
-Although Archai has been built to be independent of models and architectures, i.e., fosters every type of neural architectures search, we opted to implement a `models` package and provide a few state-of-the-art architectures and samples that can be used out-of-the-box.
+Although Archai has been built to be independent of models and architectures, i.e., fosters every type of neural architectures search, we opted to provide a `models` package and include a few state-of-the-art architectures that can be used out-of-the-box.
 
 ### Available Architectures
 
-Archai provides a lazy-loading system that loads desired classes on-demand, which removes the user from the burden of knowing how every aspect of the library works. Thus, with such a system in hands, one can only care about the [model's dictionary](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py) and provide the correct classes to be loaded.
+Archai provides a lazy-loading system that loads desired classes on-demand, which removes the user from the burden of knowing how every aspect of the library works. Thus, one can only care about the [model's dictionary](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py) and provide the correct classes that will be loaded.
 
 #### NVIDIA's Memory Transformer
 
@@ -121,13 +123,13 @@ A reasonably new architecture that can deal with more extended context has been 
 
 #### Huggingface's GPT-2
 
-One of the most well-known transformer-based architectures is the Generative Pre-Trained Transformer (GPT), widely implemented in software, applications, and natural language systems. Currently, we only support [Huggingface's GPT-2](https://github.com/huggingface/transformers/tree/master/src/transformers/models/gpt2) implementation.
+One of the most well-known transformer-based architectures is the Generative Pre-Trained Transformer (GPT), widely implemented in software, applications, and natural language systems. Currently, we support [Huggingface's GPT-2](https://github.com/huggingface/transformers/tree/master/src/transformers/models/gpt2) implementation.
 
 *This architecture is implemented by Archai within the `hf_gpt2` reference and is available at the `models/hf_gpt2` package.*
 
 #### Huggingface's Transformer-XL
 
-Archai also supports [Huggingface's Transformer-XL](https://github.com/huggingface/transformers/tree/master/src/transformers/models/transfo_xl) implementation, which is also derived from NVIDIA's code, with slight differences, such as learnable embedding parameters per layer instead of per model. Also, such a code is compliant with Huggingface's Transformers package, though not as fast as NVIDIA's Memory Transformer.
+Archai also supports [Huggingface's Transformer-XL](https://github.com/huggingface/transformers/tree/master/src/transformers/models/transfo_xl) implementation, which is derived from NVIDIA's code with slight differences, such as learnable embedding parameters per layer instead of per model. Such a code is compliant with Huggingface's Transformers package, though not as fast as NVIDIA's Memory Transformer.
 
 *This architecture is implemented by Archai within the `hf_transfo_xl` reference and is available at the `models/hf_transfo_xl` package.*
 
@@ -135,14 +137,14 @@ Archai also supports [Huggingface's Transformer-XL](https://github.com/huggingfa
 
 Archai is independent of architectures and can be virtually used within every model type, as long as they follow some guidelines.
 
-Such guidelines are depicted by the [`ArchaiModel`](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/models/model_base.py) class, which directly inherits from the `torch.nn.Module` class. Essentially, every new implemented architecture should inherit from `ArchaiModel` and be added to the [`ModelDict`](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py#L23), which stands for the available models that can be loaded within the lazy loader.
+Such guidelines are depicted by the [`ArchaiModel`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_base.py) class, which directly inherits from the `torch.nn.Module` class. Essentially, every new implemented architecture should inherit from `ArchaiModel` and be added to the [`ModelDict`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py#L23), which stands for the available models that can be loaded within the lazy-loader.
 
 Briefly speaking, these are the steps to implement a new architecture:
 
 1. Create a new folder with the model's identifier inside the `models` package, for example, `transformer`;
 2. Inside the created folder, create a `model_transformer.py` to hold the model's architecture and a `config_transformer.py` if the model should be available with ONNX exports;
-3. Adds the corresponding implemented classes to the `ModelDict` under an uppercased string key that reflects the model's identifier, e.g., `TRANSFORMER`. The key values should come in a tuple format and follow the types defined by the [`ModelClassType`](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py#L12), i.e., `MODEL`, `ONNX_CONFIG` and `ONNX_MODEL`.
-4. Finally, the new model can be directly used within the training script, as long as it is available within the `--model` flag.
+3. Adds the corresponding implemented classes to the `ModelDict` under an uppercased string key that reflects the model's identifier, e.g., `TRANSFORMER`. The key values should come in a tuple format and follow the types defined by the [`ModelClassType`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py#L12), i.e., `MODEL`, `CONFIG`, `ONNX_MODEL` and `ONNX_CONFIG`.
+4. Finally, the new model can be directly used within the training script, as long as it is available within the `--model_type` flag.
 
 ### Training a Model
 
@@ -158,11 +160,11 @@ One of the foremost goals of Archai is to perform efficient Neural Architecture 
 
 The Transformer-based NAS pipeline is organized as follows:
 
-* Conduct the evolutionary search to find suitable samples (architecture configurations);
+* Conduct the evolutionary search to find suitable samples (architecture configurations) and zero-cost Pareto front;
 * Submit ground-truth jobs for the entire population that has been found during the search;
-* Extract a proxy Pareto frontier from all samples seen during the evolutionary search;
-* Find candidate points in the proxy Pareto frontier and submit them for full training;
-* Compare between ground-truth and proxy Pareto frontiers.
+* Extract a proxy Pareto front from all samples seen during the evolutionary search;
+* Find candidate points in the proxy Pareto front and submit them for full training;
+* Compare between ground-truth and proxy Pareto front.
 
 ### Evolutionary Search
 
@@ -200,23 +202,23 @@ python archai/nlp/search.py --phase submit_gt_jobs --help
 
 *Such a step is valid to determine whether proxy points (without training) and close or distant from the ground-truth points (with training).*
 
-### Extracting the Pareto Frontier
+### Extracting the Pareto Front
 
-Alternatively, our `search.py` script allows users in extracting ground-truth Pareto frontier from all samples seen during the evolutionary search, which can be invoked as follows:
+Alternatively, our `search.py` script allows users in extracting ground-truth Pareto front from all samples seen during the evolutionary search, which can be invoked as follows:
 
 ```bash
 python archai/nlp/search.py --phase extract_pareto --help 
 ```
 
-Further, it is also possible to match the proxy Pareto frontier points (found in the previous step) with the baseline and submit the selected points on the Pareto frontier for full training, as follows:
+Further, it is also possible to match the proxy Pareto front points (found in the previous step) with the baseline and submit the selected points on the Pareto front for full training, as follows:
 
 ```bash
 python archai/nlp/search.py --phase select_pareto --help 
 ```
 
-### Comparing the Frontiers
+### Comparing the Fronts
 
-Finally, we can compare between the ground-truth and proxy Pareto frontiers, as follows:
+Finally, we can compare between the ground-truth and proxy Pareto fronts, as follows:
 
 ```bash
 python archai/nlp/search.py --phase gt_pareto --help
