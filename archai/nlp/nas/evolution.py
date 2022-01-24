@@ -528,20 +528,27 @@ class Evolution:
 
         """
 
+        # Scales d_inner according to a fixed constant
+        D_INNER_SCALE = 1.7
+
+        # Converts gene to configuration
         config = self.converter.gene_to_config(gene)
 
+        # Checks whether d_inner satistify scaling
         for d_inner in config['d_inner']:
-            if d_inner < int(1.7*config['d_model']):
-                print('gene {} did not satisfy d_inner constraint: {}<1.7*{}={}'.format(gene, d_inner, config['d_model'], int(1.7*config['d_model'])))
+            scaled_d_inner = int(D_INNER_SCALE * config['d_model'])
+
+            if d_inner < scaled_d_inner:
+                print(f'gene {gene} has lower d_inner {d_inner} than threshold {scaled_d_inner}')
                 return False
 
+        # Loads model from current configuration
         model_config = copy.deepcopy(self.model_config_defaults)
         model_config.update(config)
         model = load_model_from_args(self.model_type, **model_config)
 
+        # Checks the total number of parameters constraints
         total_params = measure_parameters(model, ['total'])
-
-        satisfy = True
 
         if total_params < self.param_constraint_lower:
             print(f'gene {gene} has lower parameters {total_params} than lower threshold {self.param_constraint_lower}')
@@ -551,6 +558,7 @@ class Evolution:
             print(f'gene {gene} has higher parameters {total_params} than upper threshold {self.param_constraint_upper}')
             return False
 
+        # Checks the latency constraints
         if self.latency_constraint_upper is not None:
             latency = measure_inference_latency(model,
                                                 is_quantized=self.use_quantization,
@@ -558,10 +566,10 @@ class Evolution:
                                                 n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint_upper:
-                print(f'gene {gene} has higher latency than upper latency threshold {self.latency_constraint_upper}')
+                print(f'gene {gene} has higher latency {latency} than upper latency threshold {self.latency_constraint_upper}')
                 return False
 
-        return satisfy
+        return True
 
     def sample_random_population(self, sample_num: int) -> List[List[Any]]:
         """Samples a random population.
