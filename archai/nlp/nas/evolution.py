@@ -485,12 +485,12 @@ class Evolution:
                 params.append(decoder_params)
 
             latency = measure_inference_latency(model,
-                                                is_quantized=self.use_quantization,
+                                                use_quantization=self.use_quantization,
                                                 n_threads=self.n_threads,
                                                 n_trials=self.latency_repeat)
             latencies.append(latency)
 
-            memory = measure_peak_memory(model, is_quantized=self.use_quantization)
+            memory = measure_peak_memory(model, use_quantization=self.use_quantization)
             memories.append(memory)
 
             if do_train:
@@ -556,7 +556,7 @@ class Evolution:
         # Checks the latency constraints
         if self.latency_constraint_upper is not None:
             latency = measure_inference_latency(model,
-                                                is_quantized=self.use_quantization,
+                                                use_quantization=self.use_quantization,
                                                 n_threads=self.n_threads,
                                                 n_trials=self.latency_repeat)
             
@@ -710,8 +710,8 @@ class Evolution:
 
         self.max_n_params =  measure_parameters(biggest_model, ['total'])
         self.max_decoder_params = measure_parameters(biggest_model, ['attention', 'ff'])
-        self.max_latency = measure_inference_latency(biggest_model, is_quantized=self.use_quantization)
-        self.max_peak_memory = measure_peak_memory(biggest_model, is_quantized=self.use_quantization)
+        self.max_latency = measure_inference_latency(biggest_model, use_quantization=self.use_quantization)
+        self.max_peak_memory = measure_peak_memory(biggest_model, use_quantization=self.use_quantization)
         
         print(f'''Largest model in this space has: 
                 {config}
