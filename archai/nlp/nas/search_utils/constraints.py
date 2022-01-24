@@ -14,7 +14,7 @@ from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_f
 
 
 def measure_inference_latency(model: torch.nn.Module,
-                              is_quantized: Optional[bool] = False,
+                              use_quantization: Optional[bool] = False,
                               use_median: Optional[bool] = False,
                               seq_len: Optional[int] = 192,
                               n_threads: Optional[int] = 1,
@@ -24,7 +24,7 @@ def measure_inference_latency(model: torch.nn.Module,
 
     Args:
         model: Model instance.
-        is_quantized: Whether latency should be calculated with quantizated model or not.
+        use_quantization: Whether latency should be calculated with quantizated model or not.
         use_median: Whether should use median instead of mean for latency measurement.
         seq_len: Sequence length to measure the latency.
         n_threads: Number of inference threads.
@@ -36,7 +36,7 @@ def measure_inference_latency(model: torch.nn.Module,
 
     """
 
-    if is_quantized:
+    if use_quantization:
         dynamic_quantization_torch_from_model(model)
 
     torch.set_num_threads(n_threads)
@@ -75,7 +75,7 @@ def measure_parameters(model: torch.nn.Module,
 
 
 def measure_peak_memory(model: torch.nn.Module,
-                        is_quantized: Optional[bool] = False,
+                        use_quantization: Optional[bool] = False,
                         seq_len: Optional[int] = 192,
                         n_threads: Optional[int] = 1,
                         device: Optional[str] = 'cpu') -> float:
@@ -83,7 +83,7 @@ def measure_peak_memory(model: torch.nn.Module,
 
     Args:
         model: Model instance.
-        is_quantized: Whether latency should be calculated with quantizated model or not.
+        use_quantization: Whether latency should be calculated with quantizated model or not.
         seq_len: Sequence length to measure the peak memory.
         n_threads: Number of inference threads.
         device: Device where peak memory should be measured.
@@ -93,7 +93,7 @@ def measure_peak_memory(model: torch.nn.Module,
 
     """
 
-    if is_quantized:
+    if use_quantization:
         dynamic_quantization_torch_from_model(model)
 
     torch.set_num_threads(n_threads)

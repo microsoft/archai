@@ -8,19 +8,19 @@ import functools
 from typing import Any
 
 
-def rsetattr(obj: Any, attr: Any, val: Any) -> None:
+def rsetattr(obj: Any, attr: Any, value: Any) -> None:
     """Recursively sets an attribute, i.e., works for multi-nested attributes.
 
     Args:
         obj: Object that holds the attribute.
         attr: Attribute to be set.
-        val: Value to be set.
+        value: Value to be set.
         
     """
 
-    pre, _, post = attr.rpartition('.')
+    pre_attr, _, post_attr = attr.rpartition('.')
 
-    return setattr(rgetattr(obj, pre) if pre else obj, post, val)
+    return setattr(rgetattr(obj, pre_attr) if pre_attr else obj, post_attr, value)
 
 
 def rgetattr(obj: Any, attr: Any, *args) -> Any:
