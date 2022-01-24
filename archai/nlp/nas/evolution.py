@@ -28,6 +28,9 @@ from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
 from archai.nlp.nas.search_utils.constraints import (measure_inference_latency, measure_parameters,
                                                      measure_peak_memory)
 
+# Scales d_inner according to a fixed constant
+D_INNER_SCALE = 1.7
+
 
 class Evolution:
     """Implements the evolutionary search (Genetic Algorithm).
@@ -331,11 +334,11 @@ class Evolution:
 
         crossovered_gene = []
 
-        for i in range(self.gene_len):
+        for k in range(self.gene_len):
             if np.random.uniform() < 0.5:
-                crossovered_gene.append(genes[0][i])
+                crossovered_gene.append(genes[0][k])
             else:
-                crossovered_gene.append(genes[1][i])
+                crossovered_gene.append(genes[1][k])
 
         return crossovered_gene
 
@@ -351,18 +354,17 @@ class Evolution:
         """
 
         mutated_gene = []
-        d_inner_min = None
         gene_choice = self.gene_choice
 
-        for i in range(self.gene_len):
-            if i == 1:
-                d_inner_min = int(1.7 * mutated_gene[-1])
+        for k in range(self.gene_len):
+            if k == 1:
+                d_inner_min = int(D_INNER_SCALE * mutated_gene[-1])
                 gene_choice = self.converter.get_allowed_genes(d_inner_min=d_inner_min)
 
             if np.random.uniform() < self.mutation_prob:
-                mutated_gene.append(random.choices(gene_choice[i])[0])
+                mutated_gene.append(random.choices(gene_choice[k])[0])
             else:
-                mutated_gene.append(gene[i])
+                mutated_gene.append(gene[k])
 
         return mutated_gene
 
@@ -528,9 +530,6 @@ class Evolution:
 
         """
 
-        # Scales d_inner according to a fixed constant
-        D_INNER_SCALE = 1.7
-
         # Converts gene to configuration
         config = self.converter.gene_to_config(gene)
 
@@ -571,36 +570,36 @@ class Evolution:
 
         return True
 
-    def sample_random_population(self, sample_num: int) -> List[List[Any]]:
+    def sample_random_population(self, n_samples: int) -> List[List[Any]]:
         """Samples a random population.
 
         Args:
-            sample_num: Number of genes to be sampled.
+            n_samples: Number of genes to be sampled.
 
         Returns:
             (List[List[Any]]): Randomly sampled population.
 
         """
 
-        popu = []
+        population = []
         gene_choice = self.gene_choice
 
         i = 0
-        while i < sample_num:
-            samp_gene = []
+        while i < n_samples:
+            sampled_gene = []
 
             for k in range(self.gene_len):
                 if k == 1:
-                    d_inner_min = int(1.7 * samp_gene[-1])
+                    d_inner_min = int(D_INNER_SCALE * sampled_gene[-1])
                     gene_choice = self.converter.get_allowed_genes(d_inner_min=d_inner_min)
 
-                samp_gene.append(random.choices(gene_choice[k])[0])
+                sampled_gene.append(random.choices(gene_choice[k])[0])
 
-            if self.check_constraints(samp_gene):
-                popu.append(samp_gene)
+            if self.check_constraints(sampled_gene):
+                population.append(sampled_gene)
                 i += 1
 
-        return popu
+        return population
 
     def semi_brute_force(self,
                          nsamples: int,
@@ -705,7 +704,7 @@ class Evolution:
 
         """
 
-        gene = [self.gene_choice[i][-1] for i in range(self.gene_len)]
+        gene = [self.gene_choice[k][-1] for k in range(self.gene_len)]
         config = self.converter.gene_to_config(gene)
 
         print('biggest config:', config)
