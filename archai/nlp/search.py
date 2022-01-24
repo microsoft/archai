@@ -79,7 +79,7 @@ def parse_args():
     parser.add_argument('--d_model_choice',
                         nargs='+',
                         type=int,
-                        default=[128, 256, 512, 650, 800],
+                        default=[128, 256, 512, 768, 1024],
                         help='Possible model dimensions.')
 
     parser.add_argument('--d_inner_choice',
