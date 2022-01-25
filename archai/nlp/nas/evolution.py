@@ -112,13 +112,11 @@ class Evolution:
 
         self.best_config = None
         self.pareto = {'population': [],
-                       'scores': [],
                        'params': [],
                        'latencies': [],
                        'memories': []}
 
         self.all_population = []
-        self.all_scores = []
         self.all_params = []
         self.all_latencies = []
         self.all_memories = []
@@ -130,42 +128,15 @@ class Evolution:
         self.profile()
 
     def search(self,
-               pareto_search: Optional[bool] = False,
-               eps: Optional[float] = None,
-               use_convex_hull: Optional[bool] = False,
-               start_train: Optional[int] = 0,
-               train_local: Optional[bool] = False,
-               n_gpus: Optional[int] = 1,
-               gpu_config: Optional[str] = 'dgx1_1gpu_fp32',
-               config_file: Optional[str] = 'wt103_base.yaml',
-               max_step: Optional[int] = 500,
-               experiment_name: Optional[str] = 'evolution',
-               scheduler: Optional[str] = 'constant',
-               use_valid: Optional[bool] = True,
                **kwargs) -> Dict[str, Any]:
         """Performs the actual search.
 
         Args:
-            pareto_search: Whether to search in the vicinity of the maximum score or not.
-            eps: Epsilon value.
-            use_convex_hull: Whether should calculate convex hull or not.
-            start_train: Search iteration that training should start.
-            train_local: Whether samples should be locally trained or not.
-            n_gpus: Number of GPUs.
-            gpu_config: GPU configuration.
-            config_file: Configuration file.
-            max_step: Maximum number of training steps.
-            experiment_name: Name of the experiment.
-            scheduler: Learning rate scheduler.
-            use_valid: Whether validation set should be used or not.
 
         Returns:
             (Dict[str, Any]): Best configuration.
 
         """
-
-        # if pareto_search is False, only searches in the vicinity of the maximum score seen
-        print('Performing {} search'.format('full-pareto' if pareto_search else 'best sample'))
 
         population = self.sample_random_population(self.population_size)
 
@@ -177,11 +148,8 @@ class Evolution:
                 'latencies': [],
                 'memories': [],
                 'parents': [],
-                'parents_scores': [],
-                'best_config': [],
                 'pareto': []}
 
-        parents_score = []
         parents_params = []
         parents_latencies = []
         parents_memories = []
@@ -190,84 +158,39 @@ class Evolution:
             idx = 0 if i == 0 else self.parent_size
             print(f'| Start Iteration {i}:')
 
-            do_train = True if (i >= start_train) else False
+            population_params_unseen, \
+            population_latencies_unseen, \
+            population_memories_unseen = \
+                self.calculate_memory_latency(population[idx:])
 
-            if do_train and i == start_train:
-                idx = 0
-                parents_score = []
-                parents_params = []
-                parents_latencies = []
-                parents_memories = []
-
-                self.all_population = population
-                self.all_scores = []
-                self.all_params = []
-                self.all_latencies = []
-                self.all_memories = []
-
-            population_scores_unseen, population_params_unseen, population_latencies_unseen, population_memories_unseen = \
-                self.calculate_score(population[idx:], 
-                                    do_train, 
-                                    train_local, 
-                                    n_gpus, 
-                                    gpu_config, 
-                                    config_file, 
-                                    max_step,                                    
-                                    experiment_name, 
-                                    scheduler, 
-                                    use_valid)
-
-            population_scores = parents_score + population_scores_unseen
             population_params = parents_params + population_params_unseen
             population_latencies = parents_latencies + population_latencies_unseen
             population_memories = parents_memories + population_memories_unseen
 
-            assert len(population_scores) == self.population_size
-            print(f'| Iteration {i}, Max score: {max(population_scores)}')
-
-            self.all_scores += population_scores_unseen
+            assert len(population_params) == self.population_size
+            assert len(population_latencies) == self.population_size
+            assert len(population_memories) == self.population_size
+            
             self.all_params += population_params_unseen
             self.all_latencies += population_latencies_unseen
             self.all_memories += population_memories_unseen
 
             print('all_population len:', len(self.all_population), 
-            'all_scores len:', len(self.all_scores), 
             'all_params len:', len(self.all_params), 
             'all_latencies len:', len(self.all_latencies),
             'all_memories len:', len(self.all_memories))
 
-            self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
+            self.update_pareto_front(is_decreasing=True)
 
             # Select parents for the next iteration
-            if pareto_search: 
-                count_weights = self.calculate_weighted_count()
-                selected_ind = np.random.choice(len(self.pareto['population']), size=self.parent_size, p=count_weights)
+            count_weights = self.calculate_weighted_count()
+            selected_ind = np.random.choice(len(self.pareto['population']), size=self.parent_size, p=count_weights)
 
-                parents_population = [self.pareto['population'][m] for m in selected_ind]
-                parents_score = [self.pareto['scores'][m] for m in selected_ind]
-                parents_params = [self.pareto['params'][m] for m in selected_ind]
-                parents_latencies = [self.pareto['latencies'][m] for m in selected_ind]
-                parents_memories = [self.pareto['memories'][m] for m in selected_ind]
-
-            else:
-                sorted_ind = np.array(population_scores).argsort()[::-1][:self.parent_size]
-
-                self.best_config = self.converter.gene_to_config(population[sorted_ind[0]])
-                self.best_param = population_params[sorted_ind[0]]
-                self.best_latency = population_latencies[sorted_ind[0]]
-                self.best_memory = population_memories[sorted_ind[0]]
-
-                print(f'| Config for highest score model: {self.best_config}')
-                print(f'| nParams for highest score model: {population_params[sorted_ind[0]]}')
-                print(f'| Latency for highest score model: {population_latencies[sorted_ind[0]]}')
-                print(f'| Memory for highest score model: {population_memories[sorted_ind[0]]}')
-
-                parents_population = [population[m] for m in sorted_ind]
-                parents_score = [population_scores[m] for m in sorted_ind]
-                parents_params = [population_params[m] for m in sorted_ind]
-                parents_latencies = [population_latencies[m] for m in sorted_ind]
-                parents_memories = [population_memories[m] for m in sorted_ind]
-
+            parents_population = [self.pareto['population'][m] for m in selected_ind]
+            parents_params = [self.pareto['params'][m] for m in selected_ind]
+            parents_latencies = [self.pareto['latencies'][m] for m in selected_ind]
+            parents_memories = [self.pareto['memories'][m] for m in selected_ind]
+            
             mutated_population, k = [], 0
             while k < self.mutation_size:
                 mutated_gene = self.mutation(random.choices(parents_population)[0])
@@ -289,8 +212,6 @@ class Evolution:
             logs['latencies'].append(copy.deepcopy(population_latencies))
             logs['memories'].append(copy.deepcopy(population_memories))
             logs['parents'].append(copy.deepcopy(parents_population))
-            logs['parents_scores'].append(copy.deepcopy(parents_score))
-            logs['best_config'].append(copy.deepcopy(self.best_config))
             logs['pareto'].append(copy.deepcopy(self.pareto))
 
             path_to_pkl = os.path.join(self.results_path, f'logs_itr{i}.pkl')
@@ -300,8 +221,6 @@ class Evolution:
                              'latencies': logs['latencies'][-1],
                              'memories': logs['memories'][-1],
                              'parents': logs['parents'][-1],
-                             'parents_scores': logs['parents_scores'][-1],
-                             'best_config': logs['best_config'][-1],
                              'pareto': logs['pareto'][-1]}, f)
 
             population = parents_population + mutated_population + crossovered_population
@@ -364,36 +283,17 @@ class Evolution:
 
         return mutated_gene
 
-    def calculate_score(self,
+    def calculate_memory_latency(self,
                         genes: List[List[Any]],
-                        do_train: Optional[bool] = False,
-                        train_local: Optional[bool] = False,
-                        n_gpus: Optional[int] = 8,
-                        gpu_config: Optional[str] = 'dgx1_1gpu_fp32',
-                        config_file: Optional[str] = 'wt103_base.yaml',
-                        max_step: Optional[int] = 500,
-                        experiment_name: Optional[str] = 'evolution',
-                        scheduler: Optional[str] = 'constant',
-                        use_valid: Optional[bool] = True,
-                        start_config: Optional[int] = 0) -> Tuple[List[float], List[int], List[float]]:
-        """Calculates the scoring (objective) function.
+                        ) -> Tuple[List[int], List[float], List[float]]:
+        """Calculates the memory and latency.
 
         Args:
             genes: List of genes.
-            do_train: Whether samples should be trained or not.
-            train_local: Whether samples should be locally trained or not.
-            n_gpus: Number of GPUs.
-            gpu_config: GPU configuration.
-            config_file: Configuration file.
-            max_step: Maximum number of training steps.
-            experiment_name: Name of the experiment.
-            scheduler: Learning rate scheduler.
-            use_valid: Whether validation set should be used or not.
-            start_config: Starting range of the configuration to be scored.
 
         Returns:
-            (Tuple[List[float], List[int], List[float]]): List of scores, number of parameters
-                and latencies.
+            (Tuple[List[int], List[float], List[float]]): List of number of parameters
+            latencies and memories. 
 
         """
 
@@ -402,39 +302,11 @@ class Evolution:
             configs.append(self.converter.gene_to_config(gene))
 
         configs_from_jobs = None
-        if do_train and not train_local:
-            t0 = time.time()
-            bundle_count = (self.population_size // 4) + 1  # distributes training over 4 jobs
-
-            exp_name, bash_fname, n_configs = create_jobs(configs, start_config, bundle_count=bundle_count, max_step=max_step, n_gpus=n_gpus, gpu_config=gpu_config, target='NLX-NDv2')
-            os.system(f'bash {bash_fname}')
-
-            time.sleep(60)
-            check_job_status(exp_name, n_configs, start_config)
-
-            # download the log file from jobs to get the ppls
-            path_to_results = './amlt_logs'
-            os.mkdir(path_to_results)
-
-            command = 'amlt results {} -I "*.json"  -o {}'.format(exp_name, path_to_results)
-            os.system(command)
-
-            command = 'amlt results {} -I "*.yaml"  -o {}'.format(exp_name, path_to_results)
-            os.system(command)
-
-            val_ppls, configs_from_jobs = parse_results_from_amulet(len(genes), exp_name, path_to_results, bundle_count, n_configs, start_config)
-            t1 = time.time()
-            train_time = t1-t0
         
-        if do_train and not train_local:
-            params = copy.deepcopy((val_ppls*-1).tolist())
-        else:
-            params = []
+        params = []
 
-        scores = []
         latencies = []
         memories = []
-        avg_time = []
 
         for i, config in enumerate(configs):
             model_config = copy.deepcopy(self.model_config_defaults)
@@ -445,44 +317,10 @@ class Evolution:
                 print('checking trained models match with the population')
                 for k, v in config.items():
                     assert v == configs_from_jobs[i][k]
-
-            if do_train:
-                if train_local:
-                    path_to_results = utils.full_path('./amlt_logs', create=True)
-                    experiment_name = 'nv_xformer_xl'
-
-                    t0 = time.time()
-
-                    if n_gpus == 1:
-                        command = 'python '
-                    else:
-                        command = 'python -m torch.distributed.launch --nproc_per_node="%s" ' % n_gpus
-
-                    command += 'archai/nlp/nvidia_transformer_xl/train.py --work_dir %s --experiment_name %s --config %s --config_file wt103_base.yaml --n_layer %s --n_head %s --d_model %s --d_inner %s --d_embed %s --div_val %s --max_step %d --scheduler constant --summary_path %s' \
-                                % (path_to_results, experiment_name, gpu_config, model_config['n_layer'], parse_values_from_yaml(model_config['n_head']), model_config['d_model'],
-                                parse_values_from_yaml(model_config['d_inner']), model_config['d_model'], self.model_config_defaults['div_val'], max_step, path_to_results)
-                    os.system(command)
-
-                    log_file = os.path.join(os.path.join(path_to_results, experiment_name), 'summary.yaml')
-                    while not os.path.exists(log_file):
-                        pass
-                    with open(log_file, 'r') as f:
-                        summary = yaml.load(f, Loader=yaml.FullLoader)
-
-                    t1 = time.time()
-                    avg_time.append(t1-t0)
-
-                    key = 'valid_ppl' if use_valid else 'test_ppl'
-                    params.append(-summary[key])
-
-                    model = model.to(device='cpu')
-                    model.eval()
-
-                    os.system(f'rm {log_file}')
-            else:                
-                total_params = measure_parameters(model, ['total'])
-                decoder_params = measure_parameters(model, ['attention', 'ff'])
-                params.append(decoder_params)
+            
+            total_params = measure_parameters(model, ['total'])
+            decoder_params = measure_parameters(model, ['attention', 'ff'])
+            params.append(decoder_params)
 
             latency = measure_inference_latency(model,
                                                 use_quantization=self.use_quantization,
@@ -492,28 +330,13 @@ class Evolution:
 
             memory = measure_peak_memory(model, use_quantization=self.use_quantization)
             memories.append(memory)
-
-            if do_train:
-                score = (params[i]*1./self.max_val_ppl) - (latency*1./self.max_latency) * self.latency_scale
-                print(f'individual {i} -> ppl: {-params[i]}, latency: {latency:.4f}s, score: {score:.4f}')
-            else:
-                score = (decoder_params*1./self.max_n_params) - (latency*1./self.max_latency) * self.latency_scale - (memory*1./self.max_peak_memory)
-                print(f'individual {i} -> decoder params: {decoder_params/1e6:0.2f} M, total params: {total_params/1e6:0.2f}, latency: {latency:.4f}s, peak memory: {memory:.4f}MB, score: {score:.4f}')
-
-            scores.append(score)
-
-        if do_train and train_local:
-            train_time = np.mean(avg_time)
-
-        if do_train:
-            print('average time for training samples was %.2fs' % train_time)
-
+            
         # Sanity checking
-        assert len(scores) == len(params)
-        assert len(scores) == len(latencies)
-        assert len(scores) == len(memories)
+        assert len(params) == len(latencies)
+        assert len(params) == len(memories)
+        
+        return params, latencies, memories
 
-        return scores, params, latencies, memories
 
     def check_constraints(self, gene: List[Any]) -> bool:
         """Checks whether gene fulfill constraints or not.
@@ -721,78 +544,39 @@ class Evolution:
                 {self.max_peak_memory:.4f}MB memory''')
 
     def update_pareto_front(self,
-                            eps: Optional[float] = None,
-                            allow_decrease: Optional[bool] = True,
-                            use_convex_hull: Optional[bool] = False) -> None:
+                            is_decreasing: Optional[bool] = True,
+                            ) -> None:
         """Updates the Pareto front of the evolutionary search.
 
         Args:
-            eps: Epsilon value.
-            allow_decrease: Whether Pareto front is decreasing or not.
-            use_convex_hull: Whether should calculate convex hull or not.
-
+            is_decreasing: Whether Pareto front is decreasing or not.
         """
-
         self.pareto = defaultdict(list)
 
-        if use_convex_hull:
-            xs = self.all_params
-            ys = self.all_latencies
+        # pareto over params, latency, memory
+        # since params higher is better for performance
+        # and memory and latency decreasing is better
+        # we convert params to a decreasing quantity
+        # since the pareto finding function needs all of them
+        # to be either decreasing or increasing.
+        xs = np.array(max(self.all_params)) - np.array(self.all_params).reshape(-1,1)
+        ys = np.array(self.all_latencies).reshape(-1, 1)
+        zs = np.array(self.all_memories).reshape(-1,1)
+        points = np.concatenate((xs, ys, zs), axis=1)
+        p_inds = find_pareto_points(points, is_decreasing=True)
 
-            hull_indices, eps_indices = calculate_convex_hull(xs, ys, eps, allow_decrease)
-
-            all_indices = hull_indices + eps_indices
-
-            self.pareto['population'] = [self.all_population[i] for i in all_indices]
-            self.pareto['scores'] = [self.all_scores[i] for i in all_indices]
-            self.pareto['params'] = [self.all_params[i] for i in all_indices]
-            self.pareto['latencies'] = [self.all_latencies[i] for i in all_indices]
-            self.pareto['memories'] = [self.all_memories[i] for i in all_indices]
-
-        else:
-            # pareto over params, latency, memory
-            # since params higher is better for performance
-            # and memory and latency decreasing is better
-            # we convert params to a decreasing quantity
-            # since the pareto finding function needs all of them
-            # to be either decreasing or increasing.
-            xs = np.array(max(self.all_params)) - np.array(self.all_params).reshape(-1,1)
-            ys = np.array(self.all_latencies).reshape(-1, 1)
-            zs = np.array(self.all_memories).reshape(-1,1)
-            points = np.concatenate((xs, ys, zs), axis=1)
-            p_inds = find_pareto_points(points, is_decreasing=True)
-
-            assert points.shape[0] == len(self.all_population)
-            assert points.shape[0] == len(self.all_params)
-            assert points.shape[0] == len(self.all_latencies)
-            assert points.shape[0] == len(self.all_memories)
+        assert points.shape[0] == len(self.all_population)
+        assert points.shape[0] == len(self.all_params)
+        assert points.shape[0] == len(self.all_latencies)
+        assert points.shape[0] == len(self.all_memories)
+        
+        self.pareto['population'] = [self.all_population[i] for i in p_inds]
+        self.pareto['params'] = [self.all_params[i] for i in p_inds]
+        self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
+        self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
             
-            self.pareto['population'] = [self.all_population[i] for i in p_inds]
-            self.pareto['scores'] = [self.all_scores[i] for i in p_inds]
-            self.pareto['params'] = [self.all_params[i] for i in p_inds]
-            self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
-            self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
-            
-            # earlier method but that works reasonably well on latency vs. params
-            # for i in range(len(self.all_population)):
-            #     this_params, this_latency = self.all_params[i], self.all_latencies[i]
-            #     is_pareto = True
-
-            #     for j in range(len(self.all_params)):
-            #         params, latency = self.all_params[j], self.all_latencies[j]
-
-            #         if (params > this_params) and (latency < this_latency):
-            #             is_pareto = False
-            #             break
-
-            #     if is_pareto:
-            #         self.pareto['population'].append(self.all_population[i])
-            #         self.pareto['scores'].append(self.all_scores[i])
-            #         self.pareto['params'].append(self.all_params[i])
-            #         self.pareto['latencies'].append(self.all_latencies[i])
-            #         self.pareto['memories'].append(self.all_memories[i])
-
         print('number of points on the pareto front:', len(self.pareto['params']))
+
 
     def update_counts(self, population: List[List[Any]]) -> None:
         """Updates the number of repeated genes.
@@ -817,7 +601,8 @@ class Evolution:
         """Assigns a weight to each member of the  pareto frontier such that it is inversely 
             proportional to the number of times it has already been in the pareto frontier.
             
-        This is to prevent the same architectures from always being in the parent pool.
+        This is used to select parents from the pareto frontier
+        to prevent the same architectures from always being in the parent pool.
         
         Returns:
             (np.array): Weighted count.
@@ -846,7 +631,7 @@ class Evolution:
     def plot_samples(self,
                      iter: Optional[int] = None,
                      parents: Dict[str, Any] = None) -> None:
-        """Plots a set of samples from the population.
+        """Plots the state of search at every iteration.
 
         Args:
             iter: Current iteration number.
@@ -963,62 +748,6 @@ class Evolution:
 
         fig3.write_html(savename_html)
         fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
-
-        # # earlier plotting 
-        # if from_training:
-        #     x_axis = np.asarray(self.all_latencies) * 1000.
-        #     x_axis_pareto = np.asarray(self.pareto['latencies']) * 1000.
-
-        #     y_axis = -np.asarray(self.all_params)
-        #     y_axis_pareto = -np.asarray(self.pareto['params'])
-
-        #     x_label = 'Latency (ms)'
-        #     y_label = 'Val ppl'
-
-        #     if self.best_config:
-        #         x_best = self.best_latency * 1000.
-        #         y_best = -self.best_param
-
-        #     if parents:
-        #         x_parents = np.asarray(parents['latencies']) * 1000.
-        #         y_parents = -np.asarray(parents['params'])
-        # else:
-        #     x_axis = np.asarray(self.all_params)
-        #     x_axis_pareto = np.asarray(self.pareto['params'])
-
-        #     # ERROR: if all_latencies is already in seconds?     
-        #     y_axis = np.asarray(self.all_latencies) * 1000.
-        #     y_axis_pareto = np.asarray(self.pareto['latencies']) * 1000.
-
-        #     x_label = 'Decoder nParams'
-        #     y_label = 'Latency (ms)'
-
-        #     if self.best_config:
-        #         x_best = self.best_param
-        #         y_best = self.best_latency * 1000.
-
-        #     if parents:
-        #         x_parents = parents['params']
-        #         y_parents = np.asarray(parents['latencies']) * 1000.
-
-        # plt.figure()
-        # plt.scatter(x_axis, y_axis, s=10)
-        # plt.scatter(x_axis_pareto, y_axis_pareto, s=10)
-
-        # if self.best_config:
-        #     plt.scatter(x_best, y_best, c='y', s=50, marker='*', edgecolors='k', alpha=0.3)
-
-        # if parents:
-        #     plt.scatter(x_parents, y_parents, s=5, color='tab:green')
-
-        # plt.ylabel(y_label)
-        # plt.xlabel(x_label)
-
-        # plt.title('Pareto Curve')
-        # plt.grid(axis='y')
-
-        # fname = 'pareto_latency_iter{}.png'.format(iter) if iter is not None else 'pareto_latency_bruteforce.png'
-        # plt.savefig(os.path.join(self.results_path, fname), bbox_inches="tight")
 
 
 def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> None:

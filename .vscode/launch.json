@@ -300,11 +300,10 @@
             "request": "launch",
             "program": "${cwd}/archai/nlp/search.py",
             "console": "integratedTerminal",
-            "args": ["--population_size", "100", 
-                    "--parent_size", "20", 
-                    "--mutation_size", "40", 
-                    "--crossover_size", "40",
-                    "--pareto_search",
+            "args": ["--population_size", "20", 
+                    "--parent_size", "4", 
+                    "--mutation_size", "8", 
+                    "--crossover_size", "8",
                     "--model_type", "mem_transformer"]
         },
         {
