@@ -104,11 +104,6 @@ def parse_args():
                         default=5e6,
                         help='Any candidate below total parameters will be rejected.')
 
-    parser.add_argument('--latency_scale',
-                        type=float,
-                        default=2.0,
-                        help='How much latencies should be scaled.')
-
     parser.add_argument('--n_threads',
                         type=int,
                         default=1,
@@ -118,10 +113,6 @@ def parse_args():
                         type=int,
                         default=5,
                         help='Number of latency measurements.')
-
-    parser.add_argument('--pareto_search',
-                        action='store_true',
-                        help='Whether should conduct Pareto search ot not.')
 
     parser.add_argument('--device_name',
                         type=str,
@@ -137,10 +128,6 @@ def parse_args():
                         action='store_true',
                         help='Whether should calculate convex hull or not.')
 
-    parser.add_argument('--hybrid',
-                        action='store_true',
-                        help='Whether is a hybrid Pareto front or not.')
-
     parser.add_argument('--n_samples',
                         type=int,
                         default=20000,
@@ -150,53 +137,6 @@ def parse_args():
                         type=int,
                         default=1000,
                         help='Number of batched genes to conduct the brute force.')
-
-    parser.add_argument('--do_train',
-                        action='store_true',
-                        help='Whether samples should be trained or not.')
-
-    parser.add_argument('--start_train',
-                        type=int,
-                        default=40,
-                        help='Search iteration that training should start.')
-
-    parser.add_argument('--train_local',
-                        action='store_true',
-                        help='Whether samples should be locally trained or not.')
-
-    parser.add_argument('--n_gpus',
-                        type=int,
-                        default=1,
-                        help='Number of GPUs.')
-
-    parser.add_argument('--gpu_config',
-                        type=str,
-                        default='dgx1_1gpu_fp32',
-                        help='GPU configuration.')
-
-    parser.add_argument('--config_file',
-                        type=str,
-                        default='wt103_base.yaml',
-                        help='Configuration file.')
-
-    parser.add_argument('--max_step',
-                        type=int,
-                        default=500,
-                        help='Maximum number of training steps.')
-
-    parser.add_argument('--experiment_name',
-                        type=str,
-                        default='evolution',
-                        help='Name of the experiment.')
-
-    parser.add_argument('--scheduler',
-                        type=str,
-                        default='constant',
-                        help='Learning rate scheduler.')
-
-    parser.add_argument('--use_valid',
-                        action='store_true',
-                        help='Whether validation set should be used or not.')
 
     parser.add_argument('--use_quantization',
                         action='store_true',
@@ -242,14 +182,7 @@ if __name__ == '__main__':
     path_to_amlt_results = './amlt_logs'
     dir_name = f'lower_param_thresh_{args.param_constraint_lower/1e6}_upper_param_thresh_{args.param_constraint_upper/1e6}_latency_upper_thresh_{args.latency_constraint_upper/1e6}'
     
-    # Adds missing strings to the directory name
-    if args.pareto_search:
-        dir_name += '_pareto'
-    if args.use_convex_hull:
-        dir_name += '_convex_hull'
-    if args.start_train < args.n_iter:
-        dir_name += '_wTrain'
-
+    
     # TODO: the default path is ./evo_search which is inside the code repo!
     args.results_path = os.path.join(args.default_path, dir_name+'_'+args.device_name)
 
