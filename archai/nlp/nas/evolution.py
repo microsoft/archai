@@ -19,7 +19,7 @@ import plotly.graph_objects as go
 from archai.common import utils
 from archai.nlp.models.model_loader import load_model_from_args
 from archai.nlp.nas.nas_utils.converter import Converter
-from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
+from archai.nlp.nas.nas_utils.dispatcher import prepare_pareto_jobs, prepare_ground_truth_jobs
 from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
@@ -234,10 +234,24 @@ class Evolution:
         with open(path_to_pkl, 'wb') as f:
             pickle.dump(logs, f)
 
-        # TODO: generate a command line per pareto frontier point
+        # generate a command line per pareto frontier point
         # which can be sent off to a cluster for training
         # TODO: do non-maximum suppression on the frontier
-             
+        prepare_pareto_jobs(self.results_path, 
+                            converter=self.converter,
+                            path_to_save=os.path.join(self.results_path, "all_pareto_jobs"))    
+
+        # generate command line for submitting all the jobs
+        prepare_ground_truth_jobs(self.results_path,
+                                 self.converter,
+                                 max_step=40000,
+                                 start_config=0,
+                                 n_jobs=20,
+                                 n_gpus=8,
+                                 model_type=self.model_type,
+                                 gpu_config='dgx1_8gpu_fp32',
+                                 targets=['NLX-NDv2'],
+                                 path_to_save=os.path.join(self.results_path, "all_visited_jobs")) 
 
 
     def crossover(self, genes: List[List[Any]]) -> List[List[Any]]:

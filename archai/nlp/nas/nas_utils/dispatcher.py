@@ -15,63 +15,17 @@ import numpy as np
 import yaml
 
 from archai.nlp.nas.nas_utils.parser import parse_values_from_yaml
+from archai.nlp.nas.nas_utils.converter import Converter
 
 
-def check_job_status(exp_name: str,
-                     n_configs: int,
-                     start_config: Optional[int] = 0) -> None:
-    """Checks the status of a particular job.
-
-    Args:
-        exp_name: Name of the experiment.
-        n_configs: Number of configurations to check.
-        start_config: Starting range of the configuration to be checked.
-
-    """
-
-    pass_count = 0
-
-    while pass_count < n_configs:
-        print('Waiting for 1 minute before checking job status...')
-        time.sleep(60)
-
-        os.system(f'amlt status  {exp_name} > tmp.txt')
-        with open('tmp.txt', 'r') as f:
-            lines = f.readlines()
-
-        pass_count = 0
-        for i in range(len(lines)):
-            l = lines[i].split()
-
-            if len(l) == 0:
-                continue
-
-            if ':config_' in l[0]:
-                config_idx = int(re.search(':config_([0-9]+)', l[0]).group(1))
-                print(f'Checking status of job {config_idx}')
-
-                if (config_idx < start_config) or (config_idx >= (start_config + n_configs)):
-                    print('Supplied index is not in valid range')
-                    continue
-
-                if 'pass' in l:
-                    pass_count += 1
-
-                elif 'failed' in l:
-                    assert False, f'Experiment {exp_name}, job :config_{config_idx} failed'
-
-        print(f'{pass_count} total jobs finished.')
-
-    os.system('rm tmp.txt')
-
-
-def create_job_command(configs: List[Dict[str, Any]],
-                       max_step: int,
-                       n_gpus: int,
-                       model_type: str,
-                       gpu_config: str,
-                       is_pareto: Optional[bool] = None) -> str:
+def create_job_wt103_command(configs: List[Dict[str, Any]],
+                            max_step: int,
+                            n_gpus: int,
+                            model_type: str,
+                            gpu_config: str,
+                            is_pareto: Optional[bool] = None) -> str:
     """Creates a command-line command that launches a new job.
+    WARNING: specific to WT103 dataset.
 
     Args:
         configs: List of configuration dictionaries.
@@ -89,6 +43,7 @@ def create_job_command(configs: List[Dict[str, Any]],
     command = []
 
     for i, config in enumerate(configs):
+        # WARNING: div_val is 4 hardcoded here!
         config['div_val'] = 4
         config['d_embed'] = config['d_model']
         config['d_head'] = [config['d_model'] // n_head for n_head in config['n_head']]
@@ -151,10 +106,9 @@ def create_jobs(all_population: List[List[Any]],
         amlt_config['jobs'] = [{}]
 
         if is_pareto is not None:
-            # NOTE: changed += to =  not clear what is right.
-            amlt_config['jobs'][0]['command'] = create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
+            amlt_config['jobs'][0]['command'] = create_job_wt103_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
         else:
-            amlt_config['jobs'][0]['command'] = create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config)
+            amlt_config['jobs'][0]['command'] = create_job_wt103_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config)
 
         config_file = 'nv_train_'+str(config_idx)+'.yaml'
         f_name = os.path.join(path_to_configs, config_file)
@@ -179,20 +133,56 @@ def create_jobs(all_population: List[List[Any]],
     return exp_name, bash_file, config_idx-start_config
 
 
-def prepare_ground_truth_jobs(args: Dict[str, Any],
-                             alg: Any,
+def prepare_pareto_jobs(results_path:str, 
+                        converter:Converter,
+                        path_to_save:str):
+    ''' Prepares command line for training pareto frontier jobs only for full training. '''
+
+    path_to_logs = os.path.join(results_path, 'logs.pkl')
+    
+    with open(path_to_logs, 'rb') as f:
+        logs = pickle.load(f)
+
+    # get the list of pareto points
+    pareto_pop = logs['pareto'][-1]['population']
+
+    seen = set()
+
+    configs_to_launch = []
+    is_pareto = []
+
+    for gene in pareto_pop:
+        model_key = converter.gene_to_str(gene)
+        model_config = converter.gene_to_config(gene)
+        if model_key in seen:
+            continue
+        else:
+            seen.add(model_key)
+            configs_to_launch.append(model_config)
+            is_pareto.append(True)
+
+
+    create_jobs(configs_to_launch, start_config=0, n_jobs=10, max_step=40000,
+    n_gpus=8, model_type='mem_transformer', gpu_config='dgx1_8gpu_fp32', target= 'NLX-NDv2',
+    exp_name='evolution_', is_pareto=is_pareto, path_to_save=path_to_save)
+
+        
+
+def prepare_ground_truth_jobs(results_path: str,
+                             converter: Converter,
                              max_step: Optional[int] = 500,
                              start_config: Optional[int] = 0,
                              n_jobs: Optional[int] = 50,
                              n_gpus: Optional[int] = 8,
                              model_type: Optional[str] = 'mem_transformer',
                              gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
-                             targets: Optional[List[str]] = ['NLX-NDv2']) -> None:
-    """Submits a batch of ground-truth jobs.
+                             targets: Optional[List[str]] = ['NLX-NDv2'],
+                             path_to_save: Optional[str] = './configs') -> None:
+    """Prepares command lines for training all visited points during search for full training
 
     Args:
-        args: Additional arguments.
-        alg: Evolutionary algorithm.
+        results_path: Path to search results.
+        converter: Converter class object.
         max_step: Number of maximum steps to train the models.
         start_config: Starting range of the configuration to be checked.
         n_jobs: Number of jobs to be created.
@@ -200,11 +190,10 @@ def prepare_ground_truth_jobs(args: Dict[str, Any],
         model_type: Type of model.
         gpu_config: GPU configuration.
         targets: Target machines to deploy the experiments.
-
+        path_to_save: Save folder for the created command lines.
     """
 
-    # get amlt bash files for running all jobs to get the ground-truth Pareto
-    results_path = args['results_path']
+    # get bash files for running all jobs to get the ground-truth Pareto
     path_to_logs = os.path.join(results_path, 'logs.pkl')
 
     with open(path_to_logs, 'rb') as f:
@@ -215,7 +204,7 @@ def prepare_ground_truth_jobs(args: Dict[str, Any],
     pareto_pop = logs['pareto'][-1]['population']
 
     for gene in pareto_pop:
-        key = alg.converter.gene_to_str(gene)  # ','.join([str(g) for g in gene])
+        key = converter.gene_to_str(gene)  # ','.join([str(g) for g in gene])
         if not key in pareto_keys:
             pareto_keys.append(key)
 
@@ -232,11 +221,11 @@ def prepare_ground_truth_jobs(args: Dict[str, Any],
         unseen = 0
 
         for idx, gene in enumerate(pop):
-            key = alg.converter.gene_to_str(gene)
+            key = converter.gene_to_str(gene)
 
             if not key in seen.keys():
                 seen[key] = 1
-                model_config = alg.converter.gene_to_config(gene)
+                model_config = converter.gene_to_config(gene)
                 all_population.append(model_config)
                 unseen += 1
 
@@ -261,63 +250,7 @@ def prepare_ground_truth_jobs(args: Dict[str, Any],
         pickle.dump(is_pareto_dict, f)
 
     create_jobs(all_population, start_config, n_jobs, max_step, n_gpus,
-                model_type, gpu_config, targets[0], exp_name='evolution_', is_pareto=is_pareto)
+                model_type, gpu_config, targets[0], exp_name='evolution_', 
+                is_pareto=is_pareto, path_to_save=path_to_save)
 
 
-def submit_pareto_front_jobs(args: Dict[str, Any],
-                             alg: Any,
-                             is_pareto_dict: Dict[str, Any],
-                             max_step: Optional[int] = 500,
-                             start_config: Optional[int] = 0,
-                             n_jobs: Optional[int] = 50,
-                             n_gpus: Optional[int] = 8,
-                             gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
-                             targets: Optional[List[str]] = ['NLX-NDv2']) -> None:
-    """Submits a batch of Pareto front jobs.
-
-    Args:
-        args: Additional arguments.
-        alg: Evolutionary algorithm.
-        is_pareto_dict: Pareto front configurations.
-        max_step: Number of maximum steps to train the models.
-        start_config: Starting range of the configuration to be checked.
-        n_jobs: Number of jobs to be created.
-        n_gpus: Number of GPUs to be used.
-        gpu_config: GPU configuration.
-        targets: Target machines to deploy the experiments.
-
-    """
-    
-    # get amlt bash files for training jobs of selected Pareto points
-    results_path = args['results_path']
-    path_to_logs = os.path.join(results_path, 'logs.pkl')
-
-    with open(path_to_logs, 'rb') as f:
-        logs = pickle.load(f)
-
-    seen = {}
-    pareto_population = []
-    pareto_latencies = {}
-
-    for iter, pop in enumerate(logs['population']):
-        for idx, gene in enumerate(pop):
-            key = alg.converter.gene_to_str(gene)
-
-            if not key in seen.keys():
-                seen[key] = 1
-                model_config = alg.converter.gene_to_config(gene)
-                if is_pareto_dict[key]:
-                    pareto_population.append(model_config)
-
-                if iter < len(logs['latencies']):
-                    pareto_latencies[key] = logs['latencies'][iter][idx]
-
-    print('{} total configs and {} on the pareto'.format(len(seen.keys()), np.sum(len(pareto_population))))
-    assert np.sum(list(is_pareto_dict.values())) == len(pareto_population)
-
-    path_to_pkl = os.path.join(results_path, 'pareto_latencies.pkl')
-    with open(path_to_pkl, 'wb') as f:
-        pickle.dump(pareto_latencies, f)
-
-    create_jobs(pareto_population, start_config, n_jobs, max_step, n_gpus, gpu_config, targets[0],
-                exp_name='evolution_', path_to_save=os.path.join('../archaiphilly/transformer_nas', 'pareto_'+args['device_name']))

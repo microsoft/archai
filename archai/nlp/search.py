@@ -16,8 +16,7 @@ import yaml
 
 from archai.common import utils
 from archai.nlp.nas.evolution import Evolution, run_search
-from archai.nlp.nas.nas_utils.dispatcher import (prepare_ground_truth_jobs,
-                                                 submit_pareto_front_jobs)
+from archai.nlp.nas.nas_utils.dispatcher import prepare_ground_truth_jobs
 from archai.nlp.nas.nas_utils.pareto_front import (compare_pareto_fronts,
                                                    find_ground_truth_pareto)
 from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
@@ -30,14 +29,6 @@ def parse_args():
                         type=str,
                         default='./evo_search',
                         help='Path to the folder that will save the results.')
-
-    parser.add_argument('--phase',
-                        type=str,
-                        default='run_search',
-                        choices=['run_search', 'submit_gt_jobs',
-                                 'select_pareto',
-                                 'compare_pareto', 'gt_pareto'],
-                        help='Search phase.')
 
     parser.add_argument('--population_size',
                         type=int,
@@ -182,191 +173,11 @@ if __name__ == '__main__':
     args.results_path = os.path.join(args.default_path, dir_name+'_'+args.device_name)
 
     # Standard evolutionary search
-    if args.phase == 'run_search':
-        results_dir = utils.full_path(args.results_path, create=True)
-        with open(os.path.join(results_dir, 'search_config.yaml'), 'w') as f:
-            yaml.dump(vars(args), f)
+    results_dir = utils.full_path(args.results_path, create=True)
+    with open(os.path.join(results_dir, 'search_config.yaml'), 'w') as f:
+        yaml.dump(vars(args), f)
 
-        run_search(vars(args), brute_force=False)
-
-    # Submits ground-truth training jobs over the entire population after search
-    elif args.phase == 'submit_gt_jobs':
-        alg = Evolution(**vars(args))
-        prepare_ground_truth_jobs(vars(args),
-                                 alg,
-                                 max_step=40000,
-                                 start_config=0,
-                                 n_jobs=20,
-                                 n_gpus=8,
-                                 model_type=args.model_type,
-                                 gpu_config='dgx1_8gpu_fp32',
-                                 targets=['NLX-NDv2'])
-
+    run_search(vars(args), brute_force=False)
     
-    # Matches proxy pareto front points with the baseline and
-    # submit selected points on the pareto front for full training
-    elif args.phase == 'select_pareto':
-        path_to_baseline = os.path.join(path_to_amlt_results, 'evolution_baselines')
-
-        with open(os.path.join(path_to_baseline, 'params.pkl'), 'rb') as f:
-            params_baseline = pickle.load(f)
-
-        with open(os.path.join(path_to_baseline, 'latency_summary_{}.yaml'.format(args.device_name)), 'r') as f:
-            latency_baseline = yaml.safe_load(f)
-
-        baseline_params_list = []
-        baseline_latency_list = []
-
-        for k, p in params_baseline.items():
-            baseline_params_list.append(p)
-            baseline_latency_list.append(latency_baseline[k])
-
-        fname = 'pareto{}'.format('' if args.hybrid else '_params')
-        fname += '_convexHull' if args.use_convex_hull else ''
-
-        path_to_logs = os.path.join(args.results_path, fname+'_points.pkl')
-        with open(path_to_logs, 'rb') as f:
-            pareto = pickle.load(f)
-
-        indices = set()
-        keys_to_keep = set()
-
-        for l_b, p_b in zip(baseline_latency_list, baseline_params_list):
-            candidate_param = 0
-            candidate_latency = np.Inf
-
-            index_param = None
-            index_latency = None
-
-            for i, (l, p) in enumerate(zip(pareto['latencies'], pareto['params'])):
-                if abs(p-p_b) < 0.01*p_b and l < candidate_latency and l < l_b:
-                    index_latency = i
-                    candidate_latency = l
-
-                if abs(l-l_b) < 0.01*l_b and p > candidate_param and p > p_b:
-                    index_param = i
-                    candidate_param = p
-
-            if index_param is not None:
-                indices.add(index_param)
-                keys_to_keep.add(pareto['keys'][index_param])
-
-            if index_latency is not None:
-                indices.add(index_latency)
-                keys_to_keep.add(pareto['keys'][index_latency])
-
-        indices = list(indices)
-
-        x_pareto = np.asarray(pareto['params'])
-        y_pareto = np.asarray(pareto['latencies']) * 1000.
-
-        plt.figure()
-        plt.scatter(x_pareto[indices], y_pareto[indices], s=5, label=k)
-        plt.scatter(baseline_params_list, np.asarray(baseline_latency_list)*1000., s=5, label='baseline')
-        plt.ylabel('Latency (ms)')
-        plt.xlabel('Decoder nParams')
-        plt.title('Pareto Curve')
-        plt.grid(axis='y')
-        plt.legend()
-        plt.savefig(os.path.join(args.results_path, 'search_paretos{}.png'.format('' if args.hybrid else '_params')), bbox_inches='tight')
-
-        path_to_logs = os.path.join(args.results_path, fname+'.pkl')
-        with open(path_to_logs, 'rb') as f:
-            is_pareto_dict = pickle.load(f)
-
-        ks = list(is_pareto_dict.keys())
-        for k in ks:
-            if not k in keys_to_keep:
-                is_pareto_dict[k] = False
-
-        alg = Evolution(**vars(args))
-        
-        submit_pareto_front_jobs(vars(args),
-                                 alg,
-                                 is_pareto_dict,
-                                 max_step=40000,
-                                 start_config=0,
-                                 bundle_count=20,
-                                 n_gpus=8,
-                                 gpu_config='dgx1_8gpu_fp32',
-                                 targets=['NLX-NDv2'])
-
-    # Compares baseline with searched Pareto results
-    elif args.phase == 'compare_pareto':
-        training_exp_name = 'pareto_{}'.format(args.device_name)
-
-        alg = Evolution(**vars(args))
-
-        compare_pareto_fronts(vars(args),
-                              alg,
-                              exp_name=training_exp_name,
-                              path_to_dir=path_to_amlt_results,
-                              start_config=0,
-                              baseline_exp='evolution_baselines',
-                              check_pareto=False)
-
-    # Compares ground-truth Pareto with the proxy Pareto
-    elif args.phase == 'gt_pareto':
-        gt_exp_name = 'evolution_40000'
-        os.makedirs(path_to_amlt_results, exist_ok=True)
-
-        command = 'amlt results {} -I "*.json"  -o {}'.format(gt_exp_name, path_to_amlt_results)
-        os.system(command)
-        
-        command = 'amlt results {} -I "*.yaml"  -o {}'.format(gt_exp_name, path_to_amlt_results)
-        os.system(command)
-        
-        alg = Evolution(**vars(args))
-        find_ground_truth_pareto(vars(args),
-                                 alg,
-                                 exp_name=gt_exp_name,
-                                 path_to_dir=path_to_amlt_results,
-                                 start_config=0,
-                                 ppl_eps=0.1,
-                                 latency_eps=0.01,
-                                 hybrid=args.hybrid,
-                                 use_convex_hull=args.use_convex_hull,
-                                 min_acceptable_latency_diff=2,
-                                 baseline_exp=None)
-
-        alg = Evolution(**vars(args))
-        compare_pareto_fronts(vars(args),
-                              alg,
-                              exp_name=gt_exp_name,
-                              path_to_dir=path_to_amlt_results,
-                              start_config=0,
-                              baseline_exp='evolution_baselines',
-                              check_pareto=True)
-
-        # Compares final validation perplexity with nparams pareto
-        with open('amlt_logs/evolution_40000/params_summary.yaml') as f:
-            n_all_params = yaml.load(f)
-
-        gt_results = parse_results_from_experiment('evolution_40000', 'amlt_logs/evolution_40000', file_type=['.json'], verbose=False)
-
-        params_list = []
-        val_ppl_list = []
-
-        for job_name, result in gt_results.items():
-            if job_name in n_all_params.keys():
-                params_list.append(n_all_params[job_name]['FFN'] + n_all_params[job_name]['Attn'])
-                val_ppl_list.append(result['valid_perplexity'])
-
-        max_ppl_diff = 0.
-        for idx, p in enumerate(params_list):
-            for idx2, p2 in enumerate(params_list):
-                if abs(p-p2)*100./p < 0.1:
-                    if abs(val_ppl_list[idx] - val_ppl_list[idx2]) > max_ppl_diff:
-                        max_ppl_diff = abs(val_ppl_list[idx] - val_ppl_list[idx2])
-                        max_idx = idx
-        
-        print(f'maximum vertical difference in val ppl={max_ppl_diff}, happend in p={params_list[idx]}')
-
-        plt.figure()
-        plt.scatter(params_list, val_ppl_list, s=5)
-        plt.xlabel('# Decoder Params')
-        plt.ylabel('Val PPL')
-        plt.title('Pareto Curve')
-        plt.grid(axis='y')
-        fname = 'pareto_params.png'
-        plt.savefig(os.path.join(args.results_path, fname), bbox_inches='tight')
+    
+    
