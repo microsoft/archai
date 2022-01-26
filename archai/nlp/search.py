@@ -16,7 +16,7 @@ import yaml
 
 from archai.common import utils
 from archai.nlp.nas.evolution import Evolution, run_search
-from archai.nlp.nas.nas_utils.dispatcher import (submit_ground_truth_jobs,
+from archai.nlp.nas.nas_utils.dispatcher import (prepare_ground_truth_jobs,
                                                  submit_pareto_front_jobs)
 from archai.nlp.nas.nas_utils.pareto_front import (compare_pareto_fronts,
                                                    find_ground_truth_pareto)
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     # Submits ground-truth training jobs over the entire population after search
     elif args.phase == 'submit_gt_jobs':
         alg = Evolution(**vars(args))
-        submit_ground_truth_jobs(vars(args),
+        prepare_ground_truth_jobs(vars(args),
                                  alg,
                                  max_step=40000,
                                  start_config=0,

@@ -179,7 +179,7 @@ def create_jobs(all_population: List[List[Any]],
     return exp_name, bash_file, config_idx-start_config
 
 
-def submit_ground_truth_jobs(args: Dict[str, Any],
+def prepare_ground_truth_jobs(args: Dict[str, Any],
                              alg: Any,
                              max_step: Optional[int] = 500,
                              start_config: Optional[int] = 0,
