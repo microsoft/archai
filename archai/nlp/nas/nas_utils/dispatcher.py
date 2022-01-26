@@ -138,7 +138,7 @@ def create_jobs(all_population: List[List[Any]],
             of configurations that will be deployed.
     """
 
-    path_to_configs = os.path.join('~/', 'configs') if path_to_save is None else path_to_save
+    path_to_configs = os.path.expanduser('~/configs') if not path_to_save else path_to_save
     os.makedirs(path_to_configs, exist_ok=True)
 
     # create corresponding yaml files for amulet jobs
