@@ -26,6 +26,7 @@ from torch.nn.parallel import DistributedDataParallel
 from archai.nlp.models.model_utils import lamb
 from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
 from archai.nlp.models.archai_model import ArchaiModel
+from archai.nlp.models.model_utils.utils import map_to_list
 from archai.nlp.compression.quantization.mixed_qat import MixedQATModel
 from archai.nlp.models.available_models import AVAILABLE_MODELS
 from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
@@ -146,7 +147,7 @@ def parse_args():
                        help='Number of total layers')
     model.add_argument('--n_head', nargs='+', type=int, default=8,
                        help='Number of heads')
-    model.add_argument('--d_head', nargs='+', type=int, default=64,
+    model.add_argument('--d_head', nargs='+', type=int, default=-1, # will be set by d_model // n_head
                        help='Head dimension')
     model.add_argument('--d_embed', type=int, default=-1, # will be set from d_model
                        help='Embedding dimension')
@@ -288,6 +289,10 @@ def parse_args():
 
     if args.d_embed < 0:
         args.d_embed = args.d_model
+
+    args.d_inner = map_to_list(args.d_inner, args.n_layer)
+    args.n_head = map_to_list(args.n_head, args.n_layer)
+    args.d_head = [args.d_model // n_h for n_h in args.n_head] if args.d_head < 0 else map_to_list(args.d_head, args.n_layer)
 
     if args.ext_len < 0:
         raise RuntimeError('Extended context length must be non-negative')

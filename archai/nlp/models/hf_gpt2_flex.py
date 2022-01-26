@@ -8,7 +8,6 @@ import torch.nn.functional as F
 from transformers import CONFIG_MAPPING
 
 from archai.nlp.models.archai_model import ArchaiModel
-from archai.nlp.models.model_utils.utils import map_to_list
 from archai.nlp.models.model_utils.gpt2_flex import GPT2LMHeadModelFlex 
 
 
@@ -31,16 +30,9 @@ class HfGPT2Flex(ArchaiModel):
     def __init__(self, **kwargs) -> None:
         super(HfGPT2Flex, self).__init__()
 
-        if kwargs['d_embed'] == -1:
-            kwargs['d_embed'] = kwargs['d_model']
-
-        kwargs['d_inner'] = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
-        kwargs['n_head'] = map_to_list(kwargs['n_head'], kwargs['n_layer'])
-        kwargs['d_head'] = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] is None else map_to_list(kwargs['d_head'], kwargs['n_layer'])
-
         assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
-        assert all([n_head * d_head == kwargs['d_embed'] for n_head, d_head in zip(kwargs['n_head'], kwargs['d_head'])]), 'GPT2 does not support n_head*d_head != d_embed'
-        assert kwargs['d_model'] == kwargs['d_embed'], 'GPT2 does not support d_model != d_embed'
+        assert all([n_head * d_head == kwargs['d_embed'] for n_head, d_head in zip(kwargs['n_head'], kwargs['d_head'])]), 'GPT2 Flex does not support n_head*d_head != d_embed'
+        assert kwargs['d_model'] == kwargs['d_embed'], 'GPT2 flex does not support d_model != d_embed'
 
         assert all(kwargs['d_head'][0] == d_head for d_head in kwargs['d_head']), 'GPT2 Flex does not support different att heads.'
         assert all(kwargs['n_head'][0] == n_head for n_head in kwargs['n_head']), 'GPT2 Flex does not support different att heads.'

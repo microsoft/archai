@@ -7,7 +7,6 @@ import torch
 from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
 from archai.nlp.models.archai_model import ArchaiModel
-from archai.nlp.models.model_utils.utils import map_to_list
 
 
 class HfTransfoXL(ArchaiModel):
@@ -40,15 +39,15 @@ class HfTransfoXL(ArchaiModel):
     def __init__(self, **kwargs) -> None:
         super(HfTransfoXL, self).__init__()
 
-        d_inner = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
-        n_head = map_to_list(kwargs['n_head'], kwargs['n_layer'])
-        d_head = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] is None else map_to_list(kwargs['d_head'], kwargs['n_layer'])
+        assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
 
-        assert len(d_inner) == kwargs['n_layer'] and len(n_head) == kwargs['n_layer'] and len(d_head) == kwargs['n_layer']
+        assert all(kwargs['d_inner'][0] == d_inner for d_inner in kwargs['d_inner']), 'HF Transfo xl does not support heterogenous arch.'
+        assert all(kwargs['d_head'][0] == d_head for d_head in kwargs['d_head']), 'HF Transfo xl does not support heterogenous arch.'
+        assert all(kwargs['n_head'][0] == n_head for n_head in kwargs['n_head']), 'HF Transfo xl does not support heterogenous arch.'
 
-        kwargs['d_inner'] = d_inner[0]
-        kwargs['n_head'] = n_head[0]
-        kwargs['d_head'] = d_head[0]
+        kwargs['d_inner'] = kwargs['d_inner'][0]
+        kwargs['n_head'] = kwargs['n_head'][0]
+        kwargs['d_head'] = kwargs['d_head'][0]
 
         # Translate hyperparams into HuggingFace TransfoXL params
         self.config = self._generate_config(**kwargs)
