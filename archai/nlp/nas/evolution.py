@@ -128,7 +128,7 @@ class Evolution:
         self.profile()
 
     def search(self,
-               **kwargs) -> Dict[str, Any]:
+               **kwargs) -> None:
         """Performs the actual search.
 
         Args:
@@ -234,7 +234,11 @@ class Evolution:
         with open(path_to_pkl, 'wb') as f:
             pickle.dump(logs, f)
 
-        return self.best_config
+        # TODO: generate a command line per pareto frontier point
+        # which can be sent off to a cluster for training
+        # TODO: do non-maximum suppression on the frontier
+             
+
 
     def crossover(self, genes: List[List[Any]]) -> List[List[Any]]:
         """Performs the crossover between genes.

@@ -19,7 +19,6 @@ from archai.nlp.nas.evolution import Evolution, run_search
 from archai.nlp.nas.nas_utils.dispatcher import (submit_ground_truth_jobs,
                                                  submit_pareto_front_jobs)
 from archai.nlp.nas.nas_utils.pareto_front import (compare_pareto_fronts,
-                                                   find_final_pareto_front,
                                                    find_ground_truth_pareto)
 from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
 
