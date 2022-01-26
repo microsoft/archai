@@ -315,12 +315,12 @@
             "args": ["--phase", "submit_gt_jobs"]
         },
         {
-            "name": "Search Autoregressive - Phase Extract Pareto",
+            "name": "Search Autoregressive - Select Pareto",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/archai/nlp/search.py",
             "console": "integratedTerminal",
-            "args": ["--phase", "extract_pareto"]
+            "args": ["--phase", "select_pareto"]
         },
 
         {
