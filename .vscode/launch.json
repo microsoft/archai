@@ -295,7 +295,7 @@
             }
         },
         {
-            "name": "Search Autoregressive",
+            "name": "Search Autoregressive - Phase Search",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/archai/nlp/search.py",
@@ -306,6 +306,23 @@
                     "--crossover_size", "8",
                     "--model_type", "mem_transformer"]
         },
+        {
+            "name": "Search Autoregressive - Phase Submit GT Jobs",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/archai/nlp/search.py",
+            "console": "integratedTerminal",
+            "args": ["--phase", "submit_gt_jobs"]
+        },
+        {
+            "name": "Search Autoregressive - Phase Extract Pareto",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/archai/nlp/search.py",
+            "console": "integratedTerminal",
+            "args": ["--phase", "extract_pareto"]
+        },
+
         {
             "name": "CurrentFile",
             "type": "python",

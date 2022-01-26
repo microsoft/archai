@@ -20,7 +20,7 @@ from archai.common import utils
 from archai.nlp.models.model_loader import load_model_from_args
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import check_job_status, create_jobs
-from archai.nlp.nas.nas_utils.pareto_front import calculate_convex_hull, find_pareto_points
+from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
 from archai.nlp.nas.search_utils.constraints import (measure_inference_latency, measure_parameters,
@@ -424,7 +424,6 @@ class Evolution:
                          n_samples: int,
                          batch: Optional[int] = 1000,
                          eps: Optional[float] = None,
-                         use_convex_hull: Optional[bool] = False,
                          do_train: Optional[bool] = False,
                          train_local: Optional[bool] = False,
                          n_gpus: Optional[int] = 1,
@@ -441,7 +440,6 @@ class Evolution:
             n_samples: Number of genes to be sampled.
             batch: Number of batched genes to conduct the brute force.
             eps: Epsilon value.
-            use_convex_hull: Whether should calculate convex hull or not.
             do_train: Whether samples should be trained or not.
             train_local: Whether samples should be locally trained or not.
             n_gpus: Number of GPUs.
@@ -472,14 +470,14 @@ class Evolution:
 
         for idx in range(0, n_samples, batch):
             curr_population = population[idx:idx+batch]
-            curr_population_scores, curr_population_params, curr_population_latencies, curr_population_memories = self.calculate_score(curr_population, do_train, train_local, n_gpus, gpu_config, config_file, max_step,
+            curr_population_params, curr_population_latencies, curr_population_memories = self.calculate_memory_latency(curr_population, do_train, train_local, n_gpus, gpu_config, config_file, max_step,
                                                                                                         experiment_name, scheduler, use_valid)
             population_scores += curr_population_scores
 
             self.all_population += curr_population
             self.all_params += curr_population_params
             self.all_latencies += curr_population_latencies
-            self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
+            self.update_pareto_front(eps, is_decreasing=True)
 
             sorted_ind = np.array(population_scores).argsort()[::-1]
 
@@ -516,7 +514,7 @@ class Evolution:
         print(f'| Latency for highest score model: {self.best_latency}')
 
         self.plot_samples()
-        self.update_pareto_front(eps, allow_decrease=True, use_convex_hull=use_convex_hull)
+        self.update_pareto_front(eps, is_decreasing=True)
 
     def profile(self) -> None:
         """Profiles the search space.

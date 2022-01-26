@@ -151,12 +151,12 @@ def create_jobs(all_population: List[List[Any]],
         amlt_config['jobs'] = [{}]
 
         if is_pareto is not None:
-            amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
+            # NOTE: changed += to =  not clear what is right.
+            amlt_config['jobs'][0]['command'] = create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
         else:
-            amlt_config['jobs'][0]['command'] += create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config)
+            amlt_config['jobs'][0]['command'] = create_job_command(copy.deepcopy(all_population[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config)
 
         config_file = 'nv_train_'+str(config_idx)+'.yaml'
-
         f_name = os.path.join(path_to_configs, config_file)
         with open(f_name, 'w') as f:
             yaml.dump(amlt_config, f)

@@ -36,7 +36,7 @@ def parse_args():
                         type=str,
                         default='run_search',
                         choices=['run_search', 'submit_gt_jobs',
-                                 'extract_pareto', 'select_pareto',
+                                 'select_pareto',
                                  'compare_pareto', 'gt_pareto'],
                         help='Search phase.')
 
@@ -124,10 +124,6 @@ def parse_args():
                         default=0.05,
                         help='Epsilon value.')
 
-    parser.add_argument('--use_convex_hull',
-                        action='store_true',
-                        help='Whether should calculate convex hull or not.')
-
     parser.add_argument('--n_samples',
                         type=int,
                         default=20000,
@@ -207,20 +203,7 @@ if __name__ == '__main__':
                                  gpu_config='dgx1_8gpu_fp32',
                                  targets=['NLX-NDv2'])
 
-    # Extracts proxy pareto from all samples seen during the evolutionary search
-    elif args.phase == 'extract_pareto':
-        ppl_eps = 1  # abosulte ppl difference for extracting the pareto
-        param_eps = 0.01  # nomarlized parameter diff for extracting the pareto
-        eps = ppl_eps if (args.start_train < args.n_iter and args.hybrid) else param_eps
-
-        alg = Evolution(**vars(args))
-
-        find_final_pareto_front(vars(args),
-                                alg,
-                                eps=eps,
-                                hybrid=args.hybrid,
-                                use_convex_hull=args.use_convex_hull)
-
+    
     # Matches proxy pareto front points with the baseline and
     # submit selected points on the pareto front for full training
     elif args.phase == 'select_pareto':
