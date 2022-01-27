@@ -8,21 +8,16 @@ import copy
 import os
 import pickle
 import random
-import time
 from typing import Any, Dict, List, Optional, Tuple
 from collections import defaultdict, Counter
 
 import numpy as np
-import yaml
 import plotly.graph_objects as go
 
-from archai.common import utils
 from archai.nlp.models.model_loader import load_model_from_args
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import prepare_pareto_jobs, prepare_ground_truth_jobs
 from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
-from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
-                                             parse_values_from_yaml)
 from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency, measure_parameters,
                                                      measure_peak_memory)
 
