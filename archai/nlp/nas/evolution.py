@@ -10,7 +10,7 @@ import pickle
 import random
 import time
 from typing import Any, Dict, List, Optional, Tuple
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import numpy as np
 import yaml
@@ -101,8 +101,6 @@ class Evolution:
         self.param_constraint_upper = param_constraint_upper
         self.latency_constraint_upper = latency_constraint_upper
         
-        self.max_val_ppl = 70
-        self.latency_scale = latency_scale
         self.n_threads = n_threads  # number of threads for latency measurement
         self.latency_repeat = latency_repeat # number of runs for latency measurement
         self.use_quantization = use_quantization
@@ -121,11 +119,10 @@ class Evolution:
         self.all_latencies = []
         self.all_memories = []
 
-        # TODO: change to collections.Counter
-        # update counts code will be more robust
-        self.counts = {}
+        self.counts = Counter()
 
         self.profile()
+
 
     def search(self,
                **kwargs) -> None:
@@ -138,6 +135,7 @@ class Evolution:
 
         """
 
+        # sample initial population    
         population = self.sample_random_population(self.population_size)
 
         self.all_population = population
@@ -158,6 +156,7 @@ class Evolution:
             idx = 0 if i == 0 else self.parent_size
             print(f'| Start Iteration {i}:')
 
+            # calculate decoder params, latencies, memories
             population_params_unseen, \
             population_latencies_unseen, \
             population_memories_unseen = \
@@ -182,7 +181,9 @@ class Evolution:
 
             self.update_pareto_front(is_decreasing=True)
 
-            # Select parents for the next iteration
+            # select parents for the next iteration from the 
+            # current estimate of the pareto frontier
+            # give more weight to newer parents
             count_weights = self.calculate_weighted_count()
             selected_ind = np.random.choice(len(self.pareto['population']), size=self.parent_size, p=count_weights)
 
@@ -191,6 +192,9 @@ class Evolution:
             parents_latencies = [self.pareto['latencies'][m] for m in selected_ind]
             parents_memories = [self.pareto['memories'][m] for m in selected_ind]
             
+            # mutate random k subset of the parents
+            # while ensuring the mutations fall within 
+            # desired constraint limits
             mutated_population, k = [], 0
             while k < self.mutation_size:
                 mutated_gene = self.mutation(random.choices(parents_population)[0])
@@ -199,6 +203,9 @@ class Evolution:
                     mutated_population.append(mutated_gene)
                     k += 1
 
+            # crossover random k subset of the parents
+            # while ensuring the crossovers fall within
+            # desired constraint limits
             crossovered_population, k = [], 0
             while k < self.crossover_size:
                 crossovered_gene = self.crossover(random.sample(parents_population, 2))
@@ -236,7 +243,7 @@ class Evolution:
 
         # generate a command line per pareto frontier point
         # which can be sent off to a cluster for training
-        # TODO: do non-maximum suppression on the frontier
+        # TODO: do non-maximum suppression on the pareto frontier
         prepare_pareto_jobs(self.results_path, 
                             converter=self.converter,
                             path_to_save=os.path.join(self.results_path, "all_pareto_jobs"))    
@@ -274,6 +281,7 @@ class Evolution:
 
         return crossovered_gene
 
+
     def mutation(self, gene: List[Any]) -> List[Any]:
         """Performs mutation over a single gene.
 
@@ -284,7 +292,6 @@ class Evolution:
             (List[Any]): Mutated gene.
 
         """
-
         mutated_gene = []
         gene_choice = self.gene_choice
 
@@ -300,6 +307,7 @@ class Evolution:
 
         return mutated_gene
 
+
     def calculate_memory_latency(self,
                         genes: List[List[Any]],
                         ) -> Tuple[List[int], List[float], List[float]]:
@@ -313,7 +321,6 @@ class Evolution:
             latencies and memories. 
 
         """
-
         configs = []
         for gene in genes:
             configs.append(self.converter.gene_to_config(gene))
@@ -406,6 +413,7 @@ class Evolution:
 
         return True
 
+
     def sample_random_population(self, n_samples: int) -> List[List[Any]]:
         """Samples a random population.
 
@@ -436,6 +444,7 @@ class Evolution:
                 i += 1
 
         return population
+
 
     def semi_brute_force(self,
                          n_samples: int,
@@ -533,6 +542,7 @@ class Evolution:
         self.plot_samples()
         self.update_pareto_front(eps, is_decreasing=True)
 
+
     def profile(self) -> None:
         """Profiles the search space.
 
@@ -557,6 +567,7 @@ class Evolution:
                 {self.max_decoder_params} decoder params
                 {self.max_latency:.4f}s latency
                 {self.max_peak_memory:.4f}MB memory''')
+
 
     def update_pareto_front(self,
                             is_decreasing: Optional[bool] = True,
@@ -600,21 +611,16 @@ class Evolution:
             population: Current population.
 
         """
-
-        n_repeated = 0
-
         for gene in population:
             key = ','.join([str(g) for g in gene])
+            # important to add as a dictionary 
+            # else Counter counts the characters in the string
+            self.counts.update({key:1})
 
-            if key in self.counts.keys():
-                self.counts[key] += 1
-                n_repeated += 1
-            else:
-                self.counts[key] = 1
-
+            
     def calculate_weighted_count(self) -> np.array:
         """Assigns a weight to each member of the  pareto frontier such that it is inversely 
-            proportional to the number of times it has already been in the pareto frontier.
+            proportional to the number of times it has already been in the working set population.
             
         This is used to select parents from the pareto frontier
         to prevent the same architectures from always being in the parent pool.
@@ -642,6 +648,7 @@ class Evolution:
         assert count_weights.size == len(self.pareto['population'])
 
         return count_weights
+
 
     def plot_samples(self,
                      iter: Optional[int] = None,
