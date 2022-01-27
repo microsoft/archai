@@ -73,7 +73,7 @@ def parse_args():
     parser.add_argument('--manual', type=str, default=None, nargs='+',
                         help='run model on raw input data')
     parser.add_argument('--dataset', type=str, default='wt103',
-                        choices=['wt103', 'lm1b', 'enwik8', 'text8', 'wt2'],
+                        choices=['wt103', 'lm1b', 'enwik8', 'text8', 'wt2', 'ptb', 'lambda', 'reddit'],
                         help='dataset name')
     parser.add_argument('--split', type=str, default='valid',
                         choices=['all', 'valid', 'test'],
@@ -419,11 +419,15 @@ def beam_search(encoded, model, device, vocab, tgt_len, generation_method, beam_
             top_indices = torch.argsort(log_probs, descending=True)[0:beam_size]
             top_logprobs = log_probs[top_indices].double()
             hypothesis = []
+            cur_cands = 0
             for top_idx, top_lprob in zip(top_indices, top_logprobs):
                 next_token_tensor = torch.IntTensor(1)
                 next_token_tensor[0] = top_idx.item()
                 new_prompt_tensor = torch.cat((prompt_tensor, next_token_tensor))
                 hypothesis.append((new_prompt_tensor, top_lprob.item()))
+                cur_cands += 1
+                if cur_cands == beam_size:
+                    break
             is_done = False
             while is_done == False:
                 cur_hypothesis = []

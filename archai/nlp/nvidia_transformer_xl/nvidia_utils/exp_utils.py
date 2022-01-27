@@ -257,6 +257,8 @@ def dataset_dir_name(dataset:str)->str:
         return 'wikitext-103'
     if dataset=='wt2':
         return 'wikitext-2-raw-v1-char'
+    if dataset in ['ptb', 'lambda', 'reddit']:
+        return dataset
     if dataset=='lm1b':
         raise RuntimeError(f'dataset "{dataset}" is not supported yet')
     if dataset=='enwik8':
@@ -270,7 +272,7 @@ def get_create_dirs(data_dir:Optional[str]=None, dataset_name='wt103',
                     cache_dir:Optional[str]=None)->Tuple[str,str,str]:
     pt_data_dir, pt_output_dir = common.pt_dirs()
     data_dir = data_dir or pt_data_dir or common.default_dataroot()
-    data_dir = utils.full_path(os.path.join(data_dir)) #,'textpred', dataset_dir_name(dataset_name)))
+    data_dir = utils.full_path(os.path.join(data_dir, 'textpred', dataset_dir_name(dataset_name)))
     output_dir=  utils.full_path(pt_output_dir or \
                         os.path.join(output_dir, experiment_name)
                     , create=True)
