@@ -6,20 +6,14 @@
 
 import argparse
 import os
-import pickle
 import random
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import yaml
 
 from archai.common import utils
-from archai.nlp.nas.evolution import Evolution, run_search
-from archai.nlp.nas.nas_utils.dispatcher import prepare_ground_truth_jobs
-from archai.nlp.nas.nas_utils.pareto_front import (compare_pareto_fronts,
-                                                   find_ground_truth_pareto)
-from archai.nlp.nas.nas_utils.parser import parse_results_from_experiment
+from archai.nlp.nas.evolution import run_search
 
 
 def parse_args():
