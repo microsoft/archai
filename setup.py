@@ -20,7 +20,7 @@ install_requires=[
     # nvidia transformer-xl
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
     'pytorch-transformers', 'sacremoses', 'pynvml',
-    'memory-profiler', 'opytimizer'
+    'plotly'
 ]
 
 setup(
