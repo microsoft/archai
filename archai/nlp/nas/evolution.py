@@ -248,7 +248,8 @@ class Evolution:
                             converter=self.converter,
                             path_to_save=os.path.join(self.results_path, "all_pareto_jobs"))    
 
-        # generate command line for submitting all the jobs
+        # generate command line for fully training all architectures
+        # visited during search
         prepare_ground_truth_jobs(self.results_path,
                                  self.converter,
                                  max_step=40000,
