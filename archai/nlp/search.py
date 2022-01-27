@@ -54,25 +54,25 @@ def parse_args():
                         default=10,
                         help='Number of search iterations.')
 
-    parser.add_argument('--n_layer_choice',
+    parser.add_argument('--n_layer',
                         nargs='+',
                         type=int,
                         default=[3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                         help='Possible number of layers.')
 
-    parser.add_argument('--d_model_choice',
+    parser.add_argument('--d_model',
                         nargs='+',
                         type=int,
                         default=[128, 256, 512, 768, 1024],
                         help='Possible model dimensions.')
 
-    parser.add_argument('--d_inner_choice',
+    parser.add_argument('--d_inner',
                         nargs='+',
                         type=int,
                         default=list(range(512, 2049, 50))+list(range(2048, 3072, 200)),
                         help='Possible inner dimensions.')
 
-    parser.add_argument('--n_head_choice',
+    parser.add_argument('--n_head',
                         nargs='+',
                         type=int,
                         default=[2, 4, 8],
@@ -132,8 +132,8 @@ def parse_args():
                         type=int,
                         default=1111,
                         help='Random seed.')
-
-    args = parser.parse_args()
+                        
+    args = vars(parser.parse_args())
 
     return args
 
@@ -143,9 +143,9 @@ if __name__ == '__main__':
     args = parse_args()
 
     # Applies random seeds
-    np.random.seed(args.seed)
-    random.seed(args.seed)
-    torch.manual_seed(args.seed)
+    np.random.seed(args['seed'])
+    random.seed(args['seed'])
+    torch.manual_seed(args['seed'])
 
     # Gathers the latency constraint based on device
     # TODO: this should get moved to config file with a command line override
@@ -156,22 +156,18 @@ if __name__ == '__main__':
         'corei5': 10.0,
         'D3_V2': 10.0,
     }
-    args.latency_constraint_upper = latency_constraint[args.device_name]
+    args['latency_constraint_upper'] = latency_constraint[args['device_name']]
 
     # Initializes the directory name
     path_to_amlt_results = './amlt_logs'
-    dir_name = f'lower_param_thresh_{args.param_constraint_lower/1e6}_upper_param_thresh_{args.param_constraint_upper/1e6}_latency_upper_thresh_{args.latency_constraint_upper/1e6}'
-    
+    dir_name = f'lower_param_thresh_{args["param_constraint_lower"]/1e6}_upper_param_thresh_{args["param_constraint_upper"]/1e6}_latency_upper_thresh_{args["latency_constraint_upper"]/1e6}'
     
     # TODO: the default path is ./evo_search which is inside the code repo!
-    args.results_path = os.path.join(args.default_path, dir_name+'_'+args.device_name)
+    args['results_path'] = os.path.join(args['default_path'], dir_name+'_'+args['device_name'])
 
     # Standard evolutionary search
-    results_dir = utils.full_path(args.results_path, create=True)
+    results_dir = utils.full_path(args['results_path'], create=True)
     with open(os.path.join(results_dir, 'search_config.yaml'), 'w') as f:
-        yaml.dump(vars(args), f)
+        yaml.dump(args, f)
 
-    run_search(vars(args), brute_force=False)
-    
-    
-    
+    run_search(args, brute_force=False)
