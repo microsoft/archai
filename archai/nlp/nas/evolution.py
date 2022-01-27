@@ -23,7 +23,7 @@ from archai.nlp.nas.nas_utils.dispatcher import prepare_pareto_jobs, prepare_gro
 from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
 from archai.nlp.nas.nas_utils.parser import (parse_results_from_amulet,
                                              parse_values_from_yaml)
-from archai.nlp.nas.search_utils.constraints import (measure_inference_latency, measure_parameters,
+from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency, measure_parameters,
                                                      measure_peak_memory)
 
 # Scales d_inner according to a fixed constant
