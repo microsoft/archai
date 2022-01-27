@@ -69,10 +69,8 @@ def create_jobs(all_population: List[List[Any]],
                 n_gpus: Optional[int] = 8,
                 model_type: Optional[str] = 'mem_transformer',
                 gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
-                target: Optional[str] = 'NLX-NDv2',
-                exp_name: Optional[str] = 'midevolution_training_',
                 is_pareto: Optional[bool] = None,
-                path_to_save: Optional[str] = None) -> Tuple[str, str, int]:
+                path_to_save: Optional[str] = None) -> None:
     """Creates a batch of jobs.
 
     Args:
@@ -83,14 +81,11 @@ def create_jobs(all_population: List[List[Any]],
         n_gpus: Number of GPUs to be used.
         model_type: Type of model.
         gpu_config: GPU configuration.
-        target: Target machine to deploy the jobs.
-        exp_name: Name of the experiment.
         is_pareto: Whether job is from pareto front or not.
         path_to_save: Folder that output files should be saved on.
 
     Returns:
-        (Tuple[str, str, int]): Experiment name, bash file with created commands and range
-            of configurations that will be deployed.
+        None
     """
 
     path_to_configs = os.path.expanduser('~/configs') if not path_to_save else path_to_save
@@ -117,20 +112,6 @@ def create_jobs(all_population: List[List[Any]],
 
         c += n_jobs
         config_idx += 1
-
-    exp_name = exp_name + str(max_step)
-
-    bash_f_name = 'amlt_run'
-    bash_file = os.path.join(path_to_configs, bash_f_name+'.sh')
-
-    if os.path.exists(bash_file):
-        os.remove(bash_file)
-
-    for i in range(start_config, config_idx):
-        with open(bash_file, 'a') as f:
-            f.write('amlt run --yes archai/nlp/nvidia_transformer_xl/configs/nv_train_{}.yaml {} -t {}\n'.format(i, exp_name, target))
-
-    return exp_name, bash_file, config_idx-start_config
 
 
 def prepare_pareto_jobs(results_path:str, 
@@ -163,8 +144,8 @@ def prepare_pareto_jobs(results_path:str,
 
 
     create_jobs(configs_to_launch, start_config=0, n_jobs=10, max_step=40000,
-    n_gpus=8, model_type='mem_transformer', gpu_config='dgx1_8gpu_fp32', target= 'NLX-NDv2',
-    exp_name='evolution_', is_pareto=is_pareto, path_to_save=path_to_save)
+    n_gpus=8, model_type='mem_transformer', gpu_config='dgx1_8gpu_fp32', 
+    is_pareto=is_pareto, path_to_save=path_to_save)
 
         
 
@@ -175,8 +156,7 @@ def prepare_ground_truth_jobs(results_path: str,
                              n_jobs: Optional[int] = 50,
                              n_gpus: Optional[int] = 8,
                              model_type: Optional[str] = 'mem_transformer',
-                             gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
-                             targets: Optional[List[str]] = ['NLX-NDv2'],
+                             gpu_config: Optional[str] = 'dgx1_8gpu_fp32',                             
                              path_to_save: Optional[str] = './configs') -> None:
     """Prepares command lines for training all visited points during search for full training
 
@@ -189,7 +169,6 @@ def prepare_ground_truth_jobs(results_path: str,
         n_gpus: Number of GPUs to be used.
         model_type: Type of model.
         gpu_config: GPU configuration.
-        targets: Target machines to deploy the experiments.
         path_to_save: Save folder for the created command lines.
     """
 
@@ -250,7 +229,7 @@ def prepare_ground_truth_jobs(results_path: str,
         pickle.dump(is_pareto_dict, f)
 
     create_jobs(all_population, start_config, n_jobs, max_step, n_gpus,
-                model_type, gpu_config, targets[0], exp_name='evolution_', 
+                model_type, gpu_config,
                 is_pareto=is_pareto, path_to_save=path_to_save)
 
 

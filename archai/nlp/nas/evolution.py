@@ -250,7 +250,6 @@ class Evolution:
                                  n_gpus=8,
                                  model_type=self.model_type,
                                  gpu_config='dgx1_8gpu_fp32',
-                                 targets=['NLX-NDv2'],
                                  path_to_save=os.path.join(self.results_path, "all_visited_jobs")) 
 
 
