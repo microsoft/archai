@@ -19,10 +19,7 @@ from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import prepare_pareto_jobs, prepare_ground_truth_jobs
 from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
 from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency, measure_parameters,
-                                                     measure_peak_memory)
-
-# Scales d_inner according to a fixed constant
-D_INNER_SCALE = 1.7
+                                                  measure_peak_memory)
 
 
 class Evolution:
@@ -38,10 +35,6 @@ class Evolution:
                  mutation_prob: Optional[float] = 0.3,
                  crossover_size: Optional[int] = 50,
                  n_iter: Optional[int] = 30,
-                 n_layer_choice: Optional[List[int]] = [5, 6, 7, 8],
-                 d_model_choice: Optional[List[int]] = [64, 128, 256, 512],
-                 d_inner_choice: Optional[List[int]] = list(range(512, 2048, 50)),
-                 n_head_choice: Optional[List[int]] = [2, 4, 8],
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
                  latency_scale: Optional[float] = 1.0,
@@ -50,7 +43,7 @@ class Evolution:
                  latency_constraint_upper: Optional[float] = None,
                  model_type: Optional[str] = 'mem_transformer',
                  use_quantization: Optional[bool] = False,
-                 **kwargs) -> None:
+                 **choices) -> None:
         """Initializes attributes.
 
         Args:
@@ -61,10 +54,6 @@ class Evolution:
             mutation_prob: Probability of mutation.
             crossover_size: Size of the crossovered genes.
             n_iter: Number of search iterations.
-            n_layer_choice: Possible number of layers.
-            d_model_choice: Possible model's dimensions.
-            d_inner_choice: Possible inner dimensions.
-            n_head_choice: Possible number of attention heads.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
             latency_scale: How much latencies should be scaled.
@@ -73,6 +62,7 @@ class Evolution:
             latency_constraint_upper: Any model which has higher latency is rejected.
             model_type: Type of model.
             use_quantization: Whether should use quantization or not.
+            choices: Additional keyword arguments that represent hyperparameters choices.
 
         """
 
@@ -88,10 +78,6 @@ class Evolution:
 
         self.n_iter = n_iter
 
-        self.converter = Converter(n_layer_choice, d_model_choice, d_inner_choice, n_head_choice)
-        self.gene_choice = self.converter.get_allowed_genes()
-        self.gene_len = len(self.gene_choice)
-
         self.param_constraint_lower = param_constraint_lower
         self.param_constraint_upper = param_constraint_upper
         self.latency_constraint_upper = latency_constraint_upper
@@ -101,8 +87,18 @@ class Evolution:
         self.use_quantization = use_quantization
         
         self.model_type = model_type
-        self.model_config_defaults = load_model_from_args(model_type, cls_type='config').default
+        self.model_config = load_model_from_args(model_type, cls_type='config')
 
+        # Prevents non-available keys from being used during search
+        # Also, overrides default search choices with inputted ones
+        model_config_search = copy.deepcopy(self.model_config.search)
+        model_config_search.update((k, v) for k, v in choices.items()
+                                   if k in self.model_config.search.keys())
+
+        self.converter = Converter(**model_config_search)
+        self.gene_choice = self.converter.get_allowed_genes()
+        self.gene_len = len(self.gene_choice)
+        
         self.best_config = None
         self.pareto = {'population': [],
                        'params': [],
@@ -118,15 +114,8 @@ class Evolution:
 
         self.profile()
 
-
-    def search(self,
-               **kwargs) -> None:
+    def search(self, **kwargs) -> None:
         """Performs the actual search.
-
-        Args:
-
-        Returns:
-            (Dict[str, Any]): Best configuration.
 
         """
 
@@ -292,8 +281,7 @@ class Evolution:
 
         for k in range(self.gene_len):
             if k == 1:
-                d_inner_min = int(D_INNER_SCALE * mutated_gene[-1])
-                gene_choice = self.converter.get_allowed_genes(d_inner_min=d_inner_min)
+                gene_choice = self.converter.get_allowed_genes()
 
             if np.random.uniform() < self.mutation_prob:
                 mutated_gene.append(random.choices(gene_choice[k])[0])
@@ -328,7 +316,7 @@ class Evolution:
         memories = []
 
         for i, config in enumerate(configs):
-            model_config = copy.deepcopy(self.model_config_defaults)
+            model_config = copy.deepcopy(self.model_config.default)
             model_config.update(config)
             model = load_model_from_args(self.model_type, **model_config)
 
@@ -371,16 +359,8 @@ class Evolution:
         # Converts gene to configuration
         config = self.converter.gene_to_config(gene)
 
-        # Checks whether d_inner satistify scaling
-        for d_inner in config['d_inner']:
-            scaled_d_inner = int(D_INNER_SCALE * config['d_model'])
-
-            if d_inner < scaled_d_inner:
-                print(f'gene {gene} has lower d_inner {d_inner} than threshold {scaled_d_inner}')
-                return False
-
         # Loads model from current configuration
-        model_config = copy.deepcopy(self.model_config_defaults)
+        model_config = copy.deepcopy(self.model_config.default)
         model_config.update(config)
         model = load_model_from_args(self.model_type, **model_config)
 
@@ -429,8 +409,7 @@ class Evolution:
 
             for k in range(self.gene_len):
                 if k == 1:
-                    d_inner_min = int(D_INNER_SCALE * sampled_gene[-1])
-                    gene_choice = self.converter.get_allowed_genes(d_inner_min=d_inner_min)
+                    gene_choice = self.converter.get_allowed_genes()
 
                 sampled_gene.append(random.choices(gene_choice[k])[0])
 
@@ -439,7 +418,6 @@ class Evolution:
                 i += 1
 
         return population
-
 
     def semi_brute_force(self,
                          n_samples: int,
@@ -537,7 +515,6 @@ class Evolution:
         self.plot_samples()
         self.update_pareto_front(eps, is_decreasing=True)
 
-
     def profile(self) -> None:
         """Profiles the search space.
 
@@ -546,7 +523,7 @@ class Evolution:
         gene = [self.gene_choice[k][-1] for k in range(self.gene_len)]
         config = self.converter.gene_to_config(gene)
 
-        model_config = copy.deepcopy(self.model_config_defaults)
+        model_config = copy.deepcopy(self.model_config.default)
         model_config.update(config)
 
         biggest_model = load_model_from_args(self.model_type, **model_config)
@@ -771,7 +748,7 @@ def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> Non
     """Runs the evolutionary search.
 
     Args:
-        args: Additional arguments.
+        args: Search-related arguments.
         brute_force: Whether to employ semi brute-force to the search or not.
 
     """
@@ -780,7 +757,5 @@ def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> Non
 
     if brute_force:
         alg.semi_brute_force(**args)
-
     else:
-        best_config = alg.search(**args)
-        print(best_config)
+        alg.search(**args)

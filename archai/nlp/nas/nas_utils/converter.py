@@ -4,7 +4,11 @@
 """Converts from parameters to genes and vice-versa.
 """
 
-from typing import Any, Dict, List, Optional
+from collections import OrderedDict
+from typing import Any, Dict, List
+
+# Defines keys that can be different for each layer
+PER_LAYER_KEYS = ['d_inner', 'n_head']
 
 
 class Converter:
@@ -12,27 +16,17 @@ class Converter:
 
     """
 
-    def __init__(self,
-                 n_layer_choice: int,
-                 d_model_choice: int,
-                 d_inner_choice: int,
-                 n_head_choice: int) -> None:
+    def __init__(self, **kwargs) -> None:
         """Overrides initialization method.
-
-        Args:
-            n_layer_choice: Possible number of layers.
-            d_model_choice: Possible model's dimension.
-            d_inner_choice: Possible inner dimension.
-            n_head_choice: Possible number of heads.
 
         """
 
-        self.n_layer_choice = n_layer_choice
-        self.d_model_choice = d_model_choice
-        self.d_inner_choice = d_inner_choice
-        self.n_head_choice = n_head_choice
+        self.config = OrderedDict(kwargs)
 
-        self.max_n_layer = self.n_layer_choice[-1]
+        try:
+            self.max_n_layer = max(self.config['n_layer'])
+        except:
+            self.max_n_layer = 1
 
     def config_to_gene(self, config: Dict[str, Any]) -> List[Any]:
         """Converts a configuration dictionary into a gene.
@@ -46,30 +40,19 @@ class Converter:
         """
 
         gene = []
+        n_layer = config['n_layer']
 
-        sample_n_layer = config['n_layer']
-
-        gene.append(config['d_model'])
-        gene.append(sample_n_layer)
-
-        for i in range(max(self.max_n_layer, sample_n_layer)):
-            if isinstance(config['d_inner'], list):
-                if i < sample_n_layer:
-                    gene.append(config['d_inner'][i])
-                else:
-                    gene.append(config['d_inner'][0])
+        for k in self.config.keys():
+            if k in PER_LAYER_KEYS:
+                for i in range(max(self.max_n_layer, n_layer)):
+                  if isinstance(config[k], list):
+                    if i < n_layer:
+                        gene.append(config[k][i])
+                    else:
+                        gene.append(config[k][0])
             else:
-                gene.append(config['d_inner'])
-
-        for i in range(max(self.max_n_layer, sample_n_layer)):
-            if isinstance(config['n_head'], list):
-                if i < sample_n_layer:
-                    gene.append(config['n_head'][i])
-                else:
-                    gene.append(config['n_head'][0])
-            else:
-                gene.append(config['n_head'])
-
+                gene.append(config[k])
+                    
         return gene
 
     def gene_to_config(self, gene: List[Any]) -> Dict[str, Any]:
@@ -83,24 +66,16 @@ class Converter:
 
         """
 
-        config = {'d_model': None,
-                  'n_layer': None,
-                  'd_inner': None,
-                  'n_head': None}
+        config = {}
+        idx = 0
 
-        current_index = 0
-
-        config['d_model'] = gene[current_index]
-        current_index += 1
-
-        config['n_layer'] = gene[current_index]
-        current_index += 1
-
-        config['d_inner'] = gene[current_index: current_index + config['n_layer']]
-        current_index += max(self.max_n_layer, config['n_layer'])
-
-        config['n_head'] = gene[current_index: current_index + config['n_layer']]
-        current_index += max(self.max_n_layer, config['n_layer'])
+        for k in self.config.keys():
+            if k in PER_LAYER_KEYS:
+                config[k] = gene[idx:idx+self.max_n_layer]
+                idx += self.max_n_layer
+            else:
+                config[k] = gene[idx]
+                idx += 1
 
         return config
 
@@ -115,29 +90,10 @@ class Converter:
 
         """
 
-        key_list = []
+        return ','.join(str(g) for g in gene)
 
-        current_index = 0
-
-        key_list += [gene[current_index]]  # d_model
-        current_index += 1
-
-        key_list += [gene[current_index]]  # n_layer
-        current_index += 1
-
-        key_list += gene[current_index: current_index + gene[1]]  # d_inner
-        current_index += self.max_n_layer
-
-        key_list += gene[current_index: current_index + gene[1]]  # n_head
-        current_index += self.max_n_layer
-
-        return ','.join(str(k) for k in key_list)
-
-    def get_allowed_genes(self, d_inner_min: Optional[int] = None) -> List[List[Any]]:
+    def get_allowed_genes(self) -> List[List[Any]]:
         """Gathers all allowed gene choices.
-
-        Args:
-            d_inner_min: Minimum value for the inner dimension.
 
         Returns:
             (List[List[Any]]): List of possible gene choices.
@@ -146,16 +102,11 @@ class Converter:
 
         allowed_genes = []
 
-        allowed_genes.append(self.d_model_choice)
-        allowed_genes.append(self.n_layer_choice)
-
-        for _ in range(self.max_n_layer):
-            if d_inner_min is not None:
-                allowed_genes.append(list(range(d_inner_min, self.d_inner_choice[-1], 50)))
+        for k, v in self.config.items():
+            if k in PER_LAYER_KEYS:
+                for _ in range(self.max_n_layer):
+                    allowed_genes.append(v)
             else:
-                allowed_genes.append(self.d_inner_choice)
-
-        for _ in range(self.max_n_layer):
-            allowed_genes.append(self.n_head_choice)
+                allowed_genes.append(v)
 
         return allowed_genes
