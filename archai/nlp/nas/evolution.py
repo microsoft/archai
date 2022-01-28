@@ -227,7 +227,7 @@ class Evolution:
 
         # generate a command line per Pareto-frontierier point
         # which can be sent off to a cluster for training
-        # TODO: do non-maximum suppression on the Pareto-frontierier
+        # TODO: do non-maximum suppression on the Pareto-frontier
         prepare_pareto_jobs(self.results_path, 
                             converter=self.converter,
                             output_path=os.path.join(self.results_path, "all_pareto_jobs"))    

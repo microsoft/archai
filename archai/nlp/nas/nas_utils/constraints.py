@@ -12,7 +12,9 @@ from torch.profiler import profile, ProfilerActivity
 
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
 
-# Latency constraint on different device targets
+# Latency upper bound on different device targets
+# any models with more latency than this will be removed
+# from consideration during search
 DEVICE_LATENCY_CONSTRAINT = {
     'XeonE5-2690': 10.0,
     'corei7': 10.0,
