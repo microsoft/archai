@@ -34,6 +34,7 @@ class Evolution:
                  mutation_size: Optional[int] = 50,
                  mutation_prob: Optional[float] = 0.3,
                  crossover_size: Optional[int] = 50,
+                 crossover_prob: Optional[float] = 0.5,
                  n_iter: Optional[int] = 30,
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
@@ -53,6 +54,7 @@ class Evolution:
             mutation_size: Size of the mutated genes.
             mutation_prob: Probability of mutation.
             crossover_size: Size of the crossovered genes.
+            crossover_prob: Probability of crossover.
             n_iter: Number of search iterations.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
@@ -73,6 +75,7 @@ class Evolution:
         self.mutation_size = mutation_size
         self.mutation_prob = mutation_prob
         self.crossover_size = crossover_size
+        self.crossover_prob = crossover_prob
         assert self.population_size == self.parent_size + self.mutation_size + self.crossover_size
 
         self.n_iter = n_iter
@@ -266,8 +269,7 @@ class Evolution:
                 
         crossovered_gene = []
         for k in range(self.gene_len):
-            # TODO: move the probability to config 
-            if np.random.uniform() < 0.5:
+            if np.random.uniform() < self.crossover_prob:
                 crossovered_gene.append(genes[0][k])
             else:
                 crossovered_gene.append(genes[1][k])
