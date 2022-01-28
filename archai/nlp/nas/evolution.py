@@ -193,8 +193,8 @@ class Evolution:
             mutated_population, k = [], 0
             while k < self.mutation_size:
                 mutated_gene = self.mutation(random.choices(parents_population)[0])
-
-                if self.check_constraints(mutated_gene):
+                if self.check_constraints(mutated_gene) and \
+                    not self._is_seen_before(mutated_gene):
                     mutated_population.append(mutated_gene)
                     k += 1
 
@@ -204,8 +204,8 @@ class Evolution:
             crossovered_population, k = [], 0
             while k < self.crossover_size:
                 crossovered_gene = self.crossover(random.sample(parents_population, 2))
-
-                if self.check_constraints(crossovered_gene):
+                if self.check_constraints(crossovered_gene) and \
+                    not self._is_seen_before(crossovered_gene):
                     crossovered_population.append(crossovered_gene)
                     k += 1
 
@@ -256,6 +256,15 @@ class Evolution:
                                  path_to_save=os.path.join(self.results_path, "all_visited_jobs")) 
 
 
+
+    def _is_seen_before(self, gene: List[Any])->bool:
+        key = self.converter.gene_to_str(gene)
+        if key in self.counts.keys():
+            return True
+        else:
+            return False
+
+
     def crossover(self, genes: List[List[Any]]) -> List[List[Any]]:
         """Performs the crossover between genes.
 
@@ -266,16 +275,17 @@ class Evolution:
             (List[List[Any]]): Crossovered genes.
 
         """
-
+                
         crossovered_gene = []
-
         for k in range(self.gene_len):
+            # TODO: move the probability to config 
             if np.random.uniform() < 0.5:
                 crossovered_gene.append(genes[0][k])
             else:
                 crossovered_gene.append(genes[1][k])
 
         return crossovered_gene
+
 
 
     def mutation(self, gene: List[Any]) -> List[Any]:
