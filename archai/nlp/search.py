@@ -20,128 +20,131 @@ from archai.nlp.nas.nas_utils.constraints import DEVICE_LATENCY_CONSTRAINT
 def parse_args():
     parser = argparse.ArgumentParser(description='Evolutionary search for autoregressive language models.')
 
-    parser.add_argument('--default_path',
+    search = parser.add_argument_group('Search configuration')
+    search.add_argument('--default_path',
                         type=str,
-                        default='./evo_search',
+                        default='~/logdir',
                         help='Path to the folder that will save the results.')
-    
-    parser.add_argument('--do_brute_force',
-                        action='store_true',
-                        help='If specified uses the brute force variant of search instead.')
 
-    parser.add_argument('--population_size',
-                        type=int,
-                        default=100,
-                        help='Size of the population.')
-
-    parser.add_argument('--parent_size',
-                        type=int,
-                        default=20,
-                        help='Size of the parent genes.')
-
-    parser.add_argument('--mutation_size',
-                        type=int,
-                        default=40,
-                        help='Size of the mutated genes.')
-    
-    parser.add_argument('--mutation_prob',
-                        type=float,
-                        default=0.3,
-                        help='Probability of mutation.')
-
-    parser.add_argument('--crossover_size',
-                        type=int,
-                        default=40,
-                        help='Size of the crossovered genes.')
-
-    parser.add_argument('--n_iter',
-                        type=int,
-                        default=10,
-                        help='Number of search iterations.')
-
-    parser.add_argument('--n_layer',
-                        nargs='+',
-                        type=int,
-                        default=[3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                        help='Possible number of layers.')
-
-    parser.add_argument('--d_model',
-                        nargs='+',
-                        type=int,
-                        default=[128, 256, 512, 768, 1024],
-                        help='Possible model dimensions.')
-
-    parser.add_argument('--d_inner',
-                        nargs='+',
-                        type=int,
-                        default=list(range(512, 2049, 50)) + list(range(2048, 3072, 200)),
-                        help='Possible inner dimensions.')
-
-    parser.add_argument('--n_head',
-                        nargs='+',
-                        type=int,
-                        default=[2, 4, 8],
-                        help='Possible number of attention heads.')
-
-    parser.add_argument('--param_constraint_upper',
-                        type=int,
-                        default=12e6,
-                        help='Any candidate above total parameters will be rejected.')
-
-    parser.add_argument('--param_constraint_lower',
-                        type=int,
-                        default=5e6,
-                        help='Any candidate below total parameters will be rejected.')
-
-    parser.add_argument('--latency_constraint_upper',
-                        type=int,
-                        default=None,
-                        help='Any candidate above latency will be rejected.')
-
-    parser.add_argument('--n_threads',
-                        type=int,
-                        default=1,
-                        help='Number of inference threads.')
-
-    parser.add_argument('--latency_repeat',
-                        type=int,
-                        default=5,
-                        help='Number of latency measurements.')
-
-    parser.add_argument('--device_name',
-                        type=str,
-                        default='XeonE5-2690',
-                        help='Name of device that search is being conducted.')
-
-    parser.add_argument('--eps',
-                        type=float,
-                        default=0.05,
-                        help='Epsilon value.')
-
-    parser.add_argument('--n_samples',
-                        type=int,
-                        default=20000,
-                        help='Number of genes to be sampled.')
-
-    parser.add_argument('--batch',
-                        type=int,
-                        default=1000,
-                        help='Number of batched genes to conduct the brute force.')
-
-    parser.add_argument('--use_quantization',
-                        action='store_true',
-                        help='Whether quantization should be used or not.')
-
-    parser.add_argument('--model_type',
+    search.add_argument('--model_type',
                         type=str,
                         default='mem_transformer',
                         choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
                         help='Type of model to be searched.')
 
-    parser.add_argument('--seed',
+    search.add_argument('--population_size',
+                        type=int,
+                        default=100,
+                        help='Size of the population.')
+
+    search.add_argument('--parent_size',
+                        type=int,
+                        default=20,
+                        help='Size of the parent genes.')
+
+    search.add_argument('--mutation_size',
+                        type=int,
+                        default=40,
+                        help='Size of the mutated genes.')
+    
+    search.add_argument('--mutation_prob',
+                        type=float,
+                        default=0.3,
+                        help='Probability of mutation.')
+
+    search.add_argument('--crossover_size',
+                        type=int,
+                        default=40,
+                        help='Size of the crossovered genes.')
+
+    search.add_argument('--n_iter',
+                        type=int,
+                        default=10,
+                        help='Number of search iterations.')
+
+    search.add_argument('--n_samples',
+                        type=int,
+                        default=20000,
+                        help='Number of genes to be sampled.')
+
+    search.add_argument('--do_brute_force',
+                        action='store_true',
+                        help='If specified uses the brute force variant of search instead.')
+
+    search.add_argument('--batch',
+                        type=int,
+                        default=1000,
+                        help='Number of batched genes to conduct the brute force.')
+
+    search.add_argument('--use_quantization',
+                        action='store_true',
+                        help='Whether quantization should be used or not.')
+
+    search.add_argument('--seed',
                         type=int,
                         default=1111,
                         help='Random seed.')
+
+    choice = parser.add_argument_group('Hyperparameters choices')
+    choice.add_argument('--n_layer',
+                        nargs='+',
+                        type=int,
+                        default=[3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                        help='Possible number of layers.')
+
+    choice.add_argument('--d_model',
+                        nargs='+',
+                        type=int,
+                        default=[128, 256, 512, 768, 1024],
+                        help='Possible model dimensions.')
+
+    choice.add_argument('--d_inner',
+                        nargs='+',
+                        type=int,
+                        default=list(range(512, 2049, 50)) + list(range(2048, 3072, 200)),
+                        help='Possible inner dimensions.')
+
+    choice.add_argument('--n_head',
+                        nargs='+',
+                        type=int,
+                        default=[2, 4, 8],
+                        help='Possible number of attention heads.')
+
+    constraint = parser.add_argument_group('Constraints')
+    constraint.add_argument('--param_constraint_upper',
+                            type=int,
+                            default=12e6,
+                            help='Any candidate above total parameters will be rejected.')
+
+    constraint.add_argument('--param_constraint_lower',
+                            type=int,
+                            default=5e6,
+                            help='Any candidate below total parameters will be rejected.')
+
+    constraint.add_argument('--latency_constraint_upper',
+                            type=int,
+                            default=None,
+                            help='Any candidate above latency will be rejected.')
+
+    constraint.add_argument('--n_threads',
+                            type=int,
+                            default=1,
+                            help='Number of inference threads.')
+
+    constraint.add_argument('--latency_repeat',
+                            type=int,
+                            default=5,
+                            help='Number of latency measurements.')
+
+    constraint.add_argument('--device_name',
+                            type=str,
+                            default='XeonE5-2690',
+                            help='Name of device that search is being conducted.')
+
+    constraint.add_argument('--eps',
+                            type=float,
+                            default=0.05,
+                            help='Value for neighborhood used around the Pareto front.')
                         
     args = vars(parser.parse_args())
 
@@ -161,9 +164,8 @@ if __name__ == '__main__':
     random.seed(args['seed'])
     torch.manual_seed(args['seed'])
 
-    # Initializes the directory name
-    # TODO: the default path is ./evo_search which is inside the code repo!
-    search_path = f'lower_param_thresh_{args["param_constraint_lower"]/1e6}_upper_param_thresh_{args["param_constraint_upper"]/1e6}_latency_upper_thresh_{args["latency_constraint_upper"]/1e6}'
+    # Initializes the results' path
+    search_path = f'lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s'
     args['results_path'] = os.path.join(args['default_path'], f'{search_path}_{args["device_name"]}')
 
     # Dumps the search configuration to a YAML file

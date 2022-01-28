@@ -67,7 +67,6 @@ class Evolution:
         """
 
         self.results_path = results_path
-        os.makedirs(self.results_path, exist_ok=True)
 
         self.population_size = population_size
         self.parent_size = parent_size
