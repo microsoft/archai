@@ -433,8 +433,9 @@ class Evolution:
 
         """
 
-        # sample initial population
-        path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl')        
+        # Samples initial population
+        path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl') 
+
         if os.path.exists(path_to_population):
             with open(path_to_population, 'rb') as f:
                 population = pickle.load(f)
@@ -444,9 +445,8 @@ class Evolution:
             with open(path_to_population, 'wb') as f:
                 pickle.dump(population, f)
 
-
         # sample batches of random examples from the large initial pool
-        # and update the Pareto-frontierier iteratively. 
+        # and update the Pareto-frontier iteratively. 
         for idx in range(0, n_samples, batch):
             curr_population = population[idx:idx+batch]
 
@@ -473,10 +473,6 @@ class Evolution:
             with open(path_to_pkl, 'wb') as f:
                 print(f'=> Saving indices {idx}-{idx+batch}')
                 pickle.dump(logs, f)
-
-        
-        self.plot_samples()
-        self.update_pareto_front(is_decreasing=True)
 
     def profile(self) -> None:
         """Profiles the search space.
