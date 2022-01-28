@@ -38,7 +38,6 @@ class Evolution:
                  n_iter: Optional[int] = 30,
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
-                 latency_scale: Optional[float] = 1.0,
                  n_threads: Optional[int] = 1,
                  latency_repeat: Optional[int] = 5,
                  latency_constraint_upper: Optional[float] = None,
@@ -58,7 +57,6 @@ class Evolution:
             n_iter: Number of search iterations.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
-            latency_scale: How much latencies should be scaled.
             n_threads: Number of inference threads.
             latency_repeat: Number of latency measurements.
             latency_constraint_upper: Any model which has higher latency is rejected.
@@ -168,7 +166,7 @@ class Evolution:
             self.update_pareto_front(is_decreasing=True)
 
             # select parents for the next iteration from the 
-            # current estimate of the pareto frontier
+            # current estimate of the Pareto-frontierier
             # give more weight to newer parents
             count_weights = self.calculate_weighted_count()
             selected_ind = np.random.choice(len(self.pareto['population']), size=self.parent_size, p=count_weights)
@@ -227,26 +225,24 @@ class Evolution:
         with open(path_to_pkl, 'wb') as f:
             pickle.dump(logs, f)
 
-        # generate a command line per pareto frontier point
+        # generate a command line per Pareto-frontierier point
         # which can be sent off to a cluster for training
-        # TODO: do non-maximum suppression on the pareto frontier
+        # TODO: do non-maximum suppression on the Pareto-frontierier
         prepare_pareto_jobs(self.results_path, 
                             converter=self.converter,
-                            path_to_save=os.path.join(self.results_path, "all_pareto_jobs"))    
+                            output_path=os.path.join(self.results_path, "all_pareto_jobs"))    
 
         # generate command line for fully training all architectures
         # visited during search
         prepare_ground_truth_jobs(self.results_path,
-                                 self.converter,
-                                 max_step=40000,
-                                 start_config=0,
-                                 n_jobs=20,
-                                 n_gpus=8,
-                                 model_type=self.model_type,
-                                 gpu_config='dgx1_8gpu_fp32',
-                                 path_to_save=os.path.join(self.results_path, "all_visited_jobs")) 
-
-
+                                  self.converter,
+                                  max_step=40000,
+                                  start_config=0,
+                                  n_jobs=20,
+                                  n_gpus=8,
+                                  model_type=self.model_type,
+                                  gpu_config='dgx1_8gpu_fp32',
+                                  output_path=os.path.join(self.results_path, "all_visited_jobs")) 
 
     def _is_seen_before(self, gene: List[Any])->bool:
         key = self.converter.gene_to_str(gene)
@@ -254,7 +250,6 @@ class Evolution:
             return True
         else:
             return False
-
 
     def crossover(self, genes: List[List[Any]]) -> List[List[Any]]:
         """Performs the crossover between genes.
@@ -276,8 +271,6 @@ class Evolution:
 
         return crossovered_gene
 
-
-
     def mutation(self, gene: List[Any]) -> List[Any]:
         """Performs mutation over a single gene.
 
@@ -288,6 +281,7 @@ class Evolution:
             (List[Any]): Mutated gene.
 
         """
+
         mutated_gene = []
         gene_choice = self.gene_choice
 
@@ -302,10 +296,8 @@ class Evolution:
 
         return mutated_gene
 
-
     def calculate_memory_latency(self,
-                        genes: List[List[Any]],
-                        ) -> Tuple[List[int], List[float], List[float]]:
+                                 genes: List[List[Any]] ) -> Tuple[List[int], List[float], List[float]]:
         """Calculates decoder params, memory and latency.
 
         Args:
@@ -313,9 +305,10 @@ class Evolution:
 
         Returns:
             (Tuple[List[int], List[float], List[float]]): List of number of parameters
-            latencies and memories. 
+                latencies and memories. 
 
         """
+
         configs = []
         for gene in genes:
             configs.append(self.converter.gene_to_config(gene))
@@ -323,7 +316,6 @@ class Evolution:
         configs_from_jobs = None
         
         params = []
-
         latencies = []
         memories = []
 
@@ -337,7 +329,6 @@ class Evolution:
                 for k, v in config.items():
                     assert v == configs_from_jobs[i][k]
             
-            total_params = measure_parameters(model, ['total'])
             decoder_params = measure_parameters(model, ['attention', 'ff'])
             params.append(decoder_params)
 
@@ -355,7 +346,6 @@ class Evolution:
         assert len(params) == len(memories)
         
         return params, latencies, memories
-
 
     def check_constraints(self, gene: List[Any]) -> bool:
         """Checks whether gene fulfill constraints or not.
@@ -400,7 +390,6 @@ class Evolution:
 
         return True
 
-
     def sample_random_population(self, n_samples: int) -> List[List[Any]]:
         """Samples a random population.
 
@@ -431,19 +420,17 @@ class Evolution:
 
         return population
 
-
-    def semi_brute_force(self,
-                         n_samples: int,
-                         batch: Optional[int] = 1000) -> None:
-        """Provides a brute force ablation to the evolutionary 
-        search algorithm. This method samples batches of points
-        at random from the search space and updates the pareto
-        frontier. Thus there is no guided sampling along the
-        pareto-frontier. 
+    def semi_brute_force(self, n_samples: int, batch: Optional[int] = 1000) -> None:
+        """Provides a brute force ablation to the evolutionary search algorithm.
+        
+        This method samples batches of points at random from the search space
+        and updates the Pareto-frontier. Thus there is no guided sampling along the
+        Pareto-frontier. 
 
         Args:
             n_samples: Number of genes to be sampled.
             batch: Number of batched genes to conduct the brute force.
+
         """
 
         # sample initial population
@@ -459,7 +446,7 @@ class Evolution:
 
 
         # sample batches of random examples from the large initial pool
-        # and update the pareto frontier iteratively. 
+        # and update the Pareto-frontierier iteratively. 
         for idx in range(0, n_samples, batch):
             curr_population = population[idx:idx+batch]
 
@@ -491,7 +478,6 @@ class Evolution:
         self.plot_samples()
         self.update_pareto_front(is_decreasing=True)
 
-
     def profile(self) -> None:
         """Profiles the search space.
 
@@ -517,15 +503,14 @@ class Evolution:
                 {self.max_latency:.4f}s latency
                 {self.max_peak_memory:.4f}MB memory''')
 
-
-    def update_pareto_front(self,
-                            is_decreasing: Optional[bool] = True,
-                            ) -> None:
-        """Updates the Pareto front of the evolutionary search.
+    def update_pareto_front(self, is_decreasing: Optional[bool] = True) -> None:
+        """Updates the Pareto-frontier of the evolutionary search.
 
         Args:
-            is_decreasing: Whether Pareto front is decreasing or not.
+            is_decreasing: Whether Pareto-frontier is decreasing or not.
+            
         """
+
         self.pareto = defaultdict(list)
 
         # pareto over params, latency, memory
@@ -550,8 +535,7 @@ class Evolution:
         self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
         self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
             
-        print('number of points on the pareto front:', len(self.pareto['params']))
-
+        print('number of points on the Pareto-frontier:', len(self.pareto['params']))
 
     def update_counts(self, population: List[List[Any]]) -> None:
         """Updates the number of repeated genes.
@@ -566,13 +550,12 @@ class Evolution:
             # else Counter counts the characters in the string
             self.counts.update({key:1})
 
-            
     def calculate_weighted_count(self) -> np.array:
-        """Assigns a weight to each member of the  pareto frontier such that it is inversely 
+        """Assigns a weight to each member of the  Pareto-frontierier such that it is inversely 
             proportional to the number of times it has already been in the working set population.
             
-        This is used to select parents from the pareto frontier
-        to prevent the same architectures from always being in the parent pool.
+        This is used to select parents from the Pareto-frontier to prevent
+        the same architectures from always being in the parent pool.
         
         Returns:
             (np.array): Weighted count.
@@ -598,10 +581,7 @@ class Evolution:
 
         return count_weights
 
-
-    def plot_samples(self,
-                     iter: Optional[int] = None,
-                     parents: Dict[str, Any] = None) -> None:
+    def plot_samples(self, iter: Optional[int] = None, parents: Optional[Dict[str, Any]] = None) -> None:
         """Plots the state of search at every iteration.
 
         Args:
