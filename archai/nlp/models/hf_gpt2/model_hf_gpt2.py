@@ -47,7 +47,7 @@ class HfGPT2(ArchaiModel):
 
         d_inner = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
         n_head = map_to_list(kwargs['n_head'], kwargs['n_layer'])
-        d_head = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] is None else map_to_list(kwargs['d_head'], kwargs['n_layer'])
+        d_head = [kwargs['d_model'] // n_h for n_h in n_head] if kwargs['d_head'] is None else map_to_list(kwargs['d_head'], kwargs['n_layer'])
 
         assert len(d_inner) == kwargs['n_layer'] and len(n_head) == kwargs['n_layer'] and len(d_head) == kwargs['n_layer']
         
