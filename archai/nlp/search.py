@@ -23,6 +23,10 @@ def parse_args():
                         type=str,
                         default='./evo_search',
                         help='Path to the folder that will save the results.')
+    
+    parser.add_argument('--do-brute-force',
+                        action='store_true',
+                        help='If specified uses the brute force variant of search instead.')
 
     parser.add_argument('--population_size',
                         type=int,
@@ -170,4 +174,5 @@ if __name__ == '__main__':
     with open(os.path.join(results_dir, 'search_config.yaml'), 'w') as f:
         yaml.dump(args, f)
 
-    run_search(args, brute_force=False)
+    # Run evolutionary search or brute force version
+    run_search(args, brute_force=args['do_brute_force'])
