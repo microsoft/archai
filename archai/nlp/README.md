@@ -25,7 +25,7 @@ After installing all the requirements, one can train a default model (NVIDIA's M
 python archai/nlp/train.py
 ```
 
-Finally, with another single command line, one can extract the Pareto front of the default search (also with NVIDIA's Memory Transformer), as follows:
+Finally, with another single command line, one can extract the Pareto-frontier of the default search (also with NVIDIA's Memory Transformer), as follows:
 
 ```bash
 python archai/nlp/search.py
@@ -44,10 +44,8 @@ python archai/nlp/search.py
     * [Adding New Architectures](#adding-new-architectures)
     * [Training a Model](#training-a-model)
  * [Neural Architecture Search](#neural-architecture-search)
-    * [Evolutionary Search](#evolutionary-search)
-    * [Finding the Groud-Truth](#finding-the-ground-truth)
-    * [Extracting the Pareto Front](#extracting-the-pareto-front)
-    * [Comparing the Fronts](#comparing-the-fronts)
+    * [Evolutionary Search and Pareto-Frontier Extraction](#evolutionary-search-and-pareto-frontier-extraction)
+    * [Submitting Pareto-Frontier Jobs](#submitting-pareto-frontier-jobs)
  * [Architecture Compression](#architecture-compression)
     * [ONNX](#onnx)
     * [Quantization](#quantization)
@@ -160,69 +158,44 @@ One of the foremost goals of Archai is to perform efficient Neural Architecture 
 
 The Transformer-based NAS pipeline is organized as follows:
 
-* Conduct the evolutionary search to find suitable samples (architecture configurations) and zero-cost Pareto front;
-* Submit ground-truth jobs for the entire population that has been found during the search;
-* Extract a proxy Pareto front from all samples seen during the evolutionary search;
-* Find candidate points in the proxy Pareto front and submit them for full training;
-* Compare between ground-truth and proxy Pareto front.
+* Conduct the evolutionary search to find suitable samples (architecture configurations) and zero-cost Pareto-frontier;
+* Submit ground-truth jobs for the Pareto-frontier that has been found during the search;
 
-### Evolutionary Search
+### Evolutionary Search and Pareto-Frontier Extraction
 
 The whole NAS idea is structured as an evolutionary search for transformer-based architectures, where users can define the parameters to be searched and also their constraints that should be met.
 
 The first step is to conduct the search and find a set of Pareto points that meet the constraints, as follows:
 
 ```bash
-python archai/nlp/search.py --phase run_search --pareto_search --help 
+python archai/nlp/search.py --help 
 ```
 
-Essentially, the search will find the best configuration file (which can be used to create the model) for the desired architecture under the input constraints. Traditionally, our search considers the number of non-embedding parameters and the model's latency.
+Essentially, the search will find the Pareto-frontier configuration files (which can be used to create the model) for the desired architecture under the input constraints. Traditionally, our search considers the number of non-embedding parameters and the model's latency.
 
 Examples:
 
 ```bash
-python archai/nlp/search.py --phase run_search --pareto_search --model_type mem_transformer
+python archai/nlp/search.py --model_type mem_transformer
 ```
 
 ```bash
-python archai/nlp/search.py --phase run_search --pareto_search --model_type hf_gpt2 --d_model_choice 256
+python archai/nlp/search.py --model_type hf_gpt2 --d_model 256
 ```
 
 ```bash
-python archai/nlp/search.py --phase run_search --pareto_search --use_quantization --model_type hf_gpt2 --d_model_choice 128 256 512 --n_head_choice 2 4 8
+python archai/nlp/search.py --use_quantization --model_type hf_gpt2 --d_model 128 256 512 --n_head 2 4 8
 ```
 
-### Finding the Ground-Truth
+### Submitting Pareto-Frontier Jobs
 
-After finding possible configurations through the evolutionary search, we can submit some ground-truth jobs for further comparison:
+After finding possible Pareto-frontier configurations through the evolutionary search, we can submit some ground-truth jobs for further comparison:
 
 ```bash
-python archai/nlp/search.py --phase submit_gt_jobs --help 
+python archai/nlp/train.py --config_file pareto_frontier.yaml
 ```
 
-*Such a step is valid to determine whether proxy points (without training) and close or distant from the ground-truth points (with training).*
-
-### Extracting the Pareto Front
-
-Alternatively, our `search.py` script allows users in extracting ground-truth Pareto front from all samples seen during the evolutionary search, which can be invoked as follows:
-
-```bash
-python archai/nlp/search.py --phase extract_pareto --help 
-```
-
-Further, it is also possible to match the proxy Pareto front points (found in the previous step) with the baseline and submit the selected points on the Pareto front for full training, as follows:
-
-```bash
-python archai/nlp/search.py --phase select_pareto --help 
-```
-
-### Comparing the Fronts
-
-Finally, we can compare between the ground-truth and proxy Pareto fronts, as follows:
-
-```bash
-python archai/nlp/search.py --phase gt_pareto --help
-```
+*Note that `pareto_frontier.yaml` stands for the YAML file found during evolutionary search and saved at the `default_path`.*
 
 ## Architecture Compression
 
