@@ -25,7 +25,7 @@ def parse_args():
                         default='./evo_search',
                         help='Path to the folder that will save the results.')
     
-    parser.add_argument('--do-brute-force',
+    parser.add_argument('--do_brute_force',
                         action='store_true',
                         help='If specified uses the brute force variant of search instead.')
 
@@ -162,16 +162,14 @@ if __name__ == '__main__':
     torch.manual_seed(args['seed'])
 
     # Initializes the directory name
-    path_to_amlt_results = './amlt_logs'
-    dir_name = f'lower_param_thresh_{args["param_constraint_lower"]/1e6}_upper_param_thresh_{args["param_constraint_upper"]/1e6}_latency_upper_thresh_{args["latency_constraint_upper"]/1e6}'
-    
     # TODO: the default path is ./evo_search which is inside the code repo!
-    args['results_path'] = os.path.join(args['default_path'], dir_name+'_'+args['device_name'])
+    search_path = f'lower_param_thresh_{args["param_constraint_lower"]/1e6}_upper_param_thresh_{args["param_constraint_upper"]/1e6}_latency_upper_thresh_{args["latency_constraint_upper"]/1e6}'
+    args['results_path'] = os.path.join(args['default_path'], f'{search_path}_{args["device_name"]}')
 
-    # Standard evolutionary search
-    results_dir = utils.full_path(args['results_path'], create=True)
-    with open(os.path.join(results_dir, 'search_config.yaml'), 'w') as f:
+    # Dumps the search configuration to a YAML file
+    results_path = utils.full_path(args['results_path'], create=True)
+    with open(os.path.join(results_path, 'search_config.yaml'), 'w') as f:
         yaml.dump(args, f)
 
-    # Run evolutionary search or brute force version
+    # Runs the evolutionary search or the brute force version
     run_search(args, brute_force=args['do_brute_force'])
