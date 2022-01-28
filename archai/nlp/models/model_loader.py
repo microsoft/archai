@@ -15,8 +15,7 @@ from archai.nlp.models.model_dict import ModelClassType, ModelDict
 PACKAGE_PATH = 'archai.nlp.models'
 
 
-def load_from_args(model_type: str, *args,
-                   cls_type: Optional[str] = 'model', **kwargs) -> Any:
+def load_from_args(model_type: str, *args, cls_type: Optional[str] = 'model', **kwargs) -> Any:
     """Performs the loading of a pre-defined model and its
         corresponding class.
 

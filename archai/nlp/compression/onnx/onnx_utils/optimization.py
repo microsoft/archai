@@ -74,9 +74,7 @@ def optimize_onnx(model_type: str,
             # Adds `hidden_size` as zero just for retro-compatibility
             optimizer_args += (num_heads, 0)
             
-        optimizer = load_from_args(model_type,
-                                   *optimizer_args,
-                                   cls_type='onnx_model')
+        optimizer = load_from_args(model_type, *optimizer_args, cls_type='onnx_model')
         options = FusionOptions(model_type)
 
         # Optimizes the model

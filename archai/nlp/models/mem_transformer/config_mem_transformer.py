@@ -92,7 +92,7 @@ class MemTransformerLMConfig(Config):
         return {
             'n_layer': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'd_model': [128, 256, 512, 768, 1024],
-            'd_inner': list(range(512, 2049, 50))+list(range(2048, 3072, 200)),
+            'd_inner': list(range(512, 2049, 50)) + list(range(2048, 3072, 200)),
             'n_head': [2, 4, 8]
         }
 >>>>>>> 3a5c71c5 (chore(models): Adds default search configuration to models' config.)

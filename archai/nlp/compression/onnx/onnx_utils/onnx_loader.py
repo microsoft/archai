@@ -13,8 +13,9 @@ from onnxruntime import (GraphOptimizationLevel, InferenceSession,
 from onnxruntime.transformers import quantize_helper
 
 from archai.nlp.models.model_loader import load_model_from_checkpoint
-from archai.nlp.compression.onnx.onnx_utils.forward import (
-    crit_forward_mem_transformer_onnx, forward_hf_gpt2_onnx, forward_mem_transformer_onnx)
+from archai.nlp.compression.onnx.onnx_utils.forward import (crit_forward_mem_transformer_onnx,
+                                                            forward_hf_gpt2_onnx,
+                                                            forward_mem_transformer_onnx)
 from archai.nlp.models.model_base import ArchaiModel
 
 # ONNX-loading constants
