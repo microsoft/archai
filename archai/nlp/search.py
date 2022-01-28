@@ -57,6 +57,11 @@ def parse_args():
                         default=40,
                         help='Size of the crossovered genes.')
 
+    search.add_argument('--crossover_prob',
+                        type=float,
+                        default=0.5,
+                        help='Probability of crossover.')
+
     search.add_argument('--n_iter',
                         type=int,
                         default=10,
