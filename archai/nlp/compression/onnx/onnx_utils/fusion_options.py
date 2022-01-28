@@ -50,8 +50,7 @@ class FusionOptions:
             self.enable_embed_layer_norm = False
             self.enable_skip_layer_norm = False
 
-    def use_raw_attention_mask(self,
-                               use_raw_mask: Optional[bool] = True) -> None:
+    def use_raw_attention_mask(self, use_raw_mask: Optional[bool] = True) -> None:
         """Enables the usage of raw attention mask.
 
         Args:
@@ -65,7 +64,7 @@ class FusionOptions:
             self.attention_mask_format = AttentionMaskFormat.MaskIndexEnd
 
     def disable_attention_mask(self) -> None:
-        """Disable the usage of attention mask.
+        """Disables the usage of attention mask.
 
         """
 

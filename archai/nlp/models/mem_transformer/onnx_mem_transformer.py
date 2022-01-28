@@ -68,8 +68,7 @@ class MemTransformerLMOnnxModel(OnnxModel):
 
     """
 
-    def __init__(self,
-                 model: ModelProto) -> None:
+    def __init__(self, model: ModelProto) -> None:
         """Overrides initialization method.
 
         Args:
