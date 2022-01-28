@@ -93,7 +93,7 @@ class Evolution:
         # Also, overrides default search choices with inputted ones
         model_config_search = copy.deepcopy(self.model_config.search)
         model_config_search.update((k, v) for k, v in choices.items()
-                                   if k in self.model_config.search.keys())
+                                   if k in self.model_config.search.keys() and v is not None)
 
         self.converter = Converter(**model_config_search)
         self.gene_choice = self.converter.get_allowed_genes()
