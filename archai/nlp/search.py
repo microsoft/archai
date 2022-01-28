@@ -171,11 +171,11 @@ if __name__ == '__main__':
 
     # Initializes the results' path
     search_path = f'lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s'
-    args['results_path'] = os.path.join(args['default_path'], f'{search_path}_{args["device_name"]}')
+    results_path = os.path.join(args['default_path'], f'{search_path}_{args["device_name"]}')
+    args['results_path'] = utils.full_path(results_path, create=True)
 
     # Dumps the search configuration to a YAML file
-    results_path = utils.full_path(args['results_path'], create=True)
-    with open(os.path.join(results_path, 'search_config.yaml'), 'w') as f:
+    with open(os.path.join(args['results_path'], 'search_config.yaml'), 'w') as f:
         yaml.dump(args, f)
 
     # Runs the evolutionary search or the brute force version
