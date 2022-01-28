@@ -305,7 +305,7 @@ class Evolution:
     def calculate_memory_latency(self,
                         genes: List[List[Any]],
                         ) -> Tuple[List[int], List[float], List[float]]:
-        """Calculates the memory and latency.
+        """Calculates decoder params, memory and latency.
 
         Args:
             genes: List of genes.
@@ -430,81 +430,54 @@ class Evolution:
 
         return population
 
+
     def semi_brute_force(self,
                          n_samples: int,
-                         batch: Optional[int] = 1000,
-                         eps: Optional[float] = None,
-                         do_train: Optional[bool] = False,
-                         train_local: Optional[bool] = False,
-                         n_gpus: Optional[int] = 1,
-                         gpu_config: Optional[str] = 'dgx1_1gpu_fp32',
-                         config_file: Optional[str] = 'wt103_base.yaml',
-                         max_step: Optional[int] = 500,
-                         experiment_name: Optional[str] = 'evolution',
-                         scheduler: Optional[str] = 'constant',
-                         use_valid: Optional[bool] = True,
-                         **kwargs) -> None:
-        """Performs the semi brute-force.
+                         batch: Optional[int] = 1000) -> None:
+        """Provides a brute force ablation to the evolutionary 
+        search algorithm. This method samples batches of points
+        at random from the search space and updates the pareto
+        frontier. Thus there is no guided sampling along the
+        pareto-frontier. 
 
         Args:
             n_samples: Number of genes to be sampled.
             batch: Number of batched genes to conduct the brute force.
-            eps: Epsilon value.
-            do_train: Whether samples should be trained or not.
-            train_local: Whether samples should be locally trained or not.
-            n_gpus: Number of GPUs.
-            gpu_config: GPU configuration.
-            config_file: Configuration file.
-            max_step: Maximum number of training steps.
-            experiment_name: Name of the experiment.
-            scheduler: Learning rate scheduler.
-            use_valid: Whether validation set should be used or not.
-
         """
 
-        path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl')
-        
+        # sample initial population
+        path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl')        
         if os.path.exists(path_to_population):
             with open(path_to_population, 'rb') as f:
                 population = pickle.load(f)
-
             population = population[:n_samples]
-
         else:
             population = self.sample_random_population(n_samples)
-
             with open(path_to_population, 'wb') as f:
                 pickle.dump(population, f)
 
-        population_scores = []
 
+        # sample batches of random examples from the large initial pool
+        # and update the pareto frontier iteratively. 
         for idx in range(0, n_samples, batch):
             curr_population = population[idx:idx+batch]
-            curr_population_params, curr_population_latencies, curr_population_memories = self.calculate_memory_latency(curr_population, do_train, train_local, n_gpus, gpu_config, config_file, max_step,
-                                                                                                        experiment_name, scheduler, use_valid)
-            population_scores += curr_population_scores
+
+            curr_population_params, curr_population_latencies, curr_population_memories = \
+            self.calculate_memory_latency(curr_population)
 
             self.all_population += curr_population
             self.all_params += curr_population_params
             self.all_latencies += curr_population_latencies
-            self.update_pareto_front(eps, is_decreasing=True)
+            self.all_memories += curr_population_memories
+            self.update_pareto_front(is_decreasing=True)
 
-            sorted_ind = np.array(population_scores).argsort()[::-1]
-
-            self.best_config = self.converter.gene_to_config(self.all_population[sorted_ind[0]])
-            self.best_param = self.all_params[sorted_ind[0]]
-            self.best_latency = self.all_latencies[sorted_ind[0]]
-
-            print(f'| Config for highest score model: {self.best_config}')
-            print(f'| nParams for highest score model: {self.best_param}')
-            print(f'| Latency for highest score model: {self.best_latency}')
-
-            self.plot_samples()
+            # NOTE: why this doesn't take 'iter'    
+            self.plot_samples(iter=idx)
 
             logs = {'population': population,
                     'params': curr_population_params,
                     'latencies': curr_population_latencies,
-                    'scores': curr_population_scores,
+                    'memories': curr_population_memories,
                     'pareto': self.pareto}
 
             path_to_pkl = os.path.join(self.results_path, 'logs_bruteforce_{}.pkl'.format(idx))
@@ -513,18 +486,10 @@ class Evolution:
                 print(f'=> Saving indices {idx}-{idx+batch}')
                 pickle.dump(logs, f)
 
-        sorted_ind = np.array(population_scores).argsort()[::-1]
-
-        self.best_config = self.converter.gene_to_config(population[sorted_ind[0]])
-        self.best_param = self.all_params[sorted_ind[0]]
-        self.best_latency = self.all_latencies[sorted_ind[0]]
-
-        print(f'| Config for highest score model: {self.best_config}')
-        print(f'| nParams for highest score model: {self.best_param}')
-        print(f'| Latency for highest score model: {self.best_latency}')
-
+        
         self.plot_samples()
-        self.update_pareto_front(eps, is_decreasing=True)
+        self.update_pareto_front(is_decreasing=True)
+
 
     def profile(self) -> None:
         """Profiles the search space.
@@ -767,6 +732,6 @@ def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> Non
     alg = Evolution(**args)
 
     if brute_force:
-        alg.semi_brute_force(**args)
+        alg.semi_brute_force(args['n_samples'], args['batch'])
     else:
         alg.search(**args)
