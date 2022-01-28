@@ -34,10 +34,10 @@ def forward_hf_gpt2_onnx(self,
     return preds, past_key_values
 
 
-def forward_memformer_onnx(self,
-                           input_ids: torch.LongTensor,
-                           past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None
-                           ) -> Tuple[torch.FloatTensor, ...]:
+def forward_mem_transformer_onnx(self,
+                                 input_ids: torch.LongTensor,
+                                 past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None
+                                 ) -> Tuple[torch.FloatTensor, ...]:
     """Overrides the MemTransformerLM forward by returning probabilities.
 
     Args:
@@ -102,7 +102,7 @@ def _compute_logit(hidden: torch.FloatTensor,
     return logit
 
 
-def crit_forward_memformer_onnx(self, hidden: torch.FloatTensor) -> torch.FloatTensor:
+def crit_forward_mem_transformer_onnx(self, hidden: torch.FloatTensor) -> torch.FloatTensor:
     """Overrides the Projective Adaptive Softmax forward by returning probabilities.
 
     Args:
