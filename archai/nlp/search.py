@@ -151,9 +151,9 @@ def parse_args():
                             default=0.05,
                             help='Value for neighborhood used around the Pareto front.')
                         
-    args = vars(parser.parse_args())
+    args, _ = parser.parse_known_args()
 
-    return args
+    return vars(args)
 
 
 if __name__ == '__main__':
@@ -179,4 +179,4 @@ if __name__ == '__main__':
         yaml.dump(args, f)
 
     # Runs the evolutionary search or the brute force version
-    run_search(args, brute_force=args['do_brute_force'])
+    run_search(args, do_brute_force=args['do_brute_force'])

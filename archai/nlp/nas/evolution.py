@@ -721,18 +721,18 @@ class Evolution:
         fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
 
 
-def run_search(args: Dict[str, Any], brute_force: Optional[bool] = False) -> None:
+def run_search(args: Dict[str, Any], do_brute_force: Optional[bool] = False) -> None:
     """Runs the evolutionary search.
 
     Args:
         args: Search-related arguments.
-        brute_force: Whether to employ semi brute-force to the search or not.
+        do_brute_force: Employs semi brute-force to conduct the search.
 
     """
 
     alg = Evolution(**args)
 
-    if brute_force:
+    if do_brute_force:
         alg.semi_brute_force(args['n_samples'], args['batch'])
     else:
         alg.search(**args)
