@@ -14,6 +14,7 @@ import yaml
 
 from archai.common import utils
 from archai.nlp.nas.evolution import run_search
+from archai.nlp.nas.nas_utils.constraints import DEVICE_LATENCY_CONSTRAINT
 
 
 def parse_args():
@@ -73,7 +74,7 @@ def parse_args():
     parser.add_argument('--d_inner',
                         nargs='+',
                         type=int,
-                        default=list(range(512, 2049, 50))+list(range(2048, 3072, 200)),
+                        default=list(range(512, 2049, 50)) + list(range(2048, 3072, 200)),
                         help='Possible inner dimensions.')
 
     parser.add_argument('--n_head',
@@ -91,6 +92,11 @@ def parse_args():
                         type=int,
                         default=5e6,
                         help='Any candidate below total parameters will be rejected.')
+
+    parser.add_argument('--latency_constraint_upper',
+                        type=int,
+                        default=None,
+                        help='Any candidate above latency will be rejected.')
 
     parser.add_argument('--n_threads',
                         type=int,
@@ -146,21 +152,14 @@ if __name__ == '__main__':
     # Gathers the command line arguments
     args = parse_args()
 
+    # Gathers the latency constraint based on device
+    if args['latency_constraint_upper'] is None:
+        args['latency_constraint_upper'] = DEVICE_LATENCY_CONSTRAINT[args['device_name']]
+
     # Applies random seeds
     np.random.seed(args['seed'])
     random.seed(args['seed'])
     torch.manual_seed(args['seed'])
-
-    # Gathers the latency constraint based on device
-    # TODO: this should get moved to config file with a command line override
-    # NOTE: Making values large to make code run through faster 
-    latency_constraint = {
-        'XeonE5-2690': 10.0,
-        'corei7': 10.0,
-        'corei5': 10.0,
-        'D3_V2': 10.0,
-    }
-    args['latency_constraint_upper'] = latency_constraint[args['device_name']]
 
     # Initializes the directory name
     path_to_amlt_results = './amlt_logs'

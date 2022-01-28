@@ -12,6 +12,14 @@ from torch.profiler import profile, ProfilerActivity
 
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
 
+# Latency constraint on different device targets
+DEVICE_LATENCY_CONSTRAINT = {
+    'XeonE5-2690': 10.0,
+    'corei7': 10.0,
+    'corei5': 10.0,
+    'D3_V2': 10.0,
+}
+
 
 def measure_inference_latency(model: torch.nn.Module,
                               use_quantization: Optional[bool] = False,
