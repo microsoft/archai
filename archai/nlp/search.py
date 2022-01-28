@@ -24,7 +24,7 @@ def parse_args():
     search.add_argument('--default_path',
                         type=str,
                         default='~/logdir',
-                        help='Path to the folder that will save the results.')
+                        help='Path to the default folder used to save outputs.')
 
     search.add_argument('--model_type',
                         type=str,
@@ -67,23 +67,23 @@ def parse_args():
                         default=10,
                         help='Number of search iterations.')
 
+    search.add_argument('--do_brute_force',
+                        action='store_true',
+                        help='Uses brute force instead of standard search.')
+
     search.add_argument('--n_samples',
                         type=int,
                         default=20000,
-                        help='Number of genes to be sampled.')
-
-    search.add_argument('--do_brute_force',
-                        action='store_true',
-                        help='If specified uses the brute force variant of search instead.')
+                        help='Number of genes used to sample during brute force.')
 
     search.add_argument('--batch',
                         type=int,
                         default=1000,
-                        help='Number of batched genes to conduct the brute force.')
+                        help='Number of batched genes used to conduct the brute force.')
 
     search.add_argument('--use_quantization',
                         action='store_true',
-                        help='Whether quantization should be used or not.')
+                        help='Uses quantized models to conduct the search.')
 
     search.add_argument('--seed',
                         type=int,
@@ -95,41 +95,41 @@ def parse_args():
                         nargs='+',
                         type=int,
                         default=[3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                        help='Possible number of layers.')
+                        help='Choices for number of layers.')
 
     choice.add_argument('--d_model',
                         nargs='+',
                         type=int,
                         default=[128, 256, 512, 768, 1024],
-                        help='Possible model dimensions.')
+                        help='Choices for model dimensions.')
 
     choice.add_argument('--d_inner',
                         nargs='+',
                         type=int,
                         default=list(range(512, 2049, 50)) + list(range(2048, 3072, 200)),
-                        help='Possible inner dimensions.')
+                        help='Choices for inner dimensions.')
 
     choice.add_argument('--n_head',
                         nargs='+',
                         type=int,
                         default=[2, 4, 8],
-                        help='Possible number of attention heads.')
+                        help='Choices for number of attention heads.')
 
     constraint = parser.add_argument_group('Constraints')
     constraint.add_argument('--param_constraint_upper',
                             type=int,
                             default=12e6,
-                            help='Any candidate above total parameters will be rejected.')
+                            help='Candidates above total parameters will be rejected.')
 
     constraint.add_argument('--param_constraint_lower',
                             type=int,
                             default=5e6,
-                            help='Any candidate below total parameters will be rejected.')
+                            help='Candidates below total parameters will be rejected.')
 
     constraint.add_argument('--latency_constraint_upper',
                             type=int,
                             default=None,
-                            help='Any candidate above latency will be rejected.')
+                            help='Candidates above latency will be rejected.')
 
     constraint.add_argument('--n_threads',
                             type=int,
@@ -144,7 +144,7 @@ def parse_args():
     constraint.add_argument('--device_name',
                             type=str,
                             default='XeonE5-2690',
-                            help='Name of device that search is being conducted.')
+                            help='Name of device that search is being conducted on.')
 
     constraint.add_argument('--eps',
                             type=float,
