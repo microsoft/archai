@@ -35,6 +35,14 @@ class Config:
 
         return {}
 
+    @property
+    def search(self) -> Dict[str, Any]:
+        """Defines the default configuration used when searching with the class.
+
+        """
+
+        return {}
+
 
 class OnnxConfig:
     """Provides a foundation for creating ONNX-export configuration instances.
