@@ -12,7 +12,7 @@ from typing import Optional
 import torch
 from onnx import helper, load_model, numpy_helper, save
 
-from archai.nlp.models.model_loader import load_model_from_args
+from archai.nlp.models.model_loader import load_from_args
 from archai.nlp.compression.onnx.onnx_utils.operators import (tril_onnx,
                                                               triu_onnx)
 
@@ -108,7 +108,7 @@ def export_onnx_from_torch(model: torch.nn.Module,
     """
 
     # Gathers the proper ONNX configuration instance
-    onnx_config = load_model_from_args(model_type,
+    onnx_config = load_from_args(model_type,
                                  cls_type='onnx_config',
                                  model_config=model_config)
 

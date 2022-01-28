@@ -14,7 +14,7 @@ from collections import defaultdict, Counter
 import numpy as np
 import plotly.graph_objects as go
 
-from archai.nlp.models.model_loader import load_model_from_args
+from archai.nlp.models.model_loader import load_from_args
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import prepare_pareto_jobs, prepare_ground_truth_jobs
 from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
@@ -87,7 +87,7 @@ class Evolution:
         self.use_quantization = use_quantization
         
         self.model_type = model_type
-        self.model_config = load_model_from_args(model_type, cls_type='config')
+        self.model_config = load_from_args(model_type, cls_type='config')
 
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
@@ -329,7 +329,7 @@ class Evolution:
         for i, config in enumerate(configs):
             model_config = copy.deepcopy(self.model_config.default)
             model_config.update(config)
-            model = load_model_from_args(self.model_type, **model_config)
+            model = load_from_args(self.model_type, **model_config)
 
             if configs_from_jobs is not None:
                 print('checking trained models match with the population')
@@ -373,7 +373,7 @@ class Evolution:
         # Loads model from current configuration
         model_config = copy.deepcopy(self.model_config.default)
         model_config.update(config)
-        model = load_model_from_args(self.model_type, **model_config)
+        model = load_from_args(self.model_type, **model_config)
 
         # Checks the total number of parameters constraints
         total_params = measure_parameters(model, ['total'])
@@ -502,7 +502,7 @@ class Evolution:
         model_config = copy.deepcopy(self.model_config.default)
         model_config.update(config)
 
-        biggest_model = load_model_from_args(self.model_type, **model_config)
+        biggest_model = load_from_args(self.model_type, **model_config)
 
         self.max_n_params =  measure_parameters(biggest_model, ['total'])
         self.max_decoder_params = measure_parameters(biggest_model, ['attention', 'ff'])
