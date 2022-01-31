@@ -295,7 +295,7 @@
             }
         },
         {
-            "name": "Search Autoregressive",
+            "name": "Search Autoregressive Memformer",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/archai/nlp/search.py",
@@ -305,7 +305,23 @@
                     "--mutation_size", "4", 
                     "--crossover_size", "4",
                     "--n_iter", "2",
+                    "--use_quantization",
                     "--model_type", "mem_transformer",
+                    ]
+        },
+        {
+            "name": "Search Autoregressive HF GPT2",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/archai/nlp/search.py",
+            "console": "integratedTerminal",
+            "args": ["--population_size", "10", 
+                    "--parent_size", "2", 
+                    "--mutation_size", "4", 
+                    "--crossover_size", "4",
+                    "--n_iter", "2",
+                    "--use_quantization",
+                    "--model_type", "hf_gpt2"
                     ]
         },
         {
