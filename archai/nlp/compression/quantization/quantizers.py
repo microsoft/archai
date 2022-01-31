@@ -7,9 +7,10 @@
 from typing import Optional
 
 import torch
-from archai.nlp.compression.quantization.observers import OnnxDynamicObserver
 from torch._C import dtype
 from torch.quantization import MinMaxObserver
+
+from archai.nlp.compression.quantization.observers import OnnxDynamicObserver
 
 
 class FakeDynamicQuant(torch.nn.Module):
