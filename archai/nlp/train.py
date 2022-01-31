@@ -25,7 +25,7 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from archai.common import ml_perf_utils, utils
-from archai.nlp.compression.quantization.mixed_qat import MixedQATModel
+from archai.nlp.models.model_mixed_qat import MixedQATModel
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
 from archai.nlp.models.model_loader import (load_model_from_config,
                                            load_model_from_checkpoint)
