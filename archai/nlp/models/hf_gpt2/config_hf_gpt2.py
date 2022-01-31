@@ -10,23 +10,11 @@ from archai.nlp.models.config_base import Config
 
 
 class HfGPT2Config(Config):
-    """Provides a configuration for HfGPT2.
-
-    """
-
     def __init__(self, **kwargs) -> None:
-        """Initializes the configuration.
-
-        """
-
         super().__init__(**kwargs)
 
     @property
     def default(self) -> Dict[str, Any]:
-        """Defines the default configuration used by the class.
-
-        """
-
         return {
             'd_head': None,
             'd_embed': -1,
@@ -41,10 +29,6 @@ class HfGPT2Config(Config):
 
     @property
     def search(self) -> Dict[str, Any]:
-        """Defines the default configuration used when searching with the class.
-
-        """
-
         return {
             'n_layer': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'd_model': [128, 256, 512, 768, 1024],
@@ -54,23 +38,11 @@ class HfGPT2Config(Config):
 
 
 class HfGPT2FlexConfig(Config):
-    """Provides a configuration for HfGPT2Flex.
-
-    """
-
     def __init__(self, **kwargs) -> None:
-        """Initializes the configuration.
-
-        """
-
         super().__init__(**kwargs)
 
     @property
     def default(self) -> Dict[str, Any]:
-        """Defines the default configuration used by the class.
-
-        """
-
         return {
             'd_head': None,
             'd_embed': -1,
@@ -85,10 +57,6 @@ class HfGPT2FlexConfig(Config):
 
     @property
     def search(self) -> Dict[str, Any]:
-        """Defines the default configuration used when searching with the class.
-
-        """
-
         return {
             'n_layer': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'd_model': [128, 256, 512, 768, 1024],

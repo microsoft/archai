@@ -1,15 +1,15 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Mixed Quantization Aware-Training model.
+"""
+
 import copy
 
 from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.compression.quantization.qat import prepare_with_qat
 
 class MixedQATModel(ArchaiModel):
-    """A wrapper for performing mixed QAT training. A new fake quantized model
-    is created and share its weights with the regular model. The training loss
-    is calculated as follows: loss = qat_loss * qat_weight + regular_loss * (1 - qat_weight).
-    The inference loss is the same as qat_loss.
-    """
-
     def __init__(self, model, qat_weight=0.2) -> None:
         super(MixedQATModel, self).__init__()
 
@@ -36,7 +36,6 @@ class MixedQATModel(ArchaiModel):
             assert param2 is param1, 'Mixed QAT parameters are not fully shared'
 
     def forward(self, *args, **kwargs):
-
         out = self.model(*args, **kwargs)
         qat_out = self.qat_model(*args, **kwargs)
 

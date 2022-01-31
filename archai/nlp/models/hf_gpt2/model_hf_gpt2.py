@@ -4,7 +4,6 @@
 """Huggingface's Open AI GPT-2.
 """
 
-import types
 from typing import Dict, Optional, Tuple
 
 import torch
@@ -13,14 +12,10 @@ from transformers import CONFIG_MAPPING
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 
 from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.hf_gpt2.hf_gpt2_utils.gpt2_flex import GPT2LMHeadModelFlex
+from archai.nlp.models.hf_gpt2.hf_gpt2_utils.gpt2_lm_head_model_flex import GPT2LMHeadModelFlex
 
 
 class HfGPT2(ArchaiModel):
-    """Huggingface's Open AI GPT-2.
-
-    """
-
     HYPERPARAMETER_MAPPING = {
         'n_layer': 'n_layer',
         'n_head': 'n_head',
@@ -36,10 +31,6 @@ class HfGPT2(ArchaiModel):
     }
 
     def __init__(self, **kwargs) -> None:
-        """Overrides initialization method.
-
-        """
-
         super(HfGPT2, self).__init__()
 
         assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
@@ -64,10 +55,6 @@ class HfGPT2(ArchaiModel):
             self.model.tie_weights()
 
     def _generate_config(self, **kwargs) -> None:
-        """Generates a proper configuration according to mapped hyperparameters.
-
-        """
-
         config = CONFIG_MAPPING['gpt2']()
 
         for param, gpt2_param in HfGPT2.HYPERPARAMETER_MAPPING.items():
@@ -86,22 +73,6 @@ class HfGPT2(ArchaiModel):
                 output_loss: Optional[bool] = True,
                 output_prediction_scores: Optional[bool] = False
                 ) -> Tuple[torch.Tensor, ...]:
-        """Performs forward pass over the model.
-
-        Args:
-            input_ids: Input tokens.
-            labels: Input labels (same as tokens).
-            mems: Memory tensor.
-            past_key_values: Tensor with past key/values.
-            output_loss: Whether loss should be outputted.
-            output_prediction_scores: Whether prediction scores should be outputted.
-
-        Returns:
-            (Tuple[torch.Tensor, ...]): Outputs, such as loss, prediction scores,
-                memories and past key/values.
-
-        """
-
         assert mems is None, 'GPT2 does not support memory (mems)'
 
         # Labels in GPT2LMHeadModel are the same as inputs, the offset between inputs annd labels is done
@@ -112,26 +83,10 @@ class HfGPT2(ArchaiModel):
         return (hf_out.loss, F.log_softmax(hf_out.logits, dim=-1), None, past_key_values)
 
     def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
-        """Resets the length of the memory.
-
-        Args:
-            tgt_len: Length of target sample.
-            ext_len: Length of extended memory.
-            mem_len: Length of the memory.
-
-        """
-
         # There is no memory in GPT-2
         pass
 
     def get_params(self) -> Dict[str, int]:
-        """Returns a dictionary of total parameters per implemented layer.
-
-        Returns:
-            (Dict[str, int]): Number of total parameters.
-
-        """
-
         params = {}
 
         params['embedding'] = self.get_params_from_layer(['nn.Embedding'])
@@ -145,9 +100,6 @@ class HfGPT2(ArchaiModel):
 
 
 class HfGPT2Flex(ArchaiModel):
-    """Adapts HuggingFace GPT2 model (GPT2LMHeadModel) to the transformer_xl codebase.
-    """
-
     hyperparam_mapping = {'n_layer': 'n_layer',
                           'n_head': 'n_head',
                           'd_head': 'd_head',
@@ -179,7 +131,6 @@ class HfGPT2Flex(ArchaiModel):
             self.model.tie_weights()
 
     def _generate_config(self, **kwargs):
-
         config = CONFIG_MAPPING['gpt2']()
 
         for param, gpt2_param in HfGPT2Flex.hyperparam_mapping.items():
@@ -197,7 +148,6 @@ class HfGPT2Flex(ArchaiModel):
 
     def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor], mems:Optional[torch.Tensor],
                 past_key_values:Optional[torch.Tensor]=None, output_loss=True, output_prediction_scores=False):
-
         assert mems is None, 'GPT2 does not support memory (mems)'
 
         # Labels in GPT2LMHeadModel are the same as inputs, the offset between inputs annd labels is done
@@ -212,13 +162,6 @@ class HfGPT2Flex(ArchaiModel):
         pass
 
     def get_params(self) -> Dict[str, int]:
-        """Returns a dictionary of total parameters per implemented layer.
-
-        Returns:
-            (Dict[str, int]): Number of total parameters.
-
-        """
-
         params = {}
 
         params['embedding'] = self.get_params_from_layer(['nn.Embedding'])

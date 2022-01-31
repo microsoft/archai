@@ -12,17 +12,6 @@ from archai.nlp.models.model_dict import MODELS, MODELS_CONFIGS, ONNX_MODELS, ON
 
 
 def load_model_from_config(model_type: str, model_config: Dict[str, Any]) -> torch.nn.Module:
-    """Performs the loading of a pre-defined model from configuration.
-
-    Args:
-        model_type: Type of model to be loaded.
-        model_config: Configuration of model to be loaded.
-
-    Returns:
-        (torch.nn.Module): An instance of the loaded model.
-
-    """
-
     return MODELS[model_type](**model_config)
 
 
@@ -31,20 +20,6 @@ def load_model_from_checkpoint(model_type: str,
                                replace_model_config: Optional[Dict[str, Any]] = None,
                                on_cpu: Optional[bool] = False,
                                for_export: Optional[bool] = False) -> Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]:
-    """Performs the loading of a pre-defined model from checkpoint file.
-
-    Args:
-        model_type: Type of model to be loaded.
-        checkpoint_path: Path of the checkpoint to be loaded.
-        replace_model_config: Dictionary with keys that should replace the model's configuration.
-        on_cpu: Whether model should be loaded on CPU or not.
-        for_export: If model should support export or not.
-
-    Returns:
-        (Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]): Model, configuration and checkpoint loaded from a checkpoint path.
-
-    """
-
     # Gathers the proper device
     device = f'cuda:{torch.cuda.current_device()}' if not on_cpu and torch.cuda.is_available() else torch.device('cpu')
 
@@ -70,21 +45,12 @@ def load_model_from_checkpoint(model_type: str,
 
 
 def load_model_config(model_type: str) -> Any:
-    """
-    """
-
     return MODELS_CONFIGS[model_type]()
 
 
 def load_onnx_model(model_type: str, *args) -> Any:
-    """
-    """
-
     return ONNX_MODELS[model_type](*args)
 
 
 def load_onnx_model_config(model_type: str, model_config: Dict[str, Any]) -> Any:
-    """
-    """
-
     return ONNX_MODELS_CONFIGS[model_type](model_config)

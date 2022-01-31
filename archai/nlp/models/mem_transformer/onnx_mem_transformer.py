@@ -24,18 +24,7 @@ from archai.nlp.models.config_base import BATCH_SIZE, SEQ_LEN, OnnxConfig
 
 
 class MemTransformerLMOnnxConfig(OnnxConfig):
-    """Provides an ONNX-export configuration for MemTransformerLM.
-
-    """
-
     def __init__(self, model_config: str) -> None:
-        """Initializes the configuration.
-
-        Args:
-            model_config: Model configuration.
-
-        """
-
         super().__init__(model_config)
 
         # Checks the type of attention to define the `past_key_values`
@@ -50,13 +39,6 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
 
     @property
     def mockups(self) -> Dict[str, Any]:
-        """Defines the mockups (inputs) to be used when exporting to ONNX.
-
-        Returns:
-            (Dict[str, Any]): Mockups used to export with ONNX.
-        
-        """
-
         return {
             'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
             'past_key_values': tuple([torch.zeros(self.config['past_key_values'], BATCH_SIZE, self.config['n_head'], SEQ_LEN, self.config['d_head']) for _ in range(self.config['n_layer'])])
@@ -64,18 +46,7 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
 
 
 class MemTransformerLMOnnxModel(OnnxModel):
-    """MemTransformerLM that enables addtiional ONNX optimizations.
-
-    """
-
     def __init__(self, model: ModelProto) -> None:
-        """Overrides initialization method.
-
-        Args:
-            model: ONNX-based model.
-
-        """
-
         super().__init__(model)
 
         self.attention_mask = AttentionMask(self)
@@ -86,19 +57,6 @@ class MemTransformerLMOnnxModel(OnnxModel):
                                 graph_input: ValueInfoProto,
                                 new_type: Optional[int] = TensorProto.INT32
                                 ) -> Tuple[NodeProto, List[NodeProto]]:
-        """Changes the input type of the graph and add Cast nodes if necessary.
-
-        Args:
-            graph: Graph instance.
-            graph_input: Graph inputs.
-            new_type: New data type.
-
-        Returns:
-            (Tuple[NodeProto, List[NodeProto]]): Cast node to be added and
-                list of Cast nodes to be removed.
-
-        """
-
         assert isinstance(graph, GraphProto)
         assert isinstance(graph_input, ValueInfoProto)
         assert self.find_graph_input(graph_input.name)
@@ -142,10 +100,6 @@ class MemTransformerLMOnnxModel(OnnxModel):
         return new_cast_node, nodes_to_remove
 
     def change_graph_inputs_to_int32(self) -> None:
-        """Changes the inputs to int32.
-
-        """
-
         graph = self.graph()
 
         add_cast_count = 0
@@ -160,64 +114,32 @@ class MemTransformerLMOnnxModel(OnnxModel):
             remove_cast_count += len(removed_nodes)
 
     def fuse_layer_norm(self) -> None:
-        """Fuses the appropriate nodes into a LayerNormalization layer.
-
-        """
-
         fusion = FusionLayerNormalization(self)
         fusion.apply()
 
     def fuse_skip_layer_norm(self) -> None:
-        """Fuses the appropriate nodes into a SkipLayerNormalization layer.
-
-        """
-
         fusion = FusionSkipLayerNormalization(self)
         fusion.apply()
 
     def fuse_add_bias_skip_layer_norm(self) -> None:
-        """Fuses the appropriate nodes into a BiasSkipLayerNormalization layer.
-
-        """
-
         fusion = FusionBiasSkipLayerNormalization(self)
         fusion.apply()
 
     def fuse_attention(self) -> None:
-        """Fuses the appropriate nodes into an Attention layer.
-
-        """
-
         fusion = FusionAttention(self, 0, 0, self.attention_mask)
         fusion.apply()
 
     def fuse_reshape(self) -> None:
-        """Fuses the appropriate nodes into a Reshape layer.
-
-        """
-
         fusion = FusionReshape(self)
         fusion.apply()
 
     def fuse_shape(self) -> None:
-        """Fuses the appropriate nodes into a Shape layer.
-
-        """
-
         fusion = FusionShape(self)
         fusion.apply()
 
     def use_dynamic_axes(self,
                          dynamic_batch_dim: Optional[str] = 'batch_size',
                          dynamic_seq_len: Optional[str] = 'seq_len') -> None:
-        """Updates inputs and outputs shapes to use dynamic axes.
-
-        Args:
-            dynamic_batch_dim: Name of batch size dimension.
-            dynamic_seq_len: Name of sequence length dimension.
-
-        """
-
         graph_inputs = self.get_graph_inputs_from_fused_nodes(casted=True) \
                        + self.get_graph_inputs_from_fused_nodes(casted=False)
 
@@ -235,10 +157,6 @@ class MemTransformerLMOnnxModel(OnnxModel):
             dim_proto.dim_param = dynamic_batch_dim
 
     def adjust_reshape_and_expand(self) -> None:
-        """Cleans up unncessary reshape nodes.
-
-        """
-
         nodes_to_remove = []
 
         for node in self.nodes():
@@ -273,10 +191,6 @@ class MemTransformerLMOnnxModel(OnnxModel):
             self.remove_nodes(nodes_to_remove)
 
     def clean_graph(self) -> None:
-        """Cleans the graph after fusing nodes.
-
-        """
-
         output_name_to_node = self.output_name_to_node()
         nodes_to_remove = []
 
@@ -320,14 +234,6 @@ class MemTransformerLMOnnxModel(OnnxModel):
     def optimize(self,
                  options: Optional[FusionOptions] = None,
                  add_dynamic_axes: Optional[bool] = False) -> None:
-        """Performs the additional transformer-based optimization.
-
-        Args:
-            options: Options holding which operators should be fused.
-            add_dynamic_axes: Whether dynamic axes should be added.
-
-        """
-
         # Fuses appropriate nodes into LayerNormalization
         if (options is None) or options.enable_layer_norm:
             self.fuse_layer_norm()
