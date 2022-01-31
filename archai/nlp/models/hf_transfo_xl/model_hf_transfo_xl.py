@@ -9,6 +9,7 @@ from typing import Dict, Optional, Tuple
 import torch
 from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
+from archai.common.utils import map_to_list
 from archai.nlp.models.model_base import ArchaiModel
 
 
@@ -41,20 +42,22 @@ class HfTransfoXL(ArchaiModel):
     def __init__(self, **kwargs) -> None:
         super(HfTransfoXL, self).__init__()
 
-        assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
+        kwargs['d_inner'] = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
+        kwargs['n_head'] = map_to_list(kwargs['n_head'], kwargs['n_layer'])
+        kwargs['d_head'] = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] < 0 else map_to_list(kwargs['d_head'], kwargs['n_layer'])
 
-        assert all(kwargs['d_inner'][0] == d_inner for d_inner in kwargs['d_inner']), 'HF Transfo xl does not support heterogenous arch.'
-        assert all(kwargs['d_head'][0] == d_head for d_head in kwargs['d_head']), 'HF Transfo xl does not support heterogenous arch.'
-        assert all(kwargs['n_head'][0] == n_head for n_head in kwargs['n_head']), 'HF Transfo xl does not support heterogenous arch.'
+        assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
 
         kwargs['d_inner'] = kwargs['d_inner'][0]
         kwargs['n_head'] = kwargs['n_head'][0]
         kwargs['d_head'] = kwargs['d_head'][0]
 
-        # Translate hyperparams into HuggingFace TransfoXL params
-        self.config = self._generate_config(**kwargs)
+        if kwargs['d_embed'] < 0:
+            kwargs['d_embed'] = kwargs['d_model']
 
-        # Create model
+        # Translate the hyperparameters into Huggingface's TransfoXL hyperparameters,
+        # and creates the model with the proper configuration
+        self.config = self._generate_config(**kwargs)
         self.model = AutoModelForCausalLM.from_config(self.config)
 
         if kwargs['tie_weight']:

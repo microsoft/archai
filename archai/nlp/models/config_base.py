@@ -15,9 +15,8 @@ SEQ_LEN = 32
 
 
 class Config:
-    def __init__(self, **kwargs) -> None:
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+    def __init__(self) -> None:
+        pass
 
     @property
     def default(self) -> Dict[str, Any]:

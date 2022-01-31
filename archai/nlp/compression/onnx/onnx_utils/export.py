@@ -12,7 +12,7 @@ from typing import Optional
 import torch
 from onnx import helper, load_model, numpy_helper, save
 
-from archai.nlp.models.model_loader import load_from_args, load_onnx_model_config
+from archai.nlp.models.model_loader import load_from_args, load_onnx_config
 from archai.nlp.compression.onnx.onnx_utils.operators import (tril_onnx,
                                                               triu_onnx)
 
@@ -108,7 +108,7 @@ def export_onnx_from_torch(model: torch.nn.Module,
     """
 
     # Gathers the proper ONNX configuration instance
-    onnx_config = load_onnx_model_config(model_type, model_config)
+    onnx_config = load_onnx_config(model_type, model_config)
 
     # Creates the dynamic axes based on inputs and outputs
     dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}

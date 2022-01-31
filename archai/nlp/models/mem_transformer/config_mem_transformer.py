@@ -10,17 +10,14 @@ from archai.nlp.models.config_base import Config
 
 
 class MemTransformerLMConfig(Config):
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-
     @property
     def default(self) -> Dict[str, Any]:
         return {
-            'd_head': None,
+            'd_head': -1,
             'n_token': 267736,
             'dropout': 0.1,
             'dropatt': 0.0,
-            'd_embed': None,
+            'd_embed': -1,
             'div_val': 4,
             'pre_lnorm': False,
             'tgt_len': 192,

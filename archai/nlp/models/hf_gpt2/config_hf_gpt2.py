@@ -10,21 +10,21 @@ from archai.nlp.models.config_base import Config
 
 
 class HfGPT2Config(Config):
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-
     @property
     def default(self) -> Dict[str, Any]:
         return {
-            'd_head': None,
+            'd_model': 512,
+            'd_inner': 2048,
+            'd_head': -1,
             'd_embed': -1,
+            'n_layer': 16,
+            'n_head': 8,
             'dropout': 0.1,
             'dropatt': 0.0,
             'tgt_len': 192,
             'n_token': 267736,
             'weight_init_std': 0.0,
-            'tie_weight': True,
-            'primer_square': False
+            'tie_weight': True
         }
 
     @property
@@ -38,14 +38,15 @@ class HfGPT2Config(Config):
 
 
 class HfGPT2FlexConfig(Config):
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-
     @property
     def default(self) -> Dict[str, Any]:
         return {
-            'd_head': None,
+            'd_model': 512,
+            'd_inner': 2048,
+            'd_head': -1,
             'd_embed': -1,
+            'n_layer': 16,
+            'n_head': 8,
             'dropout': 0.1,
             'dropatt': 0.0,
             'tgt_len': 192,
