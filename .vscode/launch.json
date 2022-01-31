@@ -306,7 +306,7 @@
                     "--crossover_size", "4",
                     "--n_iter", "2",
                     "--model_type", "mem_transformer",
-                    "--do-brute-force", "--n_samples", "100", "--batch", "20"]
+                    ]
         },
         {
             "name": "CurrentFile",
