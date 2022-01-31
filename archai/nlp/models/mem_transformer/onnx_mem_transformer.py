@@ -27,6 +27,8 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
     def __init__(self, model_config: str) -> None:
         super().__init__(model_config)
 
+        self.config['d_head'] = self.config['d_model'] // self.config['n_head']
+
         # Checks the type of attention to define the `past_key_values`
         if self.config['attn_type'] == 0:
             # `k`, `v` and relative embeddings

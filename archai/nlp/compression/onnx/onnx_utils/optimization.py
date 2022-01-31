@@ -11,7 +11,7 @@ from onnx import load_model
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 
 from archai.common.utils import create_file_name_identifier
-from archai.nlp.models.model_loader import load_from_args, load_onnx_model
+from archai.nlp.models.model_loader import load_onnx_model
 from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
 
 
