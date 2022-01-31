@@ -76,15 +76,15 @@ def load_model_config(model_type: str) -> Any:
     return MODELS_CONFIGS[model_type]()
 
 
-def load_onnx_model(model_type: str) -> Any:
+def load_onnx_model(model_type: str, *args) -> Any:
     """
     """
 
-    return ONNX_MODELS[model_type]()
+    return ONNX_MODELS[model_type](*args)
 
 
-def load_onnx_model_config(model_type: str) -> Any:
+def load_onnx_model_config(model_type: str, model_config: Dict[str, Any]) -> Any:
     """
     """
 
-    return ONNX_MODELS_CONFIGS[model_type]()
+    return ONNX_MODELS_CONFIGS[model_type](model_config)
