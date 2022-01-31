@@ -60,7 +60,7 @@ class HfGPT2Flex(ArchaiModel):
         for param, gpt2_param in HfGPT2Flex.hyperparam_mapping.items():
             setattr(config, gpt2_param, kwargs[param])
 
-        if kwargs['primer_sqrt']:
+        if kwargs['primer_square']:
             config.primer_square = True
             config.activation_function = 'relu'
 

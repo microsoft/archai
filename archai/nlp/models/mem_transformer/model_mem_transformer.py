@@ -476,14 +476,14 @@ class DecoderLayer(nn.Module):
 
 class RelLearnableDecoderLayer(nn.Module):
     def __init__(self, n_head, d_model, d_head, d_inner, dropout,
-                 primer_conv=False, primer_sqrt=False, use_cache=False, **kwargs):
+                 primer_conv=False, primer_square=False, use_cache=False, **kwargs):
         super(RelLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelLearnableMultiHeadAttn(n_head, d_model, d_head,
                                                   dropout, primer_ez=primer_conv, use_cache=use_cache,
                                                   **kwargs)
 
-        if primer_sqrt:
+        if primer_square:
             self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout,
                                                  pre_lnorm=kwargs.get('pre_lnorm'))
         else:
@@ -502,7 +502,7 @@ class RelLearnableDecoderLayer(nn.Module):
 
 class RelPartialLearnableDecoderLayer(nn.Module):
     def __init__(self, n_head, d_model, d_head, d_inner, dropout,
-                 primer_conv=False, primer_sqrt=False, use_cache=False, **kwargs):
+                 primer_conv=False, primer_square=False, use_cache=False, **kwargs):
         super(RelPartialLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelPartialLearnableMultiHeadAttn(n_head, d_model,
@@ -510,7 +510,7 @@ class RelPartialLearnableDecoderLayer(nn.Module):
                                                          primer_ez=primer_conv, use_cache=use_cache,
                                                          **kwargs)
 
-        if primer_sqrt:
+        if primer_square:
             self.pos_ff = PositionwiseFFPrimerEZ(d_model, d_inner, dropout,
                                                  pre_lnorm=kwargs.get('pre_lnorm'))
         else:
@@ -600,7 +600,7 @@ class MemTransformerLM(ArchaiModel):
                  same_length=False, attn_type=0, clamp_len=-1, sample_softmax=-1,
                  weight_init_type='normal', weight_init_range=0.1, weight_init_std=0.02,
                  proj_init_std=0.01, init_std=0.02,
-                 primer_conv=False, primer_sqrt=False, use_cache=False):
+                 primer_conv=False, primer_square=False, use_cache=False):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
@@ -644,7 +644,7 @@ class MemTransformerLM(ArchaiModel):
                         n_head[i], d_model, d_head[i], d_inner[i], dropout,
                         tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
                         dropatt=dropatt, pre_lnorm=pre_lnorm, primer_conv=primer_conv,
-                        primer_sqrt=primer_sqrt, use_cache=use_cache)
+                        primer_square=primer_square, use_cache=use_cache)
                 )
         # learnable embeddings
         elif attn_type == 1:
@@ -654,7 +654,7 @@ class MemTransformerLM(ArchaiModel):
                         n_head[i], d_model, d_head[i], d_inner[i], dropout,
                         tgt_len=tgt_len, ext_len=ext_len, mem_len=mem_len,
                         dropatt=dropatt, pre_lnorm=pre_lnorm, primer_conv=primer_conv,
-                        primer_sqrt=primer_sqrt, use_cache=use_cache)
+                        primer_square=primer_square, use_cache=use_cache)
                 )
         # absolute embeddings
         elif attn_type in [2, 3]:
