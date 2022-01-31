@@ -12,21 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Tuple
+"""NVIDIA's Memory Transformer (Transformer-XL).
+"""
+
 import functools
-import os
-import logging
+from typing import Optional
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import LogUniformSampler
-from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import sample_logits
+from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import LogUniformSampler, sample_logits
 from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
-from archai.nlp.models.model_utils.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.model_utils.utils import map_to_list
+from archai.nlp.models.model_utils.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 
 
 @torch.jit.script
@@ -604,11 +603,6 @@ class MemTransformerLM(ArchaiModel):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
-        d_embed = d_model if d_embed is None else d_embed
-        d_inner = map_to_list(d_inner, n_layer)
-        n_head = map_to_list(n_head, n_layer)
-        d_head = [d_model // n_h for n_h in n_head] if d_head is None else map_to_list(d_head, n_layer)
-
         assert len(d_inner) == n_layer and len(n_head) == n_layer and len(d_head) == n_layer
 
         self.d_embed = d_embed
@@ -707,8 +701,18 @@ class MemTransformerLM(ArchaiModel):
         # ensure embedding init is not overridden by out_layer in case of weight sharing
         self.word_emb.apply(functools.partial(weights_init, **weight_init_params))
 
-    def get_non_emb_params(self):
-        return sum([p.nelement() for p in self.layers.parameters()])
+    def get_params(self):
+        params = {}
+
+        params['embedding'] = self.get_params_from_layer(['AdaptiveEmbedding'])
+        params['softmax'] = self.get_params_from_layer(['ProjectedAdaptiveLogSoftmax'])
+        params['attention'] = self.get_params_from_layer(['MultiHeadAttn', 'RelPartialLearnableMultiHeadAttn', 'RelLearnableMultiHeadAttn'])
+        params['ff'] = self.get_params_from_layer(['PositionwiseFF'])
+
+        params['non_embedding'] = params['attention'] + params['ff']
+        params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']
+
+        return params
 
     def backward_compatible(self):
         self.sample_softmax = -1
@@ -1042,21 +1046,3 @@ if __name__ == '__main__':
     print('# total params', sum(p.numel() for p in model.parameters()))
     print('# embd params', sum(p.numel() for p in model.word_emb.parameters()))
     print('# layer params', sum(p.numel() for p in model.layers[0].parameters()))
-
-    # sample run
-
-    # from archai.nlp.nvidia_transformer_xl.nvidia_utils import lm_iterators
-
-    # device = torch.device("cuda" if args.cuda else "cpu")
-    # model.to(device)
-
-    # B = 4 # bytes per input_ids element
-    # input_len = tgt_len * 20
-    # input_ids = torch.LongTensor(input_len*B).random_(0, args.n_token).to(device)
-    # diter = lm_iterators.LMOrderedIterator(input_ids, B, tgt_len, device=device, ext_len=ext_len)
-
-    # mems = None
-    # for idx, (input_ids, labels, seqlen, _) in enumerate(diter):
-    #     print('batch {}'.format(idx))
-    #     _, _, mems = model(input_ids, labels, mems)
-
