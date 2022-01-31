@@ -36,7 +36,7 @@ model_config_defaults = {'d_head': None,
                          'tie_weight': True,
                          'dtype': None,
                          'primer_conv': False,
-                         'primer_sqrt': False,
+                         'primer_square': False,
                          'use_cache': False}
 
 
