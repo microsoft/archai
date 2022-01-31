@@ -86,6 +86,8 @@ def load_from_torch_for_export(model_type: str, torch_model_path: str) -> Tuple[
         model_config['d_head'] = model_config['d_head'][0]
     if isinstance(model_config['n_head'], Sized):
         model_config['n_head'] = model_config['n_head'][0]
+    if model_config['d_head'] < 0:
+        model_config['d_head'] = model_config['d_model'] // model_config['n_head']
 
     # Puts to evaluation model to disable dropout
     model.eval()

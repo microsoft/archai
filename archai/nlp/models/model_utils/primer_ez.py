@@ -19,14 +19,6 @@ class DWiseConvPrimerEZ(nn.Module):
     def __init__(self,
                  d_model: int,
                  kernel_size: Optional[int] = 3) -> None:
-        """Overrides the initialization method.
-
-        Args:
-            d_model: Dimension of the model.
-            kernel_size: Amount of kernels.
-
-        """
-
         super(DWiseConvPrimerEZ, self).__init__()
 
         self.kernel_size = kernel_size
@@ -35,17 +27,6 @@ class DWiseConvPrimerEZ(nn.Module):
         self.dconv = nn.Conv1d(d_model*3, d_model*3, kernel_size=kernel_size, groups=d_model*3)
 
     def forward(self, inp: torch.Tensor) -> torch.Tensor:
-        """Performs forward pass over the class. Note that the
-            input should have shape [length, batch, features].
-
-        Args:
-            inp: Input tensor.
-
-        Returns:
-            (torch.Tensor) Output tensor.
-        
-        """
-
         # LxBxF -> BxFxL
         w_heads = inp.permute((1, 2, 0))
 
@@ -69,16 +50,6 @@ class PositionwiseFFPrimerEZ(nn.Module):
                  d_inner: int,
                  dropout: float,
                  pre_lnorm: Optional[bool] = False) -> None:
-        """Overrides the initialization method.
-
-        Args:
-            d_model: Dimension of the model.
-            d_inner: Inner dimension of the model.
-            dropout: Dropout ratio.
-            pre_lnorm: Whether to perform layer normalization before or after.
-
-        """
-
         super(PositionwiseFFPrimerEZ, self).__init__()
 
         self.d_model = d_model
@@ -95,16 +66,6 @@ class PositionwiseFFPrimerEZ(nn.Module):
         self.pre_lnorm = pre_lnorm
 
     def forward(self, inp: torch.Tensor) -> torch.Tensor:
-        """Performs forward pass over the class.
-
-        Args:
-            inp: Input tensor.
-
-        Returns:
-            (torch.Tensor) Output tensor.
-        
-        """
-
         if self.pre_lnorm:
             inp = self.layer_norm(inp)
 
@@ -120,17 +81,6 @@ class PositionwiseFFPrimerEZ(nn.Module):
 
 
 def forward_hf_gpt2_mlp_primer_ez(self, hidden_states: torch.Tensor) -> torch.Tensor:
-    """Re-implements the forward method of HfGPT2 Multi-Layer Perceptron (GPT2MLP)
-        to use squared ReLU from PrimerEZ.
-
-    Args:
-        hidden_states: Input hidden states.
-
-    Returns:
-        (torch.Tensor): Output states.
-
-    """
-
     hidden_states = self.c_fc(hidden_states)
     hidden_states = self.act(hidden_states) ** 2
     hidden_states = self.c_proj(hidden_states)

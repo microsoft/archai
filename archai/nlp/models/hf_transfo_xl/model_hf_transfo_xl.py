@@ -9,14 +9,11 @@ from typing import Dict, Optional, Tuple
 import torch
 from transformers import CONFIG_MAPPING, AutoModelForCausalLM
 
+from archai.common.utils import map_to_list
 from archai.nlp.models.model_base import ArchaiModel
 
 
 class HfTransfoXL(ArchaiModel):
-    """Huggingface's Transformer-XL.
-
-    """
-
     HYPERPARAMETER_MAPPING = {
         'n_layer': 'n_layer',
         'n_head': 'n_head',
@@ -43,36 +40,30 @@ class HfTransfoXL(ArchaiModel):
     }
 
     def __init__(self, **kwargs) -> None:
-        """Overrides initialization method.
-
-        """
-
         super(HfTransfoXL, self).__init__()
 
-        assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
+        kwargs['d_inner'] = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
+        kwargs['n_head'] = map_to_list(kwargs['n_head'], kwargs['n_layer'])
+        kwargs['d_head'] = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] < 0 else map_to_list(kwargs['d_head'], kwargs['n_layer'])
 
-        assert all(kwargs['d_inner'][0] == d_inner for d_inner in kwargs['d_inner']), 'HF Transfo xl does not support heterogenous arch.'
-        assert all(kwargs['d_head'][0] == d_head for d_head in kwargs['d_head']), 'HF Transfo xl does not support heterogenous arch.'
-        assert all(kwargs['n_head'][0] == n_head for n_head in kwargs['n_head']), 'HF Transfo xl does not support heterogenous arch.'
+        assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
 
         kwargs['d_inner'] = kwargs['d_inner'][0]
         kwargs['n_head'] = kwargs['n_head'][0]
         kwargs['d_head'] = kwargs['d_head'][0]
 
-        # Translate hyperparams into HuggingFace TransfoXL params
-        self.config = self._generate_config(**kwargs)
+        if kwargs['d_embed'] < 0:
+            kwargs['d_embed'] = kwargs['d_model']
 
-        # Create model
+        # Translate the hyperparameters into Huggingface's TransfoXL hyperparameters,
+        # and creates the model with the proper configuration
+        self.config = self._generate_config(**kwargs)
         self.model = AutoModelForCausalLM.from_config(self.config)
 
         if kwargs['tie_weight']:
             self.model.tie_weights()
 
     def _generate_config(self, **kwargs) -> None:
-        """Generates a proper configuration according to mapped hyperparameters.
-
-        """
-
         config = CONFIG_MAPPING['transfo-xl']()
 
         for param, transfo_xl_param in HfTransfoXL.HYPERPARAMETER_MAPPING.items():
@@ -88,22 +79,6 @@ class HfTransfoXL(ArchaiModel):
                 output_loss: Optional[bool] = True,
                 output_prediction_scores: Optional[bool] = False
                 ) -> Tuple[torch.Tensor, ...]:
-        """Performs forward pass over the model.
-
-        Args:
-            input_ids: Input tokens.
-            labels: Input labels (same as tokens).
-            mems: Memory tensor.
-            past_key_values: Tensor with past key/values.
-            output_loss: Whether loss should be outputted.
-            output_prediction_scores: Whether prediction scores should be outputted.
-
-        Returns:
-            (Tuple[torch.Tensor, ...]): Outputs, such as loss, prediction scores,
-                memories and past key/values.
-
-        """
-
         # Labels in Huggingface's TransfoXL are the same as inputs_ids,
         # and they will be shifted inside the model
         if output_loss:
@@ -120,15 +95,6 @@ class HfTransfoXL(ArchaiModel):
             return (None, hf_out.logits, hf_out.mems, past_key_values)
 
     def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
-        """Resets the length of the memory.
-
-        Args:
-            tgt_len: Length of target sample.
-            ext_len: Length of extended memory.
-            mem_len: Length of the memory.
-
-        """
-
         if tgt_len < 1:
             raise RuntimeError(f'tgt_len should be >= 1, but got {tgt_len}')
         if ext_len < 0:
@@ -141,13 +107,6 @@ class HfTransfoXL(ArchaiModel):
         self.model.config.ext_len = ext_len
 
     def get_params(self) -> Dict[str, int]:
-        """Returns a dictionary of total parameters per implemented layer.
-
-        Returns:
-            (Dict[str, int]): Number of total parameters.
-
-        """
-
         params = {}
 
         params['embedding'] = self.get_params_from_layer(['AdaptiveEmbedding'])

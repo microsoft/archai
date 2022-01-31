@@ -10,41 +10,25 @@ from archai.nlp.models.config_base import Config
 
 
 class HfGPT2Config(Config):
-    """Provides a configuration for HfGPT2.
-
-    """
-
-    def __init__(self, **kwargs) -> None:
-        """Initializes the configuration.
-
-        """
-
-        super().__init__(**kwargs)
-
     @property
     def default(self) -> Dict[str, Any]:
-        """Defines the default configuration used by the class.
-
-        """
-
         return {
-            'd_head': None,
+            'd_model': 512,
+            'd_inner': 2048,
+            'd_head': -1,
             'd_embed': -1,
+            'n_layer': 16,
+            'n_head': 8,
             'dropout': 0.1,
             'dropatt': 0.0,
             'tgt_len': 192,
             'n_token': 267736,
             'weight_init_std': 0.0,
-            'tie_weight': True,
-            'primer_square': False
+            'tie_weight': True
         }
 
     @property
     def search(self) -> Dict[str, Any]:
-        """Defines the default configuration used when searching with the class.
-
-        """
-
         return {
             'n_layer': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'd_model': [128, 256, 512, 768, 1024],
@@ -54,26 +38,15 @@ class HfGPT2Config(Config):
 
 
 class HfGPT2FlexConfig(Config):
-    """Provides a configuration for HfGPT2Flex.
-
-    """
-
-    def __init__(self, **kwargs) -> None:
-        """Initializes the configuration.
-
-        """
-
-        super().__init__(**kwargs)
-
     @property
     def default(self) -> Dict[str, Any]:
-        """Defines the default configuration used by the class.
-
-        """
-
         return {
-            'd_head': None,
+            'd_model': 512,
+            'd_inner': 2048,
+            'd_head': -1,
             'd_embed': -1,
+            'n_layer': 16,
+            'n_head': 8,
             'dropout': 0.1,
             'dropatt': 0.0,
             'tgt_len': 192,
@@ -85,10 +58,6 @@ class HfGPT2FlexConfig(Config):
 
     @property
     def search(self) -> Dict[str, Any]:
-        """Defines the default configuration used when searching with the class.
-
-        """
-
         return {
             'n_layer': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'd_model': [128, 256, 512, 768, 1024],

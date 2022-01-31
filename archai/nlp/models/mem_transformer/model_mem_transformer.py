@@ -22,6 +22,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from archai.common.utils import map_to_list
 from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import LogUniformSampler, sample_logits
 from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 from archai.nlp.models.model_base import ArchaiModel
@@ -602,6 +603,11 @@ class MemTransformerLM(ArchaiModel):
                  primer_conv=False, primer_square=False, use_cache=False):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
+
+        d_embed = d_model if d_embed < 0 else d_embed
+        d_inner = map_to_list(d_inner, n_layer)
+        n_head = map_to_list(n_head, n_layer)
+        d_head = [d_model // n_h for n_h in n_head] if d_head < 0 else map_to_list(d_head, n_layer)
 
         assert len(d_inner) == n_layer and len(n_head) == n_layer and len(d_head) == n_layer
 

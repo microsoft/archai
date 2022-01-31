@@ -143,7 +143,7 @@ def parse_args():
                        help='Number of total layers')
     model.add_argument('--n_head', nargs='+', type=int, default=8,
                        help='Number of heads')
-    model.add_argument('--d_head', nargs='+', type=int, default=-1, # will be set by d_model // n_head
+    model.add_argument('--d_head', type=int, default=-1, # will be set by d_model // n_head
                        help='Head dimension')
     model.add_argument('--d_embed', type=int, default=-1, # will be set from d_model
                        help='Embedding dimension')
@@ -285,13 +285,6 @@ def parse_args():
     args, _ = parser.parse_known_args()
 
     args.tied = not args.not_tied
-
-    if args.d_embed < 0:
-        args.d_embed = args.d_model
-
-    args.d_inner = utils.map_to_list(args.d_inner, args.n_layer)
-    args.n_head = utils.map_to_list(args.n_head, args.n_layer)
-    args.d_head = [args.d_model // n_h for n_h in args.n_head] if args.d_head < 0 else utils.map_to_list(args.d_head, args.n_layer)
 
     if args.ext_len < 0:
         raise RuntimeError('Extended context length must be non-negative')
