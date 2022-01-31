@@ -1,6 +1,6 @@
 import copy
 
-from archai.nlp.models.archai_model import ArchaiModel
+from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.compression.quantization.qat import prepare_with_qat
 
 class MixedQATModel(ArchaiModel):

@@ -25,7 +25,7 @@ from torch.nn.parallel import DistributedDataParallel
 
 from archai.nlp.models.model_utils import lamb
 from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
-from archai.nlp.models.archai_model import ArchaiModel
+from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.compression.quantization.mixed_qat import MixedQATModel
 from archai.nlp.models.available_models import AVAILABLE_MODELS
 from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
