@@ -1,18 +1,22 @@
-from typing import Optional, Tuple
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
-import pprint
-from datetime import datetime
+"""Full training, evaluation and metrics for NLP-based models.
+"""
+
 import argparse
+import copy
 import functools
 import itertools
 import logging
 import math
 import os
+import pprint
 import shutil
 import sys
 import time
-import warnings
-import copy
+from datetime import datetime
+from typing import Tuple
 
 import dllogger
 import numpy as np
@@ -20,30 +24,23 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import yaml
-
-from torch.nn.parallel import DistributedDataParallel
-
-from archai.nlp.models.model_utils import lamb
-from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
-from archai.nlp.models.model_base import ArchaiModel
+from archai.common import ml_perf_utils, utils
 from archai.nlp.compression.quantization.mixed_qat import MixedQATModel
-from archai.nlp.models.available_models import AVAILABLE_MODELS
-from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
-from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
-from archai.nlp.datasets.distributed_utils.data_parallel import BalancedDataParallel
+from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
+from archai.nlp.models.model_loader import (load_model_from_config,
+                                           load_model_from_checkpoint)
+from archai.nlp.compression.quantization.qat import (prepare_with_qat,
+                                                     qat_to_float_modules)
 from archai.nlp.datasets import exp_utils
-# from archai.nlp.nvidia_transformer_xl.nvidia_utils import gpu_affinity
-from archai.nlp.datasets.exp_utils import AverageMeter
-from archai.nlp.datasets.exp_utils import TimeoutHandler
-from archai.nlp.datasets.exp_utils import benchmark
-from archai.nlp.datasets.exp_utils import create_exp_dir
-from archai.nlp.datasets.exp_utils import l2_promote
-from archai.nlp.datasets.exp_utils import log_env_info
-from archai.nlp.datasets.exp_utils import register_ignoring_timeout_handler
-from archai.nlp.compression.quantization.qat import prepare_with_qat, qat_to_float_modules
-from archai.common import ml_perf_utils
-
-from archai.common import utils, common
+from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
+from archai.nlp.datasets.distributed_utils.data_parallel import BalancedDataParallel
+from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
+from archai.nlp.datasets.exp_utils import (AverageMeter, create_exp_dir, l2_promote,
+                                           log_env_info)
+from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.models.model_utils import lamb
+from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
+from torch.nn.parallel import DistributedDataParallel
 
 
 def parse_args():
@@ -140,13 +137,13 @@ def parse_args():
 
     model = parser.add_argument_group('model setup - defaults are for base model')
     model.add_argument('--model_type', default='mem_transformer', type=str,
-                     choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl', 'hf_gpt2_flex'],
+                     choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
                      help='Which model type to use')
     model.add_argument('--n_layer', type=int, default=16,
                        help='Number of total layers')
     model.add_argument('--n_head', nargs='+', type=int, default=8,
                        help='Number of heads')
-    model.add_argument('--d_head', nargs='+', type=int, default=64,
+    model.add_argument('--d_head', nargs='+', type=int, default=-1, # will be set by d_model // n_head
                        help='Head dimension')
     model.add_argument('--d_embed', type=int, default=-1, # will be set from d_model
                        help='Embedding dimension')
@@ -205,6 +202,9 @@ def parse_args():
     opt.add_argument('--scheduler', default='cosine', type=str,
                      choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
                      help='LR scheduler to use')
+    opt.add_argument('--scheduler_qat', default='cyclic_cosine', type=str,
+                     choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
+                     help='LR scheduler to use during QAT')
     opt.add_argument('--max_step_scheduler', type=int, default=None,
                      help='Max number of training steps for LR scheduler')
     opt.add_argument('--warmup_step', type=int, default=1000,
@@ -288,6 +288,10 @@ def parse_args():
 
     if args.d_embed < 0:
         args.d_embed = args.d_model
+
+    args.d_inner = utils.map_to_list(args.d_inner, args.n_layer)
+    args.n_head = utils.map_to_list(args.n_head, args.n_layer)
+    args.d_head = [args.d_model // n_h for n_h in args.n_head] if args.d_head < 0 else utils.map_to_list(args.d_head, args.n_layer)
 
     if args.ext_len < 0:
         raise RuntimeError('Extended context length must be non-negative')
@@ -869,10 +873,9 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
 
     if args.pretrained_path:
         logging.info('Overwriting the provided model config with the pretrained model config.')
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], args.pretrained_path, args, on_cpu=False)
+        model, model_config, _ = load_model_from_checkpoint(args.model_type, args.pretrained_path, replace_model_config=args, on_cpu=False)
     else:
-        model_cls = AVAILABLE_MODELS[args.model_type]
-        model = model_cls(**model_config)
+        model = load_model_from_config(args.model_type, model_config)
 
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)
@@ -880,8 +883,9 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.mixed_qat:
         model = MixedQATModel(model)
 
-    n_all_param = model.get_n_params()
-    n_nonemb_param = model.get_non_emb_params()
+    n_params = model.get_params()
+    n_all_param = n_params['total']
+    n_nonemb_param = n_params['non_embedding']
     logging.info('#params = {}'.format(n_all_param))
     logging.info('#non emb params = {}'.format(n_nonemb_param))
 
@@ -969,8 +973,10 @@ def distributed_model(args, model, device):
 
 def create_scheduler(args, optimizer, optimizer_sparse):
     scheduler, scheduler_sparse = None, None
+    scheduler_name = args.scheduler_qat if args.qat else args.scheduler
+
     # scheduler
-    if args.scheduler == 'cosine':
+    if scheduler_name == 'cosine':
         if args.max_step_scheduler:
             max_step = args.max_step_scheduler
         else:
@@ -984,7 +990,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                 eta_min=args.eta_min)
         else:
             scheduler_sparse = None
-    elif args.scheduler == 'inv_sqrt':
+    elif scheduler_name == 'inv_sqrt':
         # originally used for Transformer (in Attention is all you need)
         def lr_lambda(step):
             # return a multiplier instead of a learning rate
@@ -1001,7 +1007,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                 )
         else:
             scheduler_sparse = None
-    elif args.scheduler == 'dev_perf':
+    elif scheduler_name == 'dev_perf':
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer, factor=args.decay_rate, patience=args.patience,
             min_lr=args.lr_min,
@@ -1013,7 +1019,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                 )
         else:
             scheduler_sparse = None
-    elif args.scheduler == 'cyclic_cosine':
+    elif scheduler_name == 'cyclic_cosine':
         init_decay_epochs = int((args.max_step-args.warmup_step) / 2)
         restart_interval = int((args.max_step-args.warmup_step) / 4)
 
@@ -1024,7 +1030,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
                                         warmup_epochs=args.warmup_step, warmup_start_lr=args.lr*0.01)
         else:
             scheduler_sparse = None
-    elif args.scheduler == 'constant':
+    elif scheduler_name == 'constant':
         pass
 
     return scheduler, scheduler_sparse
@@ -1041,7 +1047,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], args.restart, args, model, on_cpu=False)
+            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, replace_model_config=args, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1094,13 +1100,9 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
                 break
 
         if args.dynamic_quantization:
-            model_qnt = torch.quantization.quantize_dynamic(model.cpu())
+            dynamic_quantization_torch_from_model(model.cpu())
 
-            model_qnt.word_emb.qconfig = torch.quantization.float_qparams_weight_only_qconfig
-            torch.quantization.prepare(model_qnt, inplace=True)
-            torch.quantization.convert(model_qnt, inplace=True)
-
-            save_checkpoint(args, model_qnt, model_config, optimizer, scheduler,
+            save_checkpoint(args, model, model_config, optimizer, scheduler,
                             scaler, vocab, epoch, last_batch, last_iter,
                             train_step, best_val_loss, False,
                             args.work_dir, prefix='qnt-')
@@ -1115,16 +1117,17 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
 
 def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
+    n_params = model.get_params()
     summary = {
-        'n_all_param': model.get_n_params(),
-        'n_nonemb_param': model.get_non_emb_params()
+        'n_all_param': n_params['total'],
+        'n_nonemb_param': n_params['non_embedding']
     }
 
     if not args.no_eval and os.path.exists(checkpoint_path):
-        # Load the best saved model.
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, args, on_cpu=False)
+        # Load the best saved model
+        model, _, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
 
-        # Run on test data.
+        # Run on test data
         test_start_time = time.time()
         node_metrix = evaluate(test_itr, model, args, eval_nomem=True)
         test_metrix = EvalMetrics(test_file_stats.word_count, *node_metrix)
@@ -1206,7 +1209,7 @@ def main():
     input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(
-        lambda: ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, args, model=None, on_cpu=True))
+        lambda: load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=True))
 
     summary.update({
         'experiment_name': args.experiment_name,
@@ -1255,11 +1258,14 @@ def main():
     dllogger.log(step=tuple(), data=summary)
 
     if args.post_qat:
+        # Creates a dictionary of replacement configs
+        replace_model_config = {
+            'dropout': 0.0,
+            'dropatt': 0.0
+        }
 
-        args.dropout = 0.0
-        args.dropatt = 0.0
         # Loads the model from the best pre-trained checkpoint
-        model, model_config, checkpoint = ArchaiModel.load_model(AVAILABLE_MODELS[args.model_type], checkpoint_path, args, on_cpu=False)
+        model, model_config, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, replace_model_config=replace_model_config, on_cpu=False)
 
         # Prepares the model with QAT (also allows for distributed training)
         model = prepare_with_qat(model, onnx_compatible=True)

@@ -4,7 +4,7 @@
 """Dictionary that allows the implementation and usage of Transformer-based models.
 """
 
-from archai.nlp.models.hf_gpt2.config_hf_gpt2 import HfGPT2Config
+from archai.nlp.models.hf_gpt2.config_hf_gpt2 import HfGPT2Config, HfGPT2FlexConfig
 from archai.nlp.models.hf_gpt2.model_hf_gpt2 import HfGPT2, HfGPT2Flex
 from archai.nlp.models.hf_gpt2.onnx_hf_gpt2 import HfGPT2OnnxConfig, HfGPT2OnnxModel
 
@@ -14,8 +14,7 @@ from archai.nlp.models.mem_transformer.onnx_mem_transformer import MemTransforme
 
 from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import HfTransfoXLConfig
 from archai.nlp.models.hf_transfo_xl.model_hf_transfo_xl import HfTransfoXL
-from archai.nlp.models.hf_transfo_xl.onnx_hf_transfo_xl import HfTransfoXLOnnxConfig, HfTransfoXLOnnxModel 
-
+from archai.nlp.models.hf_transfo_xl.onnx_hf_transfo_xl import HfTransfoXLOnnxConfig, HfTransfoXLOnnxModel
 
 # Available models and their configurations
 MODELS = {
@@ -24,9 +23,10 @@ MODELS = {
     'hf_transfo_xl': HfTransfoXL,
     'mem_transformer': MemTransformerLM
 }
+
 MODELS_CONFIGS = {
     'hf_gpt2': HfGPT2Config,
-    'hf_gpt2_flex': HfGPT2OnnxConfig,
+    'hf_gpt2_flex': HfGPT2FlexConfig,
     'hf_transfo_xl': HfTransfoXLConfig,
     'mem_transformer': MemTransformerLMConfig
 }
@@ -34,13 +34,12 @@ MODELS_CONFIGS = {
 # Available ONNX-based models and their configurations
 ONNX_MODELS = {
     'hf_gpt2': HfGPT2OnnxModel,
-    'hf_gpt2_flex': HfGPT2FlexOnnxModel,
     'hf_transfo_xl': HfTransfoXLOnnxModel,
     'mem_transformer': MemTransformerLMOnnxModel
 }
+
 ONNX_MODELS_CONFIGS = {
     'hf_gpt2': HfGPT2OnnxConfig,
-    'hf_gpt2_flex': HfGPT2FlexOnnxConfig,
     'hf_transfo_xl': HfTransfoXLOnnxConfig,
     'mem_transformer': MemTransformerLMOnnxConfig
 }
