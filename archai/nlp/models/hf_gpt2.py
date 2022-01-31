@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 from transformers import CONFIG_MAPPING
 
-from archai.nlp.models.archai_model import ArchaiModel
+from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_utils.utils import map_to_list
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 
