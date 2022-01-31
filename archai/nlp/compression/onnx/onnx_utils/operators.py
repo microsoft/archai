@@ -9,8 +9,7 @@ from typing import Optional
 import torch
 
 
-def triu_onnx(inputs: torch.FloatTensor,
-              diagonal: Optional[int] = 0) -> torch.FloatTensor:
+def triu_onnx(inputs: torch.FloatTensor, diagonal: Optional[int] = 0) -> torch.FloatTensor:
     """Caveat to export a triu-based operator with ONNX.
 
     Args:
@@ -30,8 +29,7 @@ def triu_onnx(inputs: torch.FloatTensor,
     return inputs.masked_fill(mask == 0, 0)
 
 
-def tril_onnx(inputs: torch.FloatTensor,
-              diagonal: Optional[int] = 0) -> torch.FloatTensor:
+def tril_onnx(inputs: torch.FloatTensor, diagonal: Optional[int] = 0) -> torch.FloatTensor:
     """Caveat to export a tril-based operator with ONNX.
 
     Args:
@@ -51,7 +49,7 @@ def tril_onnx(inputs: torch.FloatTensor,
     return inputs.masked_fill(mask == 0, 0)
 
 
-def register_trilu_operator():
+def register_trilu_operator() -> None:
     """Register triu/tril operators to make them available at ORT.
 
     """

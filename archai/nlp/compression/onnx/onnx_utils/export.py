@@ -10,10 +10,11 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-from archai.nlp.common.lazy_loader import load_from_args
+from onnx import helper, load_model, numpy_helper, save
+
+from archai.nlp.models.model_loader import load_from_args
 from archai.nlp.compression.onnx.onnx_utils.operators import (tril_onnx,
                                                               triu_onnx)
-from onnx import helper, load_model, numpy_helper, save
 
 
 def weight_sharing(onnx_model_path: str, model_type: str) -> None:
