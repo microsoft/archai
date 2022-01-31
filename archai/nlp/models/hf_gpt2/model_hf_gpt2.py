@@ -155,6 +155,4 @@ class HfGPT2(ArchaiModel):
         params['non_embedding'] = params['attention'] + params['ff']
         params['total'] = params['non_embedding'] + params['embedding']
 
-        print(params)
-
         return params
