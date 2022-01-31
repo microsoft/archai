@@ -1,54 +1,95 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import logging
-import os
-from abc import abstractmethod
-from typing import Optional, Tuple, Type
+"""Base model class, used to defined some common functionalities.
+"""
+
+from typing import Dict, List, Optional
 
 import torch
-import torch.nn as nn
 
-class ArchaiModel(nn.Module):
-    """Abstract model that is compatible with nvidia's transformer xl code base"""
 
-    @abstractmethod
-    def reset_length(self, tgt_len:int, ext_len:int, mem_len:int):
-        pass
+def _get_layers_from_module(module: torch.nn.Module,
+                            layer_type: Optional[str] = None) -> List[torch.nn.Module]:
+    """Gathers layers (including children ones) based on an input module.
 
-    @abstractmethod
-    def get_non_emb_params(self):
-        pass
+    Args:
+        module: Module to be iterated from.
+        layer_type: Type of layer to be retrieved.
 
-    def get_n_params(self):
-        return sum([p.nelement() for p in self.parameters()])
+    Returns:
+        (List[torch.nn.Module]): Input module and its children layers.       
 
-    @staticmethod
-    def load_model(model_cls: Type['ArchaiModel'], path:str, args, model:Optional['ArchaiModel']=None, on_cpu:Optional[bool]=False, for_export:Optional[bool]=False) -> Tuple['ArchaiModel', dict, dict]:
+    """
 
-        # case for restart
-        if os.path.isdir(path):
-            path = os.path.join(path, 'checkpoint_last.pt')
+    sub_module = list(module.children())
+    layers = []
 
-        logging.info(f'Loading {model.__class__.__name__} model from: {path}')
+    if layer_type is not None:
+        for lt in layer_type:
+            if module.__class__.__name__ == lt:
+                return module
+    else:
+        if len(sub_module) == 0 and len(list(module.parameters())) > 0:
+            return module
 
-        device = f'cuda:{torch.cuda.current_device()}' if not on_cpu and torch.cuda.is_available() else torch.device('cpu')
+    for m in sub_module:
+        try:
+            layers.extend(_get_layers_from_module(m, layer_type))
+        except TypeError:
+            layers.append(_get_layers_from_module(m, layer_type))
 
-        # Loads the checkpoint
-        checkpoint = torch.load(path, map_location=device)
-        model_config = checkpoint['model_config']
+    return layers
 
-        if args is not None:
-            logging.warning('Overwritting loaded model dropout config')
-            model_config['dropout'] = args.dropout
-            model_config['dropatt'] = args.dropatt
 
-        if for_export:
-            model_config['use_cache'] = True
+class ArchaiModel(torch.nn.Module):
+    """Base model that abstracts further models definitions.
+    
+    """
 
-        # Initializes the model
-        model = model_cls(**model_config) if model is None else model
-        model.load_state_dict(checkpoint['model_state'])
-        model.to(device)
+    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
+        """Resets the length of the memory (used by Transformer-XL).
 
-        return model, model_config, checkpoint
+        Args:
+            tgt_len: Length of target sample.
+            ext_len: Length of extended memory.
+            mem_len: Length of the memory.
+
+        """
+
+        raise NotImplementedError
+
+    def get_params_from_layer(self, layer_type: str) -> int:
+        """Returns the number of parameters based on a layer type.
+
+        Args:
+            layer_type: Type of layer to be searched.
+
+        Returns:
+            (int): Number of parameters from supplied layer.
+
+        """
+
+        layers = _get_layers_from_module(self, layer_type)
+        n_params = {}
+
+        for i, layer in enumerate(layers):
+            layer_name = layer.__class__.__name__ + '_' + str(i)
+            n_params[layer_name] = sum([p.nelement() for p in layer.parameters()])
+        
+        return sum(list(n_params.values()))
+
+    def get_params(self) -> Dict[str, int]:
+        """Returns a dictionary of total parameters per implemented layer.
+
+        Returns:
+            (Dict[str, int]): Number of total parameters.
+
+        """
+
+        params = {}
+
+        params['total'] = 0
+        params['non_embedding'] = 0
+
+        return params
