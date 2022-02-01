@@ -426,8 +426,6 @@ class Evolution:
         """
 
         population = []
-        # TODO: isn't this redundant? since we get it again below from converter?
-        gene_choice = self.gene_choice
 
         i = 0
         while i < n_samples:
