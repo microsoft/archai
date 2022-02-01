@@ -111,7 +111,23 @@ class HfGPT2(ArchaiModel):
             (Tuple[torch.Tensor, ...]): Outputs, such as loss, prediction scores,
                 memories and past key/values.
 
+<<<<<<< HEAD
         """
+=======
+    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
+        # There is no memory in GPT-2
+        pass
+
+    def get_params(self) -> Dict[str, int]:
+        params = {}
+
+        params['embedding'] = self.get_params_from_layer(['Embedding'])
+        params['attention'] = self.get_params_from_layer(['GPT2Attention'])
+        params['ff'] = self.get_params_from_layer(['GPT2MLP'])
+
+        params['non_embedding'] = params['attention'] + params['ff']
+        params['total'] = params['non_embedding'] + params['embedding']
+>>>>>>> 628e74a0 (fix(hf_gpt2): Fixes parameters calculation for HfGPT2 and HfGPT2Flex.)
 
         assert mems is None, 'GPT2 does not support memory (mems)'
 
