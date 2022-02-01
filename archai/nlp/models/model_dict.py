@@ -8,13 +8,15 @@ from archai.nlp.models.hf_gpt2.config_hf_gpt2 import HfGPT2Config, HfGPT2FlexCon
 from archai.nlp.models.hf_gpt2.model_hf_gpt2 import HfGPT2, HfGPT2Flex
 from archai.nlp.models.hf_gpt2.onnx_hf_gpt2 import HfGPT2OnnxConfig, HfGPT2OnnxModel
 
+from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import HfTransfoXLConfig
+from archai.nlp.models.hf_transfo_xl.model_hf_transfo_xl import HfTransfoXL
+from archai.nlp.models.hf_transfo_xl.onnx_hf_transfo_xl import HfTransfoXLOnnxConfig, HfTransfoXLOnnxModel
+
 from archai.nlp.models.mem_transformer.config_mem_transformer import MemTransformerLMConfig
 from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
 from archai.nlp.models.mem_transformer.onnx_mem_transformer import MemTransformerLMOnnxConfig, MemTransformerLMOnnxModel
 
-from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import HfTransfoXLConfig
-from archai.nlp.models.hf_transfo_xl.model_hf_transfo_xl import HfTransfoXL
-from archai.nlp.models.hf_transfo_xl.onnx_hf_transfo_xl import HfTransfoXLOnnxConfig, HfTransfoXLOnnxModel
+from archai.nlp.models.model_formulae import get_params_gpt2_formula, get_params_transformer_xl_formula
 
 # Available models and their configurations
 MODELS = {
@@ -29,6 +31,13 @@ MODELS_CONFIGS = {
     'hf_gpt2_flex': HfGPT2FlexConfig,
     'hf_transfo_xl': HfTransfoXLConfig,
     'mem_transformer': MemTransformerLMConfig
+}
+
+MODELS_PARAMS_FORMULAE = {
+    'hf_gpt2': get_params_gpt2_formula,
+    'hf_gpt2_flex': get_params_gpt2_formula,
+    'hf_transfo_xl': get_params_transformer_xl_formula,
+    'mem_transformer': get_params_transformer_xl_formula
 }
 
 # Available ONNX-based models and their configurations
