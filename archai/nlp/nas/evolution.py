@@ -29,13 +29,13 @@ class Evolution:
 
     def __init__(self,
                  results_path: str,
-                 population_size: Optional[int] = 125,
-                 parent_size: Optional[int] = 25,
-                 mutation_size: Optional[int] = 50,
+                 population_size: Optional[int] = 100,
+                 parent_size: Optional[int] = 20,
+                 mutation_size: Optional[int] = 40,
                  mutation_prob: Optional[float] = 0.3,
-                 crossover_size: Optional[int] = 50,
+                 crossover_size: Optional[int] = 40,
                  crossover_prob: Optional[float] = 0.5,
-                 n_iter: Optional[int] = 30,
+                 n_iter: Optional[int] = 10,
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
                  n_threads: Optional[int] = 1,
@@ -132,7 +132,7 @@ class Evolution:
 
         """
 
-        # sample initial population    
+        # Sample the initial population    
         population = self.sample_random_population(self.population_size)
 
         self.all_population = population
@@ -153,7 +153,7 @@ class Evolution:
 
         for i in range(self.n_iter):
             idx = 0 if i == 0 else self.parent_size
-            print(f'| Start Iteration {i}:')
+            print(f'Iteration {i+1}/{self.n_iter}')
 
             # calculate decoder params, latencies, memories
             population_params_unseen, \
@@ -185,11 +185,12 @@ class Evolution:
 
             self.update_pareto_front(is_decreasing=True)
 
-            # select parents for the next iteration from the 
-            # current estimate of the Pareto-frontierier
-            # give more weight to newer parents
+            # Select parents for the next iteration from the 
+            # current estimate of the Pareto-frontier, while givng more weight to newer parents
             count_weights = self.calculate_weighted_count()
-            selected_ind = np.random.choice(len(self.pareto['population']), size=self.parent_size, p=count_weights)
+            selected_ind = np.random.choice(len(self.pareto['population']),
+                                            size=self.parent_size,
+                                            p=count_weights)
 
             parents_population = [self.pareto['population'][m] for m in selected_ind]
             parents_params = [self.pareto['params'][m] for m in selected_ind]
@@ -197,25 +198,23 @@ class Evolution:
             parents_latencies = [self.pareto['latencies'][m] for m in selected_ind]
             parents_memories = [self.pareto['memories'][m] for m in selected_ind]
             
-            # mutate random k subset of the parents
-            # while ensuring the mutations fall within 
-            # desired constraint limits
+            # Mutates random `k` subsets of the parents
+            # while ensuring the mutations fall within desired constraint limits
             mutated_population, k = [], 0
             while k < self.mutation_size:
                 mutated_gene = self.mutation(random.choices(parents_population)[0])
-                if self.check_constraints(mutated_gene) and \
-                    not self._is_seen_before(mutated_gene):
+
+                if self.check_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
                     mutated_population.append(mutated_gene)
                     k += 1
 
-            # crossover random k subset of the parents
-            # while ensuring the crossovers fall within
-            # desired constraint limits
+            # Crossovers random `k` subsets of the parents
+            # while ensuring the crossovers fall within desired constraint limits
             crossovered_population, k = [], 0
             while k < self.crossover_size:
                 crossovered_gene = self.crossover(random.sample(parents_population, 2))
-                if self.check_constraints(crossovered_gene) and \
-                    not self._is_seen_before(crossovered_gene):
+
+                if self.check_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
                     crossovered_population.append(crossovered_gene)
                     k += 1
 
@@ -242,7 +241,8 @@ class Evolution:
 
             self.update_counts(population)
             self.all_population += mutated_population + crossovered_population
-            self.plot_search_state(iter=i, parents={'params': parents_params, 
+            self.plot_search_state(iter=i,
+                                   parents={'params': parents_params, 
                                             'total_params': parents_total_params, 
                                             'latencies': parents_latencies, 
                                             'memories': parents_memories})
@@ -251,15 +251,14 @@ class Evolution:
         with open(path_to_pkl, 'wb') as f:
             pickle.dump(logs, f)
 
-        # generate a command line per Pareto-frontier point
+        # Generates a command-line per Pareto-frontier point
         # which can be sent off to a cluster for training
         # TODO: do non-maximum suppression on the Pareto-frontier
         prepare_pareto_jobs(self.results_path, 
                             converter=self.converter,
-                            output_path=os.path.join(self.results_path, "all_pareto_jobs"))    
+                            output_path=os.path.join(self.results_path, 'all_pareto_jobs'))    
 
-        # generate command line for fully training all architectures
-        # visited during search
+        # Generate command-lines for fully training all architectures visited during search
         prepare_ground_truth_jobs(self.results_path,
                                   self.converter,
                                   max_step=40000,
@@ -268,7 +267,7 @@ class Evolution:
                                   n_gpus=8,
                                   model_type=self.model_type,
                                   gpu_config='dgx1_8gpu_fp32',
-                                  output_path=os.path.join(self.results_path, "all_visited_jobs")) 
+                                  output_path=os.path.join(self.results_path, 'all_visited_jobs')) 
 
     def _is_seen_before(self, gene: List[Any]) -> bool:
         """Checks whether gene has already been seen during search.
