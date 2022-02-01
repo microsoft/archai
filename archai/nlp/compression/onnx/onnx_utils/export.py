@@ -44,11 +44,9 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
     if model_type in ['hf_gpt2', 'hf_gpt2_flex']:
         n_emb_weight = 1
         n_cutoffs = 0
-
     elif model_type == 'mem_transformer':
         n_emb_weight = len(list(filter(lambda x: 'word_emb.emb_layers' in x, weights.keys())))
         n_cutoffs = n_emb_weight - 1
-
     else:
         raise ValueError(f'Model {model_type} not supported for weight sharing.')
 

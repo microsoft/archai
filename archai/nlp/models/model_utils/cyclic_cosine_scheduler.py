@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from collections.abc import Iterable
-from math import cos, floor, log, pi
+from math import log, cos, pi, floor
 
 from torch.optim.lr_scheduler import _LRScheduler
 
