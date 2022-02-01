@@ -102,6 +102,7 @@ class Evolution:
         self.best_config = None
         self.pareto = {'population': [],
                        'params': [],
+                       'total_params': [],
                        'latencies': [],
                        'memories': []}
 
@@ -425,6 +426,7 @@ class Evolution:
         """
 
         population = []
+        # TODO: isn't this redundant? since we get it again below from converter?
         gene_choice = self.gene_choice
 
         i = 0

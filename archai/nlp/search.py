@@ -127,7 +127,7 @@ def parse_args():
                             help='Candidates below total parameters will be rejected.')
 
     constraint.add_argument('--latency_constraint_upper',
-                            type=int,
+                            type=float,
                             default=None,
                             help='Candidates above latency will be rejected.')
 
