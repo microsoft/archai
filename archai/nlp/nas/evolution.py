@@ -14,7 +14,7 @@ from collections import defaultdict, Counter
 import numpy as np
 import plotly.graph_objects as go
 
-from archai.nlp.models.model_loader import load_from_args
+from archai.nlp.models.model_loader import load_config, load_model_from_config
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import prepare_pareto_jobs, prepare_ground_truth_jobs
 from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
@@ -90,16 +90,16 @@ class Evolution:
         
         # Model's default and search configurations
         self.model_type = model_type
-        self.model_config = load_from_args(model_type, cls_type='config')
+        self.model_config = load_config(model_type, config_type='default')
+        self.model_config_search = load_config(model_type, config_type='search')
 
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
-        model_config_search = copy.deepcopy(self.model_config.search)
-        model_config_search.update((k, v) for k, v in choices.items()
-                                   if k in self.model_config.search.keys() and v is not None)
+        self.model_config_search.update((k, v) for k, v in choices.items() 
+                                        if k in self.model_config_search.keys() and v is not None)
 
         # Converts between genes and configurations
-        self.converter = Converter(**model_config_search)
+        self.converter = Converter(**self.model_config_search)
         self.allowed_genes = self.converter.get_allowed_genes()
         self.gene_size = len(self.allowed_genes)
 
@@ -354,9 +354,9 @@ class Evolution:
         memories = []
 
         for i, config in enumerate(configs):
-            model_config = copy.deepcopy(self.model_config.default)
+            model_config = copy.deepcopy(self.model_config)
             model_config.update(config)
-            model = load_from_args(self.model_type, **model_config)
+            model = load_model_from_config(self.model_type, model_config)
 
             # if configs_from_jobs is not None:
             #     print('Checking if trained models match with population')
@@ -404,9 +404,9 @@ class Evolution:
         config = self.converter.gene_to_config(gene)
 
         # Loads model from current configuration
-        model_config = copy.deepcopy(self.model_config.default)
+        model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
-        model = load_from_args(self.model_type, **model_config)
+        model = load_model_from_config(self.model_type, model_config)
 
         # Checks the total number of parameters constraints
         total_params = measure_parameters(model, ['total'])
@@ -523,10 +523,10 @@ class Evolution:
         gene = [self.allowed_genes[k][-1] for k in range(self.gene_size)]
         config = self.converter.gene_to_config(gene)
 
-        model_config = copy.deepcopy(self.model_config.default)
+        model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
 
-        biggest_model = load_from_args(self.model_type, **model_config)
+        biggest_model = load_model_from_config(self.model_type, model_config)
 
         self.max_n_params =  measure_parameters(biggest_model, ['total'])
         self.max_decoder_params = measure_parameters(biggest_model, ['attention', 'ff'])

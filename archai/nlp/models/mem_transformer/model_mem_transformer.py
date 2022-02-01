@@ -1029,7 +1029,7 @@ class MemTransformerLM(ArchaiModel):
 
         return core_out, new_mems, pasts_key_values
 
-    def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor], mems:Optional[torch.Tensor],
+    def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor]=None, mems:Optional[torch.Tensor]=None,
                 past_key_values:Optional[torch.Tensor]=None, output_loss=True, output_prediction_scores=False):
         # input_ids and labels are transposed within the code to avoid major changes
         # input_ids -> [seq_len, batch_size], labels -> [seq_len, batch_size]
