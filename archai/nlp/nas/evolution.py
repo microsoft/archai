@@ -67,7 +67,10 @@ class Evolution:
         """
 
         self.results_path = results_path
+        self.n_iter = n_iter
+        self.use_quantization = use_quantization
 
+        # Sizes and probabilities of the search space
         self.population_size = population_size
         self.parent_size = parent_size
         self.mutation_size = mutation_size
@@ -76,16 +79,16 @@ class Evolution:
         self.crossover_prob = crossover_prob
         assert self.population_size == self.parent_size + self.mutation_size + self.crossover_size
 
-        self.n_iter = n_iter
-
+        # Total number of parameters and latency constraints
         self.param_constraint_lower = param_constraint_lower
         self.param_constraint_upper = param_constraint_upper
         self.latency_constraint_upper = latency_constraint_upper
         
-        self.n_threads = n_threads  # number of threads for latency measurement
-        self.latency_repeat = latency_repeat # number of runs for latency measurement
-        self.use_quantization = use_quantization
+        # Number of threads and runs for latency measurement
+        self.n_threads = n_threads
+        self.latency_repeat = latency_repeat
         
+        # Model's default and search configurations
         self.model_type = model_type
         self.model_config = load_from_args(model_type, cls_type='config')
 
@@ -95,25 +98,33 @@ class Evolution:
         model_config_search.update((k, v) for k, v in choices.items()
                                    if k in self.model_config.search.keys() and v is not None)
 
+        # Converts between genes and configurations
         self.converter = Converter(**model_config_search)
         self.allowed_genes = self.converter.get_allowed_genes()
         self.gene_size = len(self.allowed_genes)
+
+        with open(os.path.join(self.results_path, 'converter.pkl'), 'wb') as f:
+            pickle.dump(self.converter, f)
         
-        self.best_config = None
+        # Pareto-frontier points
         self.pareto = {'population': [],
                        'params': [],
                        'total_params': [],
                        'latencies': [],
                        'memories': []}
 
+        # All evaluated points
         self.all_population = []
         self.all_params = []
         self.all_total_params = []
         self.all_latencies = []
         self.all_memories = []
 
+        # Counter for the number of genes occurences
         self.counts = Counter()
 
+        # Performs a quick profiling over the search space
+        # to find the biggest architecture measurements
         self.profile()
 
     def search(self) -> None:
@@ -289,7 +300,7 @@ class Evolution:
         """
                 
         crossovered_gene = []
-        
+
         for k in range(self.gene_size):
             if np.random.uniform() < self.crossover_prob:
                 crossovered_gene.append(genes[0][k])
@@ -461,15 +472,18 @@ class Evolution:
 
         """
 
-        # Samples initial population
+        # Samples the initial population
         path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl') 
 
         if os.path.exists(path_to_population):
             with open(path_to_population, 'rb') as f:
                 population = pickle.load(f)
+
             population = population[:n_samples]
+
         else:
             population = self.sample_random_population(n_samples)
+
             with open(path_to_population, 'wb') as f:
                 pickle.dump(population, f)
 
@@ -485,6 +499,7 @@ class Evolution:
             self.all_params += curr_population_params
             self.all_latencies += curr_population_latencies
             self.all_memories += curr_population_memories
+
             self.update_pareto_front(is_decreasing=True)
 
             # NOTE: why this doesn't take 'iter'    
@@ -496,8 +511,7 @@ class Evolution:
                     'memories': curr_population_memories,
                     'pareto': self.pareto}
 
-            path_to_pkl = os.path.join(self.results_path, 'logs_bruteforce_{}.pkl'.format(idx))
-
+            path_to_pkl = os.path.join(self.results_path, f'logs_bruteforce_{idx}.pkl')
             with open(path_to_pkl, 'wb') as f:
                 print(f'Saving indices: {idx}-{idx+batch}')
                 pickle.dump(logs, f)
@@ -537,17 +551,16 @@ class Evolution:
 
         self.pareto = defaultdict(list)
 
-        # pareto over decoder params, latency, memory
-        # since decoder params higher is better for performance
-        # and memory and latency decreasing is better
-        # we convert decoder params to a decreasing quantity
-        # since the pareto finding function needs all of them
-        # to be either decreasing or increasing
+        # Pareto over decoder params, latency, memory since
+        # higher decoder params is better for performance and lower memory and latency are better
+        # Note we convert decoder params to a decreasing quantity since the pareto
+        # finding function needs all of them to be either decreasing or increasing
         xs = np.array(max(self.all_params)) - np.array(self.all_params).reshape(-1, 1)
         ys = np.array(self.all_latencies).reshape(-1, 1)
         zs = np.array(self.all_memories).reshape(-1, 1)
+
         points = np.concatenate((xs, ys, zs), axis=1)
-        p_inds = find_pareto_points(points, is_decreasing=True)
+        p_inds = find_pareto_points(points, is_decreasing=is_decreasing)
 
         assert points.shape[0] == len(self.all_population)
         assert points.shape[0] == len(self.all_params)
@@ -574,8 +587,8 @@ class Evolution:
         for gene in population:
             key = self.converter.gene_to_str(gene)
 
-            # Important to add as a dictionary 
-            # Prevents Counter from counting the characters in the string
+            # Important to add as a dictionary because it
+            # prevents Counter from counting the characters in the string
             self.counts.update({key: 1})
 
     def calculate_weighted_count(self) -> np.array:
