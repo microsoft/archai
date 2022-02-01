@@ -10,29 +10,14 @@ from archai.nlp.models.config_base import Config
 
 
 class MemTransformerLMConfig(Config):
-    """Provides a configuration for MemTransformerLM.
-
-    """
-
-    def __init__(self, **kwargs) -> None:
-        """Initializes the configuration.
-
-        """
-
-        super().__init__(**kwargs)
-
     @property
     def default(self) -> Dict[str, Any]:
-        """Defines the default configuration used by the class.
-
-        """
-
         return {
-            'd_head': None,
+            'd_head': -1,
             'n_token': 267736,
             'dropout': 0.1,
             'dropatt': 0.0,
-            'd_embed': None,
+            'd_embed': -1,
             'div_val': 4,
             'pre_lnorm': False,
             'tgt_len': 192,
@@ -53,10 +38,6 @@ class MemTransformerLMConfig(Config):
 
     @property
     def search(self) -> Dict[str, Any]:
-        """Defines the default configuration used when searching with the class.
-
-        """
-
         return {
             'n_layer': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             'd_model': [128, 256, 512, 768, 1024],

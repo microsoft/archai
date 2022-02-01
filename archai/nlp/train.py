@@ -25,8 +25,9 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from archai.common import ml_perf_utils, utils
+from archai.nlp.models.model_mixed_qat import MixedQATModel
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
-from archai.nlp.models.model_loader import (load_from_args,
+from archai.nlp.models.model_loader import (load_model_from_config,
                                            load_model_from_checkpoint)
 from archai.nlp.compression.quantization.qat import (prepare_with_qat,
                                                      qat_to_float_modules)
@@ -127,7 +128,7 @@ def parse_args():
     general.add_argument('--cache_dir', default='cache', type=str,
                          help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -136,13 +137,13 @@ def parse_args():
 
     model = parser.add_argument_group('model setup - defaults are for base model')
     model.add_argument('--model_type', default='mem_transformer', type=str,
-                     choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
+                     choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
                      help='Which model type to use')
     model.add_argument('--n_layer', type=int, default=16,
                        help='Number of total layers')
     model.add_argument('--n_head', nargs='+', type=int, default=8,
                        help='Number of heads')
-    model.add_argument('--d_head', nargs='+', type=int, default=64,
+    model.add_argument('--d_head', type=int, default=-1, # will be set by d_model // n_head
                        help='Head dimension')
     model.add_argument('--d_embed', type=int, default=-1, # will be set from d_model
                        help='Embedding dimension')
@@ -222,6 +223,8 @@ def parse_args():
                      help='Patience')
     opt.add_argument('--eta_min', type=float, default=0.001,
                      help='Min learning rate for cosine scheduler')
+    opt.add_argument('--mixed_qat', action='store_true',
+                     help='Only clip the gradient of non-embedding params')
 
     training = parser.add_argument_group('training setup')
     training.add_argument('--max_step', type=int, default=40000,
@@ -283,9 +286,6 @@ def parse_args():
 
     args.tied = not args.not_tied
 
-    if args.d_embed < 0:
-        args.d_embed = args.d_model
-
     if args.ext_len < 0:
         raise RuntimeError('Extended context length must be non-negative')
 
@@ -321,6 +321,10 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
         amp_state = scaler.state_dict()
     else:
         amp_state = None
+
+    # We never save MixedQAT wrapper, instead we save the fp32 regular model
+    if isinstance(model, MixedQATModel):
+        model = model.model
 
     state = {
         'args': args,
@@ -857,13 +861,20 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     if args.qat and not args.pretrained_path:
         logging.warning('QAT usually starts from a pretrained model. Check the --pretrained_path argument.')
 
+    if args.qat and args.mixed_qat:
+        raise ValueError('QAT and Mixed QAT cannot be used at the same time.')
+
     if args.pretrained_path:
-        model = load_model_from_checkpoint(args.model_type, args.pre_trained_path, on_cpu=False)
+        logging.info('Overwriting the provided model config with the pretrained model config.')
+        model, model_config, _ = load_model_from_checkpoint(args.model_type, args.pretrained_path, replace_model_config=args, on_cpu=False)
     else:
-        model = load_from_args(args.model_type, **model_config)
+        model = load_model_from_config(args.model_type, model_config)
 
     if args.qat:
         model = prepare_with_qat(model, onnx_compatible=True)
+
+    if args.mixed_qat:
+        model = MixedQATModel(model)
 
     n_params = model.get_params()
     n_all_param = n_params['total']
@@ -1029,7 +1040,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, on_cpu=False)
+            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, replace_model_config=args, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1106,10 +1117,10 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
     }
 
     if not args.no_eval and os.path.exists(checkpoint_path):
-        # Load the best saved model.
+        # Load the best saved model
         model, _, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=False)
 
-        # Run on test data.
+        # Run on test data
         test_start_time = time.time()
         node_metrix = evaluate(test_itr, model, args, eval_nomem=True)
         test_metrix = EvalMetrics(test_file_stats.word_count, *node_metrix)
@@ -1241,16 +1252,13 @@ def main():
 
     if args.post_qat:
         # Creates a dictionary of replacement configs
-        replace_config = {
+        replace_model_config = {
             'dropout': 0.0,
             'dropatt': 0.0
         }
 
         # Loads the model from the best pre-trained checkpoint
-        model, model_config, _ = load_model_from_checkpoint(args.model_type,
-                                                            checkpoint_path,
-                                                            replace_config=replace_config,
-                                                            on_cpu=False)
+        model, model_config, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, replace_model_config=replace_model_config, on_cpu=False)
 
         # Prepares the model with QAT (also allows for distributed training)
         model = prepare_with_qat(model, onnx_compatible=True)
@@ -1260,11 +1268,11 @@ def main():
         # QAT-based arguments
         args.restart = None
         args.qat = True
-        args.max_step = 5000
+        args.max_step = 10000
         args.lr = args.lr / 100
         args.eta_min = args.eta_min / 100
-        args.eval_interval = 500
-        args.warmup_step = 500
+        args.eval_interval = 1000
+        args.warmup_step = 1000
         args.optim = 'adam'
 
         # re-create optimizer

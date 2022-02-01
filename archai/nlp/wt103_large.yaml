@@ -9,7 +9,7 @@ train: &train
    n_layer: 18
    d_model: 1024
    n_head: 16
-   d_head: 64
+   d_head: -1
    d_inner: 4096
    dropout: 0.2
    dropatt: 0.2

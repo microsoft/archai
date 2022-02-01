@@ -1,5 +1,5 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Common-based methods and classes for the NLP package.
+"""Huggingface's Open AI GPT-2 utilities.
 """

@@ -16,20 +16,17 @@
 """
 
 import functools
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.common.mapping_utils import map_to_list
-from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import (
-    LogUniformSampler, sample_logits)
-from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import \
-    ProjectedAdaptiveLogSoftmax
+from archai.common.utils import map_to_list
+from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import LogUniformSampler, sample_logits
+from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.model_utils.primer_ez import (DWiseConvPrimerEZ,
-                                                     PositionwiseFFPrimerEZ)
+from archai.nlp.models.model_utils.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 
 
 @torch.jit.script
@@ -766,34 +763,8 @@ class DecoderLayer(nn.Module):
 
 
 class RelLearnableDecoderLayer(nn.Module):
-    """Implements a Relational Learnable Decoder layer.
-
-    """
-
-    def __init__(self,
-                 n_head: int,
-                 d_model: int,
-                 d_head: int,
-                 d_inner: int,
-                 dropout: float,
-                 primer_conv: Optional[bool] = False,
-                 primer_square: Optional[bool] = False,
-                 use_cache: Optional[bool] = False,
-                 **kwargs) -> None:
-        """Overrides initialization method.
-
-        Args:
-            n_head: Number of attention heads.
-            d_model: Dimensionality of the model.
-            d_head: Dimensionality of the attention heads.
-            d_inner: Dimensionality of the inner states.
-            dropout: Dropout ratio.
-            primer_conv: Whether to use the Primer-EZ convolution primitive.
-            primer_square: Whether to use the Primer-EZ squared ReLU primitive.
-            use_cache: Whether should save and use past key/values states.
-
-        """
-
+    def __init__(self, n_head, d_model, d_head, d_inner, dropout,
+                 primer_conv=False, primer_square=False, use_cache=False, **kwargs):
         super(RelLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelLearnableMultiHeadAttn(n_head, d_model, d_head,
@@ -840,34 +811,8 @@ class RelLearnableDecoderLayer(nn.Module):
 
 
 class RelPartialLearnableDecoderLayer(nn.Module):
-    """Implements a Relational Partial-Learnable Decoder layer.
-
-    """
-
-    def __init__(self,
-                 n_head: int,
-                 d_model: int,
-                 d_head: int,
-                 d_inner: int,
-                 dropout: float,
-                 primer_conv: Optional[bool] = False,
-                 primer_square: Optional[bool] = False,
-                 use_cache: Optional[bool] = False,
-                 **kwargs) -> None:
-        """Overrides initialization method.
-
-        Args:
-            n_head: Number of attention heads.
-            d_model: Dimensionality of the model.
-            d_head: Dimensionality of the attention heads.
-            d_inner: Dimensionality of the inner states.
-            dropout: Dropout ratio.
-            primer_conv: Whether to use the Primer-EZ convolution primitive.
-            primer_square: Whether to use the Primer-EZ squared ReLU primitive.
-            use_cache: Whether should save and use past key/values states.
-
-        """
-
+    def __init__(self, n_head, d_model, d_head, d_inner, dropout,
+                 primer_conv=False, primer_square=False, use_cache=False, **kwargs):
         super(RelPartialLearnableDecoderLayer, self).__init__()
 
         self.dec_attn = RelPartialLearnableMultiHeadAttn(n_head, d_model,
@@ -1010,87 +955,23 @@ class AdaptiveEmbedding(nn.Module):
         return embed
 
 class MemTransformerLM(ArchaiModel):
-    """Implements the Memory Transformer for language modeling (Transformer-XL).
-
-    """
-
-    def __init__(self,
-                 n_token: int,
-                 n_layer: Optional[int] = 16,
-                 n_head: Optional[int] = 8,
-                 d_model: Optional[int] = 512,
-                 d_head: Optional[int] = 64,
-                 d_inner: Optional[int] = 2048,
-                 dropout: Optional[float] = 0.1,
-                 dropatt: Optional[float] = 0.0,
-                 dtype: Optional[str] = None,
-                 tie_weight: Optional[bool] = True,
-                 d_embed: Optional[int] = 512,
-                 div_val: Optional[int] = 1,
-                 tie_projs: Optional[List[bool]] = None,
-                 pre_lnorm: Optional[bool] = False,
-                 tgt_len: Optional[int] = 192,
-                 ext_len: Optional[int] = 0,
-                 mem_len: Optional[int] = 192,
-                 cutoffs: Optional[List[int]] = None,
-                 adaptive: Optional[bool] = False,
-                 same_length: Optional[bool] = False,
-                 attn_type: Optional[int] = 0,
-                 clamp_len: Optional[int] = -1,
-                 sample_softmax: Optional[int] = -1,
-                 weight_init_type: Optional[str] ='normal',
-                 weight_init_range: Optional[float] = 0.1,
-                 weight_init_std: Optional[float] = 0.02,
-                 proj_init_std: Optional[float] = 0.01,
-                 init_std: Optional[float] = 0.02,
-                 primer_conv: Optional[bool] = False,
-                 primer_square: Optional[bool] = False,
-                 use_cache: Optional[bool] = False) -> None:
-        """Overrides inialization.
-
-        Args:
-            n_token: Number of maximum tokens.
-            n_layer: Number of layers.
-            n_head: Number of attention heads.
-            d_model: Dimensionality of the model.
-            d_head: Dimensionality of the attention head.
-            d_inner: Dimensionality of the inner state.
-            dropout: Dropout ratio.
-            dropatt: Dropout ratio for attention.
-            dtype: Type of variables.
-            tie_weight: Whether weights should be tied or not.
-            d_embed: Dimensionality of the embeddings.
-            div_val: Dividend for adaptive softmax.
-            tie_projs: Whether projections should be tied or not.
-            pre_lnorm: Whether to apply layer normalization before activation.
-            tgt_len: Target sequence length.
-            ext_len: Extended context length.
-            mem_len: Memory length.
-            cutoffs: Cutoffs for the adaptive softmax.
-            adaptive: Whether should use adaptive softmax or not.
-            same_length: Whether passes should have the same length or not.
-            attn_type: Type of attention layer.
-            clamp_len: Maximum length of the positional embeddings.
-            sample_softmax: Whether to sample from the softmax layer or not.
-            weight_init_type: Type of weights initialization.
-            weight_init_range: Range of weights initialization.
-            weight_init_std: Standard deviation of weights initialization.
-            proj_init_std: Standard deviation of projections initialization.
-            init_std: Standard deviation of initialization.
-            primer_conv: Whether to use the Primer-EZ convolution primitive.
-            primer_square: Whether to use the Primer-EZ squared ReLU primitive.
-            use_cache: Whether should save and use past key/values states.
-
-        """
-
+    def __init__(self, n_token, n_layer=16, n_head=8, d_model=512, d_head=64, d_inner=2048,
+                 dropout=0.1, dropatt=0.0, dtype=None, tie_weight=True, d_embed=512,
+                 div_val=1, tie_projs=None, pre_lnorm=False,
+                 tgt_len=192, ext_len=0, mem_len=192,
+                 cutoffs=None, adaptive=False,
+                 same_length=False, attn_type=0, clamp_len=-1, sample_softmax=-1,
+                 weight_init_type='normal', weight_init_range=0.1, weight_init_std=0.02,
+                 proj_init_std=0.01, init_std=0.02,
+                 primer_conv=False, primer_square=False, use_cache=False):
         super(MemTransformerLM, self).__init__()
 
         self.n_token = n_token # number of tokens in vocab
 
-        d_embed = d_model if d_embed is None else d_embed
+        d_embed = d_model if d_embed < 0 else d_embed
         d_inner = map_to_list(d_inner, n_layer)
         n_head = map_to_list(n_head, n_layer)
-        d_head = [d_model // n_h for n_h in n_head] if d_head is None else map_to_list(d_head, n_layer)
+        d_head = [d_model // n_h for n_h in n_head] if d_head < 0 else map_to_list(d_head, n_layer)
 
         assert len(d_inner) == n_layer and len(n_head) == n_layer and len(d_head) == n_layer
 
@@ -1190,14 +1071,7 @@ class MemTransformerLM(ArchaiModel):
         # ensure embedding init is not overridden by out_layer in case of weight sharing
         self.word_emb.apply(functools.partial(weights_init, **weight_init_params))
 
-    def get_params(self) -> Dict[str, int]:
-        """Returns a dictionary of total parameters per implemented layer.
-
-        Returns:
-            (Dict[str, int]): Number of total parameters.
-
-        """
-
+    def get_params(self):
         params = {}
 
         params['embedding'] = self.get_params_from_layer(['AdaptiveEmbedding'])
@@ -1209,11 +1083,6 @@ class MemTransformerLM(ArchaiModel):
         params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']
 
         return params
-
-    def backward_compatible(self) -> None:
-        """Allows for backward compatibility of the class.
-
-        """
 
         self.sample_softmax = -1
 
