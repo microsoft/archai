@@ -1040,7 +1040,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, replace_model_config=args, on_cpu=False)
+            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
