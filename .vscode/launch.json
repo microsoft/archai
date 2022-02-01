@@ -321,7 +321,8 @@
                     "--crossover_size", "4",
                     "--n_iter", "2",
                     "--use_quantization",
-                    "--model_type", "hf_gpt2"
+                    "--model_type", "hf_gpt2",
+                    "--latency_constraint_upper", "10.0",
                     ]
         },
         {
