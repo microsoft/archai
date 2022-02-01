@@ -116,15 +116,15 @@ def parse_args():
                         help='Choices for number of attention heads.')
 
     constraint = parser.add_argument_group('Constraints')
-    constraint.add_argument('--param_constraint_upper',
-                            type=int,
-                            default=12e6,
-                            help='Candidates above total parameters will be rejected.')
-
     constraint.add_argument('--param_constraint_lower',
                             type=int,
                             default=5e6,
                             help='Candidates below total parameters will be rejected.')
+
+    constraint.add_argument('--param_constraint_upper',
+                            type=int,
+                            default=12e6,
+                            help='Candidates above total parameters will be rejected.')
 
     constraint.add_argument('--latency_constraint_upper',
                             type=float,

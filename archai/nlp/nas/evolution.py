@@ -256,7 +256,7 @@ class Evolution:
         # TODO: do non-maximum suppression on the Pareto-frontier
         prepare_pareto_jobs(self.results_path, 
                             converter=self.converter,
-                            output_path=os.path.join(self.results_path, 'all_pareto_jobs'))    
+                            output_path=os.path.join(self.results_path, 'pareto_jobs'))    
 
         # Generate command-lines for fully training all architectures visited during search
         prepare_ground_truth_jobs(self.results_path,
@@ -267,7 +267,7 @@ class Evolution:
                                   n_gpus=8,
                                   model_type=self.model_type,
                                   gpu_config='dgx1_8gpu_fp32',
-                                  output_path=os.path.join(self.results_path, 'all_visited_jobs')) 
+                                  output_path=os.path.join(self.results_path, 'visited_jobs')) 
 
     def _is_seen_before(self, gene: List[Any]) -> bool:
         """Checks whether gene has already been seen during search.
