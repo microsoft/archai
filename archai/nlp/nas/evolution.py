@@ -14,6 +14,7 @@ from collections import defaultdict, Counter
 import numpy as np
 import plotly.graph_objects as go
 
+from archai.nlp.models.model_dict import MODELS_PARAMS_FORMULAE
 from archai.nlp.models.model_loader import load_config, load_model_from_config
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import prepare_pareto_jobs, prepare_ground_truth_jobs
@@ -412,6 +413,9 @@ class Evolution:
 
         # Checks the total number of parameters constraints
         total_params = measure_parameters(model, ['total'])
+
+        # print(total_params)
+        # print(MODELS_PARAMS_FORMULAE[self.model_type](model_config))
 
         if total_params < self.param_constraint_lower:
             print(f'Invalid gene: {gene} has {total_params} < {self.param_constraint_lower} parameters')

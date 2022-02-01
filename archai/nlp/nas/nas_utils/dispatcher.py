@@ -208,8 +208,8 @@ def prepare_ground_truth_jobs(results_path: str,
         if not key in pareto_keys:
             pareto_keys.append(key)
 
-    print(f'Number of Pareto-frontier points: {len(pareto_keys)}')
-    print(f'Population size: {len(logs["population"])}')
+    # print(f'Number of Pareto-frontier points: {len(pareto_keys)}')
+    # print(f'Population size: {len(logs["population"])}')
 
     pop_configs = []
 
@@ -243,7 +243,7 @@ def prepare_ground_truth_jobs(results_path: str,
                     latencies[key] = logs['latencies'][i][idx]
                     is_pareto_dict[key] = is_pareto[-1]
 
-    print(f'Total configurations: {len(pop_configs)} | On Pareto-frontier: {np.sum(is_pareto)}')
+    print(f'Total configurations: {len(pop_configs)} | Pareto-frontier: {np.sum(is_pareto)}')
     assert np.sum(list(is_pareto_dict.values())) == np.sum(is_pareto)
 
     latency_output_path = os.path.join(results_path, 'latencies.pkl')
