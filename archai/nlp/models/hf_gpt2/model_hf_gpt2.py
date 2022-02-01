@@ -95,7 +95,7 @@ class HfGPT2(ArchaiModel):
     def get_params(self) -> Dict[str, int]:
         params = {}
 
-        params['embedding'] = self.get_params_from_layer(['nn.Embedding'])
+        params['embedding'] = self.get_params_from_layer(['Embedding'])
         params['attention'] = self.get_params_from_layer(['GPT2Attention'])
         params['ff'] = self.get_params_from_layer(['GPT2MLP'])
 
@@ -189,7 +189,7 @@ class HfGPT2Flex(ArchaiModel):
     def get_params(self) -> Dict[str, int]:
         params = {}
 
-        params['embedding'] = self.get_params_from_layer(['nn.Embedding'])
+        params['embedding'] = self.get_params_from_layer(['Embedding'])
         params['attention'] = self.get_params_from_layer(['GPT2Attention'])
         params['ff'] = self.get_params_from_layer(['GPT2MLP'])
 
