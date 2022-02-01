@@ -623,12 +623,12 @@ class Evolution:
         return count_weights
 
     def plot_search_state(self,
-                          iter: Optional[int] = None,
+                          i: Optional[int] = None,
                           parents: Optional[Dict[str, Any]] = None) -> None:
         """Plots the state of search at every iteration.
 
         Args:
-            iter: Current iteration number.
+            i: Current iteration number.
             parents: Dictionary with parent samples.
 
         """
@@ -670,12 +670,12 @@ class Evolution:
                                      marker_color='green',
                                      showlegend=True,
                                      name='Parent architectures'))
-        fig.update_layout(title_text=f'Decoder params vs. Latency (s) at Iteration {iter}',
+        fig.update_layout(title_text=f'Decoder params vs. Latency (s) at Iteration {i}',
                           xaxis_title='Decoder params',
                           yaxis_title='Latency (s)')
 
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iter}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iter}.png')
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{i}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{i}.png')
 
         fig.write_html(savename_html)
         fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -701,12 +701,12 @@ class Evolution:
                                      marker_color='green',
                                      showlegend=True,
                                      name='Parent architectures'))
-        fig.update_layout(title_text=f'Total params vs. Latency (s) at Iteration {iter}',
+        fig.update_layout(title_text=f'Total params vs. Latency (s) at Iteration {i}',
                           xaxis_title='Total params',
                           yaxis_title='Latency (s)')
 
-        savename_html = os.path.join(self.results_path, f'total_params_vs_latency_iter_{iter}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_latency_iter_{iter}.png')
+        savename_html = os.path.join(self.results_path, f'total_params_vs_latency_iter_{i}.html')
+        savename_png = os.path.join(self.results_path, f'total_params_vs_latency_iter_{i}.png')
 
         fig.write_html(savename_html)
         fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -732,12 +732,12 @@ class Evolution:
                                       marker_color='green',
                                       showlegend=True,
                                       name='Parent architectures'))
-        fig1.update_layout(title_text=f'Decoder params vs. Memory (MB) at Iteration {iter}',
+        fig1.update_layout(title_text=f'Decoder params vs. Memory (MB) at Iteration {i}',
                            xaxis_title='Decoder params',
                            yaxis_title='Memory (MB)')
 
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iter}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iter}.png')
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{i}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{i}.png')
 
         fig1.write_html(savename_html)
         fig1.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -763,12 +763,12 @@ class Evolution:
                                       marker_color='green',
                                       showlegend=True,
                                       name='Parent architectures'))
-        fig1.update_layout(title_text=f'Total params vs. Memory (MB) at Iteration {iter}',
+        fig1.update_layout(title_text=f'Total params vs. Memory (MB) at Iteration {i}',
                            xaxis_title='Total params',
                            yaxis_title='Memory (MB)')
 
-        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_iter_{iter}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_iter_{iter}.png')
+        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_iter_{i}.html')
+        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_iter_{i}.png')
 
         fig1.write_html(savename_html)
         fig1.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -801,8 +801,8 @@ class Evolution:
                                       yaxis_title='Memory (MB)',
                                       zaxis_title='Latency (s)'))
 
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{iter}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_latency_iter_{iter}.png')
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{i}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_latency_iter_{i}.png')
 
         fig3.write_html(savename_html)
         fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -835,8 +835,8 @@ class Evolution:
                                       yaxis_title='Memory (MB)',
                                       zaxis_title='Latency (s)'))
 
-        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_vs_latency_iter_{iter}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_latency_iter_{iter}.png')
+        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_vs_latency_iter_{i}.html')
+        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_latency_iter_{i}.png')
 
         fig3.write_html(savename_html)
         fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
