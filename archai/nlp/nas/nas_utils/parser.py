@@ -10,7 +10,7 @@
 # import re
 # import time
 # from typing import Dict, List, Optional, Tuple
-from typing import Any
+# from typing import Any
 
 # import matplotlib.pyplot as plt
 # import numpy as np
@@ -434,23 +434,23 @@ from typing import Any
 #     return latencies_list, params_list, val_ppls
 
 
-def parse_values_from_yaml(value: Any) -> str:
-    """Parses incoming values from a YAML file.
+# def parse_values_from_yaml(value: Any) -> str:
+#     """Parses incoming values from a YAML file.
 
-    Args:
-        value: Incoming value.
+#     Args:
+#         value: Incoming value.
 
-    Returns:
-        (str): String holding the parsed values.
+#     Returns:
+#         (str): String holding the parsed values.
 
-    """
+#     """
 
-    if isinstance(value, list):
-        value_string = ''
-        for v in value:
-            value_string += (str(v) + ' ')
+#     if isinstance(value, list):
+#         value_string = ''
+#         for v in value:
+#             value_string += (str(v) + ' ')
 
-        return value_string[:-1]
+#         return value_string[:-1]
 
-    else:
-        return str(value)
+#     else:
+#         return str(value)
