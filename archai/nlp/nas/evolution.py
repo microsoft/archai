@@ -177,11 +177,13 @@ class Evolution:
             self.all_latencies += population_latencies_unseen
             self.all_memories += population_memories_unseen
 
-            print('all_population len:', len(self.all_population), 
-            'all_params len:', len(self.all_params),
-            'all_total_params len:', len(self.all_total_params), 
-            'all_latencies len:', len(self.all_latencies),
-            'all_memories len:', len(self.all_memories))
+            print(f'Number of population points: {len(self.all_population)}')
+            
+            # print('all_population len:', len(self.all_population), 
+            # 'all_params len:', len(self.all_params),
+            # 'all_total_params len:', len(self.all_total_params), 
+            # 'all_latencies len:', len(self.all_latencies),
+            # 'all_memories len:', len(self.all_memories))
 
             self.update_pareto_front(is_decreasing=True)
 
@@ -241,7 +243,7 @@ class Evolution:
 
             self.update_counts(population)
             self.all_population += mutated_population + crossovered_population
-            self.plot_search_state(iter=i,
+            self.plot_search_state(iteration=i,
                                    parents={'params': parents_params, 
                                             'total_params': parents_total_params, 
                                             'latencies': parents_latencies, 
@@ -622,12 +624,12 @@ class Evolution:
         return count_weights
 
     def plot_search_state(self,
-                          i: Optional[int] = None,
+                          iteration: Optional[int] = None,
                           parents: Optional[Dict[str, Any]] = None) -> None:
         """Plots the state of search at every iteration.
 
         Args:
-            i: Current iteration number.
+            iteration: Current iteration number.
             parents: Dictionary with parent samples.
 
         """
@@ -669,12 +671,12 @@ class Evolution:
                                      marker_color='green',
                                      showlegend=True,
                                      name='Parent architectures'))
-        fig.update_layout(title_text=f'Decoder params vs. Latency (s) at Iteration {i}',
+        fig.update_layout(title_text=f'Decoder params vs. Latency (s) at Iteration {iteration}',
                           xaxis_title='Decoder params',
                           yaxis_title='Latency (s)')
 
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{i}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{i}.png')
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iteration}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iteration}.png')
 
         fig.write_html(savename_html)
         fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -700,12 +702,12 @@ class Evolution:
                                      marker_color='green',
                                      showlegend=True,
                                      name='Parent architectures'))
-        fig.update_layout(title_text=f'Total params vs. Latency (s) at Iteration {i}',
+        fig.update_layout(title_text=f'Total params vs. Latency (s) at Iteration {iteration}',
                           xaxis_title='Total params',
                           yaxis_title='Latency (s)')
 
-        savename_html = os.path.join(self.results_path, f'total_params_vs_latency_iter_{i}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_latency_iter_{i}.png')
+        savename_html = os.path.join(self.results_path, f'total_params_vs_latency_iter_{iteration}.html')
+        savename_png = os.path.join(self.results_path, f'total_params_vs_latency_iter_{iteration}.png')
 
         fig.write_html(savename_html)
         fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -731,12 +733,12 @@ class Evolution:
                                       marker_color='green',
                                       showlegend=True,
                                       name='Parent architectures'))
-        fig1.update_layout(title_text=f'Decoder params vs. Memory (MB) at Iteration {i}',
+        fig1.update_layout(title_text=f'Decoder params vs. Memory (MB) at Iteration {iteration}',
                            xaxis_title='Decoder params',
                            yaxis_title='Memory (MB)')
 
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{i}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{i}.png')
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iteration}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iteration}.png')
 
         fig1.write_html(savename_html)
         fig1.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -762,12 +764,12 @@ class Evolution:
                                       marker_color='green',
                                       showlegend=True,
                                       name='Parent architectures'))
-        fig1.update_layout(title_text=f'Total params vs. Memory (MB) at Iteration {i}',
+        fig1.update_layout(title_text=f'Total params vs. Memory (MB) at Iteration {iteration}',
                            xaxis_title='Total params',
                            yaxis_title='Memory (MB)')
 
-        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_iter_{i}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_iter_{i}.png')
+        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_iter_{iteration}.html')
+        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_iter_{iteration}.png')
 
         fig1.write_html(savename_html)
         fig1.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -800,8 +802,8 @@ class Evolution:
                                       yaxis_title='Memory (MB)',
                                       zaxis_title='Latency (s)'))
 
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{i}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_latency_iter_{i}.png')
+        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{iteration}.html')
+        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_latency_iter_{iteration}.png')
 
         fig3.write_html(savename_html)
         fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
@@ -834,8 +836,8 @@ class Evolution:
                                       yaxis_title='Memory (MB)',
                                       zaxis_title='Latency (s)'))
 
-        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_vs_latency_iter_{i}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_latency_iter_{i}.png')
+        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_vs_latency_iter_{iteration}.html')
+        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_latency_iter_{iteration}.png')
 
         fig3.write_html(savename_html)
         fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)

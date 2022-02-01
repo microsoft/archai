@@ -166,7 +166,7 @@ class HfGPT2(ArchaiModel):
 
         params['embedding'] = self.get_params_from_layer(['Embedding'])
         params['attention'] = self.get_params_from_layer(['GPT2Attention'])
-        params['ff'] = self.get_params_from_layer(['GPT2MLP'])
+        params['ff'] = self.get_params_from_layer(['GPT2MLPFlex'])
 
         params['non_embedding'] = params['attention'] + params['ff']
         params['total'] = params['non_embedding'] + params['embedding']
