@@ -17,7 +17,7 @@ import plotly.graph_objects as go
 from archai.nlp.models.model_dict import MODELS_PARAMS_FORMULAE
 from archai.nlp.models.model_loader import load_config, load_model_from_config
 from archai.nlp.nas.nas_utils.converter import Converter
-from archai.nlp.nas.nas_utils.dispatcher import prepare_pareto_jobs, prepare_ground_truth_jobs
+from archai.nlp.nas.nas_utils.dispatcher import create_pareto_jobs, create_ground_truth_jobs
 from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
 from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency, measure_parameters,
                                                   measure_peak_memory)
@@ -263,19 +263,17 @@ class Evolution:
         # Generates a command-line per Pareto-frontier point
         # which can be sent off to a cluster for training
         # TODO: do non-maximum suppression on the Pareto-frontier
-        prepare_pareto_jobs(self.results_path, 
+        create_pareto_jobs(self.results_path, 
                             converter=self.converter,
+                            model_type=self.model_type,
+                            max_step=40000,
                             output_path=os.path.join(self.results_path, 'pareto_jobs'))    
 
         # Generate command-lines for fully training all architectures visited during search
-        prepare_ground_truth_jobs(self.results_path,
+        create_ground_truth_jobs(self.results_path,
                                   self.converter,
-                                  max_step=40000,
-                                  start_config=0,
-                                  n_jobs=20,
-                                  n_gpus=8,
                                   model_type=self.model_type,
-                                  gpu_config='dgx1_8gpu_fp32',
+                                  max_step=40000,
                                   output_path=os.path.join(self.results_path, 'visited_jobs')) 
 
     def _is_seen_before(self, gene: List[Any]) -> bool:
