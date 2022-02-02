@@ -32,7 +32,7 @@ def parse_args():
                         choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
                         help='Type of model to be searched.')
 
-    search.add_argument('--model_config_file',
+    search.add_argument('--model_config',
                         type=str,
                         default=None,
                         help='YAML configuration file to override default configuration.')
@@ -185,10 +185,10 @@ if __name__ == '__main__':
 
     # Loads model configuration file (if provided)
     try:
-        with open(args['model_config_file'], 'r') as f:
-            args['model_config_file'] = yaml.load(f, Loader=yaml.Loader)['train']
+        with open(args['model_config'], 'r') as f:
+            args['model_config'] = yaml.load(f, Loader=yaml.Loader)['train']
     except:
-        args['model_config_file'] = {}
+        args['model_config'] = {}
 
     # Runs the evolutionary search or the brute force version
     run_search(args, do_brute_force=args['do_brute_force'])
