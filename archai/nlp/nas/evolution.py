@@ -30,6 +30,8 @@ class Evolution:
 
     def __init__(self,
                  results_path: str,
+                 model_type: Optional[str] = 'mem_transformer',
+                 model_config_file: Optional[Dict[str, Any]] = None,
                  population_size: Optional[int] = 100,
                  parent_size: Optional[int] = 20,
                  mutation_size: Optional[int] = 40,
@@ -37,18 +39,19 @@ class Evolution:
                  crossover_size: Optional[int] = 40,
                  crossover_prob: Optional[float] = 0.5,
                  n_iter: Optional[int] = 10,
+                 use_quantization: Optional[bool] = False,
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
+                 latency_constraint_upper: Optional[float] = None,
                  n_threads: Optional[int] = 1,
                  latency_repeat: Optional[int] = 5,
-                 latency_constraint_upper: Optional[float] = None,
-                 model_type: Optional[str] = 'mem_transformer',
-                 use_quantization: Optional[bool] = False,
                  **choices) -> None:
         """Initializes attributes.
 
         Args:
             results_path: Path to the folder that will save the results.
+            model_type: Type of model.
+            model_config_file: YAML configuration file to override default configuration.
             population_size: Size of the population.
             parent_size: Size of the parent genes.
             mutation_size: Size of the mutated genes.
@@ -56,13 +59,12 @@ class Evolution:
             crossover_size: Size of the crossovered genes.
             crossover_prob: Probability of crossover.
             n_iter: Number of search iterations.
+            use_quantization: Whether should use quantization or not.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
+            latency_constraint_upper: Any model which has higher latency is rejected.
             n_threads: Number of inference threads.
             latency_repeat: Number of latency measurements.
-            latency_constraint_upper: Any model which has higher latency is rejected.
-            model_type: Type of model.
-            use_quantization: Whether should use quantization or not.
             choices: Additional keyword arguments that represent hyperparameters choices.
 
         """
@@ -93,6 +95,10 @@ class Evolution:
         self.model_type = model_type
         self.model_config = load_config(model_type, config_type='default')
         self.model_config_search = load_config(model_type, config_type='search')
+
+        # Overrides default configuration with inputted ones
+        self.model_config.update((k, v) for k, v in model_config_file.items() 
+                                 if k in self.model_config.keys() and v is not None)
 
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
