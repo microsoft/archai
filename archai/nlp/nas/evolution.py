@@ -31,7 +31,7 @@ class Evolution:
     def __init__(self,
                  results_path: str,
                  model_type: Optional[str] = 'mem_transformer',
-                 model_config_file: Optional[Dict[str, Any]] = None,
+                 model_config: Optional[Dict[str, Any]] = None,
                  population_size: Optional[int] = 100,
                  parent_size: Optional[int] = 20,
                  mutation_size: Optional[int] = 40,
@@ -51,7 +51,7 @@ class Evolution:
         Args:
             results_path: Path to the folder that will save the results.
             model_type: Type of model.
-            model_config_file: YAML configuration file to override default configuration.
+            model_config: Model configuration to override default configuration.
             population_size: Size of the population.
             parent_size: Size of the parent genes.
             mutation_size: Size of the mutated genes.
@@ -97,7 +97,7 @@ class Evolution:
         self.model_config_search = load_config(model_type, config_type='search')
 
         # Overrides default configuration with inputted ones
-        self.model_config.update((k, v) for k, v in model_config_file.items() 
+        self.model_config.update((k, v) for k, v in model_config.items() 
                                  if k in self.model_config.keys() and v is not None)
 
         # Prevents non-available keys from being used during search
