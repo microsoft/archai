@@ -170,7 +170,8 @@ if __name__ == '__main__':
     torch.manual_seed(args['seed'])
 
     # Initializes the results' path
-    results_path = f'{args["model_type"]}_lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s_{args["device_name"]}'
+    results_path_str = f'{args["model_type"]}_lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s_{args["device_name"]}'
+    results_path = os.path.join(args['default_path'], results_path_str)
     args['results_path'] = utils.full_path(results_path, create=True)
 
     # Dumps the search configuration to a YAML file
