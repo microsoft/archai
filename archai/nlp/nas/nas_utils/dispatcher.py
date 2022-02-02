@@ -16,21 +16,21 @@ from archai.common import utils
 from archai.nlp.nas.nas_utils.converter import Converter
 
 
-def wt103_job(configs: List[Dict[str, Any]],
-              max_step: int,
-              n_gpus: int,
-              model_type: str,
-              gpu_config: str,
-              is_pareto: Optional[bool] = None) -> str:
-    """Creates a command-line command that launches a new job.
-    
-    Note that this function is specific to WikiText-103 dataset.
+def create_batch_jobs(configs: List[Dict[str, Any]],
+                      default_config_file: str,
+                      model_type: str,
+                      max_step: int,
+                      n_gpus: int,
+                      gpu_config: str,
+                      is_pareto: Optional[bool] = None) -> str:
+    """Creates a batch of command-line jobs.
 
     Args:
         configs: List of configuration dictionaries.
+        default_config_file: Default configuration file.
+        model_type: Type of model.
         max_step: Maximum number of training steps.
         n_gpus: Number of GPUs.
-        model_type: Type of model.
         gpu_config: GPU configuration to be used.
         is_pareto: Whether job is from Pareto-frontier or not.
 
@@ -42,46 +42,55 @@ def wt103_job(configs: List[Dict[str, Any]],
     command = []
 
     for i, config in enumerate(configs):
-        n_layer = config['n_layer']
+        # Makes sure that d_embed and d_head are defined properly
         config['d_embed'] = config['d_model']
         config['d_head'] = [config['d_model'] // n_head for n_head in config['n_head']]
+        
+        # Maps incoming configuration values to a string-based representation
+        n_layer = config['n_layer']
+        config_line = ''
 
         for key, value in config.items():
             if isinstance(value, list):
                 str_value = ' '.join(str(v) for v in value[:n_layer])
             else:
                 str_value = str(value)
-            config[key] = str_value
+            config_line += f' --{key} {str_value}'
 
+        # Checks whether job comes from pareto points, which should have a specific identifier
         is_pareto_str = '_pareto' if (is_pareto is not None and is_pareto[i]) else ''
         exp_name = f'j_{i}{is_pareto_str}'
 
+        # Creates the command-line
         line = f'python -m torch.distributed.launch --nproc_per_node={n_gpus} archai/nlp/train.py --model_type {model_type} --config {gpu_config} ' \
-               f'--config_file wt103_base.yaml --n_layer {config["n_layer"]} --n_head {config["n_head"]} --d_model {config["d_model"]} --d_head {config["d_head"]} ' \
-               f'--d_inner {config["d_inner"]} --d_embed {config["d_embed"]} --max_step {max_step} --experiment_name {exp_name}'
+               f'--config_file {default_config_file} --max_step {max_step} --experiment_name {exp_name}' \
+               f'{config_line}'
+        
         command.append(line)
 
     return command
 
 
 def create_jobs(configs: List[Dict[str, Any]],
+                default_config_file: Optional[str] = 'wt103_base.yaml',
+                model_type: Optional[str] = 'mem_transformer',
                 max_step: Optional[int] = 500,
                 start_config: Optional[int] = 0,
                 n_jobs: Optional[int] = 50,
                 n_gpus: Optional[int] = 8,
-                model_type: Optional[str] = 'mem_transformer',
                 gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
                 is_pareto: Optional[bool] = None,
                 output_path: Optional[str] = '~/configs') -> None:
-    """Creates a batch of jobs.
+    """Creates command-line jobs.
 
     Args:
         configs: List of configurations.
+        default_config_file: Default configuration file.
+        model_type: Type of model.
         max_step: Number of maximum steps to train the models.
         start_config: Starting range of the configuration to be checked.
         n_jobs: Number of jobs to be created.
         n_gpus: Number of GPUs to be used.
-        model_type: Type of model.
         gpu_config: GPU configuration.
         is_pareto: Whether job is from Pareto-frontier or not.
         output_path: Save folder for the created command-lines.
@@ -98,9 +107,9 @@ def create_jobs(configs: List[Dict[str, Any]],
         jobs_config['jobs'] = [{}]
 
         if is_pareto is not None:
-            jobs_config['jobs'][0]['command'] = wt103_job(copy.deepcopy(configs[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
+            jobs_config['jobs'][0]['command'] = create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), default_config_file, model_type, max_step, n_gpus, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
         else:
-            jobs_config['jobs'][0]['command'] = wt103_job(copy.deepcopy(configs[c:c+n_jobs]), max_step, n_gpus, model_type, gpu_config)
+            jobs_config['jobs'][0]['command'] = create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), default_config_file, model_type, max_step, n_gpus, gpu_config)
 
         output_config_file = os.path.join(output_config_path, f'train_{config_idx}.yaml')
         with open(output_config_file, 'w') as f:
@@ -110,25 +119,27 @@ def create_jobs(configs: List[Dict[str, Any]],
         config_idx += 1
 
 
-def prepare_pareto_jobs(results_path: str, 
-                        converter: Converter,
-                        max_step: Optional[int] = 500,
-                        start_config: Optional[int] = 0,
-                        n_jobs: Optional[int] = 50,
-                        n_gpus: Optional[int] = 8,
-                        model_type: Optional[str] = 'mem_transformer',
-                        gpu_config: Optional[str] = 'dgx1_8gpu_fp32',                             
-                        output_path: Optional[str] = '~/configs') -> None:
+def create_pareto_jobs(results_path: str, 
+                       converter: Converter,
+                       default_config_file: Optional[str] = 'wt103_base.yaml',
+                       model_type: Optional[str] = 'mem_transformer',
+                       max_step: Optional[int] = 500,
+                       start_config: Optional[int] = 0,
+                       n_jobs: Optional[int] = 50,
+                       n_gpus: Optional[int] = 8,
+                       gpu_config: Optional[str] = 'dgx1_8gpu_fp32',                             
+                       output_path: Optional[str] = '~/configs') -> None:
     """Prepares command-line for training Pareto-frontier jobs.
 
     Args:
         results_path: Path to search results.
         converter: Converter class object.
+        default_config_file: Default configuration file.
+        model_type: Type of model.
         max_step: Number of maximum steps to train the models.
         start_config: Starting range of the configuration to be checked.
         n_jobs: Number of jobs to be created.
         n_gpus: Number of GPUs to be used.
-        model_type: Type of model.
         gpu_config: GPU configuration.
         output_path: Save folder for the created command-lines.
 
@@ -159,35 +170,38 @@ def prepare_pareto_jobs(results_path: str,
             is_pareto.append(True)
 
     create_jobs(pareto_configs,
+                default_config_file=default_config_file,
+                model_type=model_type,
                 max_step=max_step,
                 start_config=start_config,
                 n_jobs=n_jobs,
                 n_gpus=n_gpus,
-                model_type=model_type,
                 gpu_config=gpu_config, 
                 is_pareto=is_pareto,
                 output_path=output_path)
 
 
-def prepare_ground_truth_jobs(results_path: str,
-                              converter: Converter,
-                              max_step: Optional[int] = 500,
-                              start_config: Optional[int] = 0,
-                              n_jobs: Optional[int] = 50,
-                              n_gpus: Optional[int] = 8,
-                              model_type: Optional[str] = 'mem_transformer',
-                              gpu_config: Optional[str] = 'dgx1_8gpu_fp32',                             
-                              output_path: Optional[str] = '~/configs') -> None:
+def create_ground_truth_jobs(results_path: str,
+                             converter: Converter,
+                             default_config_file: Optional[str] = 'wt103_base.yaml',
+                             model_type: Optional[str] = 'mem_transformer',
+                             max_step: Optional[int] = 500,
+                             start_config: Optional[int] = 0,
+                             n_jobs: Optional[int] = 50,
+                             n_gpus: Optional[int] = 8,
+                             gpu_config: Optional[str] = 'dgx1_8gpu_fp32',                             
+                             output_path: Optional[str] = '~/configs') -> None:
     """Prepares command-lines for training all visited points during search.
 
     Args:
         results_path: Path to search results.
         converter: Converter class object.
+        default_config_file: Default configuration file.
+        model_type: Type of model.
         max_step: Number of maximum steps to train the models.
         start_config: Starting range of the configuration to be checked.
         n_jobs: Number of jobs to be created.
         n_gpus: Number of GPUs to be used.
-        model_type: Type of model.
         gpu_config: GPU configuration.
         output_path: Save folder for the created command-lines.
 
@@ -255,11 +269,12 @@ def prepare_ground_truth_jobs(results_path: str,
         pickle.dump(is_pareto_dict, f)
 
     create_jobs(pop_configs,
+                default_config_file=default_config_file,
+                model_type=model_type,
                 max_step=max_step,
                 start_config=start_config,
                 n_jobs=n_jobs,
                 n_gpus=n_gpus,
-                model_type=model_type,
                 gpu_config=gpu_config, 
                 is_pareto=is_pareto,
                 output_path=output_path)
