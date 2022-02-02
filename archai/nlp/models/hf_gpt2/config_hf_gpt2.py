@@ -10,7 +10,22 @@ from archai.nlp.models.config_base import Config
 
 
 class HfGPT2Config(Config):
-    """Provides a configuration for HfGPT2.
+    @property
+    def default(self) -> Dict[str, Any]:
+        return {
+            'd_model': 512,
+            'd_inner': 2048,
+            'd_head': -1,
+            'd_embed': -1,
+            'n_layer': 16,
+            'n_head': 8,
+            'dropout': 0.1,
+            'dropatt': 0.0,
+            'tgt_len': 192,
+            'n_token': 10000,
+            'weight_init_std': 0.0,
+            'tie_weight': True
+        }
 
     """
 
@@ -33,7 +48,7 @@ class HfGPT2Config(Config):
             'dropout': 0.1,
             'dropatt': 0.0,
             'tgt_len': 192,
-            'n_token': 267736,
+            'n_token': 10000,
             'weight_init_std': 0.0,
             'tie_weight': True,
             'primer_square': False
