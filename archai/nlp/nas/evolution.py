@@ -539,20 +539,28 @@ class Evolution:
 
         """
 
-        # largest model    
+        def _profile_model(config: Dict[str, Any]) -> Tuple[int, int, float, float]:
+            model_config = copy.deepcopy(self.model_config)
+            model_config.update(config)
+
+            model = load_model_from_config(self.model_type, model_config)
+
+            params = measure_parameters(model, ['attention', 'ff'])
+            total_params =  measure_parameters(model, ['total'])
+            latency = measure_inference_latency(model, use_quantization=self.use_quantization)
+            peak_memory = measure_peak_memory(model, use_quantization=self.use_quantization)
+
+            return params, total_params, latency, peak_memory
+
+        # Largest model    
         max_gene = [self.allowed_genes[k][-1] for k in range(self.gene_size)]
         max_config = self.converter.gene_to_config(max_gene)
 
-        max_model_config = copy.deepcopy(self.model_config)
-        max_model_config.update(max_config)
+        self.max_params, \
+        self.max_total_params, \
+        self.max_latency, \
+        self.max_peak_memory = _profile_model(max_config)
 
-        biggest_model = load_model_from_config(self.model_type, max_model_config)
-
-        self.max_params = measure_parameters(biggest_model, ['attention', 'ff'])
-        self.max_total_params =  measure_parameters(biggest_model, ['total'])
-        self.max_latency = measure_inference_latency(biggest_model, use_quantization=self.use_quantization)
-        self.max_peak_memory = measure_peak_memory(biggest_model, use_quantization=self.use_quantization)
-        
         print(f'''Largest model in this space has: 
                 {max_config}
                 {self.max_params} decoder params
@@ -560,19 +568,14 @@ class Evolution:
                 {self.max_latency:.4f}s latency
                 {self.max_peak_memory:.4f}MB memory''')
 
-        # smallest model
+        # Smallest model
         min_gene = [self.allowed_genes[k][0] for k in range(self.gene_size)]
         min_config = self.converter.gene_to_config(min_gene)
 
-        min_model_config = copy.deepcopy(self.model_config)
-        min_model_config.update(min_config)
-
-        smallest_model = load_model_from_config(self.model_type, min_model_config)
-
-        self.min_params = measure_parameters(smallest_model, ['attention', 'ff'])
-        self.min_total_params =  measure_parameters(smallest_model, ['total'])
-        self.min_latency = measure_inference_latency(smallest_model, use_quantization=self.use_quantization)
-        self.min_peak_memory = measure_peak_memory(smallest_model, use_quantization=self.use_quantization)
+        self.min_params, \
+        self.min_total_params, \
+        self.min_latency, \
+        self.min_peak_memory = _profile_model(min_config)
         
         print(f'''Smallest model in this space has: 
                 {min_config}
