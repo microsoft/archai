@@ -409,13 +409,25 @@ class Evolution:
         # Loads model from current configuration
         model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
+
+        # first check if model passes number of parameter
+        # constraints via analytical means since it is fast
+        total_params_analytical = MODELS_PARAMS_FORMULAE[self.model_type](model_config)['total']
+
+        if total_params_analytical < self.param_constraint_lower:
+            print(f'Invalid gene: {gene} has {total_params_analytical/1e6}M < {self.param_constraint_lower/1e6}M parameters')
+            return False
+    
+        if total_params_analytical > self.param_constraint_upper:
+            print(f'Invalid gene: {gene} has {total_params_analytical/1e6}M > {self.param_constraint_upper/1e6}M parameters')
+            return False
+
+        # if here then model passed analytical check, 
+        # so let's create it and measure again.
         model = load_model_from_config(self.model_type, model_config)
 
         # Checks the total number of parameters constraints
         total_params = measure_parameters(model, ['total'])
-
-        # print(total_params)
-        # print(MODELS_PARAMS_FORMULAE[self.model_type](model_config))
 
         if total_params < self.param_constraint_lower:
             print(f'Invalid gene: {gene} has {total_params} < {self.param_constraint_lower} parameters')
@@ -433,7 +445,7 @@ class Evolution:
                                                 n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint_upper:
-                print(f'Invalid gene: {gene} has {latency} > {self.latency_constraint_upper} latency')
+                print(f'Invalid gene: {gene} has {latency} sec > {self.latency_constraint_upper} sec latency')
                 return False
 
         return True
@@ -461,6 +473,7 @@ class Evolution:
             if self.check_constraints(sampled_gene):
                 population.append(sampled_gene)
                 i += 1
+                print(f'found a contraint range respecting architecture. number: {i}')
 
         return population
 
@@ -526,13 +539,14 @@ class Evolution:
 
         """
 
-        gene = [self.allowed_genes[k][-1] for k in range(self.gene_size)]
-        config = self.converter.gene_to_config(gene)
+        # largest model    
+        max_gene = [self.allowed_genes[k][-1] for k in range(self.gene_size)]
+        max_config = self.converter.gene_to_config(max_gene)
 
-        model_config = copy.deepcopy(self.model_config)
-        model_config.update(config)
+        max_model_config = copy.deepcopy(self.model_config)
+        max_model_config.update(max_config)
 
-        biggest_model = load_model_from_config(self.model_type, model_config)
+        biggest_model = load_model_from_config(self.model_type, max_model_config)
 
         self.max_n_params =  measure_parameters(biggest_model, ['total'])
         self.max_decoder_params = measure_parameters(biggest_model, ['attention', 'ff'])
@@ -540,11 +554,33 @@ class Evolution:
         self.max_peak_memory = measure_peak_memory(biggest_model, use_quantization=self.use_quantization)
         
         print(f'''Largest model in this space has: 
-                {config}
+                {max_config}
                 {self.max_n_params} total params
                 {self.max_decoder_params} decoder params
                 {self.max_latency:.4f}s latency
                 {self.max_peak_memory:.4f}MB memory''')
+
+        # smallest model
+        min_gene = [self.allowed_genes[k][0] for k in range(self.gene_size)]
+        min_config = self.converter.gene_to_config(min_gene)
+
+        min_model_config = copy.deepcopy(self.model_config)
+        min_model_config.update(min_config)
+
+        smallest_model = load_model_from_config(self.model_type, min_model_config)
+
+        self.min_n_params =  measure_parameters(smallest_model, ['total'])
+        self.min_decoder_params = measure_parameters(smallest_model, ['attention', 'ff'])
+        self.min_latency = measure_inference_latency(smallest_model, use_quantization=self.use_quantization)
+        self.min_peak_memory = measure_peak_memory(smallest_model, use_quantization=self.use_quantization)
+        
+        print(f'''Smallest model in this space has: 
+                {min_config}
+                {self.min_n_params} total params
+                {self.min_decoder_params} decoder params
+                {self.min_latency:.4f}s latency
+                {self.min_peak_memory:.4f}MB memory''')
+        
 
     def update_pareto_front(self, is_decreasing: Optional[bool] = True) -> None:
         """Updates the Pareto-frontier of the evolutionary search.
