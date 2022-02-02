@@ -555,8 +555,8 @@ class Evolution:
         
         print(f'''Largest model in this space has: 
                 {max_config}
-                {self.max_params} total params
-                {self.max_decoder_params} decoder params
+                {self.max_params} decoder params
+                {self.max_total_params} total params
                 {self.max_latency:.4f}s latency
                 {self.max_peak_memory:.4f}MB memory''')
 
@@ -569,15 +569,15 @@ class Evolution:
 
         smallest_model = load_model_from_config(self.model_type, min_model_config)
 
-        self.min_params =  measure_parameters(smallest_model, ['total'])
-        self.min_decoder_params = measure_parameters(smallest_model, ['attention', 'ff'])
+        self.min_params = measure_parameters(smallest_model, ['attention', 'ff'])
+        self.min_total_params =  measure_parameters(smallest_model, ['total'])
         self.min_latency = measure_inference_latency(smallest_model, use_quantization=self.use_quantization)
         self.min_peak_memory = measure_peak_memory(smallest_model, use_quantization=self.use_quantization)
         
         print(f'''Smallest model in this space has: 
                 {min_config}
-                {self.min_params} total params
-                {self.min_decoder_params} decoder params
+                {self.min_params} decoder params
+                {self.min_total_params} total params
                 {self.min_latency:.4f}s latency
                 {self.min_peak_memory:.4f}MB memory''')
         
