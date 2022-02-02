@@ -48,5 +48,5 @@ class MixedQATModel(ArchaiModel):
     def reset_length(self, *args, **kwargs):
         return self.model.reset_length(*args, **kwargs)
 
-    def get_non_emb_params(self):
-        return self.model.get_non_emb_params()
+    def get_params(self):
+        return self.model.get_params()
