@@ -32,6 +32,11 @@ def parse_args():
                         choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
                         help='Type of model to be searched.')
 
+    search.add_argument('--model_config_file',
+                        type=str,
+                        default=None,
+                        help='YAML configuration file to override default configuration.')
+
     search.add_argument('--population_size',
                         type=int,
                         default=100,
@@ -160,16 +165,16 @@ if __name__ == '__main__':
     # Gathers the command line arguments
     args = parse_args()
 
-    # Gathers the latency constraint based on device
-    if args['latency_constraint_upper'] is None:
-        args['latency_constraint_upper'] = DEVICE_LATENCY_CONSTRAINT[args['device_name']]
-
     # Applies random seeds
     np.random.seed(args['seed'])
     random.seed(args['seed'])
     torch.manual_seed(args['seed'])
 
-    # Initializes the results' path
+    # Gathers the latency constraint based on device
+    if args['latency_constraint_upper'] is None:
+        args['latency_constraint_upper'] = DEVICE_LATENCY_CONSTRAINT[args['device_name']]
+
+    # Initializes the result's path
     results_path_str = f'{args["model_type"]}_lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s_{args["device_name"]}'
     results_path = os.path.join(args['default_path'], results_path_str)
     args['results_path'] = utils.full_path(results_path, create=True)
@@ -177,6 +182,13 @@ if __name__ == '__main__':
     # Dumps the search configuration to a YAML file
     with open(os.path.join(args['results_path'], 'search_config.yaml'), 'w') as f:
         yaml.dump(args, f)
+
+    # Loads model configuration file (if provided)
+    try:
+        with open(args['model_config_file'], 'r') as f:
+            args['model_config_file'] = yaml.load(f, Loader=yaml.Loader)['train']
+    except:
+        args['model_config_file'] = {}
 
     # Runs the evolutionary search or the brute force version
     run_search(args, do_brute_force=args['do_brute_force'])
