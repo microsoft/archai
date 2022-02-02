@@ -30,6 +30,8 @@ class Evolution:
 
     def __init__(self,
                  results_path: str,
+                 model_type: Optional[str] = 'mem_transformer',
+                 model_config: Optional[Dict[str, Any]] = None,
                  population_size: Optional[int] = 100,
                  parent_size: Optional[int] = 20,
                  mutation_size: Optional[int] = 40,
@@ -37,18 +39,19 @@ class Evolution:
                  crossover_size: Optional[int] = 40,
                  crossover_prob: Optional[float] = 0.5,
                  n_iter: Optional[int] = 10,
+                 use_quantization: Optional[bool] = False,
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
+                 latency_constraint_upper: Optional[float] = None,
                  n_threads: Optional[int] = 1,
                  latency_repeat: Optional[int] = 5,
-                 latency_constraint_upper: Optional[float] = None,
-                 model_type: Optional[str] = 'mem_transformer',
-                 use_quantization: Optional[bool] = False,
                  **choices) -> None:
         """Initializes attributes.
 
         Args:
             results_path: Path to the folder that will save the results.
+            model_type: Type of model.
+            model_config: Model configuration to override default configuration.
             population_size: Size of the population.
             parent_size: Size of the parent genes.
             mutation_size: Size of the mutated genes.
@@ -56,13 +59,12 @@ class Evolution:
             crossover_size: Size of the crossovered genes.
             crossover_prob: Probability of crossover.
             n_iter: Number of search iterations.
+            use_quantization: Whether should use quantization or not.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
+            latency_constraint_upper: Any model which has higher latency is rejected.
             n_threads: Number of inference threads.
             latency_repeat: Number of latency measurements.
-            latency_constraint_upper: Any model which has higher latency is rejected.
-            model_type: Type of model.
-            use_quantization: Whether should use quantization or not.
             choices: Additional keyword arguments that represent hyperparameters choices.
 
         """
@@ -93,6 +95,10 @@ class Evolution:
         self.model_type = model_type
         self.model_config = load_config(model_type, config_type='default')
         self.model_config_search = load_config(model_type, config_type='search')
+
+        # Overrides default configuration with inputted ones
+        self.model_config.update((k, v) for k, v in model_config.items() 
+                                 if k in self.model_config.keys() and v is not None)
 
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
@@ -156,12 +162,11 @@ class Evolution:
             idx = 0 if i == 0 else self.parent_size
             print(f'Iteration {i+1}/{self.n_iter}')
 
-            # calculate decoder params, latencies, memories
+            # Calculates decoder parameters, total parameters, latencies and memories
             population_params_unseen, \
             population_total_params_unseen, \
             population_latencies_unseen, \
-            population_memories_unseen = \
-                self.calculate_memory_latency(population[idx:])
+            population_memories_unseen = self.calculate_constraints(population[idx:])
 
             population_params = parents_params + population_params_unseen
             population_total_params = parents_total_params + population_total_params_unseen
@@ -188,18 +193,18 @@ class Evolution:
 
             self.update_pareto_front(is_decreasing=True)
 
-            # Select parents for the next iteration from the 
-            # current estimate of the Pareto-frontier, while givng more weight to newer parents
+            # Selects parents for the next iteration from the current estimate
+            # of the Pareto-frontier while givng more weight to newer parents
             count_weights = self.calculate_weighted_count()
-            selected_ind = np.random.choice(len(self.pareto['population']),
+            selected_idx = np.random.choice(len(self.pareto['population']),
                                             size=self.parent_size,
                                             p=count_weights)
 
-            parents_population = [self.pareto['population'][m] for m in selected_ind]
-            parents_params = [self.pareto['params'][m] for m in selected_ind]
-            parents_total_params = [self.pareto['total_params'][m] for m in selected_ind]
-            parents_latencies = [self.pareto['latencies'][m] for m in selected_ind]
-            parents_memories = [self.pareto['memories'][m] for m in selected_ind]
+            parents_population = [self.pareto['population'][m] for m in selected_idx]
+            parents_params = [self.pareto['params'][m] for m in selected_idx]
+            parents_total_params = [self.pareto['total_params'][m] for m in selected_idx]
+            parents_latencies = [self.pareto['latencies'][m] for m in selected_idx]
+            parents_memories = [self.pareto['memories'][m] for m in selected_idx]
             
             # Mutates random `k` subsets of the parents
             # while ensuring the mutations fall within desired constraint limits
@@ -221,6 +226,7 @@ class Evolution:
                     crossovered_population.append(crossovered_gene)
                     k += 1
 
+            # Appends current information to the logs
             logs['population'].append(copy.deepcopy(population))
             logs['params'].append(copy.deepcopy(population_params))
             logs['total_params'].append(copy.deepcopy(population_total_params))
@@ -229,8 +235,8 @@ class Evolution:
             logs['parents'].append(copy.deepcopy(parents_population))
             logs['pareto'].append(copy.deepcopy(self.pareto))
 
-            path_to_pkl = os.path.join(self.results_path, f'logs_itr{i}.pkl')
-            with open(path_to_pkl, 'wb') as f:
+            logs_path = os.path.join(self.results_path, f'logs_itr_{i}.pkl')
+            with open(logs_path, 'wb') as f:
                 pickle.dump({'population': logs['population'][-1],
                              'params': logs['params'][-1],
                              'total_params': logs['total_params'][-1],
@@ -250,8 +256,8 @@ class Evolution:
                                             'latencies': parents_latencies, 
                                             'memories': parents_memories})
 
-        path_to_pkl = os.path.join(self.results_path, 'logs.pkl')
-        with open(path_to_pkl, 'wb') as f:
+        logs_path = os.path.join(self.results_path, 'logs.pkl')
+        with open(logs_path, 'wb') as f:
             pickle.dump(logs, f)
 
         # Generates a command-line per Pareto-frontier point
@@ -332,26 +338,23 @@ class Evolution:
 
         return mutated_gene
 
-    def calculate_memory_latency(self,
-                                 genes: List[List[Any]] ) -> Tuple[List[int], List[float], List[float]]:
-        """Calculates decoder params, total params, memory and latency.
+    def calculate_constraints(self, genes: List[List[Any]]) -> Tuple[List[int], List[int], List[float], List[float]]:
+        """Calculates decoder parameters, total parameters, memory and latency.
 
         Args:
             genes: List of genes.
 
         Returns:
-            (Tuple[List[int], List[float], List[float]]): decoder parameters, total params,
-                latencies and memories. 
+            (Tuple[List[int], List[int], List[float], List[float]]): Decoder parameters,
+                total parameters, latencies and memories. 
 
         """
 
         configs = []
         for gene in genes:
             configs.append(self.converter.gene_to_config(gene))
-
-        # configs_from_jobs = None
         
-        decoder_params = []
+        params = []
         total_params = []
         latencies = []
         memories = []
@@ -360,17 +363,12 @@ class Evolution:
             model_config = copy.deepcopy(self.model_config)
             model_config.update(config)
             model = load_model_from_config(self.model_type, model_config)
-
-            # if configs_from_jobs is not None:
-            #     print('Checking if trained models match with population')
-            #     for k, v in config.items():
-            #         assert v == configs_from_jobs[i][k]
             
-            # Decoder params
+            # Decoder parameters
             d_params = measure_parameters(model, ['attention', 'ff'])
-            decoder_params.append(d_params)
+            params.append(d_params)
 
-            # Total params
+            # Total parameters
             t_params = measure_parameters(model, ['total'])
             total_params.append(t_params)
 
@@ -386,11 +384,11 @@ class Evolution:
             memories.append(memory)
             
         # Sanity checking
-        assert len(decoder_params) == len(latencies)
-        assert len(decoder_params) == len(memories)
-        assert len(decoder_params) == len(total_params)
+        assert len(params) == len(latencies)
+        assert len(params) == len(memories)
+        assert len(params) == len(total_params)
         
-        return decoder_params, total_params, latencies, memories
+        return params, total_params, latencies, memories
 
     def check_constraints(self, gene: List[Any]) -> bool:
         """Checks whether gene fulfill constraints or not.
@@ -510,11 +508,14 @@ class Evolution:
         for idx in range(0, n_samples, batch):
             curr_population = population[idx:idx+batch]
 
-            curr_population_params, curr_population_latencies, curr_population_memories = \
-            self.calculate_memory_latency(curr_population)
+            curr_population_params, \
+            curr_population_total_params, \
+            curr_population_latencies, \
+            curr_population_memories = self.calculate_constraints(curr_population)
 
             self.all_population += curr_population
             self.all_params += curr_population_params
+            self.all_total_params += curr_population_total_params
             self.all_latencies += curr_population_latencies
             self.all_memories += curr_population_memories
 
@@ -525,12 +526,13 @@ class Evolution:
 
             logs = {'population': population,
                     'params': curr_population_params,
+                    'total_params': curr_population_total_params,
                     'latencies': curr_population_latencies,
                     'memories': curr_population_memories,
                     'pareto': self.pareto}
 
-            path_to_pkl = os.path.join(self.results_path, f'logs_bruteforce_{idx}.pkl')
-            with open(path_to_pkl, 'wb') as f:
+            logs_path = os.path.join(self.results_path, f'logs_bruteforce_{idx}.pkl')
+            with open(logs_path, 'wb') as f:
                 print(f'Saving indices: {idx}-{idx+batch}')
                 pickle.dump(logs, f)
 
@@ -548,8 +550,8 @@ class Evolution:
 
         biggest_model = load_model_from_config(self.model_type, max_model_config)
 
-        self.max_n_params =  measure_parameters(biggest_model, ['total'])
-        self.max_decoder_params = measure_parameters(biggest_model, ['attention', 'ff'])
+        self.max_params = measure_parameters(biggest_model, ['attention', 'ff'])
+        self.max_total_params =  measure_parameters(biggest_model, ['total'])
         self.max_latency = measure_inference_latency(biggest_model, use_quantization=self.use_quantization)
         self.max_peak_memory = measure_peak_memory(biggest_model, use_quantization=self.use_quantization)
         
@@ -674,38 +676,38 @@ class Evolution:
 
         """
 
-        all_decoder_params = np.asarray(self.all_params)
+        all_params = np.asarray(self.all_params)
         all_total_params = np.asarray(self.all_total_params)
         all_latencies = np.asarray(self.all_latencies)
         all_memories = np.asarray(self.all_memories)
 
-        pareto_decoder_params = np.asarray(self.pareto['params'])
+        pareto_params = np.asarray(self.pareto['params'])
         pareto_total_params = np.asarray(self.pareto['total_params'])
         pareto_latencies = np.asarray(self.pareto['latencies'])
         pareto_memories = np.asarray(self.pareto['memories'])
 
         if parents:
-            parents_decoder_params = np.asarray(parents['params'])
+            parents_params = np.asarray(parents['params'])
             parents_total_params = np.asarray(parents['total_params'])
             parents_latencies = np.asarray(parents['latencies'])
             parents_memories = np.asarray(parents['memories'])
 
         # 2D plot #decoder params vs latencies 
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=all_decoder_params, 
+        fig.add_trace(go.Scatter(x=all_params, 
                                  y=all_latencies, 
                                  mode='markers',
                                  marker_color='blue',
                                  showlegend=True,
                                  name='All visited architectures'))
-        fig.add_trace(go.Scatter(x=pareto_decoder_params,
+        fig.add_trace(go.Scatter(x=pareto_params,
                                  y=pareto_latencies,
                                  mode='markers',
                                  marker_color='red',
                                  showlegend=True,
                                  name='Pareto architectures'))
         if parents:
-            fig.add_trace(go.Scatter(x=parents_decoder_params,
+            fig.add_trace(go.Scatter(x=parents_params,
                                      y=parents_latencies,
                                      mode='markers',
                                      marker_color='green',
@@ -754,20 +756,20 @@ class Evolution:
 
         # 2D plot #decoder params vs memories
         fig1 = go.Figure()
-        fig1.add_trace(go.Scatter(x=all_decoder_params, 
+        fig1.add_trace(go.Scatter(x=all_params, 
                                   y=all_memories, 
                                   mode='markers',
                                   marker_color='blue',
                                   showlegend=True,
                                   name='All visited architectures'))
-        fig1.add_trace(go.Scatter(x=pareto_decoder_params,
+        fig1.add_trace(go.Scatter(x=pareto_params,
                                   y=pareto_memories,
                                   mode='markers',
                                   marker_color='red',
                                   showlegend=True,
                                   name='Pareto architectures'))
         if parents:
-            fig1.add_trace(go.Scatter(x=parents_decoder_params,
+            fig1.add_trace(go.Scatter(x=parents_params,
                                       y=parents_memories,
                                       mode='markers',
                                       marker_color='green',
@@ -816,14 +818,14 @@ class Evolution:
 
         # 3D plot decoder params vs. latencies vs. memories
         fig3 = go.Figure()
-        fig3.add_trace(go.Scatter3d(x=all_decoder_params, 
+        fig3.add_trace(go.Scatter3d(x=all_params, 
                                     y=all_memories,
                                     z=all_latencies, 
                                     mode='markers',
                                     marker_color='blue',
                                     showlegend=True,
                                     name='All visited architectures'))
-        fig3.add_trace(go.Scatter3d(x=pareto_decoder_params,
+        fig3.add_trace(go.Scatter3d(x=pareto_params,
                                     y=pareto_memories,
                                     z=pareto_latencies,
                                     mode='markers',
@@ -831,7 +833,7 @@ class Evolution:
                                     showlegend=True,
                                     name='Pareto architectures'))
         if parents:
-            fig3.add_trace(go.Scatter3d(x=parents_decoder_params,
+            fig3.add_trace(go.Scatter3d(x=parents_params,
                                         y=parents_memories,
                                         z=parents_latencies,
                                         mode='markers',
