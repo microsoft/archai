@@ -16,7 +16,7 @@ from archai.nlp.models.mem_transformer.config_mem_transformer import MemTransfor
 from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
 from archai.nlp.models.mem_transformer.onnx_mem_transformer import MemTransformerLMOnnxConfig, MemTransformerLMOnnxModel
 
-from archai.nlp.models.model_formulae import get_params_gpt2_formula, get_params_gpt2_flex_formula, get_params_transformer_xl_formula
+from archai.nlp.models.model_formulae import get_params_hf_gpt2_formula, get_params_hf_gpt2_flex_formula, get_params_hf_transfo_xl_formula, get_params_mem_transformer_formula
 
 # Available models and their configurations
 MODELS = {
@@ -34,10 +34,10 @@ MODELS_CONFIGS = {
 }
 
 MODELS_PARAMS_FORMULAE = {
-    'hf_gpt2': get_params_gpt2_formula,
-    'hf_gpt2_flex': get_params_gpt2_flex_formula,
-    'hf_transfo_xl': get_params_transformer_xl_formula,
-    'mem_transformer': get_params_transformer_xl_formula
+    'hf_gpt2': get_params_hf_gpt2_formula,
+    'hf_gpt2_flex': get_params_hf_gpt2_flex_formula,
+    'hf_transfo_xl': get_params_hf_transfo_xl_formula,
+    'mem_transformer': get_params_mem_transformer_formula
 }
 
 # Available ONNX-based models and their configurations
