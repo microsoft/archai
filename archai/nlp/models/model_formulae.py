@@ -31,6 +31,47 @@ def get_params_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
         'embedding': 0,
         'attention': 0,
         'ff': 0,
+        'layer_norm': 0,
+        'non_embedding': 0,
+        'total': 0
+    }
+    
+    # Embedding layer: (n_token * d_embed) + (tgt_len * d_embed)
+    params['embedding'] = n_token * d_embed + tgt_len * d_embed
+
+    for _ in range(len(n_head)):
+        # Attention layer
+        # QKV: (d_model * 3 * n_head * d_head + 3 * n_head * d_head)
+        params['attention'] += d_model * 3 * n_head[0] * d_head[0] + 3 * n_head[0] * d_head[0]
+
+        # Projection: (n_head * d_head * d_model + d_model)
+        params['attention'] += n_head[0] * d_head[0] * d_model + d_model
+
+        # Feed-forward layer: (d_model * d_inner + d_inner) + (d_inner * d_model + d_model)
+        params['ff'] += (d_model * d_inner[0] + d_inner[0]) + (d_inner[0] * d_model + d_model)
+
+        # Layer normalization: (2 * d_model) * 2 layers
+        params['layer_norm'] += 2 * d_model * 2
+
+    # Final layer normalization
+    params['layer_norm'] += 2 * d_embed
+
+    params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm']
+    params['total'] = params['embedding'] + params['non_embedding']
+
+    return params
+
+
+def get_params_gpt2_flex_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
+    # Gathers hyperparameters
+    n_token, tgt_len, d_model, d_embed, d_inner, n_head, d_head = _get_hyperparams(model_config)
+
+    # Defines an empty dictionary of parameters
+    params = {
+        'embedding': 0,
+        'attention': 0,
+        'ff': 0,
+        'layer_norm': 0,
         'non_embedding': 0,
         'total': 0
     }
@@ -49,7 +90,13 @@ def get_params_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
         # Feed-forward layer: (d_model * d_inner + d_inner) + (d_inner * d_model + d_model)
         params['ff'] += (d_model * d_i + d_i) + (d_i * d_model + d_model)
 
-    params['non_embedding'] = params['attention'] + params['ff']
+        # Layer normalization: (2 * d_model) * 2 layers
+        params['layer_norm'] += 2 * d_model * 2
+
+    # Final layer normalization
+    params['layer_norm'] += 2 * d_embed
+
+    params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm']
     params['total'] = params['embedding'] + params['non_embedding']
 
     return params
@@ -58,6 +105,12 @@ def get_params_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
 def get_params_transformer_xl_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
     # Gathers hyperparameters
     n_token, tgt_len, d_model, d_embed, d_inner, n_head, d_head = _get_hyperparams(model_config)
+    div_val = model_config['div_val']
+    cutoffs = model_config['cutoffs'] + [n_token]
+    cutoff_ends = [0] + cutoffs
+    n_clusters = len(cutoffs) - 1
+    tie_projs = model_config['tie_projs']
+    tie_weight = model_config['tie_weight']
 
     # Defines an empty dictionary of parameters
     params = {
@@ -65,6 +118,7 @@ def get_params_transformer_xl_formula(model_config: Dict[str, Any]) -> Dict[str,
         'softmax': 0,
         'attention': 0,
         'ff': 0,
+        'layer_norm': 0,
         'non_embedding': 0,
         'total': 0
     }
@@ -86,14 +140,37 @@ def get_params_transformer_xl_formula(model_config: Dict[str, Any]) -> Dict[str,
         # r_w_bias and r_r_bias: (n_head * d_head) * 2
         params['attention'] += (n_h * d_h) * 2
 
-        # Feed-forward layer
-        # Linear: (d_model * d_inner + d_inner) + (d_inner * d_model + d_model)
+        # CoreNet (feed-forward) layer: (d_model * d_inner + d_inner) + (d_inner * d_model + d_model)
         params['ff'] += (d_model * d_i + d_i) + (d_i * d_model + d_model)
+        
+        # Layer normalization: (2 * d_model) * 2 layers
+        params['layer_norm'] += (2 * d_model) * 2
 
-        # Layer normalization: (d_model * 2)
-        params['ff'] += d_model * 2
+    # Softmax layer
+    # Clusters: (n_clusters * d_embed) + n_clusters
+    params['softmax'] += n_clusters * d_embed + n_clusters
 
-    params['non_embedding'] = params['attention'] + params['ff']
+    # Shared output projections: (d_embed * (d_embed // (div_val ** i)) for each cutoff
+    params['softmax'] += sum([d_embed * (d_embed // (div_val ** i)) for i in range(len(cutoffs))])
+
+    # Handles number of parameters for different div_val
+    if div_val == 1:
+        if d_embed != d_model:
+            params['softmax'] += sum([d_model * d_embed if not tie else 0 for tie in tie_projs])
+        params['softmax'] += n_token
+    else:
+        for i in range(len(cutoffs)):
+            l_idx, r_idx = cutoff_ends[i], cutoff_ends[i+1]
+            d_emb_i = d_embed // (div_val ** i)
+            params['softmax'] += d_model * d_emb_i if not tie_projs[i] else 0
+            params['softmax'] += (r_idx - l_idx)
+            
+            if not tie_weight:
+                params['softmax'] += (r_idx - l_idx) * d_emb_i
+
+    params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm']
     params['total'] = params['embedding'] + params['non_embedding']
+
+    print(f'analytic: {params}')
 
     return params

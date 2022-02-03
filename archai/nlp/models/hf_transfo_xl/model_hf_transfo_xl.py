@@ -113,8 +113,9 @@ class HfTransfoXL(ArchaiModel):
         params['softmax'] = self.get_params_from_layer(['ProjectedAdaptiveLogSoftmax'])
         params['attention'] = self.get_params_from_layer(['RelPartialLearnableMultiHeadAttn'])
         params['ff'] = self.get_params_from_layer(['PositionwiseFF'])
+        params['layer_norm'] = self.get_params_from_layer(['LayerNorm'])
 
-        params['non_embedding'] = params['attention'] + params['ff']
+        params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm']
         params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']
 
         return params

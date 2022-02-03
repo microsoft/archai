@@ -25,6 +25,7 @@ class HfTransfoXLConfig(Config):
             'div_val': 4,
             'pre_lnorm': False,
             'cutoffs': [19997, 39997, 199997],
+            'tgt_len': 192,
             'mem_len': 192,
             'same_length': False,
             'attn_type': 0,
