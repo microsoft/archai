@@ -254,7 +254,8 @@ class Evolution:
                                    parents={'params': parents_params, 
                                             'total_params': parents_total_params, 
                                             'latencies': parents_latencies, 
-                                            'memories': parents_memories})
+                                            'memories': parents_memories,
+                                            'population': parents_population})
 
         logs_path = os.path.join(self.results_path, 'logs.pkl')
         with open(logs_path, 'wb') as f:
@@ -519,8 +520,7 @@ class Evolution:
 
             self.update_pareto_front(is_decreasing=True)
 
-            # NOTE: why this doesn't take 'iter'    
-            self.plot_samples(iter=idx)
+            self.plot_search_state(iter=idx)
 
             logs = {'population': population,
                     'params': curr_population_params,
@@ -677,17 +677,20 @@ class Evolution:
 
         """
 
+        all_configs = [self.converter.gene_to_config(gene) for gene in self.all_population]
         all_params = np.asarray(self.all_params)
         all_total_params = np.asarray(self.all_total_params)
         all_latencies = np.asarray(self.all_latencies)
         all_memories = np.asarray(self.all_memories)
 
+        pareto_configs = [self.converter.gene_to_config(gene) for gene in self.pareto['population']]
         pareto_params = np.asarray(self.pareto['params'])
         pareto_total_params = np.asarray(self.pareto['total_params'])
         pareto_latencies = np.asarray(self.pareto['latencies'])
         pareto_memories = np.asarray(self.pareto['memories'])
 
         if parents:
+            parents_configs = [self.converter.gene_to_config(gene) for gene in parents['population']]
             parents_params = np.asarray(parents['params'])
             parents_total_params = np.asarray(parents['total_params'])
             parents_latencies = np.asarray(parents['latencies'])
@@ -700,20 +703,26 @@ class Evolution:
                                  mode='markers',
                                  marker_color='blue',
                                  showlegend=True,
-                                 name='All visited architectures'))
+                                 name='All visited architectures',
+                                 hovertemplate = 'Decoder params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                                 text=[repr(config) for config in all_configs]))
         fig.add_trace(go.Scatter(x=pareto_params,
                                  y=pareto_latencies,
                                  mode='markers',
                                  marker_color='red',
                                  showlegend=True,
-                                 name='Pareto architectures'))
+                                 name='Pareto architectures',
+                                 hovertemplate = 'Decoder params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                                 text=[repr(config) for config in pareto_configs]))
         if parents:
             fig.add_trace(go.Scatter(x=parents_params,
                                      y=parents_latencies,
                                      mode='markers',
                                      marker_color='green',
                                      showlegend=True,
-                                     name='Parent architectures'))
+                                     name='Parent architectures',
+                                     hovertemplate = 'Decoder params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                                     text=[repr(config) for config in parents_configs]))
         fig.update_layout(title_text=f'Decoder params vs. Latency (s) at Iteration {iteration}',
                           xaxis_title='Decoder params',
                           yaxis_title='Latency (s)')
@@ -731,20 +740,26 @@ class Evolution:
                                  mode='markers',
                                  marker_color='blue',
                                  showlegend=True,
-                                 name='All visited architectures'))
+                                 name='All visited architectures',
+                                 hovertemplate = 'Total params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                                 text=[repr(config) for config in all_configs]))
         fig.add_trace(go.Scatter(x=pareto_total_params,
                                  y=pareto_latencies,
                                  mode='markers',
                                  marker_color='red',
                                  showlegend=True,
-                                 name='Pareto architectures'))
+                                 name='Pareto architectures',
+                                 hovertemplate = 'Total params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                                 text=[repr(config) for config in pareto_configs]))
         if parents:
             fig.add_trace(go.Scatter(x=parents_total_params,
                                      y=parents_latencies,
                                      mode='markers',
                                      marker_color='green',
                                      showlegend=True,
-                                     name='Parent architectures'))
+                                     name='Parent architectures',
+                                     hovertemplate = 'Total params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                                     text=[repr(config) for config in parents_configs]))
         fig.update_layout(title_text=f'Total params vs. Latency (s) at Iteration {iteration}',
                           xaxis_title='Total params',
                           yaxis_title='Latency (s)')
@@ -762,20 +777,26 @@ class Evolution:
                                   mode='markers',
                                   marker_color='blue',
                                   showlegend=True,
-                                  name='All visited architectures'))
+                                  name='All visited architectures',
+                                  hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                                  text=[repr(config) for config in all_configs]))
         fig1.add_trace(go.Scatter(x=pareto_params,
                                   y=pareto_memories,
                                   mode='markers',
                                   marker_color='red',
                                   showlegend=True,
-                                  name='Pareto architectures'))
+                                  name='Pareto architectures',
+                                  hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                                  text=[repr(config) for config in pareto_configs]))
         if parents:
             fig1.add_trace(go.Scatter(x=parents_params,
                                       y=parents_memories,
                                       mode='markers',
                                       marker_color='green',
                                       showlegend=True,
-                                      name='Parent architectures'))
+                                      name='Parent architectures',
+                                      hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                                      text=[repr(config) for config in parents_configs]))
         fig1.update_layout(title_text=f'Decoder params vs. Memory (MB) at Iteration {iteration}',
                            xaxis_title='Decoder params',
                            yaxis_title='Memory (MB)')
@@ -793,20 +814,26 @@ class Evolution:
                                   mode='markers',
                                   marker_color='blue',
                                   showlegend=True,
-                                  name='All visited architectures'))
+                                  name='All visited architectures',
+                                  hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                                  text=[repr(config) for config in all_configs]))
         fig1.add_trace(go.Scatter(x=pareto_total_params,
                                   y=pareto_memories,
                                   mode='markers',
                                   marker_color='red',
                                   showlegend=True,
-                                  name='Pareto architectures'))
+                                  name='Pareto architectures',
+                                  hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                                  text=[repr(config) for config in pareto_configs]))
         if parents:
             fig1.add_trace(go.Scatter(x=parents_total_params,
                                       y=parents_memories,
                                       mode='markers',
                                       marker_color='green',
                                       showlegend=True,
-                                      name='Parent architectures'))
+                                      name='Parent architectures',
+                                      hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                                      text=[repr(config) for config in parents_configs]))
         fig1.update_layout(title_text=f'Total params vs. Memory (MB) at Iteration {iteration}',
                            xaxis_title='Total params',
                            yaxis_title='Memory (MB)')
@@ -825,14 +852,18 @@ class Evolution:
                                     mode='markers',
                                     marker_color='blue',
                                     showlegend=True,
-                                    name='All visited architectures'))
+                                    name='All visited architectures',
+                                    hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                    text=[repr(config) for config in all_configs]))
         fig3.add_trace(go.Scatter3d(x=pareto_params,
                                     y=pareto_memories,
                                     z=pareto_latencies,
                                     mode='markers',
                                     marker_color='red',
                                     showlegend=True,
-                                    name='Pareto architectures'))
+                                    name='Pareto architectures',
+                                    hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                    text=[repr(config) for config in pareto_configs]))
         if parents:
             fig3.add_trace(go.Scatter3d(x=parents_params,
                                         y=parents_memories,
@@ -840,7 +871,9 @@ class Evolution:
                                         mode='markers',
                                         marker_color='green',
                                         showlegend=True,
-                                        name='Parent architectures'))
+                                        name='Parent architectures',
+                                        hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                        text=[repr(config) for config in parents_configs]))
         fig3.update_layout(scene=dict(xaxis_title='Decoder params',
                                       yaxis_title='Memory (MB)',
                                       zaxis_title='Latency (s)'))
@@ -859,14 +892,18 @@ class Evolution:
                                     mode='markers',
                                     marker_color='blue',
                                     showlegend=True,
-                                    name='All visited architectures'))
+                                    name='All visited architectures',
+                                    hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                    text=[repr(config) for config in all_configs]))
         fig3.add_trace(go.Scatter3d(x=pareto_total_params,
                                     y=pareto_memories,
                                     z=pareto_latencies,
                                     mode='markers',
                                     marker_color='red',
                                     showlegend=True,
-                                    name='Pareto architectures'))
+                                    name='Pareto architectures',
+                                    hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                    text=[repr(config) for config in pareto_configs]))
         if parents:
             fig3.add_trace(go.Scatter3d(x=parents_total_params,
                                         y=parents_memories,
@@ -874,7 +911,9 @@ class Evolution:
                                         mode='markers',
                                         marker_color='green',
                                         showlegend=True,
-                                        name='Parent architectures'))
+                                        name='Parent architectures',
+                                        hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                        text=[repr(config) for config in parents_configs]))
         fig3.update_layout(scene=dict(xaxis_title='Total params',
                                       yaxis_title='Memory (MB)',
                                       zaxis_title='Latency (s)'))
