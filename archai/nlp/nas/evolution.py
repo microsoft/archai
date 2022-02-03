@@ -139,7 +139,7 @@ class Evolution:
 
         """
 
-        # Sample the initial population    
+        # Samples the initial population    
         population = self.sample_random_population(self.population_size)
 
         self.all_population = population
@@ -183,22 +183,16 @@ class Evolution:
             self.all_latencies += population_latencies_unseen
             self.all_memories += population_memories_unseen
 
-            print(f'Number of population points: {len(self.all_population)}')
-            
-            # print('all_population len:', len(self.all_population), 
-            # 'all_params len:', len(self.all_params),
-            # 'all_total_params len:', len(self.all_total_params), 
-            # 'all_latencies len:', len(self.all_latencies),
-            # 'all_memories len:', len(self.all_memories))
+            print(f'Number of visited population points: {len(self.all_population)}')
 
             self.update_pareto_front(is_decreasing=True)
 
             # Selects parents for the next iteration from the current estimate
-            # of the Pareto-frontier while givng more weight to newer parents
-            count_weights = self.calculate_weighted_count()
+            # of the Pareto-frontier while giving more weight to newer parents
+            weights = self.calculate_weighted_count()
             selected_idx = np.random.choice(len(self.pareto['population']),
                                             size=self.parent_size,
-                                            p=count_weights)
+                                            p=weights)
 
             parents_population = [self.pareto['population'][m] for m in selected_idx]
             parents_params = [self.pareto['params'][m] for m in selected_idx]
@@ -212,7 +206,7 @@ class Evolution:
             while k < self.mutation_size:
                 mutated_gene = self.mutation(random.choices(parents_population)[0])
 
-                if self.check_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
+                if self.check_constraints(mutated_gene) and self._is_seen_before(mutated_gene):
                     mutated_population.append(mutated_gene)
                     k += 1
 
@@ -222,7 +216,7 @@ class Evolution:
             while k < self.crossover_size:
                 crossovered_gene = self.crossover(random.sample(parents_population, 2))
 
-                if self.check_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
+                if self.check_constraints(crossovered_gene) and self._is_seen_before(crossovered_gene):
                     crossovered_population.append(crossovered_gene)
                     k += 1
 
@@ -265,17 +259,17 @@ class Evolution:
         # which can be sent off to a cluster for training
         # TODO: do non-maximum suppression on the Pareto-frontier
         create_pareto_jobs(self.results_path, 
-                            converter=self.converter,
-                            model_type=self.model_type,
-                            max_step=40000,
-                            output_path=os.path.join(self.results_path, 'pareto_jobs'))    
+                           converter=self.converter,
+                           model_type=self.model_type,
+                           max_step=40000,
+                           output_path=os.path.join(self.results_path, 'pareto_jobs'))    
 
-        # Generate command-lines for fully training all architectures visited during search
+        # Generates command-lines for fully training all architectures visited during search
         create_ground_truth_jobs(self.results_path,
-                                  self.converter,
-                                  model_type=self.model_type,
-                                  max_step=40000,
-                                  output_path=os.path.join(self.results_path, 'visited_jobs')) 
+                                 self.converter,
+                                 model_type=self.model_type,
+                                 max_step=40000,
+                                 output_path=os.path.join(self.results_path, 'visited_jobs')) 
 
     def _is_seen_before(self, gene: List[Any]) -> bool:
         """Checks whether gene has already been seen during search.
@@ -364,7 +358,7 @@ class Evolution:
             model = load_model_from_config(self.model_type, model_config)
             
             # Decoder parameters
-            d_params = measure_parameters(model, ['attention', 'ff'])
+            d_params = measure_parameters(model, ['non_embedding'])
             params.append(d_params)
 
             # Total parameters
@@ -407,34 +401,21 @@ class Evolution:
         model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
 
-        # first check if model passes number of parameter
-        # constraints via analytical means since it is fast
+        # Checks if model passes number of parameter constraints via analytical means since it is fast
         total_params_analytical = MODELS_PARAMS_FORMULAE[self.model_type](model_config)['total']
 
         if total_params_analytical < self.param_constraint_lower:
-            print(f'Invalid gene: {gene} has {total_params_analytical/1e6}M < {self.param_constraint_lower/1e6}M parameters')
+            print(f'Invalid gene: {gene} has {total_params_analytical} < {self.param_constraint_lower} parameters')
             return False
     
         if total_params_analytical > self.param_constraint_upper:
-            print(f'Invalid gene: {gene} has {total_params_analytical/1e6}M > {self.param_constraint_upper/1e6}M parameters')
+            print(f'Invalid gene: {gene} has {total_params_analytical} > {self.param_constraint_upper} parameters')
             return False
 
-        # if here then model passed analytical check, 
-        # so let's create it and measure again.
+        # If the analytical check is valid, model is finally created
         model = load_model_from_config(self.model_type, model_config)
 
-        # Checks the total number of parameters constraints
-        total_params = measure_parameters(model, ['total'])
-
-        if total_params < self.param_constraint_lower:
-            print(f'Invalid gene: {gene} has {total_params} < {self.param_constraint_lower} parameters')
-            return False
-
-        if total_params > self.param_constraint_upper:
-            print(f'Invalid gene: {gene} has {total_params} > {self.param_constraint_upper} parameters')
-            return False
-
-        # Checks the latency constraints
+        # Checks the latency constraint
         if self.latency_constraint_upper is not None:
             latency = measure_inference_latency(model,
                                                 use_quantization=self.use_quantization,
@@ -470,7 +451,7 @@ class Evolution:
             if self.check_constraints(sampled_gene):
                 population.append(sampled_gene)
                 i += 1
-                print(f'found a contraint range respecting architecture. number: {i}')
+                print(f'Valid architectures: {i}/{n_samples}')
 
         return population
 
@@ -545,7 +526,7 @@ class Evolution:
 
             model = load_model_from_config(self.model_type, model_config)
 
-            params = measure_parameters(model, ['attention', 'ff'])
+            params = measure_parameters(model, ['non_embedding'])
             total_params =  measure_parameters(model, ['total'])
             latency = measure_inference_latency(model, use_quantization=self.use_quantization)
             peak_memory = measure_peak_memory(model, use_quantization=self.use_quantization)
@@ -584,7 +565,6 @@ class Evolution:
                 {self.min_latency:.4f}s latency
                 {self.min_peak_memory:.4f}MB memory''')
         
-
     def update_pareto_front(self, is_decreasing: Optional[bool] = True) -> None:
         """Updates the Pareto-frontier of the evolutionary search.
 
@@ -618,7 +598,7 @@ class Evolution:
         self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
         self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
             
-        print(f'Number of points on the Pareto-frontier: {len(self.pareto["params"])}')
+        print(f'Number of points on the Pareto-frontier: {len(self.pareto["population"])}')
 
     def update_counts(self, population: List[List[Any]]) -> None:
         """Updates the number of repeated genes.

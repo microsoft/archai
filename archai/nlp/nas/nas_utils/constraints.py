@@ -52,9 +52,11 @@ def measure_inference_latency(model: torch.nn.Module,
     torch.set_num_threads(n_threads)
 
     model = model.to(device=device)
+    input_ids = torch.zeros((1, seq_len), dtype=torch.int64).to(device)
+    
     timer = benchmark.Timer(stmt='model(input_ids, labels, mems)',
                             globals={
-                                'input_ids': torch.zeros((1, seq_len), dtype=torch.int64),
+                                'input_ids': input_ids,
                                 'labels': None,
                                 'mems': None,
                                 'model': model
@@ -67,12 +69,12 @@ def measure_inference_latency(model: torch.nn.Module,
 
 
 def measure_parameters(model: torch.nn.Module,
-                       layers: Optional[List[str]] = ['attention', 'ff']) -> int:
+                       keys: Optional[List[str]] = ['non_embedding']) -> int:
     """Measures a model's number of parameters according to input options.
 
     Args:
         model: Model instance.
-        layers: Layers that should be used in measurement.
+        keys: Keys that should be used in measurement.
 
     Returns:
         (int): Number of parameters.
@@ -81,7 +83,7 @@ def measure_parameters(model: torch.nn.Module,
 
     params = model.get_params()
 
-    return sum([params[l] for l in layers])
+    return sum([params[l] for l in keys])
 
 
 def measure_peak_memory(model: torch.nn.Module,
@@ -113,15 +115,17 @@ def measure_peak_memory(model: torch.nn.Module,
         'input_ids': torch.zeros((1, seq_len), dtype=torch.int64).to(device)
     }
 
-    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
-                 profile_memory=True) as p:
+    if device == 'cpu':
+        activities = [ProfilerActivity.CPU]
+        device_key = 'cpu_memory_usage'
+    else:
+        activities = [ProfilerActivity.CUDA]
+        device_key = 'cuda_memory_usage'
+
+    with profile(activities=activities, profile_memory=True) as p:
         model(**inputs)
 
-    if device == 'cpu':
-        peak_memory = sum([key.cpu_memory_usage for key in p.key_averages()])
-    else:
-        peak_memory = sum([key.cuda_memory_usage for key in p.key_averages()])
-
+    peak_memory = sum([getattr(key, device_key) for key in p.key_averages()])
     peak_memory_mb = peak_memory / (1024*1024)
 
     return peak_memory_mb
