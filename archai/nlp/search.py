@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Performs evolutionary search to find optimal architectures.
+"""Extracts Pareto-frontier given constraints through Evolutionary Search.
 """
 
 import argparse
@@ -18,7 +18,7 @@ from archai.nlp.nas.nas_utils.constraints import DEVICE_LATENCY_CONSTRAINT
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Evolutionary search for autoregressive language models.')
+    parser = argparse.ArgumentParser(description='Autoregressive language models Pareto-frontier extraction.')
 
     search = parser.add_argument_group('Search configuration')
     search.add_argument('--default_path',
