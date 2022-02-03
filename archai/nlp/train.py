@@ -202,7 +202,7 @@ def parse_args():
     opt.add_argument('--scheduler', default='cosine', type=str,
                      choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
                      help='LR scheduler to use')
-    opt.add_argument('--scheduler_qat', default='cyclic_cosine', type=str,
+    opt.add_argument('--scheduler_qat', default='cosine', type=str,
                      choices=['cosine', 'inv_sqrt', 'dev_perf', 'constant', 'cyclic_cosine'],
                      help='LR scheduler to use during QAT')
     opt.add_argument('--max_step_scheduler', type=int, default=None,

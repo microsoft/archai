@@ -14,7 +14,7 @@ install_requires=[
     'requests', 'seaborn', 'h5py', 'rarfile',
     'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt',
     'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash',
-    'transformers>=4.16.2', 'pytorch_lightning', 'tokenizers>>=0.10.3', 'datasets',
+    'transformers>=4.16.2', 'pytorch_lightning', 'tokenizers>=0.10.3', 'datasets',
     'onnx', 'onnxruntime', 'coloredlogs', 'sympy',
     'ftfy', # needed for text scoring, fixes text for you
     # nvidia transformer-xl
