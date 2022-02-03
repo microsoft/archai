@@ -514,7 +514,7 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
 
         weight = self.weight_fake_quant(self.weight)
 
-        float_conv1d = transformers.modeling_utils.conv1d(self.nf,
+        float_conv1d = transformers.modeling_utils.Conv1D(self.nf,
                                                           self.weight.shape[0])
 
         float_conv1d.weight = torch.nn.Parameter(weight)
