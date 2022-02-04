@@ -6,6 +6,8 @@
 
 from typing import Any, Dict, List, Tuple
 
+from archai.common import utils
+
 
 def _get_hyperparams(model_config: Dict[str, Any]) -> Tuple[int, int, int, List[int], List[int], List[int]]:
     n_layer = model_config['n_layer']
@@ -14,9 +16,9 @@ def _get_hyperparams(model_config: Dict[str, Any]) -> Tuple[int, int, int, List[
 
     d_model = model_config['d_model']
     d_embed = d_model if model_config['d_embed'] < 0 else model_config['d_embed']
-    d_inner = model_config['d_inner'][:n_layer]
+    d_inner = utils.map_to_list(model_config['d_inner'], n_layer)
 
-    n_head = model_config['n_head'][:n_layer]
+    n_head = utils.map_to_list(model_config['n_head'], n_layer)
     d_head = [d_model // n_h for n_h in n_head]
 
     return n_token, tgt_len, d_model, d_embed, d_inner, n_head, d_head

@@ -7,9 +7,6 @@
 from collections import OrderedDict
 from typing import Any, Dict, List
 
-# Defines keys that can be different for each layer
-PER_LAYER_KEYS = ['d_inner', 'n_head']
-
 
 class Converter:
     """Enables conversion from genes to configuration dictionaries and vice-versa.
@@ -24,7 +21,7 @@ class Converter:
         self.config = OrderedDict(kwargs)
 
         try:
-            self.max_n_layer = max(self.config['n_layer'])
+            self.max_n_layer = max(self.config['n_layer']['value'])
         except:
             self.max_n_layer = 1
 
@@ -40,10 +37,10 @@ class Converter:
         """
 
         gene = []
-        n_layer = config['n_layer']
+        n_layer = config['n_layer']['value']
 
-        for k in self.config.keys():
-            if k in PER_LAYER_KEYS:
+        for k, d in self.config.items():
+            if d['per_layer']:
                 for i in range(max(self.max_n_layer, n_layer)):
                   if isinstance(config[k], list):
                     if i < n_layer:
@@ -69,8 +66,8 @@ class Converter:
         config = {}
         idx = 0
 
-        for k in self.config.keys():
-            if k in PER_LAYER_KEYS:
+        for k, d in self.config.items():
+            if d['per_layer']:
                 config[k] = gene[idx:idx+self.max_n_layer]
                 idx += self.max_n_layer
             else:
@@ -102,11 +99,11 @@ class Converter:
 
         allowed_genes = []
 
-        for k, v in self.config.items():
-            if k in PER_LAYER_KEYS:
+        for d in self.config.values():
+            if d['per_layer']:
                 for _ in range(self.max_n_layer):
-                    allowed_genes.append(v)
+                    allowed_genes.append(d['value'])
             else:
-                allowed_genes.append(v)
+                allowed_genes.append(d['value'])
 
         return allowed_genes

@@ -41,10 +41,6 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
     command = []
 
     for i, config in enumerate(configs):
-        # Makes sure that d_embed and d_head are defined properly
-        config['d_embed'] = config['d_model']
-        config['d_head'] = [config['d_model'] // n_head for n_head in config['n_head']]
-        
         # Maps incoming configuration values to a string-based representation
         n_layer = config['n_layer']
         config_line = ''
