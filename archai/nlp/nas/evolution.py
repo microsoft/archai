@@ -183,7 +183,7 @@ class Evolution:
             self.all_latencies += population_latencies_unseen
             self.all_memories += population_memories_unseen
 
-            print(f'Number of visited population points: {len(self.all_population)}')
+            print(f'Visited population points: {len(self.all_population)}')
 
             self.update_pareto_front(is_decreasing=True)
 
@@ -405,11 +405,11 @@ class Evolution:
         total_params_analytical = MODELS_PARAMS_FORMULAE[self.model_type](model_config)['total']
 
         if total_params_analytical < self.param_constraint_lower:
-            print(f'Invalid gene: {gene} has {total_params_analytical} < {self.param_constraint_lower} parameters')
+            print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M < {self.param_constraint_lower/1e6:.4f}M parameters')
             return False
     
         if total_params_analytical > self.param_constraint_upper:
-            print(f'Invalid gene: {gene} has {total_params_analytical} > {self.param_constraint_upper} parameters')
+            print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M > {self.param_constraint_upper/1e6:.4f}M parameters')
             return False
 
         # If the analytical check is valid, model is finally created
@@ -423,7 +423,7 @@ class Evolution:
                                                 n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint_upper:
-                print(f'Invalid gene: {gene} has {latency} sec > {self.latency_constraint_upper} sec latency')
+                print(f'Invalid gene: {gene} has {latency}s > {self.latency_constraint_upper}s latency')
                 return False
 
         return True
@@ -598,7 +598,7 @@ class Evolution:
         self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
         self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
             
-        print(f'Number of points on the Pareto-frontier: {len(self.pareto["population"])}')
+        print(f'Pareto-frontier points: {len(self.pareto["population"])}')
 
     def update_counts(self, population: List[List[Any]]) -> None:
         """Updates the number of repeated genes.
