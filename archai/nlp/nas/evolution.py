@@ -139,7 +139,7 @@ class Evolution:
 
         """
 
-        # Sample the initial population    
+        # Samples the initial population    
         population = self.sample_random_population(self.population_size)
 
         self.all_population = population
@@ -183,22 +183,16 @@ class Evolution:
             self.all_latencies += population_latencies_unseen
             self.all_memories += population_memories_unseen
 
-            print(f'Number of population points: {len(self.all_population)}')
-            
-            # print('all_population len:', len(self.all_population), 
-            # 'all_params len:', len(self.all_params),
-            # 'all_total_params len:', len(self.all_total_params), 
-            # 'all_latencies len:', len(self.all_latencies),
-            # 'all_memories len:', len(self.all_memories))
+            print(f'Number of visited population points: {len(self.all_population)}')
 
             self.update_pareto_front(is_decreasing=True)
 
             # Selects parents for the next iteration from the current estimate
-            # of the Pareto-frontier while givng more weight to newer parents
-            count_weights = self.calculate_weighted_count()
+            # of the Pareto-frontier while giving more weight to newer parents
+            weights = self.calculate_weighted_count()
             selected_idx = np.random.choice(len(self.pareto['population']),
                                             size=self.parent_size,
-                                            p=count_weights)
+                                            p=weights)
 
             parents_population = [self.pareto['population'][m] for m in selected_idx]
             parents_params = [self.pareto['params'][m] for m in selected_idx]
@@ -212,7 +206,7 @@ class Evolution:
             while k < self.mutation_size:
                 mutated_gene = self.mutation(random.choices(parents_population)[0])
 
-                if self.check_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
+                if self.check_constraints(mutated_gene) and self._is_seen_before(mutated_gene):
                     mutated_population.append(mutated_gene)
                     k += 1
 
@@ -222,7 +216,7 @@ class Evolution:
             while k < self.crossover_size:
                 crossovered_gene = self.crossover(random.sample(parents_population, 2))
 
-                if self.check_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
+                if self.check_constraints(crossovered_gene) and self._is_seen_before(crossovered_gene):
                     crossovered_population.append(crossovered_gene)
                     k += 1
 
@@ -571,7 +565,6 @@ class Evolution:
                 {self.min_latency:.4f}s latency
                 {self.min_peak_memory:.4f}MB memory''')
         
-
     def update_pareto_front(self, is_decreasing: Optional[bool] = True) -> None:
         """Updates the Pareto-frontier of the evolutionary search.
 
@@ -605,7 +598,7 @@ class Evolution:
         self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
         self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
             
-        print(f'Number of points on the Pareto-frontier: {len(self.pareto["params"])}')
+        print(f'Number of points on the Pareto-frontier: {len(self.pareto["population"])}')
 
     def update_counts(self, population: List[List[Any]]) -> None:
         """Updates the number of repeated genes.
