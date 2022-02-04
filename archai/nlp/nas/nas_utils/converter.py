@@ -79,7 +79,7 @@ class Converter:
 
         return config
 
-    def gene_to_str(self, gene: List[Any]) -> str:
+    def gene_to_key(self, gene: List[Any]) -> str:
         """Converts a gene into a configuration string.
 
         Args:

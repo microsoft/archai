@@ -282,7 +282,7 @@ class Evolution:
 
         """
 
-        key = self.converter.gene_to_str(gene)
+        key = self.converter.gene_to_key(gene)
 
         if key in self.counts.keys():
             return True
@@ -609,7 +609,7 @@ class Evolution:
         """
 
         for gene in population:
-            key = self.converter.gene_to_str(gene)
+            key = self.converter.gene_to_key(gene)
 
             # Important to add as a dictionary because it
             # prevents Counter from counting the characters in the string
@@ -630,7 +630,7 @@ class Evolution:
         pareto_counts = []
 
         for gene in self.pareto['population']:
-            key = self.converter.gene_to_str(gene)
+            key = self.converter.gene_to_key(gene)
             pareto_counts.append(self.counts[key])
 
         counts_max = max(pareto_counts)
