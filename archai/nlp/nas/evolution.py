@@ -104,8 +104,9 @@ class Evolution:
 
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
-        self.model_config_search.update((k, v) for k, v in choices.items() 
-                                        if k in self.model_config_search.keys() and v is not None)
+        for k, v in choices.items():
+            if k in self.model_config_search.keys() and v is not None:
+                self.model_config_search[k]['value'] = v
 
         # Converts between genes and configurations
         self.converter = Converter(**self.model_config_search)

@@ -27,12 +27,26 @@ class HfGPT2Config(Config):
             'tie_weight': True
         }
 
-    """
-
-    def __init__(self, **kwargs) -> None:
-        """Initializes the configuration.
-
-        """
+    @property
+    def search(self) -> Dict[str, Any]:
+        return {
+            'n_layer': {
+                'per_layer': False,
+                'value': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+            },
+            'd_model': {
+                'per_layer': False,
+                'value': [128, 256, 512, 768, 1024]
+            },
+            'd_inner': {
+                'per_layer': False,
+                'value': list(range(512, 2049, 50)) + list(range(2048, 3072, 200))
+            },
+            'n_head': {
+                'per_layer': False,
+                'value': [2, 4, 8]
+            }
+        }
 
         super().__init__(**kwargs)
 
@@ -61,8 +75,20 @@ class HfGPT2Config(Config):
         """
 
         return {
-            'n_layer': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-            'd_model': [128, 256, 512, 768, 1024],
-            'd_inner': list(range(512, 2049, 50)) + list(range(2048, 3072, 200)),
-            'n_head': [8]
+            'n_layer': {
+                'per_layer': False,
+                'value': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+            },
+            'd_model': {
+                'per_layer': False,
+                'value': [128, 256, 512, 768, 1024]
+            },
+            'd_inner': {
+                'per_layer': True,
+                'value': list(range(512, 2049, 50)) + list(range(2048, 3072, 200))
+            },
+            'n_head': {
+                'per_layer': False,
+                'value': [2, 4, 8]
+            }
         }
