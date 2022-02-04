@@ -427,7 +427,7 @@ def find_pareto_points(all_points: np.array, is_decreasing: Optional[bool] = Tru
 
 #     for job_name, result in gt_results.items():
 #         gene = alg.converter.config_to_gene(result)
-#         key = alg.converter.gene_to_str(gene)
+#         key = alg.converter.gene_to_key(gene)
 
 #         if key in latencies.keys() and not key in gt_keys:
 #             config_number = re.search('config_([0-9]+)_', job_name).group(1)
@@ -574,7 +574,7 @@ def find_pareto_points(all_points: np.array, is_decreasing: Optional[bool] = Tru
 
 #     for job_name, result in gt_results.items():
 #         gene = alg.converter.config_to_gene(result)
-#         key = alg.converter.gene_to_str(gene)
+#         key = alg.converter.gene_to_key(gene)
 
 #         if key in latencies.keys() and not key in gt_keys:
 #             print(job_name)

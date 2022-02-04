@@ -158,7 +158,7 @@ def create_pareto_jobs(results_path: str,
     is_pareto = []
 
     for gene in pareto_pop:
-        model_key = converter.gene_to_str(gene)
+        model_key = converter.gene_to_key(gene)
         model_config = converter.gene_to_config(gene)
 
         if model_key in seen:
@@ -215,15 +215,19 @@ def create_ground_truth_jobs(results_path: str,
     pareto_keys = []
     pareto_pop = logs['pareto'][-1]['population']
 
+    print(len(pareto_pop))
+
     for gene in pareto_pop:
         # Converts gene to a string-based definition (primary key)
-        key = converter.gene_to_str(gene)
+        key = converter.gene_to_key(gene)
 
         if not key in pareto_keys:
             pareto_keys.append(key)
+        else:
+            print(key)
 
-    # print(f'Number of Pareto-frontier points: {len(pareto_keys)}')
-    # print(f'Population size: {len(logs["population"])}')
+    print(f'Number of Pareto-frontier points: {len(pareto_keys)}')
+    print(f'Population size: {len(logs["population"])}')
 
     pop_configs = []
 
@@ -238,7 +242,7 @@ def create_ground_truth_jobs(results_path: str,
         unseen = 0
 
         for idx, gene in enumerate(pop):
-            key = converter.gene_to_str(gene)
+            key = converter.gene_to_key(gene)
 
             if not key in seen.keys():
                 seen[key] = 1
