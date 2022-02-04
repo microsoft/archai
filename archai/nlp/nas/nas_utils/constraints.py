@@ -117,7 +117,7 @@ def measure_peak_memory(model: torch.nn.Module,
 
     if device == 'cpu':
         activities = [ProfilerActivity.CPU]
-        device_key = 'cpu_memory_usage'
+        device_key = 'self_cpu_memory_usage'
     else:
         activities = [ProfilerActivity.CUDA]
         device_key = 'cuda_memory_usage'
@@ -125,7 +125,8 @@ def measure_peak_memory(model: torch.nn.Module,
     with profile(activities=activities, profile_memory=True) as p:
         model(**inputs)
 
-    peak_memory = sum([getattr(key, device_key) for key in p.key_averages()])
+    peak_memory = sum([getattr(key, device_key) if getattr(key, device_key) > 0 else 0
+                       for key in p.key_averages()])
     peak_memory_mb = peak_memory / (1024*1024)
 
     return peak_memory_mb
