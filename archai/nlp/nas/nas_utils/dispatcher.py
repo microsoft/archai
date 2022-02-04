@@ -7,22 +7,21 @@
 import copy
 import os
 import pickle
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import yaml
 
 from archai.common import utils
 from archai.nlp.nas.nas_utils.converter import Converter
 
 
-def create_batch_jobs(configs: List[Dict[str, Any]],
-                      default_config_file: str,
-                      model_type: str,
-                      max_step: int,
-                      n_gpus: int,
-                      gpu_config: str,
-                      is_pareto: Optional[bool] = None) -> str:
+def _create_batch_jobs(configs: List[Dict[str, Any]],
+                       default_config_file: str,
+                       model_type: str,
+                       max_step: int,
+                       n_gpus: int,
+                       gpu_config: str,
+                       is_pareto: Optional[bool] = None) -> str:
     """Creates a batch of command-line jobs.
 
     Args:
@@ -71,16 +70,16 @@ def create_batch_jobs(configs: List[Dict[str, Any]],
     return command
 
 
-def create_jobs(configs: List[Dict[str, Any]],
-                default_config_file: Optional[str] = 'wt103_base.yaml',
-                model_type: Optional[str] = 'mem_transformer',
-                max_step: Optional[int] = 500,
-                start_config: Optional[int] = 0,
-                n_jobs: Optional[int] = 50,
-                n_gpus: Optional[int] = 8,
-                gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
-                is_pareto: Optional[bool] = None,
-                output_path: Optional[str] = '~/configs') -> None:
+def _create_jobs(configs: List[Dict[str, Any]],
+                 default_config_file: Optional[str] = 'wt103_base.yaml',
+                 model_type: Optional[str] = 'mem_transformer',
+                 max_step: Optional[int] = 500,
+                 start_config: Optional[int] = 0,
+                 n_jobs: Optional[int] = 50,
+                 n_gpus: Optional[int] = 8,
+                 gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
+                 is_pareto: Optional[bool] = None,
+                 output_path: Optional[str] = '~/configs') -> None:
     """Creates command-line jobs.
 
     Args:
@@ -107,9 +106,9 @@ def create_jobs(configs: List[Dict[str, Any]],
         jobs_config['jobs'] = [{}]
 
         if is_pareto is not None:
-            jobs_config['jobs'][0]['command'] = create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), default_config_file, model_type, max_step, n_gpus, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
+            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), default_config_file, model_type, max_step, n_gpus, gpu_config, is_pareto=is_pareto[c:c+n_jobs])
         else:
-            jobs_config['jobs'][0]['command'] = create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), default_config_file, model_type, max_step, n_gpus, gpu_config)
+            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), default_config_file, model_type, max_step, n_gpus, gpu_config)
 
         output_config_file = os.path.join(output_config_path, f'train_{config_idx}.yaml')
         with open(output_config_file, 'w') as f:
@@ -117,6 +116,31 @@ def create_jobs(configs: List[Dict[str, Any]],
 
         c += n_jobs
         config_idx += 1
+
+
+def _find_different_genes(population: List[List[Any]],
+                          converter: Converter) -> Tuple[List[Dict[str, Any]], List[str]]:
+    """Finds different keys that are present in a population.
+
+    Args:
+        population: Population to have keys checked.
+        converter: Converter class object.
+
+    Returns:
+        (Tuple[List[Dict[str, Any]], List[str]]): Non-duplicate configurations and keys.
+
+    """
+
+    configs, keys = [], []
+
+    for gene in population:
+        key = converter.gene_to_key(gene)
+
+        if key not in keys:
+            configs.append(converter.gene_to_config(gene))
+            keys.append(key)
+
+    return configs, keys
 
 
 def create_pareto_jobs(results_path: str, 
@@ -146,30 +170,17 @@ def create_pareto_jobs(results_path: str,
     """
 
     logs_path = os.path.join(results_path, 'logs.pkl')
-    
     with open(logs_path, 'rb') as f:
         logs = pickle.load(f)
 
-    # Gathers a list of pareto points
-    pareto_pop = logs['pareto'][-1]['population']
+    # Gathers pareto population
+    # Also checks for different genes because there might be duplicate points in Pareto-frontier
+    pareto_population = logs['pareto'][-1]['population']
+    pareto_configs, _ = _find_different_genes(pareto_population, converter)
 
-    seen = set()
-    pareto_configs = []
-    is_pareto = []
+    print(f'Unique Pareto-frontier jobs: {len(pareto_configs)}')
 
-    for gene in pareto_pop:
-        model_key = converter.gene_to_key(gene)
-        model_config = converter.gene_to_config(gene)
-
-        if model_key in seen:
-            continue
-
-        else:
-            seen.add(model_key)
-            pareto_configs.append(model_config)
-            is_pareto.append(True)
-
-    create_jobs(pareto_configs,
+    _create_jobs(pareto_configs,
                 default_config_file=default_config_file,
                 model_type=model_type,
                 max_step=max_step,
@@ -177,7 +188,7 @@ def create_pareto_jobs(results_path: str,
                 n_jobs=n_jobs,
                 n_gpus=n_gpus,
                 gpu_config=gpu_config, 
-                is_pareto=is_pareto,
+                is_pareto=[True] * len(pareto_configs),
                 output_path=output_path)
 
 
@@ -211,57 +222,26 @@ def create_ground_truth_jobs(results_path: str,
     with open(logs_path, 'rb') as f:
         logs = pickle.load(f)
 
-    # Gathers a list of pareto points
-    pareto_keys = []
-    pareto_pop = logs['pareto'][-1]['population']
+    # Gathers total populations and pareto population
+    total_population = logs['population']
+    pareto_population = logs['pareto'][-1]['population']
 
-    for gene in pareto_pop:
-        # Converts gene to a string-based definition (primary key)
-        key = converter.gene_to_key(gene)
+    # Checks for different genes because there might be duplicate points in Pareto-frontier
+    _, pareto_keys = _find_different_genes(pareto_population, converter)
 
-        if not key in pareto_keys:
-            pareto_keys.append(key)
+    # Iterates through all populations and gathers a list of non-duplicated configurations
+    total_population_configs, total_population_keys = [], []
+    for population in total_population:
+        population_configs, population_keys = _find_different_genes(population, converter)
 
-    pop_configs = []
+        for p_config, p_key in zip(population_configs, population_keys):
+            if p_key not in total_population_keys and p_key not in pareto_keys:
+                total_population_configs.append(p_config)
+                total_population_keys.append(p_key)
 
-    is_pareto = []
-    is_pareto_dict = {}
+    print(f'Unique jobs (non-Pareto): {len(total_population_configs)}')
 
-    seen = {}
-    latencies = {}
-
-    for i, pop in enumerate(logs['population']):
-        for idx, gene in enumerate(pop):
-            key = converter.gene_to_key(gene)
-
-            if not key in seen.keys():
-                seen[key] = 1
-
-                # Converts gene to configuration and appends to population
-                model_config = converter.gene_to_config(gene)
-                pop_configs.append(model_config)
-
-                if key in pareto_keys:
-                    is_pareto.append(True)
-                else:
-                    is_pareto.append(False)
-
-                if i < len(logs['latencies']):
-                    latencies[key] = logs['latencies'][i][idx]
-                    is_pareto_dict[key] = is_pareto[-1]
-
-    print(f'Total jobs: {len(pop_configs)} | Pareto-frontier jobs: {np.sum(is_pareto)}')
-    assert np.sum(list(is_pareto_dict.values())) == np.sum(is_pareto)
-
-    latency_output_path = os.path.join(results_path, 'latencies.pkl')
-    with open(latency_output_path, 'wb') as f:
-        pickle.dump(latencies, f)
-
-    pareto_output_path = os.path.join(results_path, 'pareto.pkl')
-    with open(pareto_output_path, 'wb') as f:
-        pickle.dump(is_pareto_dict, f)
-
-    create_jobs(pop_configs,
+    _create_jobs(total_population_configs,
                 default_config_file=default_config_file,
                 model_type=model_type,
                 max_step=max_step,
@@ -269,5 +249,4 @@ def create_ground_truth_jobs(results_path: str,
                 n_jobs=n_jobs,
                 n_gpus=n_gpus,
                 gpu_config=gpu_config, 
-                is_pareto=is_pareto,
                 output_path=output_path)
