@@ -11,6 +11,7 @@
 from typing import List, Optional
 
 import numpy as np
+
 # from matplotlib import pyplot as plt
 
 # from archai.nlp.models.model_loader import load_from_args
