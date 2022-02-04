@@ -39,17 +39,17 @@ def parse_args():
 
     search.add_argument('--population_size',
                         type=int,
-                        default=10,
+                        default=100,
                         help='Size of the population.')
 
     search.add_argument('--parent_size',
                         type=int,
-                        default=2,
+                        default=20,
                         help='Size of the parent genes.')
 
     search.add_argument('--mutation_size',
                         type=int,
-                        default=4,
+                        default=40,
                         help='Size of the mutated genes.')
     
     search.add_argument('--mutation_prob',
@@ -59,7 +59,7 @@ def parse_args():
 
     search.add_argument('--crossover_size',
                         type=int,
-                        default=4,
+                        default=40,
                         help='Size of the crossovered genes.')
 
     search.add_argument('--crossover_prob',
@@ -69,7 +69,7 @@ def parse_args():
 
     search.add_argument('--n_iter',
                         type=int,
-                        default=2,
+                        default=10,
                         help='Number of search iterations.')
 
     search.add_argument('--do_brute_force',
@@ -99,13 +99,13 @@ def parse_args():
     choice.add_argument('--n_layer',
                         nargs='+',
                         type=int,
-                        default=[3],
+                        default=None,
                         help='Choices for number of layers.')
 
     choice.add_argument('--d_model',
                         nargs='+',
                         type=int,
-                        default=[256],
+                        default=None,
                         help='Choices for model dimensions.')
 
     choice.add_argument('--d_inner',
@@ -117,7 +117,7 @@ def parse_args():
     choice.add_argument('--n_head',
                         nargs='+',
                         type=int,
-                        default=[8],
+                        default=None,
                         help='Choices for number of attention heads.')
 
     constraint = parser.add_argument_group('Constraints')

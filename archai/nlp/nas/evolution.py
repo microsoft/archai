@@ -134,207 +134,104 @@ class Evolution:
 
         # Performs a quick profiling over the search space
         # to find the biggest architecture measurements
-        self.profile()
+        self._profile()
 
-    def search(self) -> None:
-        """Performs the actual search.
-
-        """
-
-        # Samples the initial population    
-        population = self.sample_random_population(self.population_size)
-
-        self.all_population = population
-        self.update_population_count(population)
-
-        logs = {'population': [],
-                'params': [],
-                'total_params': [],
-                'latencies': [],
-                'memories': [],
-                'parents': [],
-                'pareto': []}
-
-        parents_params = []
-        parents_total_params = []
-        parents_latencies = []
-        parents_memories = []
-
-        for i in range(self.n_iter):
-            idx = 0 if i == 0 else self.parent_size
-            print(f'Iteration {i+1}/{self.n_iter}')
-
-            # Calculates decoder parameters, total parameters, latencies and memories
-            population_params_unseen, \
-            population_total_params_unseen, \
-            population_latencies_unseen, \
-            population_memories_unseen = self.calculate_constraints(population[idx:])
-
-            population_params = parents_params + population_params_unseen
-            population_total_params = parents_total_params + population_total_params_unseen
-            population_latencies = parents_latencies + population_latencies_unseen
-            population_memories = parents_memories + population_memories_unseen
-
-            assert len(population_params) == self.population_size
-            assert len(population_total_params) == self.population_size
-            assert len(population_latencies) == self.population_size
-            assert len(population_memories) == self.population_size
-            
-            self.all_params += population_params_unseen
-            self.all_total_params += population_total_params_unseen
-            self.all_latencies += population_latencies_unseen
-            self.all_memories += population_memories_unseen
-
-            print(f'Visited population points: {len(self.all_population)}')
-
-            self.update_pareto_front(is_decreasing=True)
-
-            # Selects parents for the next iteration from the current estimate
-            # of the Pareto-frontier while giving more weight to newer parents
-            weights = self.calculate_weighted_count()
-            selected_idx = np.random.choice(len(self.pareto['population']),
-                                            size=self.parent_size,
-                                            p=weights)
-
-            parents_population = [self.pareto['population'][m] for m in selected_idx]
-            parents_params = [self.pareto['params'][m] for m in selected_idx]
-            parents_total_params = [self.pareto['total_params'][m] for m in selected_idx]
-            parents_latencies = [self.pareto['latencies'][m] for m in selected_idx]
-            parents_memories = [self.pareto['memories'][m] for m in selected_idx]
-            
-            # Mutates random `k` subsets of the parents
-            # while ensuring the mutations fall within desired constraint limits
-            mutated_population, k = [], 0
-            while k < self.mutation_size:
-                mutated_gene = self.mutation(random.choices(parents_population)[0])
-                
-                if self.check_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
-                    mutated_population.append(mutated_gene)
-                    k += 1
-
-            # Crossovers random `k` subsets of the parents
-            # while ensuring the crossovers fall within desired constraint limits
-            crossovered_population, k = [], 0
-            while k < self.crossover_size:
-                crossovered_gene = self.crossover(random.sample(parents_population, 2))
-                
-                if self.check_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
-                    crossovered_population.append(crossovered_gene)
-                    k += 1
-
-            # Appends current information to the logs
-            logs['population'].append(copy.deepcopy(population))
-            logs['params'].append(copy.deepcopy(population_params))
-            logs['total_params'].append(copy.deepcopy(population_total_params))
-            logs['latencies'].append(copy.deepcopy(population_latencies))
-            logs['memories'].append(copy.deepcopy(population_memories))
-            logs['parents'].append(copy.deepcopy(parents_population))
-            logs['pareto'].append(copy.deepcopy(self.pareto))
-
-            logs_path = os.path.join(self.results_path, f'logs_itr_{i}.pkl')
-            with open(logs_path, 'wb') as f:
-                pickle.dump({'population': logs['population'][-1],
-                             'params': logs['params'][-1],
-                             'total_params': logs['total_params'][-1],
-                             'latencies': logs['latencies'][-1],
-                             'memories': logs['memories'][-1],
-                             'parents': logs['parents'][-1],
-                             'pareto': logs['pareto'][-1]}, f)
-
-            population = parents_population + mutated_population + crossovered_population
-            assert len(population) == self.population_size
-            
-            self.update_population_count(population)
-            self.all_population += mutated_population + crossovered_population
-
-            self.plot_search_state(iteration=i,
-                                   parents={'params': parents_params, 
-                                            'total_params': parents_total_params, 
-                                            'latencies': parents_latencies, 
-                                            'memories': parents_memories,
-                                            'population': parents_population})
-
-        logs_path = os.path.join(self.results_path, 'logs.pkl')
-        with open(logs_path, 'wb') as f:
-            pickle.dump(logs, f)
-
-        # Generates a command-line per Pareto-frontier point
-        # which can be sent off to a cluster for training
-        # TODO: do non-maximum suppression on the Pareto-frontier
-        create_pareto_jobs(self.results_path, 
-                           converter=self.converter,
-                           model_type=self.model_type,
-                           max_step=40000,
-                           output_path=os.path.join(self.results_path, 'pareto_jobs'))    
-
-        # Generates command-lines for fully training all architectures visited during search
-        create_ground_truth_jobs(self.results_path,
-                                 self.converter,
-                                 model_type=self.model_type,
-                                 max_step=40000,
-                                 output_path=os.path.join(self.results_path, 'visited_jobs')) 
-
-    def _is_seen_before(self, gene: List[Any]) -> bool:
-        """Checks whether gene has already been seen during search.
-
-        Args:
-            gene: Gene to be checked.
-
-        Returns:
-            (bool): Whether gene has already been seen during search.
+    def _profile(self) -> None:
+        """Profiles the search space.
 
         """
 
-        key = self.converter.gene_to_key(gene)
+        def _profile_model(config: Dict[str, Any]) -> Tuple[int, int, float, float]:
+            model_config = copy.deepcopy(self.model_config)
+            model_config.update(config)
 
-        if key in self.counts.keys():
-            return True
+            model = load_model_from_config(self.model_type, model_config)
+
+            params = measure_parameters(model, ['non_embedding'])
+            total_params =  measure_parameters(model, ['total'])
+            latency = measure_inference_latency(model, use_quantization=self.use_quantization)
+            peak_memory = measure_peak_memory(model, use_quantization=self.use_quantization)
+
+            return params, total_params, latency, peak_memory
+
+        # Largest model    
+        max_gene = [self.allowed_genes[k][-1] for k in range(self.gene_size)]
+        max_config = self.converter.gene_to_config(max_gene)
+
+        self.max_params, \
+        self.max_total_params, \
+        self.max_latency, \
+        self.max_peak_memory = _profile_model(max_config)
+
+        print(f'''Largest model in this space has: 
+                {max_config}
+                {self.max_params} decoder params
+                {self.max_total_params} total params
+                {self.max_latency:.4f}s latency
+                {self.max_peak_memory:.4f}MB memory''')
+
+        # Smallest model
+        min_gene = [self.allowed_genes[k][0] for k in range(self.gene_size)]
+        min_config = self.converter.gene_to_config(min_gene)
+
+        self.min_params, \
+        self.min_total_params, \
+        self.min_latency, \
+        self.min_peak_memory = _profile_model(min_config)
         
-        return False
+        print(f'''Smallest model in this space has: 
+                {min_config}
+                {self.min_params} decoder params
+                {self.min_total_params} total params
+                {self.min_latency:.4f}s latency
+                {self.min_peak_memory:.4f}MB memory''')
 
-    def crossover(self, genes: List[List[Any]]) -> List[List[Any]]:
-        """Performs the crossover between genes.
-
-        Args:
-            genes: List of genes.
-
-        Returns:
-            (List[List[Any]]): Crossovered genes.
-
-        """
-                
-        crossovered_gene = []
-
-        for k in range(self.gene_size):
-            if np.random.uniform() < self.crossover_prob:
-                crossovered_gene.append(genes[0][k])
-            else:
-                crossovered_gene.append(genes[1][k])
-
-        return crossovered_gene
-
-    def mutation(self, gene: List[Any]) -> List[Any]:
-        """Performs mutation over a single gene.
+    def _check_constraints(self, gene: List[Any]) -> bool:
+        """Checks whether gene fulfill constraints or not.
 
         Args:
             gene: Gene.
 
         Returns:
-            (List[Any]): Mutated gene.
+            (bool): Whether gene has fulfilled constraints or not.
 
         """
 
-        mutated_gene = []
+        # Converts gene to configuration
+        config = self.converter.gene_to_config(gene)
 
-        for k in range(self.gene_size):
-            if np.random.uniform() < self.mutation_prob:
-                mutated_gene.append(random.choices(self.allowed_genes[k])[0])
-            else:
-                mutated_gene.append(gene[k])
+        # Loads model from current configuration
+        model_config = copy.deepcopy(self.model_config)
+        model_config.update(config)
 
-        return mutated_gene
+        # Checks if model passes number of parameter constraints via analytical means since it is fast
+        total_params_analytical = MODELS_PARAMS_FORMULAE[self.model_type](model_config)['total']
 
-    def calculate_constraints(self, genes: List[List[Any]]) -> Tuple[List[int], List[int], List[float], List[float]]:
+        if total_params_analytical < self.param_constraint_lower:
+            print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M < {self.param_constraint_lower/1e6:.4f}M parameters')
+            return False
+    
+        if total_params_analytical > self.param_constraint_upper:
+            print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M > {self.param_constraint_upper/1e6:.4f}M parameters')
+            return False
+
+        # If the analytical check is valid, model is finally created
+        model = load_model_from_config(self.model_type, model_config)
+
+        # Checks the latency constraint
+        if self.latency_constraint_upper is not None:
+            latency = measure_inference_latency(model,
+                                                use_quantization=self.use_quantization,
+                                                n_threads=self.n_threads,
+                                                n_trials=self.latency_repeat)
+            
+            if latency > self.latency_constraint_upper:
+                print(f'Invalid gene: {gene} has {latency}s > {self.latency_constraint_upper}s latency')
+                return False
+
+        return True
+
+    def _calculate_constraints(self, genes: List[List[Any]]) -> Tuple[List[int], List[int], List[float], List[float]]:
         """Calculates decoder parameters, total parameters, memory and latency.
 
         Args:
@@ -386,189 +283,7 @@ class Evolution:
         
         return params, total_params, latencies, memories
 
-    def check_constraints(self, gene: List[Any]) -> bool:
-        """Checks whether gene fulfill constraints or not.
-
-        Args:
-            gene: Gene.
-
-        Returns:
-            (bool): Whether gene has fulfilled constraints or not.
-
-        """
-
-        # Converts gene to configuration
-        config = self.converter.gene_to_config(gene)
-
-        # Loads model from current configuration
-        model_config = copy.deepcopy(self.model_config)
-        model_config.update(config)
-
-        # Checks if model passes number of parameter constraints via analytical means since it is fast
-        total_params_analytical = MODELS_PARAMS_FORMULAE[self.model_type](model_config)['total']
-
-        if total_params_analytical < self.param_constraint_lower:
-            print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M < {self.param_constraint_lower/1e6:.4f}M parameters')
-            return False
-    
-        if total_params_analytical > self.param_constraint_upper:
-            print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M > {self.param_constraint_upper/1e6:.4f}M parameters')
-            return False
-
-        # If the analytical check is valid, model is finally created
-        model = load_model_from_config(self.model_type, model_config)
-
-        # Checks the latency constraint
-        if self.latency_constraint_upper is not None:
-            latency = measure_inference_latency(model,
-                                                use_quantization=self.use_quantization,
-                                                n_threads=self.n_threads,
-                                                n_trials=self.latency_repeat)
-            
-            if latency > self.latency_constraint_upper:
-                print(f'Invalid gene: {gene} has {latency}s > {self.latency_constraint_upper}s latency')
-                return False
-
-        return True
-
-    def sample_random_population(self, n_samples: int) -> List[List[Any]]:
-        """Samples a random population.
-
-        Args:
-            n_samples: Number of genes to be sampled.
-
-        Returns:
-            (List[List[Any]]): Randomly sampled population.
-
-        """
-
-        population = []
-
-        i = 0
-        while i < n_samples:
-            sampled_gene = []
-
-            for k in range(self.gene_size):
-                sampled_gene.append(random.choices(self.allowed_genes[k])[0])
-
-            if self.check_constraints(sampled_gene):
-                population.append(sampled_gene)
-                i += 1
-                print(f'Valid architectures: {i}/{n_samples}')
-
-        return population
-
-    def semi_brute_force(self, n_samples: int, batch: Optional[int] = 1000) -> None:
-        """Provides a brute force ablation to the evolutionary search algorithm.
-        
-        This method samples batches of points at random from the search space
-        and updates the Pareto-frontier. Thus there is no guided sampling along the
-        Pareto-frontier. 
-
-        Args:
-            n_samples: Number of genes to be sampled.
-            batch: Number of batched genes to conduct the brute force.
-
-        """
-
-        # Samples the initial population
-        path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl') 
-
-        if os.path.exists(path_to_population):
-            with open(path_to_population, 'rb') as f:
-                population = pickle.load(f)
-
-            population = population[:n_samples]
-
-        else:
-            population = self.sample_random_population(n_samples)
-
-            with open(path_to_population, 'wb') as f:
-                pickle.dump(population, f)
-
-        # Samples batches of random examples from the large initial pool
-        # and updates the Pareto-frontier iteratively
-        for idx in range(0, n_samples, batch):
-            curr_population = population[idx:idx+batch]
-
-            curr_population_params, \
-            curr_population_total_params, \
-            curr_population_latencies, \
-            curr_population_memories = self.calculate_constraints(curr_population)
-
-            self.all_population += curr_population
-            self.all_params += curr_population_params
-            self.all_total_params += curr_population_total_params
-            self.all_latencies += curr_population_latencies
-            self.all_memories += curr_population_memories
-
-            self.update_pareto_front(is_decreasing=True)
-
-            self.plot_search_state(iter=idx)
-
-            logs = {'population': population,
-                    'params': curr_population_params,
-                    'total_params': curr_population_total_params,
-                    'latencies': curr_population_latencies,
-                    'memories': curr_population_memories,
-                    'pareto': self.pareto}
-
-            logs_path = os.path.join(self.results_path, f'logs_bruteforce_{idx}.pkl')
-            with open(logs_path, 'wb') as f:
-                print(f'Saving indices: {idx}-{idx+batch}')
-                pickle.dump(logs, f)
-
-    def profile(self) -> None:
-        """Profiles the search space.
-
-        """
-
-        def _profile_model(config: Dict[str, Any]) -> Tuple[int, int, float, float]:
-            model_config = copy.deepcopy(self.model_config)
-            model_config.update(config)
-
-            model = load_model_from_config(self.model_type, model_config)
-
-            params = measure_parameters(model, ['non_embedding'])
-            total_params =  measure_parameters(model, ['total'])
-            latency = measure_inference_latency(model, use_quantization=self.use_quantization)
-            peak_memory = measure_peak_memory(model, use_quantization=self.use_quantization)
-
-            return params, total_params, latency, peak_memory
-
-        # Largest model    
-        max_gene = [self.allowed_genes[k][-1] for k in range(self.gene_size)]
-        max_config = self.converter.gene_to_config(max_gene)
-
-        self.max_params, \
-        self.max_total_params, \
-        self.max_latency, \
-        self.max_peak_memory = _profile_model(max_config)
-
-        print(f'''Largest model in this space has: 
-                {max_config}
-                {self.max_params} decoder params
-                {self.max_total_params} total params
-                {self.max_latency:.4f}s latency
-                {self.max_peak_memory:.4f}MB memory''')
-
-        # Smallest model
-        min_gene = [self.allowed_genes[k][0] for k in range(self.gene_size)]
-        min_config = self.converter.gene_to_config(min_gene)
-
-        self.min_params, \
-        self.min_total_params, \
-        self.min_latency, \
-        self.min_peak_memory = _profile_model(min_config)
-        
-        print(f'''Smallest model in this space has: 
-                {min_config}
-                {self.min_params} decoder params
-                {self.min_total_params} total params
-                {self.min_latency:.4f}s latency
-                {self.min_peak_memory:.4f}MB memory''')
-        
-    def update_pareto_front(self, is_decreasing: Optional[bool] = True) -> None:
+    def _update_pareto_front(self, is_decreasing: Optional[bool] = True) -> None:
         """Updates the Pareto-frontier of the evolutionary search.
 
         Args:
@@ -603,32 +318,7 @@ class Evolution:
             
         print(f'Pareto-frontier points: {len(self.pareto["population"])}')
 
-    def update_gene_count(self, gene: List[Any]) -> None:
-        """Updates the number of a single repeated gene.
-
-        Args:
-            gene: Current gene.
-
-        """
-
-        key = self.converter.gene_to_key(gene)
-
-        # Important to add as a dictionary because it
-        # prevents Counter from counting the characters in the string
-        self.counts.update({key: 1})
-
-    def update_population_count(self, population: List[List[Any]]) -> None:
-        """Updates the number of repeated genes in the population.
-
-        Args:
-            population: Current population.
-
-        """
-
-        for gene in population:
-            self.update_gene_count(gene)
-
-    def calculate_weighted_count(self) -> np.array:
+    def _calculate_weighted_count(self) -> np.array:
         """Assigns a weight to each member of the Pareto-frontier such that it is inversely 
             proportional to the number of times it has already been in the working set population.
             
@@ -658,6 +348,91 @@ class Evolution:
         assert count_weights.size == len(self.pareto['population'])
 
         return count_weights
+
+    def _mutation(self, gene: List[Any]) -> List[Any]:
+        """Performs mutation over a single gene.
+
+        Args:
+            gene: Gene.
+
+        Returns:
+            (List[Any]): Mutated gene.
+
+        """
+
+        mutated_gene = []
+
+        for k in range(self.gene_size):
+            if np.random.uniform() < self.mutation_prob:
+                mutated_gene.append(random.choices(self.allowed_genes[k])[0])
+            else:
+                mutated_gene.append(gene[k])
+
+        return mutated_gene
+
+    def _crossover(self, genes: List[List[Any]]) -> List[List[Any]]:
+        """Performs the crossover between genes.
+
+        Args:
+            genes: List of genes.
+
+        Returns:
+            (List[List[Any]]): Crossovered genes.
+
+        """
+                
+        crossovered_gene = []
+
+        for k in range(self.gene_size):
+            if np.random.uniform() < self.crossover_prob:
+                crossovered_gene.append(genes[0][k])
+            else:
+                crossovered_gene.append(genes[1][k])
+
+        return crossovered_gene
+
+    def _is_seen_before(self, gene: List[Any]) -> bool:
+        """Checks whether gene has already been seen during search.
+
+        Args:
+            gene: Gene to be checked.
+
+        Returns:
+            (bool): Whether gene has already been seen during search.
+
+        """
+
+        key = self.converter.gene_to_key(gene)
+
+        if key in self.counts.keys():
+            return True
+        
+        return False
+
+    def _update_gene_count(self, gene: List[Any]) -> None:
+        """Updates the number of a single repeated gene.
+
+        Args:
+            gene: Current gene.
+
+        """
+
+        key = self.converter.gene_to_key(gene)
+
+        # Important to add as a dictionary because it
+        # prevents Counter from counting the characters in the string
+        self.counts.update({key: 1})
+
+    def _update_population_count(self, population: List[List[Any]]) -> None:
+        """Updates the number of repeated genes in the population.
+
+        Args:
+            population: Current population.
+
+        """
+
+        for gene in population:
+            self._update_gene_count(gene)
 
     def plot_search_state(self,
                           iteration: Optional[int] = None,
@@ -916,6 +691,231 @@ class Evolution:
 
         fig3.write_html(savename_html)
         fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
+
+    def sample_random_population(self, n_samples: int) -> List[List[Any]]:
+        """Samples a random population.
+
+        Args:
+            n_samples: Number of genes to be sampled.
+
+        Returns:
+            (List[List[Any]]): Randomly sampled population.
+
+        """
+
+        population = []
+
+        i = 0
+        while i < n_samples:
+            sampled_gene = []
+
+            for k in range(self.gene_size):
+                sampled_gene.append(random.choices(self.allowed_genes[k])[0])
+
+            if self._check_constraints(sampled_gene):
+                population.append(sampled_gene)
+                i += 1
+                print(f'Valid architectures: {i}/{n_samples}')
+
+        return population
+
+    def search(self) -> None:
+        """Performs the actual search.
+
+        """
+
+        # Samples the initial population    
+        population = self.sample_random_population(self.population_size)
+
+        self.all_population = population
+        self._update_population_count(population)
+
+        logs = {'population': [],
+                'params': [],
+                'total_params': [],
+                'latencies': [],
+                'memories': [],
+                'parents': [],
+                'pareto': []}
+
+        parents_params = []
+        parents_total_params = []
+        parents_latencies = []
+        parents_memories = []
+
+        for i in range(self.n_iter):
+            idx = 0 if i == 0 else self.parent_size
+            print(f'Iteration {i+1}/{self.n_iter}')
+
+            # Calculates decoder parameters, total parameters, latencies and memories
+            population_params_unseen, \
+            population_total_params_unseen, \
+            population_latencies_unseen, \
+            population_memories_unseen = self._calculate_constraints(population[idx:])
+
+            population_params = parents_params + population_params_unseen
+            population_total_params = parents_total_params + population_total_params_unseen
+            population_latencies = parents_latencies + population_latencies_unseen
+            population_memories = parents_memories + population_memories_unseen
+
+            assert len(population_params) == self.population_size
+            assert len(population_total_params) == self.population_size
+            assert len(population_latencies) == self.population_size
+            assert len(population_memories) == self.population_size
+            
+            self.all_params += population_params_unseen
+            self.all_total_params += population_total_params_unseen
+            self.all_latencies += population_latencies_unseen
+            self.all_memories += population_memories_unseen
+
+            print(f'Visited population points: {len(self.all_population)}')
+
+            self._update_pareto_front(is_decreasing=True)
+
+            # Selects parents for the next iteration from the current estimate
+            # of the Pareto-frontier while giving more weight to newer parents
+            weights = self._calculate_weighted_count()
+            selected_idx = np.random.choice(len(self.pareto['population']),
+                                            size=self.parent_size,
+                                            p=weights)
+
+            parents_population = [self.pareto['population'][m] for m in selected_idx]
+            parents_params = [self.pareto['params'][m] for m in selected_idx]
+            parents_total_params = [self.pareto['total_params'][m] for m in selected_idx]
+            parents_latencies = [self.pareto['latencies'][m] for m in selected_idx]
+            parents_memories = [self.pareto['memories'][m] for m in selected_idx]
+            
+            # Mutates random `k` subsets of the parents
+            # while ensuring the mutations fall within desired constraint limits
+            mutated_population, k = [], 0
+            while k < self.mutation_size:
+                mutated_gene = self._mutation(random.choices(parents_population)[0])
+                
+                if self._check_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
+                    mutated_population.append(mutated_gene)
+                    k += 1
+
+            # Crossovers random `k` subsets of the parents
+            # while ensuring the crossovers fall within desired constraint limits
+            crossovered_population, k = [], 0
+            while k < self.crossover_size:
+                crossovered_gene = self._crossover(random.sample(parents_population, 2))
+                
+                if self._check_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
+                    crossovered_population.append(crossovered_gene)
+                    k += 1
+
+            # Appends current information to the logs
+            logs['population'].append(copy.deepcopy(population))
+            logs['params'].append(copy.deepcopy(population_params))
+            logs['total_params'].append(copy.deepcopy(population_total_params))
+            logs['latencies'].append(copy.deepcopy(population_latencies))
+            logs['memories'].append(copy.deepcopy(population_memories))
+            logs['parents'].append(copy.deepcopy(parents_population))
+            logs['pareto'].append(copy.deepcopy(self.pareto))
+
+            logs_path = os.path.join(self.results_path, f'logs_itr_{i}.pkl')
+            with open(logs_path, 'wb') as f:
+                pickle.dump({'population': logs['population'][-1],
+                             'params': logs['params'][-1],
+                             'total_params': logs['total_params'][-1],
+                             'latencies': logs['latencies'][-1],
+                             'memories': logs['memories'][-1],
+                             'parents': logs['parents'][-1],
+                             'pareto': logs['pareto'][-1]}, f)
+
+            population = parents_population + mutated_population + crossovered_population
+            assert len(population) == self.population_size
+            
+            self._update_population_count(population)
+            self.all_population += mutated_population + crossovered_population
+
+            self.plot_search_state(iteration=i,
+                                   parents={'params': parents_params, 
+                                            'total_params': parents_total_params, 
+                                            'latencies': parents_latencies, 
+                                            'memories': parents_memories,
+                                            'population': parents_population})
+
+        logs_path = os.path.join(self.results_path, 'logs.pkl')
+        with open(logs_path, 'wb') as f:
+            pickle.dump(logs, f)
+
+        # Generates a command-line per Pareto-frontier point
+        # which can be sent off to a cluster for training
+        # TODO: do non-maximum suppression on the Pareto-frontier
+        create_pareto_jobs(self.results_path, 
+                           converter=self.converter,
+                           model_type=self.model_type,
+                           max_step=40000,
+                           output_path=os.path.join(self.results_path, 'pareto_jobs'))    
+
+        # Generates command-lines for fully training all architectures visited during search
+        create_ground_truth_jobs(self.results_path,
+                                 self.converter,
+                                 model_type=self.model_type,
+                                 max_step=40000,
+                                 output_path=os.path.join(self.results_path, 'visited_jobs'))
+
+    def semi_brute_force(self, n_samples: int, batch: Optional[int] = 1000) -> None:
+        """Provides a brute force ablation to the evolutionary search algorithm.
+        
+        This method samples batches of points at random from the search space
+        and updates the Pareto-frontier. Thus there is no guided sampling along the
+        Pareto-frontier. 
+
+        Args:
+            n_samples: Number of genes to be sampled.
+            batch: Number of batched genes to conduct the brute force.
+
+        """
+
+        # Samples the initial population
+        path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl') 
+
+        if os.path.exists(path_to_population):
+            with open(path_to_population, 'rb') as f:
+                population = pickle.load(f)
+
+            population = population[:n_samples]
+
+        else:
+            population = self.sample_random_population(n_samples)
+
+            with open(path_to_population, 'wb') as f:
+                pickle.dump(population, f)
+
+        # Samples batches of random examples from the large initial pool
+        # and updates the Pareto-frontier iteratively
+        for idx in range(0, n_samples, batch):
+            curr_population = population[idx:idx+batch]
+
+            curr_population_params, \
+            curr_population_total_params, \
+            curr_population_latencies, \
+            curr_population_memories = self._calculate_constraints(curr_population)
+
+            self.all_population += curr_population
+            self.all_params += curr_population_params
+            self.all_total_params += curr_population_total_params
+            self.all_latencies += curr_population_latencies
+            self.all_memories += curr_population_memories
+
+            self._update_pareto_front(is_decreasing=True)
+
+            self.plot_search_state(iter=idx)
+
+            logs = {'population': population,
+                    'params': curr_population_params,
+                    'total_params': curr_population_total_params,
+                    'latencies': curr_population_latencies,
+                    'memories': curr_population_memories,
+                    'pareto': self.pareto}
+
+            logs_path = os.path.join(self.results_path, f'logs_bruteforce_{idx}.pkl')
+            with open(logs_path, 'wb') as f:
+                print(f'Saving indices: {idx}-{idx+batch}')
+                pickle.dump(logs, f) 
 
 
 def run_search(args: Dict[str, Any], do_brute_force: Optional[bool] = False) -> None:
