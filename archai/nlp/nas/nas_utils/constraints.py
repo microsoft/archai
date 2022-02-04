@@ -8,7 +8,7 @@ from typing import List, Optional
 
 import torch
 import torch.utils.benchmark as benchmark
-from torch.profiler import profile, ProfilerActivity
+from torch.profiler import ProfilerActivity, profile
 
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
 

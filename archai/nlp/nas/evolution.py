@@ -8,19 +8,21 @@ import copy
 import os
 import pickle
 import random
+from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional, Tuple
-from collections import defaultdict, Counter
 
 import numpy as np
 import plotly.graph_objects as go
 
 from archai.nlp.models.model_dict import MODELS_PARAMS_FORMULAE
 from archai.nlp.models.model_loader import load_config, load_model_from_config
-from archai.nlp.nas.nas_utils.converter import Converter
-from archai.nlp.nas.nas_utils.dispatcher import create_pareto_jobs, create_ground_truth_jobs
-from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
-from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency, measure_parameters,
+from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency,
+                                                  measure_parameters,
                                                   measure_peak_memory)
+from archai.nlp.nas.nas_utils.converter import Converter
+from archai.nlp.nas.nas_utils.dispatcher import (create_ground_truth_jobs,
+                                                 create_pareto_jobs)
+from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
 
 
 class Evolution:
