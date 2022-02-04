@@ -145,7 +145,7 @@ class Evolution:
         population = self.sample_random_population(self.population_size)
 
         self.all_population = population
-        self.update_counts(population)
+        self.update_population_count(population)
 
         logs = {'population': [],
                 'params': [],
@@ -207,8 +207,8 @@ class Evolution:
             mutated_population, k = [], 0
             while k < self.mutation_size:
                 mutated_gene = self.mutation(random.choices(parents_population)[0])
-
-                if self.check_constraints(mutated_gene) and self._is_seen_before(mutated_gene):
+                
+                if self.check_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
                     mutated_population.append(mutated_gene)
                     k += 1
 
@@ -217,8 +217,8 @@ class Evolution:
             crossovered_population, k = [], 0
             while k < self.crossover_size:
                 crossovered_gene = self.crossover(random.sample(parents_population, 2))
-
-                if self.check_constraints(crossovered_gene) and self._is_seen_before(crossovered_gene):
+                
+                if self.check_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
                     crossovered_population.append(crossovered_gene)
                     k += 1
 
@@ -243,9 +243,10 @@ class Evolution:
 
             population = parents_population + mutated_population + crossovered_population
             assert len(population) == self.population_size
-
-            self.update_counts(population)
+            
+            self.update_population_count(population)
             self.all_population += mutated_population + crossovered_population
+
             self.plot_search_state(iteration=i,
                                    parents={'params': parents_params, 
                                             'total_params': parents_total_params, 
@@ -288,8 +289,8 @@ class Evolution:
 
         if key in self.counts.keys():
             return True
-        else:
-            return False
+        
+        return False
 
     def crossover(self, genes: List[List[Any]]) -> List[List[Any]]:
         """Performs the crossover between genes.
@@ -354,7 +355,7 @@ class Evolution:
         latencies = []
         memories = []
 
-        for i, config in enumerate(configs):
+        for config in configs:
             model_config = copy.deepcopy(self.model_config)
             model_config.update(config)
             model = load_model_from_config(self.model_type, model_config)
@@ -602,8 +603,22 @@ class Evolution:
             
         print(f'Pareto-frontier points: {len(self.pareto["population"])}')
 
-    def update_counts(self, population: List[List[Any]]) -> None:
-        """Updates the number of repeated genes.
+    def update_gene_count(self, gene: List[Any]) -> None:
+        """Updates the number of a single repeated gene.
+
+        Args:
+            gene: Current gene.
+
+        """
+
+        key = self.converter.gene_to_key(gene)
+
+        # Important to add as a dictionary because it
+        # prevents Counter from counting the characters in the string
+        self.counts.update({key: 1})
+
+    def update_population_count(self, population: List[List[Any]]) -> None:
+        """Updates the number of repeated genes in the population.
 
         Args:
             population: Current population.
@@ -611,14 +626,10 @@ class Evolution:
         """
 
         for gene in population:
-            key = self.converter.gene_to_key(gene)
-
-            # Important to add as a dictionary because it
-            # prevents Counter from counting the characters in the string
-            self.counts.update({key: 1})
+            self.update_gene_count(gene)
 
     def calculate_weighted_count(self) -> np.array:
-        """Assigns a weight to each member of the Pareto-frontierier such that it is inversely 
+        """Assigns a weight to each member of the Pareto-frontier such that it is inversely 
             proportional to the number of times it has already been in the working set population.
             
         This is used to select parents from the Pareto-frontier to prevent
