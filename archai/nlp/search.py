@@ -7,6 +7,7 @@
 import argparse
 import os
 import random
+from datetime import datetime
 
 import numpy as np
 import torch
@@ -175,7 +176,9 @@ if __name__ == '__main__':
         args['latency_constraint_upper'] = DEVICE_LATENCY_CONSTRAINT[args['device_name']]
 
     # Initializes the result's path
-    results_path_str = f'{args["model_type"]}_lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s_{args["device_name"]}'
+    now = datetime.now()
+    time_str = now.strftime("%d_%m_%Y_%H_%M_%S")
+    results_path_str = f'{args["model_type"]}_lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s_{args["device_name"]}_{time_str}'
     results_path = os.path.join(args['default_path'], results_path_str)
     args['results_path'] = utils.full_path(results_path, create=True)
 
