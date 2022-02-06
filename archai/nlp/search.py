@@ -21,10 +21,15 @@ from archai.nlp.nas.nas_utils.constraints import DEVICE_LATENCY_CONSTRAINT
 def parse_args():
     parser = argparse.ArgumentParser(description='Autoregressive language models Pareto-frontier extraction.')
 
+    try:
+        save_path = os.environ['AMLT_OUTPUT_DIR']
+    except:
+        save_path = '~/logdir' 
+
     search = parser.add_argument_group('Search configuration')
     search.add_argument('--default_path',
                         type=str,
-                        default='~/logdir',
+                        default=save_path,
                         help='Path to the default folder used to save outputs.')
 
     search.add_argument('--model_type',
