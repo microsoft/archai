@@ -4,11 +4,19 @@
 """Loading utilities to import models and their configurations.
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import torch
 
-from archai.nlp.models.model_dict import MODELS, MODELS_CONFIGS, ONNX_MODELS, ONNX_MODELS_CONFIGS
+from archai.nlp.models.model_dict import (MODELS, MODELS_CONFIGS, MODELS_PARAMS_FORMULAE,
+                                          ONNX_MODELS, ONNX_MODELS_CONFIGS)
+
+
+def load_model_formula(model_type: str) -> Callable:
+    if model_type not in MODELS_CONFIGS.keys():
+        raise Exception(f'model_type: {model_type} not supported yet.')
+
+    return MODELS_PARAMS_FORMULAE[model_type]
 
 
 def load_model_from_checkpoint(model_type: str,
