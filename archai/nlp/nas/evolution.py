@@ -22,6 +22,7 @@ from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import (create_ground_truth_jobs,
                                                  create_pareto_jobs)
 from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
+from archai.nlp.nas.nas_utils.plotter import plot_2d_pareto, plot_3d_pareto
 
 
 class Evolution:
@@ -464,233 +465,97 @@ class Evolution:
             parents_latencies = np.asarray(parents['latencies'])
             parents_memories = np.asarray(parents['memories'])
 
-        # 2D plot #decoder params vs latencies 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=all_params, 
-                                 y=all_latencies, 
-                                 mode='markers',
-                                 marker_color='blue',
-                                 showlegend=True,
-                                 name='All visited architectures',
-                                 hovertemplate = 'Decoder params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                                 text=[repr(config) for config in all_configs]))
-        fig.add_trace(go.Scatter(x=pareto_params,
-                                 y=pareto_latencies,
-                                 mode='markers',
-                                 marker_color='red',
-                                 showlegend=True,
-                                 name='Pareto architectures',
-                                 hovertemplate = 'Decoder params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                                 text=[repr(config) for config in pareto_configs]))
-        if parents:
-            fig.add_trace(go.Scatter(x=parents_params,
-                                     y=parents_latencies,
-                                     mode='markers',
-                                     marker_color='green',
-                                     showlegend=True,
-                                     name='Parent architectures',
-                                     hovertemplate = 'Decoder params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                                     text=[repr(config) for config in parents_configs]))
-        fig.update_layout(title_text=f'Decoder params vs. Latency (s) at Iteration {iteration}',
-                          xaxis_title='Decoder params',
-                          yaxis_title='Latency (s)')
+        # 2D plot: number of decoder parameters x latencies 
+        visited_dict = {'x': all_params, 'y': all_latencies, 'config': all_configs}
+        pareto_dict = {'x': pareto_params, 'y': pareto_latencies, 'config': pareto_configs}
+        parents_dict = {'x': parents_params, 'y': parents_latencies, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iteration}')
 
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iteration}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iteration}.png')
+        plot_2d_pareto(visited_dict,
+                       pareto_dict,
+                       parents_dict,
+                       hover_template='Decoder params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                       title_text=f'Decoder params vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title='Decoder params',
+                       yaxis_title='Latency (s)',
+                       output_path=output_path)
 
-        fig.write_html(savename_html)
-        fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
+        # 2D plot: number of total parameters x latencies 
+        visited_dict = {'x': all_total_params, 'y': all_latencies, 'config': all_configs}
+        pareto_dict = {'x': pareto_total_params, 'y': pareto_latencies, 'config': pareto_configs}
+        parents_dict = {'x': parents_total_params, 'y': parents_latencies, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'total_params_vs_latency_iter_{iteration}')
 
-        # 2D plot #total params vs latencies 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=all_total_params, 
-                                 y=all_latencies, 
-                                 mode='markers',
-                                 marker_color='blue',
-                                 showlegend=True,
-                                 name='All visited architectures',
-                                 hovertemplate = 'Total params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                                 text=[repr(config) for config in all_configs]))
-        fig.add_trace(go.Scatter(x=pareto_total_params,
-                                 y=pareto_latencies,
-                                 mode='markers',
-                                 marker_color='red',
-                                 showlegend=True,
-                                 name='Pareto architectures',
-                                 hovertemplate = 'Total params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                                 text=[repr(config) for config in pareto_configs]))
-        if parents:
-            fig.add_trace(go.Scatter(x=parents_total_params,
-                                     y=parents_latencies,
-                                     mode='markers',
-                                     marker_color='green',
-                                     showlegend=True,
-                                     name='Parent architectures',
-                                     hovertemplate = 'Total params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                                     text=[repr(config) for config in parents_configs]))
-        fig.update_layout(title_text=f'Total params vs. Latency (s) at Iteration {iteration}',
-                          xaxis_title='Total params',
-                          yaxis_title='Latency (s)')
+        plot_2d_pareto(visited_dict,
+                       pareto_dict,
+                       parents_dict,
+                       hover_template='Total params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                       title_text=f'Total params vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title='Total params',
+                       yaxis_title='Latency (s)',
+                       output_path=output_path)
 
-        savename_html = os.path.join(self.results_path, f'total_params_vs_latency_iter_{iteration}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_latency_iter_{iteration}.png')
+        # 2D plot: number of decoder parameters x memories 
+        visited_dict = {'x': all_params, 'y': all_memories, 'config': all_configs}
+        pareto_dict = {'x': pareto_params, 'y': pareto_memories, 'config': pareto_configs}
+        parents_dict = {'x': parents_params, 'y': parents_memories, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iteration}')
 
-        fig.write_html(savename_html)
-        fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
+        plot_2d_pareto(visited_dict,
+                       pareto_dict,
+                       parents_dict,
+                       hover_template='Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                       title_text=f'Decoder params vs. Memory (MB) at Iteration {iteration}',
+                       xaxis_title='Decoder params',
+                       yaxis_title='Memory (MB)',
+                       output_path=output_path)
+        
+        # 2D plot: number of total parameters x memories 
+        visited_dict = {'x': all_total_params, 'y': all_memories, 'config': all_configs}
+        pareto_dict = {'x': pareto_total_params, 'y': pareto_memories, 'config': pareto_configs}
+        parents_dict = {'x': parents_total_params, 'y': parents_memories, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'total_params_vs_memory_iter_{iteration}')
 
-        # 2D plot #decoder params vs memories
-        fig1 = go.Figure()
-        fig1.add_trace(go.Scatter(x=all_params, 
-                                  y=all_memories, 
-                                  mode='markers',
-                                  marker_color='blue',
-                                  showlegend=True,
-                                  name='All visited architectures',
-                                  hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                                  text=[repr(config) for config in all_configs]))
-        fig1.add_trace(go.Scatter(x=pareto_params,
-                                  y=pareto_memories,
-                                  mode='markers',
-                                  marker_color='red',
-                                  showlegend=True,
-                                  name='Pareto architectures',
-                                  hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                                  text=[repr(config) for config in pareto_configs]))
-        if parents:
-            fig1.add_trace(go.Scatter(x=parents_params,
-                                      y=parents_memories,
-                                      mode='markers',
-                                      marker_color='green',
-                                      showlegend=True,
-                                      name='Parent architectures',
-                                      hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                                      text=[repr(config) for config in parents_configs]))
-        fig1.update_layout(title_text=f'Decoder params vs. Memory (MB) at Iteration {iteration}',
-                           xaxis_title='Decoder params',
-                           yaxis_title='Memory (MB)')
+        plot_2d_pareto(visited_dict,
+                       pareto_dict,
+                       parents_dict,
+                       hover_template='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                       title_text=f'Total params vs. Memory (MB) at Iteration {iteration}',
+                       xaxis_title='Total params',
+                       yaxis_title='Memory (MB)',
+                       output_path=output_path)
 
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iteration}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iteration}.png')
+        # 3D plot: number of decoder parameters x latencies x memories 
+        visited_dict = {'x': all_params, 'y': all_memories, 'z': all_latencies, 'config': all_configs}
+        pareto_dict = {'x': pareto_params, 'y': pareto_memories, 'z': pareto_latencies, 'config': pareto_configs}
+        parents_dict = {'x': parents_params, 'y': parents_memories, 'z': parents_latencies, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{iteration}')
 
-        fig1.write_html(savename_html)
-        fig1.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
+        plot_3d_pareto(visited_dict,
+                       pareto_dict,
+                       parents_dict,
+                       hover_template='Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                       title_text=f'Decoder params vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title='Decoder params',
+                       yaxis_title='Memory (MB)',
+                       zaxis_title='Latency (s)',
+                       output_path=output_path)
 
-        # 2D plot #total params vs memories
-        fig1 = go.Figure()
-        fig1.add_trace(go.Scatter(x=all_total_params, 
-                                  y=all_memories, 
-                                  mode='markers',
-                                  marker_color='blue',
-                                  showlegend=True,
-                                  name='All visited architectures',
-                                  hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                                  text=[repr(config) for config in all_configs]))
-        fig1.add_trace(go.Scatter(x=pareto_total_params,
-                                  y=pareto_memories,
-                                  mode='markers',
-                                  marker_color='red',
-                                  showlegend=True,
-                                  name='Pareto architectures',
-                                  hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                                  text=[repr(config) for config in pareto_configs]))
-        if parents:
-            fig1.add_trace(go.Scatter(x=parents_total_params,
-                                      y=parents_memories,
-                                      mode='markers',
-                                      marker_color='green',
-                                      showlegend=True,
-                                      name='Parent architectures',
-                                      hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                                      text=[repr(config) for config in parents_configs]))
-        fig1.update_layout(title_text=f'Total params vs. Memory (MB) at Iteration {iteration}',
-                           xaxis_title='Total params',
-                           yaxis_title='Memory (MB)')
+        # 3D plot: number of total parameters x latencies x memories 
+        visited_dict = {'x': all_total_params, 'y': all_memories, 'z': all_latencies, 'config': all_configs}
+        pareto_dict = {'x': pareto_total_params, 'y': pareto_memories, 'z': pareto_latencies, 'config': pareto_configs}
+        parents_dict = {'x': parents_total_params, 'y': parents_memories, 'z': parents_latencies, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'total_params_vs_memory_vs_latency_iter_{iteration}')
 
-        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_iter_{iteration}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_iter_{iteration}.png')
-
-        fig1.write_html(savename_html)
-        fig1.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
-
-        # 3D plot decoder params vs. latencies vs. memories
-        fig3 = go.Figure()
-        fig3.add_trace(go.Scatter3d(x=all_params, 
-                                    y=all_memories,
-                                    z=all_latencies, 
-                                    mode='markers',
-                                    marker_color='blue',
-                                    showlegend=True,
-                                    name='All visited architectures',
-                                    hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                                    text=[repr(config) for config in all_configs]))
-        fig3.add_trace(go.Scatter3d(x=pareto_params,
-                                    y=pareto_memories,
-                                    z=pareto_latencies,
-                                    mode='markers',
-                                    marker_color='red',
-                                    showlegend=True,
-                                    name='Pareto architectures',
-                                    hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                                    text=[repr(config) for config in pareto_configs]))
-        if parents:
-            fig3.add_trace(go.Scatter3d(x=parents_params,
-                                        y=parents_memories,
-                                        z=parents_latencies,
-                                        mode='markers',
-                                        marker_color='green',
-                                        showlegend=True,
-                                        name='Parent architectures',
-                                        hovertemplate = 'Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                                        text=[repr(config) for config in parents_configs]))
-        fig3.update_layout(scene=dict(xaxis_title='Decoder params',
-                                      yaxis_title='Memory (MB)',
-                                      zaxis_title='Latency (s)'))
-
-        savename_html = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{iteration}.html')
-        savename_png = os.path.join(self.results_path, f'decoder_params_vs_memory_latency_iter_{iteration}.png')
-
-        fig3.write_html(savename_html)
-        fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
-
-        # 3D plot total params vs. latencies vs. memories
-        fig3 = go.Figure()
-        fig3.add_trace(go.Scatter3d(x=all_total_params, 
-                                    y=all_memories,
-                                    z=all_latencies, 
-                                    mode='markers',
-                                    marker_color='blue',
-                                    showlegend=True,
-                                    name='All visited architectures',
-                                    hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                                    text=[repr(config) for config in all_configs]))
-        fig3.add_trace(go.Scatter3d(x=pareto_total_params,
-                                    y=pareto_memories,
-                                    z=pareto_latencies,
-                                    mode='markers',
-                                    marker_color='red',
-                                    showlegend=True,
-                                    name='Pareto architectures',
-                                    hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                                    text=[repr(config) for config in pareto_configs]))
-        if parents:
-            fig3.add_trace(go.Scatter3d(x=parents_total_params,
-                                        y=parents_memories,
-                                        z=parents_latencies,
-                                        mode='markers',
-                                        marker_color='green',
-                                        showlegend=True,
-                                        name='Parent architectures',
-                                        hovertemplate = 'Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                                        text=[repr(config) for config in parents_configs]))
-        fig3.update_layout(scene=dict(xaxis_title='Total params',
-                                      yaxis_title='Memory (MB)',
-                                      zaxis_title='Latency (s)'))
-
-        savename_html = os.path.join(self.results_path, f'total_params_vs_memory_vs_latency_iter_{iteration}.html')
-        savename_png = os.path.join(self.results_path, f'total_params_vs_memory_latency_iter_{iteration}.png')
-
-        fig3.write_html(savename_html)
-        fig3.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
+        plot_3d_pareto(visited_dict,
+                       pareto_dict,
+                       parents_dict,
+                       hover_template='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                       title_text=f'Total params vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title='Total params',
+                       yaxis_title='Memory (MB)',
+                       zaxis_title='Latency (s)',
+                       output_path=output_path)
 
     def sample_random_population(self, n_samples: int) -> List[List[Any]]:
         """Samples a random population.
