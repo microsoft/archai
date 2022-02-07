@@ -25,10 +25,8 @@ def _get_hyperparams(model_config: Dict[str, Any]) -> Tuple[int, int, int, List[
 
 
 def get_params_hf_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
-    # Gathers hyperparameters
     n_token, tgt_len, d_model, d_embed, d_inner, n_head, d_head = _get_hyperparams(model_config)
 
-    # Defines an empty dictionary of parameters
     params = {
         'embedding': 0,
         'attention': 0,
@@ -64,10 +62,8 @@ def get_params_hf_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def get_params_hf_gpt2_flex_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
-    # Gathers hyperparameters
     n_token, tgt_len, d_model, d_embed, d_inner, n_head, d_head = _get_hyperparams(model_config)
 
-    # Defines an empty dictionary of parameters
     params = {
         'embedding': 0,
         'attention': 0,
@@ -103,14 +99,12 @@ def get_params_hf_gpt2_flex_formula(model_config: Dict[str, Any]) -> Dict[str, A
 
 
 def get_params_hf_transfo_xl_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
-    # Gathers hyperparameters
     n_token, _, d_model, d_embed, d_inner, n_head, d_head = _get_hyperparams(model_config)
     div_val = model_config['div_val']
     cutoffs = model_config['cutoffs'] + [n_token]
     cutoff_ends = [0] + cutoffs
     n_clusters = len(cutoffs) - 1
 
-    # Defines an empty dictionary of parameters
     params = {
         'embedding': 0,
         'softmax': 0,
@@ -150,12 +144,9 @@ def get_params_hf_transfo_xl_formula(model_config: Dict[str, Any]) -> Dict[str, 
         # PositionwiseFF
         params['ff'] += (d_model * d_inner[0] + d_inner[0]) + (d_inner[0] * d_model + d_model) + 2 * d_model
 
-    # Softmax layer
-    # Clusters: (n_clusters * d_embed) + n_clusters
+    # Softmax
+    # Clusters
     params['softmax'] += n_clusters * d_embed + n_clusters
-
-    # # Shared output projections: (d_embed * (d_embed // (div_val ** i)) for each cutoff
-    # params['softmax'] += sum([d_embed * (d_embed // (div_val ** i)) for i in range(len(cutoffs))])
 
     # Handles number of parameters for different div_val
     if div_val == 1:
@@ -178,7 +169,6 @@ def get_params_hf_transfo_xl_formula(model_config: Dict[str, Any]) -> Dict[str, 
 
 
 def get_params_mem_transformer_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
-    # Gathers hyperparameters
     n_token, _, d_model, d_embed, d_inner, n_head, d_head = _get_hyperparams(model_config)
     div_val = model_config['div_val']
     cutoffs = model_config['cutoffs'] + [n_token]
@@ -187,7 +177,6 @@ def get_params_mem_transformer_formula(model_config: Dict[str, Any]) -> Dict[str
     tie_projs = model_config['tie_projs']
     tie_weight = model_config['tie_weight']
 
-    # Defines an empty dictionary of parameters
     params = {
         'embedding': 0,
         'softmax': 0,
