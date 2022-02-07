@@ -14,8 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import plotly.graph_objects as go
 
-from archai.nlp.models.model_dict import MODELS_PARAMS_FORMULAE
-from archai.nlp.models.model_loader import load_config, load_model_from_config
+from archai.nlp.models.model_loader import load_config, load_model_formula, load_model_from_config
 from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency,
                                                   measure_parameters,
                                                   measure_peak_memory)
@@ -206,7 +205,7 @@ class Evolution:
         model_config.update(config)
 
         # Checks if model passes number of parameter constraints via analytical means since it is fast
-        total_params_analytical = MODELS_PARAMS_FORMULAE[self.model_type](model_config)['total']
+        total_params_analytical = load_model_formula(self.model_type)(model_config)['total']
 
         if total_params_analytical < self.param_constraint_lower:
             print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M < {self.param_constraint_lower/1e6:.4f}M parameters')
