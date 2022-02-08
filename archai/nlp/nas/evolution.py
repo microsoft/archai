@@ -20,7 +20,7 @@ from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency,
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import (create_ground_truth_jobs,
                                                  create_pareto_jobs)
-from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
+from archai.nlp.nas.nas_utils.pareto_frontier import find_pareto_frontier_points
 from archai.nlp.nas.nas_utils.plotter import plot_2d_pareto, plot_3d_pareto
 
 
@@ -283,7 +283,7 @@ class Evolution:
         
         return params, total_params, latencies, memories
 
-    def _update_pareto_front(self, is_decreasing: Optional[bool] = True) -> None:
+    def _update_pareto_frontier(self, is_decreasing: Optional[bool] = True) -> None:
         """Updates the Pareto-frontier of the evolutionary search.
 
         Args:
@@ -302,7 +302,7 @@ class Evolution:
         zs = np.array(self.all_memories).reshape(-1, 1)
 
         points = np.concatenate((xs, ys, zs), axis=1)
-        p_inds = find_pareto_points(points, is_decreasing=is_decreasing)
+        points_idx = find_pareto_frontier_points(points, is_decreasing=is_decreasing)
 
         assert points.shape[0] == len(self.all_population)
         assert points.shape[0] == len(self.all_params)
@@ -310,11 +310,11 @@ class Evolution:
         assert points.shape[0] == len(self.all_latencies)
         assert points.shape[0] == len(self.all_memories)
         
-        self.pareto['population'] = [self.all_population[i] for i in p_inds]
-        self.pareto['params'] = [self.all_params[i] for i in p_inds]
-        self.pareto['total_params'] = [self.all_total_params[i] for i in p_inds]
-        self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
-        self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
+        self.pareto['population'] = [self.all_population[i] for i in points_idx]
+        self.pareto['params'] = [self.all_params[i] for i in points_idx]
+        self.pareto['total_params'] = [self.all_total_params[i] for i in points_idx]
+        self.pareto['latencies'] = [self.all_latencies[i] for i in points_idx]
+        self.pareto['memories'] = [self.all_memories[i] for i in points_idx]
             
         print(f'Pareto-frontier points: {len(self.pareto["population"])}')
 
@@ -469,7 +469,7 @@ class Evolution:
         pareto_dict = {'x': pareto_params, 'y': pareto_latencies, 'config': pareto_configs}
         parents_dict = {'x': parents_params, 'y': parents_latencies, 'config': parents_configs} if parents else None
         output_path = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iteration}')
-        
+
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
@@ -634,7 +634,7 @@ class Evolution:
 
             print(f'Visited population points: {len(self.all_population)}')
 
-            self._update_pareto_front(is_decreasing=True)
+            self._update_pareto_frontier(is_decreasing=True)
 
             # Selects parents for the next iteration from the current estimate
             # of the Pareto-frontier while giving more weight to newer parents
@@ -766,7 +766,7 @@ class Evolution:
             self.all_latencies += curr_population_latencies
             self.all_memories += curr_population_memories
 
-            self._update_pareto_front(is_decreasing=True)
+            self._update_pareto_frontier(is_decreasing=True)
 
             self.plot_search_state(iteration=i)
 
