@@ -702,25 +702,31 @@ class Evolution:
                                             'memories': parents_memories,
                                             'population': parents_population})
 
-        logs_path = os.path.join(self.results_path, 'logs.pkl')
-        with open(logs_path, 'wb') as f:
-            pickle.dump(logs, f)
+            # save all logs 
+            logs_path = os.path.join(self.results_path, 'logs.pkl')
+            with open(logs_path, 'wb') as f:
+                pickle.dump(logs, f)
 
-        # Generates a command-line per Pareto-frontier point
-        # which can be sent off to a cluster for training
-        # TODO: do non-maximum suppression on the Pareto-frontier
-        create_pareto_jobs(self.results_path, 
-                           converter=self.converter,
-                           model_type=self.model_type,
-                           max_step=40000,
-                           output_path=os.path.join(self.results_path, 'pareto_jobs'))    
+            # Generates a command-line per Pareto-frontier point
+            # which can be sent off to a cluster for training
+            # TODO: do non-maximum suppression on the Pareto-frontier
+            create_pareto_jobs(self.results_path, 
+                            converter=self.converter,
+                            model_type=self.model_type,
+                            max_step=40000,
+                            output_path=os.path.join(self.results_path, f'pareto_jobs_iter_{i}'))    
 
-        # Generates command-lines for fully training all architectures visited during search
-        create_ground_truth_jobs(self.results_path,
-                                 self.converter,
-                                 model_type=self.model_type,
-                                 max_step=40000,
-                                 output_path=os.path.join(self.results_path, 'visited_jobs'))
+            # Generates command-lines for fully training all architectures visited during search
+            create_ground_truth_jobs(self.results_path,
+                                    self.converter,
+                                    model_type=self.model_type,
+                                    max_step=40000,
+                                    output_path=os.path.join(self.results_path, f'visited_jobs_iter_{i}'))
+            
+
+        
+
+        
 
     def semi_brute_force(self, n_samples: int, batch: Optional[int] = 1000) -> None:
         """Provides a brute force ablation to the evolutionary search algorithm.
