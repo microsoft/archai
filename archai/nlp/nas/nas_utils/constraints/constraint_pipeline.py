@@ -24,7 +24,8 @@ DEVICE_LATENCY_CONSTRAINT = {
 
 
 class ConstraintPipeline:
-    """
+    """Defines a constraint pipeline that enables multi-typing (PyTorch and ONNX).
+
     """
 
     def __init__(self,
@@ -34,7 +35,16 @@ class ConstraintPipeline:
                  n_threads: int,
                  n_trials: int,
                  device: str) -> None:
-        """
+        """Overrides initialization method.
+
+        Args:
+            use_quantization: Whether latency should be calculated with quantizated model or not.
+            use_median: Whether should use median instead of mean for latency measurement.
+            seq_len: Sequence length to measure the latency.
+            n_threads: Number of inference threads.
+            n_trials: Number of times to repeat the measurement.
+            device: Device where latency should be measured.
+
         """
 
         self.use_quantization = use_quantization
@@ -46,15 +56,27 @@ class ConstraintPipeline:
 
         self.device = device
 
-    def __call__():
-        """
+    def __call__() -> None:
+        """Invokes the built-in call method.
+
+        This method has to be implemented for child classes according to
+        their pipeline usage.
+
+        In Archai, we adopt the following:
+            - PyTorch: call(model)
+            - ONNX: call(model_config)
+
+        Raises:
+            Not implemented error.
+
         """
 
         raise NotImplementedError
 
 
 class TorchConstraintPipeline(ConstraintPipeline):
-    """
+    """Defines a PyTorch-based constraint pipeline.
+
     """
 
     def __init__(self,
@@ -64,14 +86,31 @@ class TorchConstraintPipeline(ConstraintPipeline):
                  n_threads: Optional[int] = 1,
                  n_trials: Optional[int] = 10,
                  device: Optional[str] = 'cpu') -> None:
-        """
+        """Overrides initialization method.
+
+        Args:
+            use_quantization: Whether latency should be calculated with quantizated model or not.
+            use_median: Whether should use median instead of mean for latency measurement.
+            seq_len: Sequence length to measure the latency.
+            n_threads: Number of inference threads.
+            n_trials: Number of times to repeat the measurement.
+            device: Device where latency should be measured.
+
         """
 
         super().__init__(use_quantization, use_median, seq_len,
                          n_threads, n_trials, device)
 
     def __call__(self, model: torch.nn.Module) -> Tuple[int, int, float, float]:
-        """
+        """Invokes the built-in call method.
+
+        Args:
+            model: Model to be used within constraint pipeline.
+
+        Returns:
+            (Tuple[int, int, float, float]): Decoder parameters, total parameters,
+                latency and memory.
+
         """
 
         return [
