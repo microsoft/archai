@@ -469,7 +469,7 @@ class Evolution:
         pareto_dict = {'x': pareto_params, 'y': pareto_latencies, 'config': pareto_configs}
         parents_dict = {'x': parents_params, 'y': parents_latencies, 'config': parents_configs} if parents else None
         output_path = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iteration}')
-
+        
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
@@ -678,7 +678,7 @@ class Evolution:
             logs['parents'].append(copy.deepcopy(parents_population))
             logs['pareto'].append(copy.deepcopy(self.pareto))
 
-            logs_path = os.path.join(self.results_path, f'logs_itr_{i}.pkl')
+            logs_path = os.path.join(self.results_path, f'logs_iter_{i}.pkl')
             with open(logs_path, 'wb') as f:
                 pickle.dump({'population': logs['population'][-1],
                              'params': logs['params'][-1],
@@ -736,10 +736,10 @@ class Evolution:
         """
 
         # Samples the initial population
-        path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl') 
+        population_path = os.path.join(self.results_path, 'brute_force.pkl') 
 
-        if os.path.exists(path_to_population):
-            with open(path_to_population, 'rb') as f:
+        if os.path.exists(population_path):
+            with open(population_path, 'rb') as f:
                 population = pickle.load(f)
 
             population = population[:n_samples]
@@ -747,13 +747,13 @@ class Evolution:
         else:
             population = self.sample_random_population(n_samples)
 
-            with open(path_to_population, 'wb') as f:
+            with open(population_path, 'wb') as f:
                 pickle.dump(population, f)
 
         # Samples batches of random examples from the large initial pool
         # and updates the Pareto-frontier iteratively
-        for idx in range(0, n_samples, batch):
-            curr_population = population[idx:idx+batch]
+        for i in range(0, n_samples, batch):
+            curr_population = population[i:i+batch]
 
             curr_population_params, \
             curr_population_total_params, \
@@ -768,7 +768,7 @@ class Evolution:
 
             self._update_pareto_front(is_decreasing=True)
 
-            self.plot_search_state(iter=idx)
+            self.plot_search_state(iteration=i)
 
             logs = {'population': population,
                     'params': curr_population_params,
@@ -777,9 +777,9 @@ class Evolution:
                     'memories': curr_population_memories,
                     'pareto': self.pareto}
 
-            logs_path = os.path.join(self.results_path, f'logs_bruteforce_{idx}.pkl')
+            logs_path = os.path.join(self.results_path, f'logs_brute_force_{i}.pkl')
             with open(logs_path, 'wb') as f:
-                print(f'Saving indices: {idx}-{idx+batch}')
+                print(f'Saving indices: {i}-{i+batch}')
                 pickle.dump(logs, f) 
 
 
