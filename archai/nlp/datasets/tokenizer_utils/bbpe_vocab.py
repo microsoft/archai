@@ -10,7 +10,7 @@ from overrides import overrides
 from tokenizers import ByteLevelBPETokenizer
 from transformers import PreTrainedTokenizerFast, PreTrainedTokenizer
 
-from archai.nlp.datasets import distributed_utils as nv_utils
+from archai.nlp.datasets.distributed_utils import distributed
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.datasets.tokenizer_utils.token_config import TokenConfig
 from archai.common import utils, common
@@ -44,7 +44,7 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def train(self, filepaths: List[str]) -> None:
-        with nv_utils.distributed.sync_workers() as rank:
+        with distributed.sync_workers() as rank:
             if rank == 0:
                 logging.info(f'Training BBPE Vocab for size {self.vocab_size} at "{self._tokenizer_filepath}" ...')
                 self._train_tokenizer(filepaths)
