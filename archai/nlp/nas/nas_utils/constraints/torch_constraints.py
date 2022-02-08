@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Constraints that are used throughout the search procedure.
+"""PyTorch-based constraints.
 """
 
 from typing import List, Optional
@@ -12,23 +12,14 @@ from torch.profiler import ProfilerActivity, profile
 
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
 
-# Latency upper bound on different device targets
-# Any model with more latency than this will be removed from consideration during search
-DEVICE_LATENCY_CONSTRAINT = {
-    'XeonE5-2690': 10.0,
-    'corei7': 10.0,
-    'corei5': 10.0,
-    'D3_V2': 10.0,
-}
 
-
-def measure_inference_latency(model: torch.nn.Module,
-                              use_quantization: Optional[bool] = False,
-                              use_median: Optional[bool] = False,
-                              seq_len: Optional[int] = 192,
-                              n_threads: Optional[int] = 1,
-                              n_trials: Optional[int] = 10,
-                              device: Optional[str] = 'cpu') -> float:
+def measure_torch_inference_latency(model: torch.nn.Module,
+                                    use_quantization: Optional[bool] = False,
+                                    use_median: Optional[bool] = False,
+                                    seq_len: Optional[int] = 192,
+                                    n_threads: Optional[int] = 1,
+                                    n_trials: Optional[int] = 10,
+                                    device: Optional[str] = 'cpu') -> float:
     """Measures a model's inference latency.
 
     Args:
@@ -67,8 +58,8 @@ def measure_inference_latency(model: torch.nn.Module,
     return runner.median if use_median else runner.mean
 
 
-def measure_parameters(model: torch.nn.Module,
-                       keys: Optional[List[str]] = ['non_embedding']) -> int:
+def measure_torch_parameters(model: torch.nn.Module,
+                             keys: Optional[List[str]] = ['non_embedding']) -> int:
     """Measures a model's number of parameters according to input options.
 
     Args:
@@ -85,11 +76,11 @@ def measure_parameters(model: torch.nn.Module,
     return sum([params[l] for l in keys])
 
 
-def measure_peak_memory(model: torch.nn.Module,
-                        use_quantization: Optional[bool] = False,
-                        seq_len: Optional[int] = 192,
-                        n_threads: Optional[int] = 1,
-                        device: Optional[str] = 'cpu') -> float:
+def measure_torch_peak_memory(model: torch.nn.Module,
+                              use_quantization: Optional[bool] = False,
+                              seq_len: Optional[int] = 192,
+                              n_threads: Optional[int] = 1,
+                              device: Optional[str] = 'cpu') -> float:
     """Measures a model's peak memory during inference.
 
     Args:
