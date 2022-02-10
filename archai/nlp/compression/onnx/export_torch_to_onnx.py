@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('--model_type',
                         type=str,
                         default='mem_transformer',
-                        choices=['mem_transformer', 'hf_gpt2', 'hf_transfo_xl'],
+                        choices=['mem_transformer', 'hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl'],
                         help='Type of model to be exported.')
 
     parser.add_argument('--opset_version',

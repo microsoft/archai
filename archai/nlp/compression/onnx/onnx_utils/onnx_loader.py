@@ -75,7 +75,7 @@ def load_from_torch_for_export(model_type: str, torch_model_path: str) -> Tuple[
         model.crit.forward = types.MethodType(crit_forward_mem_transformer_onnx, model.crit)
 
     # Overrides forward functions if HfGPT2
-    if model_type == 'hf_gpt2':
+    if model_type in ['hf_gpt2', 'hf_gpt2_flex']:
         model = model.model
         model.forward = types.MethodType(forward_hf_gpt2_onnx, model)
 
