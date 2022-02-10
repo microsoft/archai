@@ -689,6 +689,7 @@ class Evolution:
                              'parents': logs['parents'][-1],
                              'pareto': logs['pareto'][-1]}, f)
 
+            # update population to be parents + mutated + crossovered
             population = parents_population + mutated_population + crossovered_population
             assert len(population) == self.population_size
             
