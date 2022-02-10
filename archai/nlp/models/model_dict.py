@@ -43,12 +43,14 @@ MODELS_PARAMS_FORMULAE = {
 # Available ONNX-based models and their configurations
 ONNX_MODELS = {
     'hf_gpt2': HfGPT2OnnxModel,
+    'hf_gpt2_flex': HfGPT2OnnxModel,
     'hf_transfo_xl': HfTransfoXLOnnxModel,
     'mem_transformer': MemTransformerLMOnnxModel
 }
 
 ONNX_MODELS_CONFIGS = {
     'hf_gpt2': HfGPT2OnnxConfig,
+    'hf_gpt2_flex': HfGPT2OnnxConfig,
     'hf_transfo_xl': HfTransfoXLOnnxConfig,
     'mem_transformer': MemTransformerLMOnnxConfig
 }
