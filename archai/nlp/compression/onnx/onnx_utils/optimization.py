@@ -70,7 +70,7 @@ def optimize_onnx(model_type: str,
 
         # Puts the arguments for the optimizer
         optimizer_args = (ort_model, )
-        if model_type == 'hf_gpt2':
+        if model_type in ['hf_gpt2', 'hf_gpt2_flex']:
             # Adds `hidden_size` as zero just for retro-compatibility
             optimizer_args += (num_heads, 0)
             
