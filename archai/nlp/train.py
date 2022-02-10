@@ -1236,7 +1236,8 @@ def main():
     utils.save_as_yaml(summary, os.path.join(args.work_dir, 'summary.yaml'))
     utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
 
-    summary_csv_filepath = os.path.join(args.work_dir, 'summaries.tsv')
+    exp_results_dir = utils.full_path(os.path.join(args.work_dir, 'textpred', 'experiment_results'), create=True)
+    summary_csv_filepath = os.path.join(exp_results_dir, 'summaries.tsv')
     utils.append_csv_file(summary_csv_filepath, list(summary.items()))
 
     logging.info(f'Output dir: {args.work_dir}')

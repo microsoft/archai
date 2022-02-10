@@ -310,7 +310,7 @@
                     ]
         },
         {
-            "name": "Search Autoregressive HF GPT2",
+            "name": "Search Autoregressive HF GPT2/Flex",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/archai/nlp/search.py",
@@ -325,6 +325,28 @@
                     "--latency_constraint_upper", "10.0",
                     "--param_constraint_upper", "15000000",
                     ]
+        },
+        {
+            "name": "Train GPT2 Flex Distributed WT103",
+            "type": "python",
+            "request": "launch",
+            "module": "torch.distributed.launch",
+            "console": "integratedTerminal",
+            "args": [
+                "--nproc_per_node=4",
+                "archai/nlp/train.py",
+                "--model_type", "hf_gpt2_flex",
+                "--config", "dgx1_4gpu_fp32",
+                "--config_file", "wt103_base.yaml",
+                "--n_layer", "3",
+                "--n_head", "8",
+                "--d_model", "512",
+                "--d_inner", "1112", "1062", "712",
+                "--vocab", "gpt2",
+                "--vocab_size", "10000",
+                "--max_step", "400",
+                "--experiment_name", "j0"
+            ]
         },
         {
             "name": "CurrentFile",
