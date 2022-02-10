@@ -17,6 +17,20 @@ def plot_2d_pareto(visited: Dict[str, List[Any]],
                    xaxis_title: Optional[str] = None,
                    yaxis_title: Optional[str] = None,
                    output_path: Optional[str] = None) -> None:
+    """Plots a 2-dimensional visualization of the Pareto-frontier.
+
+    Args:
+        visited: Visited architectures points.
+        pareto: Pareto-frontier architectures points.
+        parents: Parents architectures points.
+        hover_template: Template used when hovering over point (HTML-only).
+        title_text: Title of the plot.
+        xaxis_title: Title of the `x` axis.
+        yaxis_title: Title of the `y` axis.
+        output_path: Path to the plot output files (HTML and PNG files).
+
+    """
+
     fig = go.Figure()
 
     x_visited, y_visited, config_visited = visited['x'], visited['y'], visited['config']
@@ -70,6 +84,21 @@ def plot_3d_pareto(visited: Dict[str, List[Any]],
                    yaxis_title: Optional[str] = None,
                    zaxis_title: Optional[str] = None,
                    output_path: Optional[str] = None) -> None:
+    """Plots a 3-dimensional visualization of the Pareto-frontier.
+
+    Args:
+        visited: Visited architectures points.
+        pareto: Pareto-frontier architectures points.
+        parents: Parents architectures points.
+        hover_template: Template used when hovering over point (HTML-only).
+        title_text: Title of the plot.
+        xaxis_title: Title of the `x` axis.
+        yaxis_title: Title of the `y` axis.
+        zaxis_title: Title of the `z` axis.
+        output_path: Path to the plot output files (HTML and PNG files).
+        
+    """
+
     fig = go.Figure()
 
     x_visited, y_visited, z_visited, config_visited = visited['x'], visited['y'], visited['z'], visited['config']

@@ -15,7 +15,7 @@ import yaml
 
 from archai.common import utils
 from archai.nlp.nas.evolution import run_search
-from archai.nlp.nas.nas_utils.constraints import DEVICE_LATENCY_CONSTRAINT
+from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import DEVICE_LATENCY_CONSTRAINT
 
 
 def parse_args():
@@ -127,6 +127,11 @@ def parse_args():
                         help='Choices for number of attention heads.')
 
     constraint = parser.add_argument_group('Constraints')
+    constraint.add_argument('--constraint_pipeline_type',
+                            default='torch',
+                            choices=['torch'],
+                            help='Type of constraint pipeline to be used during search.')
+
     constraint.add_argument('--param_constraint_lower',
                             type=int,
                             default=5e6,

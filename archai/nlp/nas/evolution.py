@@ -12,16 +12,14 @@ from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-import plotly.graph_objects as go
 
 from archai.nlp.models.model_loader import load_config, load_model_formula, load_model_from_config
-from archai.nlp.nas.nas_utils.constraints import (measure_inference_latency,
-                                                  measure_parameters,
-                                                  measure_peak_memory)
+from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import TorchConstraintPipeline
+from archai.nlp.nas.nas_utils.constraints.torch_constraints import measure_torch_inference_latency
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import (create_ground_truth_jobs,
                                                  create_pareto_jobs)
-from archai.nlp.nas.nas_utils.pareto_front import find_pareto_points
+from archai.nlp.nas.nas_utils.pareto_frontier import find_pareto_frontier_points
 from archai.nlp.nas.nas_utils.plotter import plot_2d_pareto, plot_3d_pareto
 
 
@@ -42,6 +40,7 @@ class Evolution:
                  crossover_prob: Optional[float] = 0.5,
                  n_iter: Optional[int] = 10,
                  use_quantization: Optional[bool] = False,
+                 constraint_pipeline_type: Optional[str] = 'torch',
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
                  latency_constraint_upper: Optional[float] = None,
@@ -62,6 +61,7 @@ class Evolution:
             crossover_prob: Probability of crossover.
             n_iter: Number of search iterations.
             use_quantization: Whether should use quantization or not.
+            constraint_pipeline_type: Type of constraint pipeline.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
             latency_constraint_upper: Any model which has higher latency is rejected.
@@ -133,6 +133,13 @@ class Evolution:
         # Counter for the number of genes occurences
         self.counts = Counter()
 
+        # Creates a constraint pipeline based on inputted type (`torch` or `onnx`)
+        self.constraint_pipeline_type = constraint_pipeline_type
+        if constraint_pipeline_type == 'torch':
+            self.pipeline = TorchConstraintPipeline(use_quantization=use_quantization,
+                                                    n_threads=n_threads,
+                                                    n_trials=latency_repeat)
+
         # Performs a quick profiling over the search space
         # to find the biggest architecture measurements
         self._profile()
@@ -142,27 +149,14 @@ class Evolution:
 
         """
 
-        def _profile_model(config: Dict[str, Any]) -> Tuple[int, int, float, float]:
-            model_config = copy.deepcopy(self.model_config)
-            model_config.update(config)
-
-            model = load_model_from_config(self.model_type, model_config)
-
-            params = measure_parameters(model, ['non_embedding'])
-            total_params =  measure_parameters(model, ['total'])
-            latency = measure_inference_latency(model, use_quantization=self.use_quantization)
-            peak_memory = measure_peak_memory(model, use_quantization=self.use_quantization)
-
-            return params, total_params, latency, peak_memory
-
         # Largest model    
         max_gene = [self.allowed_genes[k][-1] for k in range(self.gene_size)]
-        max_config = self.converter.gene_to_config(max_gene)
 
+        max_config, \
         self.max_params, \
         self.max_total_params, \
         self.max_latency, \
-        self.max_peak_memory = _profile_model(max_config)
+        self.max_peak_memory = self._calculate_gene_constraints(max_gene)
 
         print(f'''Largest model in this space has: 
                 {max_config}
@@ -173,12 +167,12 @@ class Evolution:
 
         # Smallest model
         min_gene = [self.allowed_genes[k][0] for k in range(self.gene_size)]
-        min_config = self.converter.gene_to_config(min_gene)
-
+        
+        min_config, \
         self.min_params, \
         self.min_total_params, \
         self.min_latency, \
-        self.min_peak_memory = _profile_model(min_config)
+        self.min_peak_memory = self._calculate_gene_constraints(min_gene)
         
         print(f'''Smallest model in this space has: 
                 {min_config}
@@ -187,7 +181,7 @@ class Evolution:
                 {self.min_latency:.4f}s latency
                 {self.min_peak_memory:.4f}MB memory''')
 
-    def _check_constraints(self, gene: List[Any]) -> bool:
+    def _check_gene_constraints(self, gene: List[Any]) -> bool:
         """Checks whether gene fulfill constraints or not.
 
         Args:
@@ -221,10 +215,10 @@ class Evolution:
 
         # Checks the latency constraint
         if self.latency_constraint_upper is not None:
-            latency = measure_inference_latency(model,
-                                                use_quantization=self.use_quantization,
-                                                n_threads=self.n_threads,
-                                                n_trials=self.latency_repeat)
+            latency = measure_torch_inference_latency(model,
+                                                      use_quantization=self.use_quantization,
+                                                      n_threads=self.n_threads,
+                                                      n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint_upper:
                 print(f'Invalid gene: {gene} has {latency}s > {self.latency_constraint_upper}s latency')
@@ -232,8 +226,31 @@ class Evolution:
 
         return True
 
-    def _calculate_constraints(self, genes: List[List[Any]]) -> Tuple[List[int], List[int], List[float], List[float]]:
-        """Calculates decoder parameters, total parameters, memory and latency.
+    def _calculate_gene_constraints(self, gene: List[Any]) -> Tuple[Dict[str, Any], int, int, float, float]:
+        """Calculates an individual gene constraints.
+
+        Args:
+            gene: Gene.
+
+        Returns:
+            (Tuple[Dict[str, Any], int, int, float, float]): Decoder parameters, total parameters,
+                latencies and memories.
+
+        """
+
+        config = self.converter.gene_to_config(gene)
+
+        model_config = copy.deepcopy(self.model_config)
+        model_config.update(config)
+
+        model = load_model_from_config(self.model_type, model_config)
+
+        params, total_params, latency, peak_memory = self.pipeline(model)
+
+        return config, params, total_params, latency, peak_memory
+
+    def _calculate_population_constraints(self, genes: List[List[Any]]) -> Tuple[List[int], List[int], List[float], List[float]]:
+        """Calculates population constraints.
 
         Args:
             genes: List of genes.
@@ -244,37 +261,16 @@ class Evolution:
 
         """
 
-        configs = []
+        params, total_params, latencies, memories = [], [], [], []
+
         for gene in genes:
-            configs.append(self.converter.gene_to_config(gene))
-        
-        params = []
-        total_params = []
-        latencies = []
-        memories = []
+            # Calculates current gene's constraints
+            _, d_params, t_params, latency, memory = self._calculate_gene_constraints(gene)
 
-        for config in configs:
-            model_config = copy.deepcopy(self.model_config)
-            model_config.update(config)
-            model = load_model_from_config(self.model_type, model_config)
-            
-            # Decoder parameters
-            d_params = measure_parameters(model, ['non_embedding'])
+            # Appends constraints to their corresponding lists
             params.append(d_params)
-
-            # Total parameters
-            t_params = measure_parameters(model, ['total'])
             total_params.append(t_params)
-
-            # Latency
-            latency = measure_inference_latency(model,
-                                                use_quantization=self.use_quantization,
-                                                n_threads=self.n_threads,
-                                                n_trials=self.latency_repeat)
             latencies.append(latency)
-
-            # Memory
-            memory = measure_peak_memory(model, use_quantization=self.use_quantization)
             memories.append(memory)
             
         # Sanity checking
@@ -284,7 +280,7 @@ class Evolution:
         
         return params, total_params, latencies, memories
 
-    def _update_pareto_front(self, is_decreasing: Optional[bool] = True) -> None:
+    def _update_pareto_frontier(self, is_decreasing: Optional[bool] = True) -> None:
         """Updates the Pareto-frontier of the evolutionary search.
 
         Args:
@@ -303,7 +299,7 @@ class Evolution:
         zs = np.array(self.all_memories).reshape(-1, 1)
 
         points = np.concatenate((xs, ys, zs), axis=1)
-        p_inds = find_pareto_points(points, is_decreasing=is_decreasing)
+        points_idx = find_pareto_frontier_points(points, is_decreasing=is_decreasing)
 
         assert points.shape[0] == len(self.all_population)
         assert points.shape[0] == len(self.all_params)
@@ -311,11 +307,11 @@ class Evolution:
         assert points.shape[0] == len(self.all_latencies)
         assert points.shape[0] == len(self.all_memories)
         
-        self.pareto['population'] = [self.all_population[i] for i in p_inds]
-        self.pareto['params'] = [self.all_params[i] for i in p_inds]
-        self.pareto['total_params'] = [self.all_total_params[i] for i in p_inds]
-        self.pareto['latencies'] = [self.all_latencies[i] for i in p_inds]
-        self.pareto['memories'] = [self.all_memories[i] for i in p_inds]
+        self.pareto['population'] = [self.all_population[i] for i in points_idx]
+        self.pareto['params'] = [self.all_params[i] for i in points_idx]
+        self.pareto['total_params'] = [self.all_total_params[i] for i in points_idx]
+        self.pareto['latencies'] = [self.all_latencies[i] for i in points_idx]
+        self.pareto['memories'] = [self.all_memories[i] for i in points_idx]
             
         print(f'Pareto-frontier points: {len(self.pareto["population"])}')
 
@@ -577,7 +573,7 @@ class Evolution:
             for k in range(self.gene_size):
                 sampled_gene.append(random.choices(self.allowed_genes[k])[0])
 
-            if self._check_constraints(sampled_gene):
+            if self._check_gene_constraints(sampled_gene):
                 population.append(sampled_gene)
                 i += 1
                 print(f'Valid architectures: {i}/{n_samples}')
@@ -616,7 +612,7 @@ class Evolution:
             population_params_unseen, \
             population_total_params_unseen, \
             population_latencies_unseen, \
-            population_memories_unseen = self._calculate_constraints(population[idx:])
+            population_memories_unseen = self._calculate_population_constraints(population[idx:])
 
             population_params = parents_params + population_params_unseen
             population_total_params = parents_total_params + population_total_params_unseen
@@ -635,7 +631,7 @@ class Evolution:
 
             print(f'Visited population points: {len(self.all_population)}')
 
-            self._update_pareto_front(is_decreasing=True)
+            self._update_pareto_frontier(is_decreasing=True)
 
             # Selects parents for the next iteration from the current estimate
             # of the Pareto-frontier while giving more weight to newer parents
@@ -656,7 +652,7 @@ class Evolution:
             while k < self.mutation_size:
                 mutated_gene = self._mutation(random.choices(parents_population)[0])
                 
-                if self._check_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
+                if self._check_gene_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
                     mutated_population.append(mutated_gene)
                     k += 1
 
@@ -666,7 +662,7 @@ class Evolution:
             while k < self.crossover_size:
                 crossovered_gene = self._crossover(random.sample(parents_population, 2))
                 
-                if self._check_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
+                if self._check_gene_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
                     crossovered_population.append(crossovered_gene)
                     k += 1
 
@@ -679,7 +675,7 @@ class Evolution:
             logs['parents'].append(copy.deepcopy(parents_population))
             logs['pareto'].append(copy.deepcopy(self.pareto))
 
-            logs_path = os.path.join(self.results_path, f'logs_itr_{i}.pkl')
+            logs_path = os.path.join(self.results_path, f'logs_iter_{i}.pkl')
             with open(logs_path, 'wb') as f:
                 pickle.dump({'population': logs['population'][-1],
                              'params': logs['params'][-1],
@@ -703,7 +699,7 @@ class Evolution:
                                             'memories': parents_memories,
                                             'population': parents_population})
 
-            # save all logs 
+            # Saves all logs (will re-write previous ones)
             logs_path = os.path.join(self.results_path, 'logs.pkl')
             with open(logs_path, 'wb') as f:
                 pickle.dump(logs, f)
@@ -712,23 +708,18 @@ class Evolution:
             # which can be sent off to a cluster for training
             # TODO: do non-maximum suppression on the Pareto-frontier
             create_pareto_jobs(self.results_path, 
-                            converter=self.converter,
-                            model_type=self.model_type,
-                            max_step=40000,
-                            output_path=os.path.join(self.results_path, f'pareto_jobs_iter_{i}'))    
+                               converter=self.converter,
+                               model_type=self.model_type,
+                               max_step=40000,
+                               output_path=os.path.join(self.results_path, f'pareto_jobs_iter_{i}'))    
 
             # Generates command-lines for fully training all architectures visited during search
             create_ground_truth_jobs(self.results_path,
-                                    self.converter,
-                                    model_type=self.model_type,
-                                    max_step=40000,
-                                    output_path=os.path.join(self.results_path, f'visited_jobs_iter_{i}'))
-            
-
+                                     self.converter,
+                                     model_type=self.model_type,
+                                     max_step=40000,
+                                     output_path=os.path.join(self.results_path, f'visited_jobs_iter_{i}'))
         
-
-        
-
     def semi_brute_force(self, n_samples: int, batch: Optional[int] = 1000) -> None:
         """Provides a brute force ablation to the evolutionary search algorithm.
         
@@ -743,10 +734,10 @@ class Evolution:
         """
 
         # Samples the initial population
-        path_to_population = os.path.join(self.results_path, 'init_population_bruteforce.pkl') 
+        population_path = os.path.join(self.results_path, 'brute_force.pkl') 
 
-        if os.path.exists(path_to_population):
-            with open(path_to_population, 'rb') as f:
+        if os.path.exists(population_path):
+            with open(population_path, 'rb') as f:
                 population = pickle.load(f)
 
             population = population[:n_samples]
@@ -754,18 +745,18 @@ class Evolution:
         else:
             population = self.sample_random_population(n_samples)
 
-            with open(path_to_population, 'wb') as f:
+            with open(population_path, 'wb') as f:
                 pickle.dump(population, f)
 
         # Samples batches of random examples from the large initial pool
         # and updates the Pareto-frontier iteratively
-        for idx in range(0, n_samples, batch):
-            curr_population = population[idx:idx+batch]
+        for i in range(0, n_samples, batch):
+            curr_population = population[i:i+batch]
 
             curr_population_params, \
             curr_population_total_params, \
             curr_population_latencies, \
-            curr_population_memories = self._calculate_constraints(curr_population)
+            curr_population_memories = self._calculate_population_constraints(curr_population)
 
             self.all_population += curr_population
             self.all_params += curr_population_params
@@ -773,9 +764,9 @@ class Evolution:
             self.all_latencies += curr_population_latencies
             self.all_memories += curr_population_memories
 
-            self._update_pareto_front(is_decreasing=True)
+            self._update_pareto_frontier(is_decreasing=True)
 
-            self.plot_search_state(iter=idx)
+            self.plot_search_state(iteration=i)
 
             logs = {'population': population,
                     'params': curr_population_params,
@@ -784,9 +775,9 @@ class Evolution:
                     'memories': curr_population_memories,
                     'pareto': self.pareto}
 
-            logs_path = os.path.join(self.results_path, f'logs_bruteforce_{idx}.pkl')
+            logs_path = os.path.join(self.results_path, f'logs_brute_force_{i}.pkl')
             with open(logs_path, 'wb') as f:
-                print(f'Saving indices: {idx}-{idx+batch}')
+                print(f'Saving indices: {i}-{i+batch}')
                 pickle.dump(logs, f) 
 
 
