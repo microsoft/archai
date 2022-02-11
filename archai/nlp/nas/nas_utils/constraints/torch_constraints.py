@@ -16,6 +16,7 @@ from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_f
 def measure_torch_inference_latency(model: torch.nn.Module,
                                     use_quantization: Optional[bool] = False,
                                     use_median: Optional[bool] = False,
+                                    batch_size: Optional[int] = 1,
                                     seq_len: Optional[int] = 192,
                                     n_threads: Optional[int] = 1,
                                     n_trials: Optional[int] = 10,
@@ -26,6 +27,7 @@ def measure_torch_inference_latency(model: torch.nn.Module,
         model: Model instance.
         use_quantization: Whether latency should be calculated with quantizated model or not.
         use_median: Whether should use median instead of mean for latency measurement.
+        batch_size: Batch size to measure the latency.
         seq_len: Sequence length to measure the latency.
         n_threads: Number of inference threads.
         n_trials: Number of times to repeat the measurement.
@@ -42,7 +44,7 @@ def measure_torch_inference_latency(model: torch.nn.Module,
     torch.set_num_threads(n_threads)
 
     model = model.to(device=device)
-    input_ids = torch.zeros((1, seq_len), dtype=torch.int64).to(device)
+    input_ids = torch.zeros((batch_size, seq_len), dtype=torch.int64).to(device)
     
     timer = benchmark.Timer(stmt='model(input_ids, labels, mems)',
                             globals={
@@ -78,6 +80,7 @@ def measure_torch_parameters(model: torch.nn.Module,
 
 def measure_torch_peak_memory(model: torch.nn.Module,
                               use_quantization: Optional[bool] = False,
+                              batch_size: Optional[int] = 1,
                               seq_len: Optional[int] = 192,
                               n_threads: Optional[int] = 1,
                               device: Optional[str] = 'cpu') -> float:
@@ -86,6 +89,7 @@ def measure_torch_peak_memory(model: torch.nn.Module,
     Args:
         model: Model instance.
         use_quantization: Whether latency should be calculated with quantizated model or not.
+        batch_size: Batch size to measure the peak memory.
         seq_len: Sequence length to measure the peak memory.
         n_threads: Number of inference threads.
         device: Device where peak memory should be measured.
@@ -102,7 +106,7 @@ def measure_torch_peak_memory(model: torch.nn.Module,
 
     model = model.to(device=device)
     inputs = {
-        'input_ids': torch.zeros((1, seq_len), dtype=torch.int64).to(device)
+        'input_ids': torch.zeros((batch_size, seq_len), dtype=torch.int64).to(device)
     }
 
     if device == 'cpu':
