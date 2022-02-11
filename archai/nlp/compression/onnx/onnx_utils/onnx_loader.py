@@ -8,8 +8,6 @@ import types
 from os import environ
 from typing import Any, Dict, Sized, Tuple
 
-import torch
-
 from onnxruntime import (GraphOptimizationLevel, InferenceSession,
                          SessionOptions)
 from onnxruntime.transformers import quantize_helper
@@ -53,9 +51,9 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     return session
 
 
-def _prepare_export(model: torch.nn.Module,
+def _prepare_export(model: ArchaiModel,
                     model_config: Dict[str, Any],
-                    model_type: str) -> torch.nn.Module:
+                    model_type: str) -> ArchaiModel:
     """Prepares a PyTorch model with export-ready.
 
     Args:
@@ -64,7 +62,7 @@ def _prepare_export(model: torch.nn.Module,
         model_type: Type of model.
 
     Returns:
-        (torch.nn.Module): Export-ready PyTorch model.
+        (ArchaiModel): Export-ready PyTorch model.
 
     """
 
