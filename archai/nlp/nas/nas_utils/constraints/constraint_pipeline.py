@@ -31,6 +31,7 @@ class ConstraintPipeline:
     def __init__(self,
                  use_quantization: bool,
                  use_median: bool,
+                 batch_size: int,
                  seq_len: int,
                  n_threads: int,
                  n_trials: int,
@@ -38,19 +39,22 @@ class ConstraintPipeline:
         """Overrides initialization method.
 
         Args:
-            use_quantization: Whether latency should be calculated with quantizated model or not.
-            use_median: Whether should use median instead of mean for latency measurement.
-            seq_len: Sequence length to measure the latency.
+            use_quantization: Whether measurement should be calculated with quantizated model or not.
+            use_median: Whether should use median instead of mean for measurement.
+            batch_size: Batch size.
+            seq_len: Sequence length.
             n_threads: Number of inference threads.
             n_trials: Number of times to repeat the measurement.
-            device: Device where latency should be measured.
+            device: Device where should be measured.
 
         """
 
         self.use_quantization = use_quantization
         self.use_median = use_median
 
+        self.batch_size = batch_size
         self.seq_len = seq_len
+        
         self.n_threads = n_threads
         self.n_trials = n_trials
 
@@ -82,6 +86,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
     def __init__(self,
                  use_quantization: Optional[bool] = False,
                  use_median: Optional[bool] = False,
+                 batch_size: Optional[int] = 1,
                  seq_len: Optional[int] = 192,
                  n_threads: Optional[int] = 1,
                  n_trials: Optional[int] = 10,
@@ -89,17 +94,18 @@ class TorchConstraintPipeline(ConstraintPipeline):
         """Overrides initialization method.
 
         Args:
-            use_quantization: Whether latency should be calculated with quantizated model or not.
-            use_median: Whether should use median instead or mean for latency measurement.
-            seq_len: Sequence length to measure the latency.
+            use_quantization: Whether measurement should be calculated with quantizated model or not.
+            use_median: Whether should use median instead of mean for measurement.
+            batch_size: Batch size.
+            seq_len: Sequence length.
             n_threads: Number of inference threads.
             n_trials: Number of times to repeat the measurement.
-            device: Device where latency should be measured.
+            device: Device where should be measured.
 
         """
 
-        super().__init__(use_quantization, use_median, seq_len,
-                         n_threads, n_trials, device)
+        super().__init__(use_quantization, use_median, batch_size,
+                         seq_len, n_threads, n_trials, device)
 
     def __call__(self, model: torch.nn.Module) -> Tuple[int, int, float, float]:
         """Invokes the built-in call method.
@@ -124,6 +130,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
             measure_torch_inference_latency(model,
                                             self.use_quantization,
                                             self.use_median,
+                                            self.batch_size,
                                             self.seq_len,
                                             self.n_threads,
                                             self.n_trials,
@@ -132,6 +139,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
             # Peak memory usage
             measure_torch_peak_memory(model,
                                       self.use_quantization,
+                                      self.batch_size,
                                       self.seq_len,
                                       self.n_threads,
                                       self.device)
