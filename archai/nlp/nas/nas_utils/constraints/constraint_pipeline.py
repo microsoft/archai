@@ -90,7 +90,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         Args:
             use_quantization: Whether latency should be calculated with quantizated model or not.
-            use_median: Whether should use median instead of mean for latency measurement.
+            use_median: Whether should use median instead or mean for latency measurement.
             seq_len: Sequence length to measure the latency.
             n_threads: Number of inference threads.
             n_trials: Number of times to repeat the measurement.
