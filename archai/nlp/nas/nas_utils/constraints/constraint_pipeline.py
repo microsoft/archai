@@ -4,13 +4,15 @@
 """Constraints pipelines used throughout the search procedure.
 """
 
-from typing import Tuple, Optional
+from typing import Any, Dict, Tuple, Optional
 
 import torch
 
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_inference_latency,
                                                                     measure_torch_parameters,
                                                                     measure_torch_peak_memory)
+
+from archai.nlp.nas.nas_utils.constraints.onnx_constraints import measure_onnx_inference_latency, measure_onnx_parameters
 
 
 # Latency upper bound on different device targets
@@ -119,7 +121,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         """
 
-        return [
+        return (
             # Number of decoder (non-embedding) parameters
             measure_torch_parameters(model, ['non_embedding']),
 
@@ -143,4 +145,63 @@ class TorchConstraintPipeline(ConstraintPipeline):
                                       self.seq_len,
                                       self.n_threads,
                                       self.device)
-        ]
+        )
+
+
+class ONNXConstraintPipeline(ConstraintPipeline):
+    """Defines a ONNX-based constraint pipeline.
+
+    """
+
+    def __init__(self,
+                 use_quantization: Optional[bool] = False,
+                 use_median: Optional[bool] = False,
+                 batch_size: Optional[int] = 1,
+                 seq_len: Optional[int] = 192,
+                 n_trials: Optional[int] = 10) -> None:
+        """Overrides initialization method.
+
+        Args:
+            use_quantization: Whether measurement should be calculated with quantizated model or not.
+            use_median: Whether should use median instead of mean for measurement.
+            batch_size: Batch size.
+            seq_len: Sequence length.
+            n_trials: Number of times to repeat the measurement.
+
+        """
+
+        super().__init__(use_quantization, use_median, batch_size,
+                         seq_len, 1, n_trials, 'cpu')
+
+    def __call__(self, model_type: str, model_config: Dict[str, Any]) -> Tuple[int, int, float, float]:
+        """Invokes the built-in call method.
+
+        Args:
+            model_type: Type of model.
+            model_config: Model's configuration.
+
+        Returns:
+            (Tuple[int, int, float, float]): Decoder parameters, total parameters,
+                latency and memory.
+            
+        """
+
+        return (
+            # Number of decoder (non-embedding) parameters
+            measure_onnx_parameters(model_type, model_config, 'non_embedding'),
+
+            # Number of total parameters
+            measure_onnx_parameters(model_type, model_config, 'total'),
+
+            # Inference latency
+            measure_onnx_inference_latency(model_type,
+                                           model_config,
+                                           self.use_quantization,
+                                           self.use_median,
+                                           self.batch_size,
+                                           self.seq_len,
+                                           self.n_trials),
+
+            # Peak memory usage
+            0
+        )

@@ -129,7 +129,7 @@ def parse_args():
     constraint = parser.add_argument_group('Constraints')
     constraint.add_argument('--constraint_pipeline_type',
                             default='torch',
-                            choices=['torch'],
+                            choices=['onnx', 'torch'],
                             help='Type of constraint pipeline to be used during search.')
 
     constraint.add_argument('--param_constraint_lower',
@@ -154,7 +154,7 @@ def parse_args():
 
     constraint.add_argument('--latency_repeat',
                             type=int,
-                            default=5,
+                            default=10,
                             help='Number of latency measurements.')
 
     constraint.add_argument('--device_name',
