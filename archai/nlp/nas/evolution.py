@@ -10,12 +10,15 @@ import pickle
 import random
 from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional, Tuple
-from archai.nlp.nas.nas_utils.constraints.onnx_constraints import measure_onnx_inference_latency
 
 import numpy as np
 
-from archai.nlp.models.model_loader import load_config, load_model_formula, load_model_from_config
-from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import ONNXConstraintPipeline, TorchConstraintPipeline
+from archai.nlp.models.model_loader import (load_config,
+                                            load_model_formula,
+                                            load_model_from_config)
+from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import (ONNXConstraintPipeline,
+                                                                      TorchConstraintPipeline)
+from archai.nlp.nas.nas_utils.constraints.onnx_constraints import measure_onnx_inference_latency
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import measure_torch_inference_latency
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import (create_ground_truth_jobs,
