@@ -4,16 +4,15 @@
 """Constraints pipelines used throughout the search procedure.
 """
 
-from typing import Any, Dict, Tuple, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import torch
 
+from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_inference_latency,
+                                                                   measure_onnx_parameters)
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_inference_latency,
                                                                     measure_torch_parameters,
                                                                     measure_torch_peak_memory)
-
-from archai.nlp.nas.nas_utils.constraints.onnx_constraints import measure_onnx_inference_latency, measure_onnx_parameters
-
 
 # Latency upper bound on different device targets
 # Any model with more latency than this will be removed from consideration during search

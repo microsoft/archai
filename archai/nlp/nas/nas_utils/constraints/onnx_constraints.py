@@ -5,15 +5,16 @@
 """
 
 import timeit
-from archai.nlp.models.model_loader import load_model_formula
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 
-from typing import Any, Dict, List, Optional
 from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
-
-from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_config_for_export, load_from_onnx
+from archai.nlp.compression.onnx.onnx_utils.onnx_loader import (load_from_config_for_export,
+                                                                load_from_onnx)
 from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
+from archai.nlp.models.model_loader import load_model_formula
 
 
 def _prepare_onnx_model(model_type: str,
