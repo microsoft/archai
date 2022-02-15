@@ -9,7 +9,8 @@ from typing import Any, Dict, Optional, Tuple
 import torch
 
 from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_inference_latency,
-                                                                   measure_onnx_parameters)
+                                                                   measure_onnx_parameters,
+                                                                   measure_onnx_peak_memory)
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_inference_latency,
                                                                     measure_torch_parameters,
                                                                     measure_torch_peak_memory)
@@ -202,5 +203,9 @@ class ONNXConstraintPipeline(ConstraintPipeline):
                                            self.n_trials),
 
             # Peak memory usage
-            0
+            measure_onnx_peak_memory(model_type,
+                                     model_config,
+                                     self.use_quantization,
+                                     self.batch_size,
+                                     self.seq_len),
         )

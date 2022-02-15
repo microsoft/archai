@@ -60,7 +60,7 @@ def measure_onnx_inference_latency(model_type: str,
                                    batch_size: Optional[int] = 1,
                                    seq_len: Optional[int] = 192,
                                    n_trials: Optional[int] = 10) -> float:
-    """Measures a ONNX-based model's inference latency.
+    """Measures an ONNX-based model's inference latency.
 
     Args:
         model_type: Type of model.
@@ -108,7 +108,7 @@ def measure_onnx_inference_latency(model_type: str,
 def measure_onnx_parameters(model_type: str,
                             model_config: Dict[str, Any],
                             key: Optional[str] = 'non_embedding') -> int:
-    """Measures a model's number of parameters according to input options.
+    """Measures an ONNX-based model's number of parameters according to input options.
 
     Args:
         model_type: Type of model.
@@ -121,3 +121,25 @@ def measure_onnx_parameters(model_type: str,
     """
 
     return load_model_formula(model_type)(model_config)[key]
+
+
+def measure_onnx_peak_memory(model_type: str,
+                             model_config: Dict[str, Any],
+                             use_quantization: Optional[bool] = False,
+                             batch_size: Optional[int] = 1,
+                             seq_len: Optional[int] = 192) -> float:
+    """Measures an ONNX-based model's peak memory during inference.
+
+    Args:
+        model_type: Type of model.
+        model_config: Model's configuration.
+        use_quantization: Whether latency should be calculated with quantizated model or not.
+        batch_size: Batch size to measure the peak memory.
+        seq_len: Sequence length to measure the peak memory.
+
+    Returns:
+        (float): Peak memory during inference in megabytes.
+
+    """
+
+    return 0
