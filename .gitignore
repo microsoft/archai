@@ -120,5 +120,6 @@ dmypy.json
 
 # additional files
 model.th
+*.onnx
 *.log*
 evo_search/
