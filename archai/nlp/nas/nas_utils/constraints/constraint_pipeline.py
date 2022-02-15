@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import torch
 
-from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_alloc_memory,
+from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_disk_memory,
                                                                    measure_onnx_inference_latency,
                                                                    measure_onnx_parameters)
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_inference_latency,
@@ -182,7 +182,7 @@ class ONNXConstraintPipeline(ConstraintPipeline):
 
         Returns:
             (Tuple[int, int, float, float]): Decoder parameters, total parameters,
-                latency and allocated memory.
+                latency and disk memory.
             
         """
 
@@ -202,8 +202,8 @@ class ONNXConstraintPipeline(ConstraintPipeline):
                                            self.seq_len,
                                            self.n_trials),
 
-            # Allocated memory
-            measure_onnx_alloc_memory(model_type,
-                                      model_config,
-                                      self.use_quantization)
+            # Disk memory
+            measure_onnx_disk_memory(model_type,
+                                     model_config,
+                                     self.use_quantization)
         )
