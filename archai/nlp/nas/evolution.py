@@ -10,11 +10,12 @@ import pickle
 import random
 from collections import Counter, defaultdict
 from typing import Any, Dict, List, Optional, Tuple
+from archai.nlp.nas.nas_utils.constraints.onnx_constraints import measure_onnx_inference_latency
 
 import numpy as np
 
 from archai.nlp.models.model_loader import load_config, load_model_formula, load_model_from_config
-from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import TorchConstraintPipeline
+from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import ONNXConstraintPipeline, TorchConstraintPipeline
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import measure_torch_inference_latency
 from archai.nlp.nas.nas_utils.converter import Converter
 from archai.nlp.nas.nas_utils.dispatcher import (create_ground_truth_jobs,
@@ -45,7 +46,7 @@ class Evolution:
                  param_constraint_upper: Optional[int] = 12e6,
                  latency_constraint_upper: Optional[float] = None,
                  n_threads: Optional[int] = 1,
-                 latency_repeat: Optional[int] = 5,
+                 latency_repeat: Optional[int] = 10,
                  **choices) -> None:
         """Initializes attributes.
 
@@ -140,6 +141,9 @@ class Evolution:
             self.pipeline = TorchConstraintPipeline(use_quantization=use_quantization,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
+        elif constraint_pipeline_type == 'onnx':
+            self.pipeline = ONNXConstraintPipeline(use_quantization=use_quantization,
+                                                   n_trials=latency_repeat)
 
         # Performs a quick profiling over the search space
         # to find the biggest architecture measurements
@@ -211,15 +215,20 @@ class Evolution:
             print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M > {self.param_constraint_upper/1e6:.4f}M parameters')
             return False
 
-        # If the analytical check is valid, model is finally created
-        model = load_model_from_config(self.model_type, model_config)
-
         # Checks the latency constraint
         if self.latency_constraint_upper is not None:
-            latency = measure_torch_inference_latency(model,
-                                                      use_quantization=self.use_quantization,
-                                                      n_threads=self.n_threads,
-                                                      n_trials=self.latency_repeat)
+            if self.constraint_pipeline_type == 'torch':
+                model = load_model_from_config(self.model_type, model_config)
+                latency = measure_torch_inference_latency(model,
+                                                          use_quantization=self.use_quantization,
+                                                          n_threads=self.n_threads,
+                                                          n_trials=self.latency_repeat)
+
+            elif self.constraint_pipeline_type == 'onnx':
+                latency = measure_onnx_inference_latency(self.model_type,
+                                                         model_config,
+                                                         use_quantization=self.use_quantization,
+                                                         n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint_upper:
                 print(f'Invalid gene: {gene} has {latency}s > {self.latency_constraint_upper}s latency')
@@ -244,9 +253,14 @@ class Evolution:
         model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
 
-        model = load_model_from_config(self.model_type, model_config)
-
-        params, total_params, latency, peak_memory = self.pipeline(model)
+        # Constraint pipeline with PyTorch
+        if self.constraint_pipeline_type == 'torch':
+            model = load_model_from_config(self.model_type, model_config)
+            params, total_params, latency, peak_memory = self.pipeline(model)
+        
+        # Constraint pipeline with ONNX
+        elif self.constraint_pipeline_type == 'onnx':
+            params, total_params, latency, peak_memory = self.pipeline(self.model_type, model_config)
 
         return config, params, total_params, latency, peak_memory
 
