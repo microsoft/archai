@@ -108,5 +108,6 @@ venv.bak/
 
 # additional files
 model.th
+*.onnx
 *.log*
 evo_search/
