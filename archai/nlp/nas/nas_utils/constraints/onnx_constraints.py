@@ -131,24 +131,24 @@ def measure_onnx_parameters(model_type: str,
     return load_model_formula(model_type)(model_config)[key]
 
 
-def measure_onnx_alloc_memory(model_type: str,
+def measure_onnx_disk_memory(model_type: str,
                               model_config: Dict[str, Any],
                               use_quantization: Optional[bool] = False) -> float:
-    """Measures an ONNX-based model's allocated memory.
+    """Measures an ONNX-based model's disk memory.
 
     Args:
         model_type: Type of model.
         model_config: Model's configuration.
-        use_quantization: Whether allocated memory should be calculated with quantizated model or not.
+        use_quantization: Whether disk memory should be calculated with quantizated model or not.
 
     Returns:
-        (float): Allocated memory in megabytes.
+        (float): Disk memory in megabytes.
 
     """
 
     onnx_model_path = _prepare_onnx_model(model_type, model_config, use_quantization)
-    
-    alloc_memory_mb = memory_usage(proc=(load_from_onnx, (onnx_model_path,)),
-                                   max_usage=True)
 
-    return alloc_memory_mb
+    disk_memory = os.path.getsize(onnx_model_path)
+    disk_memory_mb = disk_memory / (1024 ** 2)
+
+    return disk_memory_mb
