@@ -131,9 +131,10 @@ class Evolution:
         self.all_memories = []
 
         # Counter for the number of genes occurences
+        # and prevent duplication
         self.counts = Counter()
 
-        # Creates a constraint pipeline based on inputted type (`torch` or `onnx`)
+        # Creates a constraint pipeline based on input type (`torch` or `onnx`)
         self.constraint_pipeline_type = constraint_pipeline_type
         if constraint_pipeline_type == 'torch':
             self.pipeline = TorchConstraintPipeline(use_quantization=use_quantization,

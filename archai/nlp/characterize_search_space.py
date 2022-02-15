@@ -14,12 +14,10 @@ import torch
 import yaml
 
 from archai.common import utils
-from archai.nlp.nas.evolution import run_search
-from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import DEVICE_LATENCY_CONSTRAINT
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Autoregressive language models Pareto-frontier extraction.')
+    parser = argparse.ArgumentParser(description='Characterizing the search space of transformer-based autoregressive language models .')
 
     try:
         save_path = os.environ['AMLT_OUTPUT_DIR']
@@ -43,58 +41,10 @@ def parse_args():
                         default=None,
                         help='YAML configuration file to override default configuration.')
 
-    search.add_argument('--population_size',
-                        type=int,
-                        default=100,
-                        help='Size of the population.')
-
-    search.add_argument('--parent_size',
-                        type=int,
-                        default=20,
-                        help='Size of the parent genes.')
-
-    search.add_argument('--mutation_size',
-                        type=int,
-                        default=40,
-                        help='Size of the mutated genes.')
     
-    search.add_argument('--mutation_prob',
-                        type=float,
-                        default=0.3,
-                        help='Probability of mutation.')
-
-    search.add_argument('--crossover_size',
-                        type=int,
-                        default=40,
-                        help='Size of the crossovered genes.')
-
-    search.add_argument('--crossover_prob',
-                        type=float,
-                        default=0.5,
-                        help='Probability of crossover.')
-
-    search.add_argument('--n_iter',
-                        type=int,
-                        default=10,
-                        help='Number of search iterations.')
-
-    search.add_argument('--do_brute_force',
-                        action='store_true',
-                        help='Uses brute force instead of standard search.')
-
-    search.add_argument('--n_samples',
-                        type=int,
-                        default=20000,
-                        help='Number of genes used to sample during brute force.')
-
-    search.add_argument('--batch',
-                        type=int,
-                        default=1000,
-                        help='Number of batched genes used to conduct the brute force.')
-
     search.add_argument('--use_quantization',
                         action='store_true',
-                        help='Uses quantized models to conduct the search.')
+                        help='Uses quantized models to measure latency and accuracy.')
 
     search.add_argument('--seed',
                         type=int,
@@ -172,6 +122,7 @@ def parse_args():
     return vars(args)
 
 
+
 if __name__ == '__main__':
     # Gathers the command line arguments
     args = parse_args()
@@ -181,14 +132,10 @@ if __name__ == '__main__':
     random.seed(args['seed'])
     torch.manual_seed(args['seed'])
 
-    # Gathers the latency constraint based on device
-    if args['latency_constraint_upper'] is None:
-        args['latency_constraint_upper'] = DEVICE_LATENCY_CONSTRAINT[args['device_name']]
-
     # Initializes the result's path
     now = datetime.now()
     time_str = now.strftime("%d_%m_%Y_%H_%M_%S")
-    results_path_str = f'{args["model_type"]}_lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s_{args["device_name"]}_{time_str}'
+    results_path_str = f'characterize_{args["model_type"]}_lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s_{args["device_name"]}_{time_str}'
     results_path = os.path.join(args['default_path'], results_path_str)
     args['results_path'] = utils.full_path(results_path, create=True)
 
@@ -203,5 +150,6 @@ if __name__ == '__main__':
     except:
         args['model_config'] = {}
 
-    # Runs the evolutionary search or the brute force version
-    run_search(args, do_brute_force=args['do_brute_force'])
+    # Characterize
+    characterizer = CharTransSearchSpace(args)
+    characterizer.characterize()
