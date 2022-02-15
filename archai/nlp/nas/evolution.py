@@ -163,14 +163,14 @@ class Evolution:
         self.max_params, \
         self.max_total_params, \
         self.max_latency, \
-        self.max_peak_memory = self._calculate_gene_constraints(max_gene)
+        self.max_memory = self._calculate_gene_constraints(max_gene)
 
         print(f'''Largest model in this space has: 
                 {max_config}
                 {self.max_params} decoder params
                 {self.max_total_params} total params
                 {self.max_latency:.4f}s latency
-                {self.max_peak_memory:.4f}MB memory''')
+                {self.max_memory:.4f}MB memory''')
 
         # Smallest model
         min_gene = [self.allowed_genes[k][0] for k in range(self.gene_size)]
@@ -179,14 +179,14 @@ class Evolution:
         self.min_params, \
         self.min_total_params, \
         self.min_latency, \
-        self.min_peak_memory = self._calculate_gene_constraints(min_gene)
+        self.min_memory = self._calculate_gene_constraints(min_gene)
         
         print(f'''Smallest model in this space has: 
                 {min_config}
                 {self.min_params} decoder params
                 {self.min_total_params} total params
                 {self.min_latency:.4f}s latency
-                {self.min_peak_memory:.4f}MB memory''')
+                {self.min_memory:.4f}MB memory''')
 
     def _check_gene_constraints(self, gene: List[Any]) -> bool:
         """Checks whether gene fulfill constraints or not.
@@ -258,13 +258,13 @@ class Evolution:
         # Constraint pipeline with PyTorch
         if self.constraint_pipeline_type == 'torch':
             model = load_model_from_config(self.model_type, model_config)
-            params, total_params, latency, peak_memory = self.pipeline(model)
+            params, total_params, latency, memory = self.pipeline(model)
         
         # Constraint pipeline with ONNX
         elif self.constraint_pipeline_type == 'onnx':
-            params, total_params, latency, peak_memory = self.pipeline(self.model_type, model_config)
+            params, total_params, latency, memory = self.pipeline(self.model_type, model_config)
 
-        return config, params, total_params, latency, peak_memory
+        return config, params, total_params, latency, memory
 
     def _calculate_population_constraints(self, genes: List[List[Any]]) -> Tuple[List[int], List[int], List[float], List[float]]:
         """Calculates population constraints.
