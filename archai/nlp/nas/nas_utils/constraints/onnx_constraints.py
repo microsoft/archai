@@ -3,17 +3,10 @@
 
 """ONNX-based constraints.
 """
-import os
 
+import os
 import timeit
 from typing import Any, Dict, Optional
-
-
-from memory_profiler import memory_usage
-
-import psutil
-
-from multiprocessing import Process
 
 import numpy as np
 
@@ -132,8 +125,8 @@ def measure_onnx_parameters(model_type: str,
 
 
 def measure_onnx_disk_memory(model_type: str,
-                              model_config: Dict[str, Any],
-                              use_quantization: Optional[bool] = False) -> float:
+                             model_config: Dict[str, Any],
+                             use_quantization: Optional[bool] = False) -> float:
     """Measures an ONNX-based model's disk memory.
 
     Args:
