@@ -3,9 +3,17 @@
 
 """ONNX-based constraints.
 """
+import os
 
 import timeit
 from typing import Any, Dict, Optional
+
+
+from memory_profiler import memory_usage
+
+import psutil
+
+from multiprocessing import Process
 
 import numpy as np
 
@@ -123,23 +131,24 @@ def measure_onnx_parameters(model_type: str,
     return load_model_formula(model_type)(model_config)[key]
 
 
-def measure_onnx_peak_memory(model_type: str,
-                             model_config: Dict[str, Any],
-                             use_quantization: Optional[bool] = False,
-                             batch_size: Optional[int] = 1,
-                             seq_len: Optional[int] = 192) -> float:
-    """Measures an ONNX-based model's peak memory during inference.
+def measure_onnx_alloc_memory(model_type: str,
+                              model_config: Dict[str, Any],
+                              use_quantization: Optional[bool] = False) -> float:
+    """Measures an ONNX-based model's allocated memory.
 
     Args:
         model_type: Type of model.
         model_config: Model's configuration.
-        use_quantization: Whether latency should be calculated with quantizated model or not.
-        batch_size: Batch size to measure the peak memory.
-        seq_len: Sequence length to measure the peak memory.
+        use_quantization: Whether allocated memory should be calculated with quantizated model or not.
 
     Returns:
-        (float): Peak memory during inference in megabytes.
+        (float): Allocated memory in megabytes.
 
     """
 
-    return 0
+    onnx_model_path = _prepare_onnx_model(model_type, model_config, use_quantization)
+    
+    alloc_memory_mb = memory_usage(proc=(load_from_onnx, (onnx_model_path,)),
+                                   max_usage=True)
+
+    return alloc_memory_mb

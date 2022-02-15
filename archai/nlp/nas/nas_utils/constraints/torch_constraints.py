@@ -88,7 +88,7 @@ def measure_torch_peak_memory(model: torch.nn.Module,
 
     Args:
         model: Model instance.
-        use_quantization: Whether latency should be calculated with quantizated model or not.
+        use_quantization: Whether peak memory should be calculated with quantizated model or not.
         batch_size: Batch size to measure the peak memory.
         seq_len: Sequence length to measure the peak memory.
         n_threads: Number of inference threads.
@@ -121,6 +121,6 @@ def measure_torch_peak_memory(model: torch.nn.Module,
 
     peak_memory = sum([getattr(key, device_key) if getattr(key, device_key) > 0 else 0
                        for key in p.key_averages()])
-    peak_memory_mb = peak_memory / (1024*1024)
+    peak_memory_mb = peak_memory / (1024 ** 2)
 
     return peak_memory_mb
