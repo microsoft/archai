@@ -134,8 +134,7 @@ class Evolution:
         self.all_latencies = []
         self.all_memories = []
 
-        # Counter for the number of genes occurences
-        # and prevent duplication
+        # Counter for the number of genes occurences and prevent duplication
         self.counts = Counter()
 
         # Creates a constraint pipeline based on input type (`torch` or `onnx`)

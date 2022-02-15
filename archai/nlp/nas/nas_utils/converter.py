@@ -25,33 +25,6 @@ class Converter:
         except:
             self.max_n_layer = 1
 
-    # def config_to_gene(self, config: Dict[str, Any]) -> List[Any]:
-    #     """Converts a configuration dictionary into a gene.
-
-    #     Args:
-    #         config: Configuration dictionary.
-
-    #     Returns:
-    #         (List[Any]): Encoded gene ready for the search.
-
-    #     """
-
-    #     gene = []
-    #     n_layer = config['n_layer']['value']
-
-    #     for k, d in self.config.items():
-    #         if d['per_layer']:
-    #             for i in range(max(self.max_n_layer, n_layer)):
-    #               if isinstance(config[k], list):
-    #                 if i < n_layer:
-    #                     gene.append(config[k][i])
-    #                 else:
-    #                     gene.append(config[k][0])
-    #         else:
-    #             gene.append(config[k])
-                    
-    #     return gene
-
     def gene_to_config(self, gene: List[Any]) -> Dict[str, Any]:
         """Converts a gene into a configuration dictionary.
 
