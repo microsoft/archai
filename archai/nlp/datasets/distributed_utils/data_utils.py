@@ -27,7 +27,7 @@ def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,
                   vocab_size:Optional[int]=None, refresh_cache=False):
     corpus = Corpus(datadir, dataset, vocab_type, cachedir,
                     vocab_size=vocab_size, refresh_cache=refresh_cache)
-    if not corpus.load(): # if cached version doesn't exist
+    if not corpus.load() and not dataset == 'lm1b': # if cached version doesn't exist
         corpus.train_and_encode()
         with distributed.sync_workers() as rank:
             if rank == 0:
