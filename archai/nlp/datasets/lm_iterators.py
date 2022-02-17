@@ -175,11 +175,14 @@ class LMShuffledIterator(object):
 
 
 class LMMultiFileIterator(LMShuffledIterator):
-    def __init__(self, paths, vocab, bsz, bptt, device='cpu', ext_len=None,
+    def __init__(self, paths, vocab, bsz, bptt, device='cpu', mem_len=None, ext_len=None,
                  shuffle=False):
 
-        self.paths = paths
         self.vocab = vocab
+
+        # For compatibility with LMOrderedIterator
+        self.n_batch = -1
+        self.last_iter = None
 
         self.bsz = bsz
         self.bptt = bptt
@@ -187,6 +190,14 @@ class LMMultiFileIterator(LMShuffledIterator):
 
         self.device = device
         self.shuffle = shuffle
+
+        # DDP prep: partition self.paths into world size chunks 
+        # and pick chunk for this rank
+        world_size = distributed.get_world_size()
+        rank = distributed.get_rank()
+        chunk_len = len(paths) // world_size + 1 # NOTE: this causes a slight imbalance!
+        paths_chunks = [paths[i:i+chunk_len] for i in range(0, len(paths), chunk_len)]
+        self.paths = paths_chunks[rank]
 
     def get_sent_stream(self, path):
         sents = self.vocab.encode_file(path, add_double_eos=True)
@@ -203,5 +214,6 @@ class LMMultiFileIterator(LMShuffledIterator):
         for path in self.paths:
             # sent_stream is an iterator
             sent_stream = self.get_sent_stream(path)
-            for batch in self.stream_iterator(sent_stream):
+            for idx, batch in enumerate(self.stream_iterator(sent_stream)):
                 yield batch
+                self.last_iter = idx
