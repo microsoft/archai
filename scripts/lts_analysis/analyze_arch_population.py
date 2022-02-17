@@ -101,6 +101,4 @@ if __name__ == '__main__':
     print(f'Total archs used {len(all_total_params)}')
     print(f'Spearman with decoder params proxy {scorr_decoder}')
     print(f'Spearman with total params proxy {scorr_total}')
-
-    print('dummy')
     

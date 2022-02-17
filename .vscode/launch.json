@@ -359,6 +359,14 @@
                     ]
         },
         {
+            "name": "Analysis Characterize Search Space",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/archai/nlp/nas/characterize_search_space.py",
+            "console": "integratedTerminal",
+            "args": []
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",

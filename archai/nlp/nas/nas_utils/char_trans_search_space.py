@@ -2,16 +2,19 @@ import copy
 import os
 import pickle
 import random
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, namedtuple
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import plotly.graph_objects as go
 
 from archai.nlp.models.model_loader import load_config, load_model_formula, load_model_from_config
 from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import TorchConstraintPipeline
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import measure_torch_inference_latency
 from archai.nlp.nas.nas_utils.converter import Converter
 
+
+GeneConstraints = namedtuple('GeneConstraints', ['config', 'gene', 'decoder_params', 'total_params', 'latency_s', 'memory_mb'])
 
 class CharTransSearchSpace:
     """ Characterizes Transformer-based autoregressive language models """
@@ -89,7 +92,44 @@ class CharTransSearchSpace:
             
         # measure memory, latency, total params and decoder params 
         # for the list of genes
+        all_gene_contraints = []
+        for gene in sampled_genes:
+            config = self.converter.gene_to_config(gene)
+
+            model_config = copy.deepcopy(self.model_config)
+            model_config.update(config)
+
+            model = load_model_from_config(self.model_type, model_config)
+
+            # Constraint pipeline with PyTorch
+            if self.constraint_pipeline_type == 'torch':
+                model = load_model_from_config(self.model_type, model_config)
+                params, total_params, latency, memory = self.pipeline(model)
+            
+            # Constraint pipeline with ONNX
+            elif self.constraint_pipeline_type == 'onnx':
+                params, total_params, latency, memory = self.pipeline(self.model_type, model_config)
+
+            gene_constraints = GeneConstraints(decoder_params=params, 
+                                            total_params=total_params, 
+                                            latency_s=latency, 
+                                            memory_mb=memory, 
+                                            config=config, 
+                                            gene=gene)
+            all_gene_contraints.append(gene_constraints)
+
         
+        # plot
+        savename_html = os.path.join(self.results_path, 'vary_d_model.html')
+        savename_png = os.path.join(self.results_path, 'vary_d_model.png')
+        title_text = 'Varying d_model'
+        self._plot_constraints(all_gene_contraints, 
+                               savename_html=savename_html, 
+                               savename_png=savename_png, 
+                               title_text=title_text)
+
+        
+        print('dummy')
         
 
 
@@ -100,3 +140,31 @@ class CharTransSearchSpace:
 
 
         # fix d_model, d_inner, n_heads, vary num_layers
+
+    def _plot_constraints(self, gene_constraints:List[GeneConstraints],
+                        savename_html:str, savename_png:str, title_text:str)->None:
+
+        all_configs = [gs.config for gs in gene_constraints]
+        all_params = [gs.decoder_params for gs in gene_constraints] 
+        all_total_params = [gs.total_params for gs in gene_constraints] 
+        all_latencies = [gs.latency_s for gs in gene_constraints]
+        all_memories = [gs.memory_mb for gs in gene_constraints]
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter3d(x=all_total_params, 
+                                 y=all_memories,
+                                 z=all_latencies,
+                                 mode='markers',
+                                 marker_color='blue',
+                                 showlegend=True,
+                                 name='Architectures',
+                                 hovertemplate='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                 text=[repr(config) for config in all_configs]))
+        
+        fig.update_layout(title_text=title_text,
+                      scene=dict(xaxis_title='Total Params',
+                                 yaxis_title='Memory (MB)',
+                                 zaxis_title='Latency (s)'))
+
+        fig.write_html(savename_html)
+        fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
