@@ -4,6 +4,7 @@
 """ONNX-loading utilities that enable exports.
 """
 
+import copy
 import types
 from os import environ
 from typing import Any, Dict, Sized, Tuple
@@ -105,14 +106,17 @@ def load_from_config_for_export(model_type: str,
 
     """
 
+    # Copies model's configuration to prevent changing the original one
+    export_model_config = copy.deepcopy(model_config)
+    export_model_config['use_cache'] = True
+
     # Loads the model from configuration
-    model_config['use_cache'] = True
-    model = load_model_from_config(model_type, model_config)
+    model = load_model_from_config(model_type, export_model_config)
 
     # Prepares the model for export
-    model, model_config = _prepare_export(model, model_config, model_type)
+    model, export_model_config = _prepare_export(model, export_model_config, model_type)
 
-    return model, model_config
+    return model, export_model_config
 
 
 def load_from_torch_for_export(model_type: str,
