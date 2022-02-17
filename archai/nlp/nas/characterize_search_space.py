@@ -1,7 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Extracts Pareto-frontier through Evolutionary Search, given constraints. 
+"""Characterizes transformer-based language model search spaces. 
+Helpful for gaining intuition into the nature of the search space.
 """
 
 import argparse
@@ -14,6 +15,7 @@ import torch
 import yaml
 
 from archai.common import utils
+from archai.nlp.nas.nas_utils.char_trans_search_space import CharTransSearchSpace
 
 
 def parse_args():
@@ -32,7 +34,7 @@ def parse_args():
 
     search.add_argument('--model_type',
                         type=str,
-                        default='mem_transformer',
+                        default='hf_gpt2_flex',
                         choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
                         help='Type of model to be searched.')
 
@@ -41,7 +43,6 @@ def parse_args():
                         default=None,
                         help='YAML configuration file to override default configuration.')
 
-    
     search.add_argument('--use_quantization',
                         action='store_true',
                         help='Uses quantized models to measure latency and accuracy.')
@@ -151,5 +152,5 @@ if __name__ == '__main__':
         args['model_config'] = {}
 
     # Characterize
-    characterizer = CharTransSearchSpace(args)
+    characterizer = CharTransSearchSpace(**args)
     characterizer.characterize()

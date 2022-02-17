@@ -81,7 +81,7 @@ class HfGPT2Config(Config):
             },
             'd_model': {
                 'per_layer': False,
-                'value': [128, 256, 512, 768, 1024]
+                'value': list(range(64, 1024, 64))
             },
             'd_inner': {
                 'per_layer': True,
