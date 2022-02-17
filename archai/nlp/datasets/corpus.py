@@ -1,6 +1,6 @@
 import os
 import glob
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 import logging
 from dataclasses import dataclass
 
@@ -55,8 +55,9 @@ class Corpus:
         self.vocab = self._create_train_vocab()
 
         self.train, self.valid, self.test = self._get_encoded_files()
+        train_size = f'{len(self.train)} files' if isinstance(self.train, list) else self.train.size(0)
 
-        logging.info(f'Sizes for train: {self.train.size(0)}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
+        logging.info(f'Sizes for train: {train_size}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
 
 
     def load(self):
@@ -106,13 +107,18 @@ class Corpus:
         return self.vocab
 
     @staticmethod
-    def _get_file_stats(filepath:str)->DataFileStats:
+    def _get_file_stats(filepath:Union[str,list])->DataFileStats:
+        if not isinstance(filepath, list):
+            filepath = [filepath]
+        
         stats = DataFileStats(filepath)
-        with open(filepath, 'r', encoding="utf-8") as f:
-            for line in f:
-                stats.line_count += 1
-                stats.char_count += len(line)
-                stats.word_count += len(line.split())
+        
+        for f_path in filepath:
+            with open(f_path, 'r', encoding="utf-8") as f:
+                for line in f:
+                    stats.line_count += 1
+                    stats.char_count += len(line)
+                    stats.word_count += len(line.split())
         return stats
 
     def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
