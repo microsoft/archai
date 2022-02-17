@@ -85,7 +85,7 @@ def measure_onnx_inference_latency(model_type: str,
         if model_config['attn_type'] == 0:
             n_past_values = 3
 
-    inputs = {'input_ids': np.random.randint(0, model_config['n_token'], (batch_size, seq_len))}
+    inputs = {'input_ids': np.random.randint(0, model_config['n_token'], (batch_size, seq_len), dtype=np.int64)}
     for i in range(model_config['n_layer']):
         key = f'past_{i}'
         inputs[key] =  np.zeros((n_past_values, batch_size, model_config['n_head'], 0, model_config['d_head']), dtype=np.float32)
