@@ -71,29 +71,11 @@ class CharTransSearchSpace:
                                                     n_trials=latency_repeat)
 
 
-    def characterize(self):
-
-        # NOTE: hf_gpt2_flex specific for now
-
-        # fix num_layers, n_heads, d_inner, vary d_model
-        # ----------------------------------------------
-        sampled_genes = []
-        
-        # sample a gene first
-        sampled_gene = []
-        for k in range(self.gene_size):
-            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
-        
-        # vary d_model which is index 1
-        for d_model in self.allowed_genes[1]:
-            gene_copy = copy.deepcopy(sampled_gene)
-            gene_copy[1] = d_model
-            sampled_genes.append(gene_copy)
-            
+    def _measure_gene_constraints(self, genes:List[Any])->List[GeneConstraints]:
         # measure memory, latency, total params and decoder params 
         # for the list of genes
         all_gene_contraints = []
-        for gene in sampled_genes:
+        for gene in genes:
             config = self.converter.gene_to_config(gene)
 
             model_config = copy.deepcopy(self.model_config)
@@ -118,28 +100,128 @@ class CharTransSearchSpace:
                                             gene=gene)
             all_gene_contraints.append(gene_constraints)
 
+        return all_gene_contraints
+
+
+    def characterize(self):
+
+        assert self.model_type == 'hf_gpt2_flex'
+
+        # NOTE: hf_gpt2_flex specific for now
+
+        # fix num_layers, n_heads, d_inner, vary d_model
+        # ----------------------------------------------
+        sampled_genes = []
         
+        # sample a gene first
+        sampled_gene = []
+        for k in range(self.gene_size):
+            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
+        
+        # vary d_model which is index 1
+        for d_model in self.allowed_genes[1]:
+            gene_copy = copy.deepcopy(sampled_gene)
+            gene_copy[1] = d_model
+            sampled_genes.append(gene_copy)
+
+        # measure constraints
+        all_gene_constraints = self._measure_gene_constraints(sampled_genes)
+            
         # plot
         savename_html = os.path.join(self.results_path, 'vary_d_model.html')
         savename_png = os.path.join(self.results_path, 'vary_d_model.png')
         title_text = 'Varying d_model'
-        self._plot_constraints(all_gene_contraints, 
+        self._plot_constraints(all_gene_constraints, 
                                savename_html=savename_html, 
                                savename_png=savename_png, 
                                title_text=title_text)
 
-        
-        print('dummy')
-        
-
-
+            
         # fix num_layers, n_heads, d_model, vary d_inner
+        # ------------------------------------------------
+        sampled_genes = []
+
+        # sample a gene first
+        sampled_gene = []
+        for k in range(self.gene_size):
+            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
+        
+        # vary d_inner for the first layer which is index 2
+        for di in self.allowed_genes[2]:
+            gene_copy = copy.deepcopy(sampled_gene)
+            gene_copy[2] = di
+            sampled_genes.append(gene_copy)
+
+        # measure constraints
+        all_gene_constraints = self._measure_gene_constraints(sampled_genes)
+            
+        # plot
+        savename_html = os.path.join(self.results_path, 'vary_d_inner_layer_1.html')
+        savename_png = os.path.join(self.results_path, 'vary_d_inner_layer_1.png')
+        title_text = 'Varying d_inner Layer 1'
+        self._plot_constraints(all_gene_constraints, 
+                               savename_html=savename_html, 
+                               savename_png=savename_png, 
+                               title_text=title_text)
+
 
 
         # fix num_layers, d_model, d_inner, vary n_heads
+        # ------------------------------------------------
+        sampled_genes = []
 
+        # sample a gene first
+        sampled_gene = []
+        for k in range(self.gene_size):
+            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
+        
+        # vary n_heads which is last index
+        for n_heads in self.allowed_genes[-1]:
+            gene_copy = copy.deepcopy(sampled_gene)
+            gene_copy[-1] = n_heads
+            sampled_genes.append(gene_copy)
+
+        # measure constraints
+        all_gene_constraints = self._measure_gene_constraints(sampled_genes)
+            
+        # plot
+        savename_html = os.path.join(self.results_path, 'vary_n_heads.html')
+        savename_png = os.path.join(self.results_path, 'vary_n_heads.png')
+        title_text = 'Varying n_heads'
+        self._plot_constraints(all_gene_constraints, 
+                               savename_html=savename_html, 
+                               savename_png=savename_png, 
+                               title_text=title_text)
 
         # fix d_model, d_inner, n_heads, vary num_layers
+        # ------------------------------------------------
+        sampled_genes = []
+        
+        # sample a gene first
+        sampled_gene = []
+        for k in range(self.gene_size):
+            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
+        
+        # vary num_layers which is index 0
+        for nl in self.allowed_genes[0]:
+            gene_copy = copy.deepcopy(sampled_gene)
+            gene_copy[0] = nl
+            sampled_genes.append(gene_copy)
+
+        # measure constraints
+        all_gene_constraints = self._measure_gene_constraints(sampled_genes)
+            
+        # plot
+        savename_html = os.path.join(self.results_path, 'vary_layers.html')
+        savename_png = os.path.join(self.results_path, 'vary_layers.png')
+        title_text = 'Varying layers'
+        self._plot_constraints(all_gene_constraints, 
+                               savename_html=savename_html, 
+                               savename_png=savename_png, 
+                               title_text=title_text)
+
+
+
 
     def _plot_constraints(self, gene_constraints:List[GeneConstraints],
                         savename_html:str, savename_png:str, title_text:str)->None:
