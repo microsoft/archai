@@ -6,7 +6,7 @@
 
 import os
 import timeit
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
@@ -20,7 +20,7 @@ from archai.nlp.models.model_loader import load_model_formula
 
 def _prepare_onnx_model(model_type: str,
                         model_config: Dict[str, Any],
-                        use_quantization: bool) -> str:
+                        use_quantization: bool) -> Tuple[str, Dict[str, Any]]:
     """Prepares an ONNX-based model ready for export.
 
     Args:
@@ -29,29 +29,29 @@ def _prepare_onnx_model(model_type: str,
         use_quantization: Whether latency should be calculated with quantizated model or not.
 
     Returns:
-        (str): Path to the ONNX-based model.
+        (Tuple[str, Dict[str, Any]]): Path to the ONNX-based model and its export-ready configuration.
 
     """
 
-    export_model, model_config = load_from_config_for_export(model_type, model_config)
+    export_model, export_model_config = load_from_config_for_export(model_type, model_config)
 
     onnx_model_path = 'temp.onnx'
     export_onnx_from_torch(export_model,
-                           model_config,
+                           export_model_config,
                            model_type,
                            onnx_model_path,
-                           share_weights=True,
+                           share_weights=False,
                            opset_version=12)
     
     onnx_model_path = optimize_onnx(model_type,
                                     onnx_model_path,
-                                    num_heads=model_config['n_head'],
+                                    num_heads=export_model_config['n_head'],
                                     opt_level=0)
 
     if use_quantization:
         onnx_model_path = dynamic_quantization_onnx(onnx_model_path)
 
-    return str(onnx_model_path)
+    return str(onnx_model_path), export_model_config
 
 
 def measure_onnx_inference_latency(model_type: str,
@@ -77,18 +77,18 @@ def measure_onnx_inference_latency(model_type: str,
 
     """
 
-    onnx_model_path = _prepare_onnx_model(model_type, model_config, use_quantization)
+    onnx_model_path, onnx_model_config = _prepare_onnx_model(model_type, model_config, use_quantization)
     onnx_model_session = load_from_onnx(onnx_model_path)
 
     n_past_values = 2
     if model_type == 'mem_transformer':
-        if model_config['attn_type'] == 0:
+        if onnx_model_config['attn_type'] == 0:
             n_past_values = 3
 
-    inputs = {'input_ids': np.random.randint(0, model_config['n_token'], (batch_size, seq_len), dtype=np.int64)}
-    for i in range(model_config['n_layer']):
+    inputs = {'input_ids': np.random.randint(0, onnx_model_config['n_token'], (batch_size, seq_len), dtype=np.int64)}
+    for i in range(onnx_model_config['n_layer']):
         key = f'past_{i}'
-        inputs[key] =  np.zeros((n_past_values, batch_size, model_config['n_head'], 0, model_config['d_head']), dtype=np.float32)
+        inputs[key] =  np.zeros((n_past_values, batch_size, onnx_model_config['n_head'], 0, onnx_model_config['d_head']), dtype=np.float32)
 
     timer = timeit.Timer(stmt='onnx_model_session(None, inputs)',
                          globals={
@@ -139,7 +139,7 @@ def measure_onnx_disk_memory(model_type: str,
 
     """
 
-    onnx_model_path = _prepare_onnx_model(model_type, model_config, use_quantization)
+    onnx_model_path, _ = _prepare_onnx_model(model_type, model_config, use_quantization)
 
     disk_memory = os.path.getsize(onnx_model_path)
     disk_memory_mb = disk_memory / (1024 ** 2)
