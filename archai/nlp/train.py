@@ -509,10 +509,14 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     log_start_time = time.time()
 
     mems = [None for _ in range(args.batch_chunk)]
-    if args.varlen:
-        train_iter = train_itr.get_varlen_iter(start=last_iter)
+    # Changes to make train_iter for lm1b to be properly caught
+    if args.dataset != 'lm1b':
+        if args.varlen:
+            train_iter = train_itr.get_varlen_iter(start=last_iter)
+        else:
+            train_iter = train_itr.get_fixlen_iter(start=last_iter)
     else:
-        train_iter = train_itr.get_fixlen_iter(start=last_iter)
+        train_iter = train_itr
 
     logging.info('Starting training...')
     for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
