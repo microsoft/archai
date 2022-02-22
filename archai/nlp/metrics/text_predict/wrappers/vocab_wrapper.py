@@ -12,7 +12,8 @@ import numpy as np
 
 from archai.common.lru_cache import LRUCache
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.metrics.text_predict.text_predict_utils import RE_SPLIT, WORD_TOKEN_SEPARATOR_SET
+from archai.nlp.metrics.text_predict.text_predict_utils import (RE_SPLIT,
+                                                                WORD_TOKEN_SEPARATOR_SET)
 
 # Token-related constants
 TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE = 65536

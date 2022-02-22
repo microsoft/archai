@@ -11,7 +11,6 @@ from typing import Optional, Tuple
 
 import numpy as np
 import torch
-from torch import nn
 
 
 class ModelWrapper:
@@ -20,12 +19,13 @@ class ModelWrapper:
     """
 
     def __init__(self,
-                 model: nn.Module,
+                 model: torch.nn.Module,
                  space_token_id: int,
                  max_seq_len: int,
                  device: Optional[str] = None):
         self.space_token_id = space_token_id
         self.max_seq_len = max_seq_len
+        
         self.device = next(model.parameters()).device if device is None else device
         
         self.model = model

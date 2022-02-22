@@ -6,36 +6,30 @@
 
 from __future__ import annotations
 
-
-import logging
-import re
-import time
-from typing import Optional
-from archai.nlp.metrics.model_wrapper import ModelWrapper
-
-import numpy as np
-import pandas as pd
-
-from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.metrics.text_predict.prediction import Prediction
-from archai.nlp.metrics.text_predict.prediction_sequence import TextPredictionSequence
-from archai.nlp.metrics.text_prediction import TextPredictor
-
 import copy
 import functools
 import json
 import logging
+import re
 import time
-from typing import Tuple
+from typing import Optional, Tuple
 
+import numpy as np
+import pandas as pd
 from torch import nn
 
-from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets.tokenizer_utils.special_token_enum import \
+    SpecialTokenEnum
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.metrics.text_predict.wrappers.model_wrapper import ModelWrapper
-from archai.nlp.metrics.text_predict_utils import WORD_TOKEN_SEPARATOR_SET, get_settings
-from archai.nlp.metrics.text_predict.wrappers.vocab_wrapper import VocabWrapper
+from archai.nlp.metrics.model_wrapper import ModelWrapper
 from archai.nlp.metrics.text_predict.prediction import Prediction
+from archai.nlp.metrics.text_predict.prediction_sequence import \
+    TextPredictionSequence
+from archai.nlp.metrics.text_predict.wrappers.model_wrapper import ModelWrapper
+from archai.nlp.metrics.text_predict.wrappers.vocab_wrapper import VocabWrapper
+from archai.nlp.metrics.text_predict_utils import (WORD_TOKEN_SEPARATOR_SET,
+                                                   get_settings)
+from archai.nlp.metrics.text_prediction import TextPredictor
 
 
 class Predictor:

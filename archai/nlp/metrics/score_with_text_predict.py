@@ -31,19 +31,19 @@ Setting
 The novel is set in various locations in the Milky Way. The galaxy is divided into four concentric volumes.
 """
 
-import os
-import os.path as osp
 import argparse
 import logging
+import os
+import os.path as osp
+import pathlib as pl
 import re
 import readline  # pylint: disable=unused-import
 import time
-import pathlib as pl
 
-import pandas as pd
 import numpy as np
-
-from nlxpy.textprediction import (create_model, create_tokenizer, TextPredictor, TextPredictionSequence)
+import pandas as pd
+from nlxpy.textprediction import (TextPredictionSequence, TextPredictor,
+                                  create_model, create_tokenizer)
 
 PROMPT = "> "
 START_MSG = "Press CTRL-D or type 'exit' to exit."
@@ -100,13 +100,12 @@ def predict_website(predictor, args):
     logging.info("Launching website...")
 
     import dash
-    from dash.dependencies import Input, Output
+    import dash_bootstrap_components as dbc
     import dash_core_components as dcc
     import dash_html_components as html
-    import dash_bootstrap_components as dbc
     import dash_table
-
     import flask
+    from dash.dependencies import Input, Output
 
     title = f"Text Pediction: {args.model_type} / {args.model}"
     server = flask.Flask('app')
