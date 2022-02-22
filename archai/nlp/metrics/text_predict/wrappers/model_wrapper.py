@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Wraps Archai's models to work with Text Predictor.
+"""Archai-based models that works with the Text Predictor.
 """
 
 import functools
@@ -15,12 +15,12 @@ from torch import nn
 
 
 class ModelWrapper:
-    """Wraps a model from Archai to comply with Text Preditor.
+    """Wraps an ArchaiModel to comply with Text Preditor.
 
     """
 
     def __init__(self,
-                 model:nn.Module,
+                 model: nn.Module,
                  space_token_id: int,
                  max_seq_len: int,
                  device: Optional[str] = None):
@@ -79,10 +79,10 @@ class ModelWrapper:
 
         with torch.no_grad():
             _, prediction_scores, _, *_ = self.model(in_tensor,
-                                                           labels=None,
-                                                           mems=None,
-                                                           output_loss=False,
-                                                           output_prediction_scores=True)
+                                                     labels=None,
+                                                     mems=None,
+                                                     output_loss=False,
+                                                     output_prediction_scores=True)
 
             # Takes logits for last token and gets first batch
             next_token_probs = torch.exp(prediction_scores[-1][0]).tolist()

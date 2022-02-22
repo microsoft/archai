@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Sequence-related classes and methods for Text Prediction.
+"""
 """
 
 from __future__ import annotations
@@ -20,8 +20,212 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
 
-from archai.nlp.scoring_metrics.scoring_utils import get_settings
-from archai.nlp.scoring_metrics.prediction import Prediction, TextPredictor
+from archai.nlp.metrics.text_predict.text_predict_utils import get_settings
+from archai.nlp.metrics.text_predict.prediction import Prediction, TextPredictor
+
+
+
+import copy
+import functools
+import json
+import logging
+import re
+import time
+from collections import OrderedDict
+from typing import Tuple
+
+from torch import nn
+
+from archai.nlp.datasets.tokenizer_utils.special_token_enum import \
+    SpecialTokenEnum
+from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.scoring_metrics.model_wrapper import ModelWrapper
+from archai.nlp.scoring_metrics.scoring_utils import (WORD_TOKEN_SEPARATOR_SET,
+                                                      get_settings)
+from archai.nlp.scoring_metrics.vocab_wrapper import VocabWrapper
+
+
+class Prediction:
+    """Represents a single prediction.
+    """
+    # Constants for P(Accept) calculation
+    a1 = 0.04218
+    b1 = -0.1933
+
+    # Penalties for calculating upper case score
+    UPPER_PROB_PENALTY = 0.1
+    UPPER_SCORE_PENALTY = 0.5
+#    UPPER_PROB_PENALTY = 0.0
+#    UPPER_SCORE_PENALTY = 0.0
+
+    def __init__(self, text: str, probability: float, predictor: TextPredictor = None,
+                 input_ids: tuple = None, token_ids: tuple = None, complete: bool = None, match: bool = None, score: float = None): # pylint: disable=too-many-arguments
+        self.text = text
+        self.probability = probability
+        self.predictor = predictor
+        self.input_ids = input_ids
+        self.token_ids = token_ids
+        self.complete = complete
+        self.match = match
+        self._score = score
+
+    @classmethod
+    def empty(cls, predictor: TextPredictor = None) -> Prediction:
+        """Generate empty prediction"""
+        return Prediction('', 0.0, predictor=predictor, complete=False)
+
+    @classmethod
+    def next_prediction(cls, prediction: Prediction, next_text: str, next_probability: float, next_token_id: int) -> Prediction:
+        """Generate new prediction given current prediction and the next step of running the model """
+        next_prediction = Prediction(
+            prediction.text + next_text,
+            prediction.probability * next_probability,
+            predictor=prediction.predictor,
+            input_ids=prediction.input_ids,
+            token_ids=prediction.token_ids + (next_token_id,))
+        return next_prediction
+
+    def show(self) -> str:
+        """What to actually show (predicted text, right-stripped)"""
+        return self.text.rstrip()
+
+    def __len__(self) -> int:
+        """Length of the prediction"""
+        return len(self.show())
+
+    def __str__(self) -> str:
+        """Return text value of the prediction"""
+        return self.show()
+
+    def __repr__(self) -> str:
+        """Return information about the prediction"""
+        return f"({self.text}, {self.probability:.5f}, {self.score():.3f})"
+
+    def p_match(self) -> float:
+        """P(Match)"""
+        return self.probability
+
+    def p_accept(self) -> float:
+        """P(Accept)"""
+        result = self.probability * self.p_accept_given_match()
+        if result < 0:
+            return 0.0
+        return result
+
+    def p_accept_given_match(self) -> float:
+        """P(Accept|Match)"""
+        result = self.a1 * len(self) + self.b1
+        if result < 0:
+            return 0.0
+        return result
+
+    def score(self) -> float:
+        """Score we optimize on (currently, maximizing # of characters matched)."""
+        if not self._score is None:
+            return self._score
+
+        a1 = 0.0 # This is to optimize currently on # of chars matched
+        b1 = 1.0
+
+        length = len(self)
+        score = self.probability*length*(a1*length + b1)
+        if self.predictor is None:
+            if not self.is_empty():
+                logging.info("Prediction environment not available. Ignoring additional parameters needed for score evaluation")
+            return score
+
+        upper_token_ids = self.predictor.vocab_wrapper.UPPER_TOKENS.intersection(self.token_ids)
+        if len(upper_token_ids) > 0:
+            score = (self.probability - Prediction.UPPER_PROB_PENALTY)*length*(a1*length + b1) - Prediction.UPPER_SCORE_PENALTY
+
+        return score
+
+    def char_accepted(self) -> float:
+        """Characters saved (P(Accept) * Prediction Length)."""
+        return len(self) * self.p_accept()
+
+    def all_ids(self) -> tuple:
+        """Combine the input_ids and token_ids into a single list."""
+        if self.input_ids is None or self.token_ids is None:
+            raise ValueError(f"Unable to determine combined ids for '{self}'.")
+        return self.input_ids + self.token_ids
+
+    def length_type(self) -> str:
+        pred_len = len(self)
+        if pred_len < 6:
+            return "0:XS"
+
+        if pred_len < 11:
+            return "1:S"
+
+        if pred_len < 16:
+            return "2:M"
+
+        return "3:L"
+
+    def word_count(self) -> int:
+        """Return number of words in this prediction."""
+        if len(self) == 0:
+            return 0
+        return len(re.findall(r'\s+', self.text.strip())) + 1
+
+    def update_complete(self) -> bool:
+        if self.input_ids is None or self.token_ids is None or self.predictor is None:
+            raise ValueError(f"Unable to determine if '{self}' ends with a complete word.")
+        self.complete = self.predictor.is_complete_word(tuple(self.input_ids + self.token_ids))
+        return self.complete
+
+    def is_valid(self) -> bool:
+        """The function determines if this is a valid prediction
+        (i.e. one that can be shown to the user)
+
+        Returns:
+            bool: Returns True if this is a valid prediction (that should be shown to the user)
+        """
+        if self.predictor is None:
+            raise ValueError("Prediction environment not available; Not able to determine if prediction is valid")
+
+        if self.token_ids is None or len(self.token_ids) == 0:
+            return False
+
+        if len(self.show()) < self.predictor.MIN_PRED_LEN:
+            return False
+
+        if set(self.token_ids) & self.predictor.vocab_wrapper.INVALID_TOKENS:
+            return False
+
+        if self.complete is None:
+            self.update_complete()
+
+        if not self.complete:
+            return False
+
+        # Moved to Prediction
+        # upper_token_ids = self.predictor.tokenizer.UPPER_TOKENS.intersection(self.token_ids)
+        # if len(upper_token_ids) > 0 and self.probability < self.predictor.MIN_UPPER_PROB_CUTOFF:
+        #    return False
+
+        return True
+
+    def is_empty(self):
+        """Return True if prediction is empty"""
+        return len(self.text) == 0
+
+    def to_odict(self) -> OrderedDict:
+        """Return OrderedDict representing the Prediction."""
+        return OrderedDict({
+            "Text": self.show(),
+            "Probability": self.probability,
+            "Length": len(self),
+            "Complete": self.complete,
+            "Match": self.match,
+            "PAccept": self.p_accept(),
+            "Score": self.score(),
+            "CharAccepted": self.char_accepted(),
+            "WordCount": self.word_count(),
+            "Tokens": self.token_ids,
+            })
+
 
 
 @dataclass
@@ -100,14 +304,13 @@ class TextPredictionSequence(OrderedDict):
     """Represents a sequence of text predictions.
 
     Usage:
-
-    >>> model = create_model("transformers", "distilgpt2", max_seq_len=1024)
-    >>> tokenizer = create_tokenizer("transformers", "gpt2")
-    >>> tp = TextPredictor(model, tokenizer)
-    >>> seq = TextPredictionSequence.from_smart_compose_file("GSuiteCompete10pc.ljson", tp)
-    >>> seq.predict()
-    >>> score = seq.score([1, 1.5, 2, 2.5, 3, 3.5, 4, 5], expected_match_rate = 0.5)
-    >>> print(json.dumps(score, indent=2))
+        >>> model = create_model('transformers', 'distilgpt2', max_seq_len=1024)
+        >>> tokenizer = create_tokenizer('transformers', 'gpt2')
+        >>> tp = TextPredictor(model, tokenizer)
+        >>> seq = TextPredictionSequence.from_smart_compose_file('GSuiteCompete10pc.ljson', tp)
+        >>> seq.predict()
+        >>> score = seq.score([1, 1.5, 2, 2.5, 3, 3.5, 4, 5], expected_match_rate = 0.5)
+        >>> print(json.dumps(score, indent=2))
 
     """
 
@@ -173,8 +376,8 @@ class TextPredictionSequence(OrderedDict):
     @classmethod
     def from_text_file(cls: TextPredictionSequence,
                        file_name: str,
-                       new_document_re: str = '\\n\\n+',
-                       predictor:Optional[TextPredictor] = None,
+                       new_document_re: Optional[str] = '\\n\\n+',
+                       predictor: Optional[TextPredictor] = None,
                        **kwargs) -> TextPredictionSequence:
         logging.info(f'Loading text file from {file_name}')
 
@@ -224,10 +427,10 @@ class TextPredictionSequence(OrderedDict):
 
     def save_all(self,
                  output_dir: str,
-                 predict_file='Output.ljson',
-                 summary_file='summary.json',
-                 settings_file='settings.json',
-                 triggered_file='triggered.csv') -> None:
+                 predict_file: Optional[str] = 'Output.ljson',
+                 summary_file: Optional[str] = 'summary.json',
+                 settings_file: Optional[str] = 'settings.json',
+                 triggered_file: Optional[str] = 'triggered.csv') -> None:
         os.makedirs(output_dir, exist_ok=True)
 
         if predict_file is not None:
@@ -251,7 +454,6 @@ class TextPredictionSequence(OrderedDict):
                 self._triggered_df.to_csv(index=False)
             else:
                 logging.info('triggered_df not defined - not saving')
-
 
     def settings(self) -> dict:
         settings = get_settings(self)

@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities that are re-used across Text Predictor.
+"""Utilities that are re-used across Text Predict.
 """
 
 import re
@@ -12,6 +12,7 @@ WORD_TOKEN_SEPARATOR = 'Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/
 WORD_TOKEN_SEPARATOR_SET = set(WORD_TOKEN_SEPARATOR)
 RE_SPLIT = re.compile('^(.*)([' + WORD_TOKEN_SEPARATOR + '].*)$', re.MULTILINE | re.DOTALL)
 MAX_LIST_LEN = 10
+
 
 def get_settings(obj: Any, recursive: Optional[bool] = True) -> Dict[str, Any]:
     variables = {}

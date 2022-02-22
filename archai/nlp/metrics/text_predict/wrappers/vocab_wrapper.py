@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Wraps Archai's vocabulary to work with Text Predictor.
+"""Archai-based vocabularies that works with the Text Predictor.
 """
 
 import functools
@@ -12,13 +12,15 @@ import numpy as np
 
 from archai.common.lru_cache import LRUCache
 from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.scoring_metrics.scoring_utils import RE_SPLIT, WORD_TOKEN_SEPARATOR_SET
+from archai.nlp.metrics.text_predict.text_predict_utils import RE_SPLIT, WORD_TOKEN_SEPARATOR_SET
 
 # Token-related constants
 TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE = 65536
 
+
 class VocabWrapper:
-    """
+    """Wraps a VocabBase to comply with Text Preditor.
+
     """
 
     # Set of tokens that should not be shown to the user
@@ -32,7 +34,6 @@ class VocabWrapper:
 
         self.idx2token = self.vocab.ids_to_tokens(list(range(len(self.vocab))))
         self.filter_token_ids_cache = LRUCache(TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE)
-
         self.WORD_TOKEN_SEPARATOR_IDX = set([idx for idx in range(len(self)) if self[idx][0] in WORD_TOKEN_SEPARATOR_SET])
 
         logging.debug(f'WORD_TOKEN_SEPARATOR_IDX size: {len(self.WORD_TOKEN_SEPARATOR_IDX)}')
@@ -75,7 +76,7 @@ class VocabWrapper:
 
         return (context, prefix)
 
-    def __iter__(self):
+    def __iter__(self) -> int:
         yield from self.idx2token
 
     def __len__(self) -> int:
