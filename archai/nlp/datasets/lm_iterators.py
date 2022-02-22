@@ -200,7 +200,7 @@ class LMMultiFileIterator(LMShuffledIterator):
         self.paths = paths_chunks[rank]
 
     def get_sent_stream(self, path):
-        sents = self.vocab.encode_file(path, add_double_eos=True)
+        sents = self.vocab.encode_file(path)
         if self.shuffle:
             np.random.shuffle(sents)
         sent_stream = iter(sents)
