@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Entrypoing of prediction representations: single and sequence.
+"""Entrypoint of prediction representations: single and sequence.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import re
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import ftfy
 import numpy as np
@@ -41,8 +41,8 @@ class Prediction:
                  text: str,
                  probability: float,
                  predictor: Optional[TextPredictor] = None,
-                 input_ids: Optional[tuple] = None,
-                 token_ids: Optional[tuple] = None,
+                 input_ids: Optional[Tuple[int, ...]] = None,
+                 token_ids: Optional[Tuple[int, ...]] = None,
                  complete: Optional[bool] = None,
                  match: Optional[bool] = None, 
                  score: Optional[float] = None):
@@ -63,7 +63,7 @@ class Prediction:
         return Prediction('', 0.0, predictor=predictor, complete=False)
 
     @classmethod
-    def next_prediction(cls,
+    def next_prediction(cls: Prediction,
                         prediction: Prediction,
                         next_text: str,
                         next_probability: float,
@@ -127,14 +127,14 @@ class Prediction:
         upper_token_ids = self.predictor.vocab_wrapper.UPPER_TOKENS.intersection(self.token_ids)
 
         if len(upper_token_ids) > 0:
-            score = (self.probability - Prediction.UPPER_PROB_PENALTY)*length*(a1*length + b1) - Prediction.UPPER_SCORE_PENALTY
+            score = (self.probability - Prediction.UPPER_PROB_PENALTY) * length * (a1 * length + b1) - Prediction.UPPER_SCORE_PENALTY
 
         return score
 
     def char_accepted(self) -> float:
         return len(self) * self.p_accept()
 
-    def all_ids(self) -> tuple:
+    def all_ids(self) -> Tuple[int, ...]:
         if self.input_ids is None or self.token_ids is None:
             raise ValueError(f'Unable to determine combined ids for `{self}`.')
 
@@ -257,10 +257,9 @@ class TextPredictionPosition:
         return f'{self.line_id}-{self.char_id}'
 
     def to_smart_compose_ljson(self) -> str:
-        result:OrderedDict[str,Any] = OrderedDict({
-            'UniqueId': self.unique_id,
-            'Body': self.body,
-            'BodyContinued': self.body_continued})
+        result = OrderedDict({'UniqueId': self.unique_id,
+                              'Body': self.body,
+                              'BodyContinued': self.body_continued})
 
         if not self.time is None:
             result['Time'] = self.time
@@ -268,11 +267,9 @@ class TextPredictionPosition:
         if self.prediction is None:
             result['Suggestions'] = []
         else:
-            result['Suggestions'] = [{
-                'Suggestion': self.prediction.show(),
-                'Probability':  self.prediction.probability,
-                'Score':  self.prediction.score()
-            }]
+            result['Suggestions'] = [{'Suggestion': self.prediction.show(),
+                                      'Probability':  self.prediction.probability,
+                                      'Score':  self.prediction.score()}]
 
         return json.dumps(result)
 
@@ -310,6 +307,7 @@ class TextPredictionSequence(OrderedDict):
         self.max_body_len = max_body_len
         self.min_pred_len = min_pred_len
         self.min_score = min_score
+
         self.save_step = save_step
         self.current_paragraph_only = current_paragraph_only
 
@@ -404,7 +402,7 @@ class TextPredictionSequence(OrderedDict):
 
     def save_all(self,
                  output_dir: str,
-                 predict_file: Optional[str] = 'Output.ljson',
+                 predict_file: Optional[str] = 'output.ljson',
                  summary_file: Optional[str] = 'summary.json',
                  settings_file: Optional[str] = 'settings.json',
                  triggered_file: Optional[str] = 'triggered.csv') -> None:
@@ -415,19 +413,22 @@ class TextPredictionSequence(OrderedDict):
             self.save(predict_file_path)
 
         if summary_file is not None:
-            summary_file_path = os.path.join(output_dir, summary_file)
             logging.info(f'Saving scoring summary to `{summary_file_path}` file')
+
+            summary_file_path = os.path.join(output_dir, summary_file)
             self.save_score_summary(summary_file_path)
 
         if settings_file is not None:
-            settings_file_path = os.path.join(output_dir, settings_file)
             logging.info(f'Saving settings info to `{settings_file_path}` file')
+
+            settings_file_path = os.path.join(output_dir, settings_file)
             self.save_settings(settings_file_path)
 
         if triggered_file is not None:
             if self._triggered_df is not None:
-                triggered_file_path = os.path.join(output_dir, triggered_file)
                 logging.info(f'Saving triggered info to `{triggered_file_path}` file')
+
+                triggered_file_path = os.path.join(output_dir, triggered_file)
                 self._triggered_df.to_csv(index=False)
             else:
                 logging.info('triggered_df not defined - not saving')
@@ -453,8 +454,8 @@ class TextPredictionSequence(OrderedDict):
                 text = re.sub('^(.*\n)', '', text, flags=re.M)
 
             if len(text) > self.max_body_len:
-                text = pos.body[(-1*self.max_body_len):] # Truncate
-                text = text[text.find(' '):]             # Remove partial token
+                text = pos.body[(-1 * self.max_body_len):]
+                text = text[text.find(' '):]
 
             prediction = self.predictor.predict(text)
             end_time = time.time()
@@ -478,6 +479,7 @@ class TextPredictionSequence(OrderedDict):
     def get_perplexity(self) -> float:
         if self.predictor is None:
             logging.warning('TextPredictor not defined. Perplexity not calculated')
+            
             return None
 
         loss_sum = 0.0
@@ -523,17 +525,18 @@ class TextPredictionSequence(OrderedDict):
             if prediction is not None:
                 body_continued = pos.body_continued[:len(prediction)]
                 prediction.match = prediction.show() == body_continued
+
                 min_len = min(len(prediction.show()), len(body_continued))
                 last_match_char = next((i for i in range(min_len) if prediction.show()[i] != body_continued[i]), min_len)
                 length_type = prediction.length_type()
+                
                 prediction_odict = prediction.to_odict()
                 p_accept_given_match = prediction.p_accept_given_match()
 
             else:
                 body_continued, min_len, last_match_char = True, 0, 0
-                prediction_odict = OrderedDict(
-                    [('Text', ''), ('Probability', 0.0), ('Length', 0), ('Complete', False), ('Match', None), ('PAccept', 0.0), ('Score', 0.0), ('CharAccepted', 0.0), ('WordCount', 0), ('Tokens', None)]
-                    )
+                
+                prediction_odict = OrderedDict([('Text', ''), ('Probability', 0.0), ('Length', 0), ('Complete', False), ('Match', None), ('PAccept', 0.0), ('Score', 0.0), ('CharAccepted', 0.0), ('WordCount', 0), ('Tokens', None)])
                 length_type = ''
                 p_accept_given_match = 0.0
 
@@ -580,14 +583,17 @@ class TextPredictionSequence(OrderedDict):
                 msg = f'Incorrect order of lines in the file (current line = {curr_line}, '
                 msg += f'processed line = {predictions_df["Line"][i]}; current char = {curr_char}, '
                 msg += f'processed char = {predictions_df["Char"][i]}'
+                
                 raise ValueError(msg)
 
             triggered[i] = 0
 
             if predictions_df['Line'][i] > curr_line or predictions_df['Char'][i] > curr_char:
                 d = predictions_df.iloc[i].to_dict()
+                
                 curr_line = d['Line']
                 curr_char = d['Char'] + d['LastMatchChar']
+                
                 triggered_list.append(d)
                 triggered[i] = 1
 
@@ -611,37 +617,25 @@ class TextPredictionSequence(OrderedDict):
         summary['Perplexity'] = self.perplexity
 
         summary['SuggestionsShown'] = len(triggered_df.index)
-        summary['SuggestionsMatched'] = int(np.sum(triggered_df['Match'])) \
-            if len(triggered_df.columns) else 0
-        summary['SuggestionsAccepted'] = int(np.sum(triggered_df['Match'] * triggered_df['PAcceptGivenMatch'])) \
-            if len(triggered_df.columns) else 0
+        summary['SuggestionsMatched'] = int(np.sum(triggered_df['Match'])) if len(triggered_df.columns) else 0
+        summary['SuggestionsAccepted'] = int(np.sum(triggered_df['Match'] * triggered_df['PAcceptGivenMatch'])) if len(triggered_df.columns) else 0
         summary['SuggestionRatePerWord'] = summary['SuggestionsShown']/summary['TotalWordCount']
         summary['SuggestionRatePerChar'] = summary['SuggestionsShown']/summary['TotalEvalPoints']
 
-        summary['MatchRate'] = np.mean(triggered_df['Match']) \
-            if len(triggered_df.columns) else 0
-        summary['AcceptRate'] = np.mean(triggered_df['Match'] * triggered_df['PAcceptGivenMatch']) \
-            if len(triggered_df.columns) else 0
-        summary['CharMatched'] = int(np.sum(triggered_df['Match'] * triggered_df['Length'])) \
-            if len(triggered_df.columns) else 0
-        summary['CharAccepted'] = int(np.sum(triggered_df['Match'] * triggered_df['PAcceptGivenMatch'] * triggered_df['Length'])) \
-            if len(triggered_df.columns) else 0
+        summary['MatchRate'] = np.mean(triggered_df['Match']) if len(triggered_df.columns) else 0
+        summary['AcceptRate'] = np.mean(triggered_df['Match'] * triggered_df['PAcceptGivenMatch']) if len(triggered_df.columns) else 0
+        summary['CharMatched'] = int(np.sum(triggered_df['Match'] * triggered_df['Length'])) if len(triggered_df.columns) else 0
+        summary['CharAccepted'] = int(np.sum(triggered_df['Match'] * triggered_df['PAcceptGivenMatch'] * triggered_df['Length'])) if len(triggered_df.columns) else 0
         summary['CharMatchRate'] = summary['CharMatched']/summary['TotalEvalPoints']
         summary['CharAcceptRate'] = summary['CharAccepted']/summary['TotalEvalPoints']
 
-        summary['SuggestionsShownByType'] = triggered_df.groupby(['Type']).size().to_dict() \
-            if len(triggered_df.columns) else None
-        summary['SuggestionsMatchedByType'] = triggered_df[triggered_df['Match']].groupby(['Type']).size().to_dict() \
-            if len(triggered_df.columns) else 0
-        summary['MatchRateByType'] = triggered_df.groupby(['Type']).agg({'Match':'mean'}).to_dict()['Match'] \
-            if len(triggered_df.columns) else None
+        summary['SuggestionsShownByType'] = triggered_df.groupby(['Type']).size().to_dict() if len(triggered_df.columns) else None
+        summary['SuggestionsMatchedByType'] = triggered_df[triggered_df['Match']].groupby(['Type']).size().to_dict() if len(triggered_df.columns) else 0
+        summary['MatchRateByType'] = triggered_df.groupby(['Type']).agg({'Match':'mean'}).to_dict()['Match'] if len(triggered_df.columns) else None
 
-        summary['SuggestionsShownByWordCount'] = triggered_df.groupby(['WordCount']).size().to_dict() \
-            if len(triggered_df.columns) else None
-        summary['SuggestionsMatchedByWordCount'] = triggered_df[triggered_df['Match']].groupby(['WordCount']).size().to_dict() \
-            if len(triggered_df.columns) else None
-        summary['MatchRateByWordCount'] = triggered_df.groupby(['WordCount']).agg({'Match':'mean'}).to_dict()['Match'] \
-            if len(triggered_df.columns) else None
+        summary['SuggestionsShownByWordCount'] = triggered_df.groupby(['WordCount']).size().to_dict() if len(triggered_df.columns) else None
+        summary['SuggestionsMatchedByWordCount'] = triggered_df[triggered_df['Match']].groupby(['WordCount']).size().to_dict() if len(triggered_df.columns) else None
+        summary['MatchRateByWordCount'] = triggered_df.groupby(['WordCount']).agg({'Match':'mean'}).to_dict()['Match'] if len(triggered_df.columns) else None
 
         return summary
 
@@ -650,8 +644,9 @@ class TextPredictionSequence(OrderedDict):
               expected_match_rate: Optional[float] = None) -> List[Any]:
         if isinstance(min_scores, (float, int)):
             min_scores = [float(min_scores)]
-
+            
         min_scores.sort()
+
         if expected_match_rate is not None and expected_match_rate >=0 and expected_match_rate <= 1.0:
             min_scores.append(None)
 

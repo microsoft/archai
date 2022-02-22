@@ -25,7 +25,7 @@ class ModelWrapper:
                  device: Optional[str] = None):
         self.space_token_id = space_token_id
         self.max_seq_len = max_seq_len
-        
+
         self.device = next(model.parameters()).device if device is None else device
         
         self.model = model
@@ -92,7 +92,7 @@ class ModelWrapper:
         return next_token_probs
 
     @functools.lru_cache(maxsize=1024)
-    def get_top_token_prob(self, input_ids: Tuple[int]) -> Tuple[int, float]:
+    def get_top_token_prob(self, input_ids: Tuple[int, ...]) -> Tuple[int, float]:
         probs = self.get_probs(tuple(input_ids))
         idx = np.argmax(probs)
         
