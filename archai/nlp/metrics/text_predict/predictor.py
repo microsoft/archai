@@ -24,8 +24,8 @@ from scipy.interpolate import interp1d
 
 from archai.nlp.metrics.text_predict.text_predict_utils import (WORD_TOKEN_SEPARATOR_SET,
                                                                 get_settings)
-from archai.nlp.metrics.text_predict.wrappers.model_wrapper import ModelWrapper
-from archai.nlp.metrics.text_predict.wrappers.vocab_wrapper import VocabWrapper
+from archai.nlp.metrics.text_predict.text_predict_model import TextPredictModel
+from archai.nlp.metrics.text_predict.text_predict_tokenizer import TextPredictTokenizer
 from archai.nlp.models.model_loader import load_model_from_checkpoint
 
 
@@ -212,7 +212,7 @@ class Prediction:
 
 @dataclass
 class TextPredictionPosition:
-    """Represents a single position for text prediction.
+    """Represents a single position inside the Text Prediction pipeline.
 
     """
 
@@ -280,7 +280,7 @@ class TextPredictionPosition:
 
 
 class TextPredictionSequence(OrderedDict):
-    """Represents a sequence of text predictions.
+    """Represents a sequence of positions inside the Text Prediction pipeline.
 
     Usage:
         >>> model = create_model('transformers', 'distilgpt2', max_seq_len=1024)
@@ -419,18 +419,18 @@ class TextPredictionSequence(OrderedDict):
 
         if summary_file is not None:
             summary_file_path = os.path.join(output_dir, summary_file)
-            logging.info(f'Saving scoring summary to `{summary_file_path}` file')
+            logging.info(f'Saving summary to `{summary_file_path}`')
             self.save_score_summary(summary_file_path)
 
         if settings_file is not None:
             settings_file_path = os.path.join(output_dir, settings_file)
-            logging.info(f'Saving settings info to `{settings_file_path}` file')
+            logging.info(f'Saving settings to `{settings_file_path}`')
             self.save_settings(settings_file_path)
 
         if triggered_file is not None:
             if self._triggered_df is not None:
                 triggered_file_path = os.path.join(output_dir, triggered_file)
-                logging.info(f'Saving triggered info to `{triggered_file_path}` file')
+                logging.info(f'Saving triggered information to `{triggered_file_path}`')
                 self._triggered_df.to_csv(index=False)
             else:
                 logging.info('triggered_df not defined - not saving')
@@ -480,7 +480,7 @@ class TextPredictionSequence(OrderedDict):
 
     def get_perplexity(self) -> float:
         if self.predictor is None:
-            logging.warning('Predictor not defined. Perplexity not calculated')
+            logging.warning('Perplexity can not be calculated to unknown predictor')
             
             return None
 
@@ -682,7 +682,7 @@ class TextPredictionSequence(OrderedDict):
 
 
 class Predictor:
-    """Runs the text predict pipeline.
+    """Runs the Text Predict pipeline.
     
     """
 
@@ -865,7 +865,7 @@ class Predictor:
             return True
 
         probs = self.model_wrapper.get_probs(input_ids)
-        prob_sum = sum([prob for idx, prob in enumerate(probs) if idx in self.vocab_wrapper.WORD_TOKEN_SEPARATOR_IDX])
+        prob_sum = sum([prob for idx, prob in enumerate(probs) if idx in self.vocab_wrapper.word_token_separator])
 
         return prob_sum > Predictor.COMPLETE_WORD_PROB_THRESHOLD
 
@@ -966,8 +966,8 @@ def run_score(default_path: str,
     model, _, _ = load_model_from_checkpoint(model_type, model_path)
     
     #
-    vocab_wrapper = VocabWrapper(vocab_path)
-    model_wrapper = ModelWrapper(model, vocab_wrapper.tokenizer.encode(' ')[0], max_seq_len)
+    vocab_wrapper = TextPredictTokenizer(vocab_path)
+    model_wrapper = TextPredictModel(model, vocab_wrapper.tokenizer.encode(' ')[0], max_seq_len)
 
     #
     predictor = Predictor(model_wrapper, vocab_wrapper)
