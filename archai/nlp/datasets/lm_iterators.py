@@ -159,7 +159,7 @@ class LMShuffledIterator(object):
             input_ids = input_ids.to(self.device)
             labels = labels.to(self.device)
 
-            yield input_ids, labels, self.bptt
+            yield input_ids, labels, self.bptt, None
 
             n_retain = min(input_ids.size(1), self.ext_len)
             if n_retain > 0:
@@ -199,8 +199,11 @@ class LMMultiFileIterator(LMShuffledIterator):
         paths_chunks = [paths[i:i+chunk_len] for i in range(0, len(paths), chunk_len)]
         self.paths = paths_chunks[rank]
 
+    def roll(self, seed=0):
+        return
+
     def get_sent_stream(self, path):
-        sents = self.vocab.encode_file(path)
+        sents = self.vocab.encode_file(path, single_stream=False)
         if self.shuffle:
             np.random.shuffle(sents)
         sent_stream = iter(sents)
