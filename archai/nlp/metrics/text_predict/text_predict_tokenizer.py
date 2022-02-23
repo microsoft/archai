@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Archai-based vocabularies that works with the Text Predictor.
+"""Tokenizer-based class that works with the Text Predictor.
 """
 
 import functools
@@ -18,7 +18,7 @@ from archai.nlp.metrics.text_predict.text_predict_utils import RE_SPLIT, WORD_TO
 TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE = 65536
 
 
-class VocabWrapper:
+class TextPredictTokenizer:
     """Wraps a VocabBase to comply with Text Preditor.
 
     """
@@ -34,9 +34,7 @@ class VocabWrapper:
 
         self.bos_token = self.tokenizer.bos_token_id
         self.filter_token_ids_cache = LRUCache(TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE)
-        
-        self.WORD_TOKEN_SEPARATOR_IDX = set([idx for idx in range(len(self)) if self[idx] in WORD_TOKEN_SEPARATOR_SET])
-        logging.debug(f'WORD_TOKEN_SEPARATOR_IDX size: {len(self.WORD_TOKEN_SEPARATOR_IDX)}')
+        self.word_token_separator = set([idx for idx in range(len(self)) if self[idx] in WORD_TOKEN_SEPARATOR_SET])
 
     def clean(self, text: str, add_bos_text: Optional[bool] = True) -> str:
         if add_bos_text:

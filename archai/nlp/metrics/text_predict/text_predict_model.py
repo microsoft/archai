@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Archai-based models that works with the Text Predictor.
+"""ArchaiModel that works with the Text Predictor.
 """
 
 import functools
@@ -13,7 +13,7 @@ import numpy as np
 import torch
 
 
-class ModelWrapper:
+class TextPredictModel:
     """Wraps an ArchaiModel to comply with Text Preditor.
 
     """
@@ -28,7 +28,7 @@ class ModelWrapper:
 
         self.device = next(model.parameters()).device if device is None else device
         
-        self.model = model
+        self.model = model.to(self.device)
         self.model.eval()
 
     @functools.lru_cache(maxsize=1024)
