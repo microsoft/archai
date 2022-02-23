@@ -419,27 +419,26 @@ class TextPredictionSequence(OrderedDict):
                  triggered_file: Optional[str] = 'triggered.csv') -> None:
         os.makedirs(output_dir, exist_ok=True)
 
+        print(output_dir)
+
         if predict_file is not None:
             predict_file_path = os.path.join(output_dir, predict_file)
             self.save(predict_file_path)
 
         if summary_file is not None:
-            logging.info(f'Saving scoring summary to `{summary_file_path}` file')
-
             summary_file_path = os.path.join(output_dir, summary_file)
+            logging.info(f'Saving scoring summary to `{summary_file_path}` file')
             self.save_score_summary(summary_file_path)
 
         if settings_file is not None:
-            logging.info(f'Saving settings info to `{settings_file_path}` file')
-
             settings_file_path = os.path.join(output_dir, settings_file)
+            logging.info(f'Saving settings info to `{settings_file_path}` file')
             self.save_settings(settings_file_path)
 
         if triggered_file is not None:
             if self._triggered_df is not None:
-                logging.info(f'Saving triggered info to `{triggered_file_path}` file')
-
                 triggered_file_path = os.path.join(output_dir, triggered_file)
+                logging.info(f'Saving triggered info to `{triggered_file_path}` file')
                 self._triggered_df.to_csv(index=False)
             else:
                 logging.info('triggered_df not defined - not saving')
@@ -1017,8 +1016,8 @@ def run_score(default_path: str,
               model_path: str,
               vocab_path: str,
               output_path: str,
-              file_path: str,
-              file_type: str,
+              input_file_path: str,
+              input_file_type: str,
               model_type: str,
               with_onnx: Optional[bool] = False,
               min_score: Optional[float] = 1.0,
@@ -1042,8 +1041,8 @@ def run_score(default_path: str,
     predictor.MAX_INPUT_TEXT_LEN = max_body_len
 
     #
-    seq = TextPredictionSequence.from_file(file_path,
-                                           file_type,
+    seq = TextPredictionSequence.from_file(input_file_path,
+                                           input_file_type,
                                            predictor,
                                            save_step=score_step,
                                            min_score=min_score,
@@ -1051,8 +1050,8 @@ def run_score(default_path: str,
                                            min_pred_len=min_pred_len)
 
     #
-    seq.predict(output_path + '/out')
-    seq.save(output_path + '/out2')
+    seq.predict(os.path.join(output_path, 'prediction'))
+    seq.save(os.path.join(output_path, 'prediction2'))
 
     min_scores = np.arange(min_score, max_score, score_step).tolist()
     seq.score(min_scores, expected_match_rate)

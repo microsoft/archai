@@ -33,12 +33,12 @@ def parse_args():
                         default=None,
                         help='Path to the vocabulary to be loaded.')
 
-    score.add_argument('--file_path',
+    score.add_argument('--input_file_path',
                         type=str,
                         default=None,
                         help='Path to the input file to be scored.')
 
-    score.add_argument('--file_type',
+    score.add_argument('--input_file_type',
                         type=str,
                         default='smartcompose',
                         choices=['smartcompose', 'text'],
@@ -110,7 +110,6 @@ if __name__ == '__main__':
     args = parse_args()
 
     # Makes sure that AMLT-based runnings works
-    args['output_path'] = utils.full_path(os.path.join(args['default_path'], 'output'), create=True)
     amlt_data_path = os.environ.get('AMLT_DATA_DIR', '')
     amlt_output_path = os.environ.get('AMLT_OUTPUT_DIR', '')
 
@@ -120,6 +119,7 @@ if __name__ == '__main__':
         args['model_path'] = os.path.join(amlt_output_path, args['model_path'])
     if args['output_to_amlt']:
         args['output_path'] = os.path.join(amlt_output_path, args['default_path'])
+    args['output_path'] = utils.full_path(os.path.join(args['default_path'], 'score'), create=True)
 
     del args['data_from_amlt']
     del args['model_from_amlt']
