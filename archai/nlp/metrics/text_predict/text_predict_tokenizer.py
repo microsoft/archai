@@ -4,18 +4,20 @@
 """Tokenizer-based class that works with the Text Predictor.
 """
 
+import re
 import functools
-import logging
 from typing import List, Optional, Set, Tuple
 
 from transformers import AutoTokenizer
 import numpy as np
 
 from archai.common.lru_cache import LRUCache
-from archai.nlp.metrics.text_predict.text_predict_utils import RE_SPLIT, WORD_TOKEN_SEPARATOR_SET
 
 # Token-related constants
 TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE = 65536
+TOKENIZER_WORD_TOKEN_SEPARATOR = 'Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~'
+TOKENIZER_WORD_TOKEN_SEPARATOR_SET = set(TOKENIZER_WORD_TOKEN_SEPARATOR)
+REGEX_SPLIT = re.compile('^(.*)([' + TOKENIZER_WORD_TOKEN_SEPARATOR + '].*)$', re.MULTILINE | re.DOTALL)
 
 
 class TextPredictTokenizer:
@@ -34,7 +36,7 @@ class TextPredictTokenizer:
 
         self.bos_token = self.tokenizer.bos_token_id
         self.filter_token_ids_cache = LRUCache(TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE)
-        self.word_token_separator = set([idx for idx in range(len(self)) if self[idx] in WORD_TOKEN_SEPARATOR_SET])
+        self.TOKENIZER_WORD_TOKEN_SEPARATOR = set([idx for idx in range(len(self)) if self[idx] in TOKENIZER_WORD_TOKEN_SEPARATOR_SET])
 
     def clean(self, text: str, add_bos_text: Optional[bool] = True) -> str:
         if add_bos_text:
@@ -68,7 +70,7 @@ class TextPredictTokenizer:
         return result
 
     def find_context_prefix(self, text: str) -> Tuple[str, str]:
-        m = RE_SPLIT.match(text)
+        m = REGEX_SPLIT.match(text)
 
         if m is None:
             context = ''
@@ -118,7 +120,7 @@ class TextPredictTokenizer:
     @property
     def upper_tokens(self) -> Set:
         if not hasattr(self, '_upper_tokens'):
-            self._upper_tokens = {idx for idx in range(len(self)) if any([c.isupper() and c not in WORD_TOKEN_SEPARATOR_SET for c in self[idx]])} # pylint: disable=attribute-defined-outside-init
+            self._upper_tokens = {idx for idx in range(len(self)) if any([c.isupper() and c not in TOKENIZER_WORD_TOKEN_SEPARATOR_SET for c in self[idx]])} # pylint: disable=attribute-defined-outside-init
 
         return self._upper_tokens
 

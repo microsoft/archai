@@ -4,13 +4,9 @@
 """Utilities that are re-used across Text Predict.
 """
 
-import re
 from typing import Any, Dict, Optional
 
-# Token-separation constants
-WORD_TOKEN_SEPARATOR = 'Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~'
-WORD_TOKEN_SEPARATOR_SET = set(WORD_TOKEN_SEPARATOR)
-RE_SPLIT = re.compile('^(.*)([' + WORD_TOKEN_SEPARATOR + '].*)$', re.MULTILINE | re.DOTALL)
+# Maximum size of list
 MAX_LIST_LEN = 10
 
 
