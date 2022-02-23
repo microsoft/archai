@@ -8,9 +8,13 @@ import re
 from typing import Any, Dict, Optional
 
 # Token-separation constants
-WORD_TOKEN_SEPARATOR = 'Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~'
+WORD_TOKEN_SEPARATOR = "Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~" # pylint: disable=anomalous-backslash-in-string
 WORD_TOKEN_SEPARATOR_SET = set(WORD_TOKEN_SEPARATOR)
+# TODO: FIX Tokenizer to work with this well
 RE_SPLIT = re.compile('^(.*)([' + WORD_TOKEN_SEPARATOR + '].*)$', re.MULTILINE | re.DOTALL)
+# WORD_TOKEN_SEPARATOR = 'Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~'
+# WORD_TOKEN_SEPARATOR_SET = set(WORD_TOKEN_SEPARATOR)
+# RE_SPLIT = re.compile('^(.*)([' + WORD_TOKEN_SEPARATOR + '].*)$', re.MULTILINE | re.DOTALL)
 MAX_LIST_LEN = 10
 
 

@@ -7,7 +7,7 @@
 import functools
 import logging
 import time
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -27,12 +27,16 @@ class ModelWrapper:
         self.max_seq_len = max_seq_len
 
         self.device = next(model.parameters()).device if device is None else device
+
+        print(self.device)
         
         self.model = model
         self.model.eval()
 
     @functools.lru_cache(maxsize=1024)
     def _ids2tensor(self, input_ids: Tuple[int, ...]) -> torch.Tensor:
+        print(f'_ids2tensor : {input_ids}')
+        print(self.space_token_id)
         # Uses space if empty
         if len(input_ids) == 0:
             input_ids = (self.space_token_id,)
@@ -45,6 +49,8 @@ class ModelWrapper:
         input_ids_len = len(input_ids)
         if input_ids_len < self.max_seq_len:
             input_ids = (self.space_token_id,) * (self.max_seq_len - input_ids_len) + input_ids
+
+        print(f'_ids2tensor : {input_ids}')
 
         tokenized_tensor = torch.tensor(input_ids).to(self.device)
         tokenized_tensor = tokenized_tensor.unsqueeze(0)
@@ -73,8 +79,9 @@ class ModelWrapper:
             return (loss_sum / labels_len_sum)
 
     @functools.lru_cache(maxsize=1024)
-    def get_probs(self, input_ids: Tuple[int, ...]) -> list:
+    def get_probs(self, input_ids: Tuple[int, ...]) -> List[float]:
         start = time.time()
+        print(f'get_probs: {input_ids}')
         in_tensor = self._ids2tensor(input_ids)
 
         with torch.no_grad():

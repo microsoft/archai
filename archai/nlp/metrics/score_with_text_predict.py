@@ -7,37 +7,98 @@
 from __future__ import annotations
 
 import argparse
-import logging
 import os
-import os.path as osp
-import re
-import time
 
-import numpy as np
-import pandas as pd
-from archai.nlp.metrics.text_predict.prediction import TextPredictionSequence
-from archai.nlp.metrics.text_predict.predictor import score
+from archai.nlp.metrics.text_predict.predictor import run_score
+
+from archai.common import utils
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Score models with Text Predict.')
 
-    try:
-        save_path = os.environ['AMLT_OUTPUT_DIR']
-    except:
-        save_path = '~/logdir' 
-
     score = parser.add_argument_group('Score configuration')
     score.add_argument('--default_path',
                         type=str,
-                        default=save_path,
+                        default='~/logdir',
                         help='Path to the default folder used to save outputs.')
+
+    score.add_argument('--model_path',
+                        type=str,
+                        default=None,
+                        help='Path to the model to be loaded.')
+
+    score.add_argument('--vocab_path',
+                        type=str,
+                        default=None,
+                        help='Path to the vocabulary to be loaded.')
+
+    score.add_argument('--file_path',
+                        type=str,
+                        default=None,
+                        help='Path to the input file to be scored.')
+
+    score.add_argument('--file_type',
+                        type=str,
+                        default='smartcompose',
+                        choices=['smartcompose', 'text'],
+                        help='Type of file to be scored.')
 
     score.add_argument('--model_type',
                         type=str,
                         default='mem_transformer',
                         choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
                         help='Type of model to be searched.')
+
+    score.add_argument('--with_onnx',
+                        action='store_true',
+                        help='Uses ONNX-based models instead of PyTorch.')
+
+    score.add_argument('--min_score',
+                        type=float,
+                        default=1.0,
+                        help='Minimum score used within the model.')
+
+    score.add_argument('--max_score',
+                        type=float,
+                        default=5.0,
+                        help='Maximum score used within the model.')
+
+    score.add_argument('--score_step',
+                        type=float,
+                        default=0.1,
+                        help='Step of the score used within the model.')
+
+    score.add_argument('--expected_match_rate',
+                        type=float,
+                        default=0.5,
+                        help='Expected match rate to score the model.')
+
+    score.add_argument('--current_paragraph_only',
+                        action='store_true',
+                        help='Uses only current paragraph to score the model.')
+
+    score.add_argument('--max_body_len',
+                        type=int,
+                        default=10000,
+                        help='Maximum length of the input sequences.')
+
+    score.add_argument('--min_pred_len',
+                        type=int,
+                        default=6,
+                        help='Minimum length of the predictions.')
+
+    score.add_argument('--data_from_amlt',
+                        action='store_true',
+                        help='Whether incoming data is from AMLT.')
+
+    score.add_argument('--model_from_amlt',
+                        action='store_true',
+                        help='Whether incoming model is from AMLT.')
+
+    score.add_argument('--output_to_amlt',
+                        action='store_true',
+                        help='Whether output should go to AMLT.')
                     
     args, _ = parser.parse_known_args()
 
@@ -48,38 +109,21 @@ if __name__ == '__main__':
     # Gathers the command line arguments
     args = parse_args()
 
-    amlt_data = os.environ.get('AMLT_DATA_DIR', '')
-    amlt_output = os.environ.get('AMLT_OUTPUT_DIR', '')
+    # Makes sure that AMLT-based runnings works
+    args['output_path'] = utils.full_path(os.path.join(args['default_path'], 'output'), create=True)
+    amlt_data_path = os.environ.get('AMLT_DATA_DIR', '')
+    amlt_output_path = os.environ.get('AMLT_OUTPUT_DIR', '')
 
-    if args.amulet_data:
-        args.input = osp.join(amlt_data, args.input)
-        
-        if args.model_type == 'gpt2onnxprob':
-            args.tokenizer = osp.join(amlt_data, args.tokenizer)
-        else:
-            args.tokenizer = osp.join(osp.dirname(amlt_output), args.model)
-            args.tokenizer = osp.dirname(args.tokenizer)
+    if args['data_from_amlt']:
+        args['default_path'] = os.path.join(amlt_data_path, args['default_path'])
+    if args['model_from_amlt']:
+        args['model_path'] = os.path.join(amlt_output_path, args['model_path'])
+    if args['output_to_amlt']:
+        args['output_path'] = os.path.join(amlt_output_path, args['default_path'])
 
-    if args.amulet_model:
-        args.model = osp.join(osp.dirname(amlt_output), args.model)
+    del args['data_from_amlt']
+    del args['model_from_amlt']
+    del args['output_to_amlt']
 
-    if args.amulet_output:
-        args.output = osp.join(amlt_output, args.output)
-
-    print(f'input: {args.input}')
-    print(f'tokenizer: {args.tokenizer}')
-    print(f'model: {args.model}')
-
-    args.output = f'{args.input}.pred' if args.output is None else args.output
-    args.score_output_dir = f'{args.output}.dir' if args.score_output_dir is None else args.score_output_dir
-
-    print(f'output: {args.output}')
-
-    if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.WARN)
-
-    score(model, vocab, in_filetype, in_filepath, out_filepath, score_output_dir,
-          save_step, min_score, max_score, score_step, expected_match_rate,
-          current_paragraph_only, do_scoring, max_body_len, min_pred_len)
+    # Runs the Text Predict scoring
+    run_score(**args)
