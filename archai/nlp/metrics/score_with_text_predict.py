@@ -15,16 +15,17 @@ from archai.common import utils
 
 
 def _check_amulet_paths(args: argparse.Namespace) -> argparse.Namespace:
-    # Makes sure that AMLT-based runnings works
+    #Makes sure that AMLT-based runnings works
     amlt_data_path = os.environ.get('AMLT_DATA_DIR', '')
     amlt_output_path = os.environ.get('AMLT_OUTPUT_DIR', '')
 
     if args.data_from_amlt:
-        args.default_path = os.path.join(amlt_data_path, args.default_path)
+        args.vocab_path = os.path.join(amlt_data_path, args.vocab_path)
+        args.input_file_path = os.path.join(amlt_data_path, args.input_file_path)
     if args.model_from_amlt:
         args.model_path = os.path.join(amlt_output_path, args.model_path)
     if args.output_to_amlt:
-        args.output_path = os.path.join(amlt_output_path, args.default_path)
+        args.default_path = os.path.join(amlt_output_path, args.default_path)
 
     del args.data_from_amlt
     del args.model_from_amlt
@@ -131,9 +132,6 @@ def parse_args():
 if __name__ == '__main__':
     # Gathers the command line arguments
     args = parse_args()
-
-    # Defines remaining paths
-    args['output_path'] = utils.full_path(os.path.join(args['default_path'], 'score'), create=True)
     
     # Runs the Text Predict scoring
     run_score(**args)

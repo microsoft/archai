@@ -22,10 +22,11 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
 
-from archai.nlp.metrics.text_predict.text_predict_utils import (WORD_TOKEN_SEPARATOR_SET,
-                                                                get_settings)
+from archai.common import utils
+from archai.nlp.metrics.text_predict.text_predict_utils import get_settings
 from archai.nlp.metrics.text_predict.text_predict_model import TextPredictModel
-from archai.nlp.metrics.text_predict.text_predict_tokenizer import TextPredictTokenizer
+from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TextPredictTokenizer,
+                                                                    TOKENIZER_WORD_TOKEN_SEPARATOR_SET)
 from archai.nlp.models.model_loader import load_model_from_checkpoint
 
 
@@ -129,7 +130,7 @@ class Prediction:
 
             return score
 
-        upper_token_ids = self.predictor.vocab_wrapper.upper_tokens.intersection(self.token_ids)
+        upper_token_ids = self.predictor.tp_tokenizer.upper_tokens.intersection(self.token_ids)
 
         if len(upper_token_ids) > 0:
             score = (self.probability - Prediction.UPPER_PROB_PENALTY) * length * (a1 * length + b1) - Prediction.UPPER_SCORE_PENALTY
@@ -183,7 +184,7 @@ class Prediction:
         if len(self.show()) < self.predictor.MIN_PRED_LEN:
             return False
 
-        if set(self.token_ids) & self.predictor.vocab_wrapper.INVALID_TOKENS:
+        if set(self.token_ids) & self.predictor.tp_tokenizer.INVALID_TOKENS:
             return False
 
         if self.complete is None:
@@ -282,15 +283,6 @@ class TextPredictionPosition:
 class TextPredictionSequence(OrderedDict):
     """Represents a sequence of positions inside the Text Prediction pipeline.
 
-    Usage:
-        >>> model = create_model('transformers', 'distilgpt2', max_seq_len=1024)
-        >>> tokenizer = create_tokenizer('transformers', 'gpt2')
-        >>> tp = Predictor(model, tokenizer)
-        >>> seq = TextPredictionSequence.from_smart_compose_file('GSuiteCompete10pc.ljson', tp)
-        >>> seq.predict()
-        >>> score = seq.score([1, 1.5, 2, 2.5, 3, 3.5, 4, 5], expected_match_rate = 0.5)
-        >>> print(json.dumps(score, indent=2))
-
     """
 
     def __init__(self,
@@ -335,7 +327,7 @@ class TextPredictionSequence(OrderedDict):
                                 file_name: str,
                                 predictor: Optional[Predictor] = None,
                                 **kwargs) -> TextPredictionSequence:
-        logging.info(f'Loading smartcompose file from {file_name}')
+        logging.info(f'Loading SmartCompose file: {file_name}.')
 
         lines = []
         with open(file_name) as f:
@@ -345,7 +337,7 @@ class TextPredictionSequence(OrderedDict):
 
         for line in lines:
             if len(line) < 10:
-                logging.warning(f'Skipping line `{line}`')
+                logging.warning(f'Skipping line: `{line}`.')
                 continue
 
             position = TextPredictionPosition.from_smart_compose_ljson(line)
@@ -359,7 +351,7 @@ class TextPredictionSequence(OrderedDict):
                        new_document_re: Optional[str] = '\\n\\n+',
                        predictor: Optional[Predictor] = None,
                        **kwargs) -> TextPredictionSequence:
-        logging.info(f'Loading text file from {file_name}')
+        logging.info(f'Loading text file: {file_name}.')
 
         with open(file_name, encoding='utf-8') as f:
             text = f.read()
@@ -372,7 +364,7 @@ class TextPredictionSequence(OrderedDict):
             line = ftfy.fix_text(line)
 
             if len(line) < 2:
-                logging.warning(f'Skipping line `{line}` with line_id `{line_id}`')
+                logging.warning(f'Skipping line `{line}` with line_id `{line_id}`.')
 
             for char_id in range(len(line)):
                 position = TextPredictionPosition(line_id=line_id,
@@ -393,7 +385,7 @@ class TextPredictionSequence(OrderedDict):
 
     def save_score_summary(self, summary_file: str) -> None:
         if self._score_summary_list is None:
-            logging.warning('Scores not calculated yet - not saving them')
+            logging.warning('Scores not calculated yet.')
             return
 
         with open(summary_file, 'w') as f:
@@ -419,21 +411,21 @@ class TextPredictionSequence(OrderedDict):
 
         if summary_file is not None:
             summary_file_path = os.path.join(output_dir, summary_file)
-            logging.info(f'Saving summary to `{summary_file_path}`')
+            logging.info(f'Saving summary: `{summary_file_path}`.')
             self.save_score_summary(summary_file_path)
 
         if settings_file is not None:
             settings_file_path = os.path.join(output_dir, settings_file)
-            logging.info(f'Saving settings to `{settings_file_path}`')
+            logging.info(f'Saving settings: `{settings_file_path}`.')
             self.save_settings(settings_file_path)
 
         if triggered_file is not None:
             if self._triggered_df is not None:
                 triggered_file_path = os.path.join(output_dir, triggered_file)
-                logging.info(f'Saving triggered information to `{triggered_file_path}`')
+                logging.info(f'Saving triggered information: `{triggered_file_path}`.')
                 self._triggered_df.to_csv(index=False)
             else:
-                logging.info('triggered_df not defined - not saving')
+                logging.info('`triggered_df` not defined.')
 
     def settings(self) -> dict:
         settings = get_settings(self)
@@ -446,7 +438,7 @@ class TextPredictionSequence(OrderedDict):
 
     def predict(self, output_filepath: Optional[str] = None) -> None:
         if self.predictor is None:
-            raise ValueError('Predictor must be defined to run text prediction')
+            raise ValueError('Predictor must be defined.')
 
         for i, pos in enumerate(self.values()):
             start_time = time.time()
@@ -461,14 +453,14 @@ class TextPredictionSequence(OrderedDict):
 
             prediction = self.predictor.predict(text)
             end_time = time.time()
-            pos.time = int(1000*(end_time - start_time))
+            pos.time = int(1000 * (end_time - start_time))
 
             if len(prediction) >= self.min_pred_len and prediction.score() >= self.min_score:
                 pos.prediction = prediction
             else:
                 pos.prediction = None
 
-            if output_filepath is not None and ((i+1) % self.save_step == 0 or i == (len(self) - 1)):
+            if output_filepath is not None and ((i + 1) % self.save_step == 0 or i == (len(self) - 1)):
                 self.save(output_filepath)
 
     @property
@@ -480,7 +472,7 @@ class TextPredictionSequence(OrderedDict):
 
     def get_perplexity(self) -> float:
         if self.predictor is None:
-            logging.warning('Perplexity can not be calculated to unknown predictor')
+            logging.warning('Perplexity can not be calculated with unknown predictor.')
             
             return None
 
@@ -489,11 +481,11 @@ class TextPredictionSequence(OrderedDict):
 
         for unique_id in self.filter_keys_char_id(1):
             text = self[unique_id].body + self[unique_id].body_continued
-            text = self.predictor.vocab_wrapper.clean(text)
-            token_ids = self.predictor.vocab_wrapper.encode(text)
+            text = self.predictor.tp_tokenizer.clean(text)
+            token_ids = self.predictor.tp_tokenizer.encode(text)
 
             token_ids_len_sum += len(token_ids)
-            loss_sum += len(token_ids) * self.predictor.model_wrapper.get_loss(tuple(token_ids))
+            loss_sum += len(token_ids) * self.predictor.tp_model.get_loss(tuple(token_ids))
 
         perplexity = np.exp(loss_sum/token_ids_len_sum)
         self._perplexity = perplexity
@@ -566,7 +558,9 @@ class TextPredictionSequence(OrderedDict):
             predictions_df = self.get_predictions()
 
         triggered_list = []
-        curr_line = -1 # Keep count on where it triggered
+
+        # Keep count on where it triggered
+        curr_line = -1
         curr_char = -1
 
         # Triggered is an array that denotes if suggestion is regarded as 'triggered':
@@ -604,7 +598,7 @@ class TextPredictionSequence(OrderedDict):
         predictions_df[trigger_column_name] = triggered
 
         if len(triggered_df.index) == 0:
-            logging.warning('No suggestions found for min_score %s', min_score)
+            logging.warning(f'No suggestions found for min_score: {min_score}.')
 
         return triggered_df
 
@@ -662,13 +656,13 @@ class TextPredictionSequence(OrderedDict):
                 scores = [summ['Score'] for summ in summary_list]
 
                 if len(match_rates) < 2:
-                    logging.warning('Not enough points to calculate score for the expected match rate of %.3f', expected_match_rate)
+                    logging.warning(f'Not enough points to calculate score for the expected match rate: {expected_match_rate}.')
                     continue
 
                 f = interp1d(match_rates, scores, bounds_error=False, kind='linear', fill_value='extrapolate')
                 min_score = float(f(expected_match_rate))
 
-                logging.debug('Expected_score = %s at %s', min_score, expected_match_rate)
+                logging.debug(f'Expected_score: {min_score} at {expected_match_rate}.')
 
             triggered_df = self.calc_triggered_predictions(min_score, predictions_df)
             self._triggered_df = triggered_df
@@ -683,6 +677,15 @@ class TextPredictionSequence(OrderedDict):
 
 class Predictor:
     """Runs the Text Predict pipeline.
+
+    Usage:
+        >>> model = TextPredictModel(model_path)
+        >>> tokenizer = TextPredictTokenizer(vocab_path)
+        >>> tp = Predictor(model, tokenizer)
+        >>> seq = TextPredictionSequence.from_smart_compose_file('file.ljson', tp)
+        >>> seq.predict()
+        >>> score = seq.score([1, 1.5, 2, 2.5, 3, 3.5, 4, 5], expected_match_rate=0.5)
+        >>> print(json.dumps(score, indent=2))
     
     """
 
@@ -724,10 +727,10 @@ class Predictor:
     # Maximum text to process (otherwise it will be truncated)
     MAX_INPUT_TEXT_LEN = 1000000
 
-    def __init__(self, model_wrapper, vocab_wrapper) -> None:
-        self.model_wrapper = model_wrapper
-        self.vocab_wrapper = vocab_wrapper
-        self.bos_id = vocab_wrapper.bos_token
+    def __init__(self, tp_model, tp_tokenizer) -> None:
+        self.tp_model = tp_model
+        self.tp_tokenizer = tp_tokenizer
+        self.bos_id = tp_tokenizer.bos_token
 
     def load_tpl_settings(self, file_name: str) -> None:
         with open(file_name) as json_file:
@@ -757,14 +760,14 @@ class Predictor:
     def filter_next_tokens(self,
                            input_ids: Optional[Tuple[int, ...]] = (),
                            filter_prefix: Optional[str] ='') -> Tuple[int, ...]:
-        next_token_probs = self.model_wrapper.get_probs(input_ids)
+        next_token_probs = self.tp_model.get_probs(input_ids)
         filter_prefix_len = len(filter_prefix)
 
         if filter_prefix_len == 0:
-            result = [((idx,), prob, len(self.vocab_wrapper[idx])) for idx, prob in enumerate(next_token_probs)]
+            result = [((idx,), prob, len(self.tp_tokenizer[idx])) for idx, prob in enumerate(next_token_probs)]
         else:
-            filter_next_token_ids = self.vocab_wrapper.filter_token_tuple_ids(filter_prefix)
-            result = [(tuple_idx, next_token_probs[tuple_idx[0]], len(self.vocab_wrapper[tuple_idx[0]]) - filter_prefix_len) \
+            filter_next_token_ids = self.tp_tokenizer.filter_token_tuple_ids(filter_prefix)
+            result = [(tuple_idx, next_token_probs[tuple_idx[0]], len(self.tp_tokenizer[tuple_idx[0]]) - filter_prefix_len) \
                        for tuple_idx in filter_next_token_ids]
 
         result = tuple(sorted(result, key=lambda x: -x[1]))
@@ -848,7 +851,7 @@ class Predictor:
             prob_sum = sum([prob for _, prob, _ in filtered_list])
             idxs, prob, filtered_length = filtered_list[0]
 
-            pred_text = self.vocab_wrapper.decode(idxs)[len(prefix):]
+            pred_text = self.tp_tokenizer.decode(idxs)[len(prefix):]
             prediction = Prediction(pred_text, prob/prob_sum, predictor=self, input_ids=input_ids, token_ids=idxs)
             
             logging.debug('predict_word_prefix: prefix: `%s`: # calcs: %s; time: %.3f ms', prefix, calc_count, 1000*(time.time() - start_time))
@@ -861,11 +864,11 @@ class Predictor:
 
     @functools.lru_cache(maxsize=1024)
     def is_complete_word(self, input_ids: Tuple[int, ...]) -> bool:
-        if len(input_ids) > 0 and self.vocab_wrapper[input_ids[-1]][-1] in WORD_TOKEN_SEPARATOR_SET:
+        if len(input_ids) > 0 and self.tp_tokenizer[input_ids[-1]][-1] in TOKENIZER_WORD_TOKEN_SEPARATOR_SET:
             return True
 
-        probs = self.model_wrapper.get_probs(input_ids)
-        prob_sum = sum([prob for idx, prob in enumerate(probs) if idx in self.vocab_wrapper.word_token_separator])
+        probs = self.tp_model.get_probs(input_ids)
+        prob_sum = sum([prob for idx, prob in enumerate(probs) if idx in self.tp_tokenizer.TOKENIZER_WORD_TOKEN_SEPARATOR])
 
         return prob_sum > Predictor.COMPLETE_WORD_PROB_THRESHOLD
 
@@ -882,10 +885,10 @@ class Predictor:
         trunc_text = self.truncate_text(text)
         is_full_len = len(text) == len(trunc_text)
 
-        clean_trunc_text = self.vocab_wrapper.clean(trunc_text, add_bos_text=is_full_len)
-        context, prefix = self.vocab_wrapper.find_context_prefix(clean_trunc_text)
+        clean_trunc_text = self.tp_tokenizer.clean(trunc_text, add_bos_text=is_full_len)
+        context, prefix = self.tp_tokenizer.find_context_prefix(clean_trunc_text)
 
-        input_ids = tuple(self.vocab_wrapper.encode(context))
+        input_ids = tuple(self.tp_tokenizer.encode(context))
 
         if self.bos_id is not None and is_full_len:
             input_ids = (self.bos_id,) + input_ids
@@ -913,8 +916,8 @@ class Predictor:
         while total_prob > self.MIN_PROB_CUTOFF and calc_count < self.MAX_TOKEN_CALC:
             calc_count += 1
 
-            next_token_id, next_prob = self.model_wrapper.get_top_token_prob(tuple(prediction.all_ids()))
-            next_text = self.vocab_wrapper.decode([next_token_id])
+            next_token_id, next_prob = self.tp_model.get_top_token_prob(tuple(prediction.all_ids()))
+            next_text = self.tp_tokenizer.decode([next_token_id])
 
             prediction = Prediction.next_prediction(prediction, next_text, next_prob, next_token_id)
             prediction.update_complete()
@@ -948,7 +951,6 @@ class Predictor:
 def run_score(default_path: str,
               model_path: str,
               vocab_path: str,
-              output_path: str,
               input_file_path: str,
               input_file_type: str,
               model_type: str,
@@ -961,32 +963,36 @@ def run_score(default_path: str,
               max_body_len: Optional[int] = 10000,
               max_seq_len: Optional[int] = 30,
               min_pred_len: Optional[int] = 6) -> None:
-        
-    #
-    model, _, _ = load_model_from_checkpoint(model_type, model_path)
-    
-    #
-    vocab_wrapper = TextPredictTokenizer(vocab_path)
-    model_wrapper = TextPredictModel(model, vocab_wrapper.tokenizer.encode(' ')[0], max_seq_len)
+    # Defines the scoring output path
+    output_path = utils.full_path(os.path.join(default_path, 'score'), create=True)
 
-    #
-    predictor = Predictor(model_wrapper, vocab_wrapper)
+    # Loads the vocab/tokenizer from provided path
+    tp_tokenizer = TextPredictTokenizer(vocab_path)
+    space_token_id = tp_tokenizer.tokenizer.encode(' ')[0]
+
+    # ONNX-based model
+    if with_onnx:
+        pass
+    else:
+        # Loads and wraps the model from provided checkpoint
+        model, _, _ = load_model_from_checkpoint(model_type, model_path)
+        tp_model = TextPredictModel(model, space_token_id, max_seq_len)
+
+    # Creates the Text Predict (Predictor) instance
+    predictor = Predictor(tp_model, tp_tokenizer)
     predictor.MAX_INPUT_TEXT_LEN = max_body_len
 
-    #
-    seq = TextPredictionSequence.from_file(input_file_path,
-                                           input_file_type,
-                                           predictor,
-                                           save_step=score_step,
-                                           min_score=min_score,
-                                           current_paragraph_only=current_paragraph_only,
-                                           min_pred_len=min_pred_len)
+    # Retrieves sequences that will be predicted
+    seq = (TextPredictionSequence).from_file(input_file_path,
+                                             input_file_type,
+                                             predictor,
+                                             save_step=score_step,
+                                             min_score=min_score,
+                                             current_paragraph_only=current_paragraph_only,
+                                             min_pred_len=min_pred_len)
+    seq.predict()
 
-    #
-    seq.predict(os.path.join(output_path, 'prediction'))
-    seq.save(os.path.join(output_path, 'prediction2'))
-
-    #
+    # Calculates the scores
     min_scores = np.arange(min_score, max_score, score_step).tolist()
     seq.score(min_scores, expected_match_rate)
-    seq.save_all(output_path, predict_file=None)
+    seq.save_all(output_path)
