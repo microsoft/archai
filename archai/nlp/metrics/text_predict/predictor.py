@@ -20,13 +20,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import ftfy
 import numpy as np
 import pandas as pd
-import torch
 from scipy.interpolate import interp1d
-from archai.nlp.datasets.corpus import Corpus
 
-from archai.nlp.datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
-from archai.nlp.datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.datasets.tokenizer_utils.word_vocab import WordVocab
 from archai.nlp.metrics.text_predict.text_predict_utils import (WORD_TOKEN_SEPARATOR_SET,
                                                                 get_settings)
 from archai.nlp.metrics.text_predict.wrappers.model_wrapper import ModelWrapper
@@ -327,7 +322,6 @@ class TextPredictionSequence(OrderedDict):
                   file_type: str,
                   predictor: Optional[Predictor] = None,
                  **kwargs) -> TextPredictionSequence:
-        # print(file_name)
         if file_type == 'smartcompose':
             return TextPredictionSequence.from_smart_compose_file(file_name, predictor, **kwargs)
 
@@ -418,8 +412,6 @@ class TextPredictionSequence(OrderedDict):
                  settings_file: Optional[str] = 'settings.json',
                  triggered_file: Optional[str] = 'triggered.csv') -> None:
         os.makedirs(output_dir, exist_ok=True)
-
-        print(output_dir)
 
         if predict_file is not None:
             predict_file_path = os.path.join(output_dir, predict_file)
@@ -765,7 +757,6 @@ class Predictor:
     def filter_next_tokens(self,
                            input_ids: Optional[Tuple[int, ...]] = (),
                            filter_prefix: Optional[str] ='') -> Tuple[int, ...]:
-        # print(input_ids)
         next_token_probs = self.model_wrapper.get_probs(input_ids)
         filter_prefix_len = len(filter_prefix)
 
@@ -894,13 +885,10 @@ class Predictor:
         clean_trunc_text = self.vocab_wrapper.clean(trunc_text, add_bos_text=is_full_len)
         context, prefix = self.vocab_wrapper.find_context_prefix(clean_trunc_text)
 
-        print(f'ctx: {context} | pre: {prefix}')
-
         input_ids = tuple(self.vocab_wrapper.encode(context))
-        print(f'input_ids: {input_ids}')
+
         if self.bos_id is not None and is_full_len:
             input_ids = (self.bos_id,) + input_ids
-            print(f'input_ids with bos: {input_ids}')
 
         logging.debug('Predictor.predict_full: context[-20:]: `%s`; ' + \
                       'input_ids[-5:]: %s; prefix: `%s`; time: %.3f ms', context[-20:], input_ids[-5:], prefix, 1000 * (time.time() - start_time))
@@ -957,61 +945,6 @@ class Predictor:
         return complete_prediction.show()
 
 
-def predict_console(predictor: Predictor) -> None:
-    logging.info('Launching console')
-
-    PROMPT = '> '
-    START_MSG = 'Press CTRL-D or type `exit` to exit.'
-    print(START_MSG)
-
-    try:
-        while True:
-            line = input(PROMPT)
-            if line.strip() == 'exit':
-                break
-
-            if line[0:4] == 'set ':
-                try:
-                    _, param, value = line.strip().split(maxsplit=3)
-                except:
-                    logging.warning('Could not split `%s` into keyword, param, value', line)
-                    param = ''
-                    value = 0
-
-                predictor_param_names = [name for name in Predictor.__dict__ if isinstance(Predictor.__dict__[name], int)]
-                if param in predictor_param_names:
-                    predictor.__dict__[param] = int(value)
-
-                for name in predictor_param_names:
-                    value = predictor.__dict__[name] if name in predictor.__dict__ else Predictor.__dict__[name]
-                    print(f'{name:30s}\t{value}')
-
-                continue
-
-            line = re.sub(r'\\n', r'\n', line)
-
-            start = time.time()
-            (best_prediction, predictions) = predictor.predict_full(line)
-
-            msg = f'Prediction  : {best_prediction.text}\n'
-            msg += f'P(Match)    : {best_prediction.p_match():.5f}\n'
-            msg += f'CharAccepted: {best_prediction.char_accepted():.5f}\n'
-            msg += f'Score       : {best_prediction.score():.5f}\n'
-            msg += f'Time (ms)   : {1000*(time.time() - start):.3f}'
-            print(msg)
-
-            preds_dict = [p.to_odict() for p in predictions]
-            df = pd.DataFrame(preds_dict)
-
-            if 'Match' in df:
-                df.drop(['Match'], axis=1)
-
-            print(df)
-
-    except (EOFError, KeyboardInterrupt):
-        print('Exiting...')
-
-
 def run_score(default_path: str,
               model_path: str,
               vocab_path: str,
@@ -1053,6 +986,7 @@ def run_score(default_path: str,
     seq.predict(os.path.join(output_path, 'prediction'))
     seq.save(os.path.join(output_path, 'prediction2'))
 
+    #
     min_scores = np.arange(min_score, max_score, score_step).tolist()
     seq.score(min_scores, expected_match_rate)
     seq.save_all(output_path, predict_file=None)
