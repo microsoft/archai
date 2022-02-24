@@ -74,6 +74,11 @@ def parse_args():
                        help='Uses ONNX-based models instead of PyTorch.')
 
     hyperparameters = parser.add_argument_group('Scoring hyperparameters')
+    hyperparameters.add_argument('--save_step',
+                                 type=int,
+                                 default=100000,
+                                 help='Amount of steps to save the predictions.')
+
     hyperparameters.add_argument('--min_score',
                                  type=float,
                                  default=1.0,
@@ -144,6 +149,7 @@ if __name__ == '__main__':
               args.input_file_type,
               args.model_type,
               with_onnx=args.with_onnx,
+              save_step=args.save_step,
               min_score=args.min_score,
               max_score=args.max_score,
               score_step=args.score_step,

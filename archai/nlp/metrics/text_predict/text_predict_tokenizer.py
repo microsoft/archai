@@ -8,7 +8,7 @@ import re
 import functools
 from typing import List, Optional, Set, Tuple
 
-from transformers import AutoTokenizer
+from transformers import PreTrainedTokenizerFast
 import numpy as np
 
 from archai.common.lru_cache import LRUCache
@@ -36,11 +36,11 @@ class TextPredictTokenizer:
     BOS_TEXT = '\n '
 
     def __init__(self, vocab_path: str) -> None:
-        self.tokenizer = AutoTokenizer.from_pretrained(vocab_path)
+        self.tokenizer = PreTrainedTokenizerFast(tokenizer_file=vocab_path)
 
         self.bos_token = self.tokenizer.bos_token_id
         self.filter_token_ids_cache = LRUCache(TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE)
-        self.TOKENIZER_WORD_TOKEN_SEPARATOR = set([idx for idx in range(len(self)) if self[idx] in TOKENIZER_WORD_TOKEN_SEPARATOR_SET])
+        self.TOKENIZER_WORD_TOKEN_SEPARATOR = set([idx for idx in range(len(self)) if self[idx][0] in TOKENIZER_WORD_TOKEN_SEPARATOR_SET])
 
     def clean(self, text: str, add_bos_text: Optional[bool] = True) -> str:
         text = re.sub(r"[\u2010\u2011\u2012]", "-", text)

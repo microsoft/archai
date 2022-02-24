@@ -122,7 +122,7 @@ class TextPredictONNXModel:
         self.update_past_cache(input_ids_orig, past)
 
         probs = ort_outputs[0][0, :]
-        print(probs.shape)
+        # print(probs.shape)
         # print(probs)
         # end_time = time.time()
         # print(f"get_logits: len(input_ids) = {len(input_ids)} input_ids[-3:] ={input_ids[-3:]} time_diff = {1000*(end_time - start_time):.2f}")
