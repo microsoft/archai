@@ -23,8 +23,8 @@ import pandas as pd
 from scipy.interpolate import interp1d
 
 from archai.common import utils
-from archai.nlp.metrics.text_predict.text_predict_utils import get_settings
 from archai.nlp.metrics.text_predict.text_predict_model import TextPredictModel
+from archai.nlp.metrics.text_predict.text_predict_onnx_model import TextPredictONNXModel
 from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TextPredictTokenizer,
                                                                     TOKENIZER_WORD_TOKEN_SEPARATOR_SET)
 from archai.nlp.models.model_loader import load_model_from_checkpoint
@@ -428,7 +428,7 @@ class TextPredictionSequence(OrderedDict):
                 logging.info('`triggered_df` not defined.')
 
     def settings(self) -> dict:
-        settings = get_settings(self)
+        settings = utils.attr_to_dict(self)
         settings['sequence_len'] = len(self)
 
         return settings
@@ -727,10 +727,13 @@ class Predictor:
     # Maximum text to process (otherwise it will be truncated)
     MAX_INPUT_TEXT_LEN = 1000000
 
+    # Begin-of-sentence token
+    BOS_TOKEN_ID = None
+
     def __init__(self, tp_model, tp_tokenizer) -> None:
         self.tp_model = tp_model
         self.tp_tokenizer = tp_tokenizer
-        self.bos_id = tp_tokenizer.bos_token
+        self.bos_id = self.BOS_TOKEN_ID
 
     def load_tpl_settings(self, file_name: str) -> None:
         with open(file_name) as json_file:
@@ -745,10 +748,8 @@ class Predictor:
         self.PREFIX_MIN_NEXT_CANDIDATE_PROB = settings['MinNextTokenProbability']
         self.COMPLETE_WORD_PROB_THRESHOLD = settings['CompleteWordThreshold']
 
-        print(settings)
-
     def settings(self) -> Dict[str, Any]:
-        settings = get_settings(self)
+        settings = utils.attr_to_dict(self)
 
         return settings
 
@@ -955,6 +956,7 @@ def run_score(default_path: str,
               input_file_type: str,
               model_type: str,
               with_onnx: Optional[bool] = False,
+              save_step: Optional[int] = 100000,
               min_score: Optional[float] = 1.0,
               max_score: Optional[float] = 5.0,
               score_step: Optional[float] = 0.1,
@@ -972,7 +974,7 @@ def run_score(default_path: str,
 
     # ONNX-based model
     if with_onnx:
-        pass
+        tp_model = TextPredictONNXModel(model_path, space_token_id, max_seq_len)
     else:
         # Loads and wraps the model from provided checkpoint
         model, _, _ = load_model_from_checkpoint(model_type, model_path)
@@ -986,7 +988,7 @@ def run_score(default_path: str,
     seq = (TextPredictionSequence).from_file(input_file_path,
                                              input_file_type,
                                              predictor,
-                                             save_step=score_step,
+                                             save_step=save_step,
                                              min_score=min_score,
                                              current_paragraph_only=current_paragraph_only,
                                              min_pred_len=min_pred_len)
