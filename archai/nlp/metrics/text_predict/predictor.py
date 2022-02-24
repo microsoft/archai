@@ -24,6 +24,7 @@ from scipy.interpolate import interp1d
 
 from archai.common import utils
 from archai.nlp.metrics.text_predict.text_predict_model import TextPredictModel
+from archai.nlp.metrics.text_predict.text_predict_onnx_model import TextPredictONNXModel
 from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TextPredictTokenizer,
                                                                     TOKENIZER_WORD_TOKEN_SEPARATOR_SET)
 from archai.nlp.models.model_loader import load_model_from_checkpoint
@@ -726,10 +727,13 @@ class Predictor:
     # Maximum text to process (otherwise it will be truncated)
     MAX_INPUT_TEXT_LEN = 1000000
 
+    # Begin-of-sentence token
+    BOS_TOKEN_ID = None
+
     def __init__(self, tp_model, tp_tokenizer) -> None:
         self.tp_model = tp_model
         self.tp_tokenizer = tp_tokenizer
-        self.bos_id = tp_tokenizer.bos_token
+        self.bos_id = self.BOS_TOKEN_ID
 
     def load_tpl_settings(self, file_name: str) -> None:
         with open(file_name) as json_file:
@@ -969,7 +973,7 @@ def run_score(default_path: str,
 
     # ONNX-based model
     if with_onnx:
-        pass
+        tp_model = TextPredictONNXModel(model_path, space_token_id, max_seq_len)
     else:
         # Loads and wraps the model from provided checkpoint
         model, _, _ = load_model_from_checkpoint(model_type, model_path)

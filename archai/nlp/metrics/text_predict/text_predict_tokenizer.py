@@ -17,7 +17,11 @@ from archai.common.lru_cache import LRUCache
 TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE = 65536
 TOKENIZER_WORD_TOKEN_SEPARATOR = 'Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~'
 TOKENIZER_WORD_TOKEN_SEPARATOR_SET = set(TOKENIZER_WORD_TOKEN_SEPARATOR)
+
+# Regex
 REGEX_SPLIT = re.compile('^(.*)([' + TOKENIZER_WORD_TOKEN_SEPARATOR + '].*)$', re.MULTILINE | re.DOTALL)
+REGEX_WHITESPACE = re.compile("[\xa0 \t\u2002-\u2006\u200B]+", re.MULTILINE | re.DOTALL)
+REGEX_NEW_LINE = re.compile("\s*[\r\n]+\s*", re.MULTILINE | re.DOTALL)
 
 
 class TextPredictTokenizer:
@@ -29,7 +33,7 @@ class TextPredictTokenizer:
     INVALID_TOKENS = {50256}
 
     # Text to insert at the beginning of each sequence
-    BOS_TEXT = ''
+    BOS_TEXT = '\n '
 
     def __init__(self, vocab_path: str) -> None:
         self.tokenizer = AutoTokenizer.from_pretrained(vocab_path)
@@ -39,9 +43,15 @@ class TextPredictTokenizer:
         self.TOKENIZER_WORD_TOKEN_SEPARATOR = set([idx for idx in range(len(self)) if self[idx] in TOKENIZER_WORD_TOKEN_SEPARATOR_SET])
 
     def clean(self, text: str, add_bos_text: Optional[bool] = True) -> str:
-        if add_bos_text:
-            text = self.BOS_TEXT + text
+        text = re.sub(r"[\u2010\u2011\u2012]", "-", text)
+        text = re.sub(r"\s*[\u2013\u2014\u2015]\s*", " - ", text)
+        text = re.sub(r"[\u2018\u2019\u201a\u201b\xb4]", "'", text)
+        text = re.sub(r"[\u201c\u201d\u201e\u201f]", '"', text)
+        text = REGEX_WHITESPACE.sub(" ", text)
+        text = REGEX_NEW_LINE.sub("\n ", text)
 
+        if add_bos_text:
+            text = self.BOS_TEXT + text.lstrip()
         return text
 
     @functools.lru_cache(maxsize=32768)
@@ -107,9 +117,9 @@ class TextPredictTokenizer:
             prefilter_full_result = filter_token_ids_cache[cached_filter_prefix]
             idx_token_result = [(idx, token) for idx, token in prefilter_full_result \
                 if token[:min(len(token), filter_prefix_len)] == filter_prefix[:min(len(token), filter_prefix_len)]]
-        
+
         else:
-            idx_token_result = [(idx, token) for idx, token in enumerate(self) \
+            idx_token_result = [(idx, token) for token, idx in self.tokenizer.vocab.items() \
                 if token[:min(len(token), filter_prefix_len)] == filter_prefix[:min(len(token), filter_prefix_len)]]
 
         filter_token_ids_cache[filter_prefix] = idx_token_result
