@@ -11,8 +11,6 @@ import os
 
 from archai.nlp.metrics.text_predict.predictor import run_score
 
-from archai.common import utils
-
 
 def _check_amulet_paths(args: argparse.Namespace) -> argparse.Namespace:
     #Makes sure that AMLT-based runnings works
@@ -103,7 +101,12 @@ def parse_args():
     hyperparameters.add_argument('--max_body_len',
                                  type=int,
                                  default=10000,
-                                 help='Maximum length of the input sequences.')
+                                 help='Maximum length of single sequence.')
+
+    hyperparameters.add_argument('--max_seq_len',
+                                 type=int,
+                                 default=30,
+                                 help='Maximum length of sequences to be used.')
 
     hyperparameters.add_argument('--min_pred_len',
                                  type=int,
@@ -126,7 +129,7 @@ def parse_args():
     args, _ = parser.parse_known_args()
     args = _check_amulet_paths(args)
     
-    return vars(args)
+    return args
 
 
 if __name__ == '__main__':
@@ -134,4 +137,18 @@ if __name__ == '__main__':
     args = parse_args()
     
     # Runs the Text Predict scoring
-    run_score(**args)
+    run_score(args.default_path,
+              args.model_path,
+              args.vocab_path,
+              args.input_file_path,
+              args.input_file_type,
+              args.model_type,
+              with_onnx=args.with_onnx,
+              min_score=args.min_score,
+              max_score=args.max_score,
+              score_step=args.score_step,
+              expected_match_rate=args.expected_match_rate,
+              current_paragraph_only=args.current_paragraph_only,
+              max_body_len=args.max_body_len,
+              max_seq_len=args.max_seq_len,
+              min_pred_len=args.min_pred_len)

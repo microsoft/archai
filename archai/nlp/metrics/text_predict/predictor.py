@@ -23,7 +23,6 @@ import pandas as pd
 from scipy.interpolate import interp1d
 
 from archai.common import utils
-from archai.nlp.metrics.text_predict.text_predict_utils import get_settings
 from archai.nlp.metrics.text_predict.text_predict_model import TextPredictModel
 from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TextPredictTokenizer,
                                                                     TOKENIZER_WORD_TOKEN_SEPARATOR_SET)
@@ -428,7 +427,7 @@ class TextPredictionSequence(OrderedDict):
                 logging.info('`triggered_df` not defined.')
 
     def settings(self) -> dict:
-        settings = get_settings(self)
+        settings = utils.attr_to_dict(self)
         settings['sequence_len'] = len(self)
 
         return settings
@@ -745,10 +744,8 @@ class Predictor:
         self.PREFIX_MIN_NEXT_CANDIDATE_PROB = settings['MinNextTokenProbability']
         self.COMPLETE_WORD_PROB_THRESHOLD = settings['CompleteWordThreshold']
 
-        print(settings)
-
     def settings(self) -> Dict[str, Any]:
-        settings = get_settings(self)
+        settings = utils.attr_to_dict(self)
 
         return settings
 
