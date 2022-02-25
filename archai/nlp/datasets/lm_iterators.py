@@ -119,7 +119,7 @@ class LMShuffledIterator(object):
 
     def stream_iterator(self, sent_stream):
         # streams for each input_ids in the batch
-        streams = [None] * self.bsz
+        # streams = [None] * self.bsz
 
         input_ids = torch.LongTensor(self.bsz, self.bptt)
         labels = torch.LongTensor(self.bsz, self.bptt)
@@ -138,16 +138,14 @@ class LMShuffledIterator(object):
                 n_filled = 0
                 try:
                     while n_filled < self.bptt:
-                        if streams[i] is None or len(streams[i]) <= 1:
-                            streams[i] = next(sent_stream)
+                        stream = torch.LongTensor([next(sent_stream) for _ in range(self.bptt + 1)])
+
                         # number of new tokens to fill in
-                        n_new = min(len(streams[i]) - 1, self.bptt - n_filled)
+                        n_new = min(len(stream) - 1, self.bptt - n_filled)
+
                         # first n_retain tokens are retained from last batch
-                        input_ids[i, n_retain+n_filled:n_retain+n_filled+n_new] = \
-                            streams[i][:n_new]
-                        labels[i, n_filled:n_filled+n_new] = \
-                            streams[i][1:n_new+1]
-                        streams[i] = streams[i][n_new:]
+                        input_ids[i, n_retain+n_filled:n_retain+n_filled+n_new] = stream[:n_new]
+                        labels[i, n_filled:n_filled+n_new] = stream[1:n_new+1]
                         n_filled += n_new
                 except StopIteration:
                     valid_batch = False
@@ -177,7 +175,6 @@ class LMShuffledIterator(object):
 class LMMultiFileIterator(LMShuffledIterator):
     def __init__(self, paths, vocab, bsz, bptt, device='cpu', mem_len=None, ext_len=None,
                  shuffle=False):
-
         self.vocab = vocab
 
         # For compatibility with LMOrderedIterator
@@ -203,7 +200,7 @@ class LMMultiFileIterator(LMShuffledIterator):
         return
 
     def get_sent_stream(self, path):
-        sents = self.vocab.encode_file(path, single_stream=False)
+        sents = self.vocab.encode_file(path)
         if self.shuffle:
             np.random.shuffle(sents)
         sent_stream = iter(sents)

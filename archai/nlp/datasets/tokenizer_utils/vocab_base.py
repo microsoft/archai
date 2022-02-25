@@ -50,9 +50,10 @@ class VocabBase(EnforceOverrides, abc.Sized):
     def ids_to_tokens(self, ids:List[int])->List[str]:
         return [self.id_to_token(id) for id in ids]
 
-    def encode_file(self, path:str, single_stream=True, verbose=True)->List[int]:
+    def encode_file(self, path:str, verbose=True)->List[int]:
         logging.info(f'Encoding file: {path}')
         encoded = []
+        tensor_encoded = torch.LongTensor()
 
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
@@ -66,9 +67,9 @@ class VocabBase(EnforceOverrides, abc.Sized):
                     logging.info(f'    completed file line {format(idx)}')
 
                 tokens = self.encode_text(line)
-                encoded.append(torch.tensor(tokens))
+                encoded.extend(tokens)
 
-        if single_stream:
-            encoded = torch.cat(encoded)
+        if len(encoded) > 0:
+            tensor_encoded = torch.cat((tensor_encoded, torch.LongTensor(encoded)))
 
-        return encoded
+        return tensor_encoded
