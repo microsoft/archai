@@ -23,11 +23,9 @@ import pandas as pd
 from scipy.interpolate import interp1d
 
 from archai.common import utils
-from archai.nlp.metrics.text_predict.text_predict_model import TextPredictModel
-from archai.nlp.metrics.text_predict.text_predict_onnx_model import TextPredictONNXModel
-from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TextPredictTokenizer,
-                                                                    TOKENIZER_WORD_TOKEN_SEPARATOR_SET)
-from archai.nlp.models.model_loader import load_model_from_checkpoint
+from archai.nlp.metrics.text_predict.text_predict_model import TextPredictTorchModel, TextPredictONNXModel
+from archai.nlp.metrics.text_predict.text_predict_tokenizer import (
+    TOKENIZER_WORD_TOKEN_SEPARATOR_SET, TextPredictTokenizer)
 
 
 class Prediction:
@@ -955,7 +953,7 @@ def run_score(default_path: str,
               input_file_path: str,
               input_file_type: str,
               model_type: str,
-              with_onnx: Optional[bool] = False,
+              score_type: Optional[str] = 'torch',
               save_step: Optional[int] = 100000,
               min_score: Optional[float] = 1.0,
               max_score: Optional[float] = 5.0,
@@ -972,13 +970,13 @@ def run_score(default_path: str,
     tp_tokenizer = TextPredictTokenizer(vocab_path)
     space_token_id = tp_tokenizer.tokenizer.encode(' ')[0]
 
+    # Torch-based model
+    if score_type == 'torch':
+        tp_model = TextPredictTorchModel(model_type, model_path, space_token_id, max_seq_len)
+
     # ONNX-based model
-    if with_onnx:
-        tp_model = TextPredictONNXModel(model_path, space_token_id, max_seq_len)
-    else:
-        # Loads and wraps the model from provided checkpoint
-        model, _, _ = load_model_from_checkpoint(model_type, model_path)
-        tp_model = TextPredictModel(model, space_token_id, max_seq_len)
+    elif score_type == 'onnx':
+        tp_model = TextPredictONNXModel(model_type, model_path, space_token_id, max_seq_len)
 
     # Creates the Text Predict (Predictor) instance
     predictor = Predictor(tp_model, tp_tokenizer)

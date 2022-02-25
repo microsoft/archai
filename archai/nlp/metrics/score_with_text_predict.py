@@ -67,11 +67,13 @@ def parse_args():
                        type=str,
                        default='mem_transformer',
                        choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
-                       help='Type of model to be searched.')
+                       help='Type of model to be scored.')
 
-    score.add_argument('--with_onnx',
-                       action='store_true',
-                       help='Uses ONNX-based models instead of PyTorch.')
+    score.add_argument('--score_type',
+                       type=str,
+                       default='torch',
+                       choices=['onnx', 'torch'],
+                       help='Type of scoring to be used.')
 
     hyperparameters = parser.add_argument_group('Scoring hyperparameters')
     hyperparameters.add_argument('--save_step',
@@ -148,7 +150,7 @@ if __name__ == '__main__':
               args.input_file_path,
               args.input_file_type,
               args.model_type,
-              with_onnx=args.with_onnx,
+              score_type=args.score_type,
               save_step=args.save_step,
               min_score=args.min_score,
               max_score=args.max_score,
