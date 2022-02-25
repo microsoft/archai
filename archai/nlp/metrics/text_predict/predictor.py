@@ -21,13 +21,13 @@ import ftfy
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
+from tqdm import tqdm
 
 from archai.common import utils
-from archai.nlp.metrics.text_predict.text_predict_model import TextPredictModel
-from archai.nlp.metrics.text_predict.text_predict_onnx_model import TextPredictONNXModel
-from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TextPredictTokenizer,
-                                                                    TOKENIZER_WORD_TOKEN_SEPARATOR_SET)
-from archai.nlp.models.model_loader import load_model_from_checkpoint
+from archai.nlp.metrics.text_predict.text_predict_model import (TextPredictONNXModel,
+                                                                TextPredictTorchModel)
+from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TOKENIZER_WORD_TOKEN_SEPARATOR_SET,
+                                                                    TextPredictTokenizer)
 
 
 class Prediction:
@@ -378,7 +378,7 @@ class TextPredictionSequence(OrderedDict):
         return seq
 
     def save(self, output_filepath: str) -> None:
-        output = [pos.to_smart_compose_ljson() + "\n" for pos in self.values()]
+        output = [pos.to_smart_compose_ljson() + "\n" for pos in tqdm(self.values(), desc='Saving')]
 
         with open(output_filepath, 'w') as f:
             f.writelines(output)
@@ -440,7 +440,7 @@ class TextPredictionSequence(OrderedDict):
         if self.predictor is None:
             raise ValueError('Predictor must be defined.')
 
-        for i, pos in enumerate(self.values()):
+        for i, pos in enumerate(tqdm(self.values(), desc='Predicting')):
             start_time = time.time()
             text = pos.body
 
@@ -571,7 +571,7 @@ class TextPredictionSequence(OrderedDict):
 
         score_values = predictions_df['Score'].values
 
-        for i in range(predictions_df.shape[0]):
+        for i in tqdm(range(predictions_df.shape[0]), desc=f'Scoring with {min_score:.2f}'):
             if score_values[i] < min_score:
                 continue
 
@@ -955,7 +955,7 @@ def run_score(default_path: str,
               input_file_path: str,
               input_file_type: str,
               model_type: str,
-              with_onnx: Optional[bool] = False,
+              score_type: Optional[str] = 'torch',
               save_step: Optional[int] = 100000,
               min_score: Optional[float] = 1.0,
               max_score: Optional[float] = 5.0,
@@ -972,13 +972,13 @@ def run_score(default_path: str,
     tp_tokenizer = TextPredictTokenizer(vocab_path)
     space_token_id = tp_tokenizer.tokenizer.encode(' ')[0]
 
+    # Torch-based model
+    if score_type == 'torch':
+        tp_model = TextPredictTorchModel(model_type, model_path, space_token_id, max_seq_len)
+
     # ONNX-based model
-    if with_onnx:
-        tp_model = TextPredictONNXModel(model_path, space_token_id, max_seq_len)
-    else:
-        # Loads and wraps the model from provided checkpoint
-        model, _, _ = load_model_from_checkpoint(model_type, model_path)
-        tp_model = TextPredictModel(model, space_token_id, max_seq_len)
+    elif score_type == 'onnx':
+        tp_model = TextPredictONNXModel(model_type, model_path, space_token_id, max_seq_len)
 
     # Creates the Text Predict (Predictor) instance
     predictor = Predictor(tp_model, tp_tokenizer)
