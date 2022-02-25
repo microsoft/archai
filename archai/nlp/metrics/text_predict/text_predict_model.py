@@ -4,19 +4,17 @@
 """ArchaiModel that works with the Text Predictor.
 """
 
-import os
 import functools
+import os
 from typing import List, Optional, Tuple
 
 import numpy as np
+import onnxruntime as ort
 import torch
-
-from archai.nlp.models.model_loader import load_model_from_checkpoint
-
 from transformers import AutoConfig
 
 from archai.common.lru_cache import LRUCache
-import onnxruntime as ort
+from archai.nlp.models.model_loader import load_model_from_checkpoint
 
 
 class TextPredictModel:

@@ -21,11 +21,13 @@ import ftfy
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
+from tqdm import tqdm
 
 from archai.common import utils
-from archai.nlp.metrics.text_predict.text_predict_model import TextPredictTorchModel, TextPredictONNXModel
-from archai.nlp.metrics.text_predict.text_predict_tokenizer import (
-    TOKENIZER_WORD_TOKEN_SEPARATOR_SET, TextPredictTokenizer)
+from archai.nlp.metrics.text_predict.text_predict_model import (TextPredictONNXModel,
+                                                                TextPredictTorchModel)
+from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TOKENIZER_WORD_TOKEN_SEPARATOR_SET,
+                                                                    TextPredictTokenizer)
 
 
 class Prediction:
@@ -376,7 +378,7 @@ class TextPredictionSequence(OrderedDict):
         return seq
 
     def save(self, output_filepath: str) -> None:
-        output = [pos.to_smart_compose_ljson() + "\n" for pos in self.values()]
+        output = [pos.to_smart_compose_ljson() + "\n" for pos in tqdm(self.values(), desc='Saving')]
 
         with open(output_filepath, 'w') as f:
             f.writelines(output)
@@ -438,7 +440,7 @@ class TextPredictionSequence(OrderedDict):
         if self.predictor is None:
             raise ValueError('Predictor must be defined.')
 
-        for i, pos in enumerate(self.values()):
+        for i, pos in enumerate(tqdm(self.values(), desc='Predicting')):
             start_time = time.time()
             text = pos.body
 
@@ -569,7 +571,7 @@ class TextPredictionSequence(OrderedDict):
 
         score_values = predictions_df['Score'].values
 
-        for i in range(predictions_df.shape[0]):
+        for i in tqdm(range(predictions_df.shape[0]), desc=f'Scoring with {min_score:.2f}'):
             if score_values[i] < min_score:
                 continue
 
