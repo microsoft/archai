@@ -354,7 +354,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/lts_analysis/analyze_arch_population.py",
             "console": "integratedTerminal",
-            "args": ["--root_folder", "/home/dedey/archaiphilly/amlt/gpt2_flex_random_l5_u15", 
+            "args": ["--root_folder", "/home/dedey/archaiphilly/amlt/gpt2_flex_random_l5_u12_finedm", 
                     "--out_dir", "/home/dedey/archai_experiment_reports",
                     ]
         },
