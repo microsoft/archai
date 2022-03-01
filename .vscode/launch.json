@@ -345,6 +345,7 @@
                 "--vocab", "gpt2",
                 "--vocab_size", "10000",
                 "--max_step", "400",
+                "--dataset", "lm1b",
                 "--experiment_name", "j0"
             ]
         },
