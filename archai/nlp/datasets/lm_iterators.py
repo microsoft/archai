@@ -95,7 +95,7 @@ class LMOrderedIterator(object):
 
 
 class LMShuffledIterator(object):
-    def __init__(self, input_ids, bsz, bptt, device='cpu', ext_len=None, shuffle=False):
+    def __init__(self, input_ids, bsz, bptt, device='cpu', mem_len=None, ext_len=None, shuffle=False):
         """
             input_ids -- list[LongTensor] -- there is no order among the LongTensors
         """
@@ -157,7 +157,7 @@ class LMShuffledIterator(object):
             input_ids = input_ids.to(self.device)
             labels = labels.to(self.device)
 
-            yield input_ids, labels, self.bptt, None
+            yield input_ids, labels, self.bptt, True
 
             n_retain = min(input_ids.size(1), self.ext_len)
             if n_retain > 0:
