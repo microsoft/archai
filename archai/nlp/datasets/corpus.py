@@ -215,8 +215,8 @@ class Corpus:
                 data_iter = LMOrderedIterator(data, batch_size, tgt_len,
                                               device=device, ext_len=ext_len, mem_len=mem_len)
             elif self.dataset == 'lm1b':
-                data_iter = LMMultiFileIterator(data, self.vocab, batch_size, tgt_len,
-                                                device=device, ext_len=ext_len, mem_len=mem_len)
+                data_iter = LMShuffledIterator(data, batch_size, tgt_len,
+                                               device=device, ext_len=ext_len, mem_len=mem_len)
             else:
                 raise RuntimeError(f'Dataset not yet fully supported: {self.dataset}')
 
