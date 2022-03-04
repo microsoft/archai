@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union, Sized
+from typing import Dict, Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union, Sized
 import  numpy as np
 import logging
 import csv
@@ -423,3 +423,34 @@ def rgetattr(obj:Any, attr:Any, *args)->Any:
         return getattr(obj, attr, *args)
 
     return functools.reduce(_getattr, [obj] + attr.split('.'))
+
+def attr_to_dict(obj:Any, recursive:bool=True)->Dict[str, Any]:
+    MAX_LIST_LEN = 10
+    variables = {}
+
+    var_dict = dict(vars(obj.__class__))
+    try:
+        var_dict.update(dict(vars(obj)))
+    except TypeError:
+        pass
+
+    for k, v in var_dict.items():
+        if k[0] == '_':
+            continue
+
+        if isinstance(v, (int, float, str)):
+            variables[k.lower()] = v
+
+        elif isinstance(v, list) and (len(v) == 0 or isinstance(v[0], (int, float, str))):
+            variables[k.lower()] = v[:MAX_LIST_LEN]
+
+        elif isinstance(v, set) and (len(v) == 0 or isinstance(next(iter(v)), (int, float, str))):
+            variables[k.lower()] = list(v)[:MAX_LIST_LEN]
+
+        elif recursive:
+            settings_fn = getattr(v, 'settings', None)
+
+            if callable(settings_fn):
+                variables[k.lower()] = settings_fn()
+
+    return variables
