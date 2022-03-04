@@ -15,7 +15,7 @@ install_requires=[
     'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt',
     'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash',
     'transformers>=4.15.0', 'pytorch_lightning', 'tokenizers>=0.10.3', 'datasets',
-    'onnx', 'onnxruntime', 'coloredlogs', 'sympy',
+    'onnx==1.10.2', 'onnxruntime', 'coloredlogs', 'sympy',
     'ftfy', # needed for text scoring, fixes text for you
     # nvidia transformer-xl
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
