@@ -61,7 +61,7 @@ class DWiseConvPrimerEZ(nn.Module):
 
 
 class PositionwiseFFPrimerEZ(nn.Module):
-    """Implements the ReLU squared according to https://arxiv.org/abs/2109.08668.
+    """Implements the squared ReLU according to https://arxiv.org/abs/2109.08668.
     
     """
 
@@ -121,17 +121,9 @@ class PositionwiseFFPrimerEZ(nn.Module):
 
 
 def forward_hf_gpt2_mlp_primer_ez(self, hidden_states: torch.Tensor) -> torch.Tensor:
-    """Re-implements the forward method of HfGPT2 Multi-Layer Perceptron (GPT2MLP)
-        to use squared ReLU from PrimerEZ.
-
-    Args:
-        hidden_states: Input hidden states.
-
-    Returns:
-        (torch.Tensor): Output states.
-
+    """Implements the squared ReLU for Huggingface's Open AI GPT-2 according to https://arxiv.org/abs/2109.08668.
+    
     """
-
     hidden_states = self.c_fc(hidden_states)
     hidden_states = self.act(hidden_states) ** 2
     hidden_states = self.c_proj(hidden_states)

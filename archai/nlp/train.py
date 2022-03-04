@@ -37,7 +37,7 @@ from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
 from archai.nlp.datasets.exp_utils import (AverageMeter, create_exp_dir, l2_promote,
                                            log_env_info)
 from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.model_utils import lamb
+from archai.nlp.models.model_utils import lamb_optimizer
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from torch.nn.parallel import DistributedDataParallel
 
@@ -915,11 +915,11 @@ def create_optimizer(args, model):
         optimizer = optim.Adagrad(model.parameters(), lr=args.lr)
         optimizer_sparse = None
     elif args.optim.lower() == 'lamb':
-        optimizer = lamb.Lamb(model.parameters(), lr=args.lr,
+        optimizer = lamb_optimizer.Lamb(model.parameters(), lr=args.lr,
                               weight_decay=args.weight_decay)
         optimizer_sparse = None
     elif args.optim.lower() == 'jitlamb':
-        optimizer = lamb.JITLamb(model.parameters(), lr=args.lr,
+        optimizer = lamb_optimizer.JITLamb(model.parameters(), lr=args.lr,
                                  weight_decay=args.weight_decay)
         optimizer_sparse = None
     else:
