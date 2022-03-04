@@ -36,11 +36,11 @@ class HfGPT2Config(Config):
             },
             'd_model': {
                 'per_layer': False,
-                'value': [128, 256, 512, 768, 1024]
+                'value': list(range(128, 1024, 64))
             },
             'd_inner': {
                 'per_layer': False,
-                'value': list(range(512, 2049, 50)) + list(range(2048, 3072, 200))
+                'value': list(range(128, 4096, 64))
             },
             'n_head': {
                 'per_layer': False,
@@ -77,11 +77,11 @@ class HfGPT2FlexConfig(Config):
             },
             'd_model': {
                 'per_layer': False,
-                'value': list(range(64, 1024, 64))
+                'value': list(range(128, 1024, 64))
             },
             'd_inner': {
                 'per_layer': True,
-                'value': list(range(512, 2049, 50)) + list(range(2048, 3072, 200))
+                'value': list(range(128, 4096, 64))
             },
             'n_head': {
                 'per_layer': False,
