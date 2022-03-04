@@ -4,16 +4,14 @@
 """Score models using Text Predict.
 """
 
-from __future__ import annotations
-
 import argparse
 import os
 
 from archai.nlp.metrics.text_predict.predictor import run_score
 
 
-def _check_amulet_paths(args: argparse.Namespace) -> argparse.Namespace:
-    #Makes sure that AMLT-based runnings works
+def _check_amlt_paths(args: argparse.Namespace) -> argparse.Namespace:
+    # Makes sure that AMLT-based runnings works
     amlt_data_path = os.environ.get('AMLT_DATA_DIR', '')
     amlt_output_path = os.environ.get('AMLT_OUTPUT_DIR', '')
 
@@ -134,7 +132,7 @@ def parse_args():
                         help='Whether output should go to AMLT.')
                     
     args, _ = parser.parse_known_args()
-    args = _check_amulet_paths(args)
+    args = _check_amlt_paths(args)
     
     return args
 
