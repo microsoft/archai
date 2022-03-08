@@ -193,7 +193,12 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             else:
                 return self.shared_out_projs[i]
         else:
-            return self.out_projs[i]
+            if len(self.out_projs) == 0:
+                return None
+            elif len(self.out_projs) == 1:
+                return self.out_projs[0]
+            else:
+                return self.out_projs[i]
 
     def forward(self, hidden:torch.Tensor, target:Optional[torch.Tensor],
                 keep_order=False, output_loss=True, output_prediction_scores=False):
