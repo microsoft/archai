@@ -1,6 +1,6 @@
 import os
 import glob
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 import logging
 from dataclasses import dataclass
 
@@ -55,9 +55,8 @@ class Corpus:
         self.vocab = self._create_train_vocab()
 
         self.train, self.valid, self.test = self._get_encoded_files()
-        train_size = f'{len(self.train)} files' if isinstance(self.train, list) else self.train.size(0)
 
-        logging.info(f'Sizes for train: {train_size}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
+        logging.info(f'Sizes for train: {self.train.size(0)}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
 
 
     def load(self):
@@ -107,18 +106,13 @@ class Corpus:
         return self.vocab
 
     @staticmethod
-    def _get_file_stats(filepath:Union[str,list])->DataFileStats:
-        if not isinstance(filepath, list):
-            filepath = [filepath]
-        
+    def _get_file_stats(filepath:str)->DataFileStats:
         stats = DataFileStats(filepath)
-        
-        for f_path in filepath:
-            with open(f_path, 'r', encoding="utf-8") as f:
-                for line in f:
-                    stats.line_count += 1
-                    stats.char_count += len(line)
-                    stats.word_count += len(line.split())
+        with open(filepath, 'r', encoding="utf-8") as f:
+            for line in f:
+                stats.line_count += 1
+                stats.char_count += len(line)
+                stats.word_count += len(line.split())
         return stats
 
     def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
@@ -132,11 +126,7 @@ class Corpus:
 
         train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
 
-        if self.dataset == 'lm1b':
-            train = train_filepath
-        else:
-            train = self.vocab.encode_file(train_filepath)
-
+        train = self.vocab.encode_file(train_filepath)
         valid = self.vocab.encode_file(valid_filepath)
         test = self.vocab.encode_file(test_filepath)
 
@@ -153,7 +143,7 @@ class Corpus:
             elif dataset == 'ptb':
                 lower_case = True
             elif dataset == 'lm1b':
-                bos_token, eos_token = '<S>', '<S>'
+                bos_token, eos_token, vocab_file = '<S>', '<S>', os.path.join(datadir, '1b_word_vocab.txt')
             elif dataset in ['enwik8', 'text8']:
                 eos_token, lower_case = None, True
             else:
@@ -175,10 +165,6 @@ class Corpus:
         train_filename, valid_filename, test_filename = 'train.txt', 'valid.txt', 'test.txt'
         if self.dataset in ['wt2', 'wt103']:
             train_filename, valid_filename, test_filename = 'wiki.train.tokens', 'wiki.valid.tokens', 'wiki.test.tokens'
-        if self.dataset == 'lm1b':
-            train_path_pattern = os.path.join(self.datadir, '1-billion-word-language-modeling-benchmark-r13output', 'training-monolingual.tokenized.shuffled', 'news.en-*')
-            train_filename = glob.glob(train_path_pattern)
-            return (train_filename, os.path.join(self.datadir, valid_filename), os.path.join(self.datadir, test_filename))
 
         return (os.path.join(self.datadir, train_filename),
                 os.path.join(self.datadir, valid_filename),
@@ -190,9 +176,7 @@ class Corpus:
                 self._dataset_filepaths()
 
             logging.info('Training vocab...')
-            if not isinstance(train_filepath, list):
-                train_filepath = [train_filepath]
-            self.vocab.train(train_filepath)
+            self.vocab.train([train_filepath])
             logging.info('Finished training vocab.')
         else:
             self.vocab.load()
@@ -203,9 +187,9 @@ class Corpus:
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
                 data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
                                               device=device, ext_len=ext_len, mem_len=mem_len)
-            elif self.dataset == 'lm1b':
-                data_iter = LMMultiFileIterator(self.train, self.vocab, batch_size, tgt_len,
-                                                device=device, ext_len=ext_len, mem_len=mem_len)
+            # elif self.dataset == 'lm1b':
+            #     kwargs['shuffle'] = True
+            #     data_iter = LMMultiFileIterator(self.train, self.vocab, *args, **kwargs)
             else:
                 raise RuntimeError(f'Dataset not yet fully supported: {self.dataset}')
 
@@ -216,7 +200,7 @@ class Corpus:
                                               device=device, ext_len=ext_len, mem_len=mem_len)
             elif self.dataset == 'lm1b':
                 data_iter = LMShuffledIterator(data, batch_size, tgt_len,
-                                               device=device, ext_len=ext_len, mem_len=mem_len)
+                                              device=device, ext_len=ext_len)
             else:
                 raise RuntimeError(f'Dataset not yet fully supported: {self.dataset}')
 

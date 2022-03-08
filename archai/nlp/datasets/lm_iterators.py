@@ -2,8 +2,7 @@
 import numpy as np
 import torch
 
-from archai.nlp.datasets.distributed_utils import distributed
-
+from archai.nlp.datasets import distributed_utils as nv_utils
 
 class LMOrderedIterator(object):
     def __init__(self, input_ids, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True):
@@ -35,8 +34,8 @@ class LMOrderedIterator(object):
             self.input_ids = torch.cat((warmup_ids, self.input_ids), dim=-1)
 
         # Partition input_ids for DistributedDataParallel
-        world_size = distributed.get_world_size()
-        rank = distributed.get_rank()
+        world_size = nv_utils.distributed.get_world_size()
+        rank = nv_utils.distributed.get_rank()
         self.input_ids = self.input_ids.chunk(world_size, dim=0)[rank]
 
         # Number of mini-batches
@@ -96,7 +95,7 @@ class LMOrderedIterator(object):
 
 
 class LMShuffledIterator(object):
-    def __init__(self, input_ids, bsz, bptt, device='cpu', mem_len=None, ext_len=None, shuffle=False):
+    def __init__(self, input_ids, bsz, bptt, device='cpu', ext_len=None, shuffle=False):
         """
             input_ids -- list[LongTensor] -- there is no order among the LongTensors
         """
@@ -120,7 +119,7 @@ class LMShuffledIterator(object):
 
     def stream_iterator(self, sent_stream):
         # streams for each input_ids in the batch
-        # streams = [None] * self.bsz
+        streams = [None] * self.bsz
 
         input_ids = torch.LongTensor(self.bsz, self.bptt)
         labels = torch.LongTensor(self.bsz, self.bptt)
@@ -139,14 +138,16 @@ class LMShuffledIterator(object):
                 n_filled = 0
                 try:
                     while n_filled < self.bptt:
-                        stream = torch.LongTensor([next(sent_stream) for _ in range(self.bptt + 1)])
-
+                        if streams[i] is None or len(streams[i]) <= 1:
+                            streams[i] = next(sent_stream)
                         # number of new tokens to fill in
-                        n_new = min(len(stream) - 1, self.bptt - n_filled)
-
+                        n_new = min(len(streams[i]) - 1, self.bptt - n_filled)
                         # first n_retain tokens are retained from last batch
-                        input_ids[i, n_retain+n_filled:n_retain+n_filled+n_new] = stream[:n_new]
-                        labels[i, n_filled:n_filled+n_new] = stream[1:n_new+1]
+                        input_ids[i, n_retain+n_filled:n_retain+n_filled+n_new] = \
+                            streams[i][:n_new]
+                        labels[i, n_filled:n_filled+n_new] = \
+                            streams[i][1:n_new+1]
+                        streams[i] = streams[i][n_new:]
                         n_filled += n_new
                 except StopIteration:
                     valid_batch = False
@@ -158,7 +159,7 @@ class LMShuffledIterator(object):
             input_ids = input_ids.to(self.device)
             labels = labels.to(self.device)
 
-            yield input_ids, labels, self.bptt, True
+            yield input_ids, labels, self.bptt
 
             n_retain = min(input_ids.size(1), self.ext_len)
             if n_retain > 0:
@@ -174,13 +175,11 @@ class LMShuffledIterator(object):
 
 
 class LMMultiFileIterator(LMShuffledIterator):
-    def __init__(self, paths, vocab, bsz, bptt, device='cpu', mem_len=None, ext_len=None,
+    def __init__(self, paths, vocab, bsz, bptt, device='cpu', ext_len=None,
                  shuffle=False):
-        self.vocab = vocab
 
-        # For compatibility with LMOrderedIterator
-        self.n_batch = -1
-        self.last_iter = None
+        self.paths = paths
+        self.vocab = vocab
 
         self.bsz = bsz
         self.bptt = bptt
@@ -188,35 +187,21 @@ class LMMultiFileIterator(LMShuffledIterator):
 
         self.device = device
         self.shuffle = shuffle
-        self.n_chunks = 256
 
-        # DDP prep: partition self.paths into world size chunks 
-        # and pick chunk for this rank
-        world_size = distributed.get_world_size()
-        rank = distributed.get_rank()
-        chunk_len = len(paths) // world_size + 1 # NOTE: this causes a slight imbalance!
-        paths_chunks = [paths[i:i+chunk_len] for i in range(0, len(paths), chunk_len)]
-        self.paths = paths_chunks[rank]
-
-    def roll(self, seed=0):
-        return
-
-    def get_sents(self, path):
-        sents = self.vocab.encode_file(path)
+    def get_sent_stream(self, path):
+        sents = self.vocab.encode_file(path, add_double_eos=True)
         if self.shuffle:
             np.random.shuffle(sents)
-        return sents
+        sent_stream = iter(sents)
+
+        return sent_stream
 
     def __iter__(self):
         if self.shuffle:
             np.random.shuffle(self.paths)
 
         for path in self.paths:
-            sents = self.get_sents(path)
-            sents_chunks = torch.chunk(sents, self.n_chunks, 0)
-
-            for i in range(self.n_chunks):
-                sent_stream = iter(sents_chunks[i])
-                for idx, batch in enumerate(self.stream_iterator(sent_stream)):
-                    yield batch
-                    self.last_iter = idx
+            # sent_stream is an iterator
+            sent_stream = self.get_sent_stream(path)
+            for batch in self.stream_iterator(sent_stream):
+                yield batch
