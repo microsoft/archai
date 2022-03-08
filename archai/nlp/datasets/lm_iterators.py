@@ -119,9 +119,6 @@ class LMShuffledIterator(object):
             yield self.input_ids[idx]
 
     def stream_iterator(self, sent_stream):
-        # streams for each input_ids in the batch
-        # streams = [None] * self.bsz
-
         input_ids = torch.LongTensor(self.bsz, self.bptt)
         labels = torch.LongTensor(self.bsz, self.bptt)
 
