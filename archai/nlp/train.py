@@ -510,10 +510,14 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     log_start_time = time.time()
 
     mems = [None for _ in range(args.batch_chunk)]
-    if args.varlen:
-        train_iter = train_itr.get_varlen_iter(start=last_iter)
+    # Changes to make train_iter for lm1b to be properly caught
+    if args.dataset != 'lm1b':
+        if args.varlen:
+            train_iter = train_itr.get_varlen_iter(start=last_iter)
+        else:
+            train_iter = train_itr.get_fixlen_iter(start=last_iter)
     else:
-        train_iter = train_itr.get_fixlen_iter(start=last_iter)
+        train_iter = train_itr
 
     logging.info('Starting training...')
     for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
@@ -1040,7 +1044,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, replace_model_config=args, on_cpu=False)
+            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1284,9 +1288,9 @@ def main():
         scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
         # Performs a QAT fine-tuning
-        training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
-            model_config, optimizer, optimizer_sparse, scheduler,
-            scheduler_sparse, scaler, vocab, file_stats[1])
+        training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
+                                                          model_config, optimizer, optimizer_sparse, scheduler,
+                                                          scheduler_sparse, scaler, vocab, file_stats[1])
 
 
 if __name__ == "__main__":
