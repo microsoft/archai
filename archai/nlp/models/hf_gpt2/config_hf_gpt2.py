@@ -22,7 +22,7 @@ class HfGPT2Config(Config):
             'dropout': 0.1,
             'dropatt': 0.0,
             'tgt_len': 192,
-            'n_token': 10000,
+            'n_token': 10000, # changed from 267736 for model's production
             'weight_init_std': 0.0,
             'tie_weight': True
         }
@@ -62,7 +62,7 @@ class HfGPT2Config(Config):
             'dropout': 0.1,
             'dropatt': 0.0,
             'tgt_len': 192,
-            'n_token': 10000,
+            'n_token': 10000, # changed from 267736 for model's production
             'weight_init_std': 0.0,
             'tie_weight': True,
             'primer_square': False

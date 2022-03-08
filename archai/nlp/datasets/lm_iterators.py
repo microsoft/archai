@@ -2,7 +2,8 @@
 import numpy as np
 import torch
 
-from archai.nlp.datasets.distributed_utils import distributed
+from archai.nlp.datasets import distributed_utils
+
 
 class LMOrderedIterator(object):
     def __init__(self, input_ids, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True):
@@ -34,8 +35,8 @@ class LMOrderedIterator(object):
             self.input_ids = torch.cat((warmup_ids, self.input_ids), dim=-1)
 
         # Partition input_ids for DistributedDataParallel
-        world_size = distributed.get_world_size()
-        rank = distributed.get_rank()
+        world_size = distributed_utils.distributed.get_world_size()
+        rank = distributed_utils.distributed.get_rank()
         self.input_ids = self.input_ids.chunk(world_size, dim=0)[rank]
 
         # Number of mini-batches
@@ -118,9 +119,6 @@ class LMShuffledIterator(object):
             yield self.input_ids[idx]
 
     def stream_iterator(self, sent_stream):
-        # streams for each input_ids in the batch
-        # streams = [None] * self.bsz
-
         input_ids = torch.LongTensor(self.bsz, self.bptt)
         labels = torch.LongTensor(self.bsz, self.bptt)
 
@@ -187,11 +185,12 @@ class LMMultiFileIterator(LMShuffledIterator):
 
         self.device = device
         self.shuffle = shuffle
+        self.n_chunks = 256
 
         # DDP prep: partition self.paths into world size chunks 
         # and pick chunk for this rank
-        world_size = distributed.get_world_size()
-        rank = distributed.get_rank()
+        world_size = distributed_utils.distributed.get_world_size()
+        rank = distributed_utils.distributed.get_rank()
         chunk_len = len(paths) // world_size + 1 # NOTE: this causes a slight imbalance!
         paths_chunks = [paths[i:i+chunk_len] for i in range(0, len(paths), chunk_len)]
         self.paths = paths_chunks[rank]
@@ -199,21 +198,22 @@ class LMMultiFileIterator(LMShuffledIterator):
     def roll(self, seed=0):
         return
 
-    def get_sent_stream(self, path):
+    def get_sents(self, path):
         sents = self.vocab.encode_file(path)
         if self.shuffle:
             np.random.shuffle(sents)
-        sent_stream = iter(sents)
-
-        return sent_stream
+        return sents
 
     def __iter__(self):
         if self.shuffle:
             np.random.shuffle(self.paths)
 
         for path in self.paths:
-            # sent_stream is an iterator
-            sent_stream = self.get_sent_stream(path)
-            for idx, batch in enumerate(self.stream_iterator(sent_stream)):
-                yield batch
-                self.last_iter = idx
+            sents = self.get_sents(path)
+            sents_chunks = torch.chunk(sents, self.n_chunks, 0)
+
+            for i in range(self.n_chunks):
+                sent_stream = iter(sents_chunks[i])
+                for idx, batch in enumerate(self.stream_iterator(sent_stream)):
+                    yield batch
+                    self.last_iter = idx
