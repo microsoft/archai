@@ -181,7 +181,7 @@ def fmt(val:Any)->str:
 def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t'):
     fieldnames, rows = [], []
 
-    # get existing field names and rows
+    # get existing fiel names and rows
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
             dr = csv.DictReader(f, delimiter=delimiter)

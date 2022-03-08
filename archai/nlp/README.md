@@ -2,7 +2,7 @@
 
 Natural Language Processing (NLP) models use hardware advancements to solve more complex tasks. Nevertheless, such advancements also lead to an increased number of parameters, raising concerns regarding production-ready environments and low-resource devices.
 
-Archai provides a straightforward alternative to find more efficient models through Neural Architecture Search (NAS), furnishing an ideal place to prototype and implement searches of autoregressive transformer-based architectures. Essentially, the idea is to keep everything simple while offering developers and researchers every single tool to fulfill their needs.
+Archai provides a straightforward alternative to find more efficient models through Neural Architecture Search (NAS), furnishing an ideal place to prototype and implement autoregressive transformer-based architectures. Essentially, the idea is to keep everything simple while offering developers and researchers every single tool to fulfill their needs.
 
 Use NLP with Archai if you need a package or wish to:
 
@@ -10,28 +10,6 @@ Use NLP with Archai if you need a package or wish to:
 * 📂 Design or use pre-loaded language modeling tasks;
 * 📈 Increase your efficiency without losing effectiveness;
 * 🔬 Find new architectures under certain constraints.
-
-## Getting started: 60 seconds with Archai-NLP
-
-Installation of the bleeding-edge version is easy as pie. Please clone this repository and run the following command line:
-
-```bash
-pip install -e .
-```
-
-After installing all the requirements, one can train a default model (NVIDIA's Memory Transformer) with just a single command line, as follows:
-
-```bash
-python archai/nlp/train.py
-```
-
-Finally, with another single command line, one can extract the Pareto-frontier of the default search (also with NVIDIA's Memory Transformer), as follows:
-
-```bash
-python archai/nlp/search.py
-```
-
-*Please refer to the `--help` argument to invoke additional command-line arguments that modify the search's constraints and spaces.*
 
 ## Table of contents
 
@@ -44,8 +22,8 @@ python archai/nlp/search.py
     * [Adding New Architectures](#adding-new-architectures)
     * [Training a Model](#training-a-model)
  * [Neural Architecture Search](#neural-architecture-search)
-    * [Evolutionary Search and Pareto-Frontier Extraction](#evolutionary-search-and-pareto-frontier-extraction)
-    * [Submitting Pareto-Frontier Jobs](#submitting-pareto-frontier-jobs)
+    * [Evolutionary Search](#evolutionary-search)
+    * [Finding the Pareto Frontier](#finding-the-pareto-frontier)
  * [Architecture Compression](#architecture-compression)
     * [ONNX](#onnx)
     * [Quantization](#quantization)
@@ -107,11 +85,11 @@ The Causal Language Modeling (CLM) task aims to predict a `t+1` token based on t
 
 Transformers have become one of the most employed architectures throughout the last years, mainly due to their handling of sequential data. Their architecture is often structured in layers composed of self-attention mechanisms, which capture and weigh the significance of each part of the data throughout the timesteps.
 
-Although Archai has been built to be independent of models and architectures, i.e., fosters every type of neural architectures search, we opted to provide a `models` package and include a few state-of-the-art architectures that can be used out-of-the-box.
+Although Archai has been built to be independent of models and architectures, i.e., fosters every type of neural architectures search, we opted to implement a `models` package and provide a few state-of-the-art architectures and samples that can be used out-of-the-box.
 
 ### Available Architectures
 
-Archai provides a lazy-loading system that loads desired classes on-demand, which removes the user from the burden of knowing how every aspect of the library works. Thus, one can only care about the [model's dictionary](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py) and provide the correct classes that will be loaded.
+Archai provides a lazy-loading system that loads desired classes on-demand, which removes the user from the burden of knowing how every aspect of the library works. Thus, with such a system in hands, one can only care about the [model's dictionary](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py) and provide the correct classes to be loaded.
 
 #### NVIDIA's Memory Transformer
 
@@ -121,13 +99,13 @@ A reasonably new architecture that can deal with more extended context has been 
 
 #### Huggingface's GPT-2
 
-One of the most well-known transformer-based architectures is the Generative Pre-Trained Transformer (GPT), widely implemented in software, applications, and natural language systems. Currently, we support [Huggingface's GPT-2](https://github.com/huggingface/transformers/tree/master/src/transformers/models/gpt2) implementation.
+One of the most well-known transformer-based architectures is the Generative Pre-Trained Transformer (GPT), widely implemented in software, applications, and natural language systems. Currently, we only support [Huggingface's GPT-2](https://github.com/huggingface/transformers/tree/master/src/transformers/models/gpt2) implementation.
 
 *This architecture is implemented by Archai within the `hf_gpt2` reference and is available at the `models/hf_gpt2` package.*
 
 #### Huggingface's Transformer-XL
 
-Archai also supports [Huggingface's Transformer-XL](https://github.com/huggingface/transformers/tree/master/src/transformers/models/transfo_xl) implementation, which is derived from NVIDIA's code with slight differences, such as learnable embedding parameters per layer instead of per model. Such a code is compliant with Huggingface's Transformers package, though not as fast as NVIDIA's Memory Transformer.
+Archai also supports [Huggingface's Transformer-XL](https://github.com/huggingface/transformers/tree/master/src/transformers/models/transfo_xl) implementation, which is also derived from NVIDIA's code, with slight differences, such as learnable embedding parameters per layer instead of per model. Also, such a code is compliant with Huggingface's Transformers package, though not as fast as NVIDIA's Memory Transformer.
 
 *This architecture is implemented by Archai within the `hf_transfo_xl` reference and is available at the `models/hf_transfo_xl` package.*
 
@@ -135,14 +113,14 @@ Archai also supports [Huggingface's Transformer-XL](https://github.com/huggingfa
 
 Archai is independent of architectures and can be virtually used within every model type, as long as they follow some guidelines.
 
-Such guidelines are depicted by the [`ArchaiModel`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_base.py) class, which directly inherits from the `torch.nn.Module` class. Essentially, every new implemented architecture should inherit from `ArchaiModel` and be added to the [`ModelDict`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py#L23), which stands for the available models that can be loaded within the lazy-loader.
+Such guidelines are depicted by the [`ArchaiModel`](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/models/model_base.py) class, which directly inherits from the `torch.nn.Module` class. Essentially, every new implemented architecture should inherit from `ArchaiModel` and be added to the [`ModelDict`](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py#L23), which stands for the available models that can be loaded within the lazy loader.
 
 Briefly speaking, these are the steps to implement a new architecture:
 
 1. Create a new folder with the model's identifier inside the `models` package, for example, `transformer`;
 2. Inside the created folder, create a `model_transformer.py` to hold the model's architecture and a `config_transformer.py` if the model should be available with ONNX exports;
-3. Adds the corresponding implemented classes to the `ModelDict` under an uppercased string key that reflects the model's identifier, e.g., `TRANSFORMER`. The key values should come in a tuple format and follow the types defined by the [`ModelClassType`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py#L12), i.e., `MODEL`, `CONFIG`, `ONNX_MODEL` and `ONNX_CONFIG`.
-4. Finally, the new model can be directly used within the training script, as long as it is available within the `--model_type` flag.
+3. Adds the corresponding implemented classes to the `ModelDict` under an uppercased string key that reflects the model's identifier, e.g., `TRANSFORMER`. The key values should come in a tuple format and follow the types defined by the [`ClassType`](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/common/model_dict.py#L12), i.e., `MODEL`, `ONNX_CONFIG` and `ONNX_MODEL`.
+4. Finally, the new model can be directly used within the training script, as long as it is available within the `--model` flag.
 
 ### Training a Model
 
@@ -154,48 +132,9 @@ python archai/nlp/train.py --help
 
 ## Neural Architecture Search
 
-One of the foremost goals of Archai is to perform efficient Neural Architecture Searches and find optimal architectures that meet some desired guidelines. Thus, we offer a `nas` module that implements some customizable pipelines that enable users to find their most suitable architectures given a set of constraints.
+### Evolutionary Search
 
-The Transformer-based NAS pipeline is organized as follows:
-
-* Conduct the evolutionary search to find suitable samples (architecture configurations) and zero-cost Pareto-frontier;
-* Submit ground-truth jobs for the Pareto-frontier that has been found during the search;
-
-### Evolutionary Search and Pareto-Frontier Extraction
-
-The whole NAS idea is structured as an evolutionary search for transformer-based architectures, where users can define the parameters to be searched and also their constraints that should be met.
-
-The first step is to conduct the search and find a set of Pareto points that meet the constraints, as follows:
-
-```bash
-python archai/nlp/search.py --help 
-```
-
-Essentially, the search will find the Pareto-frontier configuration files (which can be used to create the model) for the desired architecture under the input constraints. Traditionally, our search considers the number of non-embedding parameters and the model's latency.
-
-Examples:
-
-```bash
-python archai/nlp/search.py --model_type mem_transformer
-```
-
-```bash
-python archai/nlp/search.py --model_type hf_gpt2 --d_model 256
-```
-
-```bash
-python archai/nlp/search.py --use_quantization --model_type hf_gpt2 --d_model 128 256 512 --n_head 2 4 8
-```
-
-### Submitting Pareto-Frontier Jobs
-
-After finding possible Pareto-frontier configurations through the evolutionary search, we can submit some ground-truth jobs for further comparison:
-
-```bash
-python archai/nlp/train.py --config_file pareto_frontier.yaml
-```
-
-*Note that `pareto_frontier.yaml` stands for the YAML file found during evolutionary search and saved at the `default_path`.*
+### Finding the Pareto Frontier
 
 ## Architecture Compression
 
@@ -203,7 +142,7 @@ Apart from finding more efficient architectures, it is also possible to compress
 
 ### ONNX
 
-The Open Neural Network Exchange (ONNX) format uses a graph with pre-defined operations implemented upon common standards. Additionally, several frameworks are implemented with such a format in mind, accelerating its inference and training, such as TensorRT and ONNXRuntime (ORT).
+The Open Neural Network Exchange (ONNX) format is built using a graph with pre-defined operations implemented upon common standards. Additionally, several frameworks are implemented with such a format in mind, accelerating its inference and training, such as TensorRT and ONNXRuntime (ORT).
 
 #### Exporting with ONNX
 
@@ -243,7 +182,7 @@ Note that such an approach is implemented by the `compression/quantization/ptq` 
 
 On the other hand, if a model suffers significant performance degradation when being dynamically quantized, one can opt to use the Quantization Aware Training pipeline, which models the quantization errors in both forward and backward passes through simulated (fake) quantization modules. Essentially, the idea is to better estimate the scale factors and zero-points during training, which leads to a better-quantized model at the end of the procedure.
 
-QAT with Archai is straightforward to be used, as it only requires a `--qat` or `--post_qat` flag to be employed in the training script. Nonetheless, if additional operators, observers, or quantizers need to be implemented, every QAT-related file can be found under the `compression/quantization` package.
+QAT with Archai is straightforward to be used, as it only requires a `--qat` or `--post_qat` flag to be employed in the training script. Nonetheless, if additional operators, observers quantizers need to be implemented, every QAT-related file can be found under the `compression/quantization` package.
 
 ## Metrics Scoring
 
