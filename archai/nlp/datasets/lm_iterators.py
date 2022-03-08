@@ -4,6 +4,7 @@ import torch
 
 from archai.nlp.datasets.distributed_utils import distributed
 
+
 class LMOrderedIterator(object):
     def __init__(self, input_ids, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=True):
         """
@@ -187,6 +188,7 @@ class LMMultiFileIterator(LMShuffledIterator):
 
         self.device = device
         self.shuffle = shuffle
+        self.n_chunks = 256
 
         # DDP prep: partition self.paths into world size chunks 
         # and pick chunk for this rank
@@ -199,21 +201,22 @@ class LMMultiFileIterator(LMShuffledIterator):
     def roll(self, seed=0):
         return
 
-    def get_sent_stream(self, path):
+    def get_sents(self, path):
         sents = self.vocab.encode_file(path)
         if self.shuffle:
             np.random.shuffle(sents)
-        sent_stream = iter(sents)
-
-        return sent_stream
+        return sents
 
     def __iter__(self):
         if self.shuffle:
             np.random.shuffle(self.paths)
 
         for path in self.paths:
-            # sent_stream is an iterator
-            sent_stream = self.get_sent_stream(path)
-            for idx, batch in enumerate(self.stream_iterator(sent_stream)):
-                yield batch
-                self.last_iter = idx
+            sents = self.get_sents(path)
+            sents_chunks = torch.chunk(sents, self.n_chunks, 0)
+
+            for i in range(self.n_chunks):
+                sent_stream = iter(sents_chunks[i])
+                for idx, batch in enumerate(self.stream_iterator(sent_stream)):
+                    yield batch
+                    self.last_iter = idx
