@@ -25,7 +25,6 @@ class HfTransfoXLConfig(Config):
             'div_val': 4,
             'pre_lnorm': False,
             'cutoffs': [19997, 39997, 199997],
-            'tgt_len': 192,
             'mem_len': 192,
             'same_length': False,
             'attn_type': 0,
@@ -42,20 +41,8 @@ class HfTransfoXLConfig(Config):
     @property
     def search(self) -> Dict[str, Any]:
         return {
-            'n_layer': {
-                'per_layer': False,
-                'value': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-            },
-            'd_model': {
-                'per_layer': False,
-                'value': list(range(128, 1024, 64))
-            },
-            'd_inner': {
-                'per_layer': False,
-                'value': list(range(128, 4096, 64))
-            },
-            'n_head': {
-                'per_layer': False,
-                'value': [2, 4, 8]
-            }
+            'n_layer': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            'd_model': [128, 256, 512, 768, 1024],
+            'd_inner': list(range(512, 2049, 50)) + list(range(2048, 3072, 200)),
+            'n_head': [2, 4, 8]
         }

@@ -38,7 +38,7 @@ from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
 from archai.nlp.datasets.exp_utils import (AverageMeter, create_exp_dir, l2_promote,
                                            log_env_info)
 from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.model_utils import lamb_optimizer
+from archai.nlp.models.model_utils import lamb
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from torch.nn.parallel import DistributedDataParallel
 
@@ -510,14 +510,10 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     log_start_time = time.time()
 
     mems = [None for _ in range(args.batch_chunk)]
-    # Changes to make train_iter for lm1b to be properly caught
-    if args.dataset != 'lm1b':
-        if args.varlen:
-            train_iter = train_itr.get_varlen_iter(start=last_iter)
-        else:
-            train_iter = train_itr.get_fixlen_iter(start=last_iter)
+    if args.varlen:
+        train_iter = train_itr.get_varlen_iter(start=last_iter)
     else:
-        train_iter = train_itr
+        train_iter = train_itr.get_fixlen_iter(start=last_iter)
 
     logging.info('Starting training...')
     for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
@@ -923,11 +919,11 @@ def create_optimizer(args, model):
         optimizer = optim.Adagrad(model.parameters(), lr=args.lr)
         optimizer_sparse = None
     elif args.optim.lower() == 'lamb':
-        optimizer = lamb_optimizer.Lamb(model.parameters(), lr=args.lr,
+        optimizer = lamb.Lamb(model.parameters(), lr=args.lr,
                               weight_decay=args.weight_decay)
         optimizer_sparse = None
     elif args.optim.lower() == 'jitlamb':
-        optimizer = lamb_optimizer.JITLamb(model.parameters(), lr=args.lr,
+        optimizer = lamb.JITLamb(model.parameters(), lr=args.lr,
                                  weight_decay=args.weight_decay)
         optimizer_sparse = None
     else:
@@ -1044,7 +1040,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, on_cpu=False)
+            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, replace_model_config=args, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1288,9 +1284,9 @@ def main():
         scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
         # Performs a QAT fine-tuning
-        training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
-                                                          model_config, optimizer, optimizer_sparse, scheduler,
-                                                          scheduler_sparse, scaler, vocab, file_stats[1])
+        training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
+            model_config, optimizer, optimizer_sparse, scheduler,
+            scheduler_sparse, scaler, vocab, file_stats[1])
 
 
 if __name__ == "__main__":
