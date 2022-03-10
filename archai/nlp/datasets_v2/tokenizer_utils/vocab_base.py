@@ -2,19 +2,19 @@ import os
 from typing import Optional
 
 from transformers import PreTrainedTokenizerFast
-from tokenizers import Tokenizer as HFTokenizer
+from tokenizers import Tokenizer
 
 from archai.nlp.datasets_v2.tokenizer_utils.token_config import TokenConfig
 
 
-class Tokenizer:
+class Vocab:
     """
     """
 
     def __init__(self,
                  model,
                  trainer,
-                 tokenizer_path,
+                 vocab_path,
                  min_freq: Optional[int] = 0,
                  vocab_size: Optional[int] = 10000,
                  bos_token: Optional[str] = None,
@@ -42,7 +42,7 @@ class Tokenizer:
         #
         self.model = model
         self.trainer = trainer
-        self.tokenizer_path = tokenizer_path
+        self.vocab_path = vocab_path
 
         #
         self.min_freq = min_freq
@@ -60,27 +60,27 @@ class Tokenizer:
                 yield dataset[i: i + batch_size][column_name]
 
         #
-        tokenizer = HFTokenizer(self.model)
+        vocab = Tokenizer(self.model)
 
         #
-        tokenizer.train_from_iterator(_batch_iterator(dataset['train']),
+        vocab.train_from_iterator(_batch_iterator(dataset['train']),
                                       self.trainer,
                                       len(dataset))
-        tokenizer.save(self.tokenizer_path)
+        vocab.save(self.vocab_path)
 
     def is_trained(self):
         """
         """
         
-        return os.path.exists(self.tokenizer_path)
+        return os.path.exists(self.vocab_path)
 
     def load(self):
         """
         """
 
         if self.is_trained():
-            tokenizer = PreTrainedTokenizerFast(tokenizer_file=self.tokenizer_path)
-            tokenizer.unk_token = 'UNK'
-            return tokenizer
+            vocab = PreTrainedTokenizerFast(tokenizer_file=self.vocab_path)
+            vocab.unk_token = 'UNK'
+            return vocab
         else:
             raise FileNotFoundError()

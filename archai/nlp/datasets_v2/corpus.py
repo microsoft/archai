@@ -4,8 +4,8 @@ from datasets import Dataset, DatasetDict, IterableDataset, IterableDatasetDict
 
 from transformers import PreTrainedTokenizerFast
 from archai.nlp.datasets_v2.dataset_loader import load_file_dataset, load_hub_dataset
-from archai.nlp.datasets_v2.tokenizer_utils.tokenizer_base import Tokenizer
-from archai.nlp.datasets_v2.tokenizer_utils.word_tokenizer import WordTokenizer
+from archai.nlp.datasets_v2.tokenizer_utils.vocab_base import Vocab
+from archai.nlp.datasets_v2.tokenizer_utils.word_vocab import WordVocab
 
 
 class Corpus:
@@ -72,27 +72,27 @@ class Corpus:
             raise NotImplementedError()
 
     @property
-    def is_tokenizer_trained(self) -> bool:
+    def is_vocab_trained(self) -> bool:
         """
         """
 
         return os.path.exists(self.vocab_path)
 
-    def _create_tokenizer(self) -> Tokenizer:
+    def _create_vocab(self) -> Vocab:
         """
         """
         
-        # Creates a word-based tokenizer
+        # Creates a word-based vocabulary (tokenizer)
         if self.vocab_type == 'word':
-            return WordTokenizer(self.vocab_path)
+            return WordVocab(self.vocab_path)
         else:
             raise NotImplementedError()
 
-    def _load_tokenizer(self) -> PreTrainedTokenizerFast:
+    def _load_vocab(self) -> PreTrainedTokenizerFast:
         """
         """
 
-        # Attempts to load a pre-trained tokenizer (compatible with `transformers`)
+        # Attempts to load a pre-trained vocabulary (compatible with `transformers`)
         # from its pre-trained file
         try:
             return PreTrainedTokenizerFast(tokenizer_file=self.vocab_path)
@@ -100,14 +100,14 @@ class Corpus:
             raise FileNotFoundError()
 
     def encode(self,
-               tokenizer: PreTrainedTokenizerFast,
+               vocab: PreTrainedTokenizerFast,
                dataset: Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
                ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
         """
         """
 
         def _apply_tokenization(x: str) -> str:
-            return tokenizer(x['text'])
+            return vocab(x['text'])
 
         # Encodes the dataset by applying the tokenizer's tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
@@ -121,18 +121,18 @@ class Corpus:
         # Loads the dataset
         dataset = self._load_dataset()
 
-        if not self.is_tokenizer_trained or self.refresh_cache:
-            # Creates and trains a new tokenizer
-            tokenizer = self._create_tokenizer()
-            tokenizer.train(dataset)
+        if not self.is_vocab_trained or self.refresh_cache:
+            # Creates and trains a new vocab
+            vocab = self._create_vocab()
+            vocab.train(dataset)
 
-        # Loads pre-trained tokenizer and encodes the dataset
-        tokenizer = self._load_tokenizer()
-        encoded_dataset = self.encode(tokenizer, dataset)
+        # Loads pre-trained vocab and encodes the dataset
+        vocab = self._load_vocab()
+        encoded_dataset = self.encode(vocab, dataset)
 
         # Attaches them as attributes
         self.dataset = encoded_dataset
-        self.tokenizer = tokenizer
+        self.vocab = vocab
             
         
 def get_corpus(data_dir: str,

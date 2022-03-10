@@ -18,5 +18,5 @@ corpus = get_corpus('/home/gderosa/dataroot/textpred/olx_WordData20211003',
                     data_files={'train': 'valid.txt'},
                     refresh_cache=False)
 
-print(corpus.tokenizer)
+print(corpus.vocab)
 print(corpus.dataset)

@@ -1,11 +1,10 @@
-from archai.nlp.datasets_v2.tokenizer_utils.tokenizer_base import Tokenizer
+from archai.nlp.datasets_v2.tokenizer_utils.vocab_base import Vocab
 
-from tokenizers import Tokenizer as HFTokenizer
 from tokenizers.models import WordLevel
 from tokenizers.pre_tokenizers import Punctuation, Sequence, Whitespace
 from tokenizers.trainers import WordLevelTrainer
 
-class WordTokenizer(Tokenizer):
+class WordVocab(Vocab):
     """
     """
 
