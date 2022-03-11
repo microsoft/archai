@@ -6,7 +6,7 @@
 
 from typing import Any, Dict, List, Optional, Union
 
-from datasets import load_dataset
+from datasets import Dataset, DatasetDict, IterableDataset, IterableDatasetDict, load_dataset
 from datasets.utils.download_manager import GenerateMode
 
 
@@ -26,7 +26,8 @@ def load_file_dataset(data_dir: str,
                       split: Optional[List[str]] = None,
                       features: Optional[List[str]] = None,
                       from_stream: Optional[bool] = False,
-                      refresh_cache: Optional[bool] = False):
+                      refresh_cache: Optional[bool] = False
+                      ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
     """
     """
 
@@ -45,7 +46,8 @@ def load_hub_dataset(data_dir: str,
                      split: Optional[List[str]] = None,
                      revision: Optional[List[str]] = None,
                      from_stream: Optional[bool] = False,
-                     refresh_cache: Optional[bool] = False):
+                     refresh_cache: Optional[bool] = False
+                     ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
     """
     """
 

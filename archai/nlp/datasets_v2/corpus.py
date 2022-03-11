@@ -1,3 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""
+"""
+
 import os
 from typing import Any, Union, Dict, List, Optional
 from datasets import Dataset, DatasetDict, IterableDataset, IterableDatasetDict
