@@ -159,6 +159,8 @@ class HfGPT2Flex(ArchaiModel):
         else:
             config.primer_square = False
 
+        config.cutoffs = kwargs['cutoffs']
+        config.div_val = kwargs['div_val']
         config.embd_pdrop = kwargs['dropatt']
 
         return config

@@ -26,6 +26,7 @@ from archai.common.utils import map_to_list
 from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import LogUniformSampler, sample_logits
 from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.models.model_utils.adaptive_embedding import AdaptiveEmbedding
 from archai.nlp.models.model_utils.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
 
 
@@ -526,70 +527,6 @@ class RelPartialLearnableDecoderLayer(nn.Module):
 
         return output, present_key_values
 
-
-class AdaptiveEmbedding(nn.Module):
-    def __init__(self, n_token, d_embed, d_proj, cutoffs, div_val=1,
-                 sample_softmax=False):
-        super(AdaptiveEmbedding, self).__init__()
-
-        self.n_token = n_token
-        self.d_embed = d_embed
-
-        self.cutoffs = ProjectedAdaptiveLogSoftmax.clean_cutoffs(cutoffs, n_token)
-        self.div_val = div_val
-        self.d_proj = d_proj
-
-        self.emb_scale = d_proj ** 0.5
-
-        self.cutoff_ends = [0] + self.cutoffs
-
-        self.emb_layers = nn.ModuleList()
-        self.emb_projs = nn.ParameterList()
-        if div_val == 1:
-            self.emb_layers.append(
-                nn.Embedding(n_token, d_embed, sparse=(sample_softmax > 0))
-            )
-            if d_proj != d_embed:
-                self.emb_projs.append(nn.Parameter(torch.Tensor(d_proj, d_embed).zero_()))
-        else:
-            for i in range(len(self.cutoffs)):
-                l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i+1]
-                d_emb_i = d_embed // (div_val ** i)
-                self.emb_layers.append(nn.Embedding(r_idx-l_idx, d_emb_i))
-                self.emb_projs.append(nn.Parameter(torch.Tensor(d_proj, d_emb_i).zero_()))
-
-    def forward(self, inp):
-        if self.div_val == 1:
-            embed = self.emb_layers[0](inp)
-            if self.d_proj != self.d_embed:
-                embed = F.linear(embed, self.emb_projs[0])
-        else:
-            param = next(self.parameters())
-            # Makes sure that `inp_flat` is spanned across a contiguous dimension
-            # due to the possiiblity of having different layer sizes 
-            inp_flat = inp.contiguous().view(-1)
-            emb_flat = torch.zeros([inp_flat.size(0), self.d_proj],
-                                   dtype=param.dtype, device=param.device)
-            for i in range(len(self.cutoffs)):
-                l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i + 1]
-
-                mask_i = (inp_flat >= l_idx) & (inp_flat < r_idx)
-                indices_i = mask_i.nonzero(as_tuple=False).squeeze()
-
-                if indices_i.numel() == 0:
-                    continue
-
-                inp_i = inp_flat.index_select(0, indices_i) - l_idx
-                emb_i = self.emb_layers[i](inp_i)
-                emb_i = F.linear(emb_i, self.emb_projs[i]).to(emb_flat.dtype)
-
-                emb_flat.index_copy_(0, indices_i, emb_i)
-
-            embed = emb_flat.view(*inp.size(), self.d_proj)
-
-        embed.mul_(self.emb_scale)
-
-        return embed
 
 class MemTransformerLM(ArchaiModel):
     def __init__(self, n_token, n_layer=16, n_head=8, d_model=512, d_head=64, d_inner=2048,

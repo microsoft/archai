@@ -679,8 +679,7 @@ class GPT2ModelFlex(GPT2PreTrainedModel):
 
         self.embed_dim = config.hidden_size
 
-        # self.wte = nn.Embedding(config.vocab_size, self.embed_dim)
-        self.wte = AdaptiveEmbedding(config.vocab_size, self.embed_dim, self.embed_dim, [19997, 39997, 199997, config.vocab_size], div_val=1)
+        self.wte = AdaptiveEmbedding(config.vocab_size, self.embed_dim, self.embed_dim, config.cutoffs, config.div_val)
         self.wpe = nn.Embedding(config.max_position_embeddings, self.embed_dim)
 
         self.drop = nn.Dropout(config.embd_pdrop)

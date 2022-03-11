@@ -28,8 +28,7 @@ class AdaptiveEmbedding(nn.Module):
         self.n_token = n_token
         self.d_embed = d_embed
 
-        self.cutoffs = cutoffs
-        # self.cutoffs = ProjectedAdaptiveLogSoftmax.clean_cutoffs(cutoffs, n_token)
+        self.cutoffs = self.clean_cutoffs(cutoffs, n_token)
         self.div_val = div_val
         self.d_proj = d_proj
 
@@ -39,6 +38,7 @@ class AdaptiveEmbedding(nn.Module):
 
         self.emb_layers = nn.ModuleList()
         self.emb_projs = nn.ParameterList()
+        
         if div_val == 1:
             self.emb_layers.append(
                 nn.Embedding(n_token, d_embed, sparse=(sample_softmax > 0))
@@ -51,6 +51,36 @@ class AdaptiveEmbedding(nn.Module):
                 d_emb_i = d_embed // (div_val ** i)
                 self.emb_layers.append(nn.Embedding(r_idx-l_idx, d_emb_i))
                 self.emb_projs.append(nn.Parameter(torch.Tensor(d_proj, d_emb_i).zero_()))
+
+    def default_cutoffs(self, n_token):
+        return [19997, 39997, 199997, n_token]
+
+    def clean_cutoffs(self, cutoffs, n_token):
+        if cutoffs is None:
+            cutoffs = self.default_cutoffs(n_token)
+
+        cutoffs = cutoffs.copy()
+        if not cutoffs:
+            cutoffs = [n_token]
+        assert isinstance(cutoffs, list) and len(cutoffs) > 0
+
+        # check if all entries in array are monotonically increasing
+        # if any entry is > n_token then we trim the array at that point
+        last_co, c = cutoffs[0], 1
+        while c < len(cutoffs):
+            assert cutoffs[c] > last_co, f"cutoff at {c} is <= {c-1}"
+            last_co = cutoffs[c]
+            if cutoffs[c] > n_token:
+                break
+            c += 1
+        cutoffs = cutoffs[:c] # trim the list if there was any entry > n_token
+        # make sure the last entry is n_token
+        if cutoffs[-1] > n_token:
+            cutoffs[-1] = n_token
+        if cutoffs[-1] < n_token:
+            cutoffs.append(n_token)
+
+        return cutoffs
 
     def forward(self, inp):
         if self.div_val == 1:
