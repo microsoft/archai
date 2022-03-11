@@ -26,6 +26,9 @@ from packaging import version
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 
+from archai.nlp.models.model_utils.adaptive_embedding import AdaptiveEmbedding
+from archai.nlp.models.model_utils.adaptive_softmax import AdaptiveSoftmax
+
 
 if version.parse(torch.__version__) >= version.parse("1.6"):
     is_amp_available = True
@@ -676,7 +679,8 @@ class GPT2ModelFlex(GPT2PreTrainedModel):
 
         self.embed_dim = config.hidden_size
 
-        self.wte = nn.Embedding(config.vocab_size, self.embed_dim)
+        # self.wte = nn.Embedding(config.vocab_size, self.embed_dim)
+        self.wte = AdaptiveEmbedding(config.vocab_size, self.embed_dim, self.embed_dim, [19997, 39997, 199997, config.vocab_size], div_val=1)
         self.wpe = nn.Embedding(config.max_position_embeddings, self.embed_dim)
 
         self.drop = nn.Dropout(config.embd_pdrop)
@@ -981,8 +985,8 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         self.model_parallel = False
         torch.cuda.empty_cache()
 
-    def get_output_embeddings(self):
-        return self.lm_head
+    # def get_output_embeddings(self):
+    #     return self.lm_head
 
     def set_output_embeddings(self, new_embeddings):
         self.lm_head = new_embeddings
