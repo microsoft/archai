@@ -27,7 +27,7 @@ from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 
 from archai.nlp.models.model_utils.adaptive_embedding import AdaptiveEmbedding
-from archai.nlp.models.model_utils.adaptive_softmax import AdaptiveSoftmax
+from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 
 if version.parse(torch.__version__) >= version.parse("1.6"):
@@ -955,7 +955,24 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = GPT2ModelFlex(config)
-        self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+
+        if config.tie_weight:
+            emb_layers = [i.weight for i in self.transformer.wte.emb_layers]
+        else:
+            emb_layers = None
+
+        emb_projs = self.transformer.wte.emb_projs
+
+        self.crit = ProjectedAdaptiveLogSoftmax(config.vocab_size,
+                                                config.n_embd,
+                                                config.n_embd,
+                                                config.cutoffs,
+                                                config.adaptive,
+                                                div_val=config.div_val,
+                                                tie_projs=config.tie_projs,
+                                                out_projs=emb_projs,
+                                                out_layers_weights=emb_layers)
+        # self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 
         # Model parallel
         self.model_parallel = False
@@ -973,22 +990,24 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         )
         assert_device_map(self.device_map, len(self.transformer.h))
         self.transformer.parallelize(self.device_map)
-        self.lm_head = self.lm_head.to(self.transformer.first_device)
+        self.crit = self.crit.to(self.transformer.first_device)
+        # self.lm_head = self.lm_head.to(self.transformer.first_device)
         self.model_parallel = True
 
     @add_start_docstrings(DEPARALLELIZE_DOCSTRING)
     def deparallelize(self):
         self.transformer.deparallelize()
         self.transformer = self.transformer.to("cpu")
-        self.lm_head = self.lm_head.to("cpu")
+        self.crit = self.crit.to("cpu")
+        # self.lm_head = self.lm_head.to("cpu")
         self.model_parallel = False
         torch.cuda.empty_cache()
 
     # def get_output_embeddings(self):
     #     return self.lm_head
 
-    def set_output_embeddings(self, new_embeddings):
-        self.lm_head = new_embeddings
+    # def set_output_embeddings(self, new_embeddings):
+    #     self.lm_head = new_embeddings
 
     def prepare_inputs_for_generation(self, input_ids, past=None, **kwargs):
         token_type_ids = kwargs.get("token_type_ids", None)
@@ -1041,6 +1060,8 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
+        output_loss=True,
+        output_prediction_scores=False
     ):
         r"""
         labels (`torch.LongTensor` of shape `(batch_size, sequence_length)`, *optional*):
@@ -1072,16 +1093,28 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
             torch.cuda.set_device(self.transformer.first_device)
             hidden_states = hidden_states.to(self.lm_head.weight.device)
 
-        lm_logits = self.lm_head(hidden_states)
+        bsz = labels.size(0) if labels is not None else input_ids.size(0)
+        tgt_len = labels.size(1) if labels is not None else input_ids.size(1)
 
-        loss = None
-        if labels is not None:
-            # Shift so that tokens < n predict n
-            shift_logits = lm_logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
-            # Flatten the tokens
-            loss_fct = CrossEntropyLoss()
-            loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+        pred_hid = hidden_states[:, -tgt_len:]
+
+        loss, lm_logits = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
+                                    target=labels.contiguous().view(-1) if labels is not None else None,
+                                    output_loss=output_loss, output_prediction_scores=output_prediction_scores)
+
+        loss = loss.view(bsz, tgt_len) if labels is not None else None
+        lm_logits = lm_logits.view(bsz, tgt_len, -1) if lm_logits is not None else None
+
+        # lm_logits = self.lm_head(hidden_states)
+
+        # loss = None
+        # if labels is not None:
+        #     # Shift so that tokens < n predict n
+        #     shift_logits = lm_logits[..., :-1, :].contiguous()
+        #     shift_labels = labels[..., 1:].contiguous()
+        #     # Flatten the tokens
+        #     loss_fct = CrossEntropyLoss()
+        #     loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
 
         if not return_dict:
             output = (lm_logits,) + transformer_outputs[1:]

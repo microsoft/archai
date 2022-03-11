@@ -159,9 +159,12 @@ class HfGPT2Flex(ArchaiModel):
         else:
             config.primer_square = False
 
+        config.adaptive = kwargs['adaptive']
         config.cutoffs = kwargs['cutoffs']
         config.div_val = kwargs['div_val']
         config.embd_pdrop = kwargs['dropatt']
+        config.tie_weight = kwargs['tie_weight']
+        config.tie_projs = kwargs['tie_projs']
 
         return config
 
@@ -179,11 +182,13 @@ class HfGPT2Flex(ArchaiModel):
         # Causal attention mask is created inside the model
         hf_out = self.model(input_ids=input_ids,
                             labels=input_ids,
-                            attention_mask=torch.ones_like(input_ids))
+                            attention_mask=torch.ones_like(input_ids),
+                            output_loss=output_loss,
+                            output_prediction_scores=output_prediction_scores)
 
         # GPT-2 only outputs the logits, so we need to convert them
         # by using log softmax
-        return (hf_out.loss, F.log_softmax(hf_out.logits, dim=-1), None, past_key_values)
+        return (hf_out.loss, hf_out.logits, None, past_key_values)
 
     def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
         # There is no memory in GPT-2
