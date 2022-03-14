@@ -1106,9 +1106,11 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         bsz = labels.size(0) if labels is not None else input_ids.size(0)
         tgt_len = labels.size(1) if labels is not None else input_ids.size(1)
 
-        pred_hid = hidden_states.view(hidden_states.size(1), hidden_states.size(0), hidden_states.size(2))
+        pred_hid = hidden_states.view(tgt_len, bsz, hidden_states.size(2))
         pred_hid = hidden_states[-tgt_len:]
-        labels = labels.view(labels.size(1), labels.size(0))
+
+        if labels is not None:
+            labels = labels.view(tgt_len, bsz)
 
         loss, lm_logits = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
                                     target=labels.contiguous().view(-1) if labels is not None else None,
