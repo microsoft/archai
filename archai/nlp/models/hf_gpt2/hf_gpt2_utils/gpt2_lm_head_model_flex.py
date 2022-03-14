@@ -1107,7 +1107,7 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         tgt_len = labels.size(1) if labels is not None else input_ids.size(1)
 
         pred_hid = hidden_states.view(tgt_len, bsz, hidden_states.size(2))
-        pred_hid = hidden_states[-tgt_len:]
+        pred_hid = pred_hid[-tgt_len:]
 
         if labels is not None:
             labels = labels.view(tgt_len, bsz)
