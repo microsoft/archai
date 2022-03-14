@@ -20,6 +20,8 @@ import os
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
+import functools
+
 import torch
 import torch.utils.checkpoint
 from packaging import version
@@ -679,7 +681,7 @@ class GPT2ModelFlex(GPT2PreTrainedModel):
 
         self.embed_dim = config.hidden_size
 
-        self.wte = AdaptiveEmbedding(config.vocab_size, self.embed_dim, self.embed_dim, config.cutoffs, config.div_val)
+        self.wte = AdaptiveEmbedding(config.vocab_size, self.embed_dim, config.hidden_size, config.cutoffs, div_val=config.div_val)
         self.wpe = nn.Embedding(config.max_position_embeddings, self.embed_dim)
 
         self.drop = nn.Dropout(config.embd_pdrop)
@@ -962,16 +964,16 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
             emb_layers = None
 
         emb_projs = self.transformer.wte.emb_projs
-
+        # config.tie_projs = [False] * len(config.cutoffs)
         self.crit = ProjectedAdaptiveLogSoftmax(config.vocab_size,
                                                 config.n_embd,
-                                                config.n_embd,
+                                                config.hidden_size,
                                                 config.cutoffs,
                                                 config.adaptive,
                                                 div_val=config.div_val,
                                                 tie_projs=config.tie_projs,
-                                                out_projs=emb_projs,
-                                                out_layers_weights=emb_layers)
+                                                out_layers_weights=emb_layers,
+                                                out_projs=emb_projs)
         # self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 
         # Model parallel
@@ -980,6 +982,18 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
 
         # Initialize weights and apply final processing
         self.post_init()
+
+        # initialize weights
+        weight_init_params = {
+            'weight_init_type': config.init,
+            'weight_init_range': config.init_range,
+            'weight_init_std': config.init_std,
+            'proj_init_std': config.proj_init_std,
+        }
+
+        self.apply(functools.partial(weights_init, **weight_init_params))
+        # ensure embedding init is not overridden by out_layer in case of weight sharing
+        self.transformer.wte.apply(functools.partial(weights_init, **weight_init_params))
 
     @add_start_docstrings(PARALLELIZE_DOCSTRING)
     def parallelize(self, device_map=None):
@@ -1091,12 +1105,14 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         # Set device for model parallelism
         if self.model_parallel:
             torch.cuda.set_device(self.transformer.first_device)
-            hidden_states = hidden_states.to(self.lm_head.weight.device)
+            # hidden_states = hidden_states.to(self.lm_head.weight.device)
 
         bsz = labels.size(0) if labels is not None else input_ids.size(0)
         tgt_len = labels.size(1) if labels is not None else input_ids.size(1)
 
-        pred_hid = hidden_states[:, -tgt_len:]
+        pred_hid = hidden_states.view(hidden_states.size(1), hidden_states.size(0), hidden_states.size(2))
+        pred_hid = pred_hid[-tgt_len:]
+        labels = labels.view(labels.size(1), labels.size(0))
 
         loss, lm_logits = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),
                                     target=labels.contiguous().view(-1) if labels is not None else None,
@@ -1104,17 +1120,6 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
 
         loss = loss.view(bsz, tgt_len) if labels is not None else None
         lm_logits = lm_logits.view(bsz, tgt_len, -1) if lm_logits is not None else None
-
-        # lm_logits = self.lm_head(hidden_states)
-
-        # loss = None
-        # if labels is not None:
-        #     # Shift so that tokens < n predict n
-        #     shift_logits = lm_logits[..., :-1, :].contiguous()
-        #     shift_labels = labels[..., 1:].contiguous()
-        #     # Flatten the tokens
-        #     loss_fct = CrossEntropyLoss()
-        #     loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
 
         if not return_dict:
             output = (lm_logits,) + transformer_outputs[1:]
@@ -1587,3 +1592,56 @@ class GPT2ForTokenClassification(GPT2PreTrainedModel):
             hidden_states=transformer_outputs.hidden_states,
             attentions=transformer_outputs.attentions,
         )
+
+
+def init_weight(weight, weight_init_type:str, weight_init_range:float, weight_init_std:float):
+    """Intialize given parameters using specified strategy"""
+    if weight_init_type == 'uniform':
+        nn.init.uniform_(weight, -weight_init_range, weight_init_range)
+    elif weight_init_type == 'normal': # default
+        nn.init.normal_(weight, 0.0, weight_init_std)
+
+def init_bias(bias):
+    nn.init.constant_(bias, 0.0)
+
+def weights_init(m, weight_init_type:str, weight_init_range:float, weight_init_std:float, proj_init_std:float):
+    """Initialize weights of module using specified strategy"""
+    classname = m.__class__.__name__
+
+    weight_init_params = {
+        'weight_init_type': weight_init_type,
+        'weight_init_range': weight_init_range,
+        'weight_init_std': weight_init_std
+    }
+
+    if classname.find('Linear') != -1:
+        if hasattr(m, 'weight') and m.weight is not None:
+            init_weight(m.weight, **weight_init_params)
+        if hasattr(m, 'bias') and m.bias is not None:
+            init_bias(m.bias)
+    elif classname.find('AdaptiveEmbedding') != -1:
+        if hasattr(m, 'emb_projs'):
+            for i in range(len(m.emb_projs)):
+                if m.emb_projs[i] is not None:
+                    nn.init.normal_(m.emb_projs[i], 0.0, proj_init_std)
+    elif classname.find('Embedding') != -1:
+        if hasattr(m, 'weight'):
+            init_weight(m.weight, **weight_init_params)
+    elif classname.find('ProjectedAdaptiveLogSoftmax') != -1:
+        if hasattr(m, 'cluster_weight') and m.cluster_weight is not None:
+            init_weight(m.cluster_weight, **weight_init_params)
+        if hasattr(m, 'cluster_bias') and m.cluster_bias is not None:
+            init_bias(m.cluster_bias)
+        if hasattr(m, 'out_projs'):
+            for i in range(len(m.out_projs)):
+                if m.out_projs[i] is not None:
+                    nn.init.normal_(m.out_projs[i], 0.0, proj_init_std)
+        if hasattr(m, 'out_layers_weights'):
+            for i in range(len(m.out_layers_weights)):
+                if m.out_layers_weights[i] is not None:
+                    init_weight(m.out_layers_weights[i], **weight_init_params)
+    elif classname.find('LayerNorm') != -1:
+        if hasattr(m, 'weight'):
+            nn.init.normal_(m.weight, 1.0, weight_init_std)
+        if hasattr(m, 'bias') and m.bias is not None:
+            init_bias(m.bias)

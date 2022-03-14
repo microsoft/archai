@@ -163,6 +163,10 @@ class HfGPT2Flex(ArchaiModel):
         config.cutoffs = kwargs['cutoffs']
         config.div_val = kwargs['div_val']
         config.embd_pdrop = kwargs['dropatt']
+        config.init = kwargs['weight_init_type']
+        config.init_range = kwargs['weight_init_range']
+        config.init_std = kwargs['weight_init_std']
+        config.proj_init_std = kwargs['proj_init_std']
         config.tie_weight = kwargs['tie_weight']
         config.tie_projs = kwargs['tie_projs']
 
@@ -181,7 +185,7 @@ class HfGPT2Flex(ArchaiModel):
         # Labels in Huggingface's GPT-2 are the same as inputs_ids and they will be shifted inside the model
         # Causal attention mask is created inside the model
         hf_out = self.model(input_ids=input_ids,
-                            labels=input_ids,
+                            labels=labels,
                             attention_mask=torch.ones_like(input_ids),
                             output_loss=output_loss,
                             output_prediction_scores=output_prediction_scores)
