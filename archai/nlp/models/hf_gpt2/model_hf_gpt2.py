@@ -163,8 +163,6 @@ class HfGPT2Flex(ArchaiModel):
         config.cutoffs = kwargs['cutoffs']
         config.div_val = kwargs['div_val']
         config.embd_pdrop = kwargs['dropatt']
-        config.init = kwargs['weight_init_type']
-        config.init_range = kwargs['weight_init_range']
         config.init_std = kwargs['weight_init_std']
         config.proj_init_std = kwargs['proj_init_std']
         config.tie_weight = kwargs['tie_weight']

@@ -476,9 +476,27 @@ class GPT2PreTrainedModel(PreTrainedModel):
             module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
             if module.padding_idx is not None:
                 module.weight.data[module.padding_idx].zero_()
+        elif isinstance(module, AdaptiveEmbedding):
+            if hasattr(module, 'emb_projs'):
+                for i in range(len(module.emb_projs)):
+                    if module.emb_projs[i] is not None:
+                        nn.init.normal_(module.emb_projs[i], 0.0, self.config.proj_init_std)
         elif isinstance(module, nn.LayerNorm):
             module.bias.data.zero_()
             module.weight.data.fill_(1.0)
+        elif isinstance(module, ProjectedAdaptiveLogSoftmax):
+            if hasattr(module, 'cluster_weight') and module.cluster_weight is not None:
+                nn.init.normal_(module.cluster_weight, 0.0, self.config.init_std)
+            if hasattr(module, 'cluster_bias') and module.cluster_bias is not None:
+                nn.init.constant_(module.cluster_bias, 0.0)
+            if hasattr(module, 'out_projs'):
+                for i in range(len(module.out_projs)):
+                    if module.out_projs[i] is not None:
+                        nn.init.normal_(module.out_projs[i], 0.0, self.config.proj_init_std)
+            if hasattr(module, 'out_layers_weights'):
+                for i in range(len(module.out_layers_weights)):
+                    if module.out_layers_weights[i] is not None:
+                        nn.init.normal_(module.out_layers_weights[i], 0.0, self.config.init_std)
 
         # Reinitialize selected weights subject to the OpenAI GPT-2 Paper Scheme:
         #   > A modified initialization which accounts for the accumulation on the residual path with model depth. Scale
@@ -980,18 +998,6 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
 
         # Initialize weights and apply final processing
         self.post_init()
-
-        # initialize weights
-        weight_init_params = {
-            'weight_init_type': config.init,
-            'weight_init_range': config.init_range,
-            'weight_init_std': config.init_std,
-            'proj_init_std': config.proj_init_std,
-        }
-
-        self.apply(functools.partial(weights_init, **weight_init_params))
-        # ensure embedding init is not overridden by out_layer in case of weight sharing
-        self.transformer.wte.apply(functools.partial(weights_init, **weight_init_params))
 
     @add_start_docstrings(PARALLELIZE_DOCSTRING)
     def parallelize(self, device_map=None):
@@ -1582,56 +1588,3 @@ class GPT2ForTokenClassification(GPT2PreTrainedModel):
             hidden_states=transformer_outputs.hidden_states,
             attentions=transformer_outputs.attentions,
         )
-
-
-def init_weight(weight, weight_init_type:str, weight_init_range:float, weight_init_std:float):
-    """Intialize given parameters using specified strategy"""
-    if weight_init_type == 'uniform':
-        nn.init.uniform_(weight, -weight_init_range, weight_init_range)
-    elif weight_init_type == 'normal': # default
-        nn.init.normal_(weight, 0.0, weight_init_std)
-
-def init_bias(bias):
-    nn.init.constant_(bias, 0.0)
-
-def weights_init(m, weight_init_type:str, weight_init_range:float, weight_init_std:float, proj_init_std:float):
-    """Initialize weights of module using specified strategy"""
-    classname = m.__class__.__name__
-
-    weight_init_params = {
-        'weight_init_type': weight_init_type,
-        'weight_init_range': weight_init_range,
-        'weight_init_std': weight_init_std
-    }
-
-    if classname.find('Linear') != -1:
-        if hasattr(m, 'weight') and m.weight is not None:
-            init_weight(m.weight, **weight_init_params)
-        if hasattr(m, 'bias') and m.bias is not None:
-            init_bias(m.bias)
-    elif classname.find('AdaptiveEmbedding') != -1:
-        if hasattr(m, 'emb_projs'):
-            for i in range(len(m.emb_projs)):
-                if m.emb_projs[i] is not None:
-                    nn.init.normal_(m.emb_projs[i], 0.0, proj_init_std)
-    elif classname.find('Embedding') != -1:
-        if hasattr(m, 'weight'):
-            init_weight(m.weight, **weight_init_params)
-    elif classname.find('ProjectedAdaptiveLogSoftmax') != -1:
-        if hasattr(m, 'cluster_weight') and m.cluster_weight is not None:
-            init_weight(m.cluster_weight, **weight_init_params)
-        if hasattr(m, 'cluster_bias') and m.cluster_bias is not None:
-            init_bias(m.cluster_bias)
-        if hasattr(m, 'out_projs'):
-            for i in range(len(m.out_projs)):
-                if m.out_projs[i] is not None:
-                    nn.init.normal_(m.out_projs[i], 0.0, proj_init_std)
-        if hasattr(m, 'out_layers_weights'):
-            for i in range(len(m.out_layers_weights)):
-                if m.out_layers_weights[i] is not None:
-                    init_weight(m.out_layers_weights[i], **weight_init_params)
-    elif classname.find('LayerNorm') != -1:
-        if hasattr(m, 'weight'):
-            nn.init.normal_(m.weight, 1.0, weight_init_std)
-        if hasattr(m, 'bias') and m.bias is not None:
-            init_bias(m.bias)
