@@ -29,7 +29,7 @@ from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 
 from archai.nlp.models.model_utils.adaptive_embedding import AdaptiveEmbedding
-from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
+from archai.nlp.models.model_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 
 if version.parse(torch.__version__) >= version.parse("1.6"):
@@ -962,9 +962,8 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
             emb_layers = [i.weight for i in self.transformer.wte.emb_layers]
         else:
             emb_layers = None
-
         emb_projs = self.transformer.wte.emb_projs
-        # config.tie_projs = [False] * len(config.cutoffs)
+
         self.crit = ProjectedAdaptiveLogSoftmax(config.vocab_size,
                                                 config.n_embd,
                                                 config.hidden_size,
@@ -974,7 +973,6 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
                                                 tie_projs=config.tie_projs,
                                                 out_layers_weights=emb_layers,
                                                 out_projs=emb_projs)
-        # self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
 
         # Model parallel
         self.model_parallel = False
@@ -1005,7 +1003,6 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         assert_device_map(self.device_map, len(self.transformer.h))
         self.transformer.parallelize(self.device_map)
         self.crit = self.crit.to(self.transformer.first_device)
-        # self.lm_head = self.lm_head.to(self.transformer.first_device)
         self.model_parallel = True
 
     @add_start_docstrings(DEPARALLELIZE_DOCSTRING)
@@ -1013,15 +1010,8 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         self.transformer.deparallelize()
         self.transformer = self.transformer.to("cpu")
         self.crit = self.crit.to("cpu")
-        # self.lm_head = self.lm_head.to("cpu")
         self.model_parallel = False
         torch.cuda.empty_cache()
-
-    # def get_output_embeddings(self):
-    #     return self.lm_head
-
-    # def set_output_embeddings(self, new_embeddings):
-    #     self.lm_head = new_embeddings
 
     def prepare_inputs_for_generation(self, input_ids, past=None, **kwargs):
         token_type_ids = kwargs.get("token_type_ids", None)
@@ -1105,13 +1095,13 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         # Set device for model parallelism
         if self.model_parallel:
             torch.cuda.set_device(self.transformer.first_device)
-            # hidden_states = hidden_states.to(self.lm_head.weight.device)
+            hidden_states = hidden_states.to(self.crit.device)
 
         bsz = labels.size(0) if labels is not None else input_ids.size(0)
         tgt_len = labels.size(1) if labels is not None else input_ids.size(1)
 
         pred_hid = hidden_states.view(hidden_states.size(1), hidden_states.size(0), hidden_states.size(2))
-        pred_hid = pred_hid[-tgt_len:]
+        pred_hid = hidden_states[-tgt_len:]
         labels = labels.view(labels.size(1), labels.size(0))
 
         loss, lm_logits = self.crit(hidden=pred_hid.view(-1, pred_hid.size(-1)),

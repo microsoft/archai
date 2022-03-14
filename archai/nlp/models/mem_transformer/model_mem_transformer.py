@@ -24,10 +24,10 @@ import torch.nn.functional as F
 
 from archai.common.utils import map_to_list
 from archai.nlp.models.mem_transformer.mem_transformer_utils.log_uniform_sampler import LogUniformSampler, sample_logits
-from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_utils.adaptive_embedding import AdaptiveEmbedding
 from archai.nlp.models.model_utils.primer_ez import DWiseConvPrimerEZ, PositionwiseFFPrimerEZ
+from archai.nlp.models.model_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 
 @torch.jit.script
