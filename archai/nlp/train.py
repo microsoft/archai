@@ -950,7 +950,7 @@ def distributed_model(args, model, device):
                                              device_ids=[args.local_rank],
                                              output_device=args.local_rank,
                                              broadcast_buffers=False,
-                                             find_unused_parameters=utils.is_debugging(),
+                                             find_unused_parameters=True,
                                              )
     elif args.multi_gpu == 'dp':
         if args.gpu0_bsz >= 0:
