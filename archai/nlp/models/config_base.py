@@ -47,7 +47,7 @@ class OnnxConfig:
     @property
     def outputs(self) -> OrderedDict:
         # Shape of present states (past states when outputting)
-        # [2, batch_size, n_head, total_seq_len, d_head]
-        # Note total_seq_len is current seq_len + past_seq_len
+        # [past_key_values, batch_size, n_head, total_seq_len, d_head]
+        # Note that total_seq_len is seq_len + past_seq_len
         presents = [(f'present_{i}', {1: 'batch_size', 3: 'total_seq_len'}) for i in range(self.config['n_layer'])]
         return OrderedDict([('probs', {0: 'batch_size'})] + presents)

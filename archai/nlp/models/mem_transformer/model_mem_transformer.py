@@ -713,10 +713,11 @@ class MemTransformerLM(ArchaiModel):
         params['embedding'] = self.get_params_from_layer(['AdaptiveEmbedding'])
         params['softmax'] = self.get_params_from_layer(['ProjectedAdaptiveLogSoftmax'])
         params['attention'] = self.get_params_from_layer(['MultiHeadAttn', 'RelPartialLearnableMultiHeadAttn', 'RelLearnableMultiHeadAttn'])
-        params['ff'] = self.get_params_from_layer(['PositionwiseFF'])
+        params['ff'] = self.get_params_from_layer(['Sequential'])
+        params['layer_norm'] = self.get_params_from_layer(['LayerNorm'])
 
-        params['non_embedding'] = params['attention'] + params['ff']
-        params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']
+        params['non_embedding'] = params['softmax'] + params['attention'] + params['ff'] + params['layer_norm']
+        params['total'] = params['non_embedding'] + params['embedding']
 
         return params
 
@@ -903,7 +904,7 @@ class MemTransformerLM(ArchaiModel):
 
         return core_out, new_mems, pasts_key_values
 
-    def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor], mems:Optional[torch.Tensor],
+    def forward(self, input_ids:torch.Tensor, labels:Optional[torch.Tensor]=None, mems:Optional[torch.Tensor]=None,
                 past_key_values:Optional[torch.Tensor]=None, output_loss=True, output_prediction_scores=False):
         # input_ids and labels are transposed within the code to avoid major changes
         # input_ids -> [seq_len, batch_size], labels -> [seq_len, batch_size]
