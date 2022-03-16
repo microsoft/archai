@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""Cyclic-cosine learning rate scheduler.
+"""
+
 from collections.abc import Iterable
 from math import log, cos, pi, floor
 
