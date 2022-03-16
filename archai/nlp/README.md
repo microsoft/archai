@@ -111,7 +111,7 @@ Although Archai has been built to be independent of models and architectures, i.
 
 ### Available Architectures
 
-Archai provides a lazy-loading system that loads desired classes on-demand, which removes the user from the burden of knowing how every aspect of the library works. Thus, one can only care about the [model's dictionary](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py) and provide the correct classes that will be loaded.
+Archai provides a dictionary system that loads desired classes, which removes the user from the burden of knowing how every aspect of the library works. Thus, one can only care about the [model's dictionary](https://github.com/microsoft/archai/blob/nlp/archai/nlp/models/model_dict.py) and provide the correct classes that will be loaded.
 
 #### NVIDIA's Memory Transformer
 
@@ -135,13 +135,13 @@ Archai also supports [Huggingface's Transformer-XL](https://github.com/huggingfa
 
 Archai is independent of architectures and can be virtually used within every model type, as long as they follow some guidelines.
 
-Such guidelines are depicted by the [`ArchaiModel`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_base.py) class, which directly inherits from the `torch.nn.Module` class. Essentially, every new implemented architecture should inherit from `ArchaiModel` and be added to the [`ModelDict`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py#L23), which stands for the available models that can be loaded within the lazy-loader.
+Such guidelines are depicted by the [`ArchaiModel`](https://github.com/microsoft/archai/blob/nlp/archai/nlp/models/model_base.py) class, which directly inherits from the `torch.nn.Module` class. Essentially, every new implemented architecture should inherit from `ArchaiModel` and be added to the [dictionaries](https://github.com/microsoft/archai/blob/nlp/archai/nlp/models/model_dict.py), which stands for the available models that can be loaded.
 
 Briefly speaking, these are the steps to implement a new architecture:
 
 1. Create a new folder with the model's identifier inside the `models` package, for example, `transformer`;
 2. Inside the created folder, create a `model_transformer.py` to hold the model's architecture and a `config_transformer.py` if the model should be available with ONNX exports;
-3. Adds the corresponding implemented classes to the `ModelDict` under an uppercased string key that reflects the model's identifier, e.g., `TRANSFORMER`. The key values should come in a tuple format and follow the types defined by the [`ModelClassType`](https://github.com/microsoft/archai/blob/gderosa/nlp_nas_restructure/archai/nlp/models/model_dict.py#L12), i.e., `MODEL`, `CONFIG`, `ONNX_MODEL` and `ONNX_CONFIG`.
+3. Add the corresponding implemented classes to the [dictionaries](https://github.com/microsoft/archai/blob/nlp/archai/nlp/models/model_dict.py) under an uppercased string key that reflects the model's identifier, e.g., `TRANSFORMER`;
 4. Finally, the new model can be directly used within the training script, as long as it is available within the `--model_type` flag.
 
 ### Training a Model
@@ -237,7 +237,7 @@ Quantization stands for changing the precision of sets of operators from `float3
 
 Post-Training Quantization is a straightforward post-training method, which quantizes operators from a pre-trained model in a dynamic fashion. In other words, scale factors and zero-points (quantization parameters) are dynamically based on the data range observed at runtime.
 
-Note that such an approach is implemented by the `compression/quantization/ptq` module and can be applied in both [PyTorch](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/compression/quantization/ptq.py#L135) and [ONNX](https://github.com/microsoft/archai/blob/gderosa/lazy_loader/archai/nlp/compression/quantization/ptq.py#L109) models.
+Note that such an approach is implemented by the `compression/quantization/ptq` module and can be applied in both [PyTorch](https://github.com/microsoft/archai/blob/nlp/archai/nlp/compression/quantization/ptq.py#L167) and [ONNX](https://github.com/microsoft/archai/blob/nlp/archai/nlp/compression/quantization/ptq.py#L111) models.
 
 #### Quantization Aware Training (QAT)
 
@@ -249,9 +249,9 @@ QAT with Archai is straightforward to be used, as it only requires a `--qat` or 
 
 Measuring the efficacy of auto-regressive (text-generation) architectures is not straightforward and often dependent on their losses/perplexity scores.
 
-Thus, Archai, in partnership with the NLX team, has developed a scoring system (mostly NLX), denoted as `scoring_metrics`, to measure the efficacy of predictions. Overall speaking, the idea is to produce a set of predictions based on an input context and filter the most probable predictions according to a threshold, which is obtained through a linear interpolation over the validation dataset.
+Thus, Archai, in partnership with the NLX team, has developed a scoring system (mostly NLX), denoted as `text_predict`, to measure the efficacy of predictions. Overall speaking, the idea is to produce a set of predictions based on an input context and filter the most probable predictions according to a threshold, which is obtained through a linear interpolation over the validation dataset.
 
-The `scoring_metrics/score` module provides a straightforward console application that can be invoked and tested out-of-the-box.
+The `metrics/score_with_text_predict.py` script provides a straightforward application that can be invoked and tested out-of-the-box.
 
 ## Support
 
@@ -269,7 +269,7 @@ NLP with Archai is maintained by the Neural Architecture Search team in the [Rei
 
 ### License
 
-This project is released under the MIT License. Please review the [file](https://github.com/microsoft/archai/blob/master/LICENSE) for more details.
+This project is released under the MIT License. Please review the [file](https://github.com/microsoft/archai/blob/nlp/LICENSE) for more details.
 
 ### Trademark
 
