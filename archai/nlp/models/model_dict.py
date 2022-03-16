@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Dictionary and enumerators that allows the implementation
-and usage of Transformer-based models.
+"""Availability dictionaries of implemented Transformer-based classes.
 """
 
 from archai.nlp.models.hf_gpt2.config_hf_gpt2 import HfGPT2Config, HfGPT2FlexConfig
@@ -11,15 +10,20 @@ from archai.nlp.models.hf_gpt2.onnx_hf_gpt2 import HfGPT2OnnxConfig, HfGPT2OnnxM
 
 from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import HfTransfoXLConfig
 from archai.nlp.models.hf_transfo_xl.model_hf_transfo_xl import HfTransfoXL
-from archai.nlp.models.hf_transfo_xl.onnx_hf_transfo_xl import HfTransfoXLOnnxConfig, HfTransfoXLOnnxModel
+from archai.nlp.models.hf_transfo_xl.onnx_hf_transfo_xl import (HfTransfoXLOnnxConfig,
+                                                                HfTransfoXLOnnxModel)
 
 from archai.nlp.models.mem_transformer.config_mem_transformer import MemTransformerLMConfig
 from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
-from archai.nlp.models.mem_transformer.onnx_mem_transformer import MemTransformerLMOnnxConfig, MemTransformerLMOnnxModel
+from archai.nlp.models.mem_transformer.onnx_mem_transformer import (MemTransformerLMOnnxConfig,
+                                                                    MemTransformerLMOnnxModel)
 
-from archai.nlp.models.model_formulae import get_params_hf_gpt2_formula, get_params_hf_gpt2_flex_formula, get_params_hf_transfo_xl_formula, get_params_mem_transformer_formula
+from archai.nlp.models.model_utils.analytical_params_formulae import (get_params_hf_gpt2_formula,
+                                                                      get_params_hf_gpt2_flex_formula,
+                                                                      get_params_hf_transfo_xl_formula,
+                                                                      get_params_mem_transformer_formula)
 
-# Available models and their configurations
+# Available models, their configurations and analytical parameters formulae
 MODELS = {
     'hf_gpt2': HfGPT2,
     'hf_gpt2_flex': HfGPT2Flex,
