@@ -12,7 +12,7 @@ install_requires=[
     'tensorwatch>=0.9.1', 'tensorboard',
     'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib', 'psutil',
     'requests', 'seaborn', 'h5py', 'rarfile',
-    'gorilla', 'pyyaml', 'overrides', 'runstats', 'psutil', 'statopt',
+    'gorilla', 'pyyaml', 'overrides==3.1.0', 'runstats', 'psutil', 'statopt',
     'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash',
     'transformers>=4.16.2', 'pytorch_lightning', 'tokenizers>=0.10.3', 'datasets',
     'onnx==1.10.2', 'onnxruntime', 'coloredlogs', 'sympy',

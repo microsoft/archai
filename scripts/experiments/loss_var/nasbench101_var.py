@@ -59,7 +59,7 @@ def optim_sched_paper(net, epochs):
     lr, momentum, weight_decay = 0.2, 0.9, 0.0001
     optim = torch.optim.RMSprop(net.parameters(),
                             lr=lr, momentum=momentum, weight_decay=weight_decay)
-    logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
+    logging.info(f'optim=RMSprop, lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
 
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, epochs)
     sched_on_epoch = True
@@ -69,10 +69,10 @@ def optim_sched_paper(net, epochs):
     return optim, sched, sched_on_epoch
 
 def optim_sched_darts(net, epochs):
-    lr, momentum, weight_decay = 0.050, 0.9, 1.0e-4
+    lr, momentum, weight_decay = 0.025, 0.9, 3.0e-4
     optim = torch.optim.SGD(net.parameters(),
                             lr, momentum=momentum, weight_decay=weight_decay)
-    logging.info(f'lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
+    logging.info(f'optim=SGD, lr={lr}, momentum={momentum}, weight_decay={weight_decay}')
 
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, epochs)
     sched_on_epoch = True
@@ -291,7 +291,7 @@ def main():
     parser.add_argument('--model-name', '-m', default='5')
     parser.add_argument('--device', default='',
                         help='"cuda" or "cpu" or "" in which case use cuda if available')
-    parser.add_argument('--train-batch-size', '-b', type=int, default=256)
+    parser.add_argument('--train-batch-size', '-b', type=int, default=128)
     parser.add_argument('--test-batch-size', type=int, default=256)
     parser.add_argument('--seed', '-s', type=float, default=42)
     parser.add_argument('--half', type=lambda x: x.lower() == 'true',

@@ -1,3 +1,10 @@
+# Saved models
+model.th
+
+# VSCode files
+.VSCodeCounter/
+.vscode/settings.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -72,11 +79,16 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# IPython
+profile_default/
+ipython_config.py
+
 # pyenv
 .python-version
 
-# celery beat schedule file
+# Celery stuff
 celerybeat-schedule
+celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
@@ -103,8 +115,11 @@ venv.bak/
 # mypy
 .mypy_cache/
 /.gtm/
-.VSCodeCounter/
-.vscode/settings.json
+.dmypy.json
+dmypy.json
+
+# pyre type checker
+.pyre/
 
 # additional files
 model.th
