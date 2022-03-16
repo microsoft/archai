@@ -1,24 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import setuptools, platform
+import setuptools
 
 with open("README.md", "r", encoding='utf_8') as fh:
     long_description = fh.read()
 
 install_requires=[
-    'pystopwatch2 @ git+https://github.com/ildoonet/pystopwatch2.git',
-    'hyperopt', #  @ git+https://github.com/hyperopt/hyperopt.git
-    'tensorwatch>=0.9.1', 'tensorboard',
-    'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib', 'psutil',
-    'requests', 'seaborn', 'h5py', 'rarfile',
-    'gorilla', 'pyyaml', 'overrides==3.1.0', 'runstats', 'psutil', 'statopt',
-    'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash',
-    'transformers', 'pytorch_lightning', 'tokenizers', 'datasets',
-    'ftfy', # needed for text scoring, fixes text for you
-    # nvidia transformer-xl
+    'hyperopt', 'gorilla', 'ray>=1.0.0', 'sklearn',
+    'tensorboard', 'tensorwatch>=0.9.1', 'tqdm',
+    'kaleido', 'matplotlib', 'plotly', 'seaborn', 
+    'h5py', 'psutil', 'pynvml', 'pyunpack', 'pyyaml', 'rarfile', 'Send2Trash',
+    'overrides==3.1.0', 'runstats', 'statopt',
+    'datasets', 'sacremoses', 'tokenizers>=0.10.3', 'transformers>=4.16.2',
+    'onnx==1.10.2', 'onnxruntime',
+    'coloredlogs', 'sympy', 'ftfy', # needed for text scoring, fixes text for you
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
-    'pytorch-transformers', 'sacremoses', 'pynvml'
 ]
 
 setuptools.setup(
