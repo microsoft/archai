@@ -5,7 +5,7 @@
 """
 
 import copy
-from typing import Optional
+from typing import Dict, Optional, Tuple
 
 import torch
 
@@ -14,7 +14,21 @@ from archai.nlp.models.model_base import ArchaiModel
 
 
 class MixedQATModel(ArchaiModel):
+    """Implements a mixed QAT model, which fine-tunes using a linear combination of
+        regular and QAT losses.
+
+    """
+
     def __init__(self, model: torch.nn.Module, qat_weight: Optional[float] = 0.2) -> None:
+        """Initializes regular and QAT-based model by defining their losses weights
+        and sharing their parameters.
+
+        Args:
+            model: Instance of a pre-trained model.
+            qat_weight: Weight importance of the QAT-based loss.
+
+        """
+
         super(MixedQATModel, self).__init__()
 
         if qat_weight < 0.0 or qat_weight > 1.0:
@@ -27,31 +41,34 @@ class MixedQATModel(ArchaiModel):
         self.qat_model = copy.deepcopy(model)
 
         # Shares all parameters
-        for module1, module2 in zip(self.model.modules(), self.qat_model.modules()):
-            if hasattr(module2, 'weight'):
-                module2.weight = module1.weight
-            if hasattr(module2, 'bias'):
-                module2.bias = module1.bias
+        for module, qat_module in zip(self.model.modules(), self.qat_model.modules()):
+            if hasattr(qat_module, 'weight'):
+                qat_module.weight = module.weight
+            if hasattr(qat_module, 'bias'):
+                qat_module.bias = module.bias
 
         # Adds fake quantization
         self.qat_model = prepare_with_qat(self.qat_model, onnx_compatible=True)
 
         # Makes sure that all parameters are shared
-        for param1, param2 in zip(self.model.parameters(), self.qat_model.parameters()):
-            assert param2 is param1, 'Mixed QAT parameters are not fully shared.'
+        for param, qat_param in zip(self.model.parameters(), self.qat_model.parameters()):
+            assert qat_param is param, 'Mixed QAT parameters are not fully shared.'
 
-    def forward(self, *args, **kwargs):
+    def forward(self, *args, **kwargs) -> Tuple[torch.Tensor, ...]:
         out = self.model(*args, **kwargs)
         qat_out = self.qat_model(*args, **kwargs)
 
-        # If we are not training, we only return the QAT loss
+        # If we are training, we return the linear combination of losses
         if self.training:
             return ((out[0] * self.regular_weight + qat_out[0] * self.qat_weight), out[1], out[2], out[3])
         
         return qat_out
 
-    def reset_length(self, *args, **kwargs):
+    def reset_length(self, *args, **kwargs) -> None:
         return self.model.reset_length(*args, **kwargs)
 
-    def get_params(self):
+    def get_params_from_layer(self, layer_type: str) -> int:
+        return self.model.get_params_from_layer(layer_type)
+        
+    def get_params(self) -> Dict[str, int]:
         return self.model.get_params()
