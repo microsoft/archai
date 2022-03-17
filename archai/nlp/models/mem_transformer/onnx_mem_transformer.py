@@ -4,7 +4,8 @@
 """NVIDIA's Memory Transformer (Transformer-XL) for ONNX.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from collections import OrderedDict
+from typing import List, Mapping, Optional, Tuple
 
 import torch
 from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
@@ -20,7 +21,7 @@ from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
 
 from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
-from archai.nlp.models.config_base import BATCH_SIZE, SEQ_LEN, OnnxConfig
+from archai.nlp.models.config_base import OnnxConfig
 
 
 class MemTransformerLMOnnxConfig(OnnxConfig):
@@ -29,40 +30,29 @@ class MemTransformerLMOnnxConfig(OnnxConfig):
     """
 
     def __init__(self, model_config: str) -> None:
-        """Initializes the configuration.
+        model_config['d_head'] = model_config['d_model'] // model_config['n_head']
+        model_config['model_type'] = 'transfo-xl'
 
-        Args:
-            model_config: Model configuration.
-
-        """
+        # Checks the type of attention to define the `past_key_values`
+        if model_config['attn_type'] == 0:
+            # `k`, `v` and relative embeddings
+            model_config['past_key_values'] = 3
+        else:
+            # `k` and `v`
+            model_config['past_key_values'] = 2
 
         super().__init__(model_config)
 
-        # Checks the type of attention to define the `past_key_values`
-        if self.config['attn_type'] == 0:
-            # `k`, `v` and relative embeddings
-            self.config['past_key_values'] = 3
-        else:
-            # `k` and `v`
-            self.config['past_key_values'] = 2
-
-        self.config['model_type'] = 'transfo-xl'
-
     @property
-    def mockups(self) -> Dict[str, Any]:
-        """Defines the mockups (inputs) to be used when exporting to ONNX.
+    def mockups(self) -> Mapping[str, torch.Tensor]:
+        input_ids = torch.randint(0, self.config.n_token, (self.batch_size, self.seq_len))
+        past_key_values =  tuple([torch.zeros(self.config.past_key_values, self.batch_size, self.config.n_head, self.seq_len, self.config.d_head) for _ in range(self.config.n_layer)])
 
-        Returns:
-            (Dict[str, Any]): Mockups used to export with ONNX.
+        common_mockups = OrderedDict({'input_ids': input_ids, 'past_key_values': past_key_values})
         
-        """
+        return common_mockups
 
-        return {
-            'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
-            'past_key_values': tuple([torch.zeros(self.config['past_key_values'], BATCH_SIZE, self.config['n_head'], SEQ_LEN, self.config['d_head']) for _ in range(self.config['n_layer'])])
-        }
-
-
+    
 class MemTransformerLMOnnxModel(OnnxModel):
     """MemTransformerLM that enables addtiional ONNX optimizations.
 
