@@ -1,10 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Hugginface's Transformer-XL for ONNX.
+"""Huggingface's Transformer-XL for ONNX.
 """
 
-from typing import Any, Dict
+from collections import OrderedDict
+from typing import Any, Dict, Mapping
 
 import torch
 
@@ -13,31 +14,24 @@ from archai.nlp.models.mem_transformer.onnx_mem_transformer import MemTransforme
 
 
 class HfTransfoXLOnnxConfig(OnnxConfig):
-    """Provides an ONNX-export configuration for HfTransfoXL.
+    """Huggingface's Transformer-XL ONNX-based configuration.
 
     """
 
-    def __init__(self, model_config: str) -> None:
-        """Initializes the configuration.
-
-        Args:
-            model_config: Model configuration.
-
-        """
+    def __init__(self, model_config: Dict[str, Any]) -> None:
+        model_config['past_key_values'] = 0
+        model_config['model_type'] = 'transfo-xl'
 
         super().__init__(model_config)
 
-        self.config['model_type'] = 'transfo-xl'
+    @property
+    def inputs(self) -> Mapping[str, Mapping[int, str]]:
+        common_inputs = OrderedDict({'input_ids', {0: 'batch_size', 1: 'seq_len'}})
+
+        return common_inputs
 
     @property
-    def mockups(self) -> Dict[str, Any]:
-        """Defines the mockups (inputs) to be used when exporting to ONNX.
+    def outputs(self) -> Mapping[str, Mapping[int, str]]:
+        common_outputs = OrderedDict({'probs', {0: 'batch_size'}})
 
-        Returns:
-            (Dict[str, Any]): Mockups used to export with ONNX.
-        
-        """
-
-        return {
-            'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN))
-        }
+        return common_outputs
