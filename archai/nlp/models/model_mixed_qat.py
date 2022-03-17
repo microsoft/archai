@@ -14,21 +14,12 @@ from archai.nlp.models.model_base import ArchaiModel
 
 
 class MixedQATModel(ArchaiModel):
-    """Implements a mixed QAT model, which fine-tunes using a linear combination of
+    """Implements a mixed QAT model, which can be fine-tuned using a linear combination of
         regular and QAT losses.
 
     """
 
     def __init__(self, model: torch.nn.Module, qat_weight: Optional[float] = 0.2) -> None:
-        """Initializes regular and QAT-based model by defining their losses weights
-        and sharing their parameters.
-
-        Args:
-            model: Instance of a pre-trained model.
-            qat_weight: Weight importance of the QAT-based loss.
-
-        """
-
         super(MixedQATModel, self).__init__()
 
         if qat_weight < 0.0 or qat_weight > 1.0:
@@ -58,7 +49,7 @@ class MixedQATModel(ArchaiModel):
         out = self.model(*args, **kwargs)
         qat_out = self.qat_model(*args, **kwargs)
 
-        # If we are training, we return the linear combination of losses
+        # If training, returns the linear combination of losses
         if self.training:
             return ((out[0] * self.regular_weight + qat_out[0] * self.qat_weight), out[1], out[2], out[3])
         
