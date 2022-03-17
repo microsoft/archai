@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Base model class, used to defined some common functionalities.
+"""Model-related base class.
 """
 
 from typing import Dict, List, Optional
@@ -32,8 +32,13 @@ def _get_layers_from_module(module: torch.nn.Module,
 
 
 class ArchaiModel(torch.nn.Module):
-    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
-        raise NotImplementedError
+    """Base model class, used to define some common attributes
+        and shared methods for standardizing inputs and outputs.
+
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
 
     def get_params_from_layer(self, layer_type: str) -> int:
         layers = _get_layers_from_module(self, layer_type)
@@ -52,3 +57,6 @@ class ArchaiModel(torch.nn.Module):
         params['non_embedding'] = 0
 
         return params
+
+    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
+        return
