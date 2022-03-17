@@ -12,7 +12,7 @@ import torch
 
 class Config:
     """Base configuration class, used to define some common attributes
-        and shared methods for loading and downloading configurations.
+        and shared methods for loading and saving configurations.
 
     """
 
@@ -54,7 +54,7 @@ class SearchConfigParameter:
 
 class SearchConfig:
     """Base search configuration class, used to define possible
-        attributes that can used during search.
+        hyperparameters that can used during search.
 
     """
 
