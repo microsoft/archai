@@ -16,7 +16,6 @@ class Config:
 
     """
 
-    model_type: str = ''
     hyperparameter_map: Dict[str, str] = {}
 
     def __getattribute__(self, key):
