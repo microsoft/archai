@@ -4,7 +4,7 @@
 """Huggingface's Open AI GPT-2 configurations.
 """
 
-from typing import Optional
+from typing import List, Optional, Union
 
 from archai.nlp.models.config_base_ import Config, SearchConfigParameter, SearchConfig
 from transformers import CONFIG_MAPPING, PretrainedConfig
@@ -87,12 +87,12 @@ class HfGPT2FlexConfig(HfGPT2Config):
                  n_token: Optional[int] = 10000, # changed from 50257 for model's production
                  tgt_len: Optional[int] = 192,
                  d_model: Optional[int] = 512,
-                 d_inner: Optional[int] = 2048,
+                 d_inner: Optional[Union[int, List[int]]] = 2048,
                  dropout: Optional[float] = 0.1,
                  dropatt: Optional[float] = 0.0,
                  weight_init_std: Optional[float] = 0.0,
                  n_layer: Optional[int] = 16,
-                 n_head: Optional[int] = 8,
+                 n_head: Optional[Union[int, List[int]]] = 8,
                  embd_pdrop: Optional[float] = 0.0,
                  tie_weight: Optional[bool] = True,
                  primer_square: Optional[bool] = False,
@@ -100,15 +100,17 @@ class HfGPT2FlexConfig(HfGPT2Config):
         super().__init__(n_token=n_token,
                          tgt_len=tgt_len,
                          d_model=d_model,
-                         d_inner=d_inner,
                          dropout=dropout,
                          dropatt=dropatt,
                          weight_init_std=weight_init_std,
                          n_layer=n_layer,
-                         n_head=n_head,
                          embd_pdrop=embd_pdrop,
                          tie_weight=tie_weight,
                          **kwargs)
+
+        self.d_inner = self._map_to_list(d_inner, n_layer)
+        self.n_head = self._map_to_list(n_head, n_layer)
+        self.d_head = [d_model // n_h for n_h in self.n_head]
 
         self.primer_square = primer_square
         if primer_square:

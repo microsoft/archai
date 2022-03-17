@@ -1,19 +1,33 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Loading utilities to import models and their configurations on demand.
+"""Functions that allows easy-loading of models and their configurations.
 """
 
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import torch
 
-from archai.nlp.models.model_dict import (MODELS, MODELS_CONFIGS, MODELS_PARAMS_FORMULAE,
+from onnxruntime.transformers.onnx_model import OnnxModel
+
+from archai.nlp.models.config_base import Config, OnnxConfig, SearchConfig
+from archai.nlp.models.model_dict import (MODELS, MODELS_CONFIGS,
+                                          MODELS_SEARCH_CONFIGS, MODELS_PARAMS_FORMULAE,
                                           ONNX_MODELS, ONNX_MODELS_CONFIGS)
 
 
 def load_model_formula(model_type: str) -> Callable:
-    if model_type not in MODELS_CONFIGS.keys():
+    """Loads an available analytical parameters formula.
+
+    Args:
+        model_type: Type of model.
+
+    Returns:
+        (Callable): Function that analytically calculates parameters.
+        
+    """
+
+    if model_type not in MODELS_PARAMS_FORMULAE.keys():
         raise Exception(f'model_type: {model_type} not supported yet.')
 
     return MODELS_PARAMS_FORMULAE[model_type]
@@ -21,6 +35,49 @@ def load_model_formula(model_type: str) -> Callable:
 # Path to the `models` package
 PACKAGE_PATH = 'archai.nlp.models'
 
+def load_model_from_config(model_type: str, model_config: Dict[str, Any]) -> torch.nn.Module:
+    """Loads an available model from a configuration dictionary.
+
+    Args:
+        model_type: Type of model.
+        model_config: Model's configuration dictionary.
+
+    Returns:
+        (torch.nn.Module): Model.
+
+    """
+
+    if model_type not in MODELS.keys():
+        raise Exception(f'model_type: {model_type} not supported yet.')
+
+    return MODELS[model_type](**model_config)
+
+
+def load_model_from_checkpoint(model_type: str,
+                               checkpoint_path: str,
+                               replace_model_config: Optional[Dict[str, Any]] = None,
+                               on_cpu: Optional[bool] = False,
+                               for_export: Optional[bool] = False
+                               ) -> Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]:
+    """Loads an available model from a pre-trained checkpoint.
+
+    Args:
+        model_type: Type of model.
+        checkpoint_path: Path to the pre-trained checkpoint.
+        replace_model_config: Model's configuration replacement dictionary.
+        on_cpu: Whether model should be loaded to CPU.
+        for_export: Whether model should be ready for ONNX exporting.
+
+    Returns:
+         (Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]): Model, configuration
+            and checkpoint dictionaries.
+
+    """
+
+    device = f'cuda:{torch.cuda.current_device()}' if not on_cpu and torch.cuda.is_available() else torch.device('cpu')
+    
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+    model_config = checkpoint['model_config']
 
 def load_from_args(model_type: str, *args, cls_type: Optional[str] = 'model', **kwargs) -> Any:
     """Performs the loading of a pre-defined model and its
@@ -30,8 +87,9 @@ def load_from_args(model_type: str, *args, cls_type: Optional[str] = 'model', **
         model_type: Type of model to be loaded.
         cls_type: Type of class to be loaded.
 
-    Returns:
-        (Any): An instance of the loaded class.
+    model = load_model_from_config(model_type, model_config)
+    model.load_state_dict(checkpoint['model_state'])
+    model.to(device)
 
     """
 
@@ -39,39 +97,53 @@ def load_from_args(model_type: str, *args, cls_type: Optional[str] = 'model', **
     cls_type = getattr(ModelClassType, cls_type.upper())
     cls_type_idx = cls_type.value
 
-    # Gathers the available tuple to be loaded and its corresponding class name
-    cls_tuple = getattr(ModelDict, model_type.upper())
-    cls_name = cls_tuple[cls_type_idx]
+def load_config(model_type: str) -> Config:
+    """Loads an available default configuration class.
 
-    # Finds the corresponding module based on the class
-    if cls_type in [ModelClassType.MODEL]:
-        cls_module = import_module(f'.{model_type}.model_{model_type}', PACKAGE_PATH)
-    elif cls_type in [ModelClassType.CONFIG]:
-        cls_module = import_module(f'.{model_type}.config_{model_type}', PACKAGE_PATH)
-    elif cls_type in [ModelClassType.ONNX_MODEL, ModelClassType.ONNX_CONFIG]:
-        cls_module = import_module(f'.{model_type}.onnx_{model_type}', PACKAGE_PATH)
-    else:
-        raise ModuleNotFoundError
+    Args:
+        model_type: Type of model.
+    
+    Returns:
+        (Config): Configuration.
 
-    # Attempts to load the class
-    try:
-        cls_instance = getattr(cls_module, cls_name)
-    except:
-        raise ModuleNotFoundError
+    """
 
-    # Initializes the class
-    instance = cls_instance(*args, **kwargs)
+    if model_type not in MODELS_CONFIGS.keys():
+        raise Exception(f'model_type: {model_type} not supported yet.')
 
-    return instance
+    return MODELS_CONFIGS[model_type]()
 
 
-def load_model_from_checkpoint(model_type: str,
-                               checkpoint_path: str,
-                               replace_config: Optional[Dict[str, Any]] = None,
-                               on_cpu: Optional[bool] = False,
-                               for_export: Optional[bool] = False
-                               ) -> Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]:
-    """Performs the loading of a pre-defined model and its configuration.
+def load_search_config(model_type: str) -> SearchConfig:
+    """Loads an available search configuration class.
+
+    Args:
+        model_type: Type of model.
+    
+    Returns:
+        (SearchConfig): Search configuration.
+
+    """
+
+    if model_type not in MODELS_SEARCH_CONFIGS.keys():
+        raise Exception(f'model_type: {model_type} not supported yet.')
+
+    return MODELS_SEARCH_CONFIGS[model_type]()
+
+
+def load_onnx_model(model_type: str, *model_args) -> OnnxModel:
+    """Loads an available ONNX-based model (used during export optimization).
+
+    Args:
+        model_type: Type of model.
+
+    Returns:
+        (OnnxModel): ONNX-based optimization model.
+
+    """
+
+    if model_type not in ONNX_MODELS.keys():
+        raise Exception(f'model_type: {model_type} not supported yet.')
 
     Args:
         model_type: Type of model to be loaded.
@@ -83,29 +155,20 @@ def load_model_from_checkpoint(model_type: str,
     Returns:
         (Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]): Model, configuration and checkpoint loaded from a checkpoint path.
 
+def load_onnx_config(model_type: str, model_config: Dict[str, Any]) -> OnnxConfig:
+    """Loads an available ONNX-based configuration (used during export).
+
+    Args:
+        model_type: Type of model.
+        model_config: Model's configuration used to supply missing attributes.
+
+    Returns:
+        (OnnxConfig): ONNX-based configuration.
+
     """
 
-    # Gathers the proper device
-    device = f'cuda:{torch.cuda.current_device()}' if not on_cpu and torch.cuda.is_available() else torch.device('cpu')
-
-    # Gathers the name and index of corresponding type of class
-    cls_type = ModelClassType.MODEL
-    cls_type_idx = cls_type.value
-
-    # Gathers the available tuple to be loaded and its corresponding class name
-    cls_tuple = getattr(ModelDict, model_type.upper())
-    cls_name = cls_tuple[cls_type_idx]
-
-    # Attempts to load the class
-    try:
-        cls_module = import_module(f'.{model_type}.model_{model_type}', PACKAGE_PATH)
-        cls_instance = getattr(cls_module, cls_name)
-    except:
-        raise ModuleNotFoundError
-
-    # Loads the checkpoint
-    checkpoint = torch.load(checkpoint_path, map_location=device)
-    model_config = checkpoint['model_config']
+    if model_type not in ONNX_MODELS_CONFIGS.keys():
+        raise Exception(f'model_type: {model_type} not supported yet.')
 
     # Replaces keys that were provided in the `replace_config` dictionary
     if replace_config is not None:

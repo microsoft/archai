@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Base model class, used to defined some common functionalities.
+"""Model-related base class.
 """
 
 from typing import Dict, List, Optional
@@ -43,21 +43,13 @@ def _get_layers_from_module(module: torch.nn.Module,
 
 
 class ArchaiModel(torch.nn.Module):
-    """Base model that abstracts further models definitions.
-    
+    """Base model class, used to define some common attributes
+        and shared methods for standardizing inputs and outputs.
+
     """
 
-    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
-        """Resets the length of the memory (used by Transformer-XL).
-
-        Args:
-            tgt_len: Length of target sample.
-            ext_len: Length of extended memory.
-            mem_len: Length of the memory.
-
-        """
-
-        raise NotImplementedError
+    def __init__(self) -> None:
+        super().__init__()
 
     def get_params_from_layer(self, layer_type: str) -> int:
         """Returns the number of parameters based on a layer type.
@@ -93,3 +85,6 @@ class ArchaiModel(torch.nn.Module):
         params['non_embedding'] = 0
 
         return params
+
+    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
+        return
