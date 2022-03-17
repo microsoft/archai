@@ -23,7 +23,7 @@ class MixedQATModel(ArchaiModel):
         super(MixedQATModel, self).__init__()
 
         if qat_weight < 0.0 or qat_weight > 1.0:
-            raise ValueError(f'QAT weight: {qat_weight} should be between 0 and 1.')
+            raise ValueError(f'qat_weight: {qat_weight} should be between 0 and 1.')
 
         self.qat_weight = qat_weight
         self.regular_weight = 1.0 - qat_weight
@@ -43,23 +43,24 @@ class MixedQATModel(ArchaiModel):
 
         # Makes sure that all parameters are shared
         for param, qat_param in zip(self.model.parameters(), self.qat_model.parameters()):
-            assert qat_param is param, 'Mixed QAT parameters are not fully shared.'
+            assert qat_param is param, 'MixedQATModel parameters are not fully shared.'
 
     def forward(self, *args, **kwargs) -> Tuple[torch.Tensor, ...]:
-        out = self.model(*args, **kwargs)
-        qat_out = self.qat_model(*args, **kwargs)
+        outputs = self.model(*args, **kwargs)
+        qat_outputs = self.qat_model(*args, **kwargs)
 
         # If training, returns the linear combination of losses
         if self.training:
-            return ((out[0] * self.regular_weight + qat_out[0] * self.qat_weight), out[1], out[2], out[3])
+            loss = outputs[0] * self.regular_weight + qat_outputs[0] * self.qat_weight
+            return (loss, outputs[1], outputs[2], outputs[3])
         
-        return qat_out
-
-    def reset_length(self, *args, **kwargs) -> None:
-        return self.model.reset_length(*args, **kwargs)
+        return qat_outputs
 
     def get_params_from_layer(self, layer_type: str) -> int:
         return self.model.get_params_from_layer(layer_type)
         
     def get_params(self) -> Dict[str, int]:
         return self.model.get_params()
+
+    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
+        return self.model.reset_length(tgt_len, ext_len, mem_len)
