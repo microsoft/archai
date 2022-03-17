@@ -7,69 +7,25 @@
 from typing import Dict, Optional, Tuple
 
 import torch
-from transformers import CONFIG_MAPPING, AutoModelForCausalLM
+from transformers import TransfoXLLMHeadModel
 
-from archai.common.utils import map_to_list
+from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import HfTransfoXLConfig
 from archai.nlp.models.model_base import ArchaiModel
 
 
 class HfTransfoXL(ArchaiModel):
-    HYPERPARAMETER_MAPPING = {
-        'n_layer': 'n_layer',
-        'n_head': 'n_head',
-        'd_head': 'd_head',
-        'd_embed': 'd_embed',
-        'd_model': 'd_model',
-        'd_inner': 'd_inner',
-        'dropout': 'dropout',
-        'dropatt': 'dropatt',
-        'n_token': 'vocab_size',
-        'div_val': 'div_val',
-        'pre_lnorm': 'pre_lnorm',
-        'cutoffs': 'cutoffs',
-        'mem_len': 'mem_len',
-        'same_length': 'same_length',
-        'attn_type': 'attn_type',
-        'clamp_len': 'clamp_len',
-        'sample_softmax': 'sample_softmax',
-        'adaptive': 'adaptive',
-        'weight_init_type': 'init',
-        'weight_init_range': 'init_range',
-        'weight_init_std': 'init_std',
-        'proj_init_std': 'proj_init_std'
-    }
+    """Huggingface's Transformer-XL standard architecture.
 
+    """
+    
     def __init__(self, **kwargs) -> None:
-        super(HfTransfoXL, self).__init__()
+        super().__init__()
 
-        kwargs['d_inner'] = map_to_list(kwargs['d_inner'], kwargs['n_layer'])
-        kwargs['n_head'] = map_to_list(kwargs['n_head'], kwargs['n_layer'])
-        kwargs['d_head'] = [kwargs['d_model'] // n_h for n_h in kwargs['n_head']] if kwargs['d_head'] < 0 else map_to_list(kwargs['d_head'], kwargs['n_layer'])
+        self.config = HfTransfoXLConfig(**kwargs)
+        self.model = TransfoXLLMHeadModel(self.config)
 
-        assert len(kwargs['d_inner']) == kwargs['n_layer'] and len(kwargs['n_head']) == kwargs['n_layer'] and len(kwargs['d_head']) == kwargs['n_layer']
-
-        kwargs['d_inner'] = kwargs['d_inner'][0]
-        kwargs['n_head'] = kwargs['n_head'][0]
-        kwargs['d_head'] = kwargs['d_head'][0]
-
-        if kwargs['d_embed'] < 0:
-            kwargs['d_embed'] = kwargs['d_model']
-
-        # Translate the hyperparameters into Huggingface's TransfoXL hyperparameters,
-        # and creates the model with the proper configuration
-        self.config = self._generate_config(**kwargs)
-        self.model = AutoModelForCausalLM.from_config(self.config)
-
-        if kwargs['tie_weight']:
+        if self.config.tie_weight:
             self.model.tie_weights()
-
-    def _generate_config(self, **kwargs) -> None:
-        config = CONFIG_MAPPING['transfo-xl']()
-
-        for param, transfo_xl_param in HfTransfoXL.HYPERPARAMETER_MAPPING.items():
-            setattr(config, transfo_xl_param, kwargs[param])
-
-        return config
 
     def forward(self,
                 input_ids: torch.Tensor,
@@ -79,32 +35,19 @@ class HfTransfoXL(ArchaiModel):
                 output_loss: Optional[bool] = True,
                 output_prediction_scores: Optional[bool] = False
                 ) -> Tuple[torch.Tensor, ...]:
-        # Labels in Huggingface's TransfoXL are the same as inputs_ids,
-        # and they will be shifted inside the model
+        # Labels are the same as input_ids because they will be shifted inside the model
         if output_loss:
-            hf_out = self.model(input_ids=input_ids,
-                                labels=input_ids,
-                                mems=mems)
+            outputs = self.model(input_ids=input_ids,
+                                 labels=input_ids,
+                                 mems=mems)
 
-            return (hf_out.losses, None, hf_out.mems, past_key_values)
+            return (outputs.losses, None, outputs.mems, None)
 
         if output_prediction_scores:
-            hf_out = self.model(input_ids=input_ids,
-                                mems=mems)
+            outputs = self.model(input_ids=input_ids,
+                                 mems=mems)
                                 
-            return (None, hf_out.logits, hf_out.mems, past_key_values)
-
-    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
-        if tgt_len < 1:
-            raise RuntimeError(f'tgt_len should be >= 1, but got {tgt_len}')
-        if ext_len < 0:
-            raise RuntimeError(f'ext_len should be >= 0, but got {ext_len}')
-        if mem_len < 0:
-            raise RuntimeError(f'mem_len should be >= 0, but got {mem_len}')
-
-        self.model.config.tgt_len = tgt_len
-        self.model.config.mem_len = mem_len
-        self.model.config.ext_len = ext_len
+            return (None, outputs.logits, outputs.mems, None)
 
     def get_params(self) -> Dict[str, int]:
         params = {}
@@ -118,3 +61,15 @@ class HfTransfoXL(ArchaiModel):
         params['total'] = params['non_embedding'] + params['embedding']
 
         return params
+
+    def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
+        if tgt_len < 1:
+            raise ValueError(f'tgt_len: {tgt_len} should be >= 1.')
+        if ext_len < 0:
+            raise ValueError(f'ext_len: {ext_len} should be >= 0.')
+        if mem_len < 0:
+            raise ValueError(f'mem_len: {mem_len} should be >= 0.')
+
+        self.model.config.tgt_len = tgt_len
+        self.model.config.mem_len = mem_len
+        self.model.config.ext_len = ext_len
