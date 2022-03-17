@@ -11,13 +11,15 @@ from archai.nlp.models.hf_gpt2.model_hf_gpt2 import HfGPT2, HfGPT2Flex
 from archai.nlp.models.hf_gpt2.onnx_hf_gpt2 import HfGPT2OnnxConfig, HfGPT2OnnxModel
 
 # Huggingface's Transformer-XL
-from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import HfTransfoXLConfig
+from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import (HfTransfoXLConfig,
+                                                                  HfTransfoXLSearchConfig)
 from archai.nlp.models.hf_transfo_xl.model_hf_transfo_xl import HfTransfoXL
 from archai.nlp.models.hf_transfo_xl.onnx_hf_transfo_xl import (HfTransfoXLOnnxConfig,
                                                                 HfTransfoXLOnnxModel)
 
 # NVIDIA's Memory Transformer
-from archai.nlp.models.mem_transformer.config_mem_transformer import MemTransformerLMConfig
+from archai.nlp.models.mem_transformer.config_mem_transformer import (MemTransformerLMConfig,
+                                                                      MemTransformerLMSearchConfig)
 from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
 from archai.nlp.models.mem_transformer.onnx_mem_transformer import (MemTransformerLMOnnxConfig,
                                                                     MemTransformerLMOnnxModel)
@@ -45,8 +47,8 @@ MODELS_CONFIGS = {
 MODELS_SEARCH_CONFIGS = {
     'hf_gpt2': HfGPT2SearchConfig,
     'hf_gpt2_flex': HfGPT2FlexSearchConfig,
-    'hf_transfo_xl': None,
-    'mem_transformer': None
+    'hf_transfo_xl': HfTransfoXLSearchConfig,
+    'mem_transformer': MemTransformerLMSearchConfig
 }
 
 MODELS_PARAMS_FORMULAE = {
