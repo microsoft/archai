@@ -21,7 +21,7 @@ class HfGPT2(ArchaiModel):
     """
 
     def __init__(self, **kwargs) -> None:
-        super(HfGPT2, self).__init__()
+        super().__init__()
 
         self.config = HfGPT2Config(**kwargs)
         self.model = GPT2LMHeadModel(self.config)
@@ -75,7 +75,7 @@ class HfGPT2Flex(ArchaiModel):
     """
 
     def __init__(self, **kwargs) -> None:
-        super(HfGPT2, self).__init__()
+        super().__init__()
 
         self.config = HfGPT2FlexConfig(**kwargs)
         self.model = GPT2LMHeadModelFlex(self.config)

@@ -5,7 +5,7 @@
 """
 
 from collections import OrderedDict
-from typing import Any, Dict, Mapping, Optional, List
+from typing import Any, Dict, Mapping, Optional, List, Union
 
 import torch
 
@@ -37,6 +37,21 @@ class Config:
                 setattr(self, key, value)
             except AttributeError as e:
                 raise e
+
+    def _map_to_list(self,
+                     variable: Union[int, float, List[Union[int, float]]],
+                     size: int) -> List[Union[int, float]]:
+        if isinstance(variable, list):
+            size_diff = size - len(variable)
+
+            if size_diff < 0:
+                return variable[:size]
+            if size_diff == 0:
+                return variable
+            if size_diff > 0:
+                return variable + [variable[0]] * size_diff
+
+        return [variable] * size
 
 
 class SearchConfigParameter:
