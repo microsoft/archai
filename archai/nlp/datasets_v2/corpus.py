@@ -90,7 +90,7 @@ class Corpus:
         
         # Creates a word-based vocabulary (tokenizer)
         if self.vocab_type == 'word':
-            return WordVocab(self.vocab_path)
+            return WordVocab()
         else:
             raise NotImplementedError()
 
@@ -101,9 +101,10 @@ class Corpus:
         # Attempts to load a pre-trained vocabulary (compatible with `transformers`)
         # from its pre-trained file
         try:
+            
             return PreTrainedTokenizerFast(tokenizer_file=self.vocab_path)
         except:
-            raise FileNotFoundError()
+            raise FileNotFoundError(f'{self.vocab_path} could not be found.')
 
     def encode(self,
                vocab: PreTrainedTokenizerFast,
