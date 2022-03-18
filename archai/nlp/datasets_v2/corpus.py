@@ -5,6 +5,8 @@
 """
 
 import os
+import json
+
 from typing import Any, Union, Dict, List, Optional
 from datasets import Dataset, DatasetDict, IterableDataset, IterableDatasetDict
 
@@ -49,12 +51,13 @@ class Corpus:
         self.vocab_type = vocab_type
         self.vocab_size = vocab_size
         self.vocab_path = os.path.join(self.cache_dir, 'tokenizer.json')
-    
+        self.vocab_config_path = os.path.join(self.cache_dir, 'token_config.json')
+
+    @property
+    def is_vocab_trained(self) -> bool:
+        return os.path.exists(self.vocab_path) and os.path.exists(self.vocab_config_path)
 
     def _load_dataset(self) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
-        """
-        """
-
         # Loads dataset from user inputted files
         if self.data_type == 'file':
             return load_file_dataset(self.data_dir,
@@ -77,17 +80,7 @@ class Corpus:
         else:
             raise NotImplementedError()
 
-    @property
-    def is_vocab_trained(self) -> bool:
-        """
-        """
-
-        return os.path.exists(self.vocab_path)
-
     def _create_vocab(self) -> Vocab:
-        """
-        """
-        
         # Creates a word-based vocabulary (tokenizer)
         if self.vocab_type == 'word':
             return WordVocab()
@@ -95,14 +88,26 @@ class Corpus:
             raise NotImplementedError()
 
     def _load_vocab(self) -> PreTrainedTokenizerFast:
-        """
-        """
-
+        # Attempts to load the token's configuration because it will be missed
+        # when creating the PreTrainedTokenizerFast from file
+        try:
+            with open(self.vocab_config_path, 'r') as f:
+                token_config = json.load(f)
+        except:
+            raise FileNotFoundError(f'{self.vocab_config_path} could not be found.')
+        
         # Attempts to load a pre-trained vocabulary (compatible with `transformers`)
         # from its pre-trained file
         try:
-            
-            return PreTrainedTokenizerFast(tokenizer_file=self.vocab_path)
+            return PreTrainedTokenizerFast(model_max_length=token_config['model_max_length'],
+                                           bos_token=token_config['bos_token'],
+                                           eos_token=token_config['eos_token'],
+                                           unk_token=token_config['unk_token'],
+                                           sep_token=token_config['sep_token'],
+                                           pad_token=token_config['pad_token'],
+                                           cls_token=token_config['cls_token'],
+                                           mask_token=token_config['mask_token'],
+                                           tokenizer_file=self.vocab_path)
         except:
             raise FileNotFoundError(f'{self.vocab_path} could not be found.')
 
@@ -110,11 +115,8 @@ class Corpus:
                vocab: PreTrainedTokenizerFast,
                dataset: Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
                ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
-        """
-        """
-
-        def _apply_tokenization(x: str) -> str:
-            return vocab(x['text'])
+        def _apply_tokenization(x, column_name='text'):
+            return vocab(x[column_name])
 
         # Encodes the dataset by applying the tokenizer's tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
@@ -122,16 +124,13 @@ class Corpus:
         return encoded_dataset
 
     def load(self) -> None:
-        """
-        """
-
         # Loads the dataset
         dataset = self._load_dataset()
 
         if not self.is_vocab_trained or self.refresh_cache:
             # Creates and trains a new vocab
             vocab = self._create_vocab()
-            vocab.train(dataset)
+            vocab.train(self.vocab_path, dataset)
 
         # Loads pre-trained vocab and encodes the dataset
         vocab = self._load_vocab()
@@ -154,9 +153,6 @@ def get_corpus(data_dir: str,
                refresh_cache: Optional[bool] = False,
                vocab_type: Optional[str] = 'word',
                vocab_size: Optional[int] = 10000) -> Corpus:
-    """
-    """
-
     corpus = Corpus(data_dir,
                     cache_dir,
                     data_config_name=data_config_name,

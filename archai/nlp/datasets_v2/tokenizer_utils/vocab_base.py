@@ -5,6 +5,7 @@
 """
 
 import os
+import json
 from typing import Optional
 
 from datasets.arrow_dataset import Dataset
@@ -30,8 +31,11 @@ class Vocab:
                  bos_token: Optional[str] = None,
                  eos_token: Optional[str] = None,
                  unk_token: Optional[str] = None,
+                 sep_token: Optional[str] = None,
                  pad_token: Optional[str] = None,
+                 cls_token: Optional[str] = None,
                  mask_token: Optional[str] = None,
+                 model_max_length: Optional[int] = None,
                  add_prefix_space: Optional[bool] = False,
                  add_prefix_new_line: Optional[bool] = False,
                  lower_case: Optional[bool] = False,
@@ -42,8 +46,11 @@ class Vocab:
         self.config = TokenConfig(bos_token=bos_token,
                                   eos_token=eos_token,
                                   unk_token=unk_token,
+                                  sep_token=sep_token,
                                   pad_token=pad_token,
+                                  cls_token=cls_token,
                                   mask_token=mask_token,
+                                  model_max_length=model_max_length,
                                   add_prefix_space=add_prefix_space,
                                   add_prefix_new_line=add_prefix_new_line,
                                   lower_case=lower_case)
@@ -74,3 +81,9 @@ class Vocab:
         # Trains and saves a new vocabulary
         self.vocab.train_from_iterator(batch_dataset, self.trainer, len(train_dataset))
         self.vocab.save(output_path)
+
+        # Also saves the token's config because it will be missed when loading
+        # a pre-trained vocabulary
+        config_output_path = os.path.join(os.path.dirname(output_path), 'token_config.json')
+        with open(config_output_path, 'w') as f:
+            json.dump(self.config.__dict__, f)

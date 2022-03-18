@@ -22,11 +22,9 @@ class WordVocab(Vocab):
     def __init__(self,
                  min_freq: Optional[int] = 0,
                  vocab_size: Optional[int] = 10000,
-                 bos_token: Optional[str] = None,
                  eos_token: Optional[str] = '<eos>',
                  unk_token: Optional[str] = '<unk>',
-                 pad_token: Optional[str] = None,
-                 mask_token: Optional[str] = None,
+                 model_max_length: Optional[int] = None,
                  add_prefix_space: Optional[bool] = False,
                  add_prefix_new_line: Optional[bool] = False,
                  lower_case: Optional[bool] = False,
@@ -35,11 +33,9 @@ class WordVocab(Vocab):
                  decode_special_tokens: Optional[bool] = True) -> None:
         super().__init__(min_freq=min_freq,
                          vocab_size=vocab_size,
-                         bos_token=bos_token,
                          eos_token=eos_token,
                          unk_token=unk_token,
-                         pad_token=pad_token,
-                         mask_token=mask_token,
+                         model_max_length=model_max_length,
                          add_prefix_space=add_prefix_space,
                          add_prefix_new_line=add_prefix_new_line,
                          lower_case=lower_case,
@@ -48,7 +44,7 @@ class WordVocab(Vocab):
                          decode_special_tokens=decode_special_tokens)
 
         # Word-level vocabulary, pre-tokenizers and trainer
-        self.vocab = Tokenizer(WordLevel())
+        self.vocab = Tokenizer(WordLevel(unk_token=self.config.unk_token))
         self.vocab.pre_tokenizer = Sequence([Punctuation(), Whitespace()])
         self.trainer = WordLevelTrainer(vocab_size=vocab_size,
                                         min_frequency=min_freq,
