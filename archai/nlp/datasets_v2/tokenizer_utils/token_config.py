@@ -1,14 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""Token-related configuration, such as special tokens, pre-processing variables
+    and additional information that must be included in the tokenization pipeline.
 """
 
-from typing import Optional
+from typing import List, Optional
 
 
 class TokenConfig:
-    """
+    """Token-related configuration, mostly for special tokens and
+        additional tokenization-related information.
+
     """
 
     def __init__(self,
@@ -39,7 +42,7 @@ class TokenConfig:
         self.lower_case = lower_case
 
     @property
-    def special_tokens(self):
+    def special_tokens(self) -> List[str]:
         return list(filter(None, [self.bos_token,
                                   self.eos_token,
                                   self.unk_token,
@@ -47,3 +50,13 @@ class TokenConfig:
                                   self.pad_token,
                                   self.cls_token,
                                   self.mask_token]))
+
+    def pre_process(self, token: str) -> str:
+        if self.add_prefix_space:
+            token = ' ' + token
+        if self.add_prefix_new_line:
+            token = '\n' + token
+        if self.lower_case:
+            token = token.lower()
+
+        return token

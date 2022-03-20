@@ -11,7 +11,6 @@ from typing import Optional
 from datasets.arrow_dataset import Dataset
 from tokenizers import Tokenizer
 from tokenizers.trainers import Trainer
-from transformers import PreTrainedTokenizerFast
 
 from archai.nlp.datasets_v2.tokenizer_utils.token_config import TokenConfig
 
@@ -67,6 +66,7 @@ class Vocab:
               dataset: Dataset,
               batch_size: Optional[int] = 10000,
               column_name: Optional[str] = 'text') -> None:
+        assert isinstance(self.config, TokenConfig), '`config` must be derived from the TokenConfig class.'
         assert isinstance(self.vocab, Tokenizer), '`vocab` must be derived from the Tokenizer class.'
         assert isinstance(self.trainer, Trainer), '`trainer` must be derived from the Trainer class.'
 

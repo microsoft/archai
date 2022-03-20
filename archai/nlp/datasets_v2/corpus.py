@@ -7,11 +7,12 @@
 import os
 import json
 
-from typing import Any, Union, Dict, List, Optional
+from typing import Any, Tuple, Union, Dict, List, Optional
 from datasets import Dataset, DatasetDict, IterableDataset, IterableDatasetDict
 
 from transformers import PreTrainedTokenizerFast
 from archai.nlp.datasets_v2.dataset_loader import load_file_dataset, load_hub_dataset
+from archai.nlp.datasets_v2.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.datasets_v2.tokenizer_utils.vocab_base import Vocab
 from archai.nlp.datasets_v2.tokenizer_utils.word_vocab import WordVocab
 
@@ -26,6 +27,7 @@ class Corpus:
                  data_split: Optional[List[str]] = None,
                  data_revision: Optional[str] = None,
                  data_features: Optional[List[str]] = None,
+                 data_column_name: Optional[str] = None,
                  from_stream: Optional[bool] = False,
                  refresh_cache: Optional[bool] = False,
                  vocab_type: Optional[str] = 'word',
@@ -41,6 +43,7 @@ class Corpus:
         self.data_split = data_split
         self.data_revision = data_revision
         self.data_features = data_features
+        self.data_column_name = data_column_name
 
         # Cache/streaming-related attributes
         self.cache_dir = os.path.join(cache_dir, vocab_type, str(vocab_size))
@@ -87,38 +90,39 @@ class Corpus:
         else:
             raise NotImplementedError()
 
-    def _load_vocab(self) -> PreTrainedTokenizerFast:
+    def _load_vocab(self) -> Tuple[TokenConfig, PreTrainedTokenizerFast]:
         # Attempts to load the token's configuration because it will be missed
         # when creating the PreTrainedTokenizerFast from file
         try:
             with open(self.vocab_config_path, 'r') as f:
-                token_config = json.load(f)
+                config = json.load(f)
         except:
             raise FileNotFoundError(f'{self.vocab_config_path} could not be found.')
         
         # Attempts to load a pre-trained vocabulary (compatible with `transformers`)
         # from its pre-trained file
         try:
-            return PreTrainedTokenizerFast(model_max_length=token_config['model_max_length'],
-                                           bos_token=token_config['bos_token'],
-                                           eos_token=token_config['eos_token'],
-                                           unk_token=token_config['unk_token'],
-                                           sep_token=token_config['sep_token'],
-                                           pad_token=token_config['pad_token'],
-                                           cls_token=token_config['cls_token'],
-                                           mask_token=token_config['mask_token'],
-                                           tokenizer_file=self.vocab_path)
+            return TokenConfig(**config), PreTrainedTokenizerFast(model_max_length=config['model_max_length'],
+                                                                  bos_token=config['bos_token'],
+                                                                  eos_token=config['eos_token'],
+                                                                  unk_token=config['unk_token'],
+                                                                  sep_token=config['sep_token'],
+                                                                  pad_token=config['pad_token'],
+                                                                  cls_token=config['cls_token'],
+                                                                  mask_token=config['mask_token'],
+                                                                  tokenizer_file=self.vocab_path)
         except:
             raise FileNotFoundError(f'{self.vocab_path} could not be found.')
 
     def encode(self,
+               config: TokenConfig,
                vocab: PreTrainedTokenizerFast,
                dataset: Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
                ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
-        def _apply_tokenization(x, column_name='text'):
-            return vocab(x[column_name])
+        def _apply_tokenization(x):
+            return vocab(config.pre_process(x[self.data_column_name]))
 
-        # Encodes the dataset by applying the tokenizer's tokenization
+        # Encodes the dataset by applying the pre-processing and tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
 
         return encoded_dataset
@@ -127,17 +131,21 @@ class Corpus:
         # Loads the dataset
         dataset = self._load_dataset()
 
+        # If vocabulary has not been trained or
+        # if cache should be refreshed
         if not self.is_vocab_trained or self.refresh_cache:
-            # Creates and trains a new vocab
             vocab = self._create_vocab()
-            vocab.train(self.vocab_path, dataset)
+            vocab.train(self.vocab_path,
+                        dataset,
+                        column_name=self.data_column_name)
 
         # Loads pre-trained vocab and encodes the dataset
-        vocab = self._load_vocab()
-        encoded_dataset = self.encode(vocab, dataset)
+        config, vocab = self._load_vocab()
+        encoded_dataset = self.encode(config, vocab, dataset)
 
         # Attaches them as attributes
         self.dataset = encoded_dataset
+        self.config = config
         self.vocab = vocab
             
         
@@ -149,6 +157,7 @@ def get_corpus(data_dir: str,
                data_split: Optional[List[str]] = None,
                data_revision: Optional[str] = None,
                data_features: Optional[List[str]] = None,
+               data_column_name: Optional[str] = 'text',
                from_stream: Optional[bool] = False,
                refresh_cache: Optional[bool] = False,
                vocab_type: Optional[str] = 'word',
@@ -161,6 +170,7 @@ def get_corpus(data_dir: str,
                     data_split=data_split,
                     data_revision=data_revision,
                     data_features=data_features,
+                    data_column_name=data_column_name,
                     from_stream=from_stream,
                     refresh_cache=refresh_cache,
                     vocab_type=vocab_type,
