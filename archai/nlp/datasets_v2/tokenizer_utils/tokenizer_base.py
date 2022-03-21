@@ -52,7 +52,7 @@ class ArchaiTokenizer:
             trainer: Instance of a Trainer from huggingface/tokenizers.
             tokenizer_path: Path to the output pre-trained tokenizer file.
             token_config_path: Path to the output token's configuration file.
-            min_freq: Minimum frequency of tokens (0 for disabling argument).
+            min_freq: Minimum frequency of tokens (`0` for disabling argument).
             vocab_size: Maximum size of vocabulary.
             bos_token: Begin-of-sentence token.
             eos_token: End-of-sentence token.
@@ -138,9 +138,12 @@ class ArchaiTokenizer:
         except:
             raise FileNotFoundError(f'{self.tokenizer_path} could not be found.')
 
+    def __len__(self):
+        return len(self.pre_trained_tokenizer)
+
     def encode(self, text: str) -> List[int]:
-        return self.tokenizer.encode(self.config.pre_process(text),
-                                     add_special_tokens=self.encode_special_tokens)
+        return self.pre_trained_tokenizer.encode(self.config.pre_process(text),
+                                                 add_special_tokens=self.encode_special_tokens)
 
     def decode(self, ids: Union[int, List[int]]) -> str:
         return self.pre_trained_tokenizer.decode(ids,
@@ -153,4 +156,3 @@ class ArchaiTokenizer:
     def tokens_to_ids(self, tokens: Union[str, List[str]]) -> Union[int, List[int]]:
         return self.pre_trained_tokenizer.convert_tokens_to_ids(tokens,
                                                                 skip_special_tokens=self.decode_special_tokens)
-    

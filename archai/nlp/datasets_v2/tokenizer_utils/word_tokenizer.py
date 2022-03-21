@@ -26,6 +26,7 @@ class WordTokenizer(ArchaiTokenizer):
                  vocab_size: Optional[int] = 10000,
                  eos_token: Optional[str] = '<eos>',
                  unk_token: Optional[str] = '<unk>',
+                 pad_token: Optional[str] = '<pad>',
                  model_max_length: Optional[int] = None,
                  add_prefix_space: Optional[bool] = False,
                  add_prefix_new_line: Optional[bool] = False,
@@ -41,6 +42,7 @@ class WordTokenizer(ArchaiTokenizer):
             vocab_size: Maximum size of vocabulary.
             eos_token: End-of-sentence token.
             unk_token: Unknown token.
+            pad_token: Padding token.
             model_max_length: Maximum length of sequences.
             add_prefix_space: Whether a space should be added as a sequence prefix.
             add_prefix_new_line: Whether a new line should be added as a sequence prefix.
@@ -54,7 +56,7 @@ class WordTokenizer(ArchaiTokenizer):
         tokenizer.pre_tokenizer = Sequence([Punctuation(), Whitespace()])
         trainer = WordLevelTrainer(vocab_size=vocab_size,
                                    min_frequency=min_freq,
-                                   special_tokens=[eos_token, unk_token])
+                                   special_tokens=[eos_token, unk_token, pad_token])
 
         super().__init__(tokenizer,
                          trainer,
@@ -64,6 +66,7 @@ class WordTokenizer(ArchaiTokenizer):
                          vocab_size=vocab_size,
                          eos_token=eos_token,
                          unk_token=unk_token,
+                         pad_token=pad_token,
                          model_max_length=model_max_length,
                          add_prefix_space=add_prefix_space,
                          add_prefix_new_line=add_prefix_new_line,

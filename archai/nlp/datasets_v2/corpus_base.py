@@ -35,14 +35,15 @@ class ArchaiCorpus:
                  data_output_column_name: Optional[List[str]] = ['input_ids'],
                  data_random_seed: Optional[int] = 0,
                  data_n_samples: Optional[int] = 0,      
-                 data_truncate: Optional[bool] = False,
-                 data_padding: Optional[str] = 'do_not_pad',
+                 data_truncate: Optional[bool] = True,
+                 data_padding: Optional[str] = 'max_length',
                  from_stream: Optional[bool] = False,
-                 refresh_cache: Optional[bool] = False,
+                 data_refresh_cache: Optional[bool] = False,
                  vocab_type: Optional[str] = 'word',
                  vocab_min_freq: Optional[int] = 0,
                  vocab_size: Optional[int] = 10000,
-                 tokenizer_max_length: Optional[int] = None) -> None:
+                 tokenizer_max_length: Optional[int] = 192,
+                 tokenizer_refresh_cache: Optional[bool] = False) -> None:
         """Initializes the corpus by setting attributes.
 
         Args:
@@ -56,16 +57,17 @@ class ArchaiCorpus:
             data_features: Custom features (column names) that should be loaded.
             data_input_column_name: Input column name of dataset (usually `text`).
             data_output_column_name: Output column name of dataset (usually `input_ids`).
-            data_random_seed: Random seed for shuffling the dataset (0 for disabling argument).
-            data_n_samples: Number of samples to subsample the dataset (0 for disabling argument).
+            data_random_seed: Random seed for shuffling the dataset (`0` for disabling argument).
+            data_n_samples: Number of samples to subsample the dataset (`0` for disabling argument).
             data_truncate: Whether exceed `tokenizer_max_length` sequences should be truncated.
             data_padding: Whether non-exceed `tokenizer_max_length` should be padded (`do_not_pad`, `max_length` or `longest`).
+            data_refresh_cache: Whether dataset cache should be refreshed or not.
             from_stream: Whether dataset should be streamed or not.
-            refresh_cache: Whether cache should be refreshed or not.
             vocab_type: Type of vocabulary (`word`, `bbpe` or `gpt2`).
-            vocab_min_freq: Minimum frequency of tokens (0 for disabling argument).
+            vocab_min_freq: Minimum frequency of tokens (`0` for disabling argument).
             vocab_size: Maximum size of vocabulary.
-            tokenizer_max_length: Maximum length of tokenization sequences (None for disabling argument).
+            tokenizer_max_length: Maximum length of tokenization sequences (`None` for disabling argument).
+            tokenizer_refresh_cache: Whether tokenizer cache should be refreshed or not.
 
         """
 
@@ -87,7 +89,8 @@ class ArchaiCorpus:
         # Cache/streaming-related attributes
         self.cache_dir = os.path.join(cache_dir, vocab_type, str(vocab_size))
         self.from_stream = from_stream
-        self.refresh_cache = refresh_cache
+        self.data_refresh_cache = data_refresh_cache
+        self.tokenizer_refresh_cache = tokenizer_refresh_cache
 
         # Tokenizer and vocabulary-related attributes
         self.vocab_type = vocab_type
@@ -110,7 +113,7 @@ class ArchaiCorpus:
                                      split=self.data_split,
                                      features=self.data_features,
                                      from_stream=self.from_stream,
-                                     refresh_cache=self.refresh_cache)
+                                     refresh_cache=self.data_refresh_cache)
 
         # Loads dataset from Huggingface's datasets hub
         if self.data_type == 'hub':
@@ -120,7 +123,7 @@ class ArchaiCorpus:
                                     split=self.data_split,
                                     revision=self.data_revision,
                                     from_stream=self.from_stream,
-                                    refresh_cache=self.refresh_cache)
+                                    refresh_cache=self.data_refresh_cache)
 
         raise NotImplementedError(f'data_type: {self.data_type} not supported yet.')
 
@@ -140,13 +143,13 @@ class ArchaiCorpus:
                 token_config: TokenConfig,
                 dataset: Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
                 ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
-        def _shuffle_and_select(dataset):
+        def _shuffle_and_select(d):
             if self.data_random_seed > 0:
-                dataset = dataset.shuffle(self.data_random_seed)
+                d = d.shuffle(self.data_random_seed)
             if self.data_n_samples > 0:
-                dataset = dataset.select(range(self.data_n_samples))
+                d = d.select(range(self.data_n_samples))
 
-            return dataset
+            return d
 
         def _apply_tokenization(x):
             return tokenizer(token_config.pre_process(x[self.data_input_column_name]),
@@ -163,6 +166,7 @@ class ArchaiCorpus:
         # Encodes the dataset by applying pre-processing and tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
         encoded_dataset.set_format(type='torch', columns=self.data_output_column_name)
+        encoded_dataset.save_to_disk(self.cache_dir)
 
         return encoded_dataset
 
@@ -172,7 +176,7 @@ class ArchaiCorpus:
 
         # Tokenizer should be re-trained it it has not been trained yet
         # or if the cache should be refreshed
-        if not self.is_tokenizer_trained or self.refresh_cache:
+        if not self.is_tokenizer_trained or self.tokenizer_refresh_cache:
             tokenizer.train(dataset, column_name=self.data_input_column_name)
 
         # Loads the tokenizer and encodes the dataset
@@ -182,7 +186,7 @@ class ArchaiCorpus:
                                        tokenizer.config,
                                        dataset)
 
-        # Attaches them as attributes
+        # Do not forget to attach them as attributes
         self.dataset = encoded_dataset
         self.tokenizer = tokenizer
         self.token_config = tokenizer.config

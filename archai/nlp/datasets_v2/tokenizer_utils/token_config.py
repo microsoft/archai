@@ -48,13 +48,9 @@ class TokenConfig:
         self.eos_token = eos_token
         self.unk_token = unk_token
         self.sep_token = sep_token
+        self.pad_token = pad_token
         self.cls_token = cls_token
         self.mask_token = mask_token
-
-        if model_max_length and not pad_token:
-            self.pad_token = '<pad>'
-        else:
-            self.pad_token = pad_token
 
         # Additional configuration
         self.model_max_length = model_max_length
