@@ -11,7 +11,14 @@ from datasets.utils.download_manager import GenerateMode
 
 
 def _should_refresh_cache(refresh: bool) -> GenerateMode:
-    """
+    """Refreshes the cached dataset by re-downloading/re-creating it.
+
+    Args:
+        refresh: Whether the dataset cache should be refreshed or not.
+
+    Returns:
+        (GenerateMode): Enumerator that defines whether cache should refresh or not.
+
     """
 
     if refresh:
@@ -28,7 +35,21 @@ def load_file_dataset(data_dir: str,
                       from_stream: Optional[bool] = False,
                       refresh_cache: Optional[bool] = False
                       ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
-    """
+    """Loads a dataset from local files.
+
+    Args:
+        data_dir: Directory of the dataset to be loaded.
+        cache_dir: Directory of where the cache should be stored.
+        data_files: Files that should be loaded from `data_dir`.
+        split: Specific splits that should be loaded (`train`, `val` or `test`).
+        features: Custom features (column names) that should be loaded.
+        from_stream: Whether dataset should be streamed or not.
+        refresh_cache: Whether cache should be refreshed or not.
+
+    Returns:
+        (Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]): An instance of the
+            loaded and cached dataset.
+
     """
 
     return load_dataset(data_dir,
@@ -48,7 +69,21 @@ def load_hub_dataset(data_dir: str,
                      from_stream: Optional[bool] = False,
                      refresh_cache: Optional[bool] = False
                      ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
-    """
+    """Loads a dataset from Huggingface's datasets hub.
+
+    Args:
+        data_dir: Directory of the dataset to be loaded.
+        data_config_name: Name of dataset's configuration to be loaded.
+        cache_dir: Directory of where the cache should be stored.
+        split: Specific splits that should be loaded (`train`, `val` or `test`).
+        revision: Version of the dataset to be loaded.
+        from_stream: Whether dataset should be streamed or not.
+        refresh_cache: Whether cache should be refreshed or not.
+
+    Returns:
+        (Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]): An instance of the
+            downloaded and cached dataset.
+
     """
 
     return load_dataset(data_dir,

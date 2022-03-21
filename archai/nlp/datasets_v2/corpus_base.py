@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Corpus base class, which serves for training/loading tokenizers and datasets.
+"""Corpus base class, which serves for training/loading datasets and tokenizers.
 """
 
 import os
@@ -33,7 +33,7 @@ class ArchaiCorpus:
                  data_features: Optional[List[str]] = None,
                  data_input_column_name: Optional[str] = 'text',
                  data_output_column_name: Optional[List[str]] = ['input_ids'],
-                 data_random_seed: Optional[int] = 42,
+                 data_random_seed: Optional[int] = 0,
                  data_n_samples: Optional[int] = 0,      
                  data_truncate: Optional[bool] = False,
                  data_padding: Optional[str] = 'do_not_pad',
@@ -43,6 +43,32 @@ class ArchaiCorpus:
                  vocab_min_freq: Optional[int] = 0,
                  vocab_size: Optional[int] = 10000,
                  tokenizer_max_length: Optional[int] = None) -> None:
+        """Initializes the corpus by setting attributes.
+
+        Args:
+            data_dir: Directory of the dataset to be loaded.
+            cache_dir: Directory of where the cache should be stored.
+            data_config_name: Name of dataset's configuration to be loaded.
+            data_type: Type of dataset to be loaded (`file` or `hub`).
+            data_files: Files that should be loaded from `data_dir`.
+            data_split: Specific splits that should be loaded (`train`, `val` or `test`).
+            data_revision: Version of the dataset to be loaded.
+            data_features: Custom features (column names) that should be loaded.
+            data_input_column_name: Input column name of dataset (usually `text`).
+            data_output_column_name: Output column name of dataset (usually `input_ids`).
+            data_random_seed: Random seed for shuffling the dataset (0 for disabling argument).
+            data_n_samples: Number of samples to subsample the dataset (0 for disabling argument).
+            data_truncate: Whether exceed `tokenizer_max_length` sequences should be truncated.
+            data_padding: Whether non-exceed `tokenizer_max_length` should be padded (`do_not_pad`, `max_length` or `longest`).
+            from_stream: Whether dataset should be streamed or not.
+            refresh_cache: Whether cache should be refreshed or not.
+            vocab_type: Type of vocabulary (`word`, `bbpe` or `gpt2`).
+            vocab_min_freq: Minimum frequency of tokens (0 for disabling argument).
+            vocab_size: Maximum size of vocabulary.
+            tokenizer_max_length: Maximum length of tokenization sequences (None for disabling argument).
+
+        """
+
         # Dataset-related attributes
         self.data_dir = data_dir
         self.data_config_name = data_config_name
@@ -76,7 +102,7 @@ class ArchaiCorpus:
         return os.path.exists(self.tokenizer_path) and os.path.exists(self.token_config_path)
 
     def _load_dataset(self) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
-        # Loads dataset from user inputted files
+        # Loads dataset from inputted files
         if self.data_type == 'file':
             return load_file_dataset(self.data_dir,
                                      self.cache_dir,
@@ -113,9 +139,9 @@ class ArchaiCorpus:
                 tokenizer: PreTrainedTokenizerFast,
                 token_config: TokenConfig,
                 dataset: Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
-               ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
+                ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
         def _shuffle_and_select(dataset):
-            if self.data_random_seed > -1:
+            if self.data_random_seed > 0:
                 dataset = dataset.shuffle(self.data_random_seed)
             if self.data_n_samples > 0:
                 dataset = dataset.select(range(self.data_n_samples))
@@ -127,24 +153,25 @@ class ArchaiCorpus:
                              truncation=self.data_truncate,
                              padding=self.data_padding)
 
-        if not hasattr(dataset, 'info'):
+        # Checks if dataset is a DatasetDict (usually contains multiple splits)
+        if isinstance(dataset, DatasetDict):
             for split, data in dataset.items():
                 dataset[split] = _shuffle_and_select(data)
         else:
             dataset = _shuffle_and_select(dataset)
 
-        # Encodes the dataset by applying the pre-processing and tokenization
+        # Encodes the dataset by applying pre-processing and tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
         encoded_dataset.set_format(type='torch', columns=self.data_output_column_name)
 
         return encoded_dataset
 
     def load(self) -> None:
-        # Loads both dataset and tokenizer
         dataset = self._load_dataset()
         tokenizer = self._create_tokenizer()
 
-        # If tokenizer has not been trained or if cache should be refreshed
+        # Tokenizer should be re-trained it it has not been trained yet
+        # or if the cache should be refreshed
         if not self.is_tokenizer_trained or self.refresh_cache:
             tokenizer.train(dataset, column_name=self.data_input_column_name)
 
@@ -159,48 +186,3 @@ class ArchaiCorpus:
         self.dataset = encoded_dataset
         self.tokenizer = tokenizer
         self.token_config = tokenizer.config
-            
-
-def get_corpus(data_dir: str,
-               cache_dir: str,
-               data_config_name: Optional[str] = None,
-               data_type: Optional[str] = 'file',
-               data_files: Optional[Union[Dict[str, Any], List[str]]] = None,
-               data_split: Optional[List[str]] = None,
-               data_revision: Optional[str] = None,
-               data_features: Optional[List[str]] = None,
-               data_input_column_name: Optional[str] = 'text',
-               data_output_column_name: Optional[List[str]] = ['input_ids'],
-               data_random_seed: Optional[int] = 42,
-               data_n_samples: Optional[int] = 0,      
-               data_truncate: Optional[bool] = False,
-               data_padding: Optional[str] = 'do_not_pad',
-               from_stream: Optional[bool] = False,
-               refresh_cache: Optional[bool] = False,
-               vocab_type: Optional[str] = 'word',
-               vocab_min_freq: Optional[int] = 0,
-               vocab_size: Optional[int] = 10000,
-               tokenizer_max_length: Optional[int] = None) -> ArchaiCorpus:
-    corpus = ArchaiCorpus(data_dir,
-                          cache_dir,
-                          data_config_name=data_config_name,
-                          data_type=data_type,
-                          data_files=data_files,
-                          data_split=data_split,
-                          data_revision=data_revision,
-                          data_features=data_features,
-                          data_input_column_name=data_input_column_name,
-                          data_output_column_name=data_output_column_name,
-                          data_random_seed=data_random_seed,
-                          data_n_samples=data_n_samples,
-                          data_truncate=data_truncate,
-                          data_padding=data_padding,
-                          from_stream=from_stream,
-                          refresh_cache=refresh_cache,
-                          vocab_type=vocab_type,
-                          vocab_min_freq=vocab_min_freq,
-                          vocab_size=vocab_size,
-                          tokenizer_max_length=tokenizer_max_length)
-    corpus.load()
-
-    return corpus
