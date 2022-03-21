@@ -6,7 +6,7 @@
 
 import os
 import json
-from typing import Callable, List, Optional
+from typing import List, Optional, Union
 
 from datasets.arrow_dataset import Dataset
 from tokenizers import Tokenizer
@@ -97,8 +97,7 @@ class ArchaiTokenizer:
         # when creating the PreTrainedTokenizerFast from file
         try:
             with open(self.token_config_path, 'r') as f:
-                config = json.load(f)
-                self.config = TokenConfig(**config)
+                self.config = TokenConfig(**json.load(f))
         except:
             raise FileNotFoundError(f'{self.token_config_path} could not be found.')
         
@@ -116,22 +115,19 @@ class ArchaiTokenizer:
         except:
             raise FileNotFoundError(f'{self.tokenizer_path} could not be found.')
 
-    # def encode(self, text: str) -> List[int]:
-    #     return self.tokenizer.encode(self.config.pre_process(text),
-    #                                  add_special_tokens=self.encode_special_tokens)
+    def encode(self, text: str) -> List[int]:
+        return self.tokenizer.encode(self.config.pre_process(text),
+                                     add_special_tokens=self.encode_special_tokens)
 
-    # def decode(self, ids: List[int]) -> str:
-    #     return self.tokenizer.decode(ids, skip_special_tokens=self.decode_special_tokens)
+    def decode(self, ids: Union[int, List[int]]) -> str:
+        return self.pre_trained_tokenizer.decode(ids,
+                                                 skip_special_tokens=self.decode_special_tokens)
 
-    # def id_to_token(self, id: int) -> str:
-    #     return self.tokenizer.id_to_token(id)
+    def ids_to_tokens(self, ids: Union[int, List[int]]) -> Union[str, List[str]]:
+        return self.pre_trained_tokenizer.convert_ids_to_tokens(ids,
+                                                                skip_special_tokens=self.decode_special_tokens)
 
-    # def ids_to_tokens(self, ids: List[int]) -> List[str]:
-    #     return [self.id_to_token(id) for id in ids]
-
-    # def token_to_id(self, token: str) -> int:
-    #     return self.tokenizer.token_to_id(token)
-
-    # def tokens_to_ids(self, tokens: List[str]) -> List[int]:
-    #     return [self.token_to_id(token) for token in tokens]
+    def tokens_to_ids(self, tokens: Union[str, List[str]]) -> Union[int, List[int]]:
+        return self.pre_trained_tokenizer.convert_tokens_to_ids(tokens,
+                                                                skip_special_tokens=self.decode_special_tokens)
     
