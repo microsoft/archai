@@ -52,6 +52,10 @@ class TokenConfig:
                                   self.mask_token]))
 
     def pre_process(self, token: str) -> str:
+        # Prevents from additional information (space or new line) on empty lines
+        if self.add_prefix_new_line and (token == '\n' or token == ''):
+            return '\n'
+
         if self.add_prefix_space:
             token = ' ' + token
         if self.add_prefix_new_line:

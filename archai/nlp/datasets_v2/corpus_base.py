@@ -1,23 +1,27 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""Corpus base class, which serves for training/loading tokenizers and datasets.
 """
 
 import os
-import json
 
-from typing import Any, Tuple, Union, Dict, List, Optional
+from typing import Any, Union, Dict, List, Optional
 from datasets import Dataset, DatasetDict, IterableDataset, IterableDatasetDict
 
 from transformers import PreTrainedTokenizerFast
 from archai.nlp.datasets_v2.dataset_loader import load_file_dataset, load_hub_dataset
 from archai.nlp.datasets_v2.tokenizer_utils.token_config import TokenConfig
-from archai.nlp.datasets_v2.tokenizer_utils.vocab_base import Vocab
-from archai.nlp.datasets_v2.tokenizer_utils.word_vocab import WordVocab
+from archai.nlp.datasets_v2.tokenizer_utils.tokenizer_base import ArchaiTokenizer
+from archai.nlp.datasets_v2.tokenizer_utils.word_tokenizer import WordTokenizer
 
 
-class Corpus:
+class ArchaiCorpus:
+    """ArchaiCorpus defines a single instance that is capable of training/loading a tokenizer,
+        as well as producing a language modelling-ready dataset.
+
+    """
+
     def __init__(self,
                  data_dir: str,
                  cache_dir: str,
@@ -31,10 +35,8 @@ class Corpus:
                  from_stream: Optional[bool] = False,
                  refresh_cache: Optional[bool] = False,
                  vocab_type: Optional[str] = 'word',
+                 vocab_min_freq: Optional[int] = 0,
                  vocab_size: Optional[int] = 10000) -> None:
-        """
-        """
-
         # Dataset-related attributes
         self.data_dir = data_dir
         self.data_config_name = data_config_name
@@ -50,15 +52,16 @@ class Corpus:
         self.from_stream = from_stream
         self.refresh_cache = refresh_cache
 
-        # Vocabulary-related attributes
+        # Tokenizer and vocabulary-related attributes
         self.vocab_type = vocab_type
+        self.vocab_min_freq = vocab_min_freq
         self.vocab_size = vocab_size
-        self.vocab_path = os.path.join(self.cache_dir, 'tokenizer.json')
-        self.vocab_config_path = os.path.join(self.cache_dir, 'token_config.json')
+        self.tokenizer_path = os.path.join(self.cache_dir, 'tokenizer.json')
+        self.token_config_path = os.path.join(self.cache_dir, 'token_config.json')
 
     @property
-    def is_vocab_trained(self) -> bool:
-        return os.path.exists(self.vocab_path) and os.path.exists(self.vocab_config_path)
+    def is_tokenizer_trained(self) -> bool:
+        return os.path.exists(self.tokenizer_path) and os.path.exists(self.token_config_path)
 
     def _load_dataset(self) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
         # Loads dataset from user inputted files
@@ -71,8 +74,8 @@ class Corpus:
                                      from_stream=self.from_stream,
                                      refresh_cache=self.refresh_cache)
 
-        # Loads dataset from external Huggingface's datasets hub
-        elif self.data_type == 'hub':
+        # Loads dataset from Huggingface's datasets hub
+        if self.data_type == 'hub':
             return load_hub_dataset(self.data_dir,
                                     self.data_config_name,
                                     self.cache_dir,
@@ -80,47 +83,26 @@ class Corpus:
                                     revision=self.data_revision,
                                     from_stream=self.from_stream,
                                     refresh_cache=self.refresh_cache)
-        else:
-            raise NotImplementedError()
 
-    def _create_vocab(self) -> Vocab:
-        # Creates a word-based vocabulary (tokenizer)
+        raise NotImplementedError(f'data_type: {self.data_type} not supported yet.')
+
+    def _create_tokenizer(self) -> ArchaiTokenizer:
+        # Creates a word-based tokenizer
         if self.vocab_type == 'word':
-            return WordVocab()
-        else:
-            raise NotImplementedError()
-
-    def _load_vocab(self) -> Tuple[TokenConfig, PreTrainedTokenizerFast]:
-        # Attempts to load the token's configuration because it will be missed
-        # when creating the PreTrainedTokenizerFast from file
-        try:
-            with open(self.vocab_config_path, 'r') as f:
-                config = json.load(f)
-        except:
-            raise FileNotFoundError(f'{self.vocab_config_path} could not be found.')
+            return WordTokenizer(tokenizer_path=self.tokenizer_path,
+                                 token_config_path=self.token_config_path,
+                                 min_freq=self.vocab_min_freq,
+                                 vocab_size=self.vocab_size)
         
-        # Attempts to load a pre-trained vocabulary (compatible with `transformers`)
-        # from its pre-trained file
-        try:
-            return TokenConfig(**config), PreTrainedTokenizerFast(model_max_length=config['model_max_length'],
-                                                                  bos_token=config['bos_token'],
-                                                                  eos_token=config['eos_token'],
-                                                                  unk_token=config['unk_token'],
-                                                                  sep_token=config['sep_token'],
-                                                                  pad_token=config['pad_token'],
-                                                                  cls_token=config['cls_token'],
-                                                                  mask_token=config['mask_token'],
-                                                                  tokenizer_file=self.vocab_path)
-        except:
-            raise FileNotFoundError(f'{self.vocab_path} could not be found.')
+        raise NotImplementedError(f'vocab_type: {self.vocab_type} not supported yet.')
 
-    def encode(self,
-               config: TokenConfig,
-               vocab: PreTrainedTokenizerFast,
-               dataset: Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
+    def _encode(self,
+                tokenizer: PreTrainedTokenizerFast,
+                token_config: TokenConfig,
+                dataset: Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
                ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
         def _apply_tokenization(x):
-            return vocab(config.pre_process(x[self.data_column_name]))
+            return tokenizer(token_config.pre_process(x[self.data_column_name]))
 
         # Encodes the dataset by applying the pre-processing and tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
@@ -128,27 +110,27 @@ class Corpus:
         return encoded_dataset
 
     def load(self) -> None:
-        # Loads the dataset
+        # Loads both dataset and tokenizer
         dataset = self._load_dataset()
+        tokenizer = self._create_tokenizer()
 
-        # If vocabulary has not been trained or
-        # if cache should be refreshed
-        if not self.is_vocab_trained or self.refresh_cache:
-            vocab = self._create_vocab()
-            vocab.train(self.vocab_path,
-                        dataset,
-                        column_name=self.data_column_name)
+        # If tokenizer has not been trained or if cache should be refreshed
+        if not self.is_tokenizer_trained or self.refresh_cache:
+            tokenizer.train(dataset, column_name=self.data_column_name)
 
-        # Loads pre-trained vocab and encodes the dataset
-        config, vocab = self._load_vocab()
-        encoded_dataset = self.encode(config, vocab, dataset)
+        # Loads the tokenizer and encodes the dataset
+        # Note that we pass the pre-trained tokenizer attribute to avoid hashing issues
+        tokenizer.load()
+        encoded_dataset = self._encode(tokenizer.pre_trained_tokenizer,
+                                       tokenizer.config,
+                                       dataset)
 
         # Attaches them as attributes
         self.dataset = encoded_dataset
-        self.config = config
-        self.vocab = vocab
+        self.tokenizer = tokenizer
+        self.token_config = tokenizer.config
             
-        
+
 def get_corpus(data_dir: str,
                cache_dir: str,
                data_config_name: Optional[str] = None,
@@ -161,20 +143,20 @@ def get_corpus(data_dir: str,
                from_stream: Optional[bool] = False,
                refresh_cache: Optional[bool] = False,
                vocab_type: Optional[str] = 'word',
-               vocab_size: Optional[int] = 10000) -> Corpus:
-    corpus = Corpus(data_dir,
-                    cache_dir,
-                    data_config_name=data_config_name,
-                    data_type=data_type,
-                    data_files=data_files,
-                    data_split=data_split,
-                    data_revision=data_revision,
-                    data_features=data_features,
-                    data_column_name=data_column_name,
-                    from_stream=from_stream,
-                    refresh_cache=refresh_cache,
-                    vocab_type=vocab_type,
-                    vocab_size=vocab_size)
+               vocab_size: Optional[int] = 10000) -> ArchaiCorpus:
+    corpus = ArchaiCorpus(data_dir,
+                          cache_dir,
+                          data_config_name=data_config_name,
+                          data_type=data_type,
+                          data_files=data_files,
+                          data_split=data_split,
+                          data_revision=data_revision,
+                          data_features=data_features,
+                          data_column_name=data_column_name,
+                          from_stream=from_stream,
+                          refresh_cache=refresh_cache,
+                          vocab_type=vocab_type,
+                          vocab_size=vocab_size)
     corpus.load()
 
     return corpus

@@ -1,11 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Word-based vocabulary.
+"""Word-based tokenizer.
 """
 
 from typing import Optional
-from archai.nlp.datasets_v2.tokenizer_utils.vocab_base import Vocab
+from archai.nlp.datasets_v2.tokenizer_utils.tokenizer_base import ArchaiTokenizer
 
 from tokenizers import Tokenizer
 from tokenizers.models import WordLevel
@@ -13,13 +13,15 @@ from tokenizers.pre_tokenizers import Punctuation, Sequence, Whitespace
 from tokenizers.trainers import WordLevelTrainer
 
 
-class WordVocab(Vocab):
-    """Word-based vocabulary, where sequences are split according to their
+class WordTokenizer(ArchaiTokenizer):
+    """Word-based tokenizer, where sequences are split according to their
         punctuation and whitespaces.
 
     """
 
     def __init__(self,
+                 tokenizer_path: Optional[str] = None,
+                 token_config_path: Optional[str] = None,
                  min_freq: Optional[int] = 0,
                  vocab_size: Optional[int] = 10000,
                  eos_token: Optional[str] = '<eos>',
@@ -31,7 +33,17 @@ class WordVocab(Vocab):
                  delimiter: Optional[str] = None,
                  encode_special_tokens: Optional[bool] = True,
                  decode_special_tokens: Optional[bool] = True) -> None:
-        super().__init__(min_freq=min_freq,
+        tokenizer = Tokenizer(WordLevel(unk_token=unk_token))
+        tokenizer.pre_tokenizer = Sequence([Punctuation(), Whitespace()])
+        trainer = WordLevelTrainer(vocab_size=vocab_size,
+                                   min_frequency=min_freq,
+                                   special_tokens=[eos_token, unk_token])
+
+        super().__init__(tokenizer,
+                         trainer,
+                         tokenizer_path=tokenizer_path,
+                         token_config_path=token_config_path,
+                         min_freq=min_freq,
                          vocab_size=vocab_size,
                          eos_token=eos_token,
                          unk_token=unk_token,
@@ -42,10 +54,3 @@ class WordVocab(Vocab):
                          delimiter=delimiter,
                          encode_special_tokens=encode_special_tokens,
                          decode_special_tokens=decode_special_tokens)
-
-        # Word-level vocabulary, pre-tokenizers and trainer
-        self.vocab = Tokenizer(WordLevel(unk_token=self.config.unk_token))
-        self.vocab.pre_tokenizer = Sequence([Punctuation(), Whitespace()])
-        self.trainer = WordLevelTrainer(vocab_size=vocab_size,
-                                        min_frequency=min_freq,
-                                        special_tokens=self.config.special_tokens)
