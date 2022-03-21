@@ -35,14 +35,14 @@ class ArchaiCorpus:
                  data_output_column_name: Optional[List[str]] = ['input_ids'],
                  data_random_seed: Optional[int] = 0,
                  data_n_samples: Optional[int] = 0,      
-                 data_truncate: Optional[bool] = True,
-                 data_padding: Optional[str] = 'max_length',
+                 data_truncate: Optional[bool] = False,
+                 data_padding: Optional[str] = 'do_not_pad',
                  from_stream: Optional[bool] = False,
                  data_refresh_cache: Optional[bool] = False,
                  vocab_type: Optional[str] = 'word',
                  vocab_min_freq: Optional[int] = 0,
                  vocab_size: Optional[int] = 10000,
-                 tokenizer_max_length: Optional[int] = 192,
+                 tokenizer_max_length: Optional[int] = None,
                  tokenizer_refresh_cache: Optional[bool] = False) -> None:
         """Initializes the corpus by setting attributes.
 
@@ -166,7 +166,6 @@ class ArchaiCorpus:
         # Encodes the dataset by applying pre-processing and tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
         encoded_dataset.set_format(type='torch', columns=self.data_output_column_name)
-        encoded_dataset.save_to_disk(self.cache_dir)
 
         return encoded_dataset
 
