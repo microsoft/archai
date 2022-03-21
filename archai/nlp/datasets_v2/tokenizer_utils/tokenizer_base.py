@@ -43,9 +43,33 @@ class ArchaiTokenizer:
                  add_prefix_space: Optional[bool] = False,
                  add_prefix_new_line: Optional[bool] = False,
                  lower_case: Optional[bool] = False,
-                 delimiter: Optional[str] = None,
                  encode_special_tokens: Optional[bool] = True,
                  decode_special_tokens: Optional[bool] = True) -> None:
+        """Initializes a base tokenizer class by setting attributes.
+
+        Args:
+            tokenizer: Instance of a Tokenizer from huggingface/tokenizers.
+            trainer: Instance of a Trainer from huggingface/tokenizers.
+            tokenizer_path: Path to the output pre-trained tokenizer file.
+            token_config_path: Path to the output token's configuration file.
+            min_freq: Minimum frequency of tokens (0 for disabling argument).
+            vocab_size: Maximum size of vocabulary.
+            bos_token: Begin-of-sentence token.
+            eos_token: End-of-sentence token.
+            unk_token: Unknown token.
+            sep_token: Separator token (used for separating two sequences).
+            pad_token: Padding token.
+            cls_token: Input class token.
+            mask_token: Masked token.
+            model_max_length: Maximum length of sequences.
+            add_prefix_space: Whether a space should be added as a sequence prefix.
+            add_prefix_new_line: Whether a new line should be added as a sequence prefix.
+            lower_case: Applies lower case to all sequences.
+            encode_special_tokens: Whether special tokens should be used to encode sequences.
+            decode_special_tokens: Whether special tokens should be used to decode sequences.
+
+        """
+
         # Tokenizer-based attributes
         self.tokenizer = tokenizer
         self.pre_trained_tokenizer = None
@@ -54,7 +78,6 @@ class ArchaiTokenizer:
         self.token_config_path = token_config_path
         self.min_freq = min_freq
         self.vocab_size = vocab_size
-        self.delimiter = delimiter
         self.encode_special_tokens = encode_special_tokens
         self.decode_special_tokens = decode_special_tokens
 

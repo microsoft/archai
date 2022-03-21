@@ -26,6 +26,23 @@ class TokenConfig:
                  add_prefix_space: Optional[bool] = False,
                  add_prefix_new_line: Optional[bool] = False,
                  lower_case: Optional[bool] = False) -> None:
+        """Initializes a token's configuration class by setting attributes.
+
+        Args:
+            bos_token: Begin-of-sentence token.
+            eos_token: End-of-sentence token.
+            unk_token: Unknown token.
+            sep_token: Separator token (used for separating two sequences).
+            pad_token: Padding token.
+            cls_token: Input class token.
+            mask_token: Masked token.
+            model_max_length: Maximum length of sequences.
+            add_prefix_space: Whether a space should be added as a sequence prefix.
+            add_prefix_new_line: Whether a new line should be added as a sequence prefix.
+            lower_case: Applies lower case to all sequences.
+
+        """
+
         # Special tokens
         self.bos_token = bos_token
         self.eos_token = eos_token
@@ -56,7 +73,7 @@ class TokenConfig:
                                   self.mask_token]))
 
     def pre_process(self, token: str) -> str:
-        # Prevents from additional information (space or new line) on empty lines
+        # Prevents additional information (space or new line) on empty lines
         if self.add_prefix_new_line and (token == '\n' or token == ''):
             return '\n'
 
