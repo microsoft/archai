@@ -798,19 +798,20 @@ class Evolution:
                 print(f'Saving indices: {i}-{i+batch}')
                 pickle.dump(logs, f) 
 
+    def run(self,
+            do_brute_force: Optional[bool] = False,
+            n_samples: Optional[int] = 20000,
+            batch: Optional[int] = 1000) -> None:
+        """Runs the evolutionary search.
 
-def run_search(args: Dict[str, Any], do_brute_force: Optional[bool] = False) -> None:
-    """Runs the evolutionary search.
+        Args:
+            do_brute_force: Employs semi brute-force to conduct the search.
+            n_samples: Number of genes to be sampled.
+            batch: Number of batched genes to conduct the brute force.
 
-    Args:
-        args: Search-related arguments.
-        do_brute_force: Employs semi brute-force to conduct the search.
+        """
 
-    """
-
-    alg = Evolution(**args)
-
-    if do_brute_force:
-        alg.semi_brute_force(args['n_samples'], args['batch'])
-    else:
-        alg.search()
+        if do_brute_force:
+            self.semi_brute_force(n_samples, batch)
+        else:
+            self.search()
