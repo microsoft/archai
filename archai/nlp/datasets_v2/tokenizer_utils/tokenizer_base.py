@@ -7,6 +7,7 @@
 import os
 import json
 from typing import List, Optional, Union
+from datasets import IterableDataset
 
 from datasets.arrow_dataset import Dataset
 from tokenizers import Tokenizer
@@ -95,19 +96,27 @@ class ArchaiTokenizer:
                                   lower_case=lower_case)
 
     def train(self,
-              dataset: Dataset,
-              batch_size: Optional[int] = 10000,
+              dataset: Union[Dataset, IterableDataset],
               column_name: Optional[str] = 'text') -> None:
-        def _batch_iterator(dataset, batch_size, column_name):
+        def _batch_iterator(dataset, column_name, batch_size=10000):
             for i in range(0, len(dataset), batch_size):
                 yield dataset[i: i + batch_size][column_name]
+
+        def _iterator(dataset, column_name):
+            for data in dataset:
+                yield data[column_name]
         
-        # Creates a training dataset iterator
+        # Creates a dataset iterator based on training set
         train_dataset = dataset['train']
-        batch_dataset = _batch_iterator(train_dataset, batch_size, column_name)
+        if isinstance(train_dataset, Dataset):
+            batch_dataset = _batch_iterator(train_dataset, column_name)
+        elif isinstance(train_dataset, IterableDataset):
+            batch_dataset = _iterator(train_dataset, column_name)
+        else:
+            raise ValueError('dataset should be derived from Dataset or IterableDataset classes.')
 
         # Trains and saves a new tokenizer
-        self.tokenizer.train_from_iterator(batch_dataset, self.trainer, len(train_dataset))
+        self.tokenizer.train_from_iterator(batch_dataset, self.trainer)
         self.tokenizer.save(self.tokenizer_path)
 
         # Also saves the token's config because it will be missed when loading
@@ -139,7 +148,9 @@ class ArchaiTokenizer:
             raise FileNotFoundError(f'{self.tokenizer_path} could not be found.')
 
     def __len__(self):
-        return len(self.pre_trained_tokenizer)
+        if self.pre_trained_tokenizer:
+            return len(self.pre_trained_tokenizer)
+        return 0
 
     def encode(self, text: str) -> List[int]:
         return self.pre_trained_tokenizer.encode(self.config.pre_process(text),
