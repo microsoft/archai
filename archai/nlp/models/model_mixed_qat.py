@@ -19,7 +19,16 @@ class MixedQATModel(ArchaiModel):
 
     """
 
-    def __init__(self, model: torch.nn.Module, qat_weight: Optional[float] = 0.2) -> None:
+    def __init__(self, model: ArchaiModel, qat_weight: Optional[float] = 0.2) -> None:
+        """Initializes the class by creating standard and QAT-based attributes
+            of the incoming model.
+
+        Args:
+            model: Instance of the model that will be fine-tuned with Mixed QAT.
+            qat_weight: Amount of QAT-based loss that should be used in the linear combination.
+            
+        """
+
         super(MixedQATModel, self).__init__()
 
         if qat_weight < 0.0 or qat_weight > 1.0:

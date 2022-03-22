@@ -18,19 +18,24 @@ class Config:
 
     hyperparameter_map: Dict[str, str] = {}
 
-    def __getattribute__(self, key):
+    def __getattribute__(self, key: str) -> Any:
         if key != 'hyperparameter_map' and key in super().__getattribute__('hyperparameter_map'):
             key = super().__getattribute__('hyperparameter_map')[key]
         
         return super().__getattribute__(key)
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any) -> None:
         if key in super().__getattribute__('hyperparameter_map'):
             key = super().__getattribute__('hyperparameter_map')[key]
 
         super().__setattr__(key, value)
 
     def __init__(self, **kwargs) -> None:
+        """Initializes the class by verifying whether keyword arguments
+            are valid and setting them as attributes.
+
+        """
+
         # Non-default attributes
         for key, value in kwargs.items():
             try:
@@ -63,6 +68,15 @@ class SearchConfigParameter:
     def __init__(self,
                  per_layer: Optional[bool] = False,
                  value: Optional[List[Any]] = None) -> None:
+        """Initializes the class by setting basic attributes
+            of a search config parameter.
+
+        Args:
+            per_layer: Whether parameter should be different for each layer.
+            value: Possible parameter values.
+
+        """
+
         self.per_layer = per_layer
         self.value = value if value is not None else [1]
 
@@ -74,6 +88,13 @@ class SearchConfig:
     """
 
     def __init__(self, **kwargs) -> None:
+        """Initializes the class by setting keywords as attributes.
+
+        Note that the name of the keyword has to match the name of the parameter
+            that will be used during search.
+
+        """
+
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -88,6 +109,16 @@ class OnnxConfig:
                  model_config: Dict[str, Any],
                  batch_size: Optional[int] = 1,
                  seq_len: Optional[int] = 32) -> None:
+        """Initializes the class by creating a configuration object and setting
+            common-shared attributes.
+
+        Args:
+            model_config: Configuration of model that will be exported.
+            batch_size: Batch size of dummy inputs.
+            seq_len: Sequence length of dummy inputs.
+            
+        """
+
         self.config = Config(**model_config)
         self.batch_size = batch_size
         self.seq_len = seq_len
