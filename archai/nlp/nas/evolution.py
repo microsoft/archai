@@ -15,7 +15,8 @@ import numpy as np
 
 from archai.nlp.models.model_loader import (load_config,
                                             load_model_formula,
-                                            load_model_from_config)
+                                            load_model_from_config,
+                                            load_search_config)
 from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import (ONNXConstraintPipeline,
                                                                       TorchConstraintPipeline)
 from archai.nlp.nas.nas_utils.constraints.onnx_constraints import measure_onnx_inference_latency
@@ -99,8 +100,8 @@ class Evolution:
         
         # Model's default and search configurations
         self.model_type = model_type
-        self.model_config = load_config(model_type, config_type='default')
-        self.model_config_search = load_config(model_type, config_type='search')
+        self.model_config = load_config(model_type).to_dict()
+        self.model_search_config = load_search_config(model_type).to_dict()
 
         # Overrides default configuration with inputted ones
         self.model_config.update((k, v) for k, v in model_config.items() 
@@ -109,11 +110,11 @@ class Evolution:
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
         for k, v in choices.items():
-            if k in self.model_config_search.keys() and v is not None:
-                self.model_config_search[k]['value'] = v
+            if k in self.model_search_config.keys() and v is not None:
+                self.model_search_config[k]['value'] = v
 
         # Converts between genes and configurations
-        self.converter = Converter(**self.model_config_search)
+        self.converter = Converter(**self.model_search_config)
         self.allowed_genes = self.converter.get_allowed_genes()
         self.gene_size = len(self.allowed_genes)
 
