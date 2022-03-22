@@ -40,8 +40,8 @@ def _prepare_onnx_model(model_type: str,
                            export_model_config,
                            model_type,
                            onnx_model_path,
-                           share_weights=False,
-                           opset_version=12)
+                           share_weights=True,
+                           opset_version=11)
     
     onnx_model_path = optimize_onnx(model_type,
                                     onnx_model_path,
