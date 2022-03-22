@@ -9,7 +9,7 @@ from typing import List, Optional
 import numpy as np
 
 
-def find_pareto_frontier_points(all_points: np.array,
+def find_pareto_frontier_points(all_points: np.ndarray,
                                 is_decreasing: Optional[bool] = True) -> List[int]:
     """Takes in a list of n-dimensional points, one per row, returns the list of row indices
         which are Pareto-frontier points.
@@ -54,6 +54,7 @@ def find_pareto_frontier_points(all_points: np.array,
                 # Other point is smaller/larger on all dimensions
                 # so we have found at least one dominating point
                 is_pareto = False
+                break
                 
         if is_pareto:
             pareto_inds.append(i)
