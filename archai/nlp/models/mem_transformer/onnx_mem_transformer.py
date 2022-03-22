@@ -1,11 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""NVIDIA's Memory Transformer (Transformer-XL) for ONNX.
+"""NVIDIA's Memory Transformer for ONNX.
 """
 
 from collections import OrderedDict
-from typing import List, Mapping, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 import torch
 from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
@@ -25,7 +25,19 @@ from archai.nlp.models.config_base import OnnxConfig
 
 
 class MemTransformerLMOnnxConfig(OnnxConfig):
-    def __init__(self, model_config: str) -> None:
+    """NVIDIA's Memory Transformer ONNX-based configuration.
+
+    """
+
+    def __init__(self, model_config: Dict[str, Any]) -> None:
+        """Initializes the class by setting missing keys on incoming
+            model's configuration.
+
+        Args:
+            model_config: Configuration of the model that will be exported.
+
+        """
+
         model_config['d_head'] = model_config['d_model'] // model_config['n_head']
         model_config['model_type'] = 'transfo-xl'
 

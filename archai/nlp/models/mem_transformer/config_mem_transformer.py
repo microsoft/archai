@@ -84,6 +84,10 @@ class MemTransformerLMSearchConfig(SearchConfig):
     """
 
     def __init__(self) -> None:
+        """Initializes the class by setting default parameters that are used during search.
+        
+        """
+        
         # Default MemTransformerLM search options: n_layer, d_model, d_inner and n_head
         n_layer = SearchConfigParameter(per_layer=False, value=[3, 4, 5, 6, 7, 8, 9, 10])
         d_model = SearchConfigParameter(per_layer=False, value=list(range(128, 1024, 64)))
