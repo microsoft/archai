@@ -1,46 +1,64 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Search space profiler-related classes and methods.
+"""
+
 import copy
 import os
 import pickle
 import random
-from collections import Counter, defaultdict, namedtuple
-from typing import Any, Dict, List, Optional, Tuple
+from collections import Counter, namedtuple
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 import plotly.graph_objects as go
 
-from archai.nlp.models.model_loader import load_config, load_model_formula, load_model_from_config
-from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import TorchConstraintPipeline
-from archai.nlp.nas.nas_utils.constraints.torch_constraints import measure_torch_inference_latency
+from archai.nlp.models.model_loader import load_config, load_model_from_config, load_search_config
+from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import ONNXConstraintPipeline, TorchConstraintPipeline
 from archai.nlp.nas.nas_utils.converter import Converter
-
 
 GeneConstraints = namedtuple('GeneConstraints', ['config', 'gene', 'decoder_params', 'total_params', 'latency_s', 'memory_mb'])
 
-class CharTransSearchSpace:
-    """ Characterizes Transformer-based autoregressive language models """
+
+class SearchSpaceProfiler:
+    """Profiles the search space of language models.
+    
+    """
 
     def __init__(self, 
-                results_path: str,
-                model_type: Optional[str] = 'hf_gpt2_flex',
-                model_config: Optional[Dict[str, Any]] = None,
-                use_quantization: Optional[bool] = False,
-                constraint_pipeline_type: Optional[str] = 'torch',
-                param_constraint_lower: Optional[int] = 5e6,
-                param_constraint_upper: Optional[int] = 12e6,
-                n_threads: Optional[int] = 1,
-                latency_repeat: Optional[int] = 5,
-                **choices) -> None:
+                 results_path: str,
+                 model_type: Optional[str] = 'hf_gpt2_flex',
+                 model_config: Optional[Dict[str, Any]] = None,
+                 use_quantization: Optional[bool] = False,
+                 pipeline_type: Optional[str] = 'torch',
+                 n_threads: Optional[int] = 1,
+                 latency_repeat: Optional[int] = 10,
+                 **choices) -> None:
+        """Initializes attributes.
+
+        Args:
+            results_path: Path to the folder that will save the results.
+            model_type: Type of model.
+            model_config: Model configuration to override default configuration.
+            use_quantization: Whether should use quantization or not.
+            pipeline_type: Type of pipeline.
+            n_threads: Number of inference threads.
+            latency_repeat: Number of latency measurements.
+            choices: Additional keyword arguments that represent hyperparameters choices.
+
+        """
 
         self.results_path = results_path
         self.use_quantization = use_quantization
 
+        # Number of threads and runs for latency measurement
         self.n_threads = n_threads
         self.latency_repeat = latency_repeat
 
+        # Model's default and search configurations
         self.model_type = model_type
-        self.model_config = load_config(model_type, config_type='default')
-
-        self.model_config_search = load_config(model_type, config_type='search')
+        self.model_config = load_config(model_type).to_dict()
+        self.model_search_config = load_search_config(model_type).to_dict()
 
         # Overrides default configuration with inputted ones
         self.model_config.update((k, v) for k, v in model_config.items() 
@@ -49,11 +67,11 @@ class CharTransSearchSpace:
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
         for k, v in choices.items():
-            if k in self.model_config_search.keys() and v is not None:
-                self.model_config_search[k]['value'] = v
+            if k in self.model_search_config.keys() and v is not None:
+                self.model_search_config[k]['value'] = v
 
         # Converts between genes and configurations
-        self.converter = Converter(**self.model_config_search)
+        self.converter = Converter(**self.model_search_config)
         self.allowed_genes = self.converter.get_allowed_genes()
         self.gene_size = len(self.allowed_genes)
 
@@ -63,19 +81,24 @@ class CharTransSearchSpace:
         # Counter for the number of genes occurences
         self.counts = Counter()
 
-        # Creates a constraint pipeline based on input type (`torch` or `onnx`)
-        self.constraint_pipeline_type = constraint_pipeline_type
-        if constraint_pipeline_type == 'torch':
+        # Creates a pipeline based on input type (`torch` or `onnx`)
+        self.pipeline_type = pipeline_type
+        if pipeline_type == 'torch':
             self.pipeline = TorchConstraintPipeline(use_quantization=use_quantization,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
-
+        elif pipeline_type == 'onnx':
+            self.pipeline = ONNXConstraintPipeline(use_quantization=use_quantization,
+                                                   n_trials=latency_repeat)
 
     def _measure_gene_constraints(self, genes:List[Any])->List[GeneConstraints]:
+        """
+        """
+
         # measure memory, latency, total params and decoder params 
         # for the list of genes
         all_gene_contraints = []
-        for gene in genes:
+        for i, gene in enumerate(genes):
             config = self.converter.gene_to_config(gene)
 
             model_config = copy.deepcopy(self.model_config)
@@ -84,12 +107,12 @@ class CharTransSearchSpace:
             model = load_model_from_config(self.model_type, model_config)
 
             # Constraint pipeline with PyTorch
-            if self.constraint_pipeline_type == 'torch':
+            if self.pipeline_type == 'torch':
                 model = load_model_from_config(self.model_type, model_config)
                 params, total_params, latency, memory = self.pipeline(model)
             
             # Constraint pipeline with ONNX
-            elif self.constraint_pipeline_type == 'onnx':
+            elif self.pipeline_type == 'onnx':
                 params, total_params, latency, memory = self.pipeline(self.model_type, model_config)
 
             gene_constraints = GeneConstraints(decoder_params=params, 
@@ -101,9 +124,43 @@ class CharTransSearchSpace:
             all_gene_contraints.append(gene_constraints)
 
         return all_gene_contraints
+    
+    def _plot_constraints(self,
+                          gene_constraints:List[GeneConstraints],
+                          savename_html:str,
+                          savename_png:str,
+                          title_text:str)->None:
+        """
+        """
 
+        all_configs = [gs.config for gs in gene_constraints]
+        all_params = [gs.decoder_params for gs in gene_constraints] 
+        all_total_params = [gs.total_params for gs in gene_constraints] 
+        all_latencies = [gs.latency_s for gs in gene_constraints]
+        all_memories = [gs.memory_mb for gs in gene_constraints]
 
-    def characterize(self):
+        fig = go.Figure()
+        fig.add_trace(go.Scatter3d(x=all_total_params, 
+                                 y=all_memories,
+                                 z=all_latencies,
+                                 mode='markers',
+                                 marker_color='blue',
+                                 showlegend=True,
+                                 name='Architectures',
+                                 hovertemplate='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                 text=[repr(config) for config in all_configs]))
+        
+        fig.update_layout(title_text=title_text,
+                      scene=dict(xaxis_title='Total Params',
+                                 yaxis_title='Memory (MB)',
+                                 zaxis_title='Latency (s)'))
+
+        fig.write_html(savename_html)
+        fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
+
+    def run(self) -> None:
+        """
+        """
 
         assert self.model_type == 'hf_gpt2_flex'
 
@@ -219,34 +276,3 @@ class CharTransSearchSpace:
                                savename_html=savename_html, 
                                savename_png=savename_png, 
                                title_text=title_text)
-
-
-
-
-    def _plot_constraints(self, gene_constraints:List[GeneConstraints],
-                        savename_html:str, savename_png:str, title_text:str)->None:
-
-        all_configs = [gs.config for gs in gene_constraints]
-        all_params = [gs.decoder_params for gs in gene_constraints] 
-        all_total_params = [gs.total_params for gs in gene_constraints] 
-        all_latencies = [gs.latency_s for gs in gene_constraints]
-        all_memories = [gs.memory_mb for gs in gene_constraints]
-
-        fig = go.Figure()
-        fig.add_trace(go.Scatter3d(x=all_total_params, 
-                                 y=all_memories,
-                                 z=all_latencies,
-                                 mode='markers',
-                                 marker_color='blue',
-                                 showlegend=True,
-                                 name='Architectures',
-                                 hovertemplate='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                                 text=[repr(config) for config in all_configs]))
-        
-        fig.update_layout(title_text=title_text,
-                      scene=dict(xaxis_title='Total Params',
-                                 yaxis_title='Memory (MB)',
-                                 zaxis_title='Latency (s)'))
-
-        fig.write_html(savename_html)
-        fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
