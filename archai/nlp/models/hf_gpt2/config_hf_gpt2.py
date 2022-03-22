@@ -39,6 +39,23 @@ class HfGPT2Config(Config, PretrainedConfig):
                  embd_pdrop: Optional[float] = 0.0,
                  tie_weight: Optional[bool] = True,
                  **kwargs) -> None:
+        """Initializes the class by overriding default arguments.
+
+        Args:
+            n_token: Size of the vocabulary (number of tokens).
+            tgt_len: Maximum length of sequences (positional embeddings).
+            d_model: Dimensionality of the model (also for embedding layer).
+            d_inner: Dimensionality of inner feed-forward layers.
+            dropout: Dropout probability.
+            dropatt: Attention dropout probability.
+            weight_init_std: Standard deviation to initialize the weights.
+            n_layer: Number of layers.
+            n_head: Number of attention heads.
+            embd_pdrop: Dropout probability of embedding layer.
+            tie_weight: Whether embedding and softmax weights should be tied.
+
+        """
+
         self.n_token = n_token
         self.tgt_len = tgt_len
         self.d_model = d_model
@@ -101,6 +118,24 @@ class HfGPT2FlexConfig(HfGPT2Config):
                  tie_weight: Optional[bool] = True,
                  primer_square: Optional[bool] = False,
                  **kwargs) -> None:
+        """Initializes the class by overriding default arguments.
+
+        Args:
+            n_token: Size of the vocabulary (number of tokens).
+            tgt_len: Maximum length of sequences (positional embeddings).
+            d_model: Dimensionality of the model (also for embedding layer).
+            d_inner: Dimensionality of inner feed-forward layers.
+            dropout: Dropout probability.
+            dropatt: Attention dropout probability.
+            weight_init_std: Standard deviation to initialize the weights.
+            n_layer: Number of layers.
+            n_head: Number of attention heads.
+            embd_pdrop: Dropout probability of embedding layer.
+            tie_weight: Whether embedding and softmax weights should be tied.
+            primer_square: Whether squared ReLU primitive should be employed.
+
+        """
+
         super().__init__(n_token=n_token,
                          tgt_len=tgt_len,
                          d_model=d_model,
