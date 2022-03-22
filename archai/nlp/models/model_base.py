@@ -49,6 +49,13 @@ class ArchaiModel(torch.nn.Module):
     """
 
     def __init__(self) -> None:
+        """Initializes the class by overriding the standard torch.nn.Module.
+
+        Note that ArchaiModels serves as an entrypoint for standardizing inputs
+            and outputs, which are required by the provided scripts.
+            
+        """
+
         super().__init__()
 
     def get_params_from_layer(self, layer_type: str) -> int:

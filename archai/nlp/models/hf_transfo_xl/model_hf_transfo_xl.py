@@ -19,6 +19,10 @@ class HfTransfoXL(ArchaiModel):
     """
     
     def __init__(self, **kwargs) -> None:
+        """Initializes the class by creating compatible configuration and model objects.
+        
+        """
+        
         super().__init__()
 
         self.config = HfTransfoXLConfig(**kwargs)

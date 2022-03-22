@@ -22,6 +22,10 @@ class HfGPT2(ArchaiModel):
     """
 
     def __init__(self, **kwargs) -> None:
+        """Initializes the class by creating compatible configuration and model objects.
+
+        """
+
         super().__init__()
 
         self.config = HfGPT2Config(**kwargs)
@@ -109,6 +113,10 @@ class HfGPT2Flex(ArchaiModel):
     """
 
     def __init__(self, **kwargs) -> None:
+        """Initializes the class by creating compatible configuration and model objects.
+        
+        """
+        
         super().__init__()
 
         self.config = HfGPT2FlexConfig(**kwargs)

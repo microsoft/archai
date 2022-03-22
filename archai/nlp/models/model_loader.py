@@ -11,6 +11,7 @@ import torch
 from onnxruntime.transformers.onnx_model import OnnxModel
 
 from archai.nlp.models.config_base import Config, OnnxConfig, SearchConfig
+from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_dict import (MODELS, MODELS_CONFIGS,
                                           MODELS_SEARCH_CONFIGS, MODELS_PARAMS_FORMULAE,
                                           ONNX_MODELS, ONNX_MODELS_CONFIGS)
@@ -20,7 +21,7 @@ def load_model_formula(model_type: str) -> Callable:
     """Loads an available analytical parameters formula.
 
     Args:
-        model_type: Type of model.
+        model_type: Type of the model.
 
     Returns:
         (Callable): Function that analytically calculates parameters.
@@ -35,15 +36,15 @@ def load_model_formula(model_type: str) -> Callable:
 # Path to the `models` package
 PACKAGE_PATH = 'archai.nlp.models'
 
-def load_model_from_config(model_type: str, model_config: Dict[str, Any]) -> torch.nn.Module:
+def load_model_from_config(model_type: str, model_config: Dict[str, Any]) -> ArchaiModel:
     """Loads an available model from a configuration dictionary.
 
     Args:
-        model_type: Type of model.
-        model_config: Model's configuration dictionary.
+        model_type: Type of the model.
+        model_config: Configuration of the model that will be created.
 
     Returns:
-        (torch.nn.Module): Model.
+        (ArchaiModel): An instance of the created model.
 
     """
 
@@ -58,18 +59,18 @@ def load_model_from_checkpoint(model_type: str,
                                replace_model_config: Optional[Dict[str, Any]] = None,
                                on_cpu: Optional[bool] = False,
                                for_export: Optional[bool] = False
-                               ) -> Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]:
+                               ) -> Tuple[ArchaiModel, Dict[str, Any], Dict[str, Any]]:
     """Loads an available model from a pre-trained checkpoint.
 
     Args:
-        model_type: Type of model.
+        model_type: Type of the model.
         checkpoint_path: Path to the pre-trained checkpoint.
         replace_model_config: Model's configuration replacement dictionary.
         on_cpu: Whether model should be loaded to CPU.
         for_export: Whether model should be ready for ONNX exporting.
 
     Returns:
-         (Tuple[torch.nn.Module, Dict[str, Any], Dict[str, Any]]): Model, configuration
+         (Tuple[ArchaiModel, Dict[str, Any], Dict[str, Any]]): Model, configuration
             and checkpoint dictionaries.
 
     """
@@ -101,7 +102,7 @@ def load_config(model_type: str) -> Config:
     """Loads an available default configuration class.
 
     Args:
-        model_type: Type of model.
+        model_type: Type of the model.
     
     Returns:
         (Config): Configuration.
@@ -118,7 +119,7 @@ def load_search_config(model_type: str) -> SearchConfig:
     """Loads an available search configuration class.
 
     Args:
-        model_type: Type of model.
+        model_type: Type of the model.
     
     Returns:
         (SearchConfig): Search configuration.
@@ -135,7 +136,7 @@ def load_onnx_model(model_type: str, *model_args) -> OnnxModel:
     """Loads an available ONNX-based model (used during export optimization).
 
     Args:
-        model_type: Type of model.
+        model_type: Type of the model.
 
     Returns:
         (OnnxModel): ONNX-based optimization model.
@@ -159,7 +160,7 @@ def load_onnx_config(model_type: str, model_config: Dict[str, Any]) -> OnnxConfi
     """Loads an available ONNX-based configuration (used during export).
 
     Args:
-        model_type: Type of model.
+        model_type: Type of the model.
         model_config: Model's configuration used to supply missing attributes.
 
     Returns:
