@@ -181,7 +181,7 @@ class ArchaiCorpus:
         # Encodes the dataset by applying pre-processing and tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
         encoded_dataset = encoded_dataset.with_format(type='torch')
-        encoded_dataset = encoded_dataset.remove_columns('text')
+        encoded_dataset = encoded_dataset.remove_columns(self.data_input_column_name)
 
         return encoded_dataset
 
@@ -190,16 +190,14 @@ class ArchaiCorpus:
         tokenizer = self._create_tokenizer()
 
         # Tokenizer should be re-trained it it has not been trained yet
-        # or if the cache should be refreshed
+        # or if its cache should be refreshed
         if not self.is_tokenizer_trained or self.tokenizer_refresh_cache:
             tokenizer.train(dataset, column_name=self.data_input_column_name)
 
         # Loads the tokenizer and encodes the dataset
         # Note that we pass the pre-trained tokenizer attribute to avoid hashing issues
         tokenizer.load()
-        encoded_dataset = self._encode(tokenizer.pre_trained_tokenizer,
-                                       tokenizer.config,
-                                       dataset)
+        encoded_dataset = self._encode(tokenizer.pre_trained_tokenizer, tokenizer.config, dataset)
 
         # Do not forget to attach them as attributes
         self.dataset = encoded_dataset
