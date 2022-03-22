@@ -127,7 +127,7 @@ def parse_args():
     general.add_argument('--cache_dir', default='cache', type=str,
                          help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -865,18 +865,22 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
         logging.warning('QAT usually starts from a pretrained model. Check the --pretrained_path argument.')
 
     if args.pretrained_path:
-        model = load_model_from_checkpoint(args.model_type, args.pre_trained_path, on_cpu=False)
+        logging.info('Overwriting the provided model config with the pretrained model config.')
+        model, model_config, _ = load_model_from_checkpoint(args.model_type, args.pretrained_path, on_cpu=False)
     else:
         model = load_from_args(args.model_type, **model_config)
 
-    if args.qat:
-        model = prepare_with_qat(model, onnx_compatible=True)
+    if args.mixed_qat:
+        model = MixedQATModel(model)
 
     n_params = model.get_params()
     n_all_param = n_params['total']
     n_nonemb_param = n_params['non_embedding']
     logging.info('#params = {}'.format(n_all_param))
     logging.info('#non emb params = {}'.format(n_nonemb_param))
+
+    if args.qat:
+        model = prepare_with_qat(model, onnx_compatible=True)
 
     return model, model_config
 
@@ -1187,7 +1191,7 @@ def main():
         model_config, optimizer, optimizer_sparse, scheduler,
         scheduler_sparse, scaler, vocab, file_stats[1])
 
-    checkpoint_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
+    checkpoint_path = os.path.join(args.work_dir, 'checkpoint_best.pt' if not args.qat else 'qat_checkpoint_best.pt')
     summary = evaluate_main(args, model, checkpoint_path, test_itr, file_stats[-1])
 
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
