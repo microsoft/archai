@@ -81,3 +81,6 @@ class TokenConfig:
             token = token.lower()
 
         return token
+
+    def pre_process_batch(self, texts: List[str]) -> List[str]:
+        return [self.pre_process(text) for text in texts]

@@ -13,6 +13,8 @@ from transformers import PreTrainedTokenizerFast
 from archai.nlp.datasets_v2.dataset_loader import load_file_dataset, load_hub_dataset
 from archai.nlp.datasets_v2.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.datasets_v2.tokenizer_utils.tokenizer_base import ArchaiTokenizer
+from archai.nlp.datasets_v2.tokenizer_utils.bbpe_tokenizer import BBPETokenizer
+from archai.nlp.datasets_v2.tokenizer_utils.gpt2_tokenizer import GPT2Tokenizer
 from archai.nlp.datasets_v2.tokenizer_utils.word_tokenizer import WordTokenizer
 
 
@@ -135,6 +137,19 @@ class ArchaiCorpus:
                                  min_freq=self.vocab_min_freq,
                                  vocab_size=self.vocab_size,
                                  model_max_length=self.tokenizer_max_length)
+
+        # Creates a BBPE-based tokenizer
+        if self.vocab_type == 'bbpe':
+            return BBPETokenizer(tokenizer_path=self.tokenizer_path,
+                                 token_config_path=self.token_config_path,
+                                 min_freq=self.vocab_min_freq,
+                                 vocab_size=self.vocab_size,
+                                 model_max_length=self.tokenizer_max_length)
+
+        # Creates a GPT-2-based tokenizer
+        if self.vocab_type == 'gpt2':
+            return GPT2Tokenizer(tokenizer_path=self.tokenizer_path,
+                                 token_config_path=self.token_config_path)
         
         raise NotImplementedError(f'vocab_type: {self.vocab_type} not supported yet.')
 
@@ -152,7 +167,7 @@ class ArchaiCorpus:
             return d
 
         def _apply_tokenization(x):
-            return tokenizer(token_config.pre_process(x[self.data_input_column_name]),
+            return tokenizer(token_config.pre_process_batch(x[self.data_input_column_name]),
                              truncation=self.data_truncate,
                              padding=self.data_padding)
 
@@ -165,7 +180,8 @@ class ArchaiCorpus:
 
         # Encodes the dataset by applying pre-processing and tokenization
         encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
-        encoded_dataset.set_format(type='torch', columns=self.data_output_column_name)
+        encoded_dataset = encoded_dataset.with_format(type='torch')
+        encoded_dataset = encoded_dataset.remove_columns('text')
 
         return encoded_dataset
 
