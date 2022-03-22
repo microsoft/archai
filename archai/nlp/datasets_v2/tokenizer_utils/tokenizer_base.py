@@ -4,9 +4,11 @@
 """Tokenizer base class.
 """
 
+from __future__ import annotations
+
 import os
 import json
-from typing import List, Optional, Union
+from typing import Optional, Union
 from datasets import IterableDataset
 
 from datasets.arrow_dataset import Dataset
@@ -46,7 +48,8 @@ class ArchaiTokenizer:
                  lower_case: Optional[bool] = False,
                  encode_special_tokens: Optional[bool] = True,
                  decode_special_tokens: Optional[bool] = True) -> None:
-        """Initializes a base tokenizer class by setting attributes.
+        """Initializes a base tokenizer class by setting attributes and
+            creating the token's configuration.
 
         Args:
             tokenizer: Instance of a Tokenizer from huggingface/tokenizers.
@@ -73,7 +76,6 @@ class ArchaiTokenizer:
 
         # Tokenizer-based attributes
         self.tokenizer = tokenizer
-        self.pre_trained_tokenizer = None
         self.trainer = trainer
         self.tokenizer_path = tokenizer_path
         self.token_config_path = token_config_path
@@ -124,46 +126,45 @@ class ArchaiTokenizer:
         with open(self.token_config_path, 'w') as f:
             json.dump(self.config.__dict__, f)
 
-    def load(self) -> None:
-        # Attempts to load the token's configuration because it will be missed
-        # when creating the PreTrainedTokenizerFast from file
+
+class ArchaiPreTrainedTokenizer(PreTrainedTokenizerFast):
+    """Base pre-trained tokenizer class, used to load a pre-trained tokenizer
+        that is compatible with huggingface/transformers.
+
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        """Initializes the class by retrieving the token's configuration
+            and overriding its parent class.
+
+        """
+
+        self.token_config = kwargs.pop('token_config', None)
+        if self.token_config is None:
+            self.token_config = TokenConfig()
+
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def from_file(cls: ArchaiPreTrainedTokenizer,
+                  tokenizer_path: str,
+                  token_config_path: str) -> ArchaiPreTrainedTokenizer:
         try:
-            with open(self.token_config_path, 'r') as f:
-                self.config = TokenConfig(**json.load(f))
+            with open(token_config_path, 'r') as f:
+                token_config = TokenConfig(**json.load(f))
         except:
-            raise FileNotFoundError(f'{self.token_config_path} could not be found.')
-        
-        # Attempts to load the pre-trained tokenizer (compatible with `transformers`)
+            raise FileNotFoundError(f'{token_config_path} could not be found.')
+
         try:
-            self.pre_trained_tokenizer = PreTrainedTokenizerFast(model_max_length=self.config.model_max_length,
-                                                                 bos_token=self.config.bos_token,
-                                                                 eos_token=self.config.eos_token,
-                                                                 unk_token=self.config.unk_token,
-                                                                 sep_token=self.config.sep_token,
-                                                                 pad_token=self.config.pad_token,
-                                                                 cls_token=self.config.cls_token,
-                                                                 mask_token=self.config.mask_token,
-                                                                 tokenizer_file=self.tokenizer_path)
+            return cls(token_config=token_config,
+                       model_max_length=token_config.model_max_length,
+                       bos_token=token_config.bos_token,
+                       eos_token=token_config.eos_token,
+                       unk_token=token_config.unk_token,
+                       sep_token=token_config.sep_token,
+                       pad_token=token_config.pad_token,
+                       cls_token=token_config.cls_token,
+                       mask_token=token_config.mask_token,
+                       tokenizer_file=tokenizer_path)
         except:
-            raise FileNotFoundError(f'{self.tokenizer_path} could not be found.')
-
-    def __len__(self):
-        if self.pre_trained_tokenizer:
-            return len(self.pre_trained_tokenizer)
-        return 0
-
-    def encode(self, text: str) -> List[int]:
-        return self.pre_trained_tokenizer.encode(self.config.pre_process(text),
-                                                 add_special_tokens=self.encode_special_tokens)
-
-    def decode(self, ids: Union[int, List[int]]) -> str:
-        return self.pre_trained_tokenizer.decode(ids,
-                                                 skip_special_tokens=self.decode_special_tokens)
-
-    def ids_to_tokens(self, ids: Union[int, List[int]]) -> Union[str, List[str]]:
-        return self.pre_trained_tokenizer.convert_ids_to_tokens(ids,
-                                                                skip_special_tokens=self.decode_special_tokens)
-
-    def tokens_to_ids(self, tokens: Union[str, List[str]]) -> Union[int, List[int]]:
-        return self.pre_trained_tokenizer.convert_tokens_to_ids(tokens,
-                                                                skip_special_tokens=self.decode_special_tokens)
+            raise FileNotFoundError(f'{tokenizer_path} could not be found.')

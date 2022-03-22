@@ -9,10 +9,9 @@ import os
 from typing import Any, Union, Dict, List, Optional
 from datasets import Dataset, DatasetDict, IterableDataset, IterableDatasetDict
 
-from transformers import PreTrainedTokenizerFast
 from archai.nlp.datasets_v2.dataset_loader import load_file_dataset, load_hub_dataset
 from archai.nlp.datasets_v2.tokenizer_utils.token_config import TokenConfig
-from archai.nlp.datasets_v2.tokenizer_utils.tokenizer_base import ArchaiTokenizer
+from archai.nlp.datasets_v2.tokenizer_utils.tokenizer_base import ArchaiPreTrainedTokenizer, ArchaiTokenizer
 from archai.nlp.datasets_v2.tokenizer_utils.bbpe_tokenizer import BBPETokenizer
 from archai.nlp.datasets_v2.tokenizer_utils.gpt2_tokenizer import GPT2Tokenizer
 from archai.nlp.datasets_v2.tokenizer_utils.word_tokenizer import WordTokenizer
@@ -39,7 +38,7 @@ class ArchaiCorpus:
                  data_n_samples: Optional[int] = 0,      
                  data_truncate: Optional[bool] = False,
                  data_padding: Optional[str] = 'do_not_pad',
-                 from_stream: Optional[bool] = False,
+                 data_from_stream: Optional[bool] = False,
                  data_refresh_cache: Optional[bool] = False,
                  vocab_type: Optional[str] = 'word',
                  vocab_min_freq: Optional[int] = 0,
@@ -64,7 +63,7 @@ class ArchaiCorpus:
             data_truncate: Whether exceed `tokenizer_max_length` sequences should be truncated.
             data_padding: Whether non-exceed `tokenizer_max_length` should be padded (`do_not_pad`, `max_length` or `longest`).
             data_refresh_cache: Whether dataset cache should be refreshed or not.
-            from_stream: Whether dataset should be streamed or not.
+            data_from_stream: Whether dataset should be streamed or not.
             vocab_type: Type of vocabulary (`word`, `bbpe` or `gpt2`).
             vocab_min_freq: Minimum frequency of tokens (`0` for disabling argument).
             vocab_size: Maximum size of vocabulary.
@@ -74,6 +73,7 @@ class ArchaiCorpus:
         """
 
         # Dataset-related attributes
+        self.cache_dir = os.path.join(cache_dir, vocab_type, str(vocab_size))
         self.data_dir = data_dir
         self.data_config_name = data_config_name
         self.data_type = data_type
@@ -87,20 +87,21 @@ class ArchaiCorpus:
         self.data_n_samples = data_n_samples
         self.data_truncate = data_truncate
         self.data_padding = data_padding
-
-        # Cache/streaming-related attributes
-        self.cache_dir = os.path.join(cache_dir, vocab_type, str(vocab_size))
-        self.from_stream = from_stream
         self.data_refresh_cache = data_refresh_cache
-        self.tokenizer_refresh_cache = tokenizer_refresh_cache
+        self.data_from_stream = data_from_stream
 
-        # Tokenizer and vocabulary-related attributes
+        # Vocabulary-related attributes
         self.vocab_type = vocab_type
         self.vocab_min_freq = vocab_min_freq
         self.vocab_size = vocab_size
+
+        # Tokenizer-related attributes
+        self.tokenizer = None
+        self.token_config = None
         self.tokenizer_max_length = tokenizer_max_length
         self.tokenizer_path = os.path.join(self.cache_dir, 'tokenizer.json')
         self.token_config_path = os.path.join(self.cache_dir, 'token_config.json')
+        self.tokenizer_refresh_cache = tokenizer_refresh_cache
 
     @property
     def is_tokenizer_trained(self) -> bool:
@@ -114,7 +115,7 @@ class ArchaiCorpus:
                                      data_files=self.data_files,
                                      split=self.data_split,
                                      features=self.data_features,
-                                     from_stream=self.from_stream,
+                                     from_stream=self.data_from_stream,
                                      refresh_cache=self.data_refresh_cache)
 
         # Loads dataset from Huggingface's datasets hub
@@ -124,7 +125,7 @@ class ArchaiCorpus:
                                     self.cache_dir,
                                     split=self.data_split,
                                     revision=self.data_revision,
-                                    from_stream=self.from_stream,
+                                    from_stream=self.data_from_stream,
                                     refresh_cache=self.data_refresh_cache)
 
         raise NotImplementedError(f'data_type: {self.data_type} not supported yet.')
@@ -154,7 +155,7 @@ class ArchaiCorpus:
         raise NotImplementedError(f'vocab_type: {self.vocab_type} not supported yet.')
 
     def _encode(self,
-                tokenizer: PreTrainedTokenizerFast,
+                tokenizer: ArchaiPreTrainedTokenizer,
                 token_config: TokenConfig,
                 dataset: Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]
                 ) -> Union[DatasetDict, Dataset, IterableDatasetDict, IterableDataset]:
@@ -187,19 +188,19 @@ class ArchaiCorpus:
 
     def load(self) -> None:
         dataset = self._load_dataset()
-        tokenizer = self._create_tokenizer()
-
+        
         # Tokenizer should be re-trained it it has not been trained yet
         # or if its cache should be refreshed
         if not self.is_tokenizer_trained or self.tokenizer_refresh_cache:
+            tokenizer = self._create_tokenizer()
             tokenizer.train(dataset, column_name=self.data_input_column_name)
 
         # Loads the tokenizer and encodes the dataset
         # Note that we pass the pre-trained tokenizer attribute to avoid hashing issues
-        tokenizer.load()
-        encoded_dataset = self._encode(tokenizer.pre_trained_tokenizer, tokenizer.config, dataset)
+        tokenizer = ArchaiPreTrainedTokenizer.from_file(self.tokenizer_path, self.token_config_path)
+        encoded_dataset = self._encode(tokenizer, tokenizer.token_config, dataset)
 
         # Do not forget to attach them as attributes
         self.dataset = encoded_dataset
         self.tokenizer = tokenizer
-        self.token_config = tokenizer.config
+        self.token_config = tokenizer.token_config
