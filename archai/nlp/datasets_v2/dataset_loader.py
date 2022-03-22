@@ -7,24 +7,24 @@
 from typing import Any, Dict, List, Optional, Union
 
 from datasets import Dataset, DatasetDict, IterableDataset, IterableDatasetDict, load_dataset
-from datasets.utils.download_manager import GenerateMode
+from datasets.utils.download_manager import DownloadMode
 
 
-def _should_refresh_cache(refresh: bool) -> GenerateMode:
+def _should_refresh_cache(refresh: bool) -> DownloadMode:
     """Refreshes the cached dataset by re-downloading/re-creating it.
 
     Args:
         refresh: Whether the dataset cache should be refreshed or not.
 
     Returns:
-        (GenerateMode): Enumerator that defines whether cache should refresh or not.
+        (DownloadMode): Enumerator that defines whether cache should refresh or not.
 
     """
 
     if refresh:
-        return GenerateMode.FORCE_REDOWNLOAD
+        return DownloadMode.FORCE_REDOWNLOAD
 
-    return GenerateMode.REUSE_DATASET_IF_EXISTS
+    return DownloadMode.REUSE_DATASET_IF_EXISTS
 
 
 def load_file_dataset(data_dir: str,
