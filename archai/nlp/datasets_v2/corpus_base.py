@@ -196,7 +196,6 @@ class ArchaiCorpus:
             tokenizer.train(dataset, column_name=self.data_input_column_name)
 
         # Loads the tokenizer and encodes the dataset
-        # Note that we pass the pre-trained tokenizer attribute to avoid hashing issues
         tokenizer = ArchaiPreTrainedTokenizer.from_file(self.tokenizer_path, self.token_config_path)
         encoded_dataset = self._encode(tokenizer, tokenizer.token_config, dataset)
 
