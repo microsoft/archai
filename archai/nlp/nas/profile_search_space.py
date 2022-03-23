@@ -52,7 +52,7 @@ def parse_args():
                           default=1111,
                           help='Random seed.')
 
-    profiler.add_argument('--pipeline_type',
+    profiler.add_argument('--constraint_pipeline_type',
                           default='torch',
                           choices=['torch'],
                           help='Type of pipeline to be used during profiling.')
@@ -129,7 +129,7 @@ if __name__ == '__main__':
                                    model_type=args['model_type'],
                                    model_config=args['model_config'],
                                    use_quantization=args['use_quantization'],
-                                   pipeline_type=args['pipeline_type'],
+                                   constraint_pipeline_type=args['constraint_pipeline_type'],
                                    n_threads=args['n_threads'],
                                    latency_repeat=args['latency_repeat'],
                                    n_layer=args['n_layer'],

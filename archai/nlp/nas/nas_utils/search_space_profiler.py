@@ -14,10 +14,17 @@ from typing import Any, Dict, List, Optional
 import plotly.graph_objects as go
 
 from archai.nlp.models.model_loader import load_config, load_model_from_config, load_search_config
-from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import ONNXConstraintPipeline, TorchConstraintPipeline
+from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import (ONNXConstraintPipeline,
+                                                                      TorchConstraintPipeline)
 from archai.nlp.nas.nas_utils.converter import Converter
 
-GeneConstraints = namedtuple('GeneConstraints', ['config', 'gene', 'decoder_params', 'total_params', 'latency_s', 'memory_mb'])
+# We use a named tuple just for not missing out the properties
+GeneConstraints = namedtuple('GeneConstraints', ['config',
+                                                 'gene',
+                                                 'decoder_params',
+                                                 'total_params',
+                                                 'latency_s',
+                                                 'memory_mb'])
 
 
 class SearchSpaceProfiler:
@@ -27,10 +34,10 @@ class SearchSpaceProfiler:
 
     def __init__(self, 
                  results_path: str,
-                 model_type: Optional[str] = 'hf_gpt2_flex',
+                 model_type: Optional[str] = 'mem_transformer',
                  model_config: Optional[Dict[str, Any]] = None,
                  use_quantization: Optional[bool] = False,
-                 pipeline_type: Optional[str] = 'torch',
+                 constraint_pipeline_type: Optional[str] = 'torch',
                  n_threads: Optional[int] = 1,
                  latency_repeat: Optional[int] = 10,
                  **choices) -> None:
@@ -41,7 +48,7 @@ class SearchSpaceProfiler:
             model_type: Type of model.
             model_config: Model configuration to override default configuration.
             use_quantization: Whether should use quantization or not.
-            pipeline_type: Type of pipeline.
+            constraint_pipeline_type: Type of constraint pipeline.
             n_threads: Number of inference threads.
             latency_repeat: Number of latency measurements.
             choices: Additional keyword arguments that represent hyperparameters choices.
@@ -56,6 +63,7 @@ class SearchSpaceProfiler:
         self.latency_repeat = latency_repeat
 
         # Model's default and search configurations
+        self.choices_index = {}
         self.model_type = model_type
         self.model_config = load_config(model_type).to_dict()
         self.model_search_config = load_search_config(model_type).to_dict()
@@ -66,7 +74,10 @@ class SearchSpaceProfiler:
 
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
-        for k, v in choices.items():
+        for i, (k, v) in enumerate(choices.items()):
+            # Saves the hyperparameters keys and their indices for further usage
+            self.choices_index[k] = i
+
             if k in self.model_search_config.keys() and v is not None:
                 self.model_search_config[k]['value'] = v
 
@@ -82,197 +93,130 @@ class SearchSpaceProfiler:
         self.counts = Counter()
 
         # Creates a pipeline based on input type (`torch` or `onnx`)
-        self.pipeline_type = pipeline_type
-        if pipeline_type == 'torch':
+        self.constraint_pipeline_type = constraint_pipeline_type
+        if constraint_pipeline_type == 'torch':
             self.pipeline = TorchConstraintPipeline(use_quantization=use_quantization,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
-        elif pipeline_type == 'onnx':
+        elif constraint_pipeline_type == 'onnx':
             self.pipeline = ONNXConstraintPipeline(use_quantization=use_quantization,
                                                    n_trials=latency_repeat)
 
-    def _measure_gene_constraints(self, genes:List[Any])->List[GeneConstraints]:
-        """
+    def _measure_gene_constraints(self, genes: List[Any]) -> List[GeneConstraints]:
+        """Measures constraints (through pipeline) for a set of genes.
+
+        Args:
+            genes: List of genes.
+
+        Returns:
+            (List[GeneConstraints]): List of tuples holding the measured constraints.
+
         """
 
-        # measure memory, latency, total params and decoder params 
-        # for the list of genes
-        all_gene_contraints = []
+        genes_constraints = []
+
         for i, gene in enumerate(genes):
+            print(f'Gene: {i+1}/{len(genes)}')
+            
+            # Converts gene from configuration and updates the model's configuration
             config = self.converter.gene_to_config(gene)
-
             model_config = copy.deepcopy(self.model_config)
             model_config.update(config)
 
-            model = load_model_from_config(self.model_type, model_config)
-
             # Constraint pipeline with PyTorch
-            if self.pipeline_type == 'torch':
+            if self.constraint_pipeline_type == 'torch':
                 model = load_model_from_config(self.model_type, model_config)
                 params, total_params, latency, memory = self.pipeline(model)
-            
+
             # Constraint pipeline with ONNX
-            elif self.pipeline_type == 'onnx':
+            elif self.constraint_pipeline_type == 'onnx':
                 params, total_params, latency, memory = self.pipeline(self.model_type, model_config)
 
             gene_constraints = GeneConstraints(decoder_params=params, 
-                                            total_params=total_params, 
-                                            latency_s=latency, 
-                                            memory_mb=memory, 
-                                            config=config, 
-                                            gene=gene)
-            all_gene_contraints.append(gene_constraints)
+                                               total_params=total_params, 
+                                               latency_s=latency, 
+                                               memory_mb=memory, 
+                                               config=config, 
+                                               gene=gene)
+            genes_constraints.append(gene_constraints)
 
-        return all_gene_contraints
+        return genes_constraints
     
     def _plot_constraints(self,
-                          gene_constraints:List[GeneConstraints],
-                          savename_html:str,
-                          savename_png:str,
-                          title_text:str)->None:
-        """
+                          gene_constraints: List[GeneConstraints],
+                          output_path: str,
+                          title_text: str) -> None:
+        """Plots the constraints for clearer visualization.
+
+        Args:
+            gene_constraints: List of tuples holding the measured constraints.
+            output_path: Path to the output plots.
+            title_text: Title of the plots.
         """
 
-        all_configs = [gs.config for gs in gene_constraints]
-        all_params = [gs.decoder_params for gs in gene_constraints] 
-        all_total_params = [gs.total_params for gs in gene_constraints] 
-        all_latencies = [gs.latency_s for gs in gene_constraints]
-        all_memories = [gs.memory_mb for gs in gene_constraints]
+        all_configs = [gc.config for gc in gene_constraints]
+        all_total_params = [gc.total_params for gc in gene_constraints] 
+        all_latencies = [gc.latency_s for gc in gene_constraints]
+        all_memories = [gc.memory_mb for gc in gene_constraints]
 
         fig = go.Figure()
         fig.add_trace(go.Scatter3d(x=all_total_params, 
-                                 y=all_memories,
-                                 z=all_latencies,
-                                 mode='markers',
-                                 marker_color='blue',
-                                 showlegend=True,
-                                 name='Architectures',
-                                 hovertemplate='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                                 text=[repr(config) for config in all_configs]))
+                                   y=all_memories,
+                                   z=all_latencies,
+                                   mode='markers',
+                                   marker_color='blue',
+                                   showlegend=True,
+                                   name='Architectures',
+                                   hovertemplate='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                                   text=[repr(config) for config in all_configs]))
         
         fig.update_layout(title_text=title_text,
-                      scene=dict(xaxis_title='Total Params',
-                                 yaxis_title='Memory (MB)',
-                                 zaxis_title='Latency (s)'))
+                          scene=dict(xaxis_title='Total Params',
+                                     yaxis_title='Memory (MB)',
+                                     zaxis_title='Latency (s)'))
 
-        fig.write_html(savename_html)
-        fig.write_image(savename_png, engine='kaleido', width=1500, height=1500, scale=1)
+        html_path = f'{output_path}.html'
+        fig.write_html(html_path)
+
+        png_path = f'{output_path}.png'
+        fig.write_image(png_path, engine='kaleido', width=1500, height=1500, scale=1)
 
     def run(self) -> None:
+        """Runs the search space profiler.
+
         """
-        """
 
-        assert self.model_type == 'hf_gpt2_flex'
+        def _sample_vary_and_plot_genes(key: str) -> None:
+            """Samples a set of genes, varies the inputted key and plots their constraints.
 
-        # NOTE: hf_gpt2_flex specific for now
+            Args:
+                key: Used to vary the hyperparameter.
 
-        # fix num_layers, n_heads, d_inner, vary d_model
-        # ----------------------------------------------
-        sampled_genes = []
-        
-        # sample a gene first
-        sampled_gene = []
-        for k in range(self.gene_size):
-            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
-        
-        # vary d_model which is index 1
-        for d_model in self.allowed_genes[1]:
-            gene_copy = copy.deepcopy(sampled_gene)
-            gene_copy[1] = d_model
-            sampled_genes.append(gene_copy)
+            """
 
-        # measure constraints
-        all_gene_constraints = self._measure_gene_constraints(sampled_genes)
-            
-        # plot
-        savename_html = os.path.join(self.results_path, 'vary_d_model.html')
-        savename_png = os.path.join(self.results_path, 'vary_d_model.png')
-        title_text = 'Varying d_model'
-        self._plot_constraints(all_gene_constraints, 
-                               savename_html=savename_html, 
-                               savename_png=savename_png, 
-                               title_text=title_text)
+            index = self.choices_index[key]
 
-            
-        # fix num_layers, n_heads, d_model, vary d_inner
-        # ------------------------------------------------
-        sampled_genes = []
+            sampled_genes = []
+            sampled_gene = [random.choices(self.allowed_genes[k])[0] for k in range(self.gene_size)]
 
-        # sample a gene first
-        sampled_gene = []
-        for k in range(self.gene_size):
-            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
-        
-        # vary d_inner for the first layer which is index 2
-        for di in self.allowed_genes[2]:
-            gene_copy = copy.deepcopy(sampled_gene)
-            gene_copy[2] = di
-            sampled_genes.append(gene_copy)
+            print(f'Variable: {key}')
 
-        # measure constraints
-        all_gene_constraints = self._measure_gene_constraints(sampled_genes)
-            
-        # plot
-        savename_html = os.path.join(self.results_path, 'vary_d_inner_layer_1.html')
-        savename_png = os.path.join(self.results_path, 'vary_d_inner_layer_1.png')
-        title_text = 'Varying d_inner Layer 1'
-        self._plot_constraints(all_gene_constraints, 
-                               savename_html=savename_html, 
-                               savename_png=savename_png, 
-                               title_text=title_text)
+            for variable in self.allowed_genes[index]:
+                sampled_gene_copy = copy.deepcopy(sampled_gene)
+                sampled_gene_copy[index] = variable
 
+                sampled_genes.append(sampled_gene_copy)
 
+            gene_constraints = self._measure_gene_constraints(sampled_genes)
 
-        # fix num_layers, d_model, d_inner, vary n_heads
-        # ------------------------------------------------
-        sampled_genes = []
+            output_path = os.path.join(self.results_path, f'vary_{key}')
+            title_text = f'Variable: {key}'
+            self._plot_constraints(gene_constraints,
+                                   output_path=output_path,
+                                   title_text=title_text)
 
-        # sample a gene first
-        sampled_gene = []
-        for k in range(self.gene_size):
-            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
-        
-        # vary n_heads which is last index
-        for n_heads in self.allowed_genes[-1]:
-            gene_copy = copy.deepcopy(sampled_gene)
-            gene_copy[-1] = n_heads
-            sampled_genes.append(gene_copy)
-
-        # measure constraints
-        all_gene_constraints = self._measure_gene_constraints(sampled_genes)
-            
-        # plot
-        savename_html = os.path.join(self.results_path, 'vary_n_heads.html')
-        savename_png = os.path.join(self.results_path, 'vary_n_heads.png')
-        title_text = 'Varying n_heads'
-        self._plot_constraints(all_gene_constraints, 
-                               savename_html=savename_html, 
-                               savename_png=savename_png, 
-                               title_text=title_text)
-
-        # fix d_model, d_inner, n_heads, vary num_layers
-        # ------------------------------------------------
-        sampled_genes = []
-        
-        # sample a gene first
-        sampled_gene = []
-        for k in range(self.gene_size):
-            sampled_gene.append(random.choices(self.allowed_genes[k])[0])
-        
-        # vary num_layers which is index 0
-        for nl in self.allowed_genes[0]:
-            gene_copy = copy.deepcopy(sampled_gene)
-            gene_copy[0] = nl
-            sampled_genes.append(gene_copy)
-
-        # measure constraints
-        all_gene_constraints = self._measure_gene_constraints(sampled_genes)
-            
-        # plot
-        savename_html = os.path.join(self.results_path, 'vary_layers.html')
-        savename_png = os.path.join(self.results_path, 'vary_layers.png')
-        title_text = 'Varying layers'
-        self._plot_constraints(all_gene_constraints, 
-                               savename_html=savename_html, 
-                               savename_png=savename_png, 
-                               title_text=title_text)
+        # Samples, varies and plots gene constraints according to the variable key
+        _sample_vary_and_plot_genes('n_layer')
+        _sample_vary_and_plot_genes('d_model')
+        _sample_vary_and_plot_genes('d_inner')
+        _sample_vary_and_plot_genes('n_head')
