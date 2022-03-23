@@ -35,7 +35,8 @@ class ArchaiCorpus:
                  data_input_column_name: Optional[str] = 'text',
                  data_output_column_name: Optional[List[str]] = ['input_ids'],
                  data_random_seed: Optional[int] = 0,
-                 data_n_samples: Optional[int] = 0,      
+                 data_n_samples: Optional[int] = 0,
+                 data_contiguous: Optional[bool] = True,      
                  data_truncate: Optional[bool] = False,
                  data_padding: Optional[str] = 'do_not_pad',
                  data_from_stream: Optional[bool] = False,
@@ -60,6 +61,7 @@ class ArchaiCorpus:
             data_output_column_name: Output column name of dataset (usually `input_ids`).
             data_random_seed: Random seed for shuffling the dataset (`0` for disabling argument).
             data_n_samples: Number of samples to subsample the dataset (`0` for disabling argument).
+            data_contiguous: Whether dataset should be ordered as a single and contiguous example.
             data_truncate: Whether exceed `tokenizer_max_length` sequences should be truncated.
             data_padding: Whether non-exceed `tokenizer_max_length` should be padded (`do_not_pad`, `max_length` or `longest`).
             data_refresh_cache: Whether dataset cache should be refreshed or not.
@@ -71,6 +73,9 @@ class ArchaiCorpus:
             tokenizer_refresh_cache: Whether tokenizer cache should be refreshed or not.
 
         """
+
+        assert not (data_contiguous and (data_truncate or data_padding != 'do_not_pad')), \
+        'If data_contiguous is `True`, data_truncate should be `False` and data_padding should be `do_not_pad`'
 
         # Dataset-related attributes
         self.cache_dir = os.path.join(cache_dir, vocab_type, str(vocab_size))
@@ -85,6 +90,7 @@ class ArchaiCorpus:
         self.data_output_column_name = data_output_column_name
         self.data_random_seed = data_random_seed
         self.data_n_samples = data_n_samples
+        self.data_contiguous = data_contiguous
         self.data_truncate = data_truncate
         self.data_padding = data_padding
         self.data_refresh_cache = data_refresh_cache
@@ -96,12 +102,15 @@ class ArchaiCorpus:
         self.vocab_size = vocab_size
 
         # Tokenizer-related attributes
-        self.tokenizer = None
-        self.token_config = None
         self.tokenizer_max_length = tokenizer_max_length
         self.tokenizer_path = os.path.join(self.cache_dir, 'tokenizer.json')
         self.token_config_path = os.path.join(self.cache_dir, 'token_config.json')
         self.tokenizer_refresh_cache = tokenizer_refresh_cache
+
+        # Uninitialized attributes
+        self.dataset = None
+        self.tokenizer = None
+        self.token_config = None
 
     @property
     def is_tokenizer_trained(self) -> bool:
@@ -167,11 +176,6 @@ class ArchaiCorpus:
 
             return d
 
-        def _apply_tokenization(x):
-            return tokenizer(token_config.pre_process_batch(x[self.data_input_column_name]),
-                             truncation=self.data_truncate,
-                             padding=self.data_padding)
-
         # Checks if dataset is a DatasetDict (usually contains multiple splits)
         if isinstance(dataset, DatasetDict):
             for split, data in dataset.items():
@@ -179,12 +183,29 @@ class ArchaiCorpus:
         else:
             dataset = _shuffle_and_select(dataset)
 
-        # Encodes the dataset by applying pre-processing and tokenization
-        encoded_dataset = dataset.map(lambda x: _apply_tokenization(x), batched=True)
-        encoded_dataset = encoded_dataset.with_format(type='torch')
-        encoded_dataset = encoded_dataset.remove_columns(self.data_input_column_name)
+        def _preprocess_dataset(x):
+            return {self.data_input_column_name: token_config.pre_process_batch(x[self.data_input_column_name])}
 
-        return encoded_dataset
+        def _merge_dataset(x):
+            return {self.data_input_column_name: [''.join(x[self.data_input_column_name])]}
+
+        def _tokenize_dataset(x):
+            return tokenizer(x[self.data_input_column_name],
+                             truncation=self.data_truncate,
+                             padding=self.data_padding)
+
+        # Pre-processes the dataset
+        dataset = dataset.map(lambda x: _preprocess_dataset(x), batched=True)
+
+        # Checks if dataset should be merged into a contiguous sample
+        if self.data_contiguous:
+            dataset = dataset.map(lambda x: _merge_dataset(x), batched=True, batch_size=None)
+
+        # Tokenizes the dataset and changes its format to PyTorch
+        dataset = dataset.map(lambda x: _tokenize_dataset(x), batched=True, remove_columns=self.data_input_column_name)
+        dataset = dataset.with_format(type='torch')
+
+        return dataset
 
     def load(self) -> None:
         dataset = self._load_dataset()
