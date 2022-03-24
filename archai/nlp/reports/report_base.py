@@ -49,6 +49,6 @@ class ArchaiReport:
     def create_markdown(self) -> Tuple[str, str]:
         # Creates dataframes from the available dictionaries
         train_logs_df = pd.DataFrame(self.train_logs)
-        test_logs_df = pd.DataFrame(self.test_logs)
+        test_logs_df = pd.DataFrame(self.test_logs, index=[0])
 
         return train_logs_df.to_markdown(index=False), test_logs_df.to_markdown(index=False)
