@@ -28,6 +28,7 @@ class ArchaiReport:
         Args:
             train_logs: Training-related logs retrieved from a dllogger file.
             test_logs: Test-related logs retrieved from a dllogger file.
+            
         """
 
         # Cleans up the training logs by converting to non-nested dictionaries
@@ -48,6 +49,6 @@ class ArchaiReport:
     def create_markdown(self) -> Tuple[str, str]:
         # Creates dataframes from the available dictionaries
         train_logs_df = pd.DataFrame(self.train_logs)
-        test_logs_df = pd.DataFrame(self.test_logs)
+        test_logs_df = pd.DataFrame(self.test_logs, index=[0])
 
         return train_logs_df.to_markdown(index=False), test_logs_df.to_markdown(index=False)

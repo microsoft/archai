@@ -46,4 +46,7 @@ def parse_json_dlogger_file(json_file: str) -> Tuple[Dict[str, Dict[str, Any]], 
     test_logs_dict = json.loads(lines[-1].replace('DLLL ', ''))['data']
     assert 'test_ppl' in test_logs_dict.keys(), f'There are test-related keys missing in {json_file}.'
 
+    # Converts any potential lists into strings to avoid future crashes
+    test_logs_dict.update((k, ','.join(map(str, v))) for k, v in test_logs_dict.items() if isinstance(v, list))
+
     return train_logs_dict, test_logs_dict
