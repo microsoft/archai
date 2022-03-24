@@ -183,21 +183,25 @@ def dynamic_quantization_torch_from_model(model: torch.nn.Module,
 def dynamic_quantization_torch_from_path(model_type: str,
                                          torch_model_path: Optional[str] = None,
                                          embedding_layers: Optional[List[str]] = ['word_emb', 'model.transformer.wpe', 'model.transformer.wte']
-                                         ) -> None:
+                                         ) -> torch.nn.Module:
     """Performs the dynamic quantization over a PyTorch model path.
 
     Args:
         model_type: Type of model to be loaded.
         torch_model_path: Path to the PyTorch model to be quantized.
         embedding_layers: List with string-based identifiers of embedding layers.
+        
+    Returns:
+        (torch.nn.Module): Dynamic quantized model.
 
     """
 
     # Loads the pre-trained model
-    if torch_model_path:
-        model, _, _ = load_model_from_checkpoint(model_type,
-                                                 torch_model_path,
-                                                 on_cpu=True)
+    model, _, _ = load_model_from_checkpoint(model_type,
+                                             torch_model_path,
+                                             on_cpu=True)
 
     # Performs the dynamic quantization
     _dynamic_quantization_torch(model, embedding_layers)
+    
+    return model
