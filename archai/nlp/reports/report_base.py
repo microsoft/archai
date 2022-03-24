@@ -28,6 +28,7 @@ class ArchaiReport:
         Args:
             train_logs: Training-related logs retrieved from a dllogger file.
             test_logs: Test-related logs retrieved from a dllogger file.
+            
         """
 
         # Cleans up the training logs by converting to non-nested dictionaries
