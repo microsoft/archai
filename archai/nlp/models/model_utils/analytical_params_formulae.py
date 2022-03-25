@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Mathematical formulae used to calculate Transformer-based measurements.
+"""Formulae to calculate the number of Transformer-based parameters.
 """
 
 from typing import Any, Dict, List, Tuple
