@@ -14,12 +14,12 @@ import torch
 import yaml
 
 from archai.common import utils
-from archai.nlp.nas.evolution import run_search
+from archai.nlp.nas.evolution import Evolution
 from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import DEVICE_LATENCY_CONSTRAINT
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Autoregressive language models Pareto-frontier extraction.')
+    parser = argparse.ArgumentParser(description='Language models Pareto-frontier extraction.')
 
     try:
         save_path = os.environ['AMLT_OUTPUT_DIR']
@@ -187,7 +187,7 @@ if __name__ == '__main__':
 
     # Initializes the result's path
     now = datetime.now()
-    time_str = now.strftime("%d_%m_%Y_%H_%M_%S")
+    time_str = now.strftime('%d_%m_%Y_%H_%M_%S')
     results_path_str = f'{args["model_type"]}_lower_param_{args["param_constraint_lower"]/1e6}M_upper_param_{args["param_constraint_upper"]/1e6}M_latency_upper_{args["latency_constraint_upper"]}s_{args["device_name"]}_{time_str}'
     results_path = os.path.join(args['default_path'], results_path_str)
     args['results_path'] = utils.full_path(results_path, create=True)
@@ -203,5 +203,30 @@ if __name__ == '__main__':
     except:
         args['model_config'] = {}
 
+    # Creates the evolutionary search instance
+    e = Evolution(args['results_path'],
+                  model_type=args['model_type'],
+                  model_config=args['model_config'],
+                  population_size=args['population_size'],
+                  parent_size=args['parent_size'],
+                  mutation_size=args['mutation_size'],
+                  mutation_prob=args['mutation_prob'],
+                  crossover_size=args['crossover_size'],
+                  crossover_prob=args['crossover_prob'],
+                  n_iter=args['n_iter'],
+                  use_quantization=args['use_quantization'],
+                  constraint_pipeline_type=args['constraint_pipeline_type'],
+                  param_constraint_lower=args['param_constraint_lower'],
+                  param_constraint_upper=args['param_constraint_upper'],
+                  latency_constraint_upper=args['latency_constraint_upper'],
+                  n_threads=args['n_threads'],
+                  latency_repeat=args['latency_repeat'],
+                  n_layer=args['n_layer'],
+                  d_model=args['d_model'],
+                  d_inner=args['d_inner'],
+                  n_head=args['n_head'])
+    
     # Runs the evolutionary search or the brute force version
-    run_search(args, do_brute_force=args['do_brute_force'])
+    e.run(do_brute_force=args['do_brute_force'],
+          n_samples=args['n_samples'],
+          batch=args['batch'])

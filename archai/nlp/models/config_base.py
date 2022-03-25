@@ -58,6 +58,14 @@ class Config:
 
         return [variable] * size
 
+    def to_dict(self) -> Dict[str, Any]:
+        config_dict = {}
+
+        for key, value in self.__dict__.items():
+            config_dict[key] = value
+
+        return config_dict
+
 
 class SearchConfigParameter:
     """Base search configuration parameter class, used to define whether
@@ -80,6 +88,14 @@ class SearchConfigParameter:
         self.per_layer = per_layer
         self.value = value if value is not None else [1]
 
+    def to_dict(self) -> Dict[str, Any]:
+        search_config_parameter_dict = {}
+
+        for key, value in self.__dict__.items():
+            search_config_parameter_dict[key] = value
+
+        return search_config_parameter_dict
+
 
 class SearchConfig:
     """Base search configuration class, used to define possible
@@ -96,7 +112,16 @@ class SearchConfig:
         """
 
         for key, value in kwargs.items():
+            assert isinstance(value, SearchConfigParameter)
             setattr(self, key, value)
+
+    def to_dict(self) -> Dict[str, Dict[str, Any]]:
+        search_config_dict = {}
+
+        for key, value in self.__dict__.items():
+            search_config_dict[key] = value.to_dict()
+
+        return search_config_dict
 
 
 class OnnxConfig:
