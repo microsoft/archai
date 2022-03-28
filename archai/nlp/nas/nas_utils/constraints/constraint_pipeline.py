@@ -4,7 +4,7 @@
 """Constraints pipelines used throughout the search procedure.
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 import torch
 
@@ -13,7 +13,8 @@ from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_
                                                                    measure_onnx_parameters)
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_inference_latency,
                                                                     measure_torch_parameters,
-                                                                    measure_torch_peak_memory)
+                                                                    measure_torch_peak_memory,
+                                                                    measure_torch_perplexity)
 
 # Latency upper bound on different device targets
 # Any model with more latency than this will be removed from consideration during search
@@ -86,6 +87,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
     """
 
     def __init__(self,
+                 use_proxy: Optional[bool] = False,
                  use_quantization: Optional[bool] = False,
                  use_median: Optional[bool] = False,
                  batch_size: Optional[int] = 1,
@@ -96,6 +98,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
         """Overrides initialization method.
 
         Args:
+            use_proxy: Whether measurement should be calculated with decoder parameters instead of perplexity.
             use_quantization: Whether measurement should be calculated with quantizated model or not.
             use_median: Whether should use median instead of mean for measurement.
             batch_size: Batch size.
@@ -106,24 +109,33 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         """
 
+        self.use_proxy = use_proxy
+
         super().__init__(use_quantization, use_median, batch_size,
                          seq_len, n_threads, n_trials, device)
 
-    def __call__(self, model: torch.nn.Module) -> Tuple[int, int, float, float]:
+    def __call__(self, model: torch.nn.Module) -> Tuple[Union[int, float], int, float, float]:
         """Invokes the built-in call method.
 
         Args:
             model: Model to be used within constraint pipeline.
 
         Returns:
-            (Tuple[int, int, float, float]): Decoder parameters, total parameters,
-                latency and peak memory.
+            (Tuple[Union[int, float], int, float, float]): Decoder parameters or
+                validation perplexity, total parameters, latency and peak memory.
 
         """
 
-        return (
+        if self.use_proxy:
             # Number of decoder (non-embedding) parameters
-            measure_torch_parameters(model, ['non_embedding']),
+            measure_torch_proxy = measure_torch_parameters(model, ['non_embedding'])
+        else:
+            # Validation perplexity
+            measure_torch_proxy = measure_torch_perplexity(model)
+
+        return (
+            # Proxy (either decoder parameters or validation perplexity)
+            measure_torch_proxy,
 
             # Number of total parameters
             measure_torch_parameters(model, ['total']),
