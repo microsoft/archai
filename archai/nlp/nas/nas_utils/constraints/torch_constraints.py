@@ -144,20 +144,11 @@ def measure_torch_perplexity(model: torch.nn.Module) -> float:
     except:
         args, device = train.init(dlogger_enabled=False)
 
-    args.data = '/home/gderosa/dataroot/textpred/wikitext-103'
     args.dataset = 'wt103'
     args.vocab = 'word'
     args.vocab_size = 10000
-    args.refresh_cache = False
-    args.ext_len = 0
-    args.mem_len = 0
-    args.tgt_len = 192
-    args.eval_tgt_len = 192
-    args.batch_size = 8
-    args.eval_batch_size = 8
-    args.batch_chunk = 1
     args.max_step = 25
-    args.warmup_step = 5
+    args.warmup_step = 10
     
     vocab, train_itr, valid_itr, _, file_stats = train.load_data(args, device)
     optimizer, optimizer_sparse = train.create_optimizer(args, model)

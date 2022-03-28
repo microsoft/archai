@@ -174,7 +174,7 @@ class Evolution:
         print(f'''Largest model in this space has: 
                 {max_config}
                 {self.max_proxy} {self.constraint_proxy_str}
-                {self.max_total_params} total params
+                {self.max_total_params} total_params
                 {self.max_latency:.4f}s latency
                 {self.max_memory:.4f}MB memory''')
 
@@ -190,7 +190,7 @@ class Evolution:
         print(f'''Smallest model in this space has: 
                 {min_config}
                 {self.min_proxy} {self.constraint_proxy_str}
-                {self.min_total_params} total params
+                {self.min_total_params} total_params
                 {self.min_latency:.4f}s latency
                 {self.min_memory:.4f}MB memory''')
 
@@ -487,6 +487,8 @@ class Evolution:
             parents_latencies = np.asarray(parents['latencies'])
             parents_memories = np.asarray(parents['memories'])
 
+        constraint_proxy_str = ' '.join([i.title() for i in self.constraint_proxy_str.split('_')])
+
         # 2D plot: number of decoder parameters x latencies 
         visited_dict = {'x': all_proxies, 'y': all_latencies, 'config': all_configs}
         pareto_dict = {'x': pareto_proxies, 'y': pareto_latencies, 'config': pareto_configs}
@@ -497,8 +499,8 @@ class Evolution:
                        pareto_dict,
                        parents_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                       title_text=f'{self.constraint_proxy_str} vs. Latency (s) at Iteration {iteration}',
-                       xaxis_title=f'{self.constraint_proxy_str}',
+                       title_text=f'{constraint_proxy_str} vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_proxy_str}',
                        yaxis_title='Latency (s)',
                        output_path=output_path)
 
@@ -527,8 +529,8 @@ class Evolution:
                        pareto_dict,
                        parents_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                       title_text=f'{self.constraint_proxy_str} vs. Memory (MB) at Iteration {iteration}',
-                       xaxis_title=f'{self.constraint_proxy_str}',
+                       title_text=f'{constraint_proxy_str} vs. Memory (MB) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_proxy_str}',
                        yaxis_title='Memory (MB)',
                        output_path=output_path)
         
@@ -557,8 +559,8 @@ class Evolution:
                        pareto_dict,
                        parents_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                       title_text=f'{self.constraint_proxy_str} vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
-                       xaxis_title=f'{self.constraint_proxy_str}',
+                       title_text=f'{constraint_proxy_str} vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_proxy_str}',
                        yaxis_title='Memory (MB)',
                        zaxis_title='Latency (s)',
                        output_path=output_path)
