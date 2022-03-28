@@ -4,6 +4,7 @@
 """PyTorch-based constraints.
 """
 
+import math
 from typing import List, Optional
 
 import torch
@@ -11,6 +12,7 @@ import torch.utils.benchmark as benchmark
 from torch.profiler import ProfilerActivity, profile
 
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
+from archai.nlp import train
 
 
 def measure_torch_inference_latency(model: torch.nn.Module,
@@ -124,3 +126,47 @@ def measure_torch_peak_memory(model: torch.nn.Module,
     peak_memory_mb = peak_memory / (1024 ** 2)
 
     return peak_memory_mb
+
+
+def measure_torch_perplexity(model: torch.nn.Module) -> float:
+    """Measures a model's validation perplexity.
+
+    Args:
+        model: Model instance.
+
+    Returns:
+        (float): Validation perplexity.
+
+    """
+
+    try:
+        args, device = train.init()
+    except:
+        args, device = train.init(dlogger_enabled=False)
+
+    args.data = '/home/gderosa/dataroot/textpred/wikitext-103'
+    args.dataset = 'wt103'
+    args.vocab = 'word'
+    args.vocab_size = 10000
+    args.refresh_cache = False
+    args.ext_len = 0
+    args.mem_len = 0
+    args.tgt_len = 192
+    args.eval_tgt_len = 192
+    args.batch_size = 8
+    args.eval_batch_size = 8
+    args.batch_chunk = 1
+    args.max_step = 25
+    args.warmup_step = 5
+    
+    vocab, train_itr, valid_itr, _, file_stats = train.load_data(args, device)
+    optimizer, optimizer_sparse = train.create_optimizer(args, model)
+    scaler = train.create_grad_scaler(args, model, optimizer)
+    para_model, model = train.distributed_model(args, model, device)
+    model.to(device)
+    scheduler, scheduler_sparse = train.create_scheduler(args, optimizer, optimizer_sparse)
+    _, best_val_loss, _ = train.train_main(args, device, train_itr, valid_itr, model, para_model,
+                                           None, optimizer, optimizer_sparse, scheduler,
+                                           scheduler_sparse, scaler, vocab, file_stats[1])
+
+    return math.exp(best_val_loss)
