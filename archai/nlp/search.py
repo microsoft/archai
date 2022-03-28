@@ -75,7 +75,7 @@ def parse_args():
 
     search.add_argument('--n_iter',
                         type=int,
-                        default=10,
+                        default=20,
                         help='Number of search iterations.')
 
     search.add_argument('--do_brute_force',
@@ -131,6 +131,10 @@ def parse_args():
                             default='torch',
                             choices=['onnx', 'torch'],
                             help='Type of constraint pipeline to be used during search.')
+
+    constraint.add_argument('--constraint_proxy',
+                            action='store_true',
+                            help='Uses decoder parameters proxy instead of validation perplexity to conduct the search.')
 
     constraint.add_argument('--param_constraint_lower',
                             type=int,
@@ -216,6 +220,7 @@ if __name__ == '__main__':
                   n_iter=args['n_iter'],
                   use_quantization=args['use_quantization'],
                   constraint_pipeline_type=args['constraint_pipeline_type'],
+                  constraint_proxy=args['constraint_proxy'],
                   param_constraint_lower=args['param_constraint_lower'],
                   param_constraint_upper=args['param_constraint_upper'],
                   latency_constraint_upper=args['latency_constraint_upper'],
