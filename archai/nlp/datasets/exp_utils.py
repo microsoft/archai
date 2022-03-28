@@ -194,8 +194,8 @@ def setup_dllogger(enabled=True, filename=os.devnull):
                 ),
             ]
         dllogger.init(backends)
-    else:
-        dllogger.init([])
+    # else:
+    #     dllogger.init([])
 
 
 def create_exp_dir(dir_path, scripts_to_save=None, debug=False):
