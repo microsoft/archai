@@ -11,11 +11,11 @@ from archai.common import utils
 
 def _get_hyperparams(model_config: Dict[str, Any]) -> Tuple[int, int, int, List[int], List[int], List[int]]:
     n_layer = model_config['n_layer']
-    n_token = model_config['n_token']
-    tgt_len = model_config['tgt_len']
+    n_token = model_config.get('n_token', None) or model_config.get('vocab_size', None)
+    tgt_len = model_config.get('tgt_len', None) or model_config.get('n_positions', None)
 
     d_model = model_config['d_model']
-    d_embed = d_model if model_config['d_embed'] < 0 else model_config['d_embed']
+    d_embed = model_config.get('d_embed', None) or d_model
     d_inner = utils.map_to_list(model_config['d_inner'], n_layer)
 
     n_head = utils.map_to_list(model_config['n_head'], n_layer)
