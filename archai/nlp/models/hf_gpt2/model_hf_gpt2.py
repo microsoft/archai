@@ -103,24 +103,30 @@ class HfGPT2Flex(ArchaiModel):
                 ) -> Tuple[torch.Tensor, ...]:
         assert mems is None, 'HfGPT2Flex does not support memory (mems).'
 
-        # Labels are the same as input_ids because they will be shifted inside the model
-        # Causal attention mask is also created inside the model
+        # Causal attention mask is created inside the model
         outputs = self.model(input_ids=input_ids,
                              labels=labels,
                              attention_mask=torch.ones_like(input_ids),
-                             past_key_values=past_key_values)
+                             past_key_values=past_key_values,
+                             output_loss=output_loss,
+                             output_prediction_scores=output_prediction_scores)
 
         if output_loss:
             return (outputs.loss, None, None, outputs.past_key_values)
         
         if output_prediction_scores:
-            # GPT-2 only outputs the logits, so they need to be converted with log_softmax
-            return (None, F.log_softmax(outputs.logits, dim=-1), None, outputs.past_key_values)
+            return (None, outputs.logits, None, outputs.past_key_values)
 
     def get_params(self) -> Dict[str, int]:
         params = {}
 
-        params['embedding'] = self.get_params_from_layer(['Embedding'])
+        if self.config.div_val >= 1:
+            # Positional embeddings are nn.Embedding layers, which overlap
+            # when calculated together with AdaptiveEmbedding (have inner nn.Embedding layers)
+            params['embedding'] = self.get_params_from_layer(['AdaptiveEmbedding']) + self.config.max_position_embeddings * self.config.hidden_size
+        else:
+            params['embedding'] = self.get_params_from_layer(['Embedding'])
+
         params['attention'] = self.get_params_from_layer(['GPT2AttentionFlex'])
         params['ff'] = self.get_params_from_layer(['GPT2MLPFlex'])
         params['layer_norm'] = self.get_params_from_layer(['LayerNorm'])

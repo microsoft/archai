@@ -15,12 +15,14 @@
 
 """PyTorch OpenAI GPT-2 model."""
 
+import math
 from typing import Tuple
 
 import torch
 import torch.utils.checkpoint
 from packaging import version
 from torch import nn
+from torch.nn import functional as F
 from torch.nn import CrossEntropyLoss
 
 if version.parse(torch.__version__) >= version.parse("1.6"):
@@ -39,7 +41,12 @@ from transformers.modeling_utils import (
     find_pruneable_heads_and_indices,
     prune_conv1d_layer,
 )
-from transformers.models.gpt2.modeling_gpt2 import GPT2PreTrainedModel
+from transformers.models.gpt2.configuration_gpt2 import GPT2Config
+from transformers.models.gpt2.modeling_gpt2 import (
+    GPT2Model,
+    PreTrainedModel,
+    load_tf_weights_in_gpt2,
+)
 from transformers.utils import logging
 from transformers.utils.model_parallel_utils import assert_device_map, get_device_map
 
@@ -361,6 +368,65 @@ class GPT2BlockFlex(nn.Module):
         return outputs  # hidden_states, present, (attentions, cross_attentions)
 
 
+class GPT2PreTrainedModel(PreTrainedModel):
+    config_class = GPT2Config
+    load_tf_weights = load_tf_weights_in_gpt2
+    base_model_prefix = "transformer"
+    is_parallelizable = True
+    supports_gradient_checkpointing = True
+
+    def __init__(self, *inputs, **kwargs):
+        super().__init__(*inputs, **kwargs)
+
+    def _init_weights(self, module):
+        if isinstance(module, (nn.Linear, Conv1D)):
+            # Slightly different from the TF version which uses truncated_normal for initialization
+            # cf https://github.com/pytorch/pytorch/pull/5617
+            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
+            if module.bias is not None:
+                module.bias.data.zero_()
+        elif isinstance(module, nn.Embedding):
+            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
+            if module.padding_idx is not None:
+                module.weight.data[module.padding_idx].zero_()
+        elif isinstance(module, AdaptiveEmbedding):
+            if hasattr(module, 'emb_projs'):
+                for i in range(len(module.emb_projs)):
+                    if module.emb_projs[i] is not None:
+                        nn.init.normal_(module.emb_projs[i], 0.0, self.config.proj_init_std)
+        elif isinstance(module, nn.LayerNorm):
+            module.bias.data.zero_()
+            module.weight.data.fill_(1.0)
+        elif isinstance(module, ProjectedAdaptiveLogSoftmax):
+            if hasattr(module, 'cluster_weight') and module.cluster_weight is not None:
+                nn.init.normal_(module.cluster_weight, 0.0, self.config.initializer_range)
+            if hasattr(module, 'cluster_bias') and module.cluster_bias is not None:
+                nn.init.constant_(module.cluster_bias, 0.0)
+            if hasattr(module, 'out_projs'):
+                for i in range(len(module.out_projs)):
+                    if module.out_projs[i] is not None:
+                        nn.init.normal_(module.out_projs[i], 0.0, self.config.proj_init_std)
+            if hasattr(module, 'out_layers_weights'):
+                for i in range(len(module.out_layers_weights)):
+                    if module.out_layers_weights[i] is not None:
+                        nn.init.normal_(module.out_layers_weights[i], 0.0, self.config.initializer_range)
+
+        # Reinitialize selected weights subject to the OpenAI GPT-2 Paper Scheme:
+        #   > A modified initialization which accounts for the accumulation on the residual path with model depth. Scale
+        #   > the weights of residual layers at initialization by a factor of 1/√N where N is the # of residual layers.
+        #   >   -- GPT-2 :: https://openai.com/blog/better-language-models/
+        #
+        # Reference (Megatron-LM): https://github.com/NVIDIA/Megatron-LM/blob/main/megatron/model/gpt_model.py
+        for name, p in module.named_parameters():
+            if "c_proj" in name and "weight" in name:
+                # Special Scaled Initialization --> There are 2 Layer Norms per Transformer Block
+                p.data.normal_(mean=0.0, std=(self.config.initializer_range / math.sqrt(2 * self.config.n_layer)))
+
+    def _set_gradient_checkpointing(self, module, value=False):
+        if isinstance(module, GPT2Model):
+            module.gradient_checkpointing = value
+
+
 class GPT2ModelFlex(GPT2PreTrainedModel):
     _keys_to_ignore_on_load_missing = ["attn.masked_bias"]
 
@@ -368,6 +434,7 @@ class GPT2ModelFlex(GPT2PreTrainedModel):
         super().__init__(config)
 
         self.embed_dim = config.hidden_size
+
         if config.div_val >= 1:
             self.wte = AdaptiveEmbedding(config.vocab_size,
                                          self.embed_dim,
@@ -635,7 +702,7 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = GPT2ModelFlex(config)
-
+        
         if config.div_val >= 1:
             emb_layers = None
             if config.tie_weight:
@@ -678,11 +745,16 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         self.model_parallel = False
         torch.cuda.empty_cache()
 
-    # def get_output_embeddings(self):
-    #     return self.lm_head
+    def get_output_embeddings(self):
+        if self.config.div_val == 0:
+            return self.lm_head
 
-    # def set_output_embeddings(self, new_embeddings):
-    #     self.lm_head = new_embeddings
+        # When using Adaptive Softmax, weights are tied by hand
+        return None
+
+    def set_output_embeddings(self, new_embeddings):
+        if self.config.div_val == 0:
+            self.lm_head = new_embeddings
 
     def prepare_inputs_for_generation(self, input_ids, past=None, **kwargs):
         token_type_ids = kwargs.get("token_type_ids", None)
@@ -761,28 +833,37 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
             torch.cuda.set_device(self.transformer.first_device)
             hidden_states = hidden_states.to(self.lm_head.weight.device)
 
+        # Adaptive Softmax loss
         if self.config.div_val >= 1:
             bsz = labels.size(0) if labels is not None else input_ids.size(0)
             tgt_len = labels.size(1) if labels is not None else input_ids.size(1)
-            pred_hid = hidden_states.view(tgt_len, bsz, hidden_states.size(2))
-            pred_hid = pred_hid[-tgt_len:]
+
+            pred_hid = hidden_states.view(tgt_len, bsz, hidden_states.size(2))[-tgt_len:]
             loss, lm_logits = self.lm_head(hidden=pred_hid.view(-1, pred_hid.size(-1)),
                                            target=labels.contiguous().view(-1) if labels is not None else None,
-                                           output_loss=output_loss, output_prediction_scores=output_prediction_scores)
+                                           output_loss=output_loss,
+                                           output_prediction_scores=output_prediction_scores)
             loss = loss.view(bsz, tgt_len) if labels is not None else None
             lm_logits = lm_logits.view(bsz, tgt_len, -1) if lm_logits is not None else None
 
+        # Standard CrossEntropy loss
         else:
             lm_logits = self.lm_head(hidden_states)
             loss = None
+
             if labels is not None:
-                # Shift so that tokens < n predict n
+                # Shift logits so that tokens < n predict n
                 shift_logits = lm_logits[..., :-1, :].contiguous()
-                shift_labels = labels[...,:-1].contiguous()
+
+                # Labels are already shifted, but since logits were shifted,
+                # we need to discard the last position
+                shift_labels = labels[..., :-1].contiguous()
+                
                 # Flatten the tokens
-                # print(shift_logits.shape, labels.shape)
                 loss_fct = CrossEntropyLoss()
                 loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+
+            lm_logits = F.log_softmax(lm_logits, dim=-1) if output_prediction_scores else None
 
         if not return_dict:
             output = (lm_logits,) + transformer_outputs[1:]
