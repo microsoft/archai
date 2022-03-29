@@ -1,26 +1,27 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Hugginface's Transformer-XL for ONNX.
+"""Huggingface's Transformer-XL for ONNX.
 """
 
-from collections import OrderedDict
+from typing import Any, Dict
 
 from archai.nlp.models.config_base import OnnxConfig
 from archai.nlp.models.mem_transformer.onnx_mem_transformer import MemTransformerLMOnnxModel as HfTransfoXLOnnxModel
 
 
 class HfTransfoXLOnnxConfig(OnnxConfig):
-    def __init__(self, model_config: str) -> None:
-        super().__init__(model_config)
+    """Huggingface's Transformer-XL ONNX-based configuration.
 
-        self.config['past_key_values'] = 0
-        self.config['model_type'] = 'transfo-xl'
+    """
 
-    @property
-    def inputs(self) -> OrderedDict:
-        return OrderedDict([('input_ids', {0: 'batch_size', 1: 'seq_len'})])
+    def __init__(self, model_config: Dict[str, Any]) -> None:
+        """Initializes the class by setting missing keys on incoming
+            model's configuration.
 
-    @property
-    def outputs(self) -> OrderedDict:
-        return OrderedDict([('probs', {0: 'batch_size'})])
+        Args:
+            model_config: Configuration of the model that will be exported.
+
+        """
+
+        super().__init__(model_config, model_type='transfo-xl')

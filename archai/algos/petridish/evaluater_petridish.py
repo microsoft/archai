@@ -110,7 +110,7 @@ class EvaluaterPetridish(Evaluater):
         # create checkpoint for this specific model desc by changing the config
         checkpoint = None
         if conf_checkpoint is not None:
-            conf_checkpoint['filename'] = model_filename.split('.')[0] + '_checkpoint.pth'
+            conf_checkpoint['filename'] = utils.append_to_filename(model_filename, '_checkpoint', '.pth')
             checkpoint = nas_utils.create_checkpoint(conf_checkpoint, resume)
 
             if checkpoint is not None and resume:

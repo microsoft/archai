@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""NVIDIA's Memory Transformer (Transformer-XL).
+"""NVIDIA's Memory Transformer.
 """
 
 import functools

@@ -128,7 +128,7 @@ def parse_args():
     general.add_argument('--cache_dir', default='cache', type=str,
                          help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -510,10 +510,14 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     log_start_time = time.time()
 
     mems = [None for _ in range(args.batch_chunk)]
-    if args.varlen:
-        train_iter = train_itr.get_varlen_iter(start=last_iter)
+    # Changes to make train_iter for lm1b to be properly caught
+    if args.dataset != 'lm1b':
+        if args.varlen:
+            train_iter = train_itr.get_varlen_iter(start=last_iter)
+        else:
+            train_iter = train_itr.get_fixlen_iter(start=last_iter)
     else:
-        train_iter = train_itr.get_fixlen_iter(start=last_iter)
+        train_iter = train_itr
 
     logging.info('Starting training...')
     for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
@@ -866,12 +870,9 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
 
     if args.pretrained_path:
         logging.info('Overwriting the provided model config with the pretrained model config.')
-        model, model_config, _ = load_model_from_checkpoint(args.model_type, args.pretrained_path, replace_model_config=args, on_cpu=False)
+        model, model_config, _ = load_model_from_checkpoint(args.model_type, args.pretrained_path, on_cpu=False)
     else:
         model = load_model_from_config(args.model_type, model_config)
-
-    if args.qat:
-        model = prepare_with_qat(model, onnx_compatible=True)
 
     if args.mixed_qat:
         model = MixedQATModel(model)
@@ -881,6 +882,9 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     n_nonemb_param = n_params['non_embedding']
     logging.info('#params = {}'.format(n_all_param))
     logging.info('#non emb params = {}'.format(n_nonemb_param))
+
+    if args.qat:
+        model = prepare_with_qat(model, onnx_compatible=True)
 
     return model, model_config
 
@@ -1040,7 +1044,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
     if args.restart:
         try:
-            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, replace_model_config=args, on_cpu=False)
+            model, model_config, checkpoint = load_model_from_checkpoint(args.model_type, args.restart, on_cpu=False)
             optimizer.load_state_dict(checkpoint['optimizer_state'])
             scheduler.load_state_dict(checkpoint['scheduler_state'])
             if args.fp16:
@@ -1191,7 +1195,7 @@ def main():
         model_config, optimizer, optimizer_sparse, scheduler,
         scheduler_sparse, scaler, vocab, file_stats[1])
 
-    checkpoint_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
+    checkpoint_path = os.path.join(args.work_dir, 'checkpoint_best.pt' if not args.qat else 'qat_checkpoint_best.pt')
     summary = evaluate_main(args, model, checkpoint_path, test_itr, file_stats[-1])
 
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
@@ -1237,17 +1241,15 @@ def main():
         'pt_inf_time_us': pt_inf_time,
         'process_mem': process_mem
         })
+    summary.update((k, '') for k, v in summary.items() if v is None)
 
     logging.info(pprint.pformat(summary))
 
     utils.save_as_yaml(summary, os.path.join(args.work_dir, 'summary.yaml'))
     utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
 
-    #TODO: Summary may have NULLs and will crash the training when trying to save csv file
-    #      Make sure summary has no NULLs?
-    #exp_results_dir = utils.full_path(os.path.join(args.dataroot, 'textpred', 'experiment_results'), create=True)
-    #summary_csv_filepath = os.path.join(exp_results_dir, 'summaries.tsv')
-    #utils.append_csv_file(summary_csv_filepath, list(summary.items()))
+    summary_csv_filepath = os.path.join(args.work_dir, 'summaries.tsv')
+    utils.append_csv_file(summary_csv_filepath, list(summary.items()))
 
     logging.info(f'Output dir: {args.work_dir}')
     dllogger.log(step=tuple(), data=summary)
@@ -1284,9 +1286,9 @@ def main():
         scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
         # Performs a QAT fine-tuning
-        training_time, best_val_loss, meters, train_main(args, device, train_itr, valid_itr, model, para_model,
-            model_config, optimizer, optimizer_sparse, scheduler,
-            scheduler_sparse, scaler, vocab, file_stats[1])
+        training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
+                                                          model_config, optimizer, optimizer_sparse, scheduler,
+                                                          scheduler_sparse, scaler, vocab, file_stats[1])
 
 
 if __name__ == "__main__":

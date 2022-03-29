@@ -1,12 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""NVIDIA's Memory Transformer (Transformer-XL) for ONNX.
+"""NVIDIA's Memory Transformer for ONNX.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
 
-import torch
 from onnx import (GraphProto, ModelProto, NodeProto, TensorProto,
                   ValueInfoProto, helper)
 from onnxruntime.transformers.fusion_attention import (AttentionMask,
@@ -20,33 +19,36 @@ from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
 
 from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
-from archai.nlp.models.config_base import BATCH_SIZE, SEQ_LEN, OnnxConfig
+from archai.nlp.models.config_base import OnnxConfigWithPast
 
 
-class MemTransformerLMOnnxConfig(OnnxConfig):
-    def __init__(self, model_config: str) -> None:
-        super().__init__(model_config)
+class MemTransformerLMOnnxConfig(OnnxConfigWithPast):
+    """NVIDIA's Memory Transformer ONNX-based configuration.
 
-        self.config['d_head'] = self.config['d_model'] // self.config['n_head']
+    """
+
+    def __init__(self, model_config: Dict[str, Any]) -> None:
+        """Initializes the class by setting missing keys on incoming
+            model's configuration.
+
+        Args:
+            model_config: Configuration of the model that will be exported.
+
+        """
 
         # Checks the type of attention to define the `past_key_values`
-        if self.config['attn_type'] == 0:
+        if model_config['attn_type'] == 0:
             # `k`, `v` and relative embeddings
-            self.config['past_key_values'] = 3
+            past_key_values = 3
         else:
             # `k` and `v`
-            self.config['past_key_values'] = 2
+            past_key_values = 2
 
-        self.config['model_type'] = 'transfo-xl'
+        super().__init__(model_config,
+                         model_type='transfo-xl',
+                         past_key_values=past_key_values)
 
-    @property
-    def mockups(self) -> Dict[str, Any]:
-        return {
-            'input_ids': torch.randint(0, self.config['n_token'], (BATCH_SIZE, SEQ_LEN)),
-            'past_key_values': tuple([torch.zeros(self.config['past_key_values'], BATCH_SIZE, self.config['n_head'], SEQ_LEN, self.config['d_head']) for _ in range(self.config['n_layer'])])
-        }
-
-
+    
 class MemTransformerLMOnnxModel(OnnxModel):
     def __init__(self, model: ModelProto) -> None:
         super().__init__(model)

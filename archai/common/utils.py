@@ -181,7 +181,7 @@ def fmt(val:Any)->str:
 def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t'):
     fieldnames, rows = [], []
 
-    # get existing fiel names and rows
+    # get existing field names and rows
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
             dr = csv.DictReader(f, delimiter=delimiter)
@@ -380,6 +380,13 @@ def uri2path(file_uri:str, windows_non_standard:bool=False)->str:
     return os.path.normpath(
         os.path.join(host, url2pathname(unquote(parsed.path)))
     )
+
+def get_ranks(items:list, key=lambda v:v, reverse=False)->List[int]:
+    sorted_t = sorted(zip(items, range(len(items))),
+                      key=lambda t: key(t[0]),
+                      reverse=reverse)
+    sorted_map = dict((t[1], i) for i, t in enumerate(sorted_t))
+    return [sorted_map[i] for i in range(len(items))]
 
 def dedup_list(l:List)->List:
     return list(OrderedDict.fromkeys(l))
