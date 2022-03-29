@@ -87,7 +87,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
     """
 
     def __init__(self,
-                 use_proxy: Optional[bool] = False,
+                 use_training_proxy: Optional[bool] = False,
                  use_quantization: Optional[bool] = False,
                  use_median: Optional[bool] = False,
                  batch_size: Optional[int] = 1,
@@ -98,7 +98,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
         """Overrides initialization method.
 
         Args:
-            use_proxy: Whether measurement should be calculated with decoder parameters instead of perplexity.
+            use_training_proxy: Whether measurement should be calculated with decoder parameters instead of perplexity.
             use_quantization: Whether measurement should be calculated with quantizated model or not.
             use_median: Whether should use median instead of mean for measurement.
             batch_size: Batch size.
@@ -109,7 +109,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         """
 
-        self.use_proxy = use_proxy
+        self.use_training_proxy = use_training_proxy
 
         super().__init__(use_quantization, use_median, batch_size,
                          seq_len, n_threads, n_trials, device)
@@ -126,7 +126,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         """
 
-        if self.use_proxy:
+        if self.use_training_proxy:
             # Number of decoder (non-embedding) parameters
             measure_torch_proxy = measure_torch_parameters(model, ['non_embedding'])
         else:
