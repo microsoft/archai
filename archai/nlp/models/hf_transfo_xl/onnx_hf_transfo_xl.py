@@ -4,8 +4,7 @@
 """Huggingface's Transformer-XL for ONNX.
 """
 
-from collections import OrderedDict
-from typing import Any, Dict, Mapping
+from typing import Any, Dict
 
 import torch
 
@@ -27,19 +26,4 @@ class HfTransfoXLOnnxConfig(OnnxConfig):
 
         """
 
-        model_config['past_key_values'] = 0
-        model_config['model_type'] = 'transfo-xl'
-
-        super().__init__(model_config)
-
-    @property
-    def inputs(self) -> Mapping[str, Mapping[int, str]]:
-        input_ids = [('input_ids', {0: 'batch_size', 1: 'seq_len'})]
-        
-        return OrderedDict(input_ids)
-
-    @property
-    def outputs(self) -> Mapping[str, Mapping[int, str]]:
-        probs = [('probs', {0: 'batch_size'})]
-
-        return OrderedDict(probs)
+        super().__init__(model_config, model_type='transfo-xl')
