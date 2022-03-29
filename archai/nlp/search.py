@@ -96,6 +96,10 @@ def parse_args():
                         action='store_true',
                         help='Uses quantized models to conduct the search.')
 
+    search.add_argument('--use_training_proxy',
+                        action='store_true',
+                        help='Uses decoder parameters proxy instead of validation perplexity to conduct the search.')
+
     search.add_argument('--seed',
                         type=int,
                         default=1111,
@@ -131,10 +135,6 @@ def parse_args():
                             default='torch',
                             choices=['onnx', 'torch'],
                             help='Type of constraint pipeline to be used during search.')
-
-    constraint.add_argument('--constraint_proxy',
-                            action='store_true',
-                            help='Uses decoder parameters proxy instead of validation perplexity to conduct the search.')
 
     constraint.add_argument('--param_constraint_lower',
                             type=int,
@@ -219,8 +219,8 @@ if __name__ == '__main__':
                   crossover_prob=args['crossover_prob'],
                   n_iter=args['n_iter'],
                   use_quantization=args['use_quantization'],
+                  use_training_proxy=args['use_training_proxy'],
                   constraint_pipeline_type=args['constraint_pipeline_type'],
-                  constraint_proxy=args['constraint_proxy'],
                   param_constraint_lower=args['param_constraint_lower'],
                   param_constraint_upper=args['param_constraint_upper'],
                   latency_constraint_upper=args['latency_constraint_upper'],

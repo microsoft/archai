@@ -45,8 +45,8 @@ class Evolution:
                  crossover_prob: Optional[float] = 0.5,
                  n_iter: Optional[int] = 10,
                  use_quantization: Optional[bool] = False,
+                 use_training_proxy: Optional[bool] = False,
                  constraint_pipeline_type: Optional[str] = 'torch',
-                 constraint_proxy: Optional[bool] = False,
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
                  latency_constraint_upper: Optional[float] = None,
@@ -67,8 +67,8 @@ class Evolution:
             crossover_prob: Probability of crossover.
             n_iter: Number of search iterations.
             use_quantization: Whether should use quantization or not.
+            use_training_proxy: Whether decoder parameters proxy should be used instead of validation perplexity.
             constraint_pipeline_type: Type of constraint pipeline.
-            constraint_proxy: Whether decoder parameters proxy should be used instead of validation perplexity.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
             latency_constraint_upper: Any model which has higher latency is rejected.
@@ -81,6 +81,7 @@ class Evolution:
         self.results_path = results_path
         self.n_iter = n_iter
         self.use_quantization = use_quantization
+        self.use_training_proxy = use_training_proxy
 
         # Sizes and probabilities of the search space
         self.population_size = population_size
@@ -141,11 +142,10 @@ class Evolution:
         self.counts = Counter()
 
         # Creates a constraint pipeline based on input type (`torch` or `onnx`)
-        self.constraint_proxy = constraint_proxy
-        self.constraint_proxy_str = 'decoder_params' if constraint_proxy else 'val_ppl'
+        self.constraint_proxy = 'decoder_params' if use_training_proxy else 'val_ppl'
         self.constraint_pipeline_type = constraint_pipeline_type
         if constraint_pipeline_type == 'torch':
-            self.pipeline = TorchConstraintPipeline(use_proxy=constraint_proxy,
+            self.pipeline = TorchConstraintPipeline(use_proxy=use_training_proxy,
                                                     use_quantization=use_quantization,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
@@ -173,7 +173,7 @@ class Evolution:
 
         print(f'''Largest model in this space has: 
                 {max_config}
-                {self.max_proxy} {self.constraint_proxy_str}
+                {self.max_proxy} {self.constraint_proxy}
                 {self.max_total_params} total_params
                 {self.max_latency:.4f}s latency
                 {self.max_memory:.4f}MB memory''')
@@ -189,7 +189,7 @@ class Evolution:
         
         print(f'''Smallest model in this space has: 
                 {min_config}
-                {self.min_proxy} {self.constraint_proxy_str}
+                {self.min_proxy} {self.constraint_proxy}
                 {self.min_total_params} total_params
                 {self.min_latency:.4f}s latency
                 {self.min_memory:.4f}MB memory''')
@@ -468,6 +468,8 @@ class Evolution:
 
         """
 
+        constraint_proxy = ' '.join([i.title() for i in self.constraint_proxy.split('_')])
+
         all_configs = [self.converter.gene_to_config(gene) for gene in self.all_population]
         all_proxies = np.asarray(self.all_proxies)
         all_total_params = np.asarray(self.all_total_params)
@@ -487,20 +489,18 @@ class Evolution:
             parents_latencies = np.asarray(parents['latencies'])
             parents_memories = np.asarray(parents['memories'])
 
-        constraint_proxy_str = ' '.join([i.title() for i in self.constraint_proxy_str.split('_')])
-
         # 2D plot: number of decoder parameters x latencies 
         visited_dict = {'x': all_proxies, 'y': all_latencies, 'config': all_configs}
         pareto_dict = {'x': pareto_proxies, 'y': pareto_latencies, 'config': pareto_configs}
         parents_dict = {'x': parents_proxies, 'y': parents_latencies, 'config': parents_configs} if parents else None
-        output_path = os.path.join(self.results_path, f'{self.constraint_proxy_str}_vs_latency_iter_{iteration}')
+        output_path = os.path.join(self.results_path, f'{self.constraint_proxy}_vs_latency_iter_{iteration}')
 
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                       title_text=f'{constraint_proxy_str} vs. Latency (s) at Iteration {iteration}',
-                       xaxis_title=f'{constraint_proxy_str}',
+                       title_text=f'{constraint_proxy} vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_proxy}',
                        yaxis_title='Latency (s)',
                        output_path=output_path)
 
@@ -523,14 +523,14 @@ class Evolution:
         visited_dict = {'x': all_proxies, 'y': all_memories, 'config': all_configs}
         pareto_dict = {'x': pareto_proxies, 'y': pareto_memories, 'config': pareto_configs}
         parents_dict = {'x': parents_proxies, 'y': parents_memories, 'config': parents_configs} if parents else None
-        output_path = os.path.join(self.results_path, f'{self.constraint_proxy_str}_vs_memory_iter_{iteration}')
+        output_path = os.path.join(self.results_path, f'{self.constraint_proxy}_vs_memory_iter_{iteration}')
 
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                       title_text=f'{constraint_proxy_str} vs. Memory (MB) at Iteration {iteration}',
-                       xaxis_title=f'{constraint_proxy_str}',
+                       title_text=f'{constraint_proxy} vs. Memory (MB) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_proxy}',
                        yaxis_title='Memory (MB)',
                        output_path=output_path)
         
@@ -553,14 +553,14 @@ class Evolution:
         visited_dict = {'x': all_proxies, 'y': all_memories, 'z': all_latencies, 'config': all_configs}
         pareto_dict = {'x': pareto_proxies, 'y': pareto_memories, 'z': pareto_latencies, 'config': pareto_configs}
         parents_dict = {'x': parents_proxies, 'y': parents_memories, 'z': parents_latencies, 'config': parents_configs} if parents else None
-        output_path = os.path.join(self.results_path, f'{self.constraint_proxy_str}_vs_memory_vs_latency_iter_{iteration}')
+        output_path = os.path.join(self.results_path, f'{self.constraint_proxy}_vs_memory_vs_latency_iter_{iteration}')
 
         plot_3d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                       title_text=f'{constraint_proxy_str} vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
-                       xaxis_title=f'{constraint_proxy_str}',
+                       title_text=f'{constraint_proxy} vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_proxy}',
                        yaxis_title='Memory (MB)',
                        zaxis_title='Latency (s)',
                        output_path=output_path)
