@@ -145,7 +145,7 @@ class Evolution:
         self.constraint_proxy = 'decoder_params' if use_training_proxy else 'val_ppl'
         self.constraint_pipeline_type = constraint_pipeline_type
         if constraint_pipeline_type == 'torch':
-            self.pipeline = TorchConstraintPipeline(use_proxy=use_training_proxy,
+            self.pipeline = TorchConstraintPipeline(use_training_proxy=use_training_proxy,
                                                     use_quantization=use_quantization,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
