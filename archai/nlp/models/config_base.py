@@ -151,33 +151,17 @@ class OnnxConfig:
     @property
     def mockups(self) -> Mapping[str, torch.Tensor]:
         input_ids = torch.randint(0, self.config.n_token, (self.batch_size, self.seq_len))
-        common_mockups = OrderedDict({'input_ids': input_ids})
         
-        return common_mockups
+        return OrderedDict({'input_ids': input_ids})
 
     @property
     def inputs(self) -> Mapping[str, Mapping[int, str]]:
-        common_inputs = OrderedDict({'input_ids', {0: 'batch_size', 1: 'seq_len'}})
-
-        for i in range(self.config.n_layer):
-            key = f'past_{i}'
-
-            # Shape of past states
-            # [past_key_values, batch_size, n_head, past_seq_len, d_head]
-            common_inputs[key] = {1: 'batch_size', 3: 'past_seq_len'}
-
-        return common_inputs
+        input_ids = [('input_ids', {0: 'batch_size', 1: 'seq_len'})]
+        
+        return OrderedDict(input_ids)
 
     @property
     def outputs(self) -> Mapping[str, Mapping[int, str]]:
-        common_outputs = OrderedDict({'probs', {0: 'batch_size'}})
+        probs = [('probs', {0: 'batch_size'})]
 
-        for i in range(self.config.n_layer):
-            key = f'present_{i}'
-
-            # Shape of present states (past states when outputting)
-            # [past_key_values, batch_size, n_head, total_seq_len, d_head]
-            # Note that total_seq_len is seq_len + past_seq_len
-            common_outputs[key] = {1: 'batch_size', 3: 'total_seq_len'}
-
-        return common_outputs
+        return OrderedDict(probs)
