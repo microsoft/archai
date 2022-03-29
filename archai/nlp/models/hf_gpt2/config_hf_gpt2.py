@@ -111,11 +111,15 @@ class HfGPT2FlexConfig(HfGPT2Config):
                  d_inner: Optional[Union[int, List[int]]] = 2048,
                  dropout: Optional[float] = 0.1,
                  dropatt: Optional[float] = 0.0,
+                 div_val: Optional[int] = 0,
+                 cutoffs: Optional[List[int]] = [19997, 39997, 199997],
+                 adaptive: Optional[bool] = True,
                  weight_init_std: Optional[float] = 0.02,
                  n_layer: Optional[int] = 16,
                  n_head: Optional[Union[int, List[int]]] = 8,
                  embd_pdrop: Optional[float] = 0.0,
                  tie_weight: Optional[bool] = True,
+                 tie_projs: Optional[List[bool]] = [False, True, True, True],
                  primer_square: Optional[bool] = False,
                  **kwargs) -> None:
         """Initializes the class by overriding default arguments.
@@ -127,11 +131,15 @@ class HfGPT2FlexConfig(HfGPT2Config):
             d_inner: Dimensionality of inner feed-forward layers.
             dropout: Dropout probability.
             dropatt: Attention dropout probability.
+            div_val: Adaptive embedding/softmax divident (`0` to use regular embedding/softmax).
+            cutoffs: Cutoffs values for adaptive embedding/softmax.
+            adaptive: Whether to use adaptive softmax.
             weight_init_std: Standard deviation to initialize the weights.
             n_layer: Number of layers.
             n_head: Number of attention heads.
             embd_pdrop: Dropout probability of embedding layer.
             tie_weight: Whether embedding and softmax weights should be tied.
+            tie_projs: Whether adaptive embedding/softmax projections should be tied.
             primer_square: Whether squared ReLU primitive should be employed.
 
         """
@@ -150,6 +158,11 @@ class HfGPT2FlexConfig(HfGPT2Config):
         self.d_inner = self._map_to_list(d_inner, n_layer)
         self.n_head = self._map_to_list(n_head, n_layer)
         self.d_head = [d_model // n_h for n_h in self.n_head]
+
+        self.div_val = div_val
+        self.cutoffs = cutoffs
+        self.adaptive = adaptive
+        self.tie_projs = tie_projs
 
         self.primer_square = primer_square
         if primer_square:

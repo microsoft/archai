@@ -106,7 +106,7 @@ class HfGPT2Flex(ArchaiModel):
         # Labels are the same as input_ids because they will be shifted inside the model
         # Causal attention mask is also created inside the model
         outputs = self.model(input_ids=input_ids,
-                             labels=input_ids,
+                             labels=labels,
                              attention_mask=torch.ones_like(input_ids),
                              past_key_values=past_key_values)
 
