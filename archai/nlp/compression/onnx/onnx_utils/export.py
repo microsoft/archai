@@ -126,8 +126,8 @@ def export_onnx_from_torch(model: torch.nn.Module,
                       opset_version=opset_version)
 
     # Adds missing configurations
-    model_config['model_type'] = onnx_config.config['model_type']
-    model_config['past_key_values'] = onnx_config.config['past_key_values']
+    model_config['model_type'] = onnx_config.config.model_type
+    model_config['past_key_values'] = onnx_config.config.past_key_values
 
     # Exports configuration to JSON
     config_path = Path(onnx_model_path).parent / 'config.json'

@@ -32,12 +32,12 @@ class HfTransfoXLOnnxConfig(OnnxConfig):
 
     @property
     def inputs(self) -> Mapping[str, Mapping[int, str]]:
-        common_inputs = OrderedDict({'input_ids', {0: 'batch_size', 1: 'seq_len'}})
-
-        return common_inputs
+        input_ids = [('input_ids', {0: 'batch_size', 1: 'seq_len'})]
+        
+        return OrderedDict(input_ids)
 
     @property
     def outputs(self) -> Mapping[str, Mapping[int, str]]:
-        common_outputs = OrderedDict({'probs', {0: 'batch_size'}})
+        probs = [('probs', {0: 'batch_size'})]
 
-        return common_outputs
+        return OrderedDict(probs)
