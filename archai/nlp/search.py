@@ -75,7 +75,7 @@ def parse_args():
 
     search.add_argument('--n_iter',
                         type=int,
-                        default=20,
+                        default=10,
                         help='Number of search iterations.')
 
     search.add_argument('--do_brute_force',
