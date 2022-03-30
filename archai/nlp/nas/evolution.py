@@ -111,12 +111,11 @@ class Evolution:
         
         # Model's default and search configurations
         self.model_type = model_type
-        self.model_config = load_config(model_type).to_dict()
+        self.model_config = load_config(model_type)
         self.model_search_config = load_search_config(model_type).to_dict()
 
         # Overrides default configuration with inputted ones
-        self.model_config.update((k, v) for k, v in model_config.items() 
-                                 if k in self.model_config.keys() and v is not None)
+        self.model_config.update(model_config)
 
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones
@@ -223,6 +222,7 @@ class Evolution:
         # Loads model from current configuration
         model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
+        model_config = model_config.to_dict()
 
         # Checks if model passes number of parameter constraints via analytical means since it is fast
         total_params_analytical = load_model_formula(self.model_type)(model_config)['total']
@@ -272,6 +272,7 @@ class Evolution:
 
         model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
+        model_config = model_config.to_dict()
 
         # Constraint pipeline with PyTorch
         if self.constraint_pipeline_type == 'torch':
