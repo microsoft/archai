@@ -119,6 +119,11 @@ def parse_args():
                         choices=['word', 'bppe', 'gpt2'],
                         help='Type of training vocabulary (if not using proxy).')
 
+    proxy.add_argument('--training_vocab_size',
+                        type=int,
+                        default=10000,
+                        help='Size of training vocabulary (if not using proxy).')
+
     proxy.add_argument('--training_max_step',
                         type=int,
                         default=100,
@@ -204,6 +209,10 @@ if __name__ == '__main__':
     random.seed(args['seed'])
     torch.manual_seed(args['seed'])
 
+    if not torch.cuda.is_available():
+        args['use_training_proxy'] = True
+        print('No CUDA available, defaulting to `use_training_proxy` as True.')
+
     # Gathers the latency constraint based on device
     if args['latency_constraint_upper'] is None:
         args['latency_constraint_upper'] = DEVICE_LATENCY_CONSTRAINT[args['device_name']]
@@ -241,6 +250,7 @@ if __name__ == '__main__':
                   use_training_proxy=args['use_training_proxy'],
                   training_dataset=args['training_dataset'],
                   training_vocab_type=args['training_vocab_type'],
+                  training_vocab_size=args['training_vocab_size'],
                   training_max_step=args['training_max_step'],
                   constraint_pipeline_type=args['constraint_pipeline_type'],
                   param_constraint_lower=args['param_constraint_lower'],

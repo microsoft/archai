@@ -48,6 +48,7 @@ class Evolution:
                  use_training_proxy: Optional[bool] = False,
                  training_dataset: Optional[str] = 'wt103',
                  training_vocab_type: Optional[str] = 'word',
+                 training_vocab_size: Optional[int] = 10000,
                  training_max_step: Optional[int] = 100,
                  constraint_pipeline_type: Optional[str] = 'torch',
                  param_constraint_lower: Optional[int] = 5e6,
@@ -73,6 +74,7 @@ class Evolution:
             use_training_proxy: Whether decoder parameters proxy should be used instead of validation perplexity.
             training_dataset: Training dataset (if not using proxy).
             training_vocab_type: Type of training vocabulary (if not using proxy).
+            training_vocab_size: Size of training vocabulary (if not using proxy).
             training_max_step: Maximum training steps (if not using proxy).
             constraint_pipeline_type: Type of constraint pipeline.
             param_constraint_lower: Any candidate below this will get rejected.
@@ -155,7 +157,7 @@ class Evolution:
                                                     use_quantization=use_quantization,
                                                     training_dataset=training_dataset,
                                                     training_vocab_type=training_vocab_type,
-                                                    training_vocab_size=self.model_config['vocab_size'],
+                                                    training_vocab_size=training_vocab_size,
                                                     training_max_step=training_max_step,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
