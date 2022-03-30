@@ -9,26 +9,14 @@ from typing import Any, Dict, Mapping, Optional, List, Union
 
 import torch
 
+from transformers import PretrainedConfig
 
-class Config:
+
+class Config(PretrainedConfig):
     """Base configuration class, used to define some common attributes
         and shared methods for loading and saving configurations.
 
     """
-
-    hyperparameter_map: Dict[str, str] = {}
-
-    def __getattribute__(self, key: str) -> Any:
-        if key != 'hyperparameter_map' and key in super().__getattribute__('hyperparameter_map'):
-            key = super().__getattribute__('hyperparameter_map')[key]
-        
-        return super().__getattribute__(key)
-
-    def __setattr__(self, key: str, value: Any) -> None:
-        if key in super().__getattribute__('hyperparameter_map'):
-            key = super().__getattribute__('hyperparameter_map')[key]
-
-        super().__setattr__(key, value)
 
     def __init__(self, **kwargs) -> None:
         """Initializes the class by verifying whether keyword arguments
@@ -36,12 +24,7 @@ class Config:
 
         """
 
-        # Non-default attributes
-        for key, value in kwargs.items():
-            try:
-                setattr(self, key, value)
-            except AttributeError as e:
-                raise e
+        super().__init__(**kwargs)
 
     def _map_to_list(self,
                      variable: Union[int, float, List[Union[int, float]]],
@@ -57,14 +40,6 @@ class Config:
                 return variable + [variable[0]] * size_diff
 
         return [variable] * size
-
-    def to_dict(self) -> Dict[str, Any]:
-        config_dict = {}
-
-        for key, value in self.__dict__.items():
-            config_dict[key] = value
-
-        return config_dict
 
 
 class SearchConfigParameter:
