@@ -41,6 +41,14 @@ class Config(PretrainedConfig):
 
         return [variable] * size
 
+    def to_dict(self) -> Dict[str, Any]:
+        config_dict = super().to_dict()
+        
+        for key, mapped_key in self.attribute_map.items():
+            config_dict[key] = config_dict[mapped_key]
+
+        return config_dict
+
 
 class SearchConfigParameter:
     """Base search configuration parameter class, used to define whether
