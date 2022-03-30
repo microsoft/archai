@@ -90,6 +90,10 @@ class TorchConstraintPipeline(ConstraintPipeline):
                  use_training_proxy: Optional[bool] = False,
                  use_quantization: Optional[bool] = False,
                  use_median: Optional[bool] = False,
+                 training_dataset: Optional[str] = 'wt103',
+                 training_vocab_type: Optional[str] = 'word',
+                 training_vocab_size: Optional[int] = 10000,
+                 training_max_step: Optional[int] = 100,
                  batch_size: Optional[int] = 1,
                  seq_len: Optional[int] = 192,
                  n_threads: Optional[int] = 1,
@@ -101,6 +105,10 @@ class TorchConstraintPipeline(ConstraintPipeline):
             use_training_proxy: Whether measurement should be calculated with decoder parameters instead of perplexity.
             use_quantization: Whether measurement should be calculated with quantizated model or not.
             use_median: Whether should use median instead of mean for measurement.
+            training_dataset: Training dataset (if not using proxy).
+            training_vocab_type: Type of training vocabulary (if not using proxy).
+            training_vocab_size: Training vocabulary size (if not using proxy).
+            training_max_step: Maximum training steps (if not using proxy).
             batch_size: Batch size.
             seq_len: Sequence length.
             n_threads: Number of inference threads.
@@ -110,6 +118,10 @@ class TorchConstraintPipeline(ConstraintPipeline):
         """
 
         self.use_training_proxy = use_training_proxy
+        self.training_dataset = training_dataset
+        self.training_vocab_type = training_vocab_type
+        self.training_vocab_size = training_vocab_size
+        self.training_max_step = training_max_step
 
         super().__init__(use_quantization, use_median, batch_size,
                          seq_len, n_threads, n_trials, device)
@@ -131,7 +143,11 @@ class TorchConstraintPipeline(ConstraintPipeline):
             measure_torch_proxy = measure_torch_parameters(model, ['non_embedding'])
         else:
             # Validation perplexity
-            measure_torch_proxy = measure_torch_perplexity(model)
+            measure_torch_proxy = measure_torch_perplexity(model,
+                                                           dataset=self.training_dataset,
+                                                           vocab_type=self.training_vocab_type,
+                                                           vocab_size=self.training_vocab_size,
+                                                           max_step=self.training_max_step)
 
         return (
             # Proxy (either decoder parameters or validation perplexity)

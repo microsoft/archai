@@ -96,14 +96,33 @@ def parse_args():
                         action='store_true',
                         help='Uses quantized models to conduct the search.')
 
-    search.add_argument('--use_training_proxy',
-                        action='store_true',
-                        help='Uses decoder parameters proxy instead of validation perplexity to conduct the search.')
-
     search.add_argument('--seed',
                         type=int,
                         default=1111,
                         help='Random seed.')
+
+    proxy = parser.add_argument_group('Training proxy')
+
+    proxy.add_argument('--use_training_proxy',
+                        action='store_true',
+                        help='Uses decoder parameters proxy instead of validation perplexity to conduct the search.')
+
+    proxy.add_argument('--training_dataset',
+                        type=str,
+                        default='wt103',
+                        choices=['wt103'],
+                        help='Training dataset (if not using proxy).')
+
+    proxy.add_argument('--training_vocab_type',
+                        type=str,
+                        default='word',
+                        choices=['word', 'bppe', 'gpt2'],
+                        help='Type of training vocabulary (if not using proxy).')
+
+    proxy.add_argument('--training_max_step',
+                        type=int,
+                        default=100,
+                        help='Maximum number of training steps (if not using proxy).')
 
     choice = parser.add_argument_group('Hyperparameters choices')
     choice.add_argument('--n_layer',
@@ -220,6 +239,9 @@ if __name__ == '__main__':
                   n_iter=args['n_iter'],
                   use_quantization=args['use_quantization'],
                   use_training_proxy=args['use_training_proxy'],
+                  training_dataset=args['training_dataset'],
+                  training_vocab_type=args['training_vocab_type'],
+                  training_max_step=args['training_max_step'],
                   constraint_pipeline_type=args['constraint_pipeline_type'],
                   param_constraint_lower=args['param_constraint_lower'],
                   param_constraint_upper=args['param_constraint_upper'],

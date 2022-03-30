@@ -46,6 +46,9 @@ class Evolution:
                  n_iter: Optional[int] = 10,
                  use_quantization: Optional[bool] = False,
                  use_training_proxy: Optional[bool] = False,
+                 training_dataset: Optional[str] = 'wt103',
+                 training_vocab_type: Optional[str] = 'word',
+                 training_max_step: Optional[int] = 100,
                  constraint_pipeline_type: Optional[str] = 'torch',
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
@@ -68,6 +71,9 @@ class Evolution:
             n_iter: Number of search iterations.
             use_quantization: Whether should use quantization or not.
             use_training_proxy: Whether decoder parameters proxy should be used instead of validation perplexity.
+            training_dataset: Training dataset (if not using proxy).
+            training_vocab_type: Type of training vocabulary (if not using proxy).
+            training_max_step: Maximum training steps (if not using proxy).
             constraint_pipeline_type: Type of constraint pipeline.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
@@ -147,6 +153,10 @@ class Evolution:
         if constraint_pipeline_type == 'torch':
             self.pipeline = TorchConstraintPipeline(use_training_proxy=use_training_proxy,
                                                     use_quantization=use_quantization,
+                                                    training_dataset=training_dataset,
+                                                    training_vocab_type=training_vocab_type,
+                                                    training_vocab_size=self.model_config['vocab_size'],
+                                                    training_max_step=training_max_step,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
         elif constraint_pipeline_type == 'onnx':

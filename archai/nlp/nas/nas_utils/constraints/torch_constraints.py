@@ -128,11 +128,19 @@ def measure_torch_peak_memory(model: torch.nn.Module,
     return peak_memory_mb
 
 
-def measure_torch_perplexity(model: torch.nn.Module) -> float:
+def measure_torch_perplexity(model: torch.nn.Module,
+                             dataset: Optional[str] = 'wt103',
+                             vocab_type: Optional[str] = 'word',
+                             vocab_size: Optional[int] = 10000,
+                             max_step: Optional[int] = 100) -> float:
     """Measures a model's validation perplexity.
 
     Args:
         model: Model instance.
+        dataset: Training dataset.
+        vocab_type: Type of vocabulary.
+        vocab_size: Vocabulary size.
+        max_step: Maximum training steps.
 
     Returns:
         (float): Validation perplexity.
@@ -144,11 +152,11 @@ def measure_torch_perplexity(model: torch.nn.Module) -> float:
     except:
         args, device = train.init(dlogger_enabled=False)
 
-    args.dataset = 'wt103'
-    args.vocab = 'word'
-    args.vocab_size = 10000
-    args.max_step = 25
-    args.warmup_step = 10
+    args.dataset = dataset
+    args.vocab = vocab_type
+    args.vocab_size = vocab_size
+    args.max_step = max_step
+    args.warmup_step = max_step // 10
     
     vocab, train_itr, valid_itr, _, file_stats = train.load_data(args, device)
     optimizer, optimizer_sparse = train.create_optimizer(args, model)
