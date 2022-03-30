@@ -7,15 +7,15 @@
 from typing import List, Optional, Union
 
 from archai.nlp.models.config_base import Config, SearchConfigParameter, SearchConfig
-from transformers import CONFIG_MAPPING, PretrainedConfig
+from transformers import CONFIG_MAPPING
 
 
-class HfGPT2Config(Config, PretrainedConfig):
+class HfGPT2Config(Config):
     """Huggingface's Open AI GPT-2 default configuration.
 
     """
 
-    hyperparameter_map = {
+    attribute_map = {
         'n_token': 'vocab_size',
         'tgt_len': 'n_positions',
         'd_model': 'n_embd',
@@ -24,7 +24,7 @@ class HfGPT2Config(Config, PretrainedConfig):
         'dropatt': 'attn_pdrop',
         'weight_init_std': 'initializer_range'
     }
-    hyperparameter_map.update(CONFIG_MAPPING['gpt2']().attribute_map)
+    attribute_map.update(CONFIG_MAPPING['gpt2']().attribute_map)
 
     def __init__(self,
                  n_token: Optional[int] = 10000, # changed from 50257 for model's production
