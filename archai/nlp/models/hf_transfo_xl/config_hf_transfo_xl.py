@@ -7,21 +7,21 @@
 from typing import List, Optional
 
 from archai.nlp.models.config_base import Config, SearchConfigParameter, SearchConfig
-from transformers import CONFIG_MAPPING, PretrainedConfig
+from transformers import CONFIG_MAPPING
 
 
-class HfTransfoXLConfig(Config, PretrainedConfig):
+class HfTransfoXLConfig(Config):
     """Huggingface's Transformer-XL default configuration.
 
     """
 
-    hyperparameter_map = {
+    attribute_map = {
         'n_token': 'vocab_size',
         'weight_init_type': 'init',
         'weight_init_range': 'init_range',
         'weight_init_std': 'init_std',
     }
-    hyperparameter_map.update(CONFIG_MAPPING['transfo-xl']().attribute_map)
+    attribute_map.update(CONFIG_MAPPING['transfo-xl']().attribute_map)
 
     def __init__(self,
                  n_token: Optional[int] = 267736,
