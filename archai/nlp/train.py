@@ -704,7 +704,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     return train_step, best_val_loss
 
 
-def init(dlogger_enabled=True):
+def init(disable_multiple_dlogger=False):
     exp_utils.script_init()
 
     args = parse_args()
@@ -749,7 +749,7 @@ def init(dlogger_enabled=True):
     #     dllog_file = os.devnull
 
     exp_utils.setup_logging(log_all_ranks=args.log_all_ranks, filename=log_file)
-    exp_utils.setup_dllogger(enabled=dlogger_enabled, filename=dllog_file)
+    exp_utils.setup_dllogger(enabled=True, filename=dllog_file, disable_multiple=disable_multiple_dlogger)
 
     if args.config == 'toy':
         logging.warning('Running in toy mode which means wt2 dataset, only one step training, a lot of batch chunking for laptop GPU')
