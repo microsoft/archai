@@ -647,79 +647,15 @@ class AdaptiveEmbedding(nn.Module):
         return embed
 
 class MemTransformerLM(ArchaiModel):
-    """Implements the Memory Transformer for language modeling (Transformer-XL).
-
-    """
-
-    def __init__(self,
-                 n_token: int,
-                 n_layer: Optional[int] = 16,
-                 n_head: Optional[int] = 8,
-                 d_model: Optional[int] = 512,
-                 d_head: Optional[int] = 64,
-                 d_inner: Optional[int] = 2048,
-                 dropout: Optional[float] = 0.1,
-                 dropatt: Optional[float] = 0.0,
-                 dtype: Optional[str] = None,
-                 tie_weight: Optional[bool] = True,
-                 d_embed: Optional[int] = 512,
-                 div_val: Optional[int] = 1,
-                 tie_projs: Optional[List[bool]] = None,
-                 pre_lnorm: Optional[bool] = False,
-                 tgt_len: Optional[int] = 192,
-                 ext_len: Optional[int] = 0,
-                 mem_len: Optional[int] = 192,
-                 cutoffs: Optional[List[int]] = None,
-                 adaptive: Optional[bool] = False,
-                 same_length: Optional[bool] = False,
-                 attn_type: Optional[int] = 0,
-                 clamp_len: Optional[int] = -1,
-                 sample_softmax: Optional[int] = -1,
-                 weight_init_type: Optional[str] ='normal',
-                 weight_init_range: Optional[float] = 0.1,
-                 weight_init_std: Optional[float] = 0.02,
-                 proj_init_std: Optional[float] = 0.01,
-                 init_std: Optional[float] = 0.02,
-                 primer_conv: Optional[bool] = False,
-                 primer_square: Optional[bool] = False,
-                 use_cache: Optional[bool] = False) -> None:
-        """Overrides inialization.
-
-        Args:
-            n_token: Number of maximum tokens.
-            n_layer: Number of layers.
-            n_head: Number of attention heads.
-            d_model: Dimensionality of the model.
-            d_head: Dimensionality of the attention head.
-            d_inner: Dimensionality of the inner state.
-            dropout: Dropout ratio.
-            dropatt: Dropout ratio for attention.
-            dtype: Type of variables.
-            tie_weight: Whether weights should be tied or not.
-            d_embed: Dimensionality of the embeddings.
-            div_val: Dividend for adaptive softmax.
-            tie_projs: Whether projections should be tied or not.
-            pre_lnorm: Whether to apply layer normalization before activation.
-            tgt_len: Target sequence length.
-            ext_len: Extended context length.
-            mem_len: Memory length.
-            cutoffs: Cutoffs for the adaptive softmax.
-            adaptive: Whether should use adaptive softmax or not.
-            same_length: Whether passes should have the same length or not.
-            attn_type: Type of attention layer.
-            clamp_len: Maximum length of the positional embeddings.
-            sample_softmax: Whether to sample from the softmax layer or not.
-            weight_init_type: Type of weights initialization.
-            weight_init_range: Range of weights initialization.
-            weight_init_std: Standard deviation of weights initialization.
-            proj_init_std: Standard deviation of projections initialization.
-            init_std: Standard deviation of initialization.
-            primer_conv: Whether to use the Primer-EZ convolution primitive.
-            primer_square: Whether to use the Primer-EZ squared ReLU primitive.
-            use_cache: Whether should save and use past key/values states.
-
-        """
-
+    def __init__(self, n_token, n_layer=16, n_head=8, d_model=512, d_head=64, d_inner=2048,
+                 dropout=0.1, dropatt=0.0, dtype=None, tie_weight=True, d_embed=512,
+                 div_val=1, tie_projs=None, pre_lnorm=False,
+                 tgt_len=192, ext_len=0, mem_len=192,
+                 cutoffs=None, adaptive=False,
+                 same_length=False, attn_type=0, clamp_len=-1, sample_softmax=-1,
+                 weight_init_type='normal', weight_init_range=0.1, weight_init_std=0.02,
+                 proj_init_std=0.01, init_std=0.02,
+                 primer_conv=False, primer_square=False, use_cache=False, **kwargs):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
