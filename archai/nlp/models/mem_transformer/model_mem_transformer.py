@@ -600,7 +600,7 @@ class MemTransformerLM(ArchaiModel):
                  same_length=False, attn_type=0, clamp_len=-1, sample_softmax=-1,
                  weight_init_type='normal', weight_init_range=0.1, weight_init_std=0.02,
                  proj_init_std=0.01, init_std=0.02,
-                 primer_conv=False, primer_square=False, use_cache=False):
+                 primer_conv=False, primer_square=False, use_cache=False, **kwargs):
         super(MemTransformerLM, self).__init__()
         self.n_token = n_token # number of tokens in vocab
 
