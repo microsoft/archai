@@ -150,7 +150,7 @@ def measure_torch_perplexity(model: torch.nn.Module,
     try:
         args, device = train.init()
     except:
-        args, device = train.init(dlogger_enabled=False)
+        args, device = train.init(disable_multiple_dlogger=True)
 
     args.dataset = dataset
     args.vocab = vocab_type
