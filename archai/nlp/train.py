@@ -1249,7 +1249,9 @@ def main():
     utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
 
     summary_csv_filepath = os.path.join(args.work_dir, 'summaries.tsv')
-    utils.append_csv_file(summary_csv_filepath, list(summary.items()))
+    with nv_distributed.sync_workers() as rank:
+        if rank == 0:
+            utils.append_csv_file(summary_csv_filepath, list(summary.items()))
 
     logging.info(f'Output dir: {args.work_dir}')
     dllogger.log(step=tuple(), data=summary)
