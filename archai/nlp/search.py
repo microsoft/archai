@@ -101,33 +101,35 @@ def parse_args():
                         default=1111,
                         help='Random seed.')
 
-    proxy = parser.add_argument_group('Training proxy')
+    strategy = parser.add_argument_group('Training strategy')
 
-    proxy.add_argument('--use_training_proxy',
-                        action='store_true',
-                        help='Uses decoder parameters proxy instead of validation perplexity to conduct the search.')
+    strategy.add_argument('--training_strategy',
+                          type=str,
+                          default='decoder_params',
+                          choices=['decoder_params', 'val_ppl', 'char_acc_rate'],
+                          help='Training strategy: decoder parameters, perplexity or character acceptance rate.')
 
-    proxy.add_argument('--training_dataset',
-                        type=str,
-                        default='wt103',
-                        choices=['wt103'],
-                        help='Training dataset (if not using proxy).')
+    strategy.add_argument('--training_dataset',
+                          type=str,
+                          default='wt103',
+                          choices=['wt103'],
+                          help='Training dataset (if not using `decoder_params`).')
 
-    proxy.add_argument('--training_vocab_type',
-                        type=str,
-                        default='word',
-                        choices=['word', 'bppe', 'gpt2'],
-                        help='Type of training vocabulary (if not using proxy).')
+    strategy.add_argument('--training_vocab_type',
+                          type=str,
+                          default='word',
+                          choices=['word', 'bppe', 'gpt2'],
+                          help='Type of training vocabulary (if not using `decoder_params`).')
 
-    proxy.add_argument('--training_vocab_size',
-                        type=int,
-                        default=10000,
-                        help='Size of training vocabulary (if not using proxy).')
+    strategy.add_argument('--training_vocab_size',
+                          type=int,
+                          default=10000,
+                          help='Size of training vocabulary (if not using `decoder_params`).')
 
-    proxy.add_argument('--training_max_step',
-                        type=int,
-                        default=100,
-                        help='Maximum number of training steps (if not using proxy).')
+    strategy.add_argument('--training_max_step',
+                          type=int,
+                          default=100,
+                          help='Maximum number of training steps (if not using `decoder_params`).')
 
     choice = parser.add_argument_group('Hyperparameters choices')
     choice.add_argument('--n_layer',
@@ -247,7 +249,7 @@ if __name__ == '__main__':
                   crossover_prob=args['crossover_prob'],
                   n_iter=args['n_iter'],
                   use_quantization=args['use_quantization'],
-                  use_training_proxy=args['use_training_proxy'],
+                  training_strategy=args['training_strategy'],
                   training_dataset=args['training_dataset'],
                   training_vocab_type=args['training_vocab_type'],
                   training_vocab_size=args['training_vocab_size'],
