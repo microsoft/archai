@@ -4,15 +4,18 @@
 """PyTorch-based constraints.
 """
 
+from argparse import Namespace
 import math
-from typing import List, Optional
+import os
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 import torch.utils.benchmark as benchmark
 from torch.profiler import ProfilerActivity, profile
 
-from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
 from archai.nlp import train
+from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
+from archai.nlp.metrics.text_predict.predictor import run_score
 
 
 def measure_torch_inference_latency(model: torch.nn.Module,
@@ -129,21 +132,23 @@ def measure_torch_peak_memory(model: torch.nn.Module,
 
 
 def measure_torch_perplexity(model: torch.nn.Module,
+                             model_config: Dict[str, Any],
                              dataset: Optional[str] = 'wt103',
                              vocab_type: Optional[str] = 'word',
                              vocab_size: Optional[int] = 10000,
-                             max_step: Optional[int] = 100) -> float:
+                             max_step: Optional[int] = 100) -> Tuple[Namespace, float]:
     """Measures a model's validation perplexity.
 
     Args:
         model: Model instance.
+        model_config: Configuration of the model.
         dataset: Training dataset.
         vocab_type: Type of vocabulary.
         vocab_size: Vocabulary size.
         max_step: Maximum training steps.
 
     Returns:
-        (float): Validation perplexity.
+        (Tuple[Namespace, float]): Training arguments and validation perplexity.
 
     """
 
@@ -165,7 +170,45 @@ def measure_torch_perplexity(model: torch.nn.Module,
     model.to(device)
     scheduler, scheduler_sparse = train.create_scheduler(args, optimizer, optimizer_sparse)
     _, best_val_loss, _ = train.train_main(args, device, train_itr, valid_itr, model, para_model,
-                                           None, optimizer, optimizer_sparse, scheduler,
+                                           model_config, optimizer, optimizer_sparse, scheduler,
                                            scheduler_sparse, scaler, vocab, file_stats[1])
 
-    return math.exp(best_val_loss)
+    return args, math.exp(best_val_loss)
+
+
+def measure_torch_text_predict(model: torch.nn.Module,
+                               model_config: Dict[str, Any],
+                               dataset: Optional[str] = 'wt103',
+                               scoring_file: Optional[str] = None,
+                               vocab_type: Optional[str] = 'word',
+                               vocab_size: Optional[int] = 10000,
+                               max_step: Optional[int] = 100) -> float:
+    """Measures a model's character acceptance rate with Text Predict.
+
+    Args:
+        model: Model instance.
+        model_config: Configuration of the model.
+        dataset: Training dataset.
+        scoring_file: Scoring .ljson file.
+        vocab_type: Type of vocabulary.
+        vocab_size: Vocabulary size.
+        max_step: Maximum training steps.
+
+    Returns:
+        (float): Character acceptance rate.
+
+    """
+
+    if vocab_type == 'word':
+        raise ValueError('`vocab_type` should be either `bbpe` or `gpt2`.')
+
+    # Re-uses the perplexity function to train the model
+    args, _ = measure_torch_perplexity(model, model_config, dataset, vocab_type, vocab_size, max_step=10)
+
+    # Defines some missing variables to run TextPredict
+    model_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
+    vocab_path = os.path.join(args.cache_dir, dataset, vocab_type, str(vocab_size), 'vocab', 'bbpe_tokenizer.json')
+    input_file_type = 'smartcompose'
+
+    # Runs the Text Predict scoring function
+    run_score(args.work_dir, model_path, vocab_path, scoring_file, input_file_type, args.model_type)
