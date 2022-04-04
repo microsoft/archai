@@ -87,13 +87,13 @@ class TorchConstraintPipeline(ConstraintPipeline):
     """
 
     def __init__(self,
-                 use_training_proxy: Optional[bool] = False,
-                 use_quantization: Optional[bool] = False,
-                 use_median: Optional[bool] = False,
+                 training_strategy: Optional[str] = 'decoder_params',
                  training_dataset: Optional[str] = 'wt103',
                  training_vocab_type: Optional[str] = 'word',
                  training_vocab_size: Optional[int] = 10000,
                  training_max_step: Optional[int] = 100,
+                 use_quantization: Optional[bool] = False,
+                 use_median: Optional[bool] = False,
                  batch_size: Optional[int] = 1,
                  seq_len: Optional[int] = 192,
                  n_threads: Optional[int] = 1,
@@ -102,13 +102,13 @@ class TorchConstraintPipeline(ConstraintPipeline):
         """Overrides initialization method.
 
         Args:
-            use_training_proxy: Whether measurement should be calculated with decoder parameters instead of perplexity.
+            training_strategy: Training strategy (`decoder_params`, `val_ppl` or `char_acc_rate`).
+            training_dataset: Training dataset (if not using `decoder_params`).
+            training_vocab_type: Type of training vocabulary (if not using `decoder_params`).
+            training_vocab_size: Size of training vocabulary (if not using `decoder_params`).
+            training_max_step: Maximum training steps (if not using `decoder_params`).
             use_quantization: Whether measurement should be calculated with quantizated model or not.
             use_median: Whether should use median instead of mean for measurement.
-            training_dataset: Training dataset (if not using proxy).
-            training_vocab_type: Type of training vocabulary (if not using proxy).
-            training_vocab_size: Training vocabulary size (if not using proxy).
-            training_max_step: Maximum training steps (if not using proxy).
             batch_size: Batch size.
             seq_len: Sequence length.
             n_threads: Number of inference threads.
@@ -117,7 +117,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         """
 
-        self.use_training_proxy = use_training_proxy
+        self.training_strategy = training_strategy
         self.training_dataset = training_dataset
         self.training_vocab_type = training_vocab_type
         self.training_vocab_size = training_vocab_size
@@ -138,16 +138,18 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         """
 
-        if self.use_training_proxy:
+        if self.training_strategy == 'decoder_params':
             # Number of decoder (non-embedding) parameters
             measure_torch_proxy = measure_torch_parameters(model, ['non_embedding'])
-        else:
+        elif self.training_strategy == 'val_ppl':
             # Validation perplexity
             measure_torch_proxy = measure_torch_perplexity(model,
                                                            dataset=self.training_dataset,
                                                            vocab_type=self.training_vocab_type,
                                                            vocab_size=self.training_vocab_size,
                                                            max_step=self.training_max_step)
+        else:
+            raise NotImplementedError(f'training_strategy: {self.training_strategy} has not been implemented yet.')
 
         return (
             # Proxy (either decoder parameters or validation perplexity)
