@@ -46,9 +46,10 @@ class Evolution:
                  n_iter: Optional[int] = 10,
                  use_quantization: Optional[bool] = False,
                  training_strategy: Optional[str] = 'decoder_params',
-                 training_dataset: Optional[str] = 'wt103',
-                 training_vocab_type: Optional[str] = 'word',
-                 training_vocab_size: Optional[int] = 10000,
+                 dataset: Optional[str] = 'wt103',
+                 scoring_file: Optional[str] = None,
+                 vocab_type: Optional[str] = 'word',
+                 vocab_size: Optional[int] = 10000,
                  training_max_step: Optional[int] = 100,
                  constraint_pipeline_type: Optional[str] = 'torch',
                  param_constraint_lower: Optional[int] = 5e6,
@@ -72,9 +73,10 @@ class Evolution:
             n_iter: Number of search iterations.
             use_quantization: Whether should use quantization or not.
             training_strategy: Training strategy (defaults to `decoder_params`).
-            training_dataset: Training dataset (if not using `decoder_params`).
-            training_vocab_type: Type of training vocabulary (if not using `decoder_params`).
-            training_vocab_size: Size of training vocabulary (if not using `decoder_params`).
+            scoring_file: Scoring .ljson file (if using `score`).
+            dataset: Dataset (if not using `decoder_params`).
+            vocab_type: Type of vocabulary (if not using `decoder_params`).
+            vocab_size: Size of vocabulary (if not using `decoder_params`).
             training_max_step: Maximum training steps (if not using `decoder_params`).
             constraint_pipeline_type: Type of constraint pipeline.
             param_constraint_lower: Any candidate below this will get rejected.
@@ -153,9 +155,10 @@ class Evolution:
         self.constraint_pipeline_type = constraint_pipeline_type
         if constraint_pipeline_type == 'torch':
             self.pipeline = TorchConstraintPipeline(training_strategy=training_strategy,
-                                                    training_dataset=training_dataset,
-                                                    training_vocab_type=training_vocab_type,
-                                                    training_vocab_size=training_vocab_size,
+                                                    dataset=dataset,
+                                                    scoring_file=scoring_file,
+                                                    vocab_type=vocab_type,
+                                                    vocab_size=vocab_size,
                                                     training_max_step=training_max_step,
                                                     use_quantization=use_quantization,
                                                     n_threads=n_threads,
@@ -277,7 +280,7 @@ class Evolution:
         # Constraint pipeline with PyTorch
         if self.constraint_pipeline_type == 'torch':
             model = load_model_from_config(self.model_type, model_config)
-            proxy, total_params, latency, memory = self.pipeline(model)
+            proxy, total_params, latency, memory = self.pipeline(model, model_config)
         
         # Constraint pipeline with ONNX
         elif self.constraint_pipeline_type == 'onnx':
