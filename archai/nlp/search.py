@@ -106,25 +106,30 @@ def parse_args():
     strategy.add_argument('--training_strategy',
                           type=str,
                           default='decoder_params',
-                          choices=['decoder_params', 'val_ppl', 'char_acc_rate'],
-                          help='Training strategy: decoder parameters, perplexity or character acceptance rate.')
+                          choices=['decoder_params', 'val_ppl', 'text_predict'],
+                          help='Training strategy: decoder parameters, perplexity or character acceptance rate (text_predict).')
 
-    strategy.add_argument('--training_dataset',
+    strategy.add_argument('--dataset',
                           type=str,
                           default='wt103',
                           choices=['wt103'],
-                          help='Training dataset (if not using `decoder_params`).')
+                          help='Dataset (if not using `decoder_params`).')
 
-    strategy.add_argument('--training_vocab_type',
+    strategy.add_argument('--scoring_file',
+                          type=str,
+                          default=None,
+                          help='Scoring .ljson file (if using `text_predict`).')
+
+    strategy.add_argument('--vocab_type',
                           type=str,
                           default='word',
                           choices=['word', 'bppe', 'gpt2'],
-                          help='Type of training vocabulary (if not using `decoder_params`).')
+                          help='Type of vocabulary (if not using `decoder_params`).')
 
-    strategy.add_argument('--training_vocab_size',
+    strategy.add_argument('--vocab_size',
                           type=int,
                           default=10000,
-                          help='Size of training vocabulary (if not using `decoder_params`).')
+                          help='Size of vocabulary (if not using `decoder_params`).')
 
     strategy.add_argument('--training_max_step',
                           type=int,
@@ -250,9 +255,10 @@ if __name__ == '__main__':
                   n_iter=args['n_iter'],
                   use_quantization=args['use_quantization'],
                   training_strategy=args['training_strategy'],
-                  training_dataset=args['training_dataset'],
-                  training_vocab_type=args['training_vocab_type'],
-                  training_vocab_size=args['training_vocab_size'],
+                  dataset=args['dataset'],
+                  scoring_file=args['scoring_file'],
+                  vocab_type=args['vocab_type'],
+                  vocab_size=args['vocab_size'],
                   training_max_step=args['training_max_step'],
                   constraint_pipeline_type=args['constraint_pipeline_type'],
                   param_constraint_lower=args['param_constraint_lower'],
