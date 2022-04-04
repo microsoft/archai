@@ -14,7 +14,7 @@ from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_inference_latency,
                                                                     measure_torch_parameters,
                                                                     measure_torch_peak_memory,
-                                                                    measure_torch_perplexity,
+                                                                    measure_torch_val_ppl,
                                                                     measure_torch_text_predict)
 
 # Latency upper bound on different device targets
@@ -140,8 +140,8 @@ class TorchConstraintPipeline(ConstraintPipeline):
             model_config: Configuration of model.
 
         Returns:
-            (Tuple[Union[int, float], int, float, float]): Decoder parameters or
-                validation perplexity, total parameters, latency and peak memory.
+            (Tuple[Union[int, float], int, float, float]): Decoder parameters, validation perplexity
+                or character acceptance rate, total parameters, latency and peak memory.
 
         """
 
@@ -150,12 +150,12 @@ class TorchConstraintPipeline(ConstraintPipeline):
             measure_torch_proxy = measure_torch_parameters(model, ['non_embedding'])
         elif self.training_strategy == 'val_ppl':
             # Validation perplexity
-            _, measure_torch_proxy = measure_torch_perplexity(model,
-                                                              model_config,
-                                                              dataset=self.dataset,
-                                                              vocab_type=self.vocab_type,
-                                                              vocab_size=self.vocab_size,
-                                                              max_step=self.training_max_step)
+            _, measure_torch_proxy = measure_torch_val_ppl(model,
+                                                           model_config,
+                                                           dataset=self.dataset,
+                                                           vocab_type=self.vocab_type,
+                                                           vocab_size=self.vocab_size,
+                                                           max_step=self.training_max_step)
         elif self.training_strategy == 'text_predict':
             # Text Predict with character acceptance rate
             measure_torch_proxy = measure_torch_text_predict(model,
