@@ -131,12 +131,12 @@ def measure_torch_peak_memory(model: torch.nn.Module,
     return peak_memory_mb
 
 
-def measure_torch_perplexity(model: torch.nn.Module,
-                             model_config: Dict[str, Any],
-                             dataset: Optional[str] = 'wt103',
-                             vocab_type: Optional[str] = 'word',
-                             vocab_size: Optional[int] = 10000,
-                             max_step: Optional[int] = 100) -> Tuple[Namespace, float]:
+def measure_torch_val_ppl(model: torch.nn.Module,
+                          model_config: Dict[str, Any],
+                          dataset: Optional[str] = 'wt103',
+                          vocab_type: Optional[str] = 'word',
+                          vocab_size: Optional[int] = 10000,
+                          max_step: Optional[int] = 100) -> Tuple[Namespace, float]:
     """Measures a model's validation perplexity.
 
     Args:
@@ -203,7 +203,7 @@ def measure_torch_text_predict(model: torch.nn.Module,
         raise ValueError('`vocab_type` should be either `bbpe` or `gpt2`.')
 
     # Re-uses the perplexity function to train the model
-    args, _ = measure_torch_perplexity(model, model_config, dataset, vocab_type, vocab_size, max_step=10)
+    args, _ = measure_torch_val_ppl(model, model_config, dataset, vocab_type, vocab_size, max_step)
 
     # Defines some missing variables to run TextPredict
     model_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
