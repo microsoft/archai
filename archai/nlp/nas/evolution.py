@@ -73,7 +73,7 @@ class Evolution:
             n_iter: Number of search iterations.
             use_quantization: Whether should use quantization or not.
             training_strategy: Training strategy (defaults to `decoder_params`).
-            scoring_file: Scoring .ljson file (if using `score`).
+            scoring_file: Scoring .ljson file (if using `char_accept_rate`).
             dataset: Dataset (if not using `decoder_params`).
             vocab_type: Type of vocabulary (if not using `decoder_params`).
             vocab_size: Size of vocabulary (if not using `decoder_params`).
@@ -329,11 +329,10 @@ class Evolution:
 
         self.pareto = defaultdict(list)
 
-        # Pareto over proxies params, latency, memory since
-        # higher decoder params is better for performance and lower memory and latency are better
+        # Pareto over proxies, latency and memory
         # Note we convert decoder params to a decreasing quantity since the pareto
         # finding function needs all of them to be either decreasing or increasing
-        if self.constraint_strategy:
+        if self.constraint_strategy == 'decoder_params':
             xs = np.array(max(self.all_proxies)) - np.array(self.all_proxies).reshape(-1, 1)
         else:
             xs = np.array(self.all_proxies).reshape(-1, 1) 

@@ -106,8 +106,8 @@ def parse_args():
     strategy.add_argument('--training_strategy',
                           type=str,
                           default='decoder_params',
-                          choices=['decoder_params', 'val_ppl', 'text_predict'],
-                          help='Training strategy: decoder parameters, perplexity or character acceptance rate (text_predict).')
+                          choices=['decoder_params', 'val_ppl', 'char_accept_rate'],
+                          help='Training strategy: decoder parameters, validation perplexity or character accept rate.')
 
     strategy.add_argument('--dataset',
                           type=str,
@@ -118,7 +118,7 @@ def parse_args():
     strategy.add_argument('--scoring_file',
                           type=str,
                           default=None,
-                          help='Scoring .ljson file (if using `text_predict`).')
+                          help='Scoring .ljson file (if using `char_accept_rate`).')
 
     strategy.add_argument('--vocab_type',
                           type=str,

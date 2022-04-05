@@ -11,11 +11,11 @@ import torch
 from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_disk_memory,
                                                                    measure_onnx_inference_latency,
                                                                    measure_onnx_parameters)
-from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_inference_latency,
+from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_char_accept_rate,
+                                                                    measure_torch_inference_latency,
                                                                     measure_torch_parameters,
                                                                     measure_torch_peak_memory,
-                                                                    measure_torch_val_ppl,
-                                                                    measure_torch_text_predict)
+                                                                    measure_torch_val_ppl)
 
 # Latency upper bound on different device targets
 # Any model with more latency than this will be removed from consideration during search
@@ -104,9 +104,9 @@ class TorchConstraintPipeline(ConstraintPipeline):
         """Overrides initialization method.
 
         Args:
-            training_strategy: Training strategy (`decoder_params`, `val_ppl` or `text_predict`).
+            training_strategy: Training strategy (`decoder_params`, `val_ppl` or `char_accept_rate`).
             dataset: Dataset (if not using `decoder_params`).
-            scoring_file: Scoring .ljson file (if using `text_predict`).
+            scoring_file: Scoring .ljson file (if using `char_accept_rate`).
             vocab_type: Type of vocabulary (if not using `decoder_params`).
             vocab_size: Size of vocabulary (if not using `decoder_params`).
             training_max_step: Maximum training steps (if not using `decoder_params`).
@@ -141,7 +141,7 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         Returns:
             (Tuple[Union[int, float], int, float, float]): Decoder parameters, validation perplexity
-                or character acceptance rate, total parameters, latency and peak memory.
+                or character accept rate, total parameters, latency and peak memory.
 
         """
 
@@ -156,15 +156,15 @@ class TorchConstraintPipeline(ConstraintPipeline):
                                                            vocab_type=self.vocab_type,
                                                            vocab_size=self.vocab_size,
                                                            max_step=self.training_max_step)
-        elif self.training_strategy == 'text_predict':
+        elif self.training_strategy == 'char_accept_rate':
             # Text Predict with character acceptance rate
-            measure_torch_proxy = measure_torch_text_predict(model,
-                                                             model_config,
-                                                             dataset=self.dataset,
-                                                             scoring_file=self.scoring_file,
-                                                             vocab_type=self.vocab_type,
-                                                             vocab_size=self.vocab_size,
-                                                             max_step=self.training_max_step)
+            measure_torch_proxy = measure_torch_char_accept_rate(model,
+                                                                 model_config,
+                                                                 dataset=self.dataset,
+                                                                 scoring_file=self.scoring_file,
+                                                                 vocab_type=self.vocab_type,
+                                                                 vocab_size=self.vocab_size,
+                                                                 max_step=self.training_max_step)
         else:
             raise NotImplementedError(f'training_strategy: {self.training_strategy} has not been implemented yet.')
 
