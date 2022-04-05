@@ -16,6 +16,7 @@ from archai.nlp.nas.nas_utils.converter import Converter
 
 
 def _create_batch_jobs(configs: List[Dict[str, Any]],
+                       allowed_keys: List[str],
                        default_config_file: str,
                        model_type: str,
                        max_step: int,
@@ -28,6 +29,7 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
 
     Args:
         configs: List of configuration dictionaries.
+        allowed_keys: Keys that are allowed to be dumped on command-lines.
         default_config_file: Default configuration file.
         model_type: Type of model.
         max_step: Maximum number of training steps.
@@ -42,6 +44,7 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
 
     """
 
+    allowed_keys = allowed_keys if allowed_keys is not None else configs[0].keys()
     command = []
 
     for i, config in enumerate(configs):
@@ -50,11 +53,12 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
         config_line = ''
 
         for key, value in config.items():
-            if isinstance(value, list):
-                str_value = ' '.join(str(v) for v in value[:n_layer])
-            else:
-                str_value = str(value)
-            config_line += f' --{key} {str_value}'
+            if key in allowed_keys:
+                if isinstance(value, list):
+                    str_value = ' '.join(str(v) for v in value[:n_layer])
+                else:
+                    str_value = str(value)
+                config_line += f' --{key} {str_value}'
 
         # Checks whether job comes from pareto points, which should have a specific identifier
         is_pareto_str = '_pareto' if (is_pareto is not None and is_pareto[i]) else ''
@@ -71,6 +75,7 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
 
 
 def _create_jobs(configs: List[Dict[str, Any]],
+                 allowed_keys: Optional[List[str]] = None,
                  default_config_file: Optional[str] = 'wt103_base.yaml',
                  model_type: Optional[str] = 'mem_transformer',
                  max_step: Optional[int] = 500,
@@ -86,6 +91,7 @@ def _create_jobs(configs: List[Dict[str, Any]],
 
     Args:
         configs: List of configurations.
+        allowed_keys: Keys that are allowed to be dumped on command-lines.
         default_config_file: Default configuration file.
         model_type: Type of model.
         max_step: Number of maximum steps to train the models.
@@ -110,9 +116,9 @@ def _create_jobs(configs: List[Dict[str, Any]],
         jobs_config['jobs'] = [{}]
 
         if is_pareto is not None:
-            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), default_config_file, model_type, max_step, n_gpus, gpu_config, vocab, vocab_size, is_pareto=is_pareto[c:c+n_jobs])
+            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), allowed_keys, default_config_file, model_type, max_step, n_gpus, gpu_config, vocab, vocab_size, is_pareto=is_pareto[c:c+n_jobs])
         else:
-            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), default_config_file, model_type, max_step, n_gpus, gpu_config, vocab, vocab_size)
+            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), allowed_keys, default_config_file, model_type, max_step, n_gpus, gpu_config, vocab, vocab_size)
 
         output_config_file = os.path.join(output_config_path, f'train_{config_idx}.yaml')
         with open(output_config_file, 'w') as f:
