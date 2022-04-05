@@ -155,6 +155,7 @@ def _find_different_genes(population: List[List[Any]],
 
 def create_pareto_jobs(results_path: str, 
                        converter: Converter,
+                       allowed_keys: Optional[List[str]] = None,
                        default_config_file: Optional[str] = 'wt103_base.yaml',
                        model_type: Optional[str] = 'mem_transformer',
                        max_step: Optional[int] = 500,
@@ -170,6 +171,7 @@ def create_pareto_jobs(results_path: str,
     Args:
         results_path: Path to search results.
         converter: Converter class object.
+        allowed_keys: Keys that are allowed to be dumped on command-lines.
         default_config_file: Default configuration file.
         model_type: Type of model.
         max_step: Number of maximum steps to train the models.
@@ -195,21 +197,23 @@ def create_pareto_jobs(results_path: str,
     print(f'Unique Pareto-frontier jobs: {len(pareto_configs)}')
 
     _create_jobs(pareto_configs,
-                default_config_file=default_config_file,
-                model_type=model_type,
-                max_step=max_step,
-                start_config=start_config,
-                n_jobs=n_jobs,
-                n_gpus=n_gpus,
-                gpu_config=gpu_config, 
-                vocab=vocab,
-                vocab_size=vocab_size,
-                is_pareto=[True] * len(pareto_configs),
-                output_path=output_path)
+                 allowed_keys=allowed_keys,
+                 default_config_file=default_config_file,
+                 model_type=model_type,
+                 max_step=max_step,
+                 start_config=start_config,
+                 n_jobs=n_jobs,
+                 n_gpus=n_gpus,
+                 gpu_config=gpu_config, 
+                 vocab=vocab,
+                 vocab_size=vocab_size,
+                 is_pareto=[True] * len(pareto_configs),
+                 output_path=output_path)
 
 
 def create_ground_truth_jobs(results_path: str,
                              converter: Converter,
+                             allowed_keys: Optional[List[str]] = None,
                              default_config_file: Optional[str] = 'wt103_base.yaml',
                              model_type: Optional[str] = 'mem_transformer',
                              max_step: Optional[int] = 500,
@@ -225,6 +229,7 @@ def create_ground_truth_jobs(results_path: str,
     Args:
         results_path: Path to search results.
         converter: Converter class object.
+        allowed_keys: Keys that are allowed to be dumped on command-lines.
         default_config_file: Default configuration file.
         model_type: Type of model.
         max_step: Number of maximum steps to train the models.
@@ -262,13 +267,14 @@ def create_ground_truth_jobs(results_path: str,
     print(f'Unique jobs (non-Pareto): {len(total_population_configs)}')
 
     _create_jobs(total_population_configs,
-                default_config_file=default_config_file,
-                model_type=model_type,
-                max_step=max_step,
-                start_config=start_config,
-                n_jobs=n_jobs,
-                n_gpus=n_gpus,
-                gpu_config=gpu_config, 
-                vocab=vocab,
-                vocab_size=vocab_size,
-                output_path=output_path)
+                 allowed_keys=allowed_keys,
+                 default_config_file=default_config_file,
+                 model_type=model_type,
+                 max_step=max_step,
+                 start_config=start_config,
+                 n_jobs=n_jobs,
+                 n_gpus=n_gpus,
+                 gpu_config=gpu_config, 
+                 vocab=vocab,
+                 vocab_size=vocab_size,
+                 output_path=output_path)
