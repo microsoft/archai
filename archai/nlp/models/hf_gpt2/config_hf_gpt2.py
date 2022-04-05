@@ -115,6 +115,7 @@ class HfGPT2FlexConfig(HfGPT2Config):
                  cutoffs: Optional[List[int]] = [19997, 39997, 199997],
                  adaptive: Optional[bool] = True,
                  weight_init_std: Optional[float] = 0.02,
+                 proj_init_std: Optional[float] = 0.01,
                  n_layer: Optional[int] = 16,
                  n_head: Optional[Union[int, List[int]]] = 8,
                  embd_pdrop: Optional[float] = 0.0,
@@ -135,6 +136,7 @@ class HfGPT2FlexConfig(HfGPT2Config):
             cutoffs: Cutoffs values for adaptive embedding/softmax.
             adaptive: Whether to use adaptive softmax.
             weight_init_std: Standard deviation to initialize the weights.
+            proj_init_std: Standard deviation to initialize the projections (if using `div_val` >= 1).
             n_layer: Number of layers.
             n_head: Number of attention heads.
             embd_pdrop: Dropout probability of embedding layer.
@@ -162,6 +164,7 @@ class HfGPT2FlexConfig(HfGPT2Config):
         self.div_val = div_val
         self.cutoffs = cutoffs
         self.adaptive = adaptive
+        self.proj_init_std = proj_init_std
         self.tie_projs = tie_projs
 
         self.primer_square = primer_square
