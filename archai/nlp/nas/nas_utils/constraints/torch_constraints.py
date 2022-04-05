@@ -5,6 +5,7 @@
 """
 
 from argparse import Namespace
+import json
 import math
 import os
 from typing import Any, Dict, List, Optional, Tuple
@@ -169,21 +170,25 @@ def measure_torch_val_ppl(model: torch.nn.Module,
     para_model, model = train.distributed_model(args, model, device)
     model.to(device)
     scheduler, scheduler_sparse = train.create_scheduler(args, optimizer, optimizer_sparse)
-    _, best_val_loss, _ = train.train_main(args, device, train_itr, valid_itr, model, para_model,
-                                           model_config, optimizer, optimizer_sparse, scheduler,
-                                           scheduler_sparse, scaler, vocab, file_stats[1])
+
+    try:
+        _, best_val_loss, _ = train.train_main(args, device, train_itr, valid_itr, model, para_model,
+                                               model_config, optimizer, optimizer_sparse, scheduler,
+                                               scheduler_sparse, scaler, vocab, file_stats[1])
+    except:
+        best_val_loss = 1e32
 
     return args, math.exp(best_val_loss)
 
 
-def measure_torch_text_predict(model: torch.nn.Module,
-                               model_config: Dict[str, Any],
-                               dataset: Optional[str] = 'wt103',
-                               scoring_file: Optional[str] = None,
-                               vocab_type: Optional[str] = 'word',
-                               vocab_size: Optional[int] = 10000,
-                               max_step: Optional[int] = 100) -> float:
-    """Measures a model's character acceptance rate with Text Predict.
+def measure_torch_char_accept_rate(model: torch.nn.Module,
+                                   model_config: Dict[str, Any],
+                                   dataset: Optional[str] = 'wt103',
+                                   scoring_file: Optional[str] = None,
+                                   vocab_type: Optional[str] = 'word',
+                                   vocab_size: Optional[int] = 10000,
+                                   max_step: Optional[int] = 100) -> float:
+    """Measures a model's character accept rate with Text Predict.
 
     Args:
         model: Model instance.
@@ -195,7 +200,7 @@ def measure_torch_text_predict(model: torch.nn.Module,
         max_step: Maximum training steps.
 
     Returns:
-        (float): Character acceptance rate.
+        (float): Character accept rate.
 
     """
 
@@ -210,5 +215,17 @@ def measure_torch_text_predict(model: torch.nn.Module,
     vocab_path = os.path.join(args.cache_dir, dataset, vocab_type, str(vocab_size), 'vocab', 'bbpe_tokenizer.json')
     input_file_type = 'smartcompose'
 
-    # Runs the Text Predict scoring function
-    run_score(args.work_dir, model_path, vocab_path, scoring_file, input_file_type, args.model_type)
+    try:
+        # Runs the Text Predict scoring function
+        run_score(args.work_dir, model_path, vocab_path, scoring_file, input_file_type, args.model_type)
+
+        # Opens the scoring result file and gathers the `CharAcceptRate`
+        scoring_result_path = os.path.join(args.work_dir, 'score', 'summary.json')
+        with open(scoring_result_path, 'r', encoding='utf-8') as f:
+            scoring_result = json.load(f)
+        char_accept_rate = scoring_result[-1]['CharAcceptRate']
+
+    except:
+        char_accept_rate = 0.0
+
+    return char_accept_rate
