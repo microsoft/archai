@@ -8,6 +8,7 @@ import copy
 from typing import Dict, Optional, Tuple
 
 import torch
+from archai.common.utils import rsetattr
 
 from archai.nlp.compression.quantization.qat import prepare_with_qat
 from archai.nlp.models.model_base import ArchaiModel
@@ -42,10 +43,8 @@ class MixedQATModel(ArchaiModel):
 
         # Shares all parameters
         for module, qat_module in zip(self.model.modules(), self.qat_model.modules()):
-            if hasattr(qat_module, 'weight'):
-                qat_module.weight = module.weight
-            if hasattr(qat_module, 'bias'):
-                qat_module.bias = module.bias
+            for key, param in module.named_parameters():
+                rsetattr(qat_module, key, param)
 
         # Adds fake quantization
         self.qat_model = prepare_with_qat(self.qat_model, onnx_compatible=True)
@@ -60,6 +59,7 @@ class MixedQATModel(ArchaiModel):
 
         # If training, returns the linear combination of losses
         if self.training:
+            print(outputs[0].item(), qat_outputs[0].item())
             loss = outputs[0] * self.regular_weight + qat_outputs[0] * self.qat_weight
             return (loss, outputs[1], outputs[2], outputs[3])
         
