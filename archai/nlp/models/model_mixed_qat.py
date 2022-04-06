@@ -59,7 +59,6 @@ class MixedQATModel(ArchaiModel):
 
         # If training, returns the linear combination of losses
         if self.training:
-            print(outputs[0].item(), qat_outputs[0].item())
             loss = outputs[0] * self.regular_weight + qat_outputs[0] * self.qat_weight
             return (loss, outputs[1], outputs[2], outputs[3])
         

@@ -547,7 +547,7 @@ def fake_dynamic_compute_logit(self,
     """Translates `_compute_logit` from ProjectedAdaptiveLogSoftmax to a QAT-ready.
 
     Args:
-        inputs: Input tensor.
+        hidden: Input tensor.
         weight: Weight tensor.
         bias: Bias tensor.
         proj: Projection tensor.
@@ -556,14 +556,25 @@ def fake_dynamic_compute_logit(self,
         (torch.FloatTensor): Output logits.
     """
 
+    # Gathers QAT and output device to ensure compatibility
+    qat_device = weight.device
+    output_device = hidden.device
+
+    # Ensures `hidden` and `bias` are in the same device as `weight`
+    hidden = hidden.to(qat_device)
+    bias = bias.to(qat_device)
+
     if proj is None:
         fake_quant_hidden = self.hidden_fake_quant(hidden)
         fake_quant_weight = self.weight_fake_quant(weight)
         logit = F.linear(fake_quant_hidden, fake_quant_weight, bias=bias)
     else:
+        # Ensures `proj` is in the same device as `weight`
+        proj = proj.to(qat_device)
+
         logit = torch.einsum('bd,de,ev->bv', (hidden, proj, weight.t()))
 
         if bias is not None:
             logit = logit + bias
 
-    return logit
+    return logit.to(output_device)
