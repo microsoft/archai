@@ -96,6 +96,7 @@ class SearchSpaceProfiler:
         self.constraint_pipeline_type = constraint_pipeline_type
         if constraint_pipeline_type == 'torch':
             self.pipeline = TorchConstraintPipeline(use_quantization=use_quantization,
+                                                    use_training_proxy=True,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
         elif constraint_pipeline_type == 'onnx':
