@@ -111,13 +111,16 @@ class Evolution:
         self.n_threads = n_threads
         self.latency_repeat = latency_repeat
         
-        # Model's default and search configurations
+        # Model's default configuration 
         self.model_type = model_type
         self.model_config = load_config(model_type)
-        self.model_search_config = load_search_config(model_type).to_dict()
 
         # Overrides default configuration with inputted ones
+        self.model_config.vocab_size = vocab_size
         self.model_config.update(model_config)
+
+        # Model's search configuration
+        self.model_search_config = load_search_config(model_type).to_dict()
 
         # Prevents non-available keys from being used during search
         # Also, overrides default search choices with inputted ones

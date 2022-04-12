@@ -161,6 +161,12 @@ def parse_args():
                         default=None,
                         help='Choices for number of attention heads.')
 
+    choice.add_argument('--div_val',
+                        nargs='+',
+                        type=int,
+                        default=None,
+                        help='Choices for dividents.')
+
     constraint = parser.add_argument_group('Constraints')
     constraint.add_argument('--constraint_pipeline_type',
                             default='torch',
@@ -269,7 +275,8 @@ if __name__ == '__main__':
                   n_layer=args['n_layer'],
                   d_model=args['d_model'],
                   d_inner=args['d_inner'],
-                  n_head=args['n_head'])
+                  n_head=args['n_head'],
+                  div_val=args['div_val'])
     
     # Runs the evolutionary search or the brute force version
     e.run(do_brute_force=args['do_brute_force'],

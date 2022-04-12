@@ -31,6 +31,7 @@ class HfGPT2Config(Config):
                  n_token: Optional[int] = 10000, # changed from 50257 for model's production
                  tgt_len: Optional[int] = 192,
                  d_model: Optional[int] = 512,
+                 d_embed: Optional[int] = 512,
                  d_inner: Optional[int] = 2048,
                  dropout: Optional[float] = 0.1,
                  dropatt: Optional[float] = 0.0,
@@ -45,7 +46,8 @@ class HfGPT2Config(Config):
         Args:
             n_token: Size of the vocabulary (number of tokens).
             tgt_len: Maximum length of sequences (positional embeddings).
-            d_model: Dimensionality of the model (also for embedding layer).
+            d_model: Dimensionality of the model.
+            d_embed: Dimensionality of the embeddings.
             d_inner: Dimensionality of inner feed-forward layers.
             dropout: Dropout probability.
             dropatt: Attention dropout probability.
@@ -60,6 +62,7 @@ class HfGPT2Config(Config):
         self.n_token = n_token
         self.tgt_len = tgt_len
         self.d_model = d_model
+        self.d_embed = d_embed
         self.d_inner = d_inner
         self.dropout = dropout
         self.dropatt = dropatt
@@ -109,6 +112,7 @@ class HfGPT2FlexConfig(HfGPT2Config):
                  n_token: Optional[int] = 10000, # changed from 50257 for model's production
                  tgt_len: Optional[int] = 192,
                  d_model: Optional[int] = 512,
+                 d_embed: Optional[int] = 512,
                  d_inner: Optional[Union[int, List[int]]] = 2048,
                  dropout: Optional[float] = 0.1,
                  dropatt: Optional[float] = 0.0,
@@ -129,7 +133,8 @@ class HfGPT2FlexConfig(HfGPT2Config):
         Args:
             n_token: Size of the vocabulary (number of tokens).
             tgt_len: Maximum length of sequences (positional embeddings).
-            d_model: Dimensionality of the model (also for embedding layer).
+            d_model: Dimensionality of the model.
+            d_embed: Dimensionality of the embeddings.
             d_inner: Dimensionality of inner feed-forward layers.
             dropout: Dropout probability.
             dropatt: Attention dropout probability.
@@ -150,6 +155,7 @@ class HfGPT2FlexConfig(HfGPT2Config):
         super().__init__(n_token=n_token,
                          tgt_len=tgt_len,
                          d_model=d_model,
+                         d_embed=d_embed,
                          dropout=dropout,
                          dropatt=dropatt,
                          weight_init_std=weight_init_std,
@@ -188,8 +194,10 @@ class HfGPT2FlexSearchConfig(SearchConfig):
         d_model = SearchConfigParameter(per_layer=False, value=list(range(128, 1024, 64)))
         d_inner = SearchConfigParameter(per_layer=True, value=list(range(128, 4096, 64)))
         n_head = SearchConfigParameter(per_layer=False, value=[2, 4, 8])
+        div_val = SearchConfigParameter(per_layer=False, value=[1, 2, 4])
 
         super().__init__(n_layer=n_layer,
                          d_model=d_model,
                          d_inner=d_inner,
-                         n_head=n_head)
+                         n_head=n_head,
+                         div_val=div_val)

@@ -43,7 +43,7 @@ class Config(PretrainedConfig):
 
     def to_dict(self) -> Dict[str, Any]:
         config_dict = super().to_dict()
-        
+
         for key, mapped_key in self.attribute_map.items():
             config_dict[key] = config_dict[mapped_key]
 
