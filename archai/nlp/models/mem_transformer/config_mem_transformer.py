@@ -128,7 +128,7 @@ class MemTransformerLMSearchConfig(SearchConfig):
         d_model = SearchConfigParameter(per_layer=False, value=list(range(128, 1024, 64)))
         d_inner = SearchConfigParameter(per_layer=True, value=list(range(128, 4096, 64)))
         n_head = SearchConfigParameter(per_layer=True, value=[2, 4, 8])
-        div_val = SearchConfigParameter(per_layer=False, value=[1, 2, 4])
+        div_val = SearchConfigParameter(per_layer=False, value=[4, 2, 1])
 
         super().__init__(n_layer=n_layer,
                          d_model=d_model,
