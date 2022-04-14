@@ -5,7 +5,7 @@
 """
 
 from collections import OrderedDict
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Union
 
 
 class Converter:
@@ -72,8 +72,11 @@ class Converter:
 
         return ','.join(str(k) for k in key)
 
-    def get_allowed_genes(self, as_dict=False) -> List[List[Any]]:
+    def get_allowed_genes(self, as_dict: Optional[bool] = False) -> Union[Dict[str, Any], List[List[Any]]]:
         """Gathers all allowed gene choices.
+
+        Args:
+            as_dict: Whether to return as dictionary instead of list.
 
         Returns:
             (List[List[Any]]): List of possible gene choices.
