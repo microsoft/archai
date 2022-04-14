@@ -17,6 +17,8 @@ from archai.common import utils
 from archai.nlp.nas.evolution import Evolution
 from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import DEVICE_LATENCY_CONSTRAINT
 
+# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Language models Pareto-frontier extraction.')
@@ -24,7 +26,7 @@ def parse_args():
     try:
         save_path = os.environ['AMLT_OUTPUT_DIR']
     except:
-        save_path = '~/logdir' 
+        save_path = './logdir' 
 
     search = parser.add_argument_group('Search configuration')
     search.add_argument('--default_path',
@@ -198,6 +200,11 @@ def parse_args():
                             default=10,
                             help='Number of latency measurements.')
 
+    constraint.add_argument('--device',
+                            type=str,
+                            default='cpu',
+                            help='device type, cpu or cuda.')
+
     constraint.add_argument('--device_name',
                             type=str,
                             default='XeonE5-2690',
@@ -276,7 +283,8 @@ if __name__ == '__main__':
                   d_model=args['d_model'],
                   d_inner=args['d_inner'],
                   n_head=args['n_head'],
-                  div_val=args['div_val'])
+                  div_val=args['div_val'],
+                  device=args['device'])
     
     # Runs the evolutionary search or the brute force version
     e.run(do_brute_force=args['do_brute_force'],

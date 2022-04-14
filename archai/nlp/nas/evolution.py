@@ -57,6 +57,7 @@ class Evolution:
                  latency_constraint_upper: Optional[float] = None,
                  n_threads: Optional[int] = 1,
                  latency_repeat: Optional[int] = 10,
+                 device: Optional[str] = 'cpu',
                  **choices) -> None:
         """Initializes attributes.
 
@@ -131,6 +132,7 @@ class Evolution:
         # Converts between genes and configurations
         self.converter = Converter(**self.model_search_config)
         self.allowed_genes = self.converter.get_allowed_genes()
+        self.allowed_genes_dict = self.converter.get_allowed_genes(as_dict=True)
         self.gene_size = len(self.allowed_genes)
 
         with open(os.path.join(self.results_path, 'converter.pkl'), 'wb') as f:
@@ -156,6 +158,7 @@ class Evolution:
         # Creates a constraint pipeline based on input type (`torch` or `onnx`)
         self.constraint_strategy = training_strategy
         self.constraint_pipeline_type = constraint_pipeline_type
+        self.device = device
         if constraint_pipeline_type == 'torch':
             self.pipeline = TorchConstraintPipeline(training_strategy=training_strategy,
                                                     dataset=dataset,
@@ -165,7 +168,8 @@ class Evolution:
                                                     training_max_step=training_max_step,
                                                     use_quantization=use_quantization,
                                                     n_threads=n_threads,
-                                                    n_trials=latency_repeat)
+                                                    n_trials=latency_repeat,
+                                                    device=device)
         elif constraint_pipeline_type == 'onnx':
             self.pipeline = ONNXConstraintPipeline(use_quantization=use_quantization,
                                                    n_trials=latency_repeat)
@@ -224,6 +228,10 @@ class Evolution:
 
         # Converts gene to configuration
         config = self.converter.gene_to_config(gene)
+        for d_inner in config['d_inner']:
+            if d_inner < int(1.7*config['d_model']):
+                print('gene {} did not satisfy d_inner constraint: {}<1.7*{}={}'.format(gene, d_inner, config['d_model'], int(1.7*config['d_model'])))
+                return False
 
         # Loads model from current configuration
         model_config = copy.deepcopy(self.model_config)
@@ -231,6 +239,7 @@ class Evolution:
         model_config = model_config.to_dict()
 
         # Checks if model passes number of parameter constraints via analytical means since it is fast
+        '''
         total_params_analytical = load_model_formula(self.model_type)(model_config)['total']
 
         if total_params_analytical < self.param_constraint_lower:
@@ -240,6 +249,16 @@ class Evolution:
         if total_params_analytical > self.param_constraint_upper:
             print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M > {self.param_constraint_upper/1e6:.4f}M parameters')
             return False
+        '''
+        proxy_params_analytical = load_model_formula(self.model_type)(model_config)['non_embedding']
+
+        if proxy_params_analytical < self.param_constraint_lower:
+            print(f'Invalid gene: {gene} has {proxy_params_analytical/1e6:.4f}M < {self.param_constraint_lower/1e6:.4f}M parameters')
+            return False
+    
+        if proxy_params_analytical > self.param_constraint_upper:
+            print(f'Invalid gene: {gene} has {proxy_params_analytical/1e6:.4f}M > {self.param_constraint_upper/1e6:.4f}M parameters')
+            return False
 
         # Checks the latency constraint
         if self.latency_constraint_upper is not None:
@@ -248,7 +267,8 @@ class Evolution:
                 latency = measure_torch_inference_latency(model,
                                                           use_quantization=self.use_quantization,
                                                           n_threads=self.n_threads,
-                                                          n_trials=self.latency_repeat)
+                                                          n_trials=self.latency_repeat,
+                                                          device=self.device)
 
             elif self.constraint_pipeline_type == 'onnx':
                 latency = measure_onnx_inference_latency(self.model_type,
@@ -257,7 +277,7 @@ class Evolution:
                                                          n_trials=self.latency_repeat)
             
             if latency > self.latency_constraint_upper:
-                print(f'Invalid gene: {gene} has {latency}s > {self.latency_constraint_upper}s latency')
+                print(f'Invalid gene: {gene} has {latency:.4f}s > {self.latency_constraint_upper}s latency')
                 return False
 
         return True
@@ -275,7 +295,7 @@ class Evolution:
         """
 
         config = self.converter.gene_to_config(gene)
-
+        
         model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
         model_config = model_config.to_dict()
@@ -403,11 +423,24 @@ class Evolution:
 
         mutated_gene = []
 
-        for k in range(self.gene_size):
-            if np.random.uniform() < self.mutation_prob:
-                mutated_gene.append(random.choices(self.allowed_genes[k])[0])
+        sampled_d_model = None
+        for i in range(self.gene_size):
+            k = list(self.allowed_genes_dict[i].keys())[0]
+
+            if 'd_inner' in k:
+                assert sampled_d_model is not None
+                indices = np.asarray(self.allowed_genes[i]) > (1.7 * sampled_d_model)
+                valid_range = np.asarray(self.allowed_genes[i])[indices]
             else:
-                mutated_gene.append(gene[k])
+                valid_range = self.allowed_genes[i]
+
+            if np.random.uniform() < self.mutation_prob:
+                mutated_gene.append(random.choices(valid_range)[0])
+            else:
+                mutated_gene.append(gene[i])
+            
+            if 'd_model' in k:
+                sampled_d_model = mutated_gene[-1]
 
         return mutated_gene
 
@@ -616,8 +649,19 @@ class Evolution:
         while i < n_samples:
             sampled_gene = []
 
-            for k in range(self.gene_size):
-                sampled_gene.append(random.choices(self.allowed_genes[k])[0])
+            sampled_d_model = None
+            for j in range(self.gene_size):
+                k = list(self.allowed_genes_dict[j].keys())[0]
+                if 'd_inner' in k:
+                    assert sampled_d_model is not None
+                    indices = np.asarray(self.allowed_genes[j]) > (1.7 * sampled_d_model)
+                    valid_range = np.asarray(self.allowed_genes[j])[indices]
+                else:
+                    valid_range = self.allowed_genes[j]
+                
+                sampled_gene.append(random.choices(valid_range)[0])
+                if 'd_model' in k:
+                    sampled_d_model = sampled_gene[-1]
 
             if self._check_gene_constraints(sampled_gene):
                 population.append(sampled_gene)

@@ -24,6 +24,7 @@ DEVICE_LATENCY_CONSTRAINT = {
     'corei7': 10.0,
     'corei5': 10.0,
     'D3_V2': 10.0,
+    'titanxp': 0.025,
 }
 
 

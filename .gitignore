@@ -126,3 +126,4 @@ model.th
 *.onnx
 *.log*
 evo_search/
+log_dir/

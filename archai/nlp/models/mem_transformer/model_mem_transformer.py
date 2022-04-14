@@ -653,8 +653,8 @@ class MemTransformerLM(ArchaiModel):
         params['ff'] = self.get_params_from_layer(['Sequential'])
         params['layer_norm'] = self.get_params_from_layer(['LayerNorm'])
 
-        params['non_embedding'] = params['softmax'] + params['attention'] + params['ff'] + params['layer_norm']
-        params['total'] = params['non_embedding'] + params['embedding']
+        params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm'] #+ params['softmax']
+        params['total'] = params['non_embedding'] + params['embedding'] + params['softmax']
 
         return params
 

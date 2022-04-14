@@ -241,7 +241,7 @@ def get_params_mem_transformer_formula(model_config: Dict[str, Any]) -> Dict[str
             if not tie_weight:
                 params['softmax'] += (r_idx - l_idx) * d_emb_i
 
-    params['non_embedding'] = params['softmax'] + params['attention'] + params['ff'] + params['layer_norm']
-    params['total'] = params['embedding'] + params['non_embedding']
+    params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm'] #+ params['softmax']
+    params['total'] = params['embedding'] + params['non_embedding'] + params['softmax']
 
     return params

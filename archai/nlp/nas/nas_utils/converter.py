@@ -72,7 +72,7 @@ class Converter:
 
         return ','.join(str(k) for k in key)
 
-    def get_allowed_genes(self) -> List[List[Any]]:
+    def get_allowed_genes(self, as_dict=False) -> List[List[Any]]:
         """Gathers all allowed gene choices.
 
         Returns:
@@ -82,11 +82,18 @@ class Converter:
 
         allowed_genes = []
 
-        for d in self.config.values():
+        for k, d in self.config.items():
             if d['per_layer']:
                 for _ in range(self.max_n_layer):
-                    allowed_genes.append(d['value'])
+                    if as_dict:
+                        allowed_genes.append({k: d['value']})
+                    else:
+                        allowed_genes.append(d['value'])
+
             else:
-                allowed_genes.append(d['value'])
+                if as_dict:
+                    allowed_genes.append({k: d['value']})
+                else:
+                    allowed_genes.append(d['value'])
 
         return allowed_genes
