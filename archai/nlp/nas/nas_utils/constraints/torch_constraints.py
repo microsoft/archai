@@ -110,7 +110,7 @@ def measure_torch_peak_memory(model: torch.nn.Module,
 
     torch.set_num_threads(n_threads)
 
-    model = model.to(device=device)
+    model = model.to(device)
     inputs = {
         'input_ids': torch.zeros((batch_size, seq_len), dtype=torch.int64).to(device)
     }
@@ -119,7 +119,7 @@ def measure_torch_peak_memory(model: torch.nn.Module,
         activities = [ProfilerActivity.CPU]
         device_key = 'self_cpu_memory_usage'
     else:
-        activities = [ProfilerActivity.CUDA]
+        activities = [ProfilerActivity.CPU, ProfilerActivity.CUDA]
         device_key = 'cuda_memory_usage'
 
     with profile(activities=activities, profile_memory=True) as p:
