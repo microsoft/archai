@@ -110,7 +110,7 @@ def measure_torch_peak_memory(model: torch.nn.Module,
 
     torch.set_num_threads(n_threads)
 
-    model = model.to(device=device)
+    model = model.to(device)
     inputs = {
         'input_ids': torch.zeros((batch_size, seq_len), dtype=torch.int64).to(device)
     }
