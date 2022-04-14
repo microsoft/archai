@@ -85,6 +85,7 @@ class Evolution:
             latency_constraint_upper: Any model which has higher latency is rejected.
             n_threads: Number of inference threads.
             latency_repeat: Number of latency measurements.
+            device: Device to perform the measurements.
             choices: Additional keyword arguments that represent hyperparameters choices.
 
         """
@@ -229,8 +230,8 @@ class Evolution:
         # Converts gene to configuration
         config = self.converter.gene_to_config(gene)
         for d_inner in config['d_inner']:
-            if d_inner < int(1.7*config['d_model']):
-                print('gene {} did not satisfy d_inner constraint: {}<1.7*{}={}'.format(gene, d_inner, config['d_model'], int(1.7*config['d_model'])))
+            if d_inner < int(1.7 * config['d_model']):
+                print(f'Invalid gene: {gene} has {d_inner} < {int(1.7 * config["d_model"])} d_inner')
                 return False
 
         # Loads model from current configuration
@@ -239,17 +240,6 @@ class Evolution:
         model_config = model_config.to_dict()
 
         # Checks if model passes number of parameter constraints via analytical means since it is fast
-        '''
-        total_params_analytical = load_model_formula(self.model_type)(model_config)['total']
-
-        if total_params_analytical < self.param_constraint_lower:
-            print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M < {self.param_constraint_lower/1e6:.4f}M parameters')
-            return False
-    
-        if total_params_analytical > self.param_constraint_upper:
-            print(f'Invalid gene: {gene} has {total_params_analytical/1e6:.4f}M > {self.param_constraint_upper/1e6:.4f}M parameters')
-            return False
-        '''
         proxy_params_analytical = load_model_formula(self.model_type)(model_config)['non_embedding']
 
         if proxy_params_analytical < self.param_constraint_lower:
