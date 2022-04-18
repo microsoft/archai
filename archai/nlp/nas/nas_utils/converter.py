@@ -40,13 +40,35 @@ class Converter:
 
         for k, d in self.config.items():
             if d['per_layer']:
-                config[k] = gene[idx:idx+self.max_n_layer]
+                config[k] = gene[idx:idx+min(config['n_layer'], self.max_n_layer)]
                 idx += self.max_n_layer
             else:
                 config[k] = gene[idx]
                 idx += 1
 
         return config
+
+    def config_to_gene(self, config: Dict[str, Any]) -> List[Any]:
+        """Converts a configuration dictionary into a gene.
+
+        Args:
+            Configuration dictionary.
+
+        Returns:
+            gene: Encoded gene.
+
+        """
+
+        gene = []
+
+        for k, d in self.config.items():
+            if d['per_layer']:
+                for _ in range(self.max_n_layer):
+                    gene.append(config[k])
+            else:
+                gene.append(config[k])
+
+        return gene
 
     def gene_to_key(self, gene: List[Any]) -> str:
         """Converts a gene into a configuration string.

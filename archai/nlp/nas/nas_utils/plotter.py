@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 def plot_2d_pareto(visited: Dict[str, List[Any]],
                    pareto: Dict[str, List[Any]],
                    parents: Optional[Dict[str, List[Any]]] = None,
+                   baseline: Optional[Dict[str, List[Any]]] = None,
                    hover_template: Optional[str] = None,
                    title_text: Optional[str] = None,
                    xaxis_title: Optional[str] = None,
@@ -23,6 +24,7 @@ def plot_2d_pareto(visited: Dict[str, List[Any]],
         visited: Visited architectures points.
         pareto: Pareto-frontier architectures points.
         parents: Parents architectures points.
+        baseline: NAS baseline architectures points.
         hover_template: Template used when hovering over point (HTML-only).
         title_text: Title of the plot.
         xaxis_title: Title of the `x` axis.
@@ -63,6 +65,17 @@ def plot_2d_pareto(visited: Dict[str, List[Any]],
                                  name='Parent architectures',
                                  hovertemplate=hover_template,
                                  text=[repr(config) for config in config_parents]))
+    
+    if baseline:
+        x_baseline, y_baseline, config_baseline = baseline['x'], baseline['y'], baseline['config']
+        fig.add_trace(go.Scatter(x=x_baseline,
+                                 y=y_baseline,
+                                 mode='markers',
+                                 marker_color='black',
+                                 showlegend=True,
+                                 name='Baseline architectures',
+                                 hovertemplate=hover_template,
+                                 text=[repr(config) for config in config_baseline]))
 
     fig.update_layout(title_text=title_text,
                       xaxis_title=xaxis_title,
@@ -78,6 +91,7 @@ def plot_2d_pareto(visited: Dict[str, List[Any]],
 def plot_3d_pareto(visited: Dict[str, List[Any]],
                    pareto: Dict[str, List[Any]],
                    parents: Optional[Dict[str, List[Any]]] = None,
+                   baseline: Optional[Dict[str, List[Any]]] = None,
                    hover_template: Optional[str] = None,
                    title_text: Optional[str] = None,
                    xaxis_title: Optional[str] = None,
@@ -90,6 +104,7 @@ def plot_3d_pareto(visited: Dict[str, List[Any]],
         visited: Visited architectures points.
         pareto: Pareto-frontier architectures points.
         parents: Parents architectures points.
+        baseline: NAS baseline architectures points.
         hover_template: Template used when hovering over point (HTML-only).
         title_text: Title of the plot.
         xaxis_title: Title of the `x` axis.
@@ -134,6 +149,18 @@ def plot_3d_pareto(visited: Dict[str, List[Any]],
                                    name='Parent architectures',
                                    hovertemplate=hover_template,
                                    text=[repr(config) for config in config_parents]))
+    
+    if baseline:
+        x_baseline, y_baseline, z_baseline, config_baseline = baseline['x'], baseline['y'], baseline['z'], baseline['config']
+        fig.add_trace(go.Scatter3d(x=x_baseline,
+                                   y=y_baseline,
+                                   z=z_baseline,
+                                   mode='markers',
+                                   marker_color='black',
+                                   showlegend=True,
+                                   name='Baseline architectures',
+                                   hovertemplate=hover_template,
+                                   text=[repr(config) for config in config_baseline]))
 
     fig.update_layout(title_text=title_text,
                       scene=dict(xaxis_title=xaxis_title,

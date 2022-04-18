@@ -62,7 +62,7 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
 
         # Checks whether job comes from pareto points, which should have a specific identifier
         is_pareto_str = '_pareto' if (is_pareto is not None and is_pareto[i]) else ''
-        exp_name = f'j_{i}{is_pareto_str}'
+        exp_name = f'j{i}{is_pareto_str}'
 
         # Creates the command-line
         line = f'python -m torch.distributed.launch --nproc_per_node={n_gpus} archai/nlp/train.py --model_type {model_type} --config {gpu_config} ' \

@@ -5,6 +5,7 @@
 """
 
 import argparse
+from copyreg import pickle
 import os
 import random
 from datetime import datetime
@@ -12,10 +13,13 @@ from datetime import datetime
 import numpy as np
 import torch
 import yaml
+import shutil
 
 from archai.common import utils
 from archai.nlp.nas.evolution import Evolution
 from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import DEVICE_LATENCY_CONSTRAINT
+from archai.nlp.nas.nas_utils.dispatcher import create_pareto_jobs
+from archai.nlp.nas.baseline_utils import profile_baseline, select_pareto
 
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
@@ -27,6 +31,20 @@ def parse_args():
         save_path = os.environ['AMLT_OUTPUT_DIR']
     except:
         save_path = './logdir' 
+    
+    baseline = parser.add_argument_group('NAS baseline profiling configuration')
+    baseline.add_argument('--profile_baseline',
+                        action='store_true',
+                        help='Measure proxy and hardware metrics for NAS baseline.')
+    
+    baseline.add_argument('--baseline_path',
+                        type=str,
+                        default='baseline_logs',
+                        help='Path to the folder used to save baseline jobs.')
+
+    baseline.add_argument('--select_pareto',
+                          action='store_true',
+                          help='Select a subset of the extracted pareto for full training, based on the baseline architectures.')
 
     search = parser.add_argument_group('Search configuration')
     search.add_argument('--default_path',
@@ -245,7 +263,8 @@ if __name__ == '__main__':
     args['results_path'] = utils.full_path(results_path, create=True)
 
     # Dumps the search configuration to a YAML file
-    with open(os.path.join(args['results_path'], 'search_config.yaml'), 'w') as f:
+    path_to_search_config = os.path.join(args['results_path'], 'search_config.yaml')
+    with open(path_to_search_config, 'w') as f:
         yaml.dump(args, f)
 
     # Loads model configuration file (if provided)
@@ -286,6 +305,44 @@ if __name__ == '__main__':
                   div_val=args['div_val'],
                   device=args['device'])
     
+    if args['profile_baseline'] or args['select_pareto']:
+        path_to_baseline = os.path.join(args['baseline_path'], args['model_type'])
+        
+        search_experiment = 'mem_transformer_lower_param_4.0M_upper_param_100.0M_latency_upper_0.025s_titanxp_14_04_2022_10_36_07'
+        last_iter = 29
+        e.load_state(path_to_logs=os.path.join(args['default_path'], search_experiment, f'logs_iter_{last_iter}.pkl'))
+        
+        if args['profile_baseline']:
+            shutil.copy(path_to_search_config, path_to_baseline)
+            shutil.rmtree(args['results_path'])
+            
+            baseline_logs = profile_baseline(e, path_to_results=path_to_baseline)
+            e.plot_search_state(last_iter+1, parents=None, baseline=baseline_logs)
+        
+        else:
+            shutil.rmtree(args['results_path'])
+            e = select_pareto(e, path_to_results=path_to_baseline)
+
+            exp_name = 'pareto_{}_{}_3d'.format(args['dataset'], args['device_name'])
+            job_path = os.path.join('../archaiphilly/nlp_nas', exp_name)
+            create_pareto_jobs(path_to_baseline, 
+                               converter=e.converter,
+                               model_type=e.model_type,
+                               max_step=40000,
+                               n_jobs=10,
+                               output_path=job_path)
+            
+            bash_f_name = 'batch_run.sh'
+            bash_file = os.path.join(job_path, bash_f_name)
+            if os.path.exists(bash_file):
+                os.remove(bash_file)  
+            files = os.listdir(job_path)
+            for f_name in files:
+                with open(bash_file, 'a') as f:
+                    f.write('amlt run --yes {} {} -t {}\n'.format(f_name, exp_name, 'NLX-LowPri'))
+            
+        exit()
+
     # Runs the evolutionary search or the brute force version
     e.run(do_brute_force=args['do_brute_force'],
           n_samples=args['n_samples'],

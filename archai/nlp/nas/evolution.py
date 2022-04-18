@@ -510,7 +510,8 @@ class Evolution:
 
     def plot_search_state(self,
                           iteration: Optional[int] = None,
-                          parents: Optional[Dict[str, Any]] = None) -> None:
+                          parents: Optional[Dict[str, Any]] = None,
+                          baseline: Optional[Dict[str, Any]] = None) -> None:
         """Plots the state of search at every iteration.
 
         Args:
@@ -539,16 +540,24 @@ class Evolution:
             parents_total_params = np.asarray(parents['total_params'])
             parents_latencies = np.asarray(parents['latencies'])
             parents_memories = np.asarray(parents['memories'])
+        if baseline:
+            baseline_configs = baseline['configs']
+            baseline_proxies = np.asarray(baseline['proxies'])
+            baseline_total_params = np.asarray(baseline['total_params'])
+            baseline_latencies = np.asarray(baseline['latencies'])
+            baseline_memories = np.asarray(baseline['memories'])
 
         # 2D plot: number of decoder parameters x latencies 
         visited_dict = {'x': all_proxies, 'y': all_latencies, 'config': all_configs}
         pareto_dict = {'x': pareto_proxies, 'y': pareto_latencies, 'config': pareto_configs}
         parents_dict = {'x': parents_proxies, 'y': parents_latencies, 'config': parents_configs} if parents else None
+        baseline_dict = {'x': baseline_proxies, 'y': baseline_latencies, 'config': baseline_configs} if baseline else None
         output_path = os.path.join(self.results_path, f'{self.constraint_strategy}_vs_latency_iter_{iteration}')
 
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
+                       baseline_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
                        title_text=f'{constraint_strategy} vs. Latency (s) at Iteration {iteration}',
                        xaxis_title=f'{constraint_strategy}',
@@ -559,11 +568,13 @@ class Evolution:
         visited_dict = {'x': all_total_params, 'y': all_latencies, 'config': all_configs}
         pareto_dict = {'x': pareto_total_params, 'y': pareto_latencies, 'config': pareto_configs}
         parents_dict = {'x': parents_total_params, 'y': parents_latencies, 'config': parents_configs} if parents else None
+        baseline_dict = {'x': baseline_total_params, 'y': baseline_latencies, 'config': baseline_configs} if baseline else None
         output_path = os.path.join(self.results_path, f'total_params_vs_latency_iter_{iteration}')
 
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
+                       baseline_dict,
                        hover_template='Total params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
                        title_text=f'Total params vs. Latency (s) at Iteration {iteration}',
                        xaxis_title='Total params',
@@ -574,11 +585,13 @@ class Evolution:
         visited_dict = {'x': all_proxies, 'y': all_memories, 'config': all_configs}
         pareto_dict = {'x': pareto_proxies, 'y': pareto_memories, 'config': pareto_configs}
         parents_dict = {'x': parents_proxies, 'y': parents_memories, 'config': parents_configs} if parents else None
+        baseline_dict = {'x': baseline_proxies, 'y': baseline_memories, 'config': baseline_configs} if baseline else None
         output_path = os.path.join(self.results_path, f'{self.constraint_strategy}_vs_memory_iter_{iteration}')
 
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
+                       baseline_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
                        title_text=f'{constraint_strategy} vs. Memory (MB) at Iteration {iteration}',
                        xaxis_title=f'{constraint_strategy}',
@@ -589,11 +602,13 @@ class Evolution:
         visited_dict = {'x': all_total_params, 'y': all_memories, 'config': all_configs}
         pareto_dict = {'x': pareto_total_params, 'y': pareto_memories, 'config': pareto_configs}
         parents_dict = {'x': parents_total_params, 'y': parents_memories, 'config': parents_configs} if parents else None
+        baseline_dict = {'x': baseline_total_params, 'y': baseline_memories, 'config': baseline_configs} if baseline else None
         output_path = os.path.join(self.results_path, f'total_params_vs_memory_iter_{iteration}')
 
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
+                       baseline_dict,
                        hover_template='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
                        title_text=f'Total params vs. Memory (MB) at Iteration {iteration}',
                        xaxis_title='Total params',
@@ -604,11 +619,13 @@ class Evolution:
         visited_dict = {'x': all_proxies, 'y': all_memories, 'z': all_latencies, 'config': all_configs}
         pareto_dict = {'x': pareto_proxies, 'y': pareto_memories, 'z': pareto_latencies, 'config': pareto_configs}
         parents_dict = {'x': parents_proxies, 'y': parents_memories, 'z': parents_latencies, 'config': parents_configs} if parents else None
+        baseline_dict = {'x': baseline_proxies, 'y': baseline_memories, 'z': baseline_latencies, 'config': baseline_configs} if baseline else None
         output_path = os.path.join(self.results_path, f'{self.constraint_strategy}_vs_memory_vs_latency_iter_{iteration}')
 
         plot_3d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
+                       baseline_dict,
                        hover_template='Proxy: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
                        title_text=f'{constraint_strategy} vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
                        xaxis_title=f'{constraint_strategy}',
@@ -620,11 +637,13 @@ class Evolution:
         visited_dict = {'x': all_total_params, 'y': all_memories, 'z': all_latencies, 'config': all_configs}
         pareto_dict = {'x': pareto_total_params, 'y': pareto_memories, 'z': pareto_latencies, 'config': pareto_configs}
         parents_dict = {'x': parents_total_params, 'y': parents_memories, 'z': parents_latencies, 'config': parents_configs} if parents else None
+        baseline_dict = {'x': baseline_total_params, 'y': baseline_memories, 'z': baseline_latencies, 'config': baseline_configs} if baseline else None
         output_path = os.path.join(self.results_path, f'total_params_vs_memory_vs_latency_iter_{iteration}')
 
         plot_3d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
+                       baseline_dict,
                        hover_template='Total params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
                        title_text=f'Total params vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
                        xaxis_title='Total params',
@@ -887,3 +906,18 @@ class Evolution:
             self.semi_brute_force(n_samples, batch)
         else:
             self.search()
+
+    def load_state(self, path_to_logs: str) -> None: 
+        with open(path_to_logs, 'rb') as f:
+            logs = pickle.load(f)
+        self.results_path = os.path.dirname(path_to_logs)
+        self.all_population = logs['population']
+        self.all_proxies = logs['proxies']
+        self.all_total_params = logs['total_params']
+        self.all_latencies = logs['latencies']
+        self.all_memories = logs['memories']
+        self.pareto = logs['pareto']
+
+
+
+
