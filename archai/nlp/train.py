@@ -128,7 +128,7 @@ def parse_args():
     general.add_argument('--cache_dir', default='cache', type=str,
                          help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'web_text', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -817,8 +817,8 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [] # head cluster projection is never tied with embeddings
     if args.adaptive:
-        assert args.dataset in ['wt103', 'wt2', 'lm1b'] or args.dataset.startswith('olx_')
-        if args.dataset in ['wt103', 'wt2'] or args.dataset.startswith('olx_'):
+        assert args.dataset in ['wt103', 'wt2', 'lm1b', 'web_text'] or args.dataset.startswith('olx_')
+        if args.dataset in ['wt103', 'wt2', 'web_text'] or args.dataset.startswith('olx_'):
             cutoffs = [19997, 39997, 199997, ntokens]
             tie_projs = [False] + [True] * (len(cutoffs)-1)
         elif args.dataset == 'lm1b':

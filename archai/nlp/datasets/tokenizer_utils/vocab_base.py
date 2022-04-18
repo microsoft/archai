@@ -57,7 +57,6 @@ class VocabBase(EnforceOverrides, abc.Sized):
 
         with open(path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
-
                 # Converts to tensor.Tensor every 500k lines otherwise Python list uses a lot of RAM
                 if idx > 0 and idx % 500000 == 0:
                     tensor_encoded = torch.cat((tensor_encoded, torch.LongTensor(encoded)))
