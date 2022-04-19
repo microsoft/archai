@@ -41,6 +41,7 @@ from archai.algos.local_search_natsbench.local_natsbench_tss_far_exp_runner impo
 from archai.algos.local_search_natsbench.local_search_natsbench_tss_fear_exp_runner import LocalSearchNatsbenchTSSFearExpRunner
 from archai.algos.local_search_natsbench.local_search_natsbench_tss_reg_exp_runner import LocalSearchNatsbenchTSSRegExpRunner
 from archai.algos.local_search_darts.local_search_darts_reg_exp_runner import LocalSearchDartsRegExpRunner
+from archai.algos.evolution_pareto_natsbench.evolution_pareto_search_natsbench_tss_exp_runner import EvolutionParetoSearchNatsbenchTSSExpRunner
 
 
 def main():
@@ -79,7 +80,8 @@ def main():
         'local_natsbench_tss_far': LocalNatsbenchTssFarExpRunner,
         'local_search_natsbench_tss_reg': LocalSearchNatsbenchTSSRegExpRunner,
         'local_search_natsbench_tss_fear': LocalSearchNatsbenchTSSFearExpRunner,
-        'local_search_darts_reg': LocalSearchDartsRegExpRunner
+        'local_search_darts_reg': LocalSearchDartsRegExpRunner,
+        'evolution_pareto_search_natsbench_tss': EvolutionParetoSearchNatsbenchTSSExpRunner
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
@@ -111,7 +113,11 @@ def main():
                                                         random_natsbench_tss_reg,
                                                         random_dartsspace_reg,
                                                         random_dartsspace_far,
-                                                        local_natsbench_tss_far''',
+                                                        local_natsbench_tss_far,
+                                                        local_search_natsbench_tss_reg,
+                                                        local_search_natsbench_tss_fear,
+                                                        local_search_darts_reg,
+                                                        evolution_pareto_search_natsbench_tss''',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
                         help='datasets to use, separated by comma')

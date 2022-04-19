@@ -129,11 +129,21 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
         return pareto_points
 
 
-    @abstractmethod
+    @overrides
     def mutate_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        pass
+        ''' Using the nearest neighbors as mutations'''
+        mutations = []
+        for p in parents:
+            nbrs = self.search_space.get_neighbors(p)
+            mutations.extend(nbrs)
+
+        # TODO: there will be a lot of neighbors
+        # so might want to downsample them
+        return mutations
 
 
-    @abstractmethod
+    @overrides
     def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        pass
+        ''' Using the nearest neighbors as mutations for now '''
+        return self.mutate_parents(parents)
+
