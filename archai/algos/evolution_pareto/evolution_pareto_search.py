@@ -63,7 +63,6 @@ class EvolutionParetoSearch(Searcher):
         
         self.init_num_models = conf_search['init_num_models']
         self.num_iters = conf_search['num_iters']
-        self.num_mutate = conf_search['num_mutate']
         
         assert self.init_num_models > 0 
         assert self.num_iters > 0
