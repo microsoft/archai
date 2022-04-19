@@ -51,9 +51,8 @@ class EvolutionParetoSearch(Searcher):
 
 
     def _sample_init_population(self)->List[ArchWithMetaData]:
-        num_init_models = self.get_init_num_models()
         init_pop:List[ArchWithMetaData] = []
-        while len(init_pop) < num_init_models:
+        while len(init_pop) < self.init_num_models:
             init_pop.append(self.search_space.random_sample())  
         return init_pop
 
@@ -71,10 +70,9 @@ class EvolutionParetoSearch(Searcher):
         assert isinstance(self.search_space, DiscreteSearchSpace)
 
         # sample the initial population
-        init_pop:List[ArchWithMetaData] = self._sample_init_population()
+        unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
 
-        unseen_pop = init_pop
-        self.all_pop = []
+        self.all_pop = [unseen_pop]
         for i in range(self.num_iters):
             
             # for the unseen population 
@@ -88,7 +86,7 @@ class EvolutionParetoSearch(Searcher):
             self.calc_task_accuracy(unseen_pop)  
 
             # update the pareto frontier
-            pareto:List[ArchWithMetaData] = self.update_pareto_frontier(is_decreasing=True)
+            pareto:List[ArchWithMetaData] = self.update_pareto_frontier()
 
             # select parents for the next iteration from 
             # the current estimate of the frontier while

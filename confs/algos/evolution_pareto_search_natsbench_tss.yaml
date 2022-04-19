@@ -44,7 +44,7 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   search:
-    init_num_models: 20
+    init_num_models: 5
     num_iters: 3
     max_num_models: 300
     natsbench:
