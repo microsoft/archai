@@ -629,6 +629,14 @@
             "args": ["--full", "--algos", "local_search_natsbench_tss_reg", "--datasets", "cifar10", "--no-eval"]
         },
         {
+            "name": "Evolution Pareto Search Natsbench Tss",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "evolution_search_natsbench_tss", "--datasets", "cifar10", "--no-eval"]
+        },
+        {
             "name": "Local Search DARTS Reg",
             "type": "python",
             "request": "launch",

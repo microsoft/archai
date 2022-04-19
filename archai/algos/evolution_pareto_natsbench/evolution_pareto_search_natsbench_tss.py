@@ -14,8 +14,8 @@ from archai.nas.arch_meta import ArchWithMetaData
 from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.natsbench_tss_search_spaces.discrete_search_space_natsbench_tss import DiscreteSearchSpaceNatsbenchTSS
 
-from archai.nas.nas_utils.torch_constraints import measure_torch_inference_latency, measure_torch_peak_memory
-from archai.nas.nas_utils.pareto_frontier import find_pareto_frontier_points
+from archai.nas.constraints.torch_constraints import measure_torch_inference_latency, measure_torch_peak_memory
+from archai.nas.constraints.pareto_frontier import find_pareto_frontier_points
 
 class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
 
