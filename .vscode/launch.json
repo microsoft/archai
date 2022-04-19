@@ -618,7 +618,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "evolution_search_natsbench_tss", "--datasets", "cifar10", "--no-eval"]
+            "args": ["--full", "--algos", "evolution_pareto_search_natsbench_tss", "--datasets", "cifar10", "--no-eval"]
         },
         {
             "name": "Local Search DARTS Reg",

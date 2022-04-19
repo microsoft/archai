@@ -33,7 +33,7 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
         # eval cache so that if search visits
         # a network already evaluated then we don't
         # evaluate it again. 
-        self.eval_cache:Dict[str, ArchWithMetaData] = {}
+        self.eval_cache = {}
 
         super().search(conf_search)
 
@@ -80,13 +80,12 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
 
         
     def _evaluate(self, arch:ArchWithMetaData)->float:
-        arch_flat_rep = arch.arch.desc.get_flat_rep()
 
         # see if we have visited this arch before
-        if arch_flat_rep in self.eval_cache:
-            logger.info(f"Arch is in eval cache. Returning from cache.")
-            return self.eval_cache[arch_flat_rep].metadata['train_top1']
-
+        if arch.metadata['archid'] in self.eval_cache:
+            logger.info(f"{arch.metadata['archid']} is in cache! Returning from cache.")
+            return self.eval_cache[arch.metadata['archid']].metadata['train_top1']
+        
         # if not in cache actually evaluate it
         # -------------------------------------
         # NOTE: we don't pass checkpoint to the trainers
@@ -108,7 +107,7 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
         # arch.metadata['train_top1'] = train_top1
 
         # cache it
-        self.eval_cache[arch_flat_rep] = arch
+        self.eval_cache[arch.metadata['archid']] = arch
         return train_top1
 
 
@@ -144,6 +143,6 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
 
     @overrides
     def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        ''' Using the nearest neighbors as mutations for now '''
-        return self.mutate_parents(parents)
+        '''TODO: Returning empty for now '''
+        return []
 
