@@ -62,11 +62,19 @@ class EvolutionParetoSearch(Searcher):
         return init_pop
 
 
+    def _sample_random_to_mix(self)->List[ArchWithMetaData]:
+        mix_pop:List[ArchWithMetaData] = []
+        while len(mix_pop) < self.num_random_mix:
+            mix_pop.append(self.search_space.random_sample())
+        return mix_pop
+
+
     @overrides
     def search(self, conf_search:Config):
         
         self.init_num_models = conf_search['init_num_models']
         self.num_iters = conf_search['num_iters']
+        self.num_random_mix = conf_search['num_random_mix']
         
         assert self.init_num_models > 0 
         assert self.num_iters > 0
@@ -120,7 +128,11 @@ class EvolutionParetoSearch(Searcher):
             crossovered = self.crossover_parents(parents)
             logger.info(f'iter {i}: crossover yielded {len(crossovered)} new models')
 
-            unseen_pop = crossovered + mutated
+            # sample some random samples to add to the parent mix 
+            # to mitigage local minima
+            rand_mix = self._sample_random_to_mix()
+
+            unseen_pop = crossovered + mutated + rand_mix
             logger.info(f'iter {i}: total unseen population {len(unseen_pop)}')
 
             # update the set of architectures ever visited
