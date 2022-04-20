@@ -50,6 +50,11 @@ class EvolutionParetoSearch(Searcher):
         pass
 
 
+    @abstractmethod
+    def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
+        pass
+
+
     def _sample_init_population(self)->List[ArchWithMetaData]:
         init_pop:List[ArchWithMetaData] = []
         while len(init_pop) < self.init_num_models:
@@ -72,43 +77,56 @@ class EvolutionParetoSearch(Searcher):
         # sample the initial population
         unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
 
-        self.all_pop = [unseen_pop]
+        self.all_pop = unseen_pop
         for i in range(self.num_iters):
+            logger.info(f'starting evolution pareto iter {i}')
             
             # for the unseen population 
             # calculates the memory and latency
-            # and inserts it into the meta data of each member 
+            # and inserts it into the meta data of each member
+            logger.info(f'iter {i}: calculating memory latency for {len(unseen_pop)} models') 
             self.calc_memory_latency(unseen_pop)
 
             # calculate task accuracy proxy
             # could be anything from zero-cost proxy
             # to partial training
+            logger.info(f'iter {i}: calculating task accuracy for {len(unseen_pop)} models')
             self.calc_task_accuracy(unseen_pop)  
 
             # update the pareto frontier
-            pareto:List[ArchWithMetaData] = self.update_pareto_frontier()
+            logger.info(f'iter {i}: updating the pareto')
+            pareto:List[ArchWithMetaData] = self.update_pareto_frontier(self.all_pop)
+            logger.info(f'iter {i}: found {len(pareto)} members')
 
             # select parents for the next iteration from 
             # the current estimate of the frontier while
             # giving more weight to newer parents
             # TODO
             parents = pareto # for now
+            logger.info(f'iter {i}: chose {len(parents)} parents')
+
+            # plot the state of search
+            self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=i) 
 
             # mutate random 'k' subsets of the parents
             # while ensuring the mutations fall within 
             # desired constraint limits
             mutated = self.mutate_parents(parents)
+            logger.info(f'iter {i}: mutation yielded {len(mutated)} new models')
 
             # crossover random 'k' subsets of the parents
             # while ensuring the mutations fall within 
             # desired constraint limits
             crossovered = self.crossover_parents(parents)
+            logger.info(f'iter {i}: crossover yielded {len(crossovered)} new models')
 
             unseen_pop = crossovered + mutated
+            logger.info(f'iter {i}: total unseen population {len(unseen_pop)}')
 
+            # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)
 
-
+            
             
 
 

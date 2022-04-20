@@ -6,7 +6,7 @@ from archai.algos.natsbench.lib.models import get_cell_based_tiny_net
 def main():
 
     # Create the API instance for the topology search space in NATS
-    api = create('C:\\Users\\dedey\\dataroot\\natsbench\\NATS-tss-v1_0-3ffb9-simple', 'tss', fast_mode=True, verbose=True)
+    api = create('/home/dedey/dataroot/natsbench/NATS-tss-v1_0-3ffb9-simple', 'tss', fast_mode=True, verbose=True)
 
     # slow mode (NOTE: uses up 30GB RAM)
     # api = create('C:\\Users\\dedey\\dataroot\\natsbench\\NATS-tss-v1_0-3ffb9.pickle.pbz2', 'tss', fast_mode=False, verbose=True)
