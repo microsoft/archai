@@ -33,6 +33,19 @@ class DiscreteSearchSpaceNatsbenchTSS(DiscreteSearchSpace):
         arch_meta = ArchWithMetaData(model, meta_data)
         return arch_meta
 
+    
+    def get_training_accuracy_at_n_epoch(self, 
+                                        archid:int, 
+                                        datasetname:str, 
+                                        epoch:int)->float:
+        data = self.api.query_by_index(archid, dataname=datasetname, hp='200')
+        train_top1s = []
+        for _, v in data.items():
+            train_top1s.append(v.train_acc1es[epoch])
+        
+        avg_train_top1s = sum(train_top1s)/len(train_top1s)
+        return avg_train_top1s
+
 
     @overrides
     def get_neighbors(self, arch: ArchWithMetaData) -> List[ArchWithMetaData]:

@@ -1,9 +1,14 @@
 import os
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
+import random
 
 import numpy as np
+import plotly.graph_objects as go
+from tqdm import tqdm
 
+from archai.common.common import get_conf
+from archai.common.common import get_expdir
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 from archai.nas.searcher import Searcher, SearchResult
 from archai.common.common import logger
@@ -28,6 +33,12 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
         self.natsbench_location = os.path.join(self.dataroot, 'natsbench', conf_search['natsbench']['natsbench_tss_fast'])
         self.conf_train = conf_search['trainer']
         self.conf_loader = conf_search['loader']
+        # if true uses table lookup to simulate training
+        # else trains from scratch 
+        self.use_benchmark = conf_search['use_benchmark']
+        # if use_benchmark then evaluate 
+        # architecture at this epoch
+        self.evaluate_at_epoch = conf_search['evaluate_at_epoch'] 
         # endregion
 
         # eval cache so that if search visits
@@ -47,25 +58,33 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
 
     @overrides
     def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
-        # computes memory and latency of each model
-        # and updates the meta data
-        for p in population:
-            latency_s = measure_torch_inference_latency(p.arch, 
-                                                        use_quantization=False, 
-                                                        use_median=False,
-                                                        input_dims=(1,3,32,32),
-                                                        n_threads = 1,
-                                                        n_trials=10,
-                                                        device='cpu')
-
-            peak_mem_mb = measure_torch_peak_memory(p.arch,
-                                                    use_quantization=False,
-                                                    input_dims=(1, 3, 32, 32),
-                                                    n_threads=1,
-                                                    device='cpu')
-
+        # DEBUG: uses the benchmark's latency, and params for memory
+        for p in tqdm(population):
+            cost_info = self.search_space.api.get_cost_info(p.metadata['archid'], self.dataset_name)
+            latency_s = cost_info['latency']
+            params = cost_info['params']
             p.metadata['latency'] = latency_s
-            p.metadata['memory'] = peak_mem_mb
+            p.metadata['memory'] = params
+
+        # # computes memory and latency of each model
+        # # and updates the meta data
+        # for p in tqdm(population):
+        #     latency_s = measure_torch_inference_latency(p.arch, 
+        #                                                 use_quantization=False, 
+        #                                                 use_median=False,
+        #                                                 input_dims=(1,3,32,32),
+        #                                                 n_threads=1,
+        #                                                 n_trials=10,
+        #                                                 device='cpu')
+
+        #     peak_mem_mb = measure_torch_peak_memory(p.arch,
+        #                                             use_quantization=False,
+        #                                             input_dims=(1, 3, 32, 32),
+        #                                             n_threads=1,
+        #                                             device='cpu')
+
+        #     p.metadata['latency'] = latency_s
+        #     p.metadata['memory'] = peak_mem_mb
 
 
 
@@ -74,12 +93,22 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
         # computes task accuracy of each model
         # and updates the meta data
         # TODO: parallelize it via ray in the future
-        for p in population:
+        for p in tqdm(population):
             train_top1 = self._evaluate(p) 
             p.metadata['train_top1'] = train_top1
 
         
     def _evaluate(self, arch:ArchWithMetaData)->float:
+        # since this is a tabular benchmark we
+        # can potentially just return the value from 
+        # the table at 'n' epochs
+        if self.use_benchmark:
+            # get training accuracy at 'n' epochs
+            # from the benchmark
+            train_top1 = self.search_space.get_training_accuracy_at_n_epoch(arch.metadata['archid'],
+            datasetname=self.dataset_name,
+            epoch=self.evaluate_at_epoch)
+            return train_top1
 
         # see if we have visited this arch before
         if arch.metadata['archid'] in self.eval_cache:
@@ -114,13 +143,13 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
     @overrides
     def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
         # need all decreasing or increasing quantities 
-        all_errors = [1.0 - p.metadata['training_top1'] for p in population]
+        all_errors = [1.0 - p.metadata['train_top1']*0.01 for p in population]
         all_latencies = [p.metadata['latency']  for p in population]
-        all_memories = [p.metadata['memories']  for p in population]
+        all_memories = [p.metadata['memory']  for p in population]
 
-        xs = np.array(all_errors)
-        ys = np.array(all_latencies)
-        zs = np.array(all_memories)
+        xs = np.array(all_errors).reshape(-1, 1)
+        ys = np.array(all_latencies).reshape(-1, 1)
+        zs = np.array(all_memories).reshape(-1, 1)
         
         points = np.concatenate((xs, ys, zs), axis=1)
         points_idx = find_pareto_frontier_points(points, is_decreasing=True)
@@ -145,4 +174,48 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
     def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
         '''TODO: Returning empty for now '''
         return []
+
+
+    @overrides
+    def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
+        all_accs = [p.metadata['train_top1'] for p in all_pop]
+        all_latencies = [p.metadata['latency']  for p in all_pop]
+        all_memories = [p.metadata['memory']  for p in all_pop]
+
+        p_accs = [p.metadata['train_top1'] for p in pareto]
+        p_latencies = [p.metadata['latency']  for p in pareto]
+        p_memories = [p.metadata['memory']  for p in pareto]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter3d(x=all_accs, 
+                                y=all_latencies, 
+                                z=all_memories,
+                                mode='markers',
+                                marker_color='blue',
+                                showlegend=True,
+                                name='All visited architectures'))
+
+        fig.add_trace(go.Scatter3d(x=p_accs, 
+                                y=p_latencies, 
+                                z=p_memories,
+                                mode='markers',
+                                marker_color='red',
+                                showlegend=True,
+                                name='Pareto architectures'))
+        
+        title_text = f'Search State Iter {iter_num}'
+        xaxis_title = 'Accuracy (train top1)'
+        yaxis_title = 'Latency (s)'
+        zaxis_title = 'Memory (mb)'
+        fig.update_layout(title_text=title_text,
+                          scene=dict(xaxis_title=xaxis_title,
+                                     yaxis_title=yaxis_title,
+                                     zaxis_title=zaxis_title))
+
+        expdir = get_expdir()
+        html_path = os.path.join(expdir, f'search_state_{iter_num}.html')
+        fig.write_html(html_path)
+
+        png_path = os.path.join(expdir, f'search_state_{iter_num}.png')
+        fig.write_image(png_path, engine='kaleido', width=1500, height=1500, scale=1) 
 
