@@ -14,11 +14,12 @@ install_requires=[
     'requests', 'seaborn', 'h5py', 'rarfile',
     'gorilla', 'pyyaml', 'overrides==3.1.0', 'runstats', 'psutil', 'statopt',
     'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash', 'plotly',
-    'transformers', 'pytorch_lightning', 'tokenizers', 'datasets', 'nats_bench',
+    'transformers', 'pytorch-lightning', 'tokenizers', 'datasets', 'nats_bench',
     'ftfy', # needed for text scoring, fixes text for you
     # nvidia transformer-xl
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
-    'pytorch-transformers', 'sacremoses', 'pynvml', 'kaleido'
+    'pytorch-transformers', 'sacremoses', 'pynvml', 'kaleido', 'albumentations', 'segmentation-models-pytorch @ git+https://github.com/qubvel/segmentation_models.pytorch',
+    'onnx', 'onnxruntime'
 ]
 
 setuptools.setup(
