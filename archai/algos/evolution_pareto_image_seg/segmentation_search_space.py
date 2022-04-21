@@ -76,8 +76,4 @@ class SegmentationSearchSpace():
             graph.append(new_node)
             node_list.append(new_node['name'])
 
-        return SegmentationNasModel.from_config(graph, channels_per_scale)
-
-    @abstractmethod
-    def get_neighbors():
-        pass
+        return SegmentationNasModel.from_config(graph, channels_per_scale), graph, channels_per_scale
