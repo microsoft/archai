@@ -93,11 +93,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         
         # if not in cache actually evaluate it
         # -------------------------------------
-        # NOTE: we don't pass checkpoint to the trainers
-        # as it creates complications and we don't need it
-        # as these trainers are quite fast
-        checkpoint = None
-
         logger.pushd(f"regular_training_{arch.metadata['archid']}")
 
         # train
@@ -113,7 +108,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             for bi, b in enumerate(tqdm(val_dl)):
                 b['image'] = b['image'].to('cuda')
                 b['mask'] = b['mask'].to('cuda')
-
                 outputs.append(trainer.model.validation_step(b, bi))
 
         results = trainer.model.shared_epoch_end(outputs, stage='validation')
