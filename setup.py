@@ -19,7 +19,7 @@ install_requires=[
     # nvidia transformer-xl
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
     'pytorch-transformers', 'sacremoses', 'pynvml', 'kaleido', 'albumentations', 'segmentation-models-pytorch @ git+https://github.com/qubvel/segmentation_models.pytorch',
-    'onnx', 'onnxruntime'
+    'onnx', 'onnxruntime', 'efficientnet_pytorch',
 ]
 
 setuptools.setup(
