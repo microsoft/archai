@@ -621,6 +621,14 @@
             "args": ["--full", "--algos", "evolution_pareto_search_natsbench_tss", "--datasets", "cifar10", "--no-eval"]
         },
         {
+            "name": "Evolution Pareto Search Segmentation",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/main.py",
+            "console": "integratedTerminal",
+            "args": ["--full", "--algos", "evolution_pareto_search_segmentation", "--datasets", "face_synthetics", "--no-eval"]
+        },
+        {
             "name": "Local Search DARTS Reg",
             "type": "python",
             "request": "launch",

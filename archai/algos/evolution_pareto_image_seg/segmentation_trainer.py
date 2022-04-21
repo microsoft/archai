@@ -7,8 +7,8 @@ from torch import nn
 from torch.utils.data import DataLoader
 import numpy as np
 import pytorch_lightning as pl
-from .model import SegmentationNasModel
-from face_synthetics_data import FaceSynthetics
+from archai.algos.evolution_pareto_image_seg.model import SegmentationNasModel
+from archai.algos.evolution_pareto_image_seg.face_synthetics_data import FaceSynthetics
 import segmentation_models_pytorch as smp
 
 
