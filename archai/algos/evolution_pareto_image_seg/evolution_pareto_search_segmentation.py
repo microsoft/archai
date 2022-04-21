@@ -22,6 +22,7 @@ from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.segmentation_search_spaces.discrete_search_space_segmentation import DiscreteSearchSpaceSegmentation
 
 from archai.algos.evolution_pareto_image_seg.segmentation_trainer import SegmentationTrainer
+from archai.algos.evolution_pareto_image_seg.utils import profile_torch, profile_onnx, get_onnx_latency, to_onnx
 
 from archai.nas.constraints.torch_constraints import measure_torch_inference_latency, measure_torch_peak_memory
 from archai.nas.constraints.pareto_frontier import find_pareto_frontier_points
@@ -56,22 +57,21 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
         # computes memory and latency of each model
         # and updates the meta data
+        
         for p in tqdm(population):
-            latency_s = measure_torch_inference_latency(p.arch, 
-                                                        use_quantization=False, 
-                                                        use_median=False,
-                                                        input_dims=(1,3,32,32),
-                                                        n_threads=1,
-                                                        n_trials=10,
-                                                        device='cpu')
+            
+            # TODO: verify that the unit is ms
+            latency_ms = get_onnx_latency(p.arch, img_size=p.arch.img_size)
 
+            # TODO: get peak memory of the onnx model
+            # instead of the torch model
             peak_mem_mb = measure_torch_peak_memory(p.arch,
                                                     use_quantization=False,
-                                                    input_dims=(1, 3, 32, 32),
+                                                    input_dims=(1, 3, p.arch.img_size, p.arch.img_size),
                                                     n_threads=1,
                                                     device='cpu')
 
-            p.metadata['latency'] = latency_s
+            p.metadata['latency'] = latency_ms
             p.metadata['memory'] = peak_mem_mb
 
 
@@ -83,6 +83,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         for p in tqdm(population):
             f1 = self._evaluate(p) 
             p.metadata['f1'] = f1
+            # cache it
+            self.eval_cache[p.metadata['archid']] = f1
 
 
     def _evaluate(self, arch:ArchWithMetaData)->float:
@@ -96,8 +98,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         logger.pushd(f"regular_training_{arch.metadata['archid']}")
 
         # train
+        # TODO: how do we set the number of epochs it will train for?
         dataset_dir = os.path.join(self.dataroot, 'face_synthetics')
-        trainer = SegmentationTrainer(arch.arch, dataset_dir=self.dataroot, val_size=2000, gpus=1)
+        trainer = SegmentationTrainer(arch.arch, dataset_dir=dataset_dir, val_size=2000, gpus=1)
         trainer.fit(run_path=utils.full_path(get_expdir()))
 
         # validate
@@ -114,12 +117,90 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         logger.popd()
 
-        train_top1 = results['validation_overall_f1']
-
         # # DEBUG: simulate architecture evaluation
-        # train_top1 = random.random()
-        # arch.metadata['train_top1'] = train_top1
+        # f1 = random.random()
+        
+        f1 = results['validation_overall_f1']
+        return f1
 
-        # cache it
-        self.eval_cache[arch.metadata['archid']] = arch
-        return train_top1
+
+    @overrides
+    def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
+        # need all decreasing or increasing quantities 
+        all_errors = [1.0 - p.metadata['f1'] for p in population]
+        all_latencies = [p.metadata['latency']  for p in population]
+        all_memories = [p.metadata['memory']  for p in population]
+
+        xs = np.array(all_errors).reshape(-1, 1)
+        ys = np.array(all_latencies).reshape(-1, 1)
+        zs = np.array(all_memories).reshape(-1, 1)
+        
+        points = np.concatenate((xs, ys, zs), axis=1)
+        points_idx = find_pareto_frontier_points(points, is_decreasing=True)
+        pareto_points = [population[idx] for idx in points_idx]
+        return pareto_points
+
+
+    @overrides
+    def mutate_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
+        ''' Using the nearest neighbors as mutations'''
+        mutations = []
+        for p in parents:
+            # TODO: this only returns one neighbor
+            # may want to sample more
+            nbrs = self.search_space.get_neighbors(p)
+            mutations.extend(nbrs)
+
+        # TODO: there will be a lot of neighbors
+        # so might want to downsample them
+        return mutations
+
+
+    @overrides
+    def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
+        '''TODO: Returning empty for now '''
+        return []
+
+
+    @overrides
+    def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
+        all_accs = [p.metadata['f1'] for p in all_pop]
+        all_latencies = [p.metadata['latency']  for p in all_pop]
+        all_memories = [p.metadata['memory']  for p in all_pop]
+
+        p_accs = [p.metadata['f1'] for p in pareto]
+        p_latencies = [p.metadata['latency']  for p in pareto]
+        p_memories = [p.metadata['memory']  for p in pareto]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter3d(x=all_accs, 
+                                y=all_latencies, 
+                                z=all_memories,
+                                mode='markers',
+                                marker_color='blue',
+                                showlegend=True,
+                                name='All visited architectures'))
+
+        fig.add_trace(go.Scatter3d(x=p_accs, 
+                                y=p_latencies, 
+                                z=p_memories,
+                                mode='markers',
+                                marker_color='red',
+                                showlegend=True,
+                                name='Pareto architectures'))
+        
+        title_text = f'Search State Iter {iter_num}'
+        xaxis_title = 'Accuracy (validation f1)'
+        yaxis_title = 'Latency (ms)'
+        zaxis_title = 'Memory (mb)'
+        fig.update_layout(title_text=title_text,
+                          scene=dict(xaxis_title=xaxis_title,
+                                     yaxis_title=yaxis_title,
+                                     zaxis_title=zaxis_title))
+
+        expdir = get_expdir()
+        html_path = os.path.join(expdir, f'search_state_{iter_num}.html')
+        fig.write_html(html_path)
+
+        png_path = os.path.join(expdir, f'search_state_{iter_num}.png')
+        fig.write_image(png_path, engine='kaleido', width=1500, height=1500, scale=1) 

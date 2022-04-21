@@ -42,7 +42,7 @@ from archai.algos.local_search_natsbench.local_search_natsbench_tss_fear_exp_run
 from archai.algos.local_search_natsbench.local_search_natsbench_tss_reg_exp_runner import LocalSearchNatsbenchTSSRegExpRunner
 from archai.algos.local_search_darts.local_search_darts_reg_exp_runner import LocalSearchDartsRegExpRunner
 from archai.algos.evolution_pareto_natsbench.evolution_pareto_search_natsbench_tss_exp_runner import EvolutionParetoSearchNatsbenchTSSExpRunner
-
+from archai.algos.evolution_pareto_image_seg.evolution_pareto_search_segmentation_exp_runner import EvolutionParetoSearchSegmentationExpRunner
 
 def main():
     runner_types:Dict[str, Type[ExperimentRunner]] = {
@@ -81,7 +81,8 @@ def main():
         'local_search_natsbench_tss_reg': LocalSearchNatsbenchTSSRegExpRunner,
         'local_search_natsbench_tss_fear': LocalSearchNatsbenchTSSFearExpRunner,
         'local_search_darts_reg': LocalSearchDartsRegExpRunner,
-        'evolution_pareto_search_natsbench_tss': EvolutionParetoSearchNatsbenchTSSExpRunner
+        'evolution_pareto_search_natsbench_tss': EvolutionParetoSearchNatsbenchTSSExpRunner,
+        'evolution_pareto_search_segmentation': EvolutionParetoSearchSegmentationExpRunner,
     }
 
     parser = argparse.ArgumentParser(description='NAS E2E Runs')
@@ -117,7 +118,8 @@ def main():
                                                         local_search_natsbench_tss_reg,
                                                         local_search_natsbench_tss_fear,
                                                         local_search_darts_reg,
-                                                        evolution_pareto_search_natsbench_tss''',
+                                                        evolution_pareto_search_natsbench_tss,
+                                                        evolution_pareto_search_segmentation''',
                         help='NAS algos to run, separated by comma')
     parser.add_argument('--datasets', type=str, default='cifar10',
                         help='datasets to use, separated by comma')
