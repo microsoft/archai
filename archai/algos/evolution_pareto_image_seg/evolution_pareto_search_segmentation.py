@@ -9,7 +9,7 @@ import numpy as np
 import plotly.graph_objects as go
 from tqdm import tqdm
 
-from archai.common.common import get_conf
+from archai.common.common import get_conf, get_conf_common
 from archai.common.common import get_expdir
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 from archai.nas.searcher import Searcher, SearchResult
@@ -37,7 +37,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.dataset_name = conf_search['loader']['dataset']['name']
         self.conf_train = conf_search['trainer']
         self.conf_loader = conf_search['loader']
-        self.evaluate_at_epoch = conf_search['evaluate_at_epoch'] 
         # endregion
 
         # eval cache so that if search visits
@@ -88,9 +87,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
 
     def _evaluate(self, arch:ArchWithMetaData)->float:
-        # DEBUG: simulate architecture evaluation
-        f1 = random.random()
-        return f1
+        # # DEBUG: simulate architecture evaluation
+        # f1 = random.random()
+        # return f1
         
         # see if we have visited this arch before
         if arch.metadata['archid'] in self.eval_cache:
@@ -100,22 +99,32 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # if not in cache actually evaluate it
         # -------------------------------------
 
+        # region config
+        self.evaluate_at_steps = self.conf_train['evaluate_at_steps']  
+        self.val_size = self.conf_train['val_size']
+        self.img_size = self.conf_train['img_size']
+        self.augmentation = self.conf_train['augmentation']
+        self.lr = self.conf_train['lr']
+        self.criterion_name = self.conf_train['criterion_name']
+        self.batch_size = self.conf_loader['batch_size']
+        self.seed = get_conf_common()['seed']
+        # region
+
         # train
-        # TODO: how do we set the number of epochs it will train for?
         dataset_dir = os.path.join(self.dataroot, 'face_synthetics')
         # TODO: most of these should come from conf
         # TODO: batch size 16 has lr 2e-4. can we increase batch size? what lr?
         trainer = SegmentationTrainer(arch.arch, 
                                       dataset_dir=dataset_dir, 
-                                      max_steps=100,
-                                      val_size=2000,
-                                      img_size=256,
-                                      augmentation='none',
-                                      batch_size=64,
-                                      lr=8e-4,
-                                      criterion_name='ce', 
+                                      max_steps=self.evaluate_at_steps,
+                                      val_size=self.val_size,
+                                      img_size=self.img_size,
+                                      augmentation=self.augmentation,
+                                      batch_size=self.batch_size,
+                                      lr=self.lr,
+                                      criterion_name=self.criterion_name, 
                                       gpus=1,
-                                      seed=42)
+                                      seed=self.seed)
         trainer.fit(run_path=utils.full_path(get_expdir()))
 
         # validate
