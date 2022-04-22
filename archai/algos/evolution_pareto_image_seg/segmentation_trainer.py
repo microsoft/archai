@@ -181,7 +181,7 @@ class SegmentationTrainer():
                  seed: int = 1):
         torch.manual_seed(seed)
         random.seed(seed)
-        np.random.seed(seed)
+        np.random.seed(int(seed))
 
         self.max_steps = max_steps
         self.data_dir = Path(dataset_dir)

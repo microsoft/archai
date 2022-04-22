@@ -73,7 +73,7 @@ def to_onnx(model: torch.nn.Module, output_path: Path,
             model, (torch.randn(1, 3, img_size, img_size)),
             str(output_path),
             opset_version=opset_version,
-            verbose=True,
+            verbose=False,
             input_names=['input_0'],
             output_names=['output_0']
         )
@@ -81,7 +81,7 @@ def to_onnx(model: torch.nn.Module, output_path: Path,
         print(str(e))  # So you can pipe this error message to a file for better reading
         raise e
 
-    print(f'ONNX model saved in {output_path}')
+    # print(f'ONNX model saved in {output_path}')
 
 
 def profile_onnx(output_path: Path, img_size: int) -> Dict:
