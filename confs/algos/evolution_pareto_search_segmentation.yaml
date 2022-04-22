@@ -44,70 +44,18 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   search:
-    init_num_models: 3 # initial random models to seed the search 
+    init_num_models: 4 # initial random models to seed the search 
     num_iters: 3 # number of pareto frontier search iterations 
-    num_random_mix: 20 # how many random models to add to the parent mixture 
-    use_benchmark: True
-    evaluate_at_epoch: 1
-    natsbench:
-      natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
-    finalizer: 'default' # options are 'random' or 'default'
-    data_parallel: False
-    checkpoint:
-      _copy: '/common/checkpoint'
-    resume: '_copy: /common/resume'
-    full_desc_filename: '$expdir/full_model_desc.yaml' # arch before it was finalized
-    final_desc_filename: '$expdir/final_model_desc.yaml' # final arch is saved in this file
+    num_random_mix: 4 # how many random models to add to the parent mixture 
+    evaluate_at_steps: 100
     loader:
-      apex:
-        _copy: '../../trainer/apex'
-      aug: '' # additional augmentations to use
-      cutout: 0 # cutout length, use cutout augmentation when > 0
-      load_train: True # load train split of dataset
-      train_batch: 96
-      train_workers: 4 # if null then gpu_count*4
-      test_workers: '_copy: ../train_workers' # if null then 4
-      load_test: False # load test split of dataset
-      test_batch: 1024
-      val_ratio: 0.0 #split portion for test set, 0 to 1
-      val_fold: 0 #Fold number to use (0 to 4)
-      cv_num: 5 # total number of folds available
+      batch_size: 64
       dataset:
         _copy: '/dataset'
     trainer:
-      use_val: False
-      top1_acc_threshold: 0.1 # after some accuracy we will shift into training only the last 'n' layers
-      apex:
-        _copy: '/common/apex'
-      aux_weight: 0.0
-      drop_path_prob: 0.2 # probability that given edge will be dropped
-      grad_clip: 5.0 # grads above this value is clipped
-      logger_freq: 1000 # after every N updates dump loss and other metrics in logger
-      title: 'arch_train'
-      epochs: 1
-      batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
-      # additional vals for the derived class
-      plotsdir: '' #empty string means no plots, other wise plots are generated for each epoch in this dir
-      l1_alphas: 0.0   # weight to be applied to sum(abs(alphas)) to loss term
-      lossfn:
-        type: 'CrossEntropyLoss'
-      optimizer:
-        type: 'sgd'
-        lr: 0.1 # init learning rate
-        decay: 5.0e-4
-        momentum: 0.9 # pytorch default is 0
-        nesterov: True
-        decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
-      lr_schedule:
-        type: 'cosine'
-        min_lr: 0.000 # min learning rate, this will be used in eta_min param of scheduler
-        warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
-          multiplier: 1
-          epochs: 0 # 0 disables warmup      
-      validation:
-        title: 'search_val'
-        logger_freq: 0
-        batch_chunks: '_copy: ../../batch_chunks' # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
-        freq: 1 # perform validation only every N epochs
-        lossfn:
-          type: 'CrossEntropyLoss'
+      evaluate_at_steps: 100
+      val_size: 2000
+      img_size: 256
+      augmentation: 'none'
+      lr: 0.0008
+      criterion_name: 'ce'
