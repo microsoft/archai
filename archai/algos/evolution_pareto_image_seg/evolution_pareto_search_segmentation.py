@@ -88,6 +88,10 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
 
     def _evaluate(self, arch:ArchWithMetaData)->float:
+        # DEBUG: simulate architecture evaluation
+        f1 = random.random()
+        return f1
+        
         # see if we have visited this arch before
         if arch.metadata['archid'] in self.eval_cache:
             logger.info(f"{arch.metadata['archid']} is in cache! Returning from cache.")
@@ -95,31 +99,37 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         
         # if not in cache actually evaluate it
         # -------------------------------------
-        logger.pushd(f"regular_training_{arch.metadata['archid']}")
 
         # train
         # TODO: how do we set the number of epochs it will train for?
         dataset_dir = os.path.join(self.dataroot, 'face_synthetics')
-        trainer = SegmentationTrainer(arch.arch, dataset_dir=dataset_dir, val_size=2000, gpus=1)
+        # TODO: most of these should come from conf
+        # TODO: batch size 16 has lr 2e-4. can we increase batch size? what lr?
+        trainer = SegmentationTrainer(arch.arch, 
+                                      dataset_dir=dataset_dir, 
+                                      max_steps=100,
+                                      val_size=2000,
+                                      img_size=256,
+                                      augmentation='none',
+                                      batch_size=64,
+                                      lr=8e-4,
+                                      criterion_name='ce', 
+                                      gpus=1,
+                                      seed=42)
         trainer.fit(run_path=utils.full_path(get_expdir()))
 
         # validate
         val_dl = trainer.val_dataloader
         outputs = []
-
         with torch.no_grad():
             for bi, b in enumerate(tqdm(val_dl)):
                 b['image'] = b['image'].to('cuda')
                 b['mask'] = b['mask'].to('cuda')
+                trainer.model.to('cuda')
                 outputs.append(trainer.model.validation_step(b, bi))
 
         results = trainer.model.shared_epoch_end(outputs, stage='validation')
 
-        logger.popd()
-
-        # # DEBUG: simulate architecture evaluation
-        # f1 = random.random()
-        
         f1 = results['validation_overall_f1']
         return f1
 

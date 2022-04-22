@@ -44,7 +44,7 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   search:
-    init_num_models: 20 # initial random models to seed the search 
+    init_num_models: 3 # initial random models to seed the search 
     num_iters: 3 # number of pareto frontier search iterations 
     num_random_mix: 20 # how many random models to add to the parent mixture 
     use_benchmark: True
