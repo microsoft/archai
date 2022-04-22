@@ -120,7 +120,8 @@ class LightningModelWrapper(pl.LightningModule):
         results[f'{stage}_loss'] = avg_loss
 
         # TODO: enabling this causes error in lightning
-        # self.log_dict(results, sync_dist=True)
+        # when calling validate independently
+        self.log_dict(results, sync_dist=True)
         return results
 
     def configure_optimizers(self):
@@ -214,7 +215,7 @@ class SegmentationTrainer():
             max_steps=self.max_steps,
             default_root_dir=run_path,
             gpus=self.gpus,
-            val_check_interval=self.val_interval,
+            #val_check_interval=self.val_interval,
             callbacks=self.get_training_callbacks(run_path)
         )
 

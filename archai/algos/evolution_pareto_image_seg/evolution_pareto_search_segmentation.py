@@ -21,7 +21,7 @@ from archai.nas.arch_meta import ArchWithMetaData
 from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.segmentation_search_spaces.discrete_search_space_segmentation import DiscreteSearchSpaceSegmentation
 
-from archai.algos.evolution_pareto_image_seg.segmentation_trainer import SegmentationTrainer
+from archai.algos.evolution_pareto_image_seg.segmentation_trainer import SegmentationTrainer, get_custom_overall_metrics
 from archai.algos.evolution_pareto_image_seg.utils import profile_torch, profile_onnx, get_onnx_latency, to_onnx
 
 from archai.nas.constraints.torch_constraints import measure_torch_inference_latency, measure_torch_peak_memory
@@ -139,8 +139,16 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                 trainer.model.to('cuda')
                 outputs.append(trainer.model.validation_step(b, bi))
 
-        results = trainer.model.shared_epoch_end(outputs, stage='validation')
-
+        # this throws a lightning error with self.log_dict
+        # hence copy pasting the code from within the function
+        # results = trainer.model.shared_epoch_end(outputs, stage='validation')
+        tp = torch.cat([x['tp'] for x in outputs])
+        fp = torch.cat([x['fp'] for x in outputs])
+        fn = torch.cat([x['fn'] for x in outputs])
+        tn = torch.cat([x['tn'] for x in outputs])
+        avg_loss = torch.tensor([x['loss'] for x in outputs]).mean()
+        results = get_custom_overall_metrics(tp, fp, fn, tn, stage='validation')
+        
         f1 = results['validation_overall_f1']
         return f1
 
