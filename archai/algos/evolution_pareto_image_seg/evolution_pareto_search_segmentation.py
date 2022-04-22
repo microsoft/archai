@@ -100,8 +100,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # -------------------------------------
 
         # region config
-        self.evaluate_at_steps = self.conf_train['evaluate_at_steps']  
+        self.evaluate_for_steps = self.conf_train['evaluate_for_steps']  
         self.val_size = self.conf_train['val_size']
+        self.val_interval = self.conf_train['val_interval']
         self.img_size = self.conf_train['img_size']
         self.augmentation = self.conf_train['augmentation']
         self.lr = self.conf_train['lr']
@@ -116,8 +117,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # TODO: batch size 16 has lr 2e-4. can we increase batch size? what lr?
         trainer = SegmentationTrainer(arch.arch, 
                                       dataset_dir=dataset_dir, 
-                                      max_steps=self.evaluate_at_steps,
+                                      max_steps=self.evaluate_for_steps,
                                       val_size=self.val_size,
+                                      val_interval=self.val_interval,
                                       img_size=self.img_size,
                                       augmentation=self.augmentation,
                                       batch_size=self.batch_size,
