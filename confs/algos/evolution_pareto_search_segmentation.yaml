@@ -53,8 +53,9 @@ nas:
       dataset:
         _copy: '/dataset'
     trainer:
-      evaluate_at_steps: 100
+      evaluate_for_steps: 1000
       val_size: 2000
+      val_interval: 100
       img_size: 256
       augmentation: 'none'
       lr: 0.0008
