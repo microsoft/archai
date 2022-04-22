@@ -176,7 +176,7 @@ class SegmentationTrainer():
 
     def __init__(self, model: SegmentationNasModel, dataset_dir: str,
                  max_steps: int = 12000, val_size: int = 2000,
-                 val_interval: int = 1000, img_size: int = 256,
+                 img_size: int = 256,
                  augmentation: str = 'none', batch_size: int = 16,
                  lr: float = 2e-4, criterion_name: str = 'ce', gpus: int = 1,
                  seed: int = 1):
@@ -198,7 +198,6 @@ class SegmentationTrainer():
                                            exponential_decay_lr=True, img_size=img_size)
         self.img_size = img_size
         self.gpus = gpus
-        self.val_interval = val_interval
 
     def get_training_callbacks(self, run_dir: Path) -> List[pl.callbacks.Callback]:
         return [pl.callbacks.ModelCheckpoint(
@@ -215,7 +214,6 @@ class SegmentationTrainer():
             max_steps=self.max_steps,
             default_root_dir=run_path,
             gpus=self.gpus,
-            #val_check_interval=self.val_interval,
             callbacks=self.get_training_callbacks(run_path)
         )
 

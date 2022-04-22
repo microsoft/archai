@@ -48,14 +48,13 @@ nas:
     num_iters: 3 # number of pareto frontier search iterations 
     num_random_mix: 4 # how many random models to add to the parent mixture 
     loader:
-      batch_size: 64
+      batch_size: 16
       dataset:
         _copy: '/dataset'
     trainer:
-      evaluate_for_steps: 10
+      evaluate_for_steps: 1000
       val_size: 2000
-      val_interval: -1
       img_size: 256
       augmentation: 'none'
-      lr: 0.0008
+      lr: 0.0002
       criterion_name: 'ce'
