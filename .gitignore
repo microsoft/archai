@@ -127,3 +127,4 @@ model.th
 *.log*
 evo_search/
 log_dir/
+baseline_logs/

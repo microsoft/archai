@@ -171,7 +171,16 @@ def select_pareto(evolution_obj, path_to_results):
 
   evolution_obj.plot_search_state(iteration=None, parents=None, baseline=baseline)
   
+  model_configs = []
+  for gene in evolution_obj.pareto['population']:
+    config = evolution_obj.converter.gene_to_config(gene)   
+    curr_model_config = copy.deepcopy(evolution_obj.model_config)
+    curr_model_config.update(config)
+    curr_model_config = curr_model_config.to_dict()
+    model_configs.append(curr_model_config)
   
+  evolution_obj.pareto['model_configs'] = model_configs
+
   baseline['pareto'] = [evolution_obj.pareto]
   with open(os.path.join(path_to_results, 'logs.pkl'), 'wb') as f:
     pickle.dump(baseline, f)

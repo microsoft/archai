@@ -159,6 +159,7 @@ class Evolution:
         self.constraint_strategy = training_strategy
         self.constraint_pipeline_type = constraint_pipeline_type
         self.device = device
+        self.dataset = dataset
         if constraint_pipeline_type == 'torch':
             self.pipeline = TorchConstraintPipeline(training_strategy=training_strategy,
                                                     dataset=dataset,
@@ -820,6 +821,7 @@ class Evolution:
                                converter=self.converter,
                                model_type=self.model_type,
                                max_step=40000,
+                               dataset=self.dataset,
                                output_path=os.path.join(self.results_path, f'pareto_jobs_iter_{i}'))    
 
             # Generates command-lines for fully training all architectures visited during search
@@ -827,6 +829,7 @@ class Evolution:
                                      self.converter,
                                      model_type=self.model_type,
                                      max_step=40000,
+                                     dataset=self.dataset,
                                      output_path=os.path.join(self.results_path, f'visited_jobs_iter_{i}'))
         
     def semi_brute_force(self, n_samples: int, batch: Optional[int] = 1000) -> None:

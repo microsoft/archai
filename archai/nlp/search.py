@@ -132,7 +132,7 @@ def parse_args():
     strategy.add_argument('--dataset',
                           type=str,
                           default='wt103',
-                          choices=['wt103'],
+                          choices=['wt103', 'lm1b'],
                           help='Dataset (if not using `decoder_params`).')
 
     strategy.add_argument('--scoring_file',
@@ -323,24 +323,17 @@ if __name__ == '__main__':
             shutil.rmtree(args['results_path'])
             e = select_pareto(e, path_to_results=path_to_baseline)
 
-            exp_name = 'pareto_{}_{}_3d'.format(args['dataset'], args['device_name'])
-            job_path = os.path.join('../archaiphilly/nlp_nas', exp_name)
+            exp_name = 'pareto_jobs_{}_{}'.format(args['dataset'], args['device_name'])
+            job_path = os.path.join(args['default_path'], search_experiment, exp_name)
             create_pareto_jobs(path_to_baseline, 
                                converter=e.converter,
                                model_type=e.model_type,
-                               max_step=40000,
+                               max_step=100000 if args['dataset']=='lm1b' else 40000,
+                               dataset=args['dataset'],
+                               vocab=args['vocab_type'],
+                               vocab_size=None if args['vocab_type']=='word' else args['vocab_size'], 
                                n_jobs=10,
-                               output_path=job_path)
-            
-            bash_f_name = 'batch_run.sh'
-            bash_file = os.path.join(job_path, bash_f_name)
-            if os.path.exists(bash_file):
-                os.remove(bash_file)  
-            files = os.listdir(job_path)
-            for f_name in files:
-                with open(bash_file, 'a') as f:
-                    f.write('amlt run --yes {} {} -t {}\n'.format(f_name, exp_name, 'NLX-LowPri'))
-            
+                               output_path=job_path)   
         exit()
 
     # Runs the evolutionary search or the brute force version

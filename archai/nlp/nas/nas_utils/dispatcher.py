@@ -22,6 +22,7 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
                        max_step: int,
                        n_gpus: int,
                        gpu_config: str,
+                       dataset: str,
                        vocab: str,
                        vocab_size: int,
                        is_pareto: Optional[bool] = None) -> str:
@@ -35,6 +36,7 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
         max_step: Maximum number of training steps.
         n_gpus: Number of GPUs.
         gpu_config: GPU configuration to be used.
+        dataset: Name of dataset.
         vocab: Type of vocabulary.
         vocab_size: Size of vocabulary (number of tokens).
         is_pareto: Whether job is from Pareto-frontier or not.
@@ -65,9 +67,14 @@ def _create_batch_jobs(configs: List[Dict[str, Any]],
         exp_name = f'j{i}{is_pareto_str}'
 
         # Creates the command-line
-        line = f'python -m torch.distributed.launch --nproc_per_node={n_gpus} archai/nlp/train.py --model_type {model_type} --config {gpu_config} ' \
-               f'--config_file {default_config_file} --max_step {max_step} --vocab {vocab} ' \
-               f'--vocab_size {vocab_size} --experiment_name {exp_name} {config_line}'
+        if vocab_size is not None:
+            line = f'python -m torch.distributed.launch --nproc_per_node={n_gpus} archai/nlp/train.py --model_type {model_type} --config {gpu_config} ' \
+                f'--config_file {default_config_file} --dataset {dataset} --max_step {max_step} --vocab {vocab} ' \
+                f'--vocab_size {vocab_size} --experiment_name {exp_name} {config_line}'
+        else:
+            line = f'python -m torch.distributed.launch --nproc_per_node={n_gpus} archai/nlp/train.py --model_type {model_type} --config {gpu_config} ' \
+                f'--config_file {default_config_file} --dataset {dataset} --max_step {max_step} --vocab {vocab} ' \
+                f'--experiment_name {exp_name} {config_line}'
         
         command.append(line)
 
@@ -83,8 +90,9 @@ def _create_jobs(configs: List[Dict[str, Any]],
                  n_jobs: Optional[int] = 50,
                  n_gpus: Optional[int] = 8,
                  gpu_config: Optional[str] = 'dgx1_8gpu_fp32',
+                 dataset: Optional[str] = 'wt103',
                  vocab: Optional[str] = 'gpt2',
-                 vocab_size: Optional[int] = 10000,
+                 vocab_size: Optional[int] = None,
                  is_pareto: Optional[bool] = None,
                  output_path: Optional[str] = '~/configs') -> None:
     """Creates command-line jobs.
@@ -99,6 +107,7 @@ def _create_jobs(configs: List[Dict[str, Any]],
         n_jobs: Number of jobs to be created.
         n_gpus: Number of GPUs to be used.
         gpu_config: GPU configuration.
+        dataset: Name of dataset.
         vocab: Type of vocabulary.
         vocab_size: Size of vocabulary (number of tokens).
         is_pareto: Whether job is from Pareto-frontier or not.
@@ -116,9 +125,9 @@ def _create_jobs(configs: List[Dict[str, Any]],
         jobs_config['jobs'] = [{}]
 
         if is_pareto is not None:
-            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), allowed_keys, default_config_file, model_type, max_step, n_gpus, gpu_config, vocab, vocab_size, is_pareto=is_pareto[c:c+n_jobs])
+            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), allowed_keys, default_config_file, model_type, max_step, n_gpus, gpu_config, dataset, vocab, vocab_size, is_pareto=is_pareto[c:c+n_jobs])
         else:
-            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), allowed_keys, default_config_file, model_type, max_step, n_gpus, gpu_config, vocab, vocab_size)
+            jobs_config['jobs'][0]['command'] = _create_batch_jobs(copy.deepcopy(configs[c:c+n_jobs]), allowed_keys, default_config_file, model_type, max_step, n_gpus, gpu_config, dataset, vocab, vocab_size)
 
         output_config_file = os.path.join(output_config_path, f'train_{config_idx}.yaml')
         with open(output_config_file, 'w') as f:
@@ -162,8 +171,9 @@ def create_pareto_jobs(results_path: str,
                        start_config: Optional[int] = 0,
                        n_jobs: Optional[int] = 50,
                        n_gpus: Optional[int] = 8,
+                       dataset: Optional[str] = 'wt103',
                        vocab: Optional[str] = 'gpt2',
-                       vocab_size: Optional[int] = 10000, 
+                       vocab_size: Optional[int] = None, 
                        gpu_config: Optional[str] = 'dgx1_8gpu_fp32',                             
                        output_path: Optional[str] = '~/configs') -> None:
     """Prepares command-line for training Pareto-frontier jobs.
@@ -179,6 +189,7 @@ def create_pareto_jobs(results_path: str,
         n_jobs: Number of jobs to be created.
         n_gpus: Number of GPUs to be used.
         gpu_config: GPU configuration.
+        dataset: Name of dataset.
         vocab: Type of vocabulary.
         vocab_size: Size of vocabulary (number of tokens).
         output_path: Save folder for the created command-lines.
@@ -205,6 +216,7 @@ def create_pareto_jobs(results_path: str,
                  n_jobs=n_jobs,
                  n_gpus=n_gpus,
                  gpu_config=gpu_config, 
+                 dataset=dataset,
                  vocab=vocab,
                  vocab_size=vocab_size,
                  is_pareto=[True] * len(pareto_configs),
@@ -221,8 +233,9 @@ def create_ground_truth_jobs(results_path: str,
                              n_jobs: Optional[int] = 50,
                              n_gpus: Optional[int] = 8,
                              gpu_config: Optional[str] = 'dgx1_8gpu_fp32', 
+                             dataset: Optional[str] = 'wt103',
                              vocab: Optional[str] = 'gpt2',
-                             vocab_size: Optional[int] = 10000,                            
+                             vocab_size: Optional[int] = None,                            
                              output_path: Optional[str] = '~/configs') -> None:
     """Prepares command-lines for training all visited points during search.
 
@@ -237,6 +250,7 @@ def create_ground_truth_jobs(results_path: str,
         n_jobs: Number of jobs to be created.
         n_gpus: Number of GPUs to be used.
         gpu_config: GPU configuration.
+        dataset: Name of dataset.
         vocab: Type of vocabulary.
         vocab_size: Size of vocabulary (number of tokens).
         output_path: Save folder for the created command-lines.
@@ -275,6 +289,7 @@ def create_ground_truth_jobs(results_path: str,
                  n_jobs=n_jobs,
                  n_gpus=n_gpus,
                  gpu_config=gpu_config, 
+                 dataset=dataset,
                  vocab=vocab,
                  vocab_size=vocab_size,
                  output_path=output_path)
