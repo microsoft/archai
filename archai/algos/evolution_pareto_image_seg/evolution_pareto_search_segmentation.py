@@ -2,6 +2,7 @@ import os
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 import random
+import yaml
 
 import torch
 
@@ -79,7 +80,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # computes task accuracy of each model
         # and updates the meta data
         # TODO: parallelize it via ray
-        for p in tqdm(population):
+        for p in population:
             f1 = self._evaluate(p) 
             p.metadata['f1'] = f1
             # cache it
@@ -102,6 +103,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # region config
         self.evaluate_for_steps = self.conf_train['evaluate_for_steps']  
         self.val_size = self.conf_train['val_size']
+        self.gpus = self.conf_train['gpus']
         self.img_size = self.conf_train['img_size']
         self.augmentation = self.conf_train['augmentation']
         self.lr = self.conf_train['lr']
@@ -109,6 +111,10 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.batch_size = self.conf_loader['batch_size']
         self.seed = get_conf_common()['seed']
         # region
+
+        if self.gpus < 0:
+            # use all visible gpus
+            self.gpus = torch.cuda.device_count()
 
         # train
         dataset_dir = os.path.join(self.dataroot, 'face_synthetics')
@@ -123,7 +129,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                                       batch_size=self.batch_size,
                                       lr=self.lr,
                                       criterion_name=self.criterion_name, 
-                                      gpus=1,
+                                      gpus=self.gpus,
                                       seed=self.seed)
         trainer.fit(run_path=utils.full_path(get_expdir()))
 
@@ -165,7 +171,26 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         points = np.concatenate((xs, ys, zs), axis=1)
         points_idx = find_pareto_frontier_points(points, is_decreasing=True)
         pareto_points = [population[idx] for idx in points_idx]
+
+        # save all the pareto points
+        self._save_yaml(pareto_points, basename='pareto')
+
         return pareto_points
+
+
+    def _save_yaml(self, points:List[ArchWithMetaData], basename='pareto')->None:
+        exp_dir = utils.full_path(get_expdir())
+        save_folder = os.path.join(exp_dir, f'{basename}_iter_{self.iter_num}')
+        os.makedirs(save_folder, exist_ok=True)
+        for p in points:
+            this_name = os.path.join(save_folder, str(p.metadata['archid']) + '.yaml')
+            save_dict = {
+                            'channels_per_scale': p.metadata['channels_per_scale'],
+                            'architecture': p.metadata['graph']
+                        }
+            with open(this_name, 'w') as f:
+                _ = yaml.dump(save_dict, f)
+        
 
 
     @overrides

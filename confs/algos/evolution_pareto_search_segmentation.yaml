@@ -36,9 +36,9 @@ common:
       enabled: False # initialize ray. Note: ray cannot be used if apex distributed is enabled
       local_mode: False # if True then ray runs in serial mode
 
-  smoke_test: False
-  only_eval: False
-  resume: True
+  # smoke_test: False
+  # only_eval: False
+  # resume: True
 
 dataset: {} # default dataset settings comes from __include__ on the top
 
@@ -52,7 +52,8 @@ nas:
       dataset:
         _copy: '/dataset'
     trainer:
-      evaluate_for_steps: 1000
+      gpus: 1
+      evaluate_for_steps: 10
       val_size: 2000
       img_size: 256
       augmentation: 'none'

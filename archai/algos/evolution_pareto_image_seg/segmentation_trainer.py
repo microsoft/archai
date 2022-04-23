@@ -91,6 +91,7 @@ class LightningModelWrapper(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         results = self.shared_step(batch, stage='train')
+        # the sync_dist may have performance impact with ddp
         self.log_dict({'training_loss': results['loss']}, sync_dist=True)
 
         return results
@@ -127,6 +128,8 @@ class LightningModelWrapper(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
 
+        # TODO: these magic values should get set as arguments
+        # which come from config
         if self.exponential_decay_lr:
             scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.973435286)
         else:
@@ -139,15 +142,15 @@ class LightningModelWrapper(pl.LightningModule):
 
         return [optimizer], [scheduler]
 
-    def on_train_start(self) -> None:
-        # These two lines generate a trace
-        sample = torch.randn((1, 3, self.img_size, self.img_size)).to(self.device)
-        self.logger.experiment.add_graph(self.model, sample)
+    # def on_train_start(self) -> None:
+    #     # These two lines generate a trace
+    #     sample = torch.randn((1, 3, self.img_size, self.img_size)).to(self.device)
+    #     self.logger.experiment.add_graph(self.model, sample)
 
-        if self.latency:
-            self.logger.log_metrics({'latency': self.latency})
+    #     if self.latency:
+    #         self.logger.log_metrics({'latency': self.latency})
 
-        return
+    #     return
 
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -214,7 +217,8 @@ class SegmentationTrainer():
             max_steps=self.max_steps,
             default_root_dir=run_path,
             gpus=self.gpus,
-            callbacks=self.get_training_callbacks(run_path)
+            callbacks=self.get_training_callbacks(run_path),
+            strategy="ddp",
         )
 
         trainer.fit(self.model, self.tr_dataloader, self.val_dataloader)
