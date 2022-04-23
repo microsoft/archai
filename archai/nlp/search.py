@@ -21,8 +21,6 @@ from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import DEVICE_LATE
 from archai.nlp.nas.nas_utils.dispatcher import create_pareto_jobs
 from archai.nlp.nas.baseline_utils import profile_baseline, select_pareto
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Language models Pareto-frontier extraction.')
@@ -221,7 +219,7 @@ def parse_args():
     constraint.add_argument('--device',
                             type=str,
                             default='cpu',
-                            help='device type, cpu or cuda.')
+                            help='Type of device (`cpu` or `cuda`).')
 
     constraint.add_argument('--device_name',
                             type=str,

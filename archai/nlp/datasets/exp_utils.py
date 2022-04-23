@@ -245,6 +245,8 @@ def dataset_dir_name(dataset:str)->str:
         return dataset
     if dataset=='lm1b':
         return 'one-billion-words'
+    if dataset=='web_text':
+        return 'open-web-text'
     if dataset=='enwik8':
         raise RuntimeError(f'dataset "{dataset}" is not supported yet')
     if dataset=='text8':
