@@ -85,8 +85,11 @@ class EvolutionParetoSearch(Searcher):
         # sample the initial population
         unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
 
+        self.iter_num = -1
+
         self.all_pop = unseen_pop
         for i in range(self.num_iters):
+            self.iter_num = i
             logger.info(f'starting evolution pareto iter {i}')
             
             # for the unseen population 
