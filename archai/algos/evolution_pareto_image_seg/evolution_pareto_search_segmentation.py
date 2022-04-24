@@ -38,6 +38,14 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.dataset_name = conf_search['loader']['dataset']['name']
         self.conf_train = conf_search['trainer']
         self.conf_loader = conf_search['loader']
+        self.min_mac = conf_search['min_mac']
+        self.max_mac = conf_search['max_mac']
+        self.min_layers = conf_search['min_layers']
+        self.max_layers = conf_search['max_layers']
+        self.max_downsample_factor = conf_search['max_downsample_factor']
+        self.skip_connections = conf_search['skip_connections']
+        self.max_skip_connection_length = conf_search['max_skip_connection_length']
+        self.max_scale_delta = conf_search['max_scale_delta']
         # endregion
 
         # eval cache so that if search visits
@@ -50,7 +58,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def get_search_space(self)->DiscreteSearchSpaceSegmentation:
-        return DiscreteSearchSpaceSegmentation(self.dataset_name)
+        return DiscreteSearchSpaceSegmentation(self.dataset_name, 
+                                               min_mac=self.min_mac, 
+                                               max_mac=self.max_mac)
 
 
     @overrides
@@ -118,8 +128,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         # train
         dataset_dir = os.path.join(self.dataroot, 'face_synthetics')
-        # TODO: most of these should come from conf
-        # TODO: batch size 16 has lr 2e-4. can we increase batch size? what lr?
         trainer = SegmentationTrainer(arch.arch, 
                                       dataset_dir=dataset_dir, 
                                       max_steps=self.evaluate_for_steps,

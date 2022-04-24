@@ -44,16 +44,25 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   search:
-    init_num_models: 4 # initial random models to seed the search 
+    init_num_models: 20 # initial random models to seed the search 
     num_iters: 3 # number of pareto frontier search iterations 
-    num_random_mix: 4 # how many random models to add to the parent mixture 
+    num_random_mix: 10 # how many random models to add to the parent mixture
+    min_mac: 500000000 # models with mac below will be rejected
+    max_mac: 10000000000 # models with mac above will be rejected
+    min_layers: 1
+    max_layers: 12
+    max_downsample_factor: 32 # must be one of {2, 4, 8, 16, 32}
+    skip_connections: True
+    max_skip_connection_length: 3
+    max_scale_delta: 3 # must be one of {1, 2, 3}
+
     loader:
-      batch_size: 16
+      batch_size: 16 # TODO: batch size 16 has lr 2e-4. can we increase batch size? what lr?
       dataset:
         _copy: '/dataset'
     trainer:
       gpus: 1
-      evaluate_for_steps: 10
+      evaluate_for_steps: 2000
       val_size: 2000
       img_size: 256
       augmentation: 'none'
