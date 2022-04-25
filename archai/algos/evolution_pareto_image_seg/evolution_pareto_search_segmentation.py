@@ -119,6 +119,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         ''' Creates a ray actor that will train a single architecture '''
         # region config
         self.evaluate_for_steps = self.conf_train['evaluate_for_steps']  
+        self.val_check_interval = self.conf_train['val_check_interval']  
         self.val_size = self.conf_train['val_size']
         self.gpus = self.conf_train['gpus']
         self.img_size = self.conf_train['img_size']
@@ -134,6 +135,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         ref = SegmentationTrainer.remote(arch.arch, 
                                       dataset_dir=dataset_dir, 
                                       max_steps=self.evaluate_for_steps,
+                                      val_check_interval=self.val_check_interval,
                                       val_size=self.val_size,
                                       img_size=self.img_size,
                                       augmentation=self.augmentation,
