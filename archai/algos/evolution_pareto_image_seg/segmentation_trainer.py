@@ -219,8 +219,7 @@ class SegmentationTrainer():
             max_steps=self.max_steps,
             default_root_dir=run_path,
             gpus=self.gpus,
-            callbacks=self.get_training_callbacks(run_path),
-            strategy="ddp",
+            callbacks=self.get_training_callbacks(run_path)
         )
 
         trainer.fit(self.model, self.tr_dataloader, self.val_dataloader)
