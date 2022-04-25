@@ -74,7 +74,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         
         for p in tqdm(population):
             
-            # TODO: verify that the unit is ms
             latency_ms = get_onnx_latency(p.arch, img_size=p.arch.img_size)
 
             # TODO: get peak memory of the onnx model
@@ -93,7 +92,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def calc_task_accuracy(self, population:List[ArchWithMetaData])->None:
         # computes task accuracy of each model
         # and updates the meta data
-        # TODO: parallelize it via ray
 
         # folder where to store training logs of each model
         exp_dir = utils.full_path(get_expdir())

@@ -231,6 +231,7 @@ class SegmentationTrainer():
 
         # validate
         # TODO: am I doing this unnecessarily?
+        # if I use validation_end_epoch I get error with self.log_dict
         outputs = []
         with torch.no_grad():
             for bi, b in enumerate(self.val_dataloader): 
