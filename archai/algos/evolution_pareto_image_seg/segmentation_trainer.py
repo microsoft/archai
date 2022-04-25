@@ -2,6 +2,8 @@ from typing import List
 import random
 from pathlib import Path
 
+import ray
+
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -174,7 +176,7 @@ class LightningModelWrapper(pl.LightningModule):
 
         return parent_parser
 
-
+@ray.remote(num_gpus=0.25)
 class SegmentationTrainer():
 
     def __init__(self, model: SegmentationNasModel, dataset_dir: str,
@@ -222,3 +224,32 @@ class SegmentationTrainer():
         )
 
         trainer.fit(self.model, self.tr_dataloader, self.val_dataloader)
+
+    def fit_and_validate(self, run_path: str)->float:
+        # fit
+        self.fit(run_path)
+
+        # validate
+        # TODO: am I doing this unnecessarily?
+        outputs = []
+        with torch.no_grad():
+            for bi, b in enumerate(self.val_dataloader): 
+                print(f'in val loop, batch id {bi}')
+                b['image'] = b['image'].to('cuda')
+                b['mask'] = b['mask'].to('cuda')
+                self.model.to('cuda')
+                outputs.append(self.model.validation_step(b, bi))
+
+        tp = torch.cat([x['tp'] for x in outputs])
+        fp = torch.cat([x['fp'] for x in outputs])
+        fn = torch.cat([x['fn'] for x in outputs])
+        tn = torch.cat([x['tn'] for x in outputs])
+        avg_loss = torch.tensor([x['loss'] for x in outputs]).mean()
+
+        results = get_custom_overall_metrics(tp, fp, fn, tn, stage='validation')
+        
+        f1 = results['validation_overall_f1']
+        return f1
+        
+
+

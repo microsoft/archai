@@ -3,6 +3,7 @@ from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 import random
 import yaml
+import ray
 
 import torch
 
@@ -53,6 +54,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # evaluate it again. 
         self.eval_cache = dict()
 
+        # init ray
+        ray.init()
+
         super().search(conf_search)
 
 
@@ -90,26 +94,30 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # computes task accuracy of each model
         # and updates the meta data
         # TODO: parallelize it via ray
+
+        # folder where to store training logs of each model
+        exp_dir = utils.full_path(get_expdir())
+        save_folder = os.path.join(exp_dir, f'arch_eval_logs_iter_{self.iter_num}')
+        os.makedirs(save_folder, exist_ok=True)
+
+        fit_refs = []
         for p in population:
-            f1 = self._evaluate(p) 
-            p.metadata['f1'] = f1
-            # cache it
-            self.eval_cache[p.metadata['archid']] = f1
-
-
-    def _evaluate(self, arch:ArchWithMetaData)->float:
-        # # DEBUG: simulate architecture evaluation
-        # f1 = random.random()
-        # return f1
+            # create a ray actor per model to be trained
+            actor_ref = self._create_training_job(p)
+            # create a folder name for the model training logs
+            run_path = os.path.join(save_folder, str(p.metadata['archid']))
+            os.makedirs(run_path, exist_ok=True)
+            # fit and validate the model 
+            fit_refs.append(actor_ref.fit_and_validate.remote(run_path=run_path))
         
-        # see if we have visited this arch before
-        if arch.metadata['archid'] in self.eval_cache:
-            logger.info(f"{arch.metadata['archid']} is in cache! Returning from cache.")
-            return self.eval_cache[arch.metadata['archid']].metadata['f1']
-        
-        # if not in cache actually evaluate it
-        # -------------------------------------
+        # gather all results for all models
+        results = ray.get(fit_refs) # TODO: make sure these are ordered otherwise bug
 
+        for r, p in zip(results, population):
+            p.metadata['f1'] = r
+
+    def _create_training_job(self, arch:ArchWithMetaData)->List:
+        ''' Creates a ray actor that will train a single architecture '''
         # region config
         self.evaluate_for_steps = self.conf_train['evaluate_for_steps']  
         self.val_size = self.conf_train['val_size']
@@ -122,13 +130,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.seed = get_conf_common()['seed']
         # region
 
-        if self.gpus < 0:
-            # use all visible gpus
-            self.gpus = torch.cuda.device_count()
-
         # train
         dataset_dir = os.path.join(self.dataroot, 'face_synthetics')
-        trainer = SegmentationTrainer(arch.arch, 
+        ref = SegmentationTrainer.remote(arch.arch, 
                                       dataset_dir=dataset_dir, 
                                       max_steps=self.evaluate_for_steps,
                                       val_size=self.val_size,
@@ -139,31 +143,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                                       criterion_name=self.criterion_name, 
                                       gpus=self.gpus,
                                       seed=self.seed)
-        trainer.fit(run_path=utils.full_path(get_expdir()))
-
-        # validate
-        val_dl = trainer.val_dataloader
-        outputs = []
-        with torch.no_grad():
-            for bi, b in enumerate(tqdm(val_dl)):
-                b['image'] = b['image'].to('cuda')
-                b['mask'] = b['mask'].to('cuda')
-                trainer.model.to('cuda')
-                outputs.append(trainer.model.validation_step(b, bi))
-
-        # this throws a lightning error with self.log_dict
-        # hence copy pasting the code from within the function
-        # results = trainer.model.shared_epoch_end(outputs, stage='validation')
-        tp = torch.cat([x['tp'] for x in outputs])
-        fp = torch.cat([x['fp'] for x in outputs])
-        fn = torch.cat([x['fn'] for x in outputs])
-        tn = torch.cat([x['tn'] for x in outputs])
-        avg_loss = torch.tensor([x['loss'] for x in outputs]).mean()
-        results = get_custom_overall_metrics(tp, fp, fn, tn, stage='validation')
-        
-        f1 = results['validation_overall_f1']
-        return f1
-
+        return ref
 
     @overrides
     def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
