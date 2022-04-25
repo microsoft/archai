@@ -78,6 +78,8 @@ class EvolutionParetoSearch(Searcher):
         
         assert self.init_num_models > 0 
         assert self.num_iters > 0
+        assert self.num_random_mix > 0
+        assert self.max_unseen_population > 0
 
         self.search_space = self.get_search_space()
         assert isinstance(self.search_space, DiscreteSearchSpace)
@@ -139,7 +141,7 @@ class EvolutionParetoSearch(Searcher):
             # shuffle before we pick a smaller population for the next stage
             random.shuffle(unseen_pop)
             logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
-            unseed_pop = unseed_pop[:self.max_unseen_population]
+            unseen_pop = unseen_pop[:self.max_unseen_population]
             logger.info(f'iter {i}: total unseen population after restriction {len(unseen_pop)}')
 
             # update the set of architectures ever visited
