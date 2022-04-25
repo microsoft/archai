@@ -37,14 +37,14 @@ class LightningModelWrapper(pl.LightningModule):
                  model: SegmentationNasModel,
                  criterion_name: str = 'ce',
                  lr: float = 2e-4,
-                 exponential_decay_lr: bool = True,
+                 lr_exp_decay_gamma: float = 0.98,
                  img_size: int = 256):
 
         super().__init__()
 
         self.model = model
         self.lr = lr
-        self.exponential_decay_lr = exponential_decay_lr
+        self.lr_exp_decay_gamma = lr_exp_decay_gamma
         self.latency = None
         self.img_size = img_size
         
@@ -129,13 +129,7 @@ class LightningModelWrapper(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-
-        # TODO: these magic values should get set as arguments
-        # which come from config
-        if self.exponential_decay_lr:
-            scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.973435286)
-        else:
-            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, 10000, eta_min=2e-7, verbose=False)
+        scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=self.lr_exp_decay_gamma)
 
         scheduler = {
             'scheduler': scheduler,
@@ -178,7 +172,9 @@ class SegmentationTrainer():
                  img_size: int = 256,
                  augmentation: str = 'none', batch_size: int = 16,
                  lr: float = 2e-4, criterion_name: str = 'ce', gpus: int = 1,
-                 val_check_interval: Union[int, float] = 0.25, seed: int = 1):
+                 val_check_interval: Union[int, float] = 0.25, 
+                 lr_exp_decay_gamma: float = 0.98,
+                 seed: int = 1):
         torch.manual_seed(seed)
         random.seed(seed)
         np.random.seed(int(seed))
@@ -195,7 +191,7 @@ class SegmentationTrainer():
         self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=4, shuffle=False)
 
         self.model = LightningModelWrapper(model, criterion_name=criterion_name, lr=lr,
-                                           exponential_decay_lr=True, img_size=img_size)
+                                           img_size=img_size, lr_exp_decay_gamma=lr_exp_decay_gamma)
         self.img_size = img_size
         self.gpus = gpus
 
@@ -205,7 +201,7 @@ class SegmentationTrainer():
             mode='max', save_top_k=1, verbose=True,
             monitor='validation_overall_f1',
             filename='{epoch}-{step}-{validation_overall_f1:.2f}'
-        )]
+        ), pl.callbacks.lr_monitor.LearningRateMonitor()]
 
     def fit(self, run_path: str):
         run_path = Path(run_path)

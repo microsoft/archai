@@ -127,6 +127,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.img_size = self.conf_train['img_size']
         self.augmentation = self.conf_train['augmentation']
         self.lr = self.conf_train['lr']
+        self.lr_exp_decay_gamma = self.conf_train['lr_exp_decay_gamma']
         self.criterion_name = self.conf_train['criterion_name']
         self.batch_size = self.conf_loader['batch_size']
         self.seed = get_conf_common()['seed']
@@ -143,6 +144,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                                       augmentation=self.augmentation,
                                       batch_size=self.batch_size,
                                       lr=self.lr,
+                                      lr_exp_decay_gamma=self.lr_exp_decay_gamma,
                                       criterion_name=self.criterion_name, 
                                       gpus=self.gpus,
                                       seed=self.seed)
