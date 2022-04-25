@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 import random
 from pathlib import Path
 
@@ -184,12 +184,13 @@ class SegmentationTrainer():
                  img_size: int = 256,
                  augmentation: str = 'none', batch_size: int = 16,
                  lr: float = 2e-4, criterion_name: str = 'ce', gpus: int = 1,
-                 seed: int = 1):
+                 val_check_interval: Union[int, float] = 0.25, seed: int = 1):
         torch.manual_seed(seed)
         random.seed(seed)
         np.random.seed(int(seed))
 
         self.max_steps = max_steps
+        self.val_check_interval = val_check_interval
         self.data_dir = Path(dataset_dir)
         self.tr_dataset = FaceSynthetics(self.data_dir, subset='train', val_size=val_size,
                                          img_size=(img_size, img_size), augmentation=augmentation)
@@ -219,7 +220,8 @@ class SegmentationTrainer():
             max_steps=self.max_steps,
             default_root_dir=run_path,
             gpus=self.gpus,
-            callbacks=self.get_training_callbacks(run_path)
+            callbacks=self.get_training_callbacks(run_path),
+            val_check_interval=self.val_check_interval
         )
 
         trainer.fit(self.model, self.tr_dataloader, self.val_dataloader)
