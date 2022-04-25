@@ -44,9 +44,10 @@ dataset: {} # default dataset settings comes from __include__ on the top
 
 nas:
   search:
-    init_num_models: 20 # initial random models to seed the search 
+    init_num_models: 10 # initial random models to seed the search 
     num_iters: 3 # number of pareto frontier search iterations 
-    num_random_mix: 3 # how many random models to add to the parent mixture
+    num_random_mix: 10 # how many random models to add to the parent mixture
+    max_unseen_population: 5 # restrict the new population at each iteration to prevent blowing up of models
     min_mac: 500000000 # models with mac below will be rejected
     max_mac: 10000000000 # models with mac above will be rejected
     min_layers: 1
@@ -61,8 +62,8 @@ nas:
       dataset:
         _copy: '/dataset'
     trainer:
-      gpus: 1 # only for single gpu training
-      evaluate_for_steps: 2000
+      gpus: 1 # this many gpus will be used by each lighting trainer. only 1 works at the moment.
+      evaluate_for_steps: 10
       val_size: 2000
       img_size: 256
       augmentation: 'none'
