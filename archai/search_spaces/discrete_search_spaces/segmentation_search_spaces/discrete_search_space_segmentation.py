@@ -130,8 +130,6 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
             # compile the model
             model = SegmentationNasModel.from_config(graph, channels_per_scale)
-            # TODO: these should come from config or elsewhere 
-            # such that they are not hardcoded in here
             out_shape = model.validate_forward(torch.randn(1, 3, model.img_size, model.img_size)).shape
             assert out_shape == torch.Size([1, 19, model.img_size, model.img_size])
             extradata = {
