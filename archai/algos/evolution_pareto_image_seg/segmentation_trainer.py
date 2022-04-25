@@ -144,15 +144,9 @@ class LightningModelWrapper(pl.LightningModule):
 
         return [optimizer], [scheduler]
 
-    # def on_train_start(self) -> None:
-    #     # These two lines generate a trace
-    #     sample = torch.randn((1, 3, self.img_size, self.img_size)).to(self.device)
-    #     self.logger.experiment.add_graph(self.model, sample)
-
-    #     if self.latency:
-    #         self.logger.log_metrics({'latency': self.latency})
-
-    #     return
+    def on_train_start(self) -> None:
+        sample = torch.randn((1, 3, self.img_size, self.img_size)).to(self.device)
+        self.logger.experiment.add_graph(self.model, sample)
 
     @staticmethod
     def add_model_specific_args(parent_parser):
