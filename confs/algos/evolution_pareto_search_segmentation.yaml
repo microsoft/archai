@@ -69,3 +69,4 @@ nas:
       augmentation: 'none'
       lr: 0.0002
       criterion_name: 'ce'
+      val_check_interval: 0.25 # how often to evaluate validation accuracy per epoch
