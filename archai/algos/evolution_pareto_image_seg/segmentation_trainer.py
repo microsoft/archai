@@ -176,7 +176,7 @@ class LightningModelWrapper(pl.LightningModule):
 
         return parent_parser
 
-@ray.remote(num_gpus=0.25)
+@ray.remote(num_gpus=0.2)
 class SegmentationTrainer():
 
     def __init__(self, model: SegmentationNasModel, dataset_dir: str,
@@ -234,7 +234,6 @@ class SegmentationTrainer():
         outputs = []
         with torch.no_grad():
             for bi, b in enumerate(self.val_dataloader): 
-                print(f'in val loop, batch id {bi}')
                 b['image'] = b['image'].to('cuda')
                 b['mask'] = b['mask'].to('cuda')
                 self.model.to('cuda')
@@ -249,7 +248,7 @@ class SegmentationTrainer():
         results = get_custom_overall_metrics(tp, fp, fn, tn, stage='validation')
         
         f1 = results['validation_overall_f1']
-        return f1
+        return f1.to('cpu').item()
         
 
 

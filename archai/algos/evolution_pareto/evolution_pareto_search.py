@@ -1,8 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from overrides.overrides import overrides
 
-import abc
-import math as ma
+import random
 from typing import Tuple, List
 
 import torch.nn as nn
@@ -75,6 +74,7 @@ class EvolutionParetoSearch(Searcher):
         self.init_num_models = conf_search['init_num_models']
         self.num_iters = conf_search['num_iters']
         self.num_random_mix = conf_search['num_random_mix']
+        self.max_unseen_population = conf_search['max_unseen_population']
         
         assert self.init_num_models > 0 
         assert self.num_iters > 0
@@ -136,7 +136,11 @@ class EvolutionParetoSearch(Searcher):
             rand_mix = self._sample_random_to_mix()
 
             unseen_pop = crossovered + mutated + rand_mix
-            logger.info(f'iter {i}: total unseen population {len(unseen_pop)}')
+            # shuffle before we pick a smaller population for the next stage
+            random.shuffle(unseen_pop)
+            logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
+            unseed_pop = unseed_pop[:self.max_unseen_population]
+            logger.info(f'iter {i}: total unseen population after restriction {len(unseen_pop)}')
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)
