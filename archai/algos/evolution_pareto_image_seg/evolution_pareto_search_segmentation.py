@@ -111,10 +111,11 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             fit_refs.append(actor_ref.fit_and_validate.remote(run_path=run_path))
         
         # gather all results for all models
-        results = ray.get(fit_refs) # TODO: make sure these are ordered otherwise bug
+        results = ray.get(fit_refs)
 
         for r, p in zip(results, population):
             p.metadata['f1'] = r
+
 
     def _create_training_job(self, arch:ArchWithMetaData)->List:
         ''' Creates a ray actor that will train a single architecture '''
