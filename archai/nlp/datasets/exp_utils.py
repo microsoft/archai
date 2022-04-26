@@ -253,6 +253,10 @@ def get_create_dirs(dataroot:Optional[str], dataset_name:str,
                     pretrained_path:Optional[str]=None, cache_dir:Optional[str]=None)->Tuple[str,str,str,str,str]:
 
     pt_data_dir, pt_output_dir = common.pt_dirs()
+
+    if pt_output_dir and pretrained_path:
+        pretrained_path = os.path.join(os.path.dirname(pt_output_dir), pretrained_path)
+
     if pt_output_dir:
         pt_output_dir = os.path.join(pt_output_dir, experiment_name)
     dataroot = dataroot or pt_data_dir or common.default_dataroot()
@@ -267,9 +271,6 @@ def get_create_dirs(dataroot:Optional[str], dataset_name:str,
         cache_dir = os.path.join(dataset_dir, cache_dir)
     
     cache_dir = utils.full_path(cache_dir, create=True)
-
-    if not os.path.isabs(pretrained_path) and pretrained_path:
-        pretrained_path = os.path.join(os.path.dirname(output_dir), pretrained_path)
 
     return dataset_dir, output_dir, pretrained_path, cache_dir, dataroot
 

@@ -14,6 +14,8 @@ from archai.nlp.datasets.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.datasets.tokenizer_utils.gpt2_vocab import Gpt2Vocab
 
 from archai.nlp.datasets.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
+from archai.nlp.datasets.lm_dataset import LMDataset
+from torch.utils.data import DataLoader
 
 
 @dataclass
@@ -123,7 +125,7 @@ class Corpus:
 
     def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
         train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
-        return (Corpus._get_file_stats(train_filepath), \
+        return (None, \
                 Corpus._get_file_stats(valid_filepath), \
                 Corpus._get_file_stats(test_filepath))
 
@@ -201,8 +203,11 @@ class Corpus:
     def get_iterator(self, split, batch_size, tgt_len, device, ext_len, mem_len=None):
         if split == 'train':
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
-                data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
-                                              device=device, ext_len=ext_len, mem_len=mem_len)
+                # data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
+                #                               device=device, ext_len=ext_len, mem_len=mem_len)
+
+                data_iter = LMDataset(self.train, batch_size, tgt_len, device=device, ext_len=ext_len, mem_len=mem_len)
+                data_iter = DataLoader(data_iter, batch_size=batch_size, shuffle=True)
             elif self.dataset == 'lm1b':
                 data_iter = LMMultiFileIterator(self.train, self.vocab, batch_size, tgt_len,
                                                 device=device, ext_len=ext_len, mem_len=mem_len)
@@ -212,8 +217,10 @@ class Corpus:
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
-                data_iter = LMOrderedIterator(data, batch_size, tgt_len,
-                                              device=device, ext_len=ext_len, mem_len=mem_len)
+                # data_iter = LMOrderedIterator(data, batch_size, tgt_len,
+                #                               device=device, ext_len=ext_len, mem_len=mem_len)
+                data_iter = LMDataset(data, batch_size, tgt_len, device=device, ext_len=ext_len, mem_len=mem_len)
+                data_iter = DataLoader(data_iter, batch_size=batch_size, shuffle=True)
             elif self.dataset == 'lm1b':
                 data_iter = LMShuffledIterator(data, batch_size, tgt_len,
                                                device=device, ext_len=ext_len, mem_len=mem_len)

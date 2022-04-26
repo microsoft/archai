@@ -27,6 +27,7 @@ import yaml
 from archai.common import ml_perf_utils, utils
 from archai.nlp.models.model_mixed_qat import MixedQATModel
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
+from archai.nlp.compression.quantization.modules import FakeDynamicQuantHFConv1DForOnnx, FakeDynamicQuantLinearForOnnx, FakeQuantEmbeddingForOnnx
 from archai.nlp.models.model_loader import (load_model_from_config,
                                            load_model_from_checkpoint)
 from archai.nlp.compression.quantization.qat import (prepare_with_qat,
@@ -41,6 +42,109 @@ from archai.nlp.models.model_base import ArchaiModel
 from archai.nlp.models.model_utils import lamb_optimizer
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from torch.nn.parallel import DistributedDataParallel
+
+from onnxruntime.transformers import quantize_helper
+
+
+from transformers.modeling_utils import Conv1D
+from opacus.grad_sample import register_grad_sampler
+import opacus
+from opacus.utils.batch_memory_manager import BatchMemoryManager
+
+@register_grad_sampler(FakeDynamicQuantHFConv1DForOnnx)
+def compute_quant_transformers_conv1d_grad_sample(
+    layer: FakeDynamicQuantHFConv1DForOnnx, A: torch.Tensor, B: torch.Tensor, batch_dim: int = 0
+) -> None:
+    gs = (torch.einsum("n...i,n...j->nji", B, A) * layer.weight_fake_quant.mask).contiguous()
+    ret = {layer.weight: gs}
+
+    if layer.bias is not None:
+        ret[layer.bias] = torch.einsum("n...k->nk", B)
+
+    return ret
+
+@register_grad_sampler(FakeDynamicQuantLinearForOnnx)
+def compute_quant_lin_grad_sample(
+    layer: FakeDynamicQuantLinearForOnnx, A: torch.Tensor, B: torch.Tensor, batch_dim: int = 0
+) -> None:
+
+    gs = torch.einsum("n...i,n...j->nij", B, A) * layer.weight_fake_quant.mask
+    ret = {layer.weight: gs}
+
+    if layer.bias is not None:
+        ret[layer.bias] = torch.einsum("n...k->nk", B)
+
+    return ret
+
+@register_grad_sampler(FakeQuantEmbeddingForOnnx)
+def compute_quant_emb_grad_sample(layer: FakeQuantEmbeddingForOnnx, activations: torch.Tensor, backprops: torch.Tensor, batch_dim: int = 0) -> None:
+
+    saved = torch.backends.cudnn.deterministic
+    torch.backends.cudnn.deterministic = True
+
+    batch_size = activations.shape[0]
+    index = (
+        activations.unsqueeze(-1)
+        .expand(*activations.shape, layer.embedding_dim)
+        .reshape(batch_size, -1, layer.embedding_dim)
+    )
+    grad_sample = torch.zeros(
+        batch_size, *layer.weight.shape, device=layer.weight.device
+    )
+    grad_sample.scatter_add_(
+        1, index, backprops.reshape(batch_size, -1, layer.embedding_dim)
+    )
+
+    grad_sample *= layer.weight_fake_quant.mask
+    torch.backends.cudnn.deterministic = saved
+
+    return {layer.weight: grad_sample}
+
+
+@register_grad_sampler(Conv1D)
+def compute_transformers_conv1d_grad_sample(
+    layer: Conv1D, A: torch.Tensor, B: torch.Tensor, batch_dim: int = 0
+) -> None:
+    gs = torch.einsum("n...i,n...j->nji", B, A).contiguous()
+    ret = {layer.weight: gs}
+
+    if layer.bias is not None:
+        ret[layer.bias] = torch.einsum("n...k->nk", B)
+
+    return ret
+
+
+
+def _grad_sampler_get_attr(self, item):
+    try:
+        return super(opacus.GradSampleModule, self).__getattr__(item)
+    except AttributeError as e:
+        submodules = dict(self._module.named_modules())
+        if item and item in submodules:
+            return submodules[item]
+
+        if hasattr(self._module, item):
+            return getattr(self._module, item)
+        
+        raise e
+
+def _grad_sampler_promote_current_grad_sample(p: nn.Parameter) -> None:
+    if p.requires_grad:
+        if p.grad_sample is not None:
+            if isinstance(p.grad_sample, list):
+                p.grad_sample.append(p._current_grad_sample)
+            else:
+                p.grad_sample += p._current_grad_sample
+        else:
+            p.grad_sample = p._current_grad_sample
+
+        del p._current_grad_sample
+
+opacus.GradSampleModule.__getattr__ = _grad_sampler_get_attr
+opacus.grad_sample.grad_sample_module.promote_current_grad_sample = _grad_sampler_promote_current_grad_sample
+
+import torch
+import torch.nn as nn
 
 
 def parse_args():
@@ -128,7 +232,7 @@ def parse_args():
     general.add_argument('--cache_dir', default='cache', type=str,
                          help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100', 'olx_WordData20211003_VO'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -193,7 +297,7 @@ def parse_args():
 
     opt = parser.add_argument_group('optimizer setup')
     opt.add_argument('--optim', default='jitlamb', type=str,
-                     choices=['adam', 'sgd', 'adagrad', 'lamb', 'jitlamb'],
+                     choices=['adam', 'sgd', 'adagrad', 'lamb', 'jitlamb', 'adamax'],
                      help='Optimizer to use')
     opt.add_argument('--lr', type=float, default=0.01,
                      help='Initial learning rate')
@@ -259,6 +363,10 @@ def parse_args():
                           help='Use variable length')
     training.add_argument('--swap_mem', action='store_true',
                           help='Swap memory tensors to cpu')
+    training.add_argument('--diffp', action='store_true',
+                          help='Trains with differential privacy')
+    training.add_argument('--noise_multiplier', type=float, default=1.1,
+                     help='Differential privacy noise multiplier')
 
     val = parser.add_argument_group('validation setup')
     val.add_argument('--eval_tgt_len', type=int, default=192,
@@ -376,7 +484,7 @@ def update_dropatt(m, args):
         m.dropatt.p = args.dropatt
 
 
-def evaluate(eval_iter, model, args, eval_nomem=True):
+def evaluate(eval_iter, model, args, device, eval_nomem=True):
     # Turn on evaluation mode which disables dropout.
     model.eval()
 
@@ -400,6 +508,10 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
     with torch.no_grad():
         mems = None
         for batches, (input_ids, labels, seq_len, warm) in enumerate(eval_iter):
+
+            input_ids = input_ids.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
+
             steps += 1
             if args.eval_max_steps > 0 and i >= args.eval_max_steps:
                 break
@@ -416,13 +528,13 @@ def evaluate(eval_iter, model, args, eval_nomem=True):
                 loss_nomem = loss_nomem.float().mean()
 
             total_len_nowarmup += numel
-            if warm:
-                # assert (mems is None) or mems.size(1) == model.mem_len
-                total_loss += numel * loss.item()
-                total_len += numel
+            
+            # assert (mems is None) or mems.size(1) == model.mem_len
+            total_loss += numel * loss.item()
+            total_len += numel
 
-                if eval_nomem:
-                    total_loss_nomem += numel * loss_nomem.item()
+            if eval_nomem:
+                total_loss_nomem += numel * loss_nomem.item()
 
     elapsed = time.time() - start_time
 
@@ -500,7 +612,7 @@ def train_iteration(model, i, mems, input_ids_chunks, labels_chunks, scaler,
 def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
           optimizer_sparse, scheduler, scheduler_sparse, scaler, vocab, epoch,
           last_batch, last_iter, train_step, best_val_loss, meters,
-          device, args, valid_file_stats):
+          device, args, valid_file_stats, privacy_engine):
     # Turn on training mode which enables dropout.
     model.train()
 
@@ -511,197 +623,231 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
 
     mems = [None for _ in range(args.batch_chunk)]
     # Changes to make train_iter for lm1b to be properly caught
-    if args.dataset != 'lm1b':
-        if args.varlen:
-            train_iter = train_itr.get_varlen_iter(start=last_iter)
-        else:
-            train_iter = train_itr.get_fixlen_iter(start=last_iter)
-    else:
-        train_iter = train_itr
+    # if args.dataset != 'lm1b':
+    #     if args.varlen:
+    #         train_iter = train_itr.get_varlen_iter(start=last_iter)
+    #     else:
+    #         train_iter = train_itr.get_fixlen_iter(start=last_iter)
+    # else:
+    #     train_iter = train_itr
 
+    train_iter = train_itr
+
+    # print(f'Last iter start: {last_iter}')
+    # if args.dataset != 'lm1b':
+    #     if args.varlen:
+    #         train_iter = train_itr.get_varlen_iter(start=last_iter)
+    #     else:
+    #         train_iter = train_itr.get_fixlen_iter(start=last_iter)
+    # else:
+    #     train_iter = train_itr
+
+    max_physical_batch_size = 256
+    real_virtual_batch_rate = args.batch_size / max_physical_batch_size
+    DELTA = 1 / (len(train_iter) * args.batch_size)
     logging.info('Starting training...')
-    for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
-        log_step += 1
-        labels_tokens += labels.numel()
+    with BatchMemoryManager(data_loader=train_iter, max_physical_batch_size=max_physical_batch_size, optimizer=optimizer) as new_train_iter:
+        for batch, (input_ids, labels, seq_len, _) in enumerate(new_train_iter, start=last_batch+1):
 
-        for param in model.parameters():
-            param.grad = None
+            virtual_batch = int(batch / real_virtual_batch_rate)
+            input_ids = input_ids.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
 
-        # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
-        input_ids_chunks = torch.chunk(input_ids, args.batch_chunk, 0)
-        labels_chunks = torch.chunk(labels, args.batch_chunk, 0)
+            log_step += 1
+            labels_tokens += labels.numel()
 
-        for i in range(args.batch_chunk):
-            # if this is last chunk and distribued mode then use delay_unscale=True for amp
-            if i < args.batch_chunk - 1 and isinstance(para_model, DistributedDataParallel):
-                with para_model.no_sync():
+            optimizer.zero_grad(set_to_none=True)
+
+            # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
+            input_ids_chunks = torch.chunk(input_ids, args.batch_chunk, 0)
+            labels_chunks = torch.chunk(labels, args.batch_chunk, 0)
+
+            for i in range(args.batch_chunk):
+                # if this is last chunk and distribued mode then use delay_unscale=True for amp
+                if i < args.batch_chunk - 1 and isinstance(para_model, DistributedDataParallel):
+                    with para_model.no_sync():
+                        train_loss_chunk = train_iteration(
+                            para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
+                            optimizer, device, True, args
+                        )
+                else:
                     train_loss_chunk = train_iteration(
                         para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                        optimizer, device, True, args
+                        optimizer, device, False, args
                     )
+
+                train_loss += train_loss_chunk
+
+            if args.fp16:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
             else:
-                train_loss_chunk = train_iteration(
-                    para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                    optimizer, device, False, args
-                )
+                torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
 
-            train_loss += train_loss_chunk
-
-        if args.fp16:
-            scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
-        else:
-            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
-
-        if args.fp16:
-            scaler.step(optimizer)
-            scaler.update()
-        else:
-            optimizer.step()
-            if optimizer_sparse:
-                optimizer_sparse.step()
-
-        # step-wise learning rate annealing
-        train_step += 1
-        if args.scheduler in ['cosine', 'constant', 'dev_perf']:
-            # linear warmup stage
-            if train_step < args.warmup_step:
-                curr_lr = args.lr * train_step / args.warmup_step
-                optimizer.param_groups[0]['lr'] = curr_lr
+            if args.fp16:
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                optimizer.step()
                 if optimizer_sparse:
-                    optimizer_sparse.param_groups[0]['lr'] = curr_lr * 2
-            else:
-                if args.scheduler == 'cosine':
-                    scheduler.step(train_step - args.warmup_step)
-                    if scheduler_sparse:
-                        scheduler_sparse.step(train_step - args.warmup_step)
-        elif args.scheduler in ['inv_sqrt', 'cyclic_cosine']:
-            scheduler.step(train_step)
-            if scheduler_sparse:
-                scheduler_sparse.step(train_step)
+                    optimizer_sparse.step()
 
-        if train_step % args.log_interval == 0:
-            cur_loss = train_loss / log_step
-            cur_loss = nv_distributed.all_reduce_item(cur_loss, op='mean')
-            train_loss = 0
+            # step-wise learning rate annealing
+            train_step += 1
+            virtual_train_step = train_step / real_virtual_batch_rate
 
-            elapsed = time.time() - log_start_time
-            avg_elapsed = elapsed / log_step
-            avg_elapsed = nv_distributed.all_reduce_item(avg_elapsed, op='max')
-            log_start_time = time.time()
-            log_step = 0
+            if virtual_train_step != int(virtual_train_step):
+                continue
 
-            lr = optimizer.param_groups[0]['lr']
-            throughput = labels_tokens / elapsed
-            throughput = nv_distributed.all_reduce_item(throughput, op='sum')
-            meters['train_throughput'].update(throughput)
-            labels_tokens = 0
+            virtual_train_step = int(virtual_train_step)
 
-            log_str = '| epoch {:3d} step {:>8d} | batches {:>6d} / {:d} | lr {:.3e} ' \
-                '| ms/batch {:5.1f} | tok/s {:7.0f} | loss {:5.2f}'.format(
-                    epoch,
-                    train_step,
-                    batch,
-                    train_itr.n_batch,
-                    lr,
-                    avg_elapsed * 1000,
-                    throughput,
-                    cur_loss,
-                    )
-
-            dllogger_data = {
-                'epoch': epoch,
-                'train_batch': batch+1,
-                'lr': lr,
-                'train_time/batch': avg_elapsed * 1000,
-                'train_throughput': throughput,
-                'train_loss': cur_loss,
-                }
-
-            if args.dataset in ['enwik8', 'text8']:
-                log_str += ' | bpc {:9.5f}'.format(cur_loss / math.log(2))
-                dllogger_data['train_bits_per_character'] = cur_loss / math.log(2)
-            else:
-                log_str += ' | ppl {:9.2f}'.format(math.exp(cur_loss))
-                dllogger_data['train_perplexity'] = math.exp(cur_loss)
-
-            logging.info(log_str)
-            dllogger.log(step=tuple([train_step]), data=dllogger_data)
-
-        do_periodic_eval = train_step % args.eval_interval == 0
-        is_final_step = train_step == args.max_step
-        interrupted = False #timeout_handler.interrupted
-
-        if (do_periodic_eval or is_final_step or interrupted) and not args.no_eval:
-            eval_start_time = time.time()
-            node_metrix = evaluate(valid_itr, model, args, eval_nomem=False)
-            val_metrix = EvalMetrics(valid_file_stats.word_count, *node_metrix)
-
-            logging.info('-' * 100)
-            log_str = '| Eval {:3d} at step {:>8d} | time: {:5.2f}s ' \
-                      '| loss {:5.2f} | word ppl {:5.2f}'.format(
-                          train_step // args.eval_interval,
-                          train_step,
-                          (time.time() - eval_start_time),
-                          val_metrix.avg_loss, val_metrix.word_ppl
-                          )
-
-            dllogger_data = {
-                'valid_elapsed': (time.time() - eval_start_time),
-                'valid_loss': val_metrix.avg_loss,
-                'valid_ppl': val_metrix.ppl,
-                'valid_word_ppl': val_metrix.word_ppl
-                }
-
-            if args.dataset in ['enwik8', 'text8']:
-                log_str += ' | bpc {:9.5f}'.format(val_metrix.bpc)
-                dllogger_data['valid_bits_per_character'] = val_metrix.bpc
-            else:
-                log_str += ' | ppl {:9.3f}'.format(val_metrix.ppl)
-                dllogger_data['valid_perplexity'] = val_metrix.ppl
-            logging.info(log_str)
-            logging.info('-' * 100)
-            dllogger.log(step=tuple([train_step]), data=dllogger_data)
-
-            last_iter = train_itr.last_iter
-
-            # Check if the validation loss is the best we've seen so far.
-            is_best = False
-            if not best_val_loss or val_metrix.avg_loss < best_val_loss:
-                best_val_loss = val_metrix.avg_loss
-                is_best = True
-
-            model_to_save = model
-            prefix = ''
-
-            if args.qat:
-                # Convert the model to a regular FP32 model for saving
-                model_float = copy.deepcopy(model)
-                model_float = qat_to_float_modules(model_float)
-                model_to_save = model_float
-                prefix = 'qat_'
-
-            save_checkpoint(args, model_to_save, model_config, optimizer, scheduler,
-                            scaler, vocab, epoch, batch, last_iter,
-                            train_step, best_val_loss, is_best,
-                            args.work_dir, prefix=prefix)
-
-            # dev-performance based learning rate annealing
-            if args.scheduler == 'dev_perf':
-                scheduler.step(val_metrix.avg_loss)
+            if args.scheduler in ['cosine', 'constant', 'dev_perf']:
+                # linear warmup stage
+                if virtual_train_step < args.warmup_step:
+                    curr_lr = args.lr * virtual_train_step / args.warmup_step
+                    optimizer.param_groups[0]['lr'] = curr_lr
+                    if optimizer_sparse:
+                        optimizer_sparse.param_groups[0]['lr'] = curr_lr * 2
+                else:
+                    if args.scheduler == 'cosine':
+                        scheduler.step(virtual_train_step - args.warmup_step)
+                        if scheduler_sparse:
+                            scheduler_sparse.step(virtual_train_step - args.warmup_step)
+            elif args.scheduler in ['inv_sqrt', 'cyclic_cosine']:
+                scheduler.step(virtual_train_step)
                 if scheduler_sparse:
-                    scheduler_sparse.step(val_metrix.avg_loss)
+                    scheduler_sparse.step(virtual_train_step)
 
-            # subtract eval time from timers for training
-            log_start_time += time.time() - eval_start_time
+            if virtual_train_step % args.log_interval == 0:
+                cur_loss = train_loss / log_step
+                cur_loss = nv_distributed.all_reduce_item(cur_loss, op='mean')
+                train_loss = 0
 
-        if interrupted:
-            logging.info(f'Received SIGTERM, exiting')
-            sys.exit(0)
+                elapsed = time.time() - log_start_time
+                avg_elapsed = elapsed / log_step
+                avg_elapsed = nv_distributed.all_reduce_item(avg_elapsed, op='max')
+                log_start_time = time.time()
+                log_step = 0
 
-        if is_final_step:
-            break
-    return train_step, best_val_loss
+                lr = optimizer.param_groups[0]['lr']
+                throughput = labels_tokens / elapsed
+                throughput = nv_distributed.all_reduce_item(throughput, op='sum')
+                meters['train_throughput'].update(throughput)
+                labels_tokens = 0
+
+                log_str = '| epoch {:3d} step {:>8d} | batches {:>6d} / {:d} | lr {:.3e} ' \
+                    '| ms/batch {:5.1f} | tok/s {:7.0f} | loss {:5.2f}'.format(
+                        epoch,
+                        virtual_train_step,
+                        virtual_batch,
+                        len(train_itr),
+                        # train_itr.n_batch,
+                        lr,
+                        avg_elapsed * 1000,
+                        throughput,
+                        cur_loss,
+                        )
+
+                dllogger_data = {
+                    'epoch': epoch,
+                    'train_batch': virtual_batch+1,
+                    'lr': lr,
+                    'train_time/batch': avg_elapsed * 1000,
+                    'train_throughput': throughput,
+                    'train_loss': cur_loss,
+                    }
+
+                if args.dataset in ['enwik8', 'text8']:
+                    log_str += ' | bpc {:9.5f}'.format(cur_loss / math.log(2))
+                    dllogger_data['train_bits_per_character'] = cur_loss / math.log(2)
+                else:
+                    log_str += ' | ppl {:9.2f}'.format(math.exp(cur_loss))
+                    dllogger_data['train_perplexity'] = math.exp(cur_loss)
+
+                logging.info(log_str)
+                dllogger.log(step=tuple([virtual_train_step]), data=dllogger_data)
+
+            do_periodic_eval = virtual_train_step % args.eval_interval == 0
+            is_final_step = virtual_train_step == args.max_step
+            interrupted = False #timeout_handler.interrupted
+
+            if (do_periodic_eval or is_final_step or interrupted) and not args.no_eval:
+                eval_start_time = time.time()
+                node_metrix = evaluate(valid_itr, model, args, device, eval_nomem=False)
+                val_metrix = EvalMetrics(valid_file_stats.word_count, *node_metrix)
+
+                logging.info('-' * 100)
+                log_str = '| Eval {:3d} at step {:>8d} | time: {:5.2f}s ' \
+                        '| loss {:5.2f} | word ppl {:5.2f}'.format(
+                            virtual_train_step // args.eval_interval,
+                            virtual_train_step,
+                            (time.time() - eval_start_time),
+                            val_metrix.avg_loss, val_metrix.word_ppl
+                            )
+
+                dllogger_data = {
+                    'valid_elapsed': (time.time() - eval_start_time),
+                    'valid_loss': val_metrix.avg_loss,
+                    'valid_ppl': val_metrix.ppl,
+                    'valid_word_ppl': val_metrix.word_ppl
+                    }
+
+                if args.dataset in ['enwik8', 'text8']:
+                    log_str += ' | bpc {:9.5f}'.format(val_metrix.bpc)
+                    dllogger_data['valid_bits_per_character'] = val_metrix.bpc
+                else:
+                    log_str += ' | ppl {:9.3f}'.format(val_metrix.ppl)
+                    dllogger_data['valid_perplexity'] = val_metrix.ppl
+                logging.info(log_str)
+                if args.diffp:
+                    logging.info(f'Differential privacy epsilon: {privacy_engine.get_epsilon(DELTA):.2f}')
+                logging.info('-' * 100)
+                dllogger.log(step=tuple([virtual_train_step]), data=dllogger_data)
+
+                # last_iter = train_itr.last_iter
+                last_iter = (virtual_batch-1) * args.tgt_len
+                # print(f'last_iter {last_iter} - batch: {batch}')
+
+                # Check if the validation loss is the best we've seen so far.
+                is_best = False
+                if not best_val_loss or val_metrix.avg_loss < best_val_loss:
+                    best_val_loss = val_metrix.avg_loss
+                    is_best = True
+
+                model_to_save = model
+                prefix = ''
+
+                if args.qat:
+                    # Convert the model to a regular FP32 model for saving
+                    model_float = copy.deepcopy(model)
+                    model_float = qat_to_float_modules(model_float)
+                    model_to_save = model_float
+                    prefix = 'qat_'
+
+                # if args.diffp:
+                #     model_to_save = copy.deepcopy(model).to_standard_module()
+
+                save_checkpoint(args, model_to_save, model_config, optimizer, scheduler,
+                                scaler, vocab, epoch, virtual_batch, last_iter,
+                                virtual_train_step, best_val_loss, is_best,
+                                args.work_dir, prefix=prefix)
+
+                # dev-performance based learning rate annealing
+                if args.scheduler == 'dev_perf':
+                    scheduler.step(val_metrix.avg_loss)
+                    if scheduler_sparse:
+                        scheduler_sparse.step(val_metrix.avg_loss)
+
+                # subtract eval time from timers for training
+                log_start_time += time.time() - eval_start_time
+
+            if interrupted:
+                logging.info(f'Received SIGTERM, exiting')
+                sys.exit(0)
+
+            if is_final_step:
+                break
+    return virtual_train_step, best_val_loss
 
 
 def init():
@@ -926,6 +1072,10 @@ def create_optimizer(args, model):
         optimizer = lamb_optimizer.Lamb(model.parameters(), lr=args.lr,
                               weight_decay=args.weight_decay)
         optimizer_sparse = None
+    elif args.optim.lower() == 'adamax':
+        optimizer = optim.Adamax(model.parameters(), lr=args.lr,
+                              weight_decay=args.weight_decay)
+        optimizer_sparse = None
     elif args.optim.lower() == 'jitlamb':
         optimizer = lamb_optimizer.JITLamb(model.parameters(), lr=args.lr,
                                  weight_decay=args.weight_decay)
@@ -1035,7 +1185,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
 
 def train_main(args, device, train_itr, valid_itr, model, para_model, model_config,
                 optimizer, optimizer_sparse, scheduler,
-                scheduler_sparse, scaler, vocab, valid_file_stats):
+                scheduler_sparse, scaler, vocab, valid_file_stats, privacy_engine):
     train_step = 0
     start_epoch = 1
     last_batch = 0
@@ -1078,14 +1228,14 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
     start_time = time.time()
     try:
         for epoch in itertools.count(start=start_epoch):
-            if args.roll: # enable random shifts in datasets
-                train_itr.roll(seed=args.seed + epoch)
+            # if args.roll: # enable random shifts in datasets
+            #     train_itr.roll(seed=args.seed + epoch)
             train_step, best_val_loss = train(
                 train_itr, valid_itr, model, para_model, model_config,
                 optimizer, optimizer_sparse, scheduler,
                 scheduler_sparse, scaler, vocab, epoch, last_batch,
                 last_iter, train_step, best_val_loss, meters,
-                device, args, valid_file_stats
+                device, args, valid_file_stats, privacy_engine
                 )
 
             last_batch = 0
@@ -1113,7 +1263,7 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
     return elapsed, best_val_loss, meters
 
 
-def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
+def evaluate_main(args, model, checkpoint_path:str, test_itr, device, test_file_stats):
     n_params = model.get_params()
     summary = {
         'n_all_param': n_params['total'],
@@ -1126,7 +1276,7 @@ def evaluate_main(args, model, checkpoint_path:str, test_itr, test_file_stats):
 
         # Run on test data
         test_start_time = time.time()
-        node_metrix = evaluate(test_itr, model, args, eval_nomem=True)
+        node_metrix = evaluate(test_itr, model, args, device, eval_nomem=True)
         test_metrix = EvalMetrics(test_file_stats.word_count, *node_metrix)
 
         test_elapsed = time.time() - test_start_time
@@ -1177,6 +1327,18 @@ def main():
     ntokens = len(vocab)
     model, model_config = create_or_load_model(args, device, ntokens)
 
+
+    # for layer in model.model.transformer.h:
+    #     quantize_helper.conv1d_to_linear(layer.mlp)
+
+    # quantize_helper.conv1d_to_linear(model)
+
+
+    from opacus.validators import ModuleValidator
+
+    errors = ModuleValidator.validate(model, strict=False)
+    print(errors)
+
     # create optimizer
     optimizer, optimizer_sparse = create_optimizer(args, model)
 
@@ -1188,21 +1350,46 @@ def main():
     # enable distributed training
     para_model, model = distributed_model(args, model, device)
 
+    privacy_engine = None
+
+    if args.diffp:
+        from opacus import PrivacyEngine
+
+        privacy_engine = PrivacyEngine()
+
+        MAX_GRAD_NORM = 1.0
+        EPSILON = 1.0
+        DELTA = 1e-5
+        EPOCHS = 1
+
+        para_model, optimizer, train_itr = privacy_engine.make_private(
+            module=para_model,
+            optimizer=optimizer,
+            data_loader=train_itr,
+            noise_multiplier=args.noise_multiplier,
+            max_grad_norm=MAX_GRAD_NORM,
+        )
+
     # create scheduler
     scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
     training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
         model_config, optimizer, optimizer_sparse, scheduler,
-        scheduler_sparse, scaler, vocab, file_stats[1])
+        scheduler_sparse, scaler, vocab, file_stats[1], privacy_engine)
 
     checkpoint_path = os.path.join(args.work_dir, 'checkpoint_best.pt' if not args.qat else 'qat_checkpoint_best.pt')
-    summary = evaluate_main(args, model, checkpoint_path, test_itr, file_stats[-1])
+    summary = evaluate_main(args, model, checkpoint_path, test_itr, device, file_stats[-1])
 
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
 
     input_ids, *_ = next(iter(valid_itr))
     model.to('cpu')
+
+    if args.diffp:
+        # model = model.to_standard_module()
+        pass
+    
     input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
     _, process_mem = ml_perf_utils.model_memory(

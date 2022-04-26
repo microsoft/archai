@@ -10,7 +10,7 @@ import torch
 import transformers
 from torch.nn import functional as F
 
-from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant
+from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant, FakeDynamicQuantPython
 
 
 class FakeQuantEmbedding(torch.nn.Embedding):
@@ -28,7 +28,7 @@ class FakeQuantEmbedding(torch.nn.Embedding):
 
         super().__init__(*args, **kwargs)
 
-        self.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+        self.weight_fake_quant = FakeDynamicQuantPython(dtype=torch.qint8,
                                                   reduce_range=False,
                                                   bits=bits,
                                                   onnx_compatible=onnx_compatible)
@@ -142,12 +142,12 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
         self.dynamic_weight = dynamic_weight
 
         if dynamic_weight:
-            self.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+            self.weight_fake_quant = FakeDynamicQuantPython(dtype=torch.qint8,
                                                       reduce_range=False,
                                                       bits=bits,
                                                       onnx_compatible=onnx_compatible)
 
-        self.input_pre_process = FakeDynamicQuant(reduce_range=activation_reduce_range,
+        self.input_pre_process = FakeDynamicQuantPython(reduce_range=activation_reduce_range,
                                                   bits=bits,
                                                   onnx_compatible=onnx_compatible)
 
@@ -281,12 +281,12 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
         self.dynamic_weight = dynamic_weight
 
         if dynamic_weight:
-            self.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+            self.weight_fake_quant = FakeDynamicQuantPython(dtype=torch.qint8,
                                                       reduce_range=False,
                                                       bits=bits,
                                                       onnx_compatible=onnx_compatible)
 
-        self.input_pre_process = FakeDynamicQuant(reduce_range=activation_reduce_range,
+        self.input_pre_process = FakeDynamicQuantPython(reduce_range=activation_reduce_range,
                                                   bits=bits,
                                                   onnx_compatible=onnx_compatible)
 
@@ -430,12 +430,12 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
 
         self.dynamic_weight = dynamic_weight
         if dynamic_weight:
-            self.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+            self.weight_fake_quant = FakeDynamicQuantPython(dtype=torch.qint8,
                                                       reduce_range=False,
                                                       bits=bits,
                                                       onnx_compatible=onnx_compatible)
 
-        self.input_pre_process = FakeDynamicQuant(reduce_range=activation_reduce_range,
+        self.input_pre_process = FakeDynamicQuantPython(reduce_range=activation_reduce_range,
                                                   bits=bits,
                                                   onnx_compatible=onnx_compatible)
 

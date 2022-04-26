@@ -16,6 +16,7 @@ install_requires=[
     'onnx==1.10.2', 'onnxruntime==1.10.0',
     'coloredlogs', 'sympy', 'ftfy', # needed for text predict, fixes text for you
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
+    'opacus==1.1.0'
 ]
 
 setuptools.setup(
