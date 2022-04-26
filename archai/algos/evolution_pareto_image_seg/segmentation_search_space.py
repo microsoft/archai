@@ -1,4 +1,5 @@
 import random
+from copy import deepcopy
 from abc import abstractmethod
 from typing import List, Dict, Optional, Set
 from overrides import overrides
@@ -6,18 +7,12 @@ from overrides import overrides
 import torch.nn as nn
 from .model import SegmentationNasModel, OPS
 
-DEFAULT_CH_PER_SCALE = {
-    1: 24,
-    2: 60,
-    4: 96,
-    8: 132,
-    16: 168
-}
-
 class SegmentationSearchSpace():
 
     @abstractmethod
-    def random_sample(channels_per_scale: Optional[Dict] = None,
+    def random_sample(base_channels_list: List[int] = [8, 12, 24, 32, 36, 48],
+                      delta_channels_list: List[int] = [8, 12, 24, 32, 36, 48],
+                      post_upsample_layer_list: List[int] = [1, 2, 3],
                       nb_layers: int = 24,
                       max_downsample_factor: int = 16,
                       skip_connections: bool = True,
@@ -30,16 +25,26 @@ class SegmentationSearchSpace():
         if operation_subset:
             operations = [op_name for op_name in operations if op_name in operation_subset]
 
-        if not channels_per_scale:
-            channels_per_scale = DEFAULT_CH_PER_SCALE
+        # Samples `base_channels` and `delta_channels`
+        base_channels = random.choice(base_channels_list)
+        delta_channels = random.choice(delta_channels_list)
+
+        # Samples `post_upsample_layers`
+        post_upsample_layers = random.choice(post_upsample_layer_list)
+
+        # Builds channels per level map using the sampled `base_channels` and `delta_channels`
+        ch_map = {
+            scale: base_channels + i*delta_channels
+            for i, scale in enumerate([1, 2, 4, 8, 16])
+        }
 
         # Input node
         graph = [{'name': 'input', 'inputs': None, 'op': random.choice(operations), 'scale': 1}]
         node_list = ['input']
 
         # Used to control `max_scale_delta`
-        idx2scale = list(channels_per_scale.keys())
-        scale2idx = {scale: i for i, scale in enumerate(channels_per_scale.keys())}
+        idx2scale = list(ch_map.keys())
+        scale2idx = {scale: i for i, scale in enumerate(ch_map.keys())}
 
         for layer in range(nb_layers):
             is_output = (layer == nb_layers - 1)
@@ -58,7 +63,7 @@ class SegmentationSearchSpace():
                 # Samples a delta value for the current scale index
                 scale_delta = random.randint(
                     max(-max_scale_delta, -last_scale_idx),
-                    min(max_scale_delta, len(channels_per_scale) - last_scale_idx - 1)
+                    min(max_scale_delta, len(ch_map) - last_scale_idx - 1)
                 )
 
                 # Assigns the new scale to the new node
@@ -76,4 +81,9 @@ class SegmentationSearchSpace():
             graph.append(new_node)
             node_list.append(new_node['name'])
 
-        return SegmentationNasModel.from_config(graph, channels_per_scale), graph, channels_per_scale
+        channels_per_scale = {'base_channels': base_channels, 'delta_channels': delta_channels}
+        return (
+            SegmentationNasModel.from_config(
+                graph, channels_per_scale, post_upsample_layers=post_upsample_layers
+            ), graph, channels_per_scale
+        )

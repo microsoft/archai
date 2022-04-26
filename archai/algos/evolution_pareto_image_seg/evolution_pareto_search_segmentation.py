@@ -47,6 +47,13 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.skip_connections = conf_search['skip_connections']
         self.max_skip_connection_length = conf_search['max_skip_connection_length']
         self.max_scale_delta = conf_search['max_scale_delta']
+        self.max_post_upsample_layers = conf_search['max_post_upsample_layers']
+        self.min_base_channels = conf_search['min_base_channels']
+        self.max_base_channels = conf_search['max_base_channels']
+        self.base_channels_binwidth = conf_search['base_channels_binwidth']
+        self.min_delta_channels = conf_search['min_delta_channels']
+        self.max_delta_channels = conf_search['max_delta_channels']
+        self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
         # endregion
 
         # eval cache so that if search visits
