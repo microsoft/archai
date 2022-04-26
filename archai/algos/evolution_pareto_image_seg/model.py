@@ -219,7 +219,7 @@ class SegmentationNasModel(torch.nn.Module):
         Returns:
             SegmentationNasModel: A SegmentationNasModel instance
         """
-        node_info = {node['name']: node for node in node_list}
+        node_info = OrderedDict([(node['name'], node) for node in node_list])
         edges = [(in_node, node['name']) for node in node_list if node['name'] != 'input' for in_node in node['inputs']]
 
         assert 'input' in node_info
@@ -291,3 +291,16 @@ class SegmentationNasModel(torch.nn.Module):
 
         # Shows the graph 
         return dot
+
+    def to_file(self, path: str) -> None:
+        content = {
+            'channels_per_scale': self.channels_per_scale,
+            'architecture': list(self.node_info.values())
+        }
+
+        with open(path, 'w') as fp:
+            fp.write(yaml.dump(content))
+
+        m = SegmentationNasModel.from_file(path)
+        assert content['architecture'] == list(m.node_info.values())
+        assert content['channels_per_scale'] == m.channels_per_scale
