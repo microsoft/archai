@@ -45,17 +45,24 @@ dataset: {} # default dataset settings comes from __include__ on the top
 nas:
   search:
     init_num_models: 100 # initial random models to seed the search 
-    num_iters: 5 # number of pareto frontier search iterations 
+    num_iters: 20 # number of pareto frontier search iterations 
     num_random_mix: 20 # how many random models to add to the parent mixture
     max_unseen_population: 100 # restrict the new population at each iteration to prevent blowing up of models
     min_mac: 500000000 # models with mac below will be rejected
     max_mac: 10000000000 # models with mac above will be rejected
     min_layers: 1
-    max_layers: 12
-    max_downsample_factor: 32 # must be one of {2, 4, 8, 16, 32}
+    max_layers: 24
+    max_downsample_factor: 16 # must be one of {2, 4, 8, 16}
     skip_connections: True
     max_skip_connection_length: 3
     max_scale_delta: 3 # must be one of {1, 2, 3}
+    max_post_upsample_layers: 3
+    min_base_channels: 8
+    max_base_channels: 36
+    base_channels_binwidth: 8
+    min_delta_channels: 8
+    max_delta_channels: 48
+    delta_channels_binwidth: 8
 
     loader:
       batch_size: 16 # TODO: batch size 16 has lr 2e-4. can we increase batch size? what lr?
@@ -69,5 +76,5 @@ nas:
       augmentation: 'none'
       lr: 0.0002
       criterion_name: 'ce'
-      val_check_interval: 0.25 # how often to evaluate validation accuracy per epoch
+      val_check_interval: 1.0 # how often to evaluate validation accuracy per epoch
       lr_exp_decay_gamma: 0.973435286

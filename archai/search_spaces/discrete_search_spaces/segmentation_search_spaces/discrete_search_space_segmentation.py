@@ -15,16 +15,36 @@ from archai.nas.discrete_search_space import DiscreteSearchSpace
 from archai.algos.evolution_pareto_image_seg.model import OPS, SegmentationNasModel
 from archai.algos.evolution_pareto_image_seg.segmentation_search_space import SegmentationSearchSpace
 
+
+def random_neighbor(param_values: List[int], current_value: int):
+    param_values = sorted(copy.deepcopy(param_values))
+    param2idx = {param: idx for idx, param in enumerate(param_values)}
+
+    current_idx = param2idx[current_value]
+    offset = random.randint(
+        a=-1 if current_idx > 0 else 0,
+        b=1 if current_idx < len(param_values) - 1 else 0
+    )
+    
+    return param_values[current_idx + offset]
+
 class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
     def __init__(self, datasetname:str, 
                 min_mac:int=0, 
                 max_mac:int=sys.maxsize,
                 min_layers:int=1,
                 max_layers:int=12,
-                max_downsample_factor:int=32,
+                max_downsample_factor:int=16,
                 skip_connections:bool=True,
                 max_skip_connection_length:int=3,
-                max_scale_delta:int=1):
+                max_scale_delta:int=1,
+                max_post_upsample_layers:int=3,
+                min_base_channels:int=8,
+                max_base_channels:int=48,
+                base_channels_binwidth:int=8,
+                min_delta_channels:int=8,
+                max_delta_channels:int=48,
+                delta_channels_binwidth:int=8):
         super().__init__()
         self.datasetname = datasetname
         assert self.datasetname != ''
@@ -41,7 +61,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         assert self.min_layers <= self.max_layers
 
         self.max_downsample_factor = max_downsample_factor
-        assert self.max_downsample_factor in set([2, 4, 8, 16, 32])
+        assert self.max_downsample_factor in set([2, 4, 8, 16])
 
         self.max_skip_connection_length = max_skip_connection_length
         assert self.max_skip_connection_length > 0
@@ -49,8 +69,18 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         self.max_scale_delta = max_scale_delta
         assert self.max_scale_delta in set([1, 2, 3])
 
-        self.skip_connections = skip_connections
+        self.post_upsample_layers_list = list(range(1, max_post_upsample_layers + 1))
+        assert len(self.post_upsample_layers_list) < 5
+
+        self.base_channels_list = list(range(min_base_channels, max_base_channels + 1, base_channels_binwidth))
+        assert min_base_channels < max_base_channels
+        assert len(self.base_channels_list) > 1
         
+        self.delta_channels_list = list(range(min_delta_channels, max_delta_channels + 1, delta_channels_binwidth))
+        assert min_delta_channels < max_delta_channels
+        assert len(self.delta_channels_list) > 1
+
+        self.skip_connections = skip_connections
         
 
     @overrides
@@ -64,7 +94,10 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             num_layers = random.randint(self.min_layers, self.max_layers)
 
             model, graph, channels_per_scale = \
-                SegmentationSearchSpace.random_sample(nb_layers=num_layers,                                                         
+                SegmentationSearchSpace.random_sample(base_channels_list=self.base_channels_list,
+                                                      delta_channels_list=self.delta_channels_list,
+                                                      post_upsample_layer_list=self.post_upsample_layers_list,
+                                                      nb_layers=num_layers,                                                         
                                                       max_downsample_factor=self.max_downsample_factor,
                                                       skip_connections=self.skip_connections,
                                                       max_skip_connection_length=self.max_skip_connection_length,             
@@ -74,6 +107,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 'datasetname': self.datasetname,
                 'graph': graph,
                 'channels_per_scale': channels_per_scale,
+                'post_upsample_layers': model.post_upsample_layers,
                 'archid': uuid.uuid4(), #TODO: need to replace with a string of the graph 
             }
             arch_meta = ArchWithMetaData(model, meta_data)
@@ -92,7 +126,6 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         found_valid = False
 
         while not found_valid:    
-
             graph = copy.deepcopy(arch.metadata['graph'])
             channels_per_scale = copy.deepcopy(arch.metadata['channels_per_scale'])
 
@@ -100,33 +133,40 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             assert len(graph) > 1
             assert graph[-1]['name'] == 'output'
             assert graph[0]['name'] == 'input'
-            
+
+            # `base_channels` and `delta_channels` mutation
+            channels_per_scale = {
+                'base_channels': random_neighbor(self.base_channels_list, channels_per_scale['base_channels']),
+                'delta_channels': random_neighbor(self.delta_channels_list, channels_per_scale['delta_channels']),
+            }
+
+            # `post_upsample_layers` mutation
+            post_upsample_layers = random_neighbor(
+                self.post_upsample_layers_list,
+                arch.metadata['post_upsample_layers']
+            )
+
             # pick a node at random (but not input node)
             # and change its operator at random
             # and its input sources
-            # WARNING: this can result in some nodes left hanging
-            chosen_node_idx = random.randint(1, len(graph)-1)
+            chosen_node_idx = random.randint(1, len(graph) - 1)
             node = graph[chosen_node_idx]
-            node['op'] = random.choice(self.operations)
+            
+            if node['name'] != 'output':
+                node['op'] = random.choice(self.operations)
+            
             # choose up to k inputs from previous nodes
             max_inputs = 3 # TODO: make config 
-            k = min(chosen_node_idx, random.randint(1, max_inputs))
-            input_idxs = random.sample(range(chosen_node_idx), k)
-            node['inputs'] = [graph[idx]['name'] for idx in input_idxs]
 
-            # now go through every node in the graph (except output node)
-            # and make sure it is being used as input in some node after it
-            for i, node in enumerate(graph[:-1]):
-                this_name = node['name']
-                orphan = True
-                # test whether not orphan
-                for r in range(i+1, len(graph)):
-                    if graph[r]['name'] == this_name:
-                        orphan = False
-                if orphan:
-                    # choose a forward node to connect it with
-                    chosen_forward_idx = random.randint(i+1, len(graph)-1)
-                    graph[chosen_forward_idx]['inputs'].append(this_name)
+            if node['name'] != 'input':
+                k = min(chosen_node_idx, random.randint(1, max_inputs))
+                input_idxs = random.sample(range(chosen_node_idx), k)
+
+                node['inputs'] = [graph[chosen_node_idx - 1]['name']]
+                node['inputs'] += [
+                    graph[idx]['name'] for idx in input_idxs
+                    if graph[idx]['name'] != graph[chosen_node_idx-1]['name']
+                ]
 
             # compile the model
             model = SegmentationNasModel.from_config(graph, channels_per_scale)
@@ -136,6 +176,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                             'datasetname': self.datasetname,
                             'graph': graph,
                             'channels_per_scale': channels_per_scale,
+                            'post_upsample_layers': post_upsample_layers,
                             'archid': uuid.uuid4(), #TODO: need to replace with a string of the graph 
                         }
 
