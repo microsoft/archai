@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Dict
 import random
 from pathlib import Path
 
@@ -62,7 +62,15 @@ class LightningModelWrapper(pl.LightningModule):
     def forward(self, image):
         return self.model(image)
 
-    def shared_step(self, batch, stage='train'):
+    def evaluate(self, dataloader: DataLoader) -> Dict[str, float]:
+        with torch.no_grad():
+            outputs = [
+                {k: v.cpu() for k, v in self.shared_step(batch.cuda()).items()}
+                for batch in dataloader
+            ]
+            return self.shared_epoch_end(outputs, stage='validation', log=False)
+
+    def shared_step(self, batch):
         image = batch['image']
 
         assert image.ndim == 4
@@ -92,8 +100,7 @@ class LightningModelWrapper(pl.LightningModule):
         return metrics_result
 
     def training_step(self, batch, batch_idx):
-        results = self.shared_step(batch, stage='train')
-        # the sync_dist may have performance impact with ddp
+        results = self.shared_step(batch)
         self.log_dict({'training_loss': results['loss']}, sync_dist=True)
 
         return results
@@ -103,7 +110,7 @@ class LightningModelWrapper(pl.LightningModule):
             return self.model.predict(image)
 
     def validation_step(self, batch, batch_idx):
-        results = self.shared_step(batch, stage='validation')
+        results = self.shared_step(batch)
         return results
 
     def validation_epoch_end(self, outputs):
@@ -112,7 +119,7 @@ class LightningModelWrapper(pl.LightningModule):
     def training_epoch_end(self, outputs):
         self.shared_epoch_end(outputs, stage='train')
 
-    def shared_epoch_end(self, outputs, stage):
+    def shared_epoch_end(self, outputs, stage, log=True):
         tp = torch.cat([x['tp'] for x in outputs])
         fp = torch.cat([x['fp'] for x in outputs])
         fn = torch.cat([x['fn'] for x in outputs])
@@ -122,9 +129,9 @@ class LightningModelWrapper(pl.LightningModule):
         results = get_custom_overall_metrics(tp, fp, fn, tn, stage=stage)
         results[f'{stage}_loss'] = avg_loss
 
-        # TODO: enabling this causes error in lightning
-        # when calling validate independently
-        self.log_dict(results, sync_dist=True)
+        if log:
+            self.log_dict(results, sync_dist=True)
+
         return results
 
     def configure_optimizers(self):
@@ -141,28 +148,6 @@ class LightningModelWrapper(pl.LightningModule):
     def on_train_start(self) -> None:
         sample = torch.randn((1, 3, self.img_size, self.img_size)).to(self.device)
         self.logger.experiment.add_graph(self.model, sample)
-
-    @staticmethod
-    def add_model_specific_args(parent_parser):
-        parser = parent_parser.add_argument_group('Model parameters')
-        parser.add_argument(
-            '--arch', type=lambda x: Path(x) if x else x, default=None,
-            help='Path to YAML architecture config file. If not provided, generates a random architecture.'
-        )
-        parser.add_argument('--nb_layers', type=int, default=12,
-                            help='Number of layers in the network (used if no architecture is provided).')
-        parser.add_argument('--max_downsample_factor', type=int, default=16,
-                            help='Max downsample factor (used if no architecture is provided).')
-        parser.add_argument('--no_skip_connections', action='store_false', default=True,
-                            help='Whether to use skip connections (used if no architecture is provided).')
-        parser.add_argument('--max_skip_connection_lenght', type=int, default=3,
-                            help='Max skip connection length (used if no architecture is provided).')
-        parser.add_argument('--operation_subset', nargs='*', type=str,
-                            help='Subset of allowed operations (used if no architecture is provided).')
-        parser.add_argument('--max_scale_delta', nargs='*', type=str,
-                            help='Max scale diference between consecutive layers (used if no architecture is provided).')
-
-        return parent_parser
 
 @ray.remote(num_gpus=0.2)
 class SegmentationTrainer():
@@ -203,7 +188,7 @@ class SegmentationTrainer():
             filename='{epoch}-{step}-{validation_overall_f1:.2f}'
         ), pl.callbacks.lr_monitor.LearningRateMonitor()]
 
-    def fit(self, run_path: str):
+    def fit(self, run_path: str) -> pl.Trainer:
         run_path = Path(run_path)
 
         trainer = pl.Trainer(
@@ -215,31 +200,9 @@ class SegmentationTrainer():
         )
 
         trainer.fit(self.model, self.tr_dataloader, self.val_dataloader)
+        return trainer
 
     def fit_and_validate(self, run_path: str)->float:
-        # fit
-        self.fit(run_path)
-
-        # validate
-        # TODO: am I doing this unnecessarily?
-        outputs = []
-        with torch.no_grad():
-            for bi, b in enumerate(self.val_dataloader): 
-                b['image'] = b['image'].to('cuda')
-                b['mask'] = b['mask'].to('cuda')
-                self.model.to('cuda')
-                outputs.append(self.model.validation_step(b, bi))
-
-        tp = torch.cat([x['tp'] for x in outputs])
-        fp = torch.cat([x['fp'] for x in outputs])
-        fn = torch.cat([x['fn'] for x in outputs])
-        tn = torch.cat([x['tn'] for x in outputs])
-        avg_loss = torch.tensor([x['loss'] for x in outputs]).mean()
-
-        results = get_custom_overall_metrics(tp, fp, fn, tn, stage='validation')
-        
-        f1 = results['validation_overall_f1']
-        return f1.to('cpu').item()
-        
-
-
+        trainer = self.fit(run_path)
+        metrics = trainer.validate(model=trainer.model, dataloaders=self.val_dataloader)[0]
+        return metrics['validation_overall_f1']
