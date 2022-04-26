@@ -190,6 +190,14 @@ class SegmentationTrainer():
 
     def fit(self, run_path: str) -> pl.Trainer:
         run_path = Path(run_path)
+        arch = self.model.model
+
+        # Saves architecture metadata
+        arch.to_file(run_path / 'architecture.yaml')
+
+        # Saves architecture diagram
+        digraph = arch.view()
+        digraph.render(str(run_path / 'architecture'), format='png')
 
         trainer = pl.Trainer(
             max_steps=self.max_steps,
