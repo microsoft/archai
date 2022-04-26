@@ -216,35 +216,35 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
-        all_accs = [p.metadata['f1'] for p in all_pop]
-        all_latencies = [p.metadata['latency']  for p in all_pop]
-        all_memories = [p.metadata['memory']  for p in all_pop]
+        all_data, pareto_data = [
+            {k: p.metadata[k] for k in ['f1', 'latency', 'memory', 'archid'] for p in pop}
+            for pop in [all_pop, pareto]
+        ]
 
-        p_accs = [p.metadata['f1'] for p in pareto]
-        p_latencies = [p.metadata['latency']  for p in pareto]
-        p_memories = [p.metadata['memory']  for p in pareto]
-        
         fig = go.Figure()
-        fig.add_trace(go.Scatter3d(x=all_accs, 
-                                y=all_latencies, 
-                                z=all_memories,
-                                mode='markers',
-                                marker_color='blue',
-                                showlegend=True,
-                                name='All visited architectures'))
+        fig.add_trace(go.Scatter3d(x=all_data['f1'], 
+                                   y=all_data['latency'], 
+                                   z=all_data['memory'],
+                                   text=all_data['archid'],
+                                   mode='markers',
+                                   marker_color='blue',
+                                   showlegend=True,
+                                   name='All visited architectures'))
 
-        fig.add_trace(go.Scatter3d(x=p_accs, 
-                                y=p_latencies, 
-                                z=p_memories,
-                                mode='markers',
-                                marker_color='red',
-                                showlegend=True,
-                                name='Pareto architectures'))
-        
+        fig.add_trace(go.Scatter3d(x=pareto_data['f1'], 
+                                   y=pareto_data['latency'], 
+                                   z=pareto_data['memory'],
+                                   text=pareto_data['archid'],
+                                   mode='markers',
+                                   marker_color='red',
+                                   showlegend=True,
+                                   name='Pareto architectures'))
+
         title_text = f'Search State Iter {iter_num}'
         xaxis_title = 'Accuracy (validation f1)'
         yaxis_title = 'Latency (ms)'
         zaxis_title = 'Memory (mb)'
+
         fig.update_layout(title_text=title_text,
                           scene=dict(xaxis_title=xaxis_title,
                                      yaxis_title=yaxis_title,
