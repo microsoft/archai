@@ -132,7 +132,14 @@ def config_to_key(config, name=None, keys=['n_layer', 'd_model', 'd_inner','n_he
 
 def profile_baseline(evolution_obj, path_to_results):
   fname = 'config.yaml' if evolution_obj.model_type == 'mem_transformer' else 'model_config.yaml'
-  configs = recurse_dir(path_to_results, fname=fname)
+  path_to_configs = os.path.join(path_to_results, 'model_configs.yaml')
+  if os.path.exists(path_to_configs):
+    with open(path_to_configs, 'r') as f:
+      configs = yaml.safe_load(f)
+  else:
+    configs = recurse_dir(path_to_results, fname=fname)
+    with open(path_to_configs, 'w') as f:
+      yaml.dump(configs, f)
   
   proxies = {}
   total_params = {}
