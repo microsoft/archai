@@ -850,13 +850,13 @@ def load_data(args, device, get_file_stats=True):
         eval_mem_len = args.mem_len + args.tgt_len - args.eval_tgt_len
 
     train_itr = corpus.get_iterator('train', args.batch_size, args.tgt_len,
-                                  device=device, ext_len=args.ext_len)
+                                  device=device, ext_len=args.ext_len, diffp=args.diffp)
     valid_itr = corpus.get_iterator('valid', args.eval_batch_size,
                                   args.eval_tgt_len, device=device,
-                                  mem_len=eval_mem_len, ext_len=args.ext_len)
+                                  mem_len=eval_mem_len, ext_len=args.ext_len, diffp=args.diffp)
     test_itr = corpus.get_iterator('test', args.eval_batch_size,
                                   args.eval_tgt_len, device=device,
-                                  mem_len=eval_mem_len, ext_len=args.ext_len)
+                                  mem_len=eval_mem_len, ext_len=args.ext_len, diffp=args.diffp)
 
     file_stats = None
     if get_file_stats:
@@ -929,7 +929,7 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
         model = load_model_from_config(args.model_type, model_config)
 
     if args.mixed_qat:
-        model = MixedQATModel(model)
+        model = MixedQATModel(model, diffp=args.diffp)
 
     n_params = model.get_params()
     n_all_param = n_params['total']
@@ -938,7 +938,7 @@ def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
     logging.info('#non emb params = {}'.format(n_nonemb_param))
 
     if args.qat:
-        model = prepare_with_qat(model, onnx_compatible=True)
+        model = prepare_with_qat(model, onnx_compatible=True, diffp=args.diffp)
 
     return model, model_config
 

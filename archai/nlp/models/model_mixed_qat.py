@@ -19,7 +19,7 @@ class MixedQATModel(ArchaiModel):
 
     """
 
-    def __init__(self, model: ArchaiModel, qat_weight: Optional[float] = 0.2) -> None:
+    def __init__(self, model: ArchaiModel, qat_weight: Optional[float] = 0.2, diffp: Optional[bool] = False) -> None:
         """Initializes the class by creating standard and QAT-based attributes
             of the incoming model.
 
@@ -48,7 +48,7 @@ class MixedQATModel(ArchaiModel):
                 qat_module.bias = module.bias
 
         # Adds fake quantization
-        self.qat_model = prepare_with_qat(self.qat_model, onnx_compatible=True)
+        self.qat_model = prepare_with_qat(self.qat_model, onnx_compatible=True, diffp=diffp)
 
         # Makes sure that all parameters are shared
         for param, qat_param in zip(self.model.parameters(), self.qat_model.parameters()):

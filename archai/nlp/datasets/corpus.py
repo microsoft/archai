@@ -200,14 +200,15 @@ class Corpus:
             self.vocab.load()
             logging.info(f'Vocab cache found and loaded for type {self.vocab_type} and size {self.vocab_size} from {self._vocab_cache_dir}.')
 
-    def get_iterator(self, split, batch_size, tgt_len, device, ext_len, mem_len=None):
+    def get_iterator(self, split, batch_size, tgt_len, device, ext_len, mem_len=None, diffp=False):
         if split == 'train':
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
-                # data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
-                #                               device=device, ext_len=ext_len, mem_len=mem_len)
-
-                data_iter = LMDataset(self.train, batch_size, tgt_len, device=device, ext_len=ext_len, mem_len=mem_len)
-                data_iter = DataLoader(data_iter, batch_size=batch_size, shuffle=True)
+                if not diffp:
+                    data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
+                                                device=device, ext_len=ext_len, mem_len=mem_len)
+                else:
+                    data_iter = LMDataset(self.train, batch_size, tgt_len, device=device, ext_len=ext_len, mem_len=mem_len)
+                    data_iter = DataLoader(data_iter, batch_size=batch_size, shuffle=True)
             elif self.dataset == 'lm1b':
                 data_iter = LMMultiFileIterator(self.train, self.vocab, batch_size, tgt_len,
                                                 device=device, ext_len=ext_len, mem_len=mem_len)
@@ -217,10 +218,12 @@ class Corpus:
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
-                # data_iter = LMOrderedIterator(data, batch_size, tgt_len,
-                #                               device=device, ext_len=ext_len, mem_len=mem_len)
-                data_iter = LMDataset(data, batch_size, tgt_len, device=device, ext_len=ext_len, mem_len=mem_len)
-                data_iter = DataLoader(data_iter, batch_size=batch_size, shuffle=True)
+                if not diffp:
+                    data_iter = LMOrderedIterator(data, batch_size, tgt_len,
+                                                device=device, ext_len=ext_len, mem_len=mem_len)
+                else:
+                    data_iter = LMDataset(data, batch_size, tgt_len, device=device, ext_len=ext_len, mem_len=mem_len)
+                    data_iter = DataLoader(data_iter, batch_size=batch_size, shuffle=True)
             elif self.dataset == 'lm1b':
                 data_iter = LMShuffledIterator(data, batch_size, tgt_len,
                                                device=device, ext_len=ext_len, mem_len=mem_len)

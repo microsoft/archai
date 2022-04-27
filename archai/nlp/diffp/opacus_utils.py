@@ -86,4 +86,4 @@ def _grad_sample_capture_backprops_hook(
             promote_current_grad_sample(p)
 
 opacus.GradSampleModule.__getattr__ = _grad_sampler_get_attr
-opacus.grad_sample.grad_sample_module.GradSampleModule = _grad_sample_capture_backprops_hook
+opacus.grad_sample.grad_sample_module.GradSampleModule.capture_backprops_hook = _grad_sample_capture_backprops_hook

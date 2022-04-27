@@ -10,8 +10,6 @@ import torch
 import transformers
 from torch.nn import functional as F
 
-from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant, FakeDynamicQuantPython
-
 
 class FakeQuantEmbedding(torch.nn.Embedding):
     """Translates a torch-based Embedding layer into a QAT-ready Embedding.
@@ -25,10 +23,11 @@ class FakeQuantEmbedding(torch.nn.Embedding):
 
         bits = kwargs.pop('bits') if 'bits' in kwargs else 8
         onnx_compatible = kwargs.pop('onnx_compatible') if 'onnx_compatible' in kwargs else False
+        quantizer_cls = kwargs.pop('quantizer_cls')
 
         super().__init__(*args, **kwargs)
 
-        self.weight_fake_quant = FakeDynamicQuantPython(dtype=torch.qint8,
+        self.weight_fake_quant = quantizer_cls(dtype=torch.qint8,
                                                   reduce_range=False,
                                                   bits=bits,
                                                   onnx_compatible=onnx_compatible)
@@ -61,6 +60,7 @@ class FakeQuantEmbedding(torch.nn.Embedding):
     def from_float(cls: Type['FakeQuantEmbedding'],
                    mod: torch.nn.Module,
                    qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
+                   quantizer_cls = None,
                    **kwargs) -> Type['FakeQuantEmbedding']:
         """Maps module from float to QAT-ready.
 
@@ -73,7 +73,7 @@ class FakeQuantEmbedding(torch.nn.Embedding):
 
         """
 
-        module = cls(mod.num_embeddings, mod.embedding_dim, **kwargs)
+        module = cls(mod.num_embeddings, mod.embedding_dim, quantizer_cls=quantizer_cls, **kwargs)
 
         module.weight = mod.weight
         module.weight.model_parallel = False
@@ -125,6 +125,7 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
                  bits: Optional[int] = 8,
                  onnx_compatible: Optional[bool] = False,
                  qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
+                 quantizer_cls,
                  **kwargs) -> None:
         """Initializes a fake quantized Linear layer.
 
@@ -142,12 +143,12 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
         self.dynamic_weight = dynamic_weight
 
         if dynamic_weight:
-            self.weight_fake_quant = FakeDynamicQuantPython(dtype=torch.qint8,
+            self.weight_fake_quant = quantizer_cls(dtype=torch.qint8,
                                                       reduce_range=False,
                                                       bits=bits,
                                                       onnx_compatible=onnx_compatible)
 
-        self.input_pre_process = FakeDynamicQuantPython(reduce_range=activation_reduce_range,
+        self.input_pre_process = quantizer_cls(reduce_range=activation_reduce_range,
                                                   bits=bits,
                                                   onnx_compatible=onnx_compatible)
 
@@ -182,6 +183,7 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
                    mod: torch.nn.Module,
                    qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
                    activation_reduce_range: Optional[bool] = True,
+                   quantizer_cls = None,
                    **kwargs) -> Type['FakeDynamicQuantLinear']:
         """Maps module from float to QAT-ready.
 
@@ -207,11 +209,14 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
                          bias=mod.bias is not None,
                          activation_reduce_range=activation_reduce_range,
                          qconfig=qconfig,
+                         quantizer_cls=quantizer_cls,
                          **kwargs)
 
         qat_linear.weight = mod.weight
         qat_linear.bias = mod.bias
 
+        # Save the shared attribute of the original layer
+        # so that diffp won't break
         if hasattr(mod, 'shared'):
             qat_linear.shared = True
 
@@ -267,6 +272,7 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
                  bits: Optional[int] = 8,
                  onnx_compatible: Optional[bool] = False,
                  qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
+                 quantizer_cls,
                  **kwargs) -> None:
         """Initializes a fake quantized Conv1d layer.
 
@@ -284,12 +290,12 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
         self.dynamic_weight = dynamic_weight
 
         if dynamic_weight:
-            self.weight_fake_quant = FakeDynamicQuantPython(dtype=torch.qint8,
+            self.weight_fake_quant = quantizer_cls(dtype=torch.qint8,
                                                       reduce_range=False,
                                                       bits=bits,
                                                       onnx_compatible=onnx_compatible)
 
-        self.input_pre_process = FakeDynamicQuantPython(reduce_range=activation_reduce_range,
+        self.input_pre_process = quantizer_cls(reduce_range=activation_reduce_range,
                                                   bits=bits,
                                                   onnx_compatible=onnx_compatible)
 
@@ -324,6 +330,7 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
                    mod: torch.nn.Module,
                    qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
                    activation_reduce_range: Optional[bool] = True,
+                   quantizer_cls = None,
                    **kwargs) -> Type['FakeDynamicQuantConv1d']:
         """Maps module from float to QAT-ready.
 
@@ -355,6 +362,7 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
                          bias=mod.bias is not None,
                          activation_reduce_range=activation_reduce_range,
                          qconfig=qconfig,
+                         quantizer_cls=quantizer_cls,
                          **kwargs)
 
         qat_conv1d.weight = mod.weight
@@ -417,6 +425,7 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
                  bits: Optional[int] = 8,
                  onnx_compatible: Optional[bool] = False,
                  qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
+                 quantizer_cls,
                  **kwargs) -> None:
         """Initializes a fake quantized Conv1d layer.
 
@@ -433,12 +442,12 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
 
         self.dynamic_weight = dynamic_weight
         if dynamic_weight:
-            self.weight_fake_quant = FakeDynamicQuantPython(dtype=torch.qint8,
+            self.weight_fake_quant = quantizer_cls(dtype=torch.qint8,
                                                       reduce_range=False,
                                                       bits=bits,
                                                       onnx_compatible=onnx_compatible)
 
-        self.input_pre_process = FakeDynamicQuantPython(reduce_range=activation_reduce_range,
+        self.input_pre_process = quantizer_cls(reduce_range=activation_reduce_range,
                                                   bits=bits,
                                                   onnx_compatible=onnx_compatible)
 
@@ -477,6 +486,7 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
                    mod: torch.nn.Module,
                    qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
                    activation_reduce_range: Optional[bool] = True,
+                   quantizer_cls = None,
                    **kwargs) -> Type['FakeDynamicQuantHFConv1D']:
         """Maps module from float to QAT-ready.
 
@@ -500,6 +510,7 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
                          mod.weight.shape[0],
                          activation_reduce_range=activation_reduce_range,
                          qconfig=qconfig,
+                         quantizer_cls=quantizer_cls,
                          **kwargs)
 
         qat_conv1d.weight = mod.weight

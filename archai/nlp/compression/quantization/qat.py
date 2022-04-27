@@ -14,7 +14,7 @@ from archai.nlp.compression.quantization.modules import (
     FakeDynamicQuantHFConv1D, FakeDynamicQuantHFConv1DForOnnx,
     FakeDynamicQuantLinear, FakeDynamicQuantLinearForOnnx, FakeQuantEmbedding,
     FakeQuantEmbeddingForOnnx, fake_dynamic_compute_logit)
-from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant
+from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant, FakeDynamicQuantPython
 from archai.nlp.models.mem_transformer.mem_transformer_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 # Maps between standard and ONNX modules
@@ -66,6 +66,7 @@ def qat_to_float_modules(model: torch.nn.Module) -> torch.nn.Module:
 def float_to_qat_modules(model: torch.nn.Module,
                          module_mapping: Optional[Dict[torch.nn.Module, torch.nn.Module]] = DYNAMIC_QAT_MODULE_MAPPING,
                          qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
+                         quantizer_cls: Optional[bool] = False,
                          **kwargs) -> torch.nn.Module:
     """Changes float-based modules to QAT-ready modules.
 
@@ -88,19 +89,20 @@ def float_to_qat_modules(model: torch.nn.Module,
                 module.qconfig = qconfig
 
             # Maps from float to QAT
-            model._modules[name] = module_mapping[type(module)].from_float(module, qconfig, **kwargs)
+            model._modules[name] = module_mapping[type(module)].from_float(module, qconfig, quantizer_cls=quantizer_cls, **kwargs)
 
         else:
             # If there is no module to be mapped, recursively calls the function
             float_to_qat_modules(module,
                                  module_mapping=module_mapping,
                                  qconfig=qconfig,
+                                 quantizer_cls=quantizer_cls,
                                  **kwargs)
 
     # Applies fake quantization to `ProjectedAdaptiveLogSoftmax` as well
-    ProjectedAdaptiveLogSoftmax.hidden_fake_quant = FakeDynamicQuant(reduce_range=False,
+    ProjectedAdaptiveLogSoftmax.hidden_fake_quant = quantizer_cls(reduce_range=False,
                                                                      onnx_compatible=True)
-    ProjectedAdaptiveLogSoftmax.weight_fake_quant = FakeDynamicQuant(dtype=torch.qint8,
+    ProjectedAdaptiveLogSoftmax.weight_fake_quant = quantizer_cls(dtype=torch.qint8,
                                                                      reduce_range=False,
                                                                      onnx_compatible=True)
     ProjectedAdaptiveLogSoftmax._compute_logit = fake_dynamic_compute_logit
@@ -111,6 +113,7 @@ def float_to_qat_modules(model: torch.nn.Module,
 def prepare_with_qat(model: torch.nn.Module,
                      onnx_compatible: Optional[bool] = False,
                      backend: Optional[str] = 'qnnpack',
+                     diffp: Optional[bool] = False,
                      **kwargs) -> torch.nn.Module:
     """Prepares a float-based model and inserts QAT-based modules and configurations.
 
@@ -128,10 +131,13 @@ def prepare_with_qat(model: torch.nn.Module,
     qconfig = torch.quantization.get_default_qat_qconfig(backend)
     mappings = DYNAMIC_QAT_MODULE_MAPPING_FOR_ONNX if onnx_compatible else DYNAMIC_QAT_MODULE_MAPPING
 
+    quantizer_cls = FakeDynamicQuantPython if diffp else FakeDynamicQuant
+
     # Ensures that the model is QAT-ready
     float_to_qat_modules(model,
                          module_mapping=mappings,
                          qconfig=qconfig,
+                         quantizer_cls=quantizer_cls,
                          **kwargs)
 
     return model
