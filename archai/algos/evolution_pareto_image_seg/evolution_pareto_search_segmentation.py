@@ -72,7 +72,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                 blob_container_name=remote_config['blob_container_name'],
                 table_name=remote_config['table_name'],
                 partition_key=remote_config['partition_key'],
-                metrics=remote_config['metrics'],
                 overwrite=remote_config['overwrite']
             )
 
@@ -149,8 +148,11 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
             while len(evaluated) < len(current_pop):
                 for i, p in enumerate(current_pop):
-                    if i in evaluated:
-                        continue
+                    # Gets the metrics for all the models in `current_pop``.
+                    # we don't need to worry about the cost of checking the same model
+                    # more than once since the cost of `get_entity` is infimal
+                    # and we may get better estimates for the latency mean when we 
+                    # check the same model again (given how the pipeline is constructed)
 
                     metrics = self.remote_benchmark.get_entity(
                         str(p.metadata['archid'])
@@ -161,8 +163,10 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                         if 'memory_usage' in metrics and metrics['memory_usage']:
                             p.metadata['latency'] = metrics['mean']
                             p.metadata['memory'] = metrics['memory_usage']
-                            evaluated.add(i)
-                            pbar.update()
+                            
+                            if i not in evaluated:
+                                evaluated.add(i)
+                                pbar.update()
 
                 if len(evaluated) < len(current_pop):
                     pbar.set_description('Sleeping...')
