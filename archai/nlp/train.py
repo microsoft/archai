@@ -45,107 +45,12 @@ from torch.nn.parallel import DistributedDataParallel
 
 from onnxruntime.transformers import quantize_helper
 
-
-from transformers.modeling_utils import Conv1D
-from opacus.grad_sample import register_grad_sampler
-import opacus
-from opacus.utils.batch_memory_manager import BatchMemoryManager
-
-@register_grad_sampler(FakeDynamicQuantHFConv1DForOnnx)
-def compute_quant_transformers_conv1d_grad_sample(
-    layer: FakeDynamicQuantHFConv1DForOnnx, A: torch.Tensor, B: torch.Tensor, batch_dim: int = 0
-) -> None:
-    gs = (torch.einsum("n...i,n...j->nji", B, A) * layer.weight_fake_quant.mask).contiguous()
-    ret = {layer.weight: gs}
-
-    if layer.bias is not None:
-        ret[layer.bias] = torch.einsum("n...k->nk", B)
-
-    return ret
-
-@register_grad_sampler(FakeDynamicQuantLinearForOnnx)
-def compute_quant_lin_grad_sample(
-    layer: FakeDynamicQuantLinearForOnnx, A: torch.Tensor, B: torch.Tensor, batch_dim: int = 0
-) -> None:
-
-    gs = torch.einsum("n...i,n...j->nij", B, A) * layer.weight_fake_quant.mask
-    ret = {layer.weight: gs}
-
-    if layer.bias is not None:
-        ret[layer.bias] = torch.einsum("n...k->nk", B)
-
-    return ret
-
-@register_grad_sampler(FakeQuantEmbeddingForOnnx)
-def compute_quant_emb_grad_sample(layer: FakeQuantEmbeddingForOnnx, activations: torch.Tensor, backprops: torch.Tensor, batch_dim: int = 0) -> None:
-
-    saved = torch.backends.cudnn.deterministic
-    torch.backends.cudnn.deterministic = True
-
-    batch_size = activations.shape[0]
-    index = (
-        activations.unsqueeze(-1)
-        .expand(*activations.shape, layer.embedding_dim)
-        .reshape(batch_size, -1, layer.embedding_dim)
-    )
-    grad_sample = torch.zeros(
-        batch_size, *layer.weight.shape, device=layer.weight.device
-    )
-    grad_sample.scatter_add_(
-        1, index, backprops.reshape(batch_size, -1, layer.embedding_dim)
-    )
-
-    grad_sample *= layer.weight_fake_quant.mask
-    torch.backends.cudnn.deterministic = saved
-
-    return {layer.weight: grad_sample}
-
-
-@register_grad_sampler(Conv1D)
-def compute_transformers_conv1d_grad_sample(
-    layer: Conv1D, A: torch.Tensor, B: torch.Tensor, batch_dim: int = 0
-) -> None:
-    gs = torch.einsum("n...i,n...j->nji", B, A).contiguous()
-    ret = {layer.weight: gs}
-
-    if layer.bias is not None:
-        ret[layer.bias] = torch.einsum("n...k->nk", B)
-
-    return ret
-
-
-
-def _grad_sampler_get_attr(self, item):
-    try:
-        return super(opacus.GradSampleModule, self).__getattr__(item)
-    except AttributeError as e:
-        submodules = dict(self._module.named_modules())
-        if item and item in submodules:
-            return submodules[item]
-
-        if hasattr(self._module, item):
-            return getattr(self._module, item)
-        
-        raise e
-
-def _grad_sampler_promote_current_grad_sample(p: nn.Parameter) -> None:
-    if p.requires_grad:
-        if p.grad_sample is not None:
-            if isinstance(p.grad_sample, list):
-                p.grad_sample.append(p._current_grad_sample)
-            else:
-                p.grad_sample += p._current_grad_sample
-        else:
-            p.grad_sample = p._current_grad_sample
-
-        del p._current_grad_sample
-
-opacus.GradSampleModule.__getattr__ = _grad_sampler_get_attr
-opacus.grad_sample.grad_sample_module.promote_current_grad_sample = _grad_sampler_promote_current_grad_sample
+from opacus.utils.batch_memory_manager import wrap_data_loader
 
 import torch
 import torch.nn as nn
 
+import archai.nlp.diffp
 
 def parse_args():
     parent_parser = argparse.ArgumentParser(
@@ -642,211 +547,214 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     # else:
     #     train_iter = train_itr
 
-    max_physical_batch_size = 256
+    max_physical_batch_size = 48
     real_virtual_batch_rate = args.batch_size / max_physical_batch_size
     DELTA = 1 / (len(train_iter) * args.batch_size)
     logging.info('Starting training...')
-    with BatchMemoryManager(data_loader=train_iter, max_physical_batch_size=max_physical_batch_size, optimizer=optimizer) as new_train_iter:
-        for batch, (input_ids, labels, seq_len, _) in enumerate(new_train_iter, start=last_batch+1):
 
-            virtual_batch = int(batch / real_virtual_batch_rate)
-            input_ids = input_ids.to(device, non_blocking=True)
-            labels = labels.to(device, non_blocking=True)
+    new_train_iter = wrap_data_loader(data_loader=train_iter, max_batch_size=max_physical_batch_size, optimizer=optimizer)
+    # new_train_iter = train_iter
+    for batch, (input_ids, labels, seq_len, _) in enumerate(new_train_iter, start=last_batch+1):
 
-            log_step += 1
-            labels_tokens += labels.numel()
+        virtual_batch = int(batch / real_virtual_batch_rate)
+        input_ids = input_ids.to(device, non_blocking=True)
+        labels = labels.to(device, non_blocking=True)
 
-            optimizer.zero_grad(set_to_none=True)
+        log_step += 1
+        labels_tokens += labels.numel()
 
-            # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
-            input_ids_chunks = torch.chunk(input_ids, args.batch_chunk, 0)
-            labels_chunks = torch.chunk(labels, args.batch_chunk, 0)
+        optimizer.zero_grad(set_to_none=True)
 
-            for i in range(args.batch_chunk):
-                # if this is last chunk and distribued mode then use delay_unscale=True for amp
-                if i < args.batch_chunk - 1 and isinstance(para_model, DistributedDataParallel):
-                    with para_model.no_sync():
-                        train_loss_chunk = train_iteration(
-                            para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                            optimizer, device, True, args
-                        )
-                else:
+        # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
+        input_ids_chunks = torch.chunk(input_ids, args.batch_chunk, 0)
+        labels_chunks = torch.chunk(labels, args.batch_chunk, 0)
+
+        for i in range(args.batch_chunk):
+            # if this is last chunk and distribued mode then use delay_unscale=True for amp
+            if i < args.batch_chunk - 1 and isinstance(para_model, DistributedDataParallel):
+                with para_model.no_sync():
                     train_loss_chunk = train_iteration(
                         para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                        optimizer, device, False, args
+                        optimizer, device, True, args
+                    )
+            else:
+                train_loss_chunk = train_iteration(
+                    para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
+                    optimizer, device, False, args
+                )
+
+            train_loss += train_loss_chunk
+
+        if args.fp16:
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+        else:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+
+        if args.fp16:
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            optimizer.step()
+            if optimizer_sparse:
+                optimizer_sparse.step()
+
+        # step-wise learning rate annealing
+        train_step += 1
+        virtual_train_step = train_step / real_virtual_batch_rate
+
+        if virtual_train_step != int(virtual_train_step):
+            continue
+
+        virtual_train_step = int(virtual_train_step)
+
+        if args.scheduler in ['cosine', 'constant', 'dev_perf']:
+            # linear warmup stage
+            if virtual_train_step < args.warmup_step:
+                curr_lr = args.lr * virtual_train_step / args.warmup_step
+                optimizer.param_groups[0]['lr'] = curr_lr
+                if optimizer_sparse:
+                    optimizer_sparse.param_groups[0]['lr'] = curr_lr * 2
+            else:
+                if args.scheduler == 'cosine':
+                    scheduler.step(virtual_train_step - args.warmup_step)
+                    if scheduler_sparse:
+                        scheduler_sparse.step(virtual_train_step - args.warmup_step)
+        elif args.scheduler in ['inv_sqrt', 'cyclic_cosine']:
+            scheduler.step(virtual_train_step)
+            if scheduler_sparse:
+                scheduler_sparse.step(virtual_train_step)
+
+        if virtual_train_step % args.log_interval == 0:
+            cur_loss = train_loss / log_step
+            cur_loss = nv_distributed.all_reduce_item(cur_loss, op='mean')
+            train_loss = 0
+
+            elapsed = time.time() - log_start_time
+            avg_elapsed = elapsed / log_step
+            avg_elapsed = nv_distributed.all_reduce_item(avg_elapsed, op='max')
+            log_start_time = time.time()
+            log_step = 0
+
+            lr = optimizer.param_groups[0]['lr']
+            throughput = labels_tokens / elapsed
+            throughput = nv_distributed.all_reduce_item(throughput, op='sum')
+            meters['train_throughput'].update(throughput)
+            labels_tokens = 0
+
+            log_str = '| epoch {:3d} step {:>8d} | batches {:>6d} / {:d} | lr {:.3e} ' \
+                '| ms/batch {:5.1f} | tok/s {:7.0f} | loss {:5.2f}'.format(
+                    epoch,
+                    virtual_train_step,
+                    virtual_batch,
+                    len(train_itr),
+                    # train_itr.n_batch,
+                    lr,
+                    avg_elapsed * 1000,
+                    throughput,
+                    cur_loss,
                     )
 
-                train_loss += train_loss_chunk
+            dllogger_data = {
+                'epoch': epoch,
+                'train_batch': virtual_batch+1,
+                'lr': lr,
+                'train_time/batch': avg_elapsed * 1000,
+                'train_throughput': throughput,
+                'train_loss': cur_loss,
+                }
 
-            if args.fp16:
-                scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+            if args.dataset in ['enwik8', 'text8']:
+                log_str += ' | bpc {:9.5f}'.format(cur_loss / math.log(2))
+                dllogger_data['train_bits_per_character'] = cur_loss / math.log(2)
             else:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+                log_str += ' | ppl {:9.2f}'.format(math.exp(cur_loss))
+                dllogger_data['train_perplexity'] = math.exp(cur_loss)
 
-            if args.fp16:
-                scaler.step(optimizer)
-                scaler.update()
-            else:
-                optimizer.step()
-                if optimizer_sparse:
-                    optimizer_sparse.step()
+            logging.info(log_str)
+            dllogger.log(step=tuple([virtual_train_step]), data=dllogger_data)
 
-            # step-wise learning rate annealing
-            train_step += 1
-            virtual_train_step = train_step / real_virtual_batch_rate
+        do_periodic_eval = virtual_train_step % args.eval_interval == 0
+        is_final_step = virtual_train_step == args.max_step
+        interrupted = False #timeout_handler.interrupted
 
-            if virtual_train_step != int(virtual_train_step):
-                continue
+        if (do_periodic_eval or is_final_step or interrupted) and not args.no_eval:
+            eval_start_time = time.time()
+            node_metrix = evaluate(valid_itr, model, args, device, eval_nomem=False)
+            val_metrix = EvalMetrics(valid_file_stats.word_count, *node_metrix)
 
-            virtual_train_step = int(virtual_train_step)
-
-            if args.scheduler in ['cosine', 'constant', 'dev_perf']:
-                # linear warmup stage
-                if virtual_train_step < args.warmup_step:
-                    curr_lr = args.lr * virtual_train_step / args.warmup_step
-                    optimizer.param_groups[0]['lr'] = curr_lr
-                    if optimizer_sparse:
-                        optimizer_sparse.param_groups[0]['lr'] = curr_lr * 2
-                else:
-                    if args.scheduler == 'cosine':
-                        scheduler.step(virtual_train_step - args.warmup_step)
-                        if scheduler_sparse:
-                            scheduler_sparse.step(virtual_train_step - args.warmup_step)
-            elif args.scheduler in ['inv_sqrt', 'cyclic_cosine']:
-                scheduler.step(virtual_train_step)
-                if scheduler_sparse:
-                    scheduler_sparse.step(virtual_train_step)
-
-            if virtual_train_step % args.log_interval == 0:
-                cur_loss = train_loss / log_step
-                cur_loss = nv_distributed.all_reduce_item(cur_loss, op='mean')
-                train_loss = 0
-
-                elapsed = time.time() - log_start_time
-                avg_elapsed = elapsed / log_step
-                avg_elapsed = nv_distributed.all_reduce_item(avg_elapsed, op='max')
-                log_start_time = time.time()
-                log_step = 0
-
-                lr = optimizer.param_groups[0]['lr']
-                throughput = labels_tokens / elapsed
-                throughput = nv_distributed.all_reduce_item(throughput, op='sum')
-                meters['train_throughput'].update(throughput)
-                labels_tokens = 0
-
-                log_str = '| epoch {:3d} step {:>8d} | batches {:>6d} / {:d} | lr {:.3e} ' \
-                    '| ms/batch {:5.1f} | tok/s {:7.0f} | loss {:5.2f}'.format(
-                        epoch,
+            logging.info('-' * 100)
+            log_str = '| Eval {:3d} at step {:>8d} | time: {:5.2f}s ' \
+                    '| loss {:5.2f} | word ppl {:5.2f}'.format(
+                        virtual_train_step // args.eval_interval,
                         virtual_train_step,
-                        virtual_batch,
-                        len(train_itr),
-                        # train_itr.n_batch,
-                        lr,
-                        avg_elapsed * 1000,
-                        throughput,
-                        cur_loss,
+                        (time.time() - eval_start_time),
+                        val_metrix.avg_loss, val_metrix.word_ppl
                         )
 
-                dllogger_data = {
-                    'epoch': epoch,
-                    'train_batch': virtual_batch+1,
-                    'lr': lr,
-                    'train_time/batch': avg_elapsed * 1000,
-                    'train_throughput': throughput,
-                    'train_loss': cur_loss,
-                    }
+            dllogger_data = {
+                'valid_elapsed': (time.time() - eval_start_time),
+                'valid_loss': val_metrix.avg_loss,
+                'valid_ppl': val_metrix.ppl,
+                'valid_word_ppl': val_metrix.word_ppl
+                }
 
-                if args.dataset in ['enwik8', 'text8']:
-                    log_str += ' | bpc {:9.5f}'.format(cur_loss / math.log(2))
-                    dllogger_data['train_bits_per_character'] = cur_loss / math.log(2)
-                else:
-                    log_str += ' | ppl {:9.2f}'.format(math.exp(cur_loss))
-                    dllogger_data['train_perplexity'] = math.exp(cur_loss)
+            if args.dataset in ['enwik8', 'text8']:
+                log_str += ' | bpc {:9.5f}'.format(val_metrix.bpc)
+                dllogger_data['valid_bits_per_character'] = val_metrix.bpc
+            else:
+                log_str += ' | ppl {:9.3f}'.format(val_metrix.ppl)
+                dllogger_data['valid_perplexity'] = val_metrix.ppl
+            logging.info(log_str)
+            if args.diffp:
+                logging.info(f'Differential privacy epsilon: {privacy_engine.get_epsilon(DELTA):.2f}')
+            logging.info('-' * 100)
+            dllogger.log(step=tuple([virtual_train_step]), data=dllogger_data)
 
-                logging.info(log_str)
-                dllogger.log(step=tuple([virtual_train_step]), data=dllogger_data)
+            # last_iter = train_itr.last_iter
+            last_iter = (virtual_batch-1) * args.tgt_len
+            # print(f'last_iter {last_iter} - batch: {batch}')
 
-            do_periodic_eval = virtual_train_step % args.eval_interval == 0
-            is_final_step = virtual_train_step == args.max_step
-            interrupted = False #timeout_handler.interrupted
+            # Check if the validation loss is the best we've seen so far.
+            is_best = False
+            if not best_val_loss or val_metrix.avg_loss < best_val_loss:
+                best_val_loss = val_metrix.avg_loss
+                is_best = True
 
-            if (do_periodic_eval or is_final_step or interrupted) and not args.no_eval:
-                eval_start_time = time.time()
-                node_metrix = evaluate(valid_itr, model, args, device, eval_nomem=False)
-                val_metrix = EvalMetrics(valid_file_stats.word_count, *node_metrix)
+            model_to_save = model
+            prefix = ''
 
-                logging.info('-' * 100)
-                log_str = '| Eval {:3d} at step {:>8d} | time: {:5.2f}s ' \
-                        '| loss {:5.2f} | word ppl {:5.2f}'.format(
-                            virtual_train_step // args.eval_interval,
-                            virtual_train_step,
-                            (time.time() - eval_start_time),
-                            val_metrix.avg_loss, val_metrix.word_ppl
-                            )
+            if args.qat:
+                # Convert the model to a regular FP32 model for saving
+                model_float = copy.deepcopy(model)
+                model_float = qat_to_float_modules(model_float)
+                model_to_save = model_float
+                prefix = 'qat_'
 
-                dllogger_data = {
-                    'valid_elapsed': (time.time() - eval_start_time),
-                    'valid_loss': val_metrix.avg_loss,
-                    'valid_ppl': val_metrix.ppl,
-                    'valid_word_ppl': val_metrix.word_ppl
-                    }
+            # if args.diffp:
+            #     model_to_save = copy.deepcopy(model).to_standard_module()
 
-                if args.dataset in ['enwik8', 'text8']:
-                    log_str += ' | bpc {:9.5f}'.format(val_metrix.bpc)
-                    dllogger_data['valid_bits_per_character'] = val_metrix.bpc
-                else:
-                    log_str += ' | ppl {:9.3f}'.format(val_metrix.ppl)
-                    dllogger_data['valid_perplexity'] = val_metrix.ppl
-                logging.info(log_str)
-                if args.diffp:
-                    logging.info(f'Differential privacy epsilon: {privacy_engine.get_epsilon(DELTA):.2f}')
-                logging.info('-' * 100)
-                dllogger.log(step=tuple([virtual_train_step]), data=dllogger_data)
+            save_checkpoint(args, model_to_save, model_config, optimizer, scheduler,
+                            scaler, vocab, epoch, virtual_batch, last_iter,
+                            virtual_train_step, best_val_loss, is_best,
+                            args.work_dir, prefix=prefix)
 
-                # last_iter = train_itr.last_iter
-                last_iter = (virtual_batch-1) * args.tgt_len
-                # print(f'last_iter {last_iter} - batch: {batch}')
+            # dev-performance based learning rate annealing
+            if args.scheduler == 'dev_perf':
+                scheduler.step(val_metrix.avg_loss)
+                if scheduler_sparse:
+                    scheduler_sparse.step(val_metrix.avg_loss)
 
-                # Check if the validation loss is the best we've seen so far.
-                is_best = False
-                if not best_val_loss or val_metrix.avg_loss < best_val_loss:
-                    best_val_loss = val_metrix.avg_loss
-                    is_best = True
+            # subtract eval time from timers for training
+            log_start_time += time.time() - eval_start_time
 
-                model_to_save = model
-                prefix = ''
+        if interrupted:
+            logging.info(f'Received SIGTERM, exiting')
+            sys.exit(0)
 
-                if args.qat:
-                    # Convert the model to a regular FP32 model for saving
-                    model_float = copy.deepcopy(model)
-                    model_float = qat_to_float_modules(model_float)
-                    model_to_save = model_float
-                    prefix = 'qat_'
-
-                # if args.diffp:
-                #     model_to_save = copy.deepcopy(model).to_standard_module()
-
-                save_checkpoint(args, model_to_save, model_config, optimizer, scheduler,
-                                scaler, vocab, epoch, virtual_batch, last_iter,
-                                virtual_train_step, best_val_loss, is_best,
-                                args.work_dir, prefix=prefix)
-
-                # dev-performance based learning rate annealing
-                if args.scheduler == 'dev_perf':
-                    scheduler.step(val_metrix.avg_loss)
-                    if scheduler_sparse:
-                        scheduler_sparse.step(val_metrix.avg_loss)
-
-                # subtract eval time from timers for training
-                log_start_time += time.time() - eval_start_time
-
-            if interrupted:
-                logging.info(f'Received SIGTERM, exiting')
-                sys.exit(0)
-
-            if is_final_step:
-                break
+        if is_final_step:
+            break
+        
     return virtual_train_step, best_val_loss
 
 
@@ -1357,17 +1265,12 @@ def main():
 
         privacy_engine = PrivacyEngine()
 
-        MAX_GRAD_NORM = 1.0
-        EPSILON = 1.0
-        DELTA = 1e-5
-        EPOCHS = 1
-
         para_model, optimizer, train_itr = privacy_engine.make_private(
             module=para_model,
             optimizer=optimizer,
             data_loader=train_itr,
             noise_multiplier=args.noise_multiplier,
-            max_grad_norm=MAX_GRAD_NORM,
+            max_grad_norm=1.0,
         )
 
     # create scheduler

@@ -114,7 +114,9 @@ class FakeDynamicQuant(torch.nn.Module):
 
 class FakeDynamicQuantPython(torch.nn.Module):
     """Inserts a fake dynamic quantizer to allow for a proper scale/zero point calculating
-        when performing Quantization Aware Training.
+        when performing Quantization Aware Training. This is the fully Python (forward and
+        backward) version of FakeDynamicQuant. It was created so that we can save the 
+        self.mask and use it for calculating per-sample gradients.
 
     """
         
@@ -213,6 +215,7 @@ class FakeDynamicQuantPython(torch.nn.Module):
             qval = torch.round(x*inv_scale) + zero_pointi
             x = (torch.clamp(qval, min=self.qmin, max=self.qmax) - zero_pointi) * scalei
 
+            # Creates the mask to simplify the backwards pass
             with torch.no_grad():
                 self.mask = torch.logical_and((self.qmin <= qval), (qval <= self.qmax))
 

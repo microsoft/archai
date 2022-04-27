@@ -32,6 +32,7 @@ class HfGPT2(ArchaiModel):
 
         if self.config.tie_weight:
             self.model.tie_weights()
+            self.model.lm_head.shared = True
 
     def forward(self,
                 input_ids: torch.Tensor,
@@ -92,6 +93,7 @@ class HfGPT2Flex(ArchaiModel):
 
         if self.config.tie_weight:
             self.model.tie_weights()
+            self.model.lm_head.shared = True
 
     def forward(self,
                 input_ids: torch.Tensor,

@@ -212,6 +212,9 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
         qat_linear.weight = mod.weight
         qat_linear.bias = mod.bias
 
+        if hasattr(mod, 'shared'):
+            qat_linear.shared = True
+
         return qat_linear
 
     def to_float(self) -> torch.nn.Module:
