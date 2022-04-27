@@ -535,13 +535,14 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
 
     if args.diffp:
         max_physical_batch_size = 48
-        real_virtual_batch_rate = args.batch_size / max_physical_batch_size
         DELTA = 1 / (len(train_iter) * args.batch_size)
         train_iter = wrap_data_loader(data_loader=train_iter, max_batch_size=max_physical_batch_size, optimizer=optimizer)
         num_batches = len(train_itr)
     else:
         num_batches = train_itr.n_batch
         max_physical_batch_size = args.batch_size
+
+    real_virtual_batch_rate = args.batch_size / max_physical_batch_size
 
     logging.info('Starting training...')
 
