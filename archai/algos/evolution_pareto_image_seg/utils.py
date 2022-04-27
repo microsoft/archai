@@ -1,5 +1,6 @@
 import re
 import tempfile
+import datetime
 from time import time
 from pathlib import Path
 from typing import Optional, Tuple, Dict
@@ -8,6 +9,12 @@ import torch
 from torch import profiler
 from onnxruntime import InferenceSession
 from efficientnet_pytorch.model import MBConvBlock
+
+
+def get_utc_date():
+    current_date = datetime.datetime.now()
+    current_date = current_date.replace(tzinfo=datetime.timezone.utc)
+    return current_date.isoformat()
 
 
 def count_parameters(model: torch.nn.Module) -> int:

@@ -63,6 +63,15 @@ nas:
     min_delta_channels: 8
     max_delta_channels: 48
     delta_channels_binwidth: 8
+    
+    use_remote_benchmark: False
+    remote_benchmark_config:
+      connection_string_env_var_name: ''
+      blob_container_name: ''
+      table_name: ''
+      partition_key: ''
+      metrics: ''
+      overwrite: false
 
     loader:
       batch_size: 16 # TODO: batch size 16 has lr 2e-4. can we increase batch size? what lr?

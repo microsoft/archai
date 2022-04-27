@@ -67,6 +67,9 @@ class EvolutionParetoSearch(Searcher):
             mix_pop.append(self.search_space.random_sample())
         return mix_pop
 
+    def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
+        ''' Callback function called right after calc_task_accuracy()'''
+        pass
 
     @overrides
     def search(self, conf_search:Config):
@@ -105,6 +108,7 @@ class EvolutionParetoSearch(Searcher):
             # to partial training
             logger.info(f'iter {i}: calculating task accuracy for {len(unseen_pop)} models')
             self.calc_task_accuracy(unseen_pop)  
+            self.on_calc_task_accuracy_end(unseen_pop)
 
             # update the pareto frontier
             logger.info(f'iter {i}: updating the pareto')

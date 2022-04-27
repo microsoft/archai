@@ -1,4 +1,7 @@
 import os
+import time
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 import random
@@ -24,7 +27,8 @@ from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.segmentation_search_spaces.discrete_search_space_segmentation import DiscreteSearchSpaceSegmentation
 
 from archai.algos.evolution_pareto_image_seg.segmentation_trainer import SegmentationTrainer, get_custom_overall_metrics
-from archai.algos.evolution_pareto_image_seg.utils import profile_torch, profile_onnx, get_onnx_latency, to_onnx
+from archai.algos.evolution_pareto_image_seg.utils import get_onnx_latency, to_onnx, get_utc_date
+from archai.algos.evolution_pareto_image_seg.remote_benchmark import RemoteAzureBenchmark
 
 from archai.nas.constraints.torch_constraints import measure_torch_inference_latency, measure_torch_peak_memory
 from archai.nas.constraints.pareto_frontier import find_pareto_frontier_points
@@ -34,7 +38,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     @overrides
     def search(self, conf_search:Config)->SearchResult:
 
-        # region config vars
         self.dataroot = utils.full_path(conf_search['loader']['dataset']['dataroot'])
         self.dataset_name = conf_search['loader']['dataset']['name']
         self.conf_train = conf_search['trainer']
@@ -54,7 +57,24 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.min_delta_channels = conf_search['min_delta_channels']
         self.max_delta_channels = conf_search['max_delta_channels']
         self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
-        # endregion
+
+        self.use_remote_benchmark = conf_search['use_remote_benchmark']
+
+        if self.use_remote_benchmark:
+            remote_config = conf_search['remote_benchmark_config']
+            assert 'connection_string_env_var_name' in remote_config
+            assert remote_config['connection_string_env_var_name'] in os.environ
+
+            con_string = os.environ[remote_config['connection_string_env_var_name']]
+
+            self.remote_benchmark = RemoteAzureBenchmark(
+                connection_string=con_string, 
+                blob_container_name=remote_config['blob_container_name'],
+                table_name=remote_config['table_name'],
+                partition_key=remote_config['partition_key'],
+                metrics=remote_config['metrics'],
+                overwrite=remote_config['overwrite']
+            )
 
         # eval cache so that if search visits
         # a network already evaluated then we don't
@@ -77,10 +97,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     @overrides
     def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
         # computes memory and latency of each model
-        # and updates the meta data
-        
         for p in tqdm(population):
-            
             latency_ms = get_onnx_latency(p.arch, img_size=p.arch.img_size)
 
             # TODO: get peak memory of the onnx model
@@ -91,9 +108,11 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                                                     n_threads=1,
                                                     device='cpu')
 
-            p.metadata['latency'] = latency_ms
-            p.metadata['memory'] = peak_mem_mb
-
+            if not self.use_remote_benchmark:
+                p.metadata['latency'], p.metadata['memory'] = latency_ms, peak_mem_mb
+            else:
+                p.metadata['proxy_latency'], p.metadata['proxy_memory'] = latency_ms, peak_mem_mb
+                self.remote_benchmark.send_model(p)
 
     @overrides
     def calc_task_accuracy(self, population:List[ArchWithMetaData])->None:
@@ -120,6 +139,40 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         for r, p in zip(results, population):
             p.metadata['f1'] = r
+
+    @overrides
+    def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
+        if self.remote_benchmark:
+            evaluated = set()
+            logger.info('Gathering remote benchmark results...')
+            pbar = tqdm(total=len(current_pop), desc='Gathering remote benchmark results...')
+
+            while len(evaluated) < len(current_pop):
+                for i, p in enumerate(current_pop):
+                    if i in evaluated:
+                        continue
+
+                    metrics = self.remote_benchmark.get_entity(
+                        str(p.metadata['archid'])
+                    )
+
+                    # Updates the metadata with the remote benchmark metrics
+                    if 'mean' in metrics and metrics['mean']:
+                        if 'memory_usage' in metrics and metrics['memory_usage']:
+                            p.metadata['latency'] = metrics['mean']
+                            p.metadata['memory'] = metrics['memory_usage']
+                            evaluated.add(i)
+                            pbar.update()
+
+                if len(evaluated) < len(current_pop):
+                    pbar.set_description('Sleeping...')
+                    logger.info(
+                        'Waiting remote benchmark results for '
+                        f'{len(current_pop) - len(evaluated)} models...'
+                    )
+                    time.sleep(120)
+
+            logger.info('Finished gathering remote benchmark results.')
 
 
     def _create_training_job(self, arch:ArchWithMetaData)->List:
