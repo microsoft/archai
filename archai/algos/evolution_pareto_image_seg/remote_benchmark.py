@@ -15,7 +15,6 @@ class RemoteAzureBenchmark():
                  blob_container_name: str,
                  table_name: str,
                  partition_key: str,
-                 metrics: Union[str, List[str]],
                  overwrite: bool = True):
         """ 
             Simple adapter for benchmarking architectures asynchronously on Azure.
@@ -27,7 +26,6 @@ class RemoteAzureBenchmark():
             blob_container_name (str): Name of the blob container
             table_name (str): Name of the table
             partition_key (str): Partition key for the table used to record all entries
-            metrics (List[str]): List of metrics to be read from the table
             overwrite (bool, optional): Whether to overwrite existing models. Defaults to True.
         """
 
@@ -44,8 +42,6 @@ class RemoteAzureBenchmark():
         logger.setLevel(logging.ERROR)
 
         self.partition_key = partition_key
-
-        self.metrics = metrics.split(',') if isinstance(metrics, str) else metrics
         self.overwrite = overwrite
 
     @property
