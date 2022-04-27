@@ -3,6 +3,8 @@ from copy import deepcopy
 from functools import partial
 from typing import Tuple, List, Dict, MutableMapping, Optional
 from pathlib import Path
+import json
+from hashlib import sha1
 import math
 import yaml
 
@@ -318,18 +320,21 @@ class SegmentationNasModel(torch.nn.Module):
         # Shows the graph 
         return dot
 
-    def to_file(self, path: str) -> None:
+    def to_config(self) -> Dict:
         ch_map = self.channels_per_scale
         ch_map = (
             {k: ch_map[k] for k in ['base_channels', 'delta_channels']}
             if 'base_channels' in ch_map else ch_map
         )
 
-        content = {
+        return {
             'post_upsample_layers': self.post_upsample_layers,
             'channels_per_scale': ch_map,
             'architecture': list(self.node_info.values())
         }
+
+    def to_file(self, path: str) -> None:
+        content = self.to_config()
 
         with open(path, 'w') as fp:
             fp.write(yaml.dump(content))
@@ -342,3 +347,7 @@ class SegmentationNasModel(torch.nn.Module):
             for k, v in content['channels_per_scale'].items()
         )
 
+    def to_hash(self) -> str:
+        config = self.to_config()
+        arch_str = json.dumps(config, sort_keys=True, ensure_ascii=True)
+        return sha1(arch_str.encode('ascii')).hexdigest()
