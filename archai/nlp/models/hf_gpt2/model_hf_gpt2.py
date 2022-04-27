@@ -32,6 +32,8 @@ class HfGPT2(ArchaiModel):
 
         if self.config.tie_weight:
             self.model.tie_weights()
+            # Set the shared attribute so that Opacus knows that
+            # hte gradients must be summed and are not a new batch
             self.model.lm_head.shared = True
 
     def forward(self,
@@ -93,6 +95,8 @@ class HfGPT2Flex(ArchaiModel):
 
         if self.config.tie_weight:
             self.model.tie_weights()
+            # Set the shared attribute so that Opacus knows that
+            # hte gradients must be summed and are not a new batch
             self.model.lm_head.shared = True
 
     def forward(self,

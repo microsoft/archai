@@ -27,7 +27,6 @@ import yaml
 from archai.common import ml_perf_utils, utils
 from archai.nlp.models.model_mixed_qat import MixedQATModel
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
-from archai.nlp.compression.quantization.modules import FakeDynamicQuantHFConv1DForOnnx, FakeDynamicQuantLinearForOnnx, FakeQuantEmbeddingForOnnx
 from archai.nlp.models.model_loader import (load_model_from_config,
                                            load_model_from_checkpoint)
 from archai.nlp.compression.quantization.qat import (prepare_with_qat,
@@ -43,12 +42,9 @@ from archai.nlp.models.model_utils import lamb_optimizer
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from torch.nn.parallel import DistributedDataParallel
 
-from onnxruntime.transformers import quantize_helper
-
+from opacus import PrivacyEngine
+from opacus.validators import ModuleValidator
 from opacus.utils.batch_memory_manager import wrap_data_loader
-
-import torch
-import torch.nn as nn
 
 import archai.nlp.diffp
 
@@ -414,8 +410,9 @@ def evaluate(eval_iter, model, args, device, eval_nomem=True):
         mems = None
         for batches, (input_ids, labels, seq_len, warm) in enumerate(eval_iter):
 
-            input_ids = input_ids.to(device, non_blocking=True)
-            labels = labels.to(device, non_blocking=True)
+            if args.diffp:
+                input_ids = input_ids.to(device, non_blocking=True)
+                labels = labels.to(device, non_blocking=True)
 
             steps += 1
             if args.eval_max_steps > 0 and i >= args.eval_max_steps:
@@ -433,13 +430,13 @@ def evaluate(eval_iter, model, args, device, eval_nomem=True):
                 loss_nomem = loss_nomem.float().mean()
 
             total_len_nowarmup += numel
-            
-            # assert (mems is None) or mems.size(1) == model.mem_len
-            total_loss += numel * loss.item()
-            total_len += numel
+            if warm:
+                # assert (mems is None) or mems.size(1) == model.mem_len
+                total_loss += numel * loss.item()
+                total_len += numel
 
-            if eval_nomem:
-                total_loss_nomem += numel * loss_nomem.item()
+                if eval_nomem:
+                    total_loss_nomem += numel * loss_nomem.item()
 
     elapsed = time.time() - start_time
 
@@ -1091,6 +1088,23 @@ def create_scheduler(args, optimizer, optimizer_sparse):
     return scheduler, scheduler_sparse
 
 
+def make_private_and_validate(module, optimizer, data_loader, noise_multiplier):
+
+    errors = ModuleValidator.validate(module, strict=True)
+
+    if len(errors) > 0:
+        raise RuntimeError(str(errors))
+
+    privacy_engine = PrivacyEngine()
+
+    return privacy_engine.make_private(
+            module=module,
+            optimizer=optimizer,
+            data_loader=data_loader,
+            noise_multiplier=noise_multiplier,
+            max_grad_norm=1.0)
+
+
 def train_main(args, device, train_itr, valid_itr, model, para_model, model_config,
                 optimizer, optimizer_sparse, scheduler,
                 scheduler_sparse, scaler, vocab, valid_file_stats, privacy_engine):
@@ -1136,8 +1150,8 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
     start_time = time.time()
     try:
         for epoch in itertools.count(start=start_epoch):
-            # if args.roll: # enable random shifts in datasets
-            #     train_itr.roll(seed=args.seed + epoch)
+            if args.roll and not args.diffp: # enable random shifts in datasets
+                train_itr.roll(seed=args.seed + epoch)
             train_step, best_val_loss = train(
                 train_itr, valid_itr, model, para_model, model_config,
                 optimizer, optimizer_sparse, scheduler,
@@ -1235,18 +1249,6 @@ def main():
     ntokens = len(vocab)
     model, model_config = create_or_load_model(args, device, ntokens)
 
-
-    # for layer in model.model.transformer.h:
-    #     quantize_helper.conv1d_to_linear(layer.mlp)
-
-    # quantize_helper.conv1d_to_linear(model)
-
-
-    from opacus.validators import ModuleValidator
-
-    errors = ModuleValidator.validate(model, strict=False)
-    print(errors)
-
     # create optimizer
     optimizer, optimizer_sparse = create_optimizer(args, model)
 
@@ -1258,20 +1260,11 @@ def main():
     # enable distributed training
     para_model, model = distributed_model(args, model, device)
 
+    # Differential privacy
     privacy_engine = None
 
     if args.diffp:
-        from opacus import PrivacyEngine
-
-        privacy_engine = PrivacyEngine()
-
-        para_model, optimizer, train_itr = privacy_engine.make_private(
-            module=para_model,
-            optimizer=optimizer,
-            data_loader=train_itr,
-            noise_multiplier=args.noise_multiplier,
-            max_grad_norm=1.0,
-        )
+        para_model, optimizer, train_itr = make_private_and_validate(para_model, optimizer, train_itr, args.noise_multiplier)
 
     # create scheduler
     scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
