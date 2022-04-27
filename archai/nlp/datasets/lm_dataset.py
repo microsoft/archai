@@ -25,4 +25,4 @@ class LMDataset(Dataset):
 
         input_ids = self.input_ids[beg_idx:end_idx]
         labels = self.input_ids[beg_idx+1:end_idx+1]
-        return input_ids, labels, self.bptt, False
+        return input_ids, labels, self.bptt, True

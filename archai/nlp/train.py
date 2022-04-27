@@ -525,37 +525,33 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
 
     mems = [None for _ in range(args.batch_chunk)]
     # Changes to make train_iter for lm1b to be properly caught
-    # if args.dataset != 'lm1b':
-    #     if args.varlen:
-    #         train_iter = train_itr.get_varlen_iter(start=last_iter)
-    #     else:
-    #         train_iter = train_itr.get_fixlen_iter(start=last_iter)
-    # else:
-    #     train_iter = train_itr
+    if args.dataset != 'lm1b' and not args.diffp:
+        if args.varlen:
+            train_iter = train_itr.get_varlen_iter(start=last_iter)
+        else:
+            train_iter = train_itr.get_fixlen_iter(start=last_iter)
+    else:
+        train_iter = train_itr
 
-    train_iter = train_itr
+    if args.diffp:
+        max_physical_batch_size = 48
+        real_virtual_batch_rate = args.batch_size / max_physical_batch_size
+        DELTA = 1 / (len(train_iter) * args.batch_size)
+        train_iter = wrap_data_loader(data_loader=train_iter, max_batch_size=max_physical_batch_size, optimizer=optimizer)
+        num_batches = len(train_itr)
+    else:
+        num_batches = train_itr.n_batch
+        max_physical_batch_size = args.batch_size
 
-    # print(f'Last iter start: {last_iter}')
-    # if args.dataset != 'lm1b':
-    #     if args.varlen:
-    #         train_iter = train_itr.get_varlen_iter(start=last_iter)
-    #     else:
-    #         train_iter = train_itr.get_fixlen_iter(start=last_iter)
-    # else:
-    #     train_iter = train_itr
-
-    max_physical_batch_size = 48
-    real_virtual_batch_rate = args.batch_size / max_physical_batch_size
-    DELTA = 1 / (len(train_iter) * args.batch_size)
     logging.info('Starting training...')
 
-    new_train_iter = wrap_data_loader(data_loader=train_iter, max_batch_size=max_physical_batch_size, optimizer=optimizer)
-    # new_train_iter = train_iter
-    for batch, (input_ids, labels, seq_len, _) in enumerate(new_train_iter, start=last_batch+1):
+    for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
 
         virtual_batch = int(batch / real_virtual_batch_rate)
-        input_ids = input_ids.to(device, non_blocking=True)
-        labels = labels.to(device, non_blocking=True)
+
+        if args.diffp:
+            input_ids = input_ids.to(device, non_blocking=True)
+            labels = labels.to(device, non_blocking=True)
 
         log_step += 1
         labels_tokens += labels.numel()
@@ -644,8 +640,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                     epoch,
                     virtual_train_step,
                     virtual_batch,
-                    len(train_itr),
-                    # train_itr.n_batch,
+                    num_batches,
                     lr,
                     avg_elapsed * 1000,
                     throughput,
@@ -703,14 +698,14 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                 log_str += ' | ppl {:9.3f}'.format(val_metrix.ppl)
                 dllogger_data['valid_perplexity'] = val_metrix.ppl
             logging.info(log_str)
+
             if args.diffp:
                 logging.info(f'Differential privacy epsilon: {privacy_engine.get_epsilon(DELTA):.2f}')
+
             logging.info('-' * 100)
             dllogger.log(step=tuple([virtual_train_step]), data=dllogger_data)
 
-            # last_iter = train_itr.last_iter
-            last_iter = (virtual_batch-1) * args.tgt_len
-            # print(f'last_iter {last_iter} - batch: {batch}')
+            last_iter = (virtual_batch-1) * args.tgt_len if args.diffp else train_itr.last_iter
 
             # Check if the validation loss is the best we've seen so far.
             is_best = False
