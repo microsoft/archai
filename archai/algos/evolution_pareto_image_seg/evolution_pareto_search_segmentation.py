@@ -142,7 +142,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
-        if self.remote_benchmark:
+        if self.use_remote_benchmark:
             evaluated = set()
             logger.info('Gathering remote benchmark results...')
             pbar = tqdm(total=len(current_pop), desc='Gathering remote benchmark results...')
@@ -268,9 +268,12 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     @overrides
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
         all_data, pareto_data = [
-            {k: p.metadata[k] for k in ['f1', 'latency', 'memory', 'archid'] for p in pop}
+            {k: [p.metadata[k] for p in pop] for k in ['f1', 'latency', 'memory', 'archid'] }
             for pop in [all_pop, pareto]
         ]
+
+        # Converts archids to str
+        all_data['archid'] = list(map(str, all_data['archid']))
 
         fig = go.Figure()
         fig.add_trace(go.Scatter3d(x=all_data['f1'], 
