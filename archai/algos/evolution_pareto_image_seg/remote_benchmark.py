@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Dict, List, Union
 
+from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
 from azure.storage.blob import BlobServiceClient
 from azure.data.tables import TableServiceClient, UpdateMode
 
@@ -49,6 +50,14 @@ class RemoteAzureBenchmark():
         return self.table_service_client.create_table_if_not_exists(
             self.table_name
         ) 
+
+    def __contains__(self, rowkey_id: str):
+        try:
+            self.get_entity(rowkey_id)
+        except ResourceNotFoundError:
+            return False
+        
+        return True
 
     def upload_blob(self, src_path: str, dst_path: str) -> None:
         src_path = Path(src_path)

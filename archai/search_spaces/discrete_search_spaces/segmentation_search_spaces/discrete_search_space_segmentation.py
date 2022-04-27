@@ -108,7 +108,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 'graph': graph,
                 'channels_per_scale': channels_per_scale,
                 'post_upsample_layers': model.post_upsample_layers,
-                'archid': uuid.uuid4(), #TODO: need to replace with a string of the graph 
+                'archid': model.to_hash()
             }
             arch_meta = ArchWithMetaData(model, meta_data)
 
@@ -179,7 +179,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                             'graph': graph,
                             'channels_per_scale': channels_per_scale,
                             'post_upsample_layers': post_upsample_layers,
-                            'archid': uuid.uuid4(), #TODO: need to replace with a string of the graph 
+                            'archid': model.to_hash()
                         }
 
             arch_meta = ArchWithMetaData(model, extradata)
