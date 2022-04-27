@@ -208,6 +208,7 @@ class SegmentationTrainer():
         )
 
         trainer.fit(self.model, self.tr_dataloader, self.val_dataloader)
+        trainer.save_checkpoint(str(run_path / 'model.ckpt'))
         return trainer
 
     def fit_and_validate(self, run_path: str)->float:
