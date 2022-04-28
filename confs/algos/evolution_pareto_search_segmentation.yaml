@@ -63,6 +63,7 @@ nas:
     min_delta_channels: 8
     max_delta_channels: 48
     delta_channels_binwidth: 8
+    mutations_per_parent: 2
     
     use_remote_benchmark: False
     remote_benchmark_config:
