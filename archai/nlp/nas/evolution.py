@@ -228,12 +228,12 @@ class Evolution:
 
         """
 
-        # Converts gene to configuration
-        config = self.converter.gene_to_config(gene)
+        config, proxy, total_params, latency, memory = self._calculate_gene_constraints(gene)
+
         for d_inner in config['d_inner']:
             if d_inner < int(1.7 * config['d_model']):
                 print(f'Invalid gene: {gene} has {d_inner} < {int(1.7 * config["d_model"])} d_inner')
-                return False
+                return False, proxy, total_params, latency, memory
 
         # Loads model from current configuration
         model_config = copy.deepcopy(self.model_config)
@@ -245,33 +245,19 @@ class Evolution:
 
         if proxy_params_analytical < self.param_constraint_lower:
             print(f'Invalid gene: {gene} has {proxy_params_analytical/1e6:.4f}M < {self.param_constraint_lower/1e6:.4f}M parameters')
-            return False
+            return False, proxy, total_params, latency, memory
     
         if proxy_params_analytical > self.param_constraint_upper:
             print(f'Invalid gene: {gene} has {proxy_params_analytical/1e6:.4f}M > {self.param_constraint_upper/1e6:.4f}M parameters')
-            return False
+            return False, proxy, total_params, latency, memory
 
         # Checks the latency constraint
         if self.latency_constraint_upper is not None:
-            if self.constraint_pipeline_type == 'torch':
-                model = load_model_from_config(self.model_type, model_config)
-                latency = measure_torch_inference_latency(model,
-                                                          use_quantization=self.use_quantization,
-                                                          n_threads=self.n_threads,
-                                                          n_trials=self.latency_repeat,
-                                                          device=self.device)
-
-            elif self.constraint_pipeline_type == 'onnx':
-                latency = measure_onnx_inference_latency(self.model_type,
-                                                         model_config,
-                                                         use_quantization=self.use_quantization,
-                                                         n_trials=self.latency_repeat)
-            
             if latency > self.latency_constraint_upper:
                 print(f'Invalid gene: {gene} has {latency:.4f}s > {self.latency_constraint_upper}s latency')
-                return False
+                return False, proxy, total_params, latency, memory
 
-        return True
+        return True, proxy, total_params, latency, memory
 
     def _calculate_gene_constraints(self, gene: List[Any]) -> Tuple[Dict[str, Any], Union[int, float], int, float, float]:
         """Calculates an individual gene constraints.
@@ -654,6 +640,10 @@ class Evolution:
         """
 
         population = []
+        population_proxies = []
+        population_total_params = []
+        population_latencies = []
+        population_memories = []
 
         i = 0
         while i < n_samples:
@@ -673,12 +663,17 @@ class Evolution:
                 if 'd_model' in k:
                     sampled_d_model = sampled_gene[-1]
 
-            if self._check_gene_constraints(sampled_gene):
+            satisfies_constraints, proxy, total_params, latency, memory = self._check_gene_constraints(sampled_gene)
+            if satisfies_constraints: #self._check_gene_constraints(sampled_gene):
                 population.append(sampled_gene)
+                population_proxies.append(proxy)
+                population_total_params.append(total_params)
+                population_latencies.append(latency)
+                population_memories.append(memory)
                 i += 1
                 print(f'Valid architectures: {i}/{n_samples}')
 
-        return population
+        return population, population_proxies, population_total_params, population_latencies, population_memories
 
     def search(self) -> None:
         """Performs the actual search.
@@ -686,7 +681,11 @@ class Evolution:
         """
 
         # Samples the initial population    
-        population = self.sample_random_population(self.population_size)
+        population, \
+        population_proxies_unseen, \
+        population_total_params_unseen, \
+        population_latencies_unseen, \
+        population_memories_unseen = self.sample_random_population(self.population_size)
 
         self.all_population = population
         self._update_population_count(population)
@@ -707,12 +706,6 @@ class Evolution:
         for i in range(self.n_iter):
             idx = 0 if i == 0 else self.parent_size
             print(f'Iteration {i+1}/{self.n_iter}')
-
-            # Calculates proxies, total parameters, latencies and memories
-            population_proxies_unseen, \
-            population_total_params_unseen, \
-            population_latencies_unseen, \
-            population_memories_unseen = self._calculate_population_constraints(population[idx:])
 
             population_proxies = parents_proxies + population_proxies_unseen
             population_total_params = parents_total_params + population_total_params_unseen
@@ -746,14 +739,25 @@ class Evolution:
             parents_latencies = [self.pareto['latencies'][m] for m in selected_idx]
             parents_memories = [self.pareto['memories'][m] for m in selected_idx]
             
+            population_proxies_unseen = []
+            population_total_params_unseen = []
+            population_latencies_unseen = []
+            population_memories_unseen = []
+
             # Mutates random `k` subsets of the parents
             # while ensuring the mutations fall within desired constraint limits
             mutated_population, k = [], 0
             while k < self.mutation_size:
                 mutated_gene = self._mutation(random.choices(parents_population)[0])
                 
-                if self._check_gene_constraints(mutated_gene) and not self._is_seen_before(mutated_gene):
+                satisfies_constraints, proxy, total_params, latency, memory = self._check_gene_constraints(mutated_gene)
+                if satisfies_constraints and not self._is_seen_before(mutated_gene):
                     mutated_population.append(mutated_gene)
+                    population_proxies_unseen.append(proxy)
+                    population_total_params_unseen.append(total_params)
+                    population_latencies_unseen.append(latency)
+                    population_memories_unseen.append(memory)
+
                     k += 1
 
             # Crossovers random `k` subsets of the parents
@@ -762,8 +766,14 @@ class Evolution:
             while k < self.crossover_size:
                 crossovered_gene = self._crossover(random.sample(parents_population, 2))
 
-                if self._check_gene_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
+                satisfies_constraints, proxy, total_params, latency, memory = self._check_gene_constraints(crossovered_gene)
+                if satisfies_constraints and not self._is_seen_before(crossovered_gene):
                     crossovered_population.append(crossovered_gene)
+                    population_proxies_unseen.append(proxy)
+                    population_total_params_unseen.append(total_params)
+                    population_latencies_unseen.append(latency)
+                    population_memories_unseen.append(memory)
+
                     k += 1
 
             # Appends current information to the logs
