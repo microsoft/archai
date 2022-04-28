@@ -430,7 +430,7 @@ def evaluate(eval_iter, model, args, device, eval_nomem=True):
                 loss_nomem = loss_nomem.float().mean()
 
             total_len_nowarmup += numel
-            if warm:
+            if isinstance(warm, torch.Tensor) or warm:
                 # assert (mems is None) or mems.size(1) == model.mem_len
                 total_loss += numel * loss.item()
                 total_len += numel
@@ -723,9 +723,6 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                 model_float = qat_to_float_modules(model_float)
                 model_to_save = model_float
                 prefix = 'qat_'
-
-            # if args.diffp:
-            #     model_to_save = copy.deepcopy(model).to_standard_module()
 
             save_checkpoint(args, model_to_save, model_config, optimizer, scheduler,
                             scaler, vocab, epoch, virtual_batch, last_iter,
@@ -1098,7 +1095,7 @@ def make_private_and_validate(module, optimizer, data_loader, noise_multiplier):
             optimizer=optimizer,
             data_loader=data_loader,
             noise_multiplier=noise_multiplier,
-            max_grad_norm=1.0)
+            max_grad_norm=1.0), privacy_engine
 
 
 def train_main(args, device, train_itr, valid_itr, model, para_model, model_config,
@@ -1260,7 +1257,7 @@ def main():
     privacy_engine = None
 
     if args.diffp:
-        para_model, optimizer, train_itr = make_private_and_validate(para_model, optimizer, train_itr, args.noise_multiplier)
+        (para_model, optimizer, train_itr), privacy_engine = make_private_and_validate(para_model, optimizer, train_itr, args.noise_multiplier)
 
     # create scheduler
     scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
@@ -1277,10 +1274,6 @@ def main():
 
     input_ids, *_ = next(iter(valid_itr))
     model.to('cpu')
-
-    if args.diffp:
-        # model = model.to_standard_module()
-        pass
     
     input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
     pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
@@ -1344,9 +1337,15 @@ def main():
         model, model_config, _ = load_model_from_checkpoint(args.model_type, checkpoint_path, replace_model_config=replace_model_config, on_cpu=False)
 
         # Prepares the model with QAT (also allows for distributed training)
-        model = prepare_with_qat(model, onnx_compatible=True)
+        model = prepare_with_qat(model, onnx_compatible=True, diffp=args.diffp)
         model = model.to(device)
         para_model, model = distributed_model(args, model, device)
+
+        # re-create optimizer
+        optimizer, optimizer_sparse = create_optimizer(args, model)
+
+        if args.diffp:
+            (para_model, optimizer, train_itr), privacy_engine = make_private_and_validate(para_model, optimizer, train_itr, args.noise_multiplier)
 
         # QAT-based arguments
         args.restart = None
@@ -1358,16 +1357,13 @@ def main():
         args.warmup_step = 1000
         args.optim = 'adam'
 
-        # re-create optimizer
-        optimizer, optimizer_sparse = create_optimizer(args, model)
-
         # re-create scheduler
         scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
 
         # Performs a QAT fine-tuning
         training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
                                                           model_config, optimizer, optimizer_sparse, scheduler,
-                                                          scheduler_sparse, scaler, vocab, file_stats[1])
+                                                          scheduler_sparse, scaler, vocab, file_stats[1], privacy_engine)
 
 
 if __name__ == "__main__":
