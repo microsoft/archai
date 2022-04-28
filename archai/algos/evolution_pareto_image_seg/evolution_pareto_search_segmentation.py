@@ -130,7 +130,18 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         os.makedirs(save_folder, exist_ok=True)
 
         fit_refs = []
-        for p in population:
+
+        pop_to_eval = [
+            p for p in population
+            if p.metadata['archid'] not in self.eval_cache
+        ]
+
+        if len(pop_to_eval) < len(population):
+            logger.info(
+                f'{len(population) - len(pop_to_eval)} evaluation cache hits'
+            )
+
+        for p in pop_to_eval:
             # create a ray actor per model to be trained
             actor_ref = self._create_training_job(p)
             # create a folder name for the model training logs
@@ -142,8 +153,15 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # gather all results for all models
         results = ray.get(fit_refs)
 
-        for r, p in zip(results, population):
+        # Cached results
+        for p in population:
+            if p.metadata['archid'] in self.eval_cache:
+                p.metadata['f1'] = self.eval_cache[p.metadata['archid']]
+
+        # Evaluation results
+        for r, p in zip(results, pop_to_eval):
             p.metadata['f1'] = r
+            self.eval_cache[p.metadata['archid']] = r
 
     @overrides
     def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
