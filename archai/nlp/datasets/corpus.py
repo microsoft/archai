@@ -125,7 +125,7 @@ class Corpus:
 
     def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
         train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
-        return (None, \
+        return (Corpus._get_file_stats(train_filepath), \
                 Corpus._get_file_stats(valid_filepath), \
                 Corpus._get_file_stats(test_filepath))
 
