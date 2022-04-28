@@ -4,8 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
-import random
-import yaml
+import pandas as pd
 import ray
 
 import torch
@@ -96,6 +95,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     @overrides
     def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
         # computes memory and latency of each model
+        cache_misses = 0
         for p in tqdm(population):
             latency_ms = get_onnx_latency(p.arch, img_size=p.arch.img_size)
 
@@ -114,7 +114,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                 
                 # Checks if this architecture was already benchmarked before
                 if p.metadata['archid'] not in self.remote_benchmark:
+                    cache_misses += 1
                     self.remote_benchmark.send_model(p)
+        logger.info(f'{len(population) - cache_misses} benchmark cache hits')
 
     @overrides
     def calc_task_accuracy(self, population:List[ArchWithMetaData])->None:
@@ -266,9 +268,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         '''TODO: Returning empty for now '''
         return []
 
-
     @overrides
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
+        # TODO: refactor this function to use a dataframe instead of the model list
         all_data, pareto_data = [
             {k: [p.metadata[k] for p in pop] for k in ['f1', 'latency', 'memory', 'archid'] }
             for pop in [all_pop, pareto]
@@ -312,3 +314,21 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         png_path = os.path.join(expdir, f'search_state_{iter_num}.png')
         fig.write_image(png_path, engine='kaleido', width=1500, height=1500, scale=1) 
+
+    @overrides
+    def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
+        all_data = {
+            k: [p.metadata[k] if k in p.metadata else None for p in all_pop]
+            for k in ['archid', 'f1', 'latency', 'memory', 'proxy_latency', 'proxy_memory']
+        }
+        pareto_ids = [p.metadata['archid'] for p in pareto]
+
+        status_df = pd.DataFrame(all_data)
+        status_df['iter_num'] = iter_num
+        status_df['is_pareto'] = False
+        status_df.loc[status_df['archid'].isin(pareto_ids), 'is_pareto'] = True
+
+        # Saves the status
+        expdir = get_expdir()
+        status_df.to_csv(os.path.join(expdir, f'search_status_{iter_num}.csv'))
+        pass

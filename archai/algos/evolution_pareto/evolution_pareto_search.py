@@ -53,6 +53,10 @@ class EvolutionParetoSearch(Searcher):
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
         pass
 
+    @abstractmethod
+    def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
+        pass
+
 
     def _sample_init_population(self)->List[ArchWithMetaData]:
         init_pop:List[ArchWithMetaData] = []
@@ -123,7 +127,8 @@ class EvolutionParetoSearch(Searcher):
             logger.info(f'iter {i}: chose {len(parents)} parents')
 
             # plot the state of search
-            self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=i) 
+            self.save_search_status(all_pop=self.all_pop, pareto=pareto, iter_num=i)
+            self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=i)
 
             # mutate random 'k' subsets of the parents
             # while ensuring the mutations fall within 
