@@ -243,13 +243,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         os.makedirs(save_folder, exist_ok=True)
         for p in points:
             this_name = os.path.join(save_folder, str(p.metadata['archid']) + '.yaml')
-            save_dict = {
-                            'channels_per_scale': p.metadata['channels_per_scale'],
-                            'architecture': p.metadata['graph']
-                        }
-            with open(this_name, 'w') as f:
-                _ = yaml.dump(save_dict, f)
-        
+            p.arch.to_file(this_name)
 
 
     @overrides
