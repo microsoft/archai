@@ -1,0 +1,600 @@
+config_0_j1:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 1
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j10:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 10
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j11:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 11
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j12:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 12
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j13:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 13
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j14:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 14
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j15:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 15
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j2:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 2
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j3:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 3
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j4:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 4
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j5:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 5
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j6:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 6
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j7:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 7
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j8:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 8
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal
+config_0_j9:
+  adaptive: true
+  attn_type: 0
+  clamp_len: -1
+  cutoffs:
+  - 19997
+  - 39997
+  - 199997
+  - 50264
+  d_embed: 784
+  d_head: -1
+  d_inner: 2048
+  d_model: 1024
+  div_val: 4
+  dropatt: 0.0
+  dropout: 0.1
+  dtype: null
+  ext_len: 0
+  mem_len: 192
+  n_head:
+  - 12
+  n_layer: 9
+  n_token: 50264
+  pre_lnorm: false
+  primer_conv: false
+  primer_square: false
+  proj_init_std: 0.01
+  same_length: false
+  sample_softmax: -1
+  tgt_len: 192
+  tie_projs:
+  - false
+  - true
+  - true
+  - true
+  tie_weight: true
+  use_cache: false
+  weight_init_range: 0.1
+  weight_init_std: 0.02
+  weight_init_type: normal

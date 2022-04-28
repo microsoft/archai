@@ -5,7 +5,7 @@
 """
 
 import argparse
-from copyreg import pickle
+import pickle
 import os
 import random
 from datetime import datetime
@@ -19,7 +19,7 @@ from archai.common import utils
 from archai.nlp.nas.evolution import Evolution
 from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import DEVICE_LATENCY_CONSTRAINT
 from archai.nlp.nas.nas_utils.dispatcher import create_pareto_jobs
-from archai.nlp.nas.baseline_utils import profile_baseline, select_pareto
+from archai.nlp.nas.baseline_utils import plot_baseline_and_pareto, profile_baseline, select_pareto
 
 
 def parse_args():
@@ -43,6 +43,11 @@ def parse_args():
     baseline.add_argument('--select_pareto',
                           action='store_true',
                           help='Select a subset of the extracted pareto for full training, based on the baseline architectures.')
+
+    baseline.add_argument('--plot_pareto_baseline',
+                          action='store_true',
+                          help='Print selected pareto points and baseline after full training.')
+
 
     search = parser.add_argument_group('Search configuration')
     search.add_argument('--default_path',
@@ -303,22 +308,27 @@ if __name__ == '__main__':
                   div_val=args['div_val'],
                   device=args['device'])
     
-    if args['profile_baseline'] or args['select_pareto']:
+    if args['profile_baseline'] or args['select_pareto'] or args['plot_pareto_baseline']:
         path_to_baseline = os.path.join(args['baseline_path'], args['model_type'])
-        
-        search_experiment = 'mem_transformer_lower_param_4.0M_upper_param_100.0M_latency_upper_0.025s_titanxp_14_04_2022_10_36_07'
-        last_iter = 29
-        e.load_state(path_to_logs=os.path.join(args['default_path'], search_experiment, f'logs_iter_{last_iter}.pkl'))
         
         if args['profile_baseline']:
             shutil.copy(path_to_search_config, path_to_baseline)
             shutil.rmtree(args['results_path'])
             
-            baseline_logs = profile_baseline(e, path_to_results=path_to_baseline)
-            e.plot_search_state(last_iter+1, parents=None, baseline=baseline_logs)
+            baseline_logs = profile_baseline(e, path_to_results=path_to_baseline)            
         
-        else:
+        elif args['select_pareto']:
             shutil.rmtree(args['results_path'])
+            
+            # search_experiment = 'mem_transformer_lower_param_4.0M_upper_param_100.0M_latency_upper_0.025s_titanxp_14_04_2022_10_36_07'
+            search_experiment = 'hf_gpt2_flex_lower_param_6.0M_upper_param_100.0M_latency_upper_0.025s_titanxp_25_04_2022_14_29_40'
+            last_iter = 29
+            e.load_state(path_to_logs=os.path.join(args['default_path'], search_experiment, f'logs_iter_{last_iter}.pkl'))
+            
+            with open(os.path.join(path_to_baseline, f'logs.pkl'), 'rb') as f:
+                baseline_logs = pickle.load(f)
+            e.plot_search_state(last_iter+1, parents=None, baseline=baseline_logs)
+
             e = select_pareto(e, path_to_results=path_to_baseline)
 
             exp_name = 'pareto_jobs_{}_{}'.format(args['dataset'], args['device_name'])
@@ -332,6 +342,12 @@ if __name__ == '__main__':
                                vocab_size=None if args['vocab_type']=='word' else args['vocab_size'], 
                                n_jobs=10,
                                output_path=job_path)   
+        
+        elif args['plot_pareto_baseline']:
+            shutil.rmtree(args['results_path'])
+            search_experiment = os.path.join('/home/mojan/TransformerNAS/amlt_logs', 'pareto_transxl_wt103_titanxp_3d')
+            plot_baseline_and_pareto(e, path_to_amlt_logs=search_experiment, path_to_baseline_logs=path_to_baseline)
+
         exit()
 
     # Runs the evolutionary search or the brute force version

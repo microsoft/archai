@@ -63,8 +63,11 @@ class Converter:
 
         for k, d in self.config.items():
             if d['per_layer']:
-                for _ in range(self.max_n_layer):
-                    gene.append(config[k])
+                if isinstance(config[k], list):
+                    gene += (config[k] + [config[k][-1]] * (self.max_n_layer - len(config[k])))
+                else:
+                    for _ in range(self.max_n_layer):
+                        gene.append(config[k])
             else:
                 gene.append(config[k])
 

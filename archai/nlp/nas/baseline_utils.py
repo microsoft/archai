@@ -3,13 +3,13 @@ from pickle import TRUE
 import pickle
 import numpy as np
 import yaml
-import collections
+import json
 import re
 import copy
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 18})
 
-import torch
+from archai.nlp.nas.nas_utils.plotter import plot_2d_pareto, plot_3d_pareto
 
 def meta_constructor_mapping(loader, node):
     value = loader.construct_mapping(node)
@@ -23,6 +23,35 @@ yaml.add_constructor(u'tag:yaml.org,2002:python/object/apply:numpy.core.multiarr
 yaml.add_constructor(u'tag:yaml.org,2002:python/object/apply:numpy.dtype', meta_constructor_mapping)
 
 
+def plot_paper(x_pareto, y_pareto, x_baseline, y_baseline, x_label, y_label, path_to_save, scale_x=1):
+  indices_to_keep = []
+  for i, (x1, y1) in enumerate(zip(x_pareto, y_pareto)):
+    is_pareto = True
+    for j,(x2, y2) in enumerate(zip(x_pareto, y_pareto)):
+      if i==j:
+        continue
+      if y2 < y1 and x2 <= x1:
+        is_pareto = False
+        break
+    if is_pareto:
+      indices_to_keep.append(i)
+  x_pareto, y_pareto = x_pareto[indices_to_keep], y_pareto[indices_to_keep]
+
+  indices = np.argsort(y_pareto)
+  x_pareto, y_pareto = x_pareto[indices], y_pareto[indices]
+  indices = np.argsort(y_baseline)
+  x_baseline, y_baseline = x_baseline[indices], y_baseline[indices]
+
+  plt.figure(figsize=(5,3))
+  plt.plot(np.asarray(x_pareto) * scale_x, y_pareto, markersize=10, label='LTS', color='midnightblue', marker='.')
+  plt.plot(np.asarray(x_baseline) * scale_x, y_baseline, markersize=5, label='Scaled Transformer', color='tab:blue', marker='d')
+  # plt.xlim((min(np.min(x_pareto), np.min(x_baseline))*scale_x-10, np.max(gt_latencies)*1000+10))
+  plt.xlabel(x_label)
+  plt.ylabel(y_label)
+  plt.grid(axis='y')
+  plt.legend(handletextpad=0.1, borderpad=0)
+  plt.savefig(path_to_save, bbox_inches="tight")
+
 def get_config_name(job):
   idx =  re.search('(config_[0-9]+)', job).span()[0]
   job = job[idx:]
@@ -30,28 +59,87 @@ def get_config_name(job):
   return config_name + '_' + job.split('/')[1]
   
 
-def recurse_dir(path_to_dir):
+def get_info_from_json(json_file, metric=['valid_perplexity', 'valid_ppl']):
+  '''
+    step: step number to extract the ppl log, live empty to get the final ppl 
+    metric: type of metric to read from the json file
+  '''
+  out_dict = {}
+  with open(json_file, 'r', encoding='utf-8') as f:
+    lines = f.readlines()[::-1]
+    try:
+      job_desc = re.search('DLLL \{(.+?)\n', lines[-1])
+    except:
+      return None
+    job_desc = '{'+job_desc.group(1)
+    work_dir = json.loads(job_desc)['data']['work_dir']
+    try:
+      idx_start = re.search('amlt-results', work_dir).span()[-1] + 1
+      amlt_job = work_dir[idx_start:].split('/')[0]
+    except:
+      amlt_job = None
+  
+    for line in lines:
+      str = re.search('DLLL \{(.+?)\}', line)
+      str = '{'+str.group(1)+'}}'
+      final_train_log = json.loads(str)
+      try:
+        out_dict['train_elapsed'] = float(final_train_log['data']['train_elapsed'])*60
+        for k in final_train_log['data'].keys():
+          if k in metric:
+            out_dict[k] = final_train_log['data'][k]
+
+        out_dict['amlt_job'] = amlt_job
+        break
+      except:
+        return None
+  
+  return out_dict
+
+
+def recurse_dir(path_to_dir, fname='config.yaml'):
   results = {}
   for j in os.listdir(path_to_dir):
       j_path = os.path.join(path_to_dir, j)
       if os.path.isdir(j_path):
-        results.update(recurse_dir(j_path))
+        results.update(recurse_dir(j_path, fname=fname))
       else:
         config = None
-        if os.path.basename(j_path) == 'config.yaml':
-          with open(os.path.join(j_path), 'r') as f:
-            config = yaml.safe_load(f)
+        if os.path.basename(j_path) == fname:
+          if '.yaml' in fname:
+            with open(os.path.join(j_path), 'r') as f:
+              config = yaml.safe_load(f)
+          elif '.json' in fname:
+            config = get_info_from_json(os.path.join(j_path))
+          else:
+            raise NotImplementedError
 
           if config:   
             config_name = get_config_name(j_path)
-            print(config_name)
             results[config_name] = config
   
   return results
 
 
+def config_to_key(config, name=None, keys=['n_layer', 'd_model', 'd_inner','n_head', 'div_val']):
+  short_config = {}
+  for k in keys:
+    short_config[k] = config[k]
+  if name is not None:
+    short_config['name'] = name
+  return short_config
+
+
 def profile_baseline(evolution_obj, path_to_results):
-  configs = recurse_dir(path_to_results)
+  fname = 'config.yaml' if evolution_obj.model_type == 'mem_transformer' else 'model_config.yaml'
+  path_to_configs = os.path.join(path_to_results, 'model_configs.yaml')
+  if os.path.exists(path_to_configs):
+    with open(path_to_configs, 'r') as f:
+      configs = yaml.safe_load(f)
+  else:
+    configs = recurse_dir(path_to_results, fname=fname)
+    with open(path_to_configs, 'w') as f:
+      yaml.dump(configs, f)
   
   proxies = {}
   total_params = {}
@@ -186,3 +274,116 @@ def select_pareto(evolution_obj, path_to_results):
     pickle.dump(baseline, f)
   
   return evolution_obj
+
+
+def plot_baseline_and_pareto(evolution_obj, path_to_amlt_logs, path_to_baseline_logs): 
+  # load all info for baseline models
+  baseline_logs = recurse_dir(path_to_baseline_logs, fname='train_log.json')    # load baseline val_ppls
+  baseline_configs = recurse_dir(path_to_baseline_logs, fname='config.yaml')    # load baseline model configs
+
+  with open(os.path.join(path_to_baseline_logs, 'latencies_summary.yaml'), 'r') as f:   # load baseline latencies
+    baseline_latencies = yaml.safe_load(f)
+  with open(os.path.join(path_to_baseline_logs, 'memories_summary.yaml'), 'r') as f:    # load baseline memories
+    baseline_memories = yaml.safe_load(f)
+  
+  # load all info for (selected) pareto models
+  pareto_train_logs = recurse_dir(path_to_amlt_logs, fname='train_log.json')   # load pareto val_ppls
+  pareto_configs = recurse_dir(path_to_amlt_logs, fname='model_config.yaml')         # load pareto model configs
+  with open(os.path.join(path_to_baseline_logs, 'logs.pkl'), 'rb') as f:       # load pareto memories and latencies
+    pareto_logs = pickle.load(f)['pareto'][0]
+
+  all_val_ppls = []
+  all_configs = []
+  all_latencies = []
+  all_memories = []
+  config_idx, job_idx, idx = 0, 0, 0
+  while True:
+    if f'config_{config_idx}_j0' not in pareto_train_logs.keys():
+      break
+    while True:
+      if f'config_{config_idx}_j{job_idx}' not in pareto_train_logs.keys():
+        break
+      
+      # make sure these are the same models
+      this_config = config_to_key(pareto_configs[f'config_{config_idx}_j{job_idx}'])
+      orig_config = config_to_key(pareto_logs['model_configs'][idx])
+      for k, v in this_config.items():
+        if isinstance(k, list):
+          assert np.sum(v == orig_config[k]) == len(v)
+        else:
+          assert v == orig_config[k]
+      l, m = pareto_logs['latencies'][idx], pareto_logs['memories'][idx]
+
+      all_val_ppls.append(pareto_train_logs[f'config_{config_idx}_j{job_idx}']['valid_ppl'])
+      all_configs.append(config_to_key(pareto_configs[f'config_{config_idx}_j{job_idx}'], name=f'config_{config_idx}_j{job_idx}'))
+      all_latencies.append(l)
+      all_memories.append(m)
+      
+      job_idx += 1
+      idx += 1
+    config_idx += 1
+    job_idx = 0
+
+  all_val_ppls = np.asarray(all_val_ppls)
+  all_configs = np.asarray(all_configs)
+  all_latencies = np.asarray(all_latencies)
+  all_memories = np.asarray(all_memories)
+
+  job_keys = np.sort(list(baseline_memories.keys()))
+  baseline_val_ppls = np.asarray([baseline_logs[k]['valid_perplexity'] for k in job_keys])
+  baseline_configs = np.asarray([config_to_key(baseline_configs[k], name=k) for k in job_keys])
+  baseline_latencies = np.asarray([baseline_latencies[k] for k in job_keys])
+  baseline_memories = np.asarray([baseline_memories[k] for k in job_keys])
+
+  # 2D plot: val_ppl x latencies 
+  visited_dict = {'x': all_val_ppls, 'y': all_latencies, 'config': all_configs}
+  pareto_dict = visited_dict
+  baseline_dict = {'x': baseline_val_ppls, 'y': baseline_latencies, 'config': baseline_configs}
+  output_path = os.path.join(path_to_amlt_logs, f'val_ppl_vs_latency')
+
+  plot_2d_pareto(visited_dict,
+                  pareto_dict,
+                  parents=None,
+                  baseline=baseline_dict,
+                  hover_template='Val ppl: %{x:.2f}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                  title_text=f'Val ppl vs. Latency (s)',
+                  xaxis_title='Val ppl',
+                  yaxis_title='Latency (s)',
+                  output_path=output_path) 
+  plot_paper(x_pareto=all_latencies, y_pareto=all_val_ppls, x_baseline=baseline_latencies, y_baseline=baseline_val_ppls, 
+            x_label='Latency (ms)', y_label='Validation PPL', path_to_save=output_path, scale_x=1000.)
+  
+  # 2D plot:  val_ppl x memories 
+  visited_dict = {'x': all_val_ppls, 'y': all_memories, 'config': all_configs}
+  pareto_dict = visited_dict
+  baseline_dict = {'x': baseline_val_ppls, 'y': baseline_memories, 'config': baseline_configs}
+  output_path = os.path.join(path_to_amlt_logs, f'val_ppl_vs_memory')
+
+  plot_2d_pareto(visited_dict,
+                  pareto_dict,
+                  parents=None,
+                  baseline=baseline_dict,
+                  hover_template='Val ppl: %{x:.2f}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                  title_text=f'Val ppl vs. Memory (MB)',
+                  xaxis_title='Val ppl',
+                  yaxis_title='Memory (MB)',
+                  output_path=output_path)
+  plot_paper(x_pareto=all_memories, y_pareto=all_val_ppls, x_baseline=baseline_memories, y_baseline=baseline_val_ppls, 
+            x_label='Memory (MB)', y_label='Validation PPL', path_to_save=output_path, scale_x=1.)
+
+  # 3D plot: val_ppl x latencies x memories 
+  visited_dict = {'x': all_val_ppls, 'y': all_memories, 'z': all_latencies, 'config': all_configs}
+  pareto_dict = visited_dict
+  baseline_dict = {'x': baseline_val_ppls, 'y': baseline_memories, 'z': baseline_latencies, 'config': baseline_configs}
+  output_path = os.path.join(path_to_amlt_logs, f'val_ppl_vs_memory_vs_latency')
+
+  plot_3d_pareto(visited_dict,
+                  pareto_dict,
+                  parents=None,
+                  baseline=baseline_dict,
+                  hover_template='Val ppl: %{x:.2f}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                  title_text=f'Val ppl vs. Memory (MB) vs. Latency (s)',
+                  xaxis_title='Val ppl',
+                  yaxis_title='Memory (MB)',
+                  zaxis_title='Latency (s)',
+                  output_path=output_path)
