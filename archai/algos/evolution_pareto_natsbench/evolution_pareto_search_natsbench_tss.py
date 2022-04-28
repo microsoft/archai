@@ -158,7 +158,7 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
 
 
     @overrides
-    def mutate_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
+    def mutate_parents(self, parents:List[ArchWithMetaData], mutations_per_parent: int = 1)->List[ArchWithMetaData]:
         ''' Using the nearest neighbors as mutations'''
         mutations = []
         for p in parents:
