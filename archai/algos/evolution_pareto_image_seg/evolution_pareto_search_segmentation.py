@@ -266,18 +266,22 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
 
     @overrides
-    def mutate_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
+    def mutate_parents(self, parents:List[ArchWithMetaData], mutations_per_parent: int = 1)->List[ArchWithMetaData]:
         ''' Using the nearest neighbors as mutations'''
-        mutations = []
+        mutations = {}
+
         for p in parents:
-            # TODO: this only returns one neighbor
-            # may want to sample more
-            nbrs = self.search_space.get_neighbors(p)
-            mutations.extend(nbrs)
+            candidates = {}
+
+            while len(candidates) < mutations_per_parent:
+                for nbr in self.search_space.get_neighbors(p):
+                    candidates[nbr.metadata['archid']] = nbr
+
+            mutations.update(candidates)
 
         # TODO: there will be a lot of neighbors
         # so might want to downsample them
-        return mutations
+        return list(mutations.values())
 
 
     @overrides
