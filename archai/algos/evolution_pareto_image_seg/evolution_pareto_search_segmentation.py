@@ -113,12 +113,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                 p.metadata['proxy_latency'], p.metadata['proxy_memory'] = latency_ms, peak_mem_mb
                 
                 # Checks if this architecture was already benchmarked before
-                if p.metadata['archid'] in self.remote_benchmark:
-                    e = self.remote_benchmark.get_entity(p.metadata['archid'])
-                    if 'mean' in e and 'memory_consuption' in e:
-                        continue
-                
-                self.remote_benchmark.send_model(p)
+                if p.metadata['archid'] not in self.remote_benchmark:
+                    self.remote_benchmark.send_model(p)
 
     @overrides
     def calc_task_accuracy(self, population:List[ArchWithMetaData])->None:
