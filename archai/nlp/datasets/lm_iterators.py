@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 
-from archai.nlp.datasets import distributed_utils
+from archai.nlp.datasets.distributed_utils import distributed
 
 
 class LMOrderedIterator(object):
@@ -35,8 +35,8 @@ class LMOrderedIterator(object):
             self.input_ids = torch.cat((warmup_ids, self.input_ids), dim=-1)
 
         # Partition input_ids for DistributedDataParallel
-        world_size = distributed_utils.distributed.get_world_size()
-        rank = distributed_utils.distributed.get_rank()
+        world_size = distributed.get_world_size()
+        rank = distributed.get_rank()
         self.input_ids = self.input_ids.chunk(world_size, dim=0)[rank]
 
         # Number of mini-batches

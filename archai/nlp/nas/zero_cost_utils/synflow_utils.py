@@ -16,8 +16,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import transformers
 
-from archai.nlp.nvidia_transformer_xl.nvidia_utils.log_uniform_sampler import sample_logits
 
 #TODO: handle layerNorm
 
@@ -25,7 +25,7 @@ def get_layer_metric_array(net, metric):
     metric_array = []
 
     for layer in net.modules():
-      if isinstance(layer, nn.Linear):
+      if isinstance(layer, transformers.Conv1D):
         #   print(layer)
           metric_array.append(metric(layer))
     
@@ -56,10 +56,10 @@ def compute_synflow_per_weight(net, inputs, targets):
     # Compute gradients with input of 1s 
     net.zero_grad()
     net.double()
-    loss = net(inputs, targets, mems=None)
+    outputs = net(inputs, targets, mems=None)
     
     # TODO: should this be loss or logits?
-    torch.sum(loss).backward() 
+    torch.sum(outputs.loss).backward() 
 
     # select the gradients that we want to use for search/prune
     def synflow(layer):
