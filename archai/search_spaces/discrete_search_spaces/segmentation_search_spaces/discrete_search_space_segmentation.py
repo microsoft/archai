@@ -13,7 +13,6 @@ from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 
 from archai.algos.evolution_pareto_image_seg.model import OPS, SegmentationNasModel
-from archai.algos.evolution_pareto_image_seg.model import SegmentationNasModel
 
 
 def random_neighbor(param_values: List[int], current_value: int):
@@ -30,21 +29,21 @@ def random_neighbor(param_values: List[int], current_value: int):
 
 class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
     def __init__(self, datasetname:str, 
-                min_mac:int=0, 
-                max_mac:int=sys.maxsize,
-                min_layers:int=1,
-                max_layers:int=12,
-                max_downsample_factor:int=16,
-                skip_connections:bool=True,
-                max_skip_connection_length:int=3,
-                max_scale_delta:int=1,
-                max_post_upsample_layers:int=3,
-                min_base_channels:int=8,
-                max_base_channels:int=48,
-                base_channels_binwidth:int=8,
-                min_delta_channels:int=8,
-                max_delta_channels:int=48,
-                delta_channels_binwidth:int=8):
+                 min_mac:int=0, 
+                 max_mac:int=sys.maxsize,
+                 min_layers:int=1,
+                 max_layers:int=12,
+                 max_downsample_factor:int=16,
+                 skip_connections:bool=True,
+                 max_skip_connection_length:int=3,
+                 max_scale_delta:int=1,
+                 max_post_upsample_layers:int=3,
+                 min_base_channels:int=8,
+                 max_base_channels:int=48,
+                 base_channels_binwidth:int=8,
+                 min_delta_channels:int=8,
+                 max_delta_channels:int=48,
+                 delta_channels_binwidth:int=8):
         super().__init__()
         self.datasetname = datasetname
         assert self.datasetname != ''
@@ -93,22 +92,21 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             # randomly pick number of layers    
             num_layers = random.randint(self.min_layers, self.max_layers)
 
-            model, graph, channels_per_scale = \
-                SegmentationNasModel.sample_model(base_channels_list=self.base_channels_list,
-                                                  delta_channels_list=self.delta_channels_list,
-                                                  post_upsample_layer_list=self.post_upsample_layers_list,
-                                                  nb_layers=num_layers,                                                         
-                                                  max_downsample_factor=self.max_downsample_factor,
-                                                  skip_connections=self.skip_connections,
-                                                  max_skip_connection_length=self.max_skip_connection_length,             
-                                                  max_scale_delta=self.max_scale_delta)
+            model = SegmentationNasModel.sample_model(
+                base_channels_list=self.base_channels_list,
+                delta_channels_list=self.delta_channels_list,
+                post_upsample_layer_list=self.post_upsample_layers_list,
+                nb_layers=num_layers,                                                         
+                max_downsample_factor=self.max_downsample_factor,
+                skip_connections=self.skip_connections,
+                max_skip_connection_length=self.max_skip_connection_length,             
+                max_scale_delta=self.max_scale_delta
+            )
 
             meta_data = {
                 'datasetname': self.datasetname,
-                'graph': graph,
-                'channels_per_scale': channels_per_scale,
-                'post_upsample_layers': model.post_upsample_layers,
-                'archid': model.to_hash()
+                'archid': model.to_hash(),
+                'parent': None
             }
             arch_meta = ArchWithMetaData(model, meta_data)
 
@@ -122,12 +120,13 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         
 
     @overrides
-    def get_neighbors(self, arch: ArchWithMetaData) -> List[ArchWithMetaData]:
+    def get_neighbors(self, base_model: ArchWithMetaData) -> List[ArchWithMetaData]:
+        parent_id = base_model.metadata['archid']
         found_valid = False
 
         while not found_valid:    
-            graph = copy.deepcopy(arch.metadata['graph'])
-            channels_per_scale = copy.deepcopy(arch.metadata['channels_per_scale'])
+            graph = copy.deepcopy(list(base_model.arch.graph.values()))
+            channels_per_scale = copy.deepcopy(base_model.arch.channels_per_scale)
 
             # sanity check the graph
             assert len(graph) > 1
@@ -143,7 +142,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             # `post_upsample_layers` mutation
             post_upsample_layers = random_neighbor(
                 self.post_upsample_layers_list,
-                arch.metadata['post_upsample_layers']
+                base_model.arch.post_upsample_layers
             )
 
             # pick a node at random (but not input node)
@@ -169,30 +168,34 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 ]
 
             # compile the model
-            model = SegmentationNasModel.from_config(graph, channels_per_scale)
-            # TODO: these should come from config or elsewhere 
-            # such that they are not hardcoded in here
-            out_shape = model.validate_forward(torch.randn(1, 3, model.img_size, model.img_size)).shape
-            assert out_shape == torch.Size([1, 19, model.img_size, model.img_size])
-            extradata = {
-                            'datasetname': self.datasetname,
-                            'graph': graph,
-                            'channels_per_scale': channels_per_scale,
-                            'post_upsample_layers': post_upsample_layers,
-                            'archid': model.to_hash()
-                        }
+            nbr_model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
+            out_shape = nbr_model.validate_forward(
+                torch.randn(1, 3, nbr_model.img_size, nbr_model.img_size)
+            ).shape
 
-            arch_meta = ArchWithMetaData(model, extradata)
+            assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
+
+            arch_meta = ArchWithMetaData(nbr_model, {
+                'datasetname': self.datasetname,
+                'archid': nbr_model.to_hash(),
+                'parent': parent_id
+            })
             
             # check if the model is within desired bounds    
-            input_tensor_shape = (1, 3, model.img_size, model.img_size)
-            model_stats = tw.ModelStats(model, input_tensor_shape, clone_model=True)
+            input_tensor_shape = (1, 3, nbr_model.img_size, nbr_model.img_size)
+            model_stats = tw.ModelStats(nbr_model, input_tensor_shape, clone_model=True)
             if model_stats.MAdd > self.min_mac and model_stats.MAdd < self.max_mac:
                 found_valid = True
 
         return [arch_meta]
 
 
-
+    def load_from_file(self, config_file: str) -> ArchWithMetaData:
+        model = SegmentationNasModel.from_file(config_file)
         
+        return ArchWithMetaData(model, {
+            'datasetname': self.datasetname,
+            'archid': model.to_hash(),
+            'parent': None
+        })
 
