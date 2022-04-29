@@ -17,16 +17,14 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import transformers
 
 from ..models import *
 
 def get_some_data(args, train_dataloader, num_batches, device):
     traindata = []
     if args.dataset != 'lm1b':
-        if args.varlen:
-            train_iter = train_dataloader.get_varlen_iter(start=0)
-        else:
-            train_iter = train_dataloader.get_fixlen_iter(start=0)
+        train_iter = train_dataloader.get_fixlen_iter(start=0)
     else:
         train_iter = train_dataloader
     
@@ -78,7 +76,7 @@ def get_layer_metric_array(net, metric, mode, include_embedding=False):
     for layer in net.modules():
         if mode=='channel' and hasattr(layer,'dont_ch_prune'):
             continue
-        if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.Linear): 
+        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D): 
             metric_array.append(metric(layer))
         if isinstance(layer, nn.Embedding) and include_embedding:
             metric_array.append(metric(layer))

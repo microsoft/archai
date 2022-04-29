@@ -843,7 +843,7 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
                                            target=labels.contiguous().view(-1) if labels is not None else None,
                                            output_loss=output_loss,
                                            output_prediction_scores=output_prediction_scores)
-            loss = loss.view(bsz, tgt_len) if labels is not None else None
+            loss = loss.view(bsz, tgt_len) if loss is not None else None
             lm_logits = lm_logits.view(bsz, tgt_len, -1) if lm_logits is not None else None
 
         # Standard CrossEntropy loss

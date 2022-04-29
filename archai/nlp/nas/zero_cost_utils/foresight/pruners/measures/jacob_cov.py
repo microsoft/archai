@@ -14,7 +14,6 @@
 # =============================================================================
 
 from builtins import isinstance
-import copy
 import types
 import numpy as np
 
@@ -22,8 +21,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM, MemTransformerLM_flex
-# from archai.nlp.nvidia_transformer_xl.zero_cost_nas.synflow import forward_crit
+from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
+from archai.nlp.models.hf_gpt2.model_hf_gpt2 import HfGPT2Flex
 
 from . import measure
 
@@ -140,6 +139,17 @@ def forward_after_embedding(self, word_emb, target, mems=None):
     out = self.fc_to_1class(out)
 
     return out, new_mems
+
+
+def forward_after_embedding_gpt2(self, word_emb, target, mems=None):
+    # Causal attention mask is created inside the model
+    outputs = self.model(labels=target,
+                         inputs_embeds=word_emb,
+                         output_loss=False,
+                         output_prediction_scores=True)
+
+    return self.fc_to_1class(outputs.logits), None
+
 
 def forward_after_embedding_flex(self, word_emb, target, mems=None):
     if mems is None:
@@ -299,18 +309,20 @@ def modify_net(net):
     
     if isinstance(net, MemTransformerLM):
         net.forward = types.MethodType(forward_after_embedding, net)
-    elif isinstance(net, MemTransformerLM_flex):    
-        net.forward = types.MethodType(forward_after_embedding_flex, net)
+    if isinstance(net, HfGPT2Flex):
+        net.forward = types.MethodType(forward_after_embedding_gpt2, net)
+    # elif isinstance(net, MemTransformerLM_flex):    
+        # net.forward = types.MethodType(forward_after_embedding_flex, net)
     else:
         raise NotImplementedError
-    net.crit.forward = types.MethodType(forward_crit, net.crit)
+    # net.crit.forward = types.MethodType(forward_crit, net.crit)
     net.fc_to_1class = torch.nn.Linear(net.n_token, 1, bias=False)
     return net
 
 def get_batch_jacobian(net, x, target, device, split_data):
     net.zero_grad()
 
-    x_emb = net.word_emb(x)
+    x_emb = net.model.transformer.wte(x)
     word_emb = x_emb.data
     word_emb.requires_grad_(True)
 

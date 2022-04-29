@@ -22,7 +22,7 @@ import torch.nn.functional as F
 
 from .p_utils import *
 from . import measures
-from archai.nlp.nvidia_transformer_xl.flops_profile import get_model_flops
+from archai.nlp.nas.zero_cost_utils.flops import get_model_flops
 
 
 def no_op(self,x):

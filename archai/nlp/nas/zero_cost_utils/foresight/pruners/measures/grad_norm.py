@@ -32,7 +32,7 @@ def get_grad_norm_arr(net, inputs, targets, loss_fn, split_data=1, skip_grad=Fal
         st=sp*N//split_data
         en=(sp+1)*N//split_data
     
-        loss, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _, _, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
         loss = loss.float().mean().type_as(loss)
         loss.backward()
 

@@ -17,6 +17,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.autograd as autograd
+import transformers
 
 from . import measure
 from ..p_utils import get_layer_metric_array
@@ -28,7 +29,7 @@ def compute_grasp_per_weight(net, inputs, targets, mode, loss_fn, T=1, num_iters
     # get all applicable weights
     weights = []
     for layer in net.modules():
-        if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.Linear):
+        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
             weights.append(layer.weight)
             layer.weight.requires_grad_(True) # TODO isn't this already true?
             layer.compute = 0
@@ -43,7 +44,7 @@ def compute_grasp_per_weight(net, inputs, targets, mode, loss_fn, T=1, num_iters
 
         #forward/grad pass #1
         grad_w = None
-        loss, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _, _, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
         loss = loss.float().mean().type_as(loss)
         grad_w_p = autograd.grad(loss, weights, allow_unused=True)
         if grad_w is None:
@@ -58,14 +59,14 @@ def compute_grasp_per_weight(net, inputs, targets, mode, loss_fn, T=1, num_iters
         en=(sp+1)*N//split_data
 
         # forward/grad pass #2
-        loss, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _, _, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
         loss = loss.float().mean().type_as(loss)
         grad_f = autograd.grad(loss, weights, create_graph=True, allow_unused=True)
         
         # accumulate gradients computed in previous step and call backwards
         z, count = 0,0
         for layer in net.modules():
-            if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.Linear):
+            if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
                 if grad_w[count] is not None:
                     z += (grad_w[count].data * grad_f[count]).sum()
                     layer.compute += torch.prod(torch.tensor(grad_w[count].size())).item()

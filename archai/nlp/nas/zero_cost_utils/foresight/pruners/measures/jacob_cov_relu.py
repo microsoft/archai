@@ -16,13 +16,14 @@
 from builtins import isinstance
 import copy
 import types
+from typing import Optional, Tuple
 import numpy as np
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.nvidia_transformer_xl.mem_transformer import MemTransformerLM, MemTransformerLM_flex
+from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
 # from archai.nlp.nvidia_transformer_xl.zero_cost_nas.synflow import forward_crit
 
 from . import measure
@@ -37,19 +38,29 @@ class OneHotLinear(nn.Linear):
         return F.linear(self.input_oh, self.weight, self.bias)
 
 
-def forward_jacob_cov(self, data, target, mems=None):
-    if mems is None:
-        mems = self.init_mems()
+def forward_jacob_cov(self,
+                input_ids: torch.Tensor,
+                labels: Optional[torch.Tensor] = None,
+                mems: Optional[torch.Tensor] = None,
+                past_key_values: Optional[torch.Tensor] = None,
+                output_loss: Optional[bool] = False,
+                output_prediction_scores: Optional[bool] = True
+                ) -> Tuple[torch.Tensor, ...]:
+        assert mems is None, 'HfGPT2Flex does not support memory (mems).'
 
-    tgt_len = target.size(0)
-    hidden, new_mems = self._forward(data, mems=mems)
+        labels = None
 
-    pred_hid = hidden[-tgt_len:]
-    out = self.crit(pred_hid.view(-1, pred_hid.size(-1)))
-    # out = out.view(tgt_len, -1)
-    out = self.fc_to_1class(out)
-    
-    return out
+        # Causal attention mask is created inside the model
+        outputs = self.model(input_ids=input_ids,
+                             labels=labels,
+                             attention_mask=torch.ones_like(input_ids),
+                             past_key_values=past_key_values,
+                             output_loss=output_loss,
+                             output_prediction_scores=output_prediction_scores)
+
+        return self.fc_to_1class(outputs.logits)
+        
+
 
 def forward_crit(self, hidden, target=None, keep_order=False):
   '''
@@ -103,7 +114,7 @@ def modify_net(net, jacob_size):
     #         del l
     
     net.forward = types.MethodType(forward_jacob_cov, net)
-    net.crit.forward = types.MethodType(forward_crit, net.crit)
+    # net.crit.forward = types.MethodType(forward_crit, net.crit)
     net.fc_to_1class = torch.nn.Linear(net.n_token, 1, bias=False)
     
     net.K = np.zeros((jacob_size, jacob_size))
@@ -123,7 +134,7 @@ def modify_net(net, jacob_size):
             pass
 
     for module in net.modules():
-        if 'ReLU' in str(type(module)):
+        if 'NewGELUActivation' in str(type(module)):
             module.register_forward_hook(counting_forward_hook)
 
 def get_batch_jacobian(net, x, target, device, split_data):
