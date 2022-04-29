@@ -13,7 +13,7 @@ from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 
 from archai.algos.evolution_pareto_image_seg.model import OPS, SegmentationNasModel
-from archai.algos.evolution_pareto_image_seg.segmentation_search_space import SegmentationSearchSpace
+from archai.algos.evolution_pareto_image_seg.model import SegmentationNasModel
 
 
 def random_neighbor(param_values: List[int], current_value: int):
@@ -94,14 +94,14 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             num_layers = random.randint(self.min_layers, self.max_layers)
 
             model, graph, channels_per_scale = \
-                SegmentationSearchSpace.random_sample(base_channels_list=self.base_channels_list,
-                                                      delta_channels_list=self.delta_channels_list,
-                                                      post_upsample_layer_list=self.post_upsample_layers_list,
-                                                      nb_layers=num_layers,                                                         
-                                                      max_downsample_factor=self.max_downsample_factor,
-                                                      skip_connections=self.skip_connections,
-                                                      max_skip_connection_length=self.max_skip_connection_length,             
-                                                      max_scale_delta=self.max_scale_delta)
+                SegmentationNasModel.sample_model(base_channels_list=self.base_channels_list,
+                                                  delta_channels_list=self.delta_channels_list,
+                                                  post_upsample_layer_list=self.post_upsample_layers_list,
+                                                  nb_layers=num_layers,                                                         
+                                                  max_downsample_factor=self.max_downsample_factor,
+                                                  skip_connections=self.skip_connections,
+                                                  max_skip_connection_length=self.max_skip_connection_length,             
+                                                  max_scale_delta=self.max_scale_delta)
 
             meta_data = {
                 'datasetname': self.datasetname,
