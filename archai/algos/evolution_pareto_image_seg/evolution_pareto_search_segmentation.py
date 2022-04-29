@@ -342,16 +342,15 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
         all_data = {
             k: [p.metadata[k] if k in p.metadata else None for p in all_pop]
-            for k in ['archid', 'f1', 'latency', 'memory', 'proxy_latency', 'proxy_memory']
+            for k in ['archid', 'f1', 'latency', 'memory', 'proxy_latency', 'proxy_memory', 'parent']
         }
         pareto_ids = [p.metadata['archid'] for p in pareto]
 
         status_df = pd.DataFrame(all_data)
-        status_df['iter_num'] = iter_num
+        status_df['nb_iterations'] = iter_num
         status_df['is_pareto'] = False
         status_df.loc[status_df['archid'].isin(pareto_ids), 'is_pareto'] = True
 
         # Saves the status
         expdir = get_expdir()
         status_df.to_csv(os.path.join(expdir, f'search_status_{iter_num}.csv'))
-        pass
