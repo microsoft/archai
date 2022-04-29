@@ -19,7 +19,7 @@ class MixedQATModel(ArchaiModel):
 
     """
 
-    def __init__(self, model: ArchaiModel, qat_weight: Optional[float] = 0.2, diffp: Optional[bool] = False) -> None:
+    def __init__(self, model: ArchaiModel, qat_weight: float = 0.2, diffp: bool = False) -> None:
         """Initializes the class by creating standard and QAT-based attributes
             of the incoming model.
 

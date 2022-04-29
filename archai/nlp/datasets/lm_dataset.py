@@ -1,15 +1,19 @@
 from torch.utils.data import Dataset
 
 class LMDataset(Dataset):
-    def __init__(self, input_ids, bsz, bptt, device='cpu', mem_len=None, ext_len=None, warmup=False):
-        self.bsz = bsz
-        self.bptt = bptt
-        self.ext_len = ext_len if ext_len is not None else 0
-        self.mem_len = mem_len
-        self.warmup = warmup
-        self.device = device
+    """ Implements a simple Pytorch Dataset the takes in a rank-1 Tensor (input_ids) with all
+    tokens ids and produces one sample at a time with the sequence length of bptt.
 
-        # Work out how cleanly we can divide the dataset into bsz parts.
+    It is a simpler alternative to archai.nlp.datasets.LMOrderedIterator to be used
+    only with diffp or where additional LMOrderedIterator parameters like 
+    mem_len, ext_len, warm_up have no impact. This was needed to be compatible with
+    Opacus diffp implementation and allows for Poisson sampling.
+    """
+
+    def __init__(self, input_ids, bptt):
+        self.bptt = bptt
+
+        # Work out how cleanly we can divide the dataset into bptt parts.
         self.n_samples = (input_ids.size(0) // bptt) - 1
 
         # Trim off any extra elements that wouldn't cleanly fit (remainders).

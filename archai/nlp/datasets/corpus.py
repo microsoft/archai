@@ -203,6 +203,10 @@ class Corpus:
     def get_iterator(self, split, batch_size, tgt_len, device, ext_len, mem_len=None, diffp=False):
         if split == 'train':
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
+
+                # For diffp we a dataset class that is compatible with Pytorch's dataloader and is able
+                # to produce one sample at a time (for Poisson sampling). Although LMOrderedIterator 
+                # is more efficient as it produces batches directly it is not compatible with diffp.
                 if not diffp:
                     data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
                                                 device=device, ext_len=ext_len, mem_len=mem_len)

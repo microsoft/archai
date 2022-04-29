@@ -793,7 +793,9 @@ class GPT2ModelFlex(GPT2PreTrainedModel):
             past_length = past_key_values[0][0].size(-2)
         if position_ids is None:
             position_ids = torch.arange(past_length, input_shape[-1] + past_length, dtype=torch.long, device=device)
-            # Repeat position_ids so that Opacus interprets correctly the size of the batch
+            # The original position_ids shape (1, seq_len) was "incorrect". The proper shape would be (batch_size, seq_len).
+            # It worked due to broadcasting, but the Opacus library would infer the batch size incorrectly (1).
+            # The repeat was added so that Opacus can infer the correct batch size.
             position_ids = position_ids.unsqueeze(0).view(-1, input_shape[-1]).repeat(input_ids.shape[0], 1)
 
         # GPT2Attention mask.
