@@ -38,37 +38,55 @@ class Block(nn.Module):
 
 
 class SegmentationNasModel(torch.nn.Module):
-    def __init__(self, node_names: List[str], edge_dict: MutableMapping[Tuple[str, str], nn.Module],
-                 channels_per_scale: Dict, stem_stride: int = 2, img_size: int = 256,
-                 nb_classes: int = 19, post_upsample_layers: int = 1, node_info: Optional[Dict] = None):
-        '''SegmentationModel constructor. Should not be called directly, use `SegmentationModel.from_yaml` '''
-        ''' or `SegmentationModel.from_config` instead'''
+    def __init__(self, graph: List[Dict], channels_per_scale: Dict, post_upsample_layers: int = 1,
+                 stem_stride: int = 2, img_size: int = 256, nb_classes: int = 19, ):
+        """Creates a SegmentationModel from a configuration
+
+        Args:
+            graph (List[Dict]): List of dictionaries with the following keys:
+                * name (str): Name of the node
+                * op (str): Name of the operation used to process the node
+                * inputs (List[str]): List of input nodes
+                * scale (int): Scale of the node (higher means smaller resolutions)
+            channels_per_scale (Dict): Dictionary with the number of channels that should be 
+                used for each scale value, e.g: {1: 32, 2: 64, 4: 128} or a dictionary containing
+                `base_channels` and `delta_channels`, e.g: {'base_channels': 24, 'delta_channels': 2}, which
+                is equivalent to {1: 24, 2: 26, 4: 28, 8: 32, 16: 34}.
+            post_upsample_layers (int): Number of post-upsample layers
+            stem_strid (int): Stride of the first convolution
+            img_size (int): Image size
+            nb_classes (int): Number of classes for segmentation
+
+        Returns:
+            SegmentationNasModel: A SegmentationNasModel instance
+        """
+
         super().__init__()
         assert img_size % 32 == 0, 'Image size must be a multiple of 32'
 
-        self.node_names = node_names
-        self.channels_per_scale = channels_per_scale
-        self.node_info = node_info
-        self.edge_dict = nn.ModuleDict(edge_dict)
+        self.graph = OrderedDict([(n['name'], n) for n in graph])
+        self.node_names = [n['name'] for n in self.graph.values()]
+        self.channels_per_scale = self._get_channels_per_scale(channels_per_scale)
+        self.edge_dict = nn.ModuleDict(self._get_edge_list(self.graph, self.channels_per_scale))
         self.stem_stride = stem_stride
         self.img_size = img_size
         self.nb_classes = nb_classes
         self.post_upsample_layers = post_upsample_layers
 
         # Checks if the edges are in topological order        
-        self._validate_edges(edge_dict)
+        self._validate_edges(self.edge_dict)
 
         # Stem block
-        stem_ch = next(iter(edge_dict.values())).in_ch
+        stem_ch = self.channels_per_scale[self.graph['input']['scale']]
         self.stem_block = OPS['conv3x3'](3, stem_ch, stride=self.stem_stride)
 
         # Upsample layers
         self.up = nn.Upsample(size=(self.img_size, self.img_size), mode='nearest')
-        output_ch = self.channels_per_scale[self.node_info['output']['scale']]
+        output_ch = self.channels_per_scale[self.graph['output']['scale']]
 
         self.post_upsample = nn.Sequential(
             *[
-                OPS['conv3x3'](output_ch if i == 0 else stem_ch, stem_ch, stride=1)
+                OPS['conv3x3'](output_ch if i == 0 else self.channels_per_scale[1], self.channels_per_scale[1], stride=1)
                 for i in range(self.post_upsample_layers)
             ]
         )
@@ -78,6 +96,40 @@ class SegmentationNasModel(torch.nn.Module):
             stem_ch, self.nb_classes,
             kernel_size=1
         )
+
+    def _get_channels_per_scale(self, channels_per_scale: Dict) -> Dict:
+        channels_per_scale = deepcopy(channels_per_scale)
+
+        # Builds `channels_per_scale` using `base_channels` and `delta_channels`
+        if all((k in channels_per_scale and channels_per_scale[k]) for k in ['base_channels', 'delta_channels']):
+            assert len(channels_per_scale.keys()) == 2,\
+                'Cannot use `base_channels`/`delta_channels` with channels_per_level map.'
+
+            channels_per_scale.update({
+                scale: channels_per_scale['base_channels'] + i*channels_per_scale['delta_channels']
+                for i, scale in enumerate([1, 2, 4, 8, 16])
+            })
+        
+        return channels_per_scale
+
+    def _get_edge_list(self, graph: 'OrderedDict[str, Dict]',
+                         channels_per_scale: Dict) -> MutableMapping[Tuple[str, str], nn.Module]:
+        assert 'input' in graph
+        assert 'output' in graph
+
+        edges = [(in_node, node['name']) for node in graph.values()
+                 if node['name'] != 'input' for in_node in node['inputs']]
+
+        # Returns an `OrderedDict` with the mapping "in_node-out_node": nn.Module
+        return OrderedDict([
+            (f'{i}-{o}', Block(
+                in_ch=channels_per_scale[graph[i]['scale']],
+                out_ch=channels_per_scale[graph[o]['scale']],
+                in_scale=graph[i]['scale'],
+                out_scale=graph[o]['scale'],
+                op_name=graph[i]['op']
+            )) for i, o in edges
+        ])
 
     def _validate_edges(self, edge_dict: MutableMapping[Tuple[str, str], nn.Module]) -> None:
         '''Checks if the edges are in topological order '''
@@ -114,70 +166,19 @@ class SegmentationNasModel(torch.nn.Module):
             in_nodes.add(in_node)
 
             # Checks if the resolution of each node is correct
-            assert inputs[in_node].shape[3] == int(resolution // self.node_info[in_node]['scale']),\
+            assert inputs[in_node].shape[3] == int(resolution // self.graph[in_node]['scale']),\
                 'Input resolution does not match the node resolution.'
 
             inputs[out_node] = inputs[out_node] + module(inputs[in_node])
 
-            assert inputs[out_node].shape[1] == self.channels_per_scale[self.node_info[out_node]['scale']],\
+            assert inputs[out_node].shape[1] == self.channels_per_scale[self.graph[out_node]['scale']],\
                 'Output channel does not match the node channel scale.'
 
-        assert all(node in in_nodes for node in set(self.node_info.keys()) - {'output'}),\
-            f'Unused nodes were detected: {set(self.node_info.keys()) - in_nodes - set(["output"])}.'
+        assert all(node in in_nodes for node in set(self.graph.keys()) - {'output'}),\
+            f'Unused nodes were detected: {set(self.graph.keys()) - in_nodes - set(["output"])}.'
 
         output = self.post_upsample(self.up(inputs['output']))
         return self.classifier(output)
-
-    @classmethod
-    def from_config(cls, node_list: List[Dict], channels_per_scale: Dict, post_upsample_layers: int = 1) -> 'SegmentationNasModel':
-        """Creates a SegmentationModel from a config file
-
-        Args:
-            node_list (List[Dict]): List of dictionaries with the following keys:
-                * name (str): Name of the node
-                * op (str): Name of the operation used to process the node
-                * inputs (List[str]): List of input nodes
-                * scale (int): Scale of the node (higher means smaller resolutions)
-            channels_per_scale (Dict): Dictionary with the number of channels that should be 
-                used for each scale value, e.g: {1: 32, 2: 64, 4: 128} or a dictionary containing
-                `base_channels` and `delta_channels`, e.g: {'base_channels': 24, 'delta_channels': 2}, which
-                is equivalent to {1: 24, 2: 26, 4: 28, 8: 32, 16: 34}.
-            post_upsample_layers (int): Number of post-upsample layers
-
-        Returns:
-            SegmentationNasModel: A SegmentationNasModel instance
-        """
-        channels_per_scale = deepcopy(channels_per_scale)
-
-        # Builds `channels_per_scale` using `base_channels` and `delta_channels`
-        if all((k in channels_per_scale and channels_per_scale[k]) for k in ['base_channels', 'delta_channels']):
-            assert len(channels_per_scale.keys()) == 2,\
-                'Cannot use `base_channels`/`delta_channels` with channels_per_level map.'
-
-            channels_per_scale.update({
-                scale: channels_per_scale['base_channels'] + i*channels_per_scale['delta_channels']
-                for i, scale in enumerate([1, 2, 4, 8, 16])
-            })
-
-        node_info = OrderedDict([(node['name'], node) for node in node_list])
-        edges = [(in_node, node['name']) for node in node_list if node['name'] != 'input' for in_node in node['inputs']]
-
-        assert 'input' in node_info
-        assert 'output' in node_info
-
-        # Builds an `OrderedDict` with the mapping "in_node-out_node": nn.Module
-        module_dict = OrderedDict([
-            (f'{i}-{o}', Block(
-                in_ch=channels_per_scale[node_info[i]['scale']],
-                out_ch=channels_per_scale[node_info[o]['scale']],
-                in_scale=node_info[i]['scale'],
-                out_scale=node_info[o]['scale'],
-                op_name=node_info[i]['op']
-            )) for i, o in edges
-        ])
-
-        return cls([n['name'] for n in node_list], module_dict, channels_per_scale, node_info=node_info,
-                   post_upsample_layers=post_upsample_layers)
 
     @classmethod
     def from_file(cls, config_file: str) -> 'SegmentationNasModel':
@@ -212,8 +213,8 @@ class SegmentationNasModel(torch.nn.Module):
         assert config_file.suffix == '.yaml'
 
         config_dict = yaml.safe_load(open(config_file))
-        return cls.from_config(config_dict['architecture'], config_dict['channels_per_scale'],
-                               config_dict['post_upsample_layers'])
+        return cls(config_dict['architecture'], config_dict['channels_per_scale'],
+                   config_dict['post_upsample_layers'])
 
     def view(self):
         import graphviz
@@ -222,8 +223,8 @@ class SegmentationNasModel(torch.nn.Module):
         dot.engine = 'neato'
 
         for i, node in enumerate(self.node_names):
-            scales.append(self.node_info[node]['scale'])
-            dot.node(node, label=self.node_info[node]['op'], pos=f'{i*1.5 + 2},-{math.log2(2*scales[-1])}!')
+            scales.append(self.graph[node]['scale'])
+            dot.node(node, label=self.graph[node]['op'], pos=f'{i*1.5 + 2},-{math.log2(2*scales[-1])}!')
 
         for scale in sorted(list(set(scales))):
             dot.node(
@@ -252,7 +253,7 @@ class SegmentationNasModel(torch.nn.Module):
         return {
             'post_upsample_layers': self.post_upsample_layers,
             'channels_per_scale': ch_map,
-            'architecture': list(self.node_info.values())
+            'architecture': list(self.graph.values())
         }
 
     def to_file(self, path: str) -> None:
@@ -262,7 +263,7 @@ class SegmentationNasModel(torch.nn.Module):
             fp.write(yaml.dump(content))
 
         m = SegmentationNasModel.from_file(path)
-        assert content['architecture'] == list(m.node_info.values())
+        assert content['architecture'] == list(m.graph.values())
         assert content['post_upsample_layers'] == len(self.post_upsample)
         assert all(
             m.channels_per_scale[k] == v 
@@ -276,9 +277,9 @@ class SegmentationNasModel(torch.nn.Module):
 
     @classmethod
     def sample_model(cls, 
-                    base_channels_list: List[int] = [8, 12, 24, 32, 36, 48],
-                    delta_channels_list: List[int] = [8, 12, 24, 32, 36, 48],
-                    post_upsample_layer_list: List[int] = [1, 2, 3],
+                    base_channels_list: List[int],
+                    delta_channels_list: List[int],
+                    post_upsample_layer_list: List[int],
                     max_downsample_factor: int = 16,
                     nb_layers: int = 24,
                     skip_connections: bool = True,
@@ -348,8 +349,4 @@ class SegmentationNasModel(torch.nn.Module):
 
         channels_per_scale = {'base_channels': base_channels, 'delta_channels': delta_channels}
 
-        return (
-            SegmentationNasModel.from_config(
-                graph, channels_per_scale, post_upsample_layers=post_upsample_layers
-            ), graph, channels_per_scale
-        )
+        return SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
