@@ -116,7 +116,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                 if p.metadata['archid'] not in self.remote_benchmark:
                     cache_misses += 1
                     self.remote_benchmark.send_model(p)
-        logger.info(f'{len(population) - cache_misses} benchmark cache hits')
+        if self.use_remote_benchmark:
+            logger.info(f'{len(population) - cache_misses} benchmark cache hits')
 
     @overrides
     def calc_task_accuracy(self, population:List[ArchWithMetaData])->None:
