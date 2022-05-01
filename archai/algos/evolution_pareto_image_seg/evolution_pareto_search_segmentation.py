@@ -57,6 +57,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.max_delta_channels = conf_search['max_delta_channels']
         self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
 
+        self.init_architectures_from_dir = conf_search['init_architectures_from_dir']
         self.use_remote_benchmark = conf_search['use_remote_benchmark']
 
         if self.use_remote_benchmark:
@@ -91,6 +92,16 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                                                min_mac=self.min_mac, 
                                                max_mac=self.max_mac)
 
+    @overrides
+    def _sample_init_population(self) -> List[ArchWithMetaData]:
+        if self.init_architectures_from_dir:
+            arch_dir = Path(self.init_architectures_from_dir)
+            arch_files = list(arch_dir.glob('*.yaml'))
+            search_space = self.get_search_space()
+            logger.info(f'Loading {len(arch_files)} seed models for first iteration.')
+
+            return [search_space.load_from_file(arch_file) for arch_file in arch_files]
+        return super()._sample_init_population()
 
     @overrides
     def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
