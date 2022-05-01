@@ -172,7 +172,7 @@ class LMShuffledIterator(object):
 
 class LMMultiFileIterator(LMShuffledIterator):
     def __init__(self, paths, vocab, bsz, bptt, device='cpu', mem_len=None, ext_len=None,
-                 shuffle=False):
+                 n_chunks=16, shuffle=False):
         self.vocab = vocab
 
         # For compatibility with LMOrderedIterator
@@ -185,7 +185,7 @@ class LMMultiFileIterator(LMShuffledIterator):
 
         self.device = device
         self.shuffle = shuffle
-        self.n_chunks = 256
+        self.n_chunks = n_chunks
 
         # DDP prep: partition self.paths into world size chunks 
         # and pick chunk for this rank

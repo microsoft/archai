@@ -16,6 +16,7 @@ import shutil
 import sys
 import time
 from datetime import datetime
+from packaging import version
 from typing import Tuple
 
 import dllogger
@@ -486,7 +487,7 @@ class EvalMetrics:
 
 
 def train_iteration(model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                    optimizer, device, delay_unscale, args):
+                    optimizer, device, delay_unscale, args, autocast):
     # trains a given chunk
     cpu = torch.device('cpu')
     input_ids_i = input_ids_chunks[i].contiguous()
@@ -495,7 +496,7 @@ def train_iteration(model, i, mems, input_ids_chunks, labels_chunks, scaler,
     if args.swap_mem and mems[i] is not None:
         mems[i] = mems[i].to(device, non_blocking=True)
 
-    with torch.cuda.amp.autocast(args.fp16):
+    with autocast:
         loss, _, mems[i], _ = model(input_ids_i, labels_i, mems[i])
         loss = loss.float().mean().type_as(loss) / args.batch_chunk
 
@@ -544,6 +545,12 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
 
     real_virtual_batch_rate = args.batch_size / max_physical_batch_size
 
+    # Supports different autocast signatures and usage of bfloat16
+    autocast = torch.cuda.amp.autocast(enabled=args.fp16)
+    if version.parse(torch.__version__) >= version.parse('1.10'):
+        fp16_type = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        autocast = torch.cuda.amp.autocast(enabled=args.fp16, dtype=fp16_type)
+
     logging.info('Starting training...')
 
     for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
@@ -569,12 +576,12 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                 with para_model.no_sync():
                     train_loss_chunk = train_iteration(
                         para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                        optimizer, device, True, args
+                        optimizer, device, True, args, autocast
                     )
             else:
                 train_loss_chunk = train_iteration(
                     para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                    optimizer, device, False, args
+                    optimizer, device, False, args, autocast
                 )
 
             train_loss += train_loss_chunk
@@ -748,7 +755,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     return virtual_train_step, best_val_loss
 
 
-def init():
+def init(disable_multiple_dlogger=False):
     exp_utils.script_init()
 
     args = parse_args()
@@ -793,7 +800,7 @@ def init():
     #     dllog_file = os.devnull
 
     exp_utils.setup_logging(log_all_ranks=args.log_all_ranks, filename=log_file)
-    exp_utils.setup_dllogger(enabled=True, filename=dllog_file)
+    exp_utils.setup_dllogger(enabled=True, filename=dllog_file, disable_multiple=disable_multiple_dlogger)
 
     if args.config == 'toy':
         logging.warning('Running in toy mode which means wt2 dataset, only one step training, a lot of batch chunking for laptop GPU')
@@ -1321,7 +1328,9 @@ def main():
     utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
 
     summary_csv_filepath = os.path.join(args.work_dir, 'summaries.tsv')
-    utils.append_csv_file(summary_csv_filepath, list(summary.items()))
+    with nv_distributed.sync_workers() as rank:
+        if rank == 0:
+            utils.append_csv_file(summary_csv_filepath, list(summary.items()))
 
     logging.info(f'Output dir: {args.work_dir}')
     dllogger.log(step=tuple(), data=summary)

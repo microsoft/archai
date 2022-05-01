@@ -101,6 +101,41 @@ def parse_args():
                         default=1111,
                         help='Random seed.')
 
+    strategy = parser.add_argument_group('Training strategy')
+
+    strategy.add_argument('--training_strategy',
+                          type=str,
+                          default='decoder_params',
+                          choices=['decoder_params', 'val_ppl', 'char_accept_rate'],
+                          help='Training strategy: decoder parameters, validation perplexity or character accept rate.')
+
+    strategy.add_argument('--dataset',
+                          type=str,
+                          default='wt103',
+                          choices=['wt103'],
+                          help='Dataset (if not using `decoder_params`).')
+
+    strategy.add_argument('--scoring_file',
+                          type=str,
+                          default=None,
+                          help='Scoring .ljson file (if using `char_accept_rate`).')
+
+    strategy.add_argument('--vocab_type',
+                          type=str,
+                          default='word',
+                          choices=['word', 'bppe', 'gpt2'],
+                          help='Type of vocabulary (if not using `decoder_params`).')
+
+    strategy.add_argument('--vocab_size',
+                          type=int,
+                          default=10000,
+                          help='Size of vocabulary (if not using `decoder_params`).')
+
+    strategy.add_argument('--training_max_step',
+                          type=int,
+                          default=100,
+                          help='Maximum number of training steps (if not using `decoder_params`).')
+
     choice = parser.add_argument_group('Hyperparameters choices')
     choice.add_argument('--n_layer',
                         nargs='+',
@@ -181,6 +216,10 @@ if __name__ == '__main__':
     random.seed(args['seed'])
     torch.manual_seed(args['seed'])
 
+    if not torch.cuda.is_available():
+        args['use_training_proxy'] = True
+        print('No CUDA available, defaulting to `use_training_proxy` as True.')
+
     # Gathers the latency constraint based on device
     if args['latency_constraint_upper'] is None:
         args['latency_constraint_upper'] = DEVICE_LATENCY_CONSTRAINT[args['device_name']]
@@ -215,6 +254,12 @@ if __name__ == '__main__':
                   crossover_prob=args['crossover_prob'],
                   n_iter=args['n_iter'],
                   use_quantization=args['use_quantization'],
+                  training_strategy=args['training_strategy'],
+                  dataset=args['dataset'],
+                  scoring_file=args['scoring_file'],
+                  vocab_type=args['vocab_type'],
+                  vocab_size=args['vocab_size'],
+                  training_max_step=args['training_max_step'],
                   constraint_pipeline_type=args['constraint_pipeline_type'],
                   param_constraint_lower=args['param_constraint_lower'],
                   param_constraint_upper=args['param_constraint_upper'],

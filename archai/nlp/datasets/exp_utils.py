@@ -183,9 +183,12 @@ def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
     logging.getLogger('').addFilter(rank_filter)
 
 
-def setup_dllogger(enabled=True, filename=os.devnull):
+def setup_dllogger(enabled=True, filename=os.devnull, disable_multiple=False):
     rank = nv_distributed.get_rank()
 
+    if disable_multiple:
+        return
+        
     if enabled and rank == 0:
         backends = [
             dllogger.JSONStreamBackend(

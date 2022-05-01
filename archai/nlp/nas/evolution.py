@@ -9,7 +9,7 @@ import os
 import pickle
 import random
 from collections import Counter, defaultdict
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -45,6 +45,12 @@ class Evolution:
                  crossover_prob: Optional[float] = 0.5,
                  n_iter: Optional[int] = 10,
                  use_quantization: Optional[bool] = False,
+                 training_strategy: Optional[str] = 'decoder_params',
+                 dataset: Optional[str] = 'wt103',
+                 scoring_file: Optional[str] = None,
+                 vocab_type: Optional[str] = 'word',
+                 vocab_size: Optional[int] = 10000,
+                 training_max_step: Optional[int] = 100,
                  constraint_pipeline_type: Optional[str] = 'torch',
                  param_constraint_lower: Optional[int] = 5e6,
                  param_constraint_upper: Optional[int] = 12e6,
@@ -66,6 +72,12 @@ class Evolution:
             crossover_prob: Probability of crossover.
             n_iter: Number of search iterations.
             use_quantization: Whether should use quantization or not.
+            training_strategy: Training strategy (defaults to `decoder_params`).
+            scoring_file: Scoring .ljson file (if using `char_accept_rate`).
+            dataset: Dataset (if not using `decoder_params`).
+            vocab_type: Type of vocabulary (if not using `decoder_params`).
+            vocab_size: Size of vocabulary (if not using `decoder_params`).
+            training_max_step: Maximum training steps (if not using `decoder_params`).
             constraint_pipeline_type: Type of constraint pipeline.
             param_constraint_lower: Any candidate below this will get rejected.
             param_constraint_upper: Any candidate above this will get rejected.
@@ -79,6 +91,7 @@ class Evolution:
         self.results_path = results_path
         self.n_iter = n_iter
         self.use_quantization = use_quantization
+        self.training_strategy = training_strategy
 
         # Sizes and probabilities of the search space
         self.population_size = population_size
@@ -122,14 +135,14 @@ class Evolution:
         
         # Pareto-frontier points
         self.pareto = {'population': [],
-                       'params': [],
+                       'proxies': [],
                        'total_params': [],
                        'latencies': [],
                        'memories': []}
 
         # All evaluated points
         self.all_population = []
-        self.all_params = []
+        self.all_proxies = []
         self.all_total_params = []
         self.all_latencies = []
         self.all_memories = []
@@ -138,9 +151,16 @@ class Evolution:
         self.counts = Counter()
 
         # Creates a constraint pipeline based on input type (`torch` or `onnx`)
+        self.constraint_strategy = training_strategy
         self.constraint_pipeline_type = constraint_pipeline_type
         if constraint_pipeline_type == 'torch':
-            self.pipeline = TorchConstraintPipeline(use_quantization=use_quantization,
+            self.pipeline = TorchConstraintPipeline(training_strategy=training_strategy,
+                                                    dataset=dataset,
+                                                    scoring_file=scoring_file,
+                                                    vocab_type=vocab_type,
+                                                    vocab_size=vocab_size,
+                                                    training_max_step=training_max_step,
+                                                    use_quantization=use_quantization,
                                                     n_threads=n_threads,
                                                     n_trials=latency_repeat)
         elif constraint_pipeline_type == 'onnx':
@@ -160,15 +180,15 @@ class Evolution:
         max_gene = [self.allowed_genes[k][-1] for k in range(self.gene_size)]
 
         max_config, \
-        self.max_params, \
+        self.max_proxy, \
         self.max_total_params, \
         self.max_latency, \
         self.max_memory = self._calculate_gene_constraints(max_gene)
 
         print(f'''Largest model in this space has: 
                 {max_config}
-                {self.max_params} decoder params
-                {self.max_total_params} total params
+                {self.max_proxy} {self.constraint_strategy}
+                {self.max_total_params} total_params
                 {self.max_latency:.4f}s latency
                 {self.max_memory:.4f}MB memory''')
 
@@ -176,15 +196,15 @@ class Evolution:
         min_gene = [self.allowed_genes[k][0] for k in range(self.gene_size)]
         
         min_config, \
-        self.min_params, \
+        self.min_proxy, \
         self.min_total_params, \
         self.min_latency, \
         self.min_memory = self._calculate_gene_constraints(min_gene)
         
         print(f'''Smallest model in this space has: 
                 {min_config}
-                {self.min_params} decoder params
-                {self.min_total_params} total params
+                {self.min_proxy} {self.constraint_strategy}
+                {self.min_total_params} total_params
                 {self.min_latency:.4f}s latency
                 {self.min_memory:.4f}MB memory''')
 
@@ -239,15 +259,15 @@ class Evolution:
 
         return True
 
-    def _calculate_gene_constraints(self, gene: List[Any]) -> Tuple[Dict[str, Any], int, int, float, float]:
+    def _calculate_gene_constraints(self, gene: List[Any]) -> Tuple[Dict[str, Any], Union[int, float], int, float, float]:
         """Calculates an individual gene constraints.
 
         Args:
             gene: Gene.
 
         Returns:
-            (Tuple[Dict[str, Any], int, int, float, float]): Decoder parameters, total parameters,
-                latencies and memories.
+            (Tuple[Dict[str, Any], Union[int, float], int, float, float]): Decoder parameters or
+                validation perplexity, total parameters, latencies and memories.
 
         """
 
@@ -260,44 +280,44 @@ class Evolution:
         # Constraint pipeline with PyTorch
         if self.constraint_pipeline_type == 'torch':
             model = load_model_from_config(self.model_type, model_config)
-            params, total_params, latency, memory = self.pipeline(model)
+            proxy, total_params, latency, memory = self.pipeline(model, model_config)
         
         # Constraint pipeline with ONNX
         elif self.constraint_pipeline_type == 'onnx':
-            params, total_params, latency, memory = self.pipeline(self.model_type, model_config)
+            proxy, total_params, latency, memory = self.pipeline(self.model_type, model_config)
 
-        return config, params, total_params, latency, memory
+        return config, proxy, total_params, latency, memory
 
-    def _calculate_population_constraints(self, genes: List[List[Any]]) -> Tuple[List[int], List[int], List[float], List[float]]:
+    def _calculate_population_constraints(self, genes: List[List[Any]]) -> Tuple[List[Union[int, float]], List[int], List[float], List[float]]:
         """Calculates population constraints.
 
         Args:
             genes: List of genes.
 
         Returns:
-            (Tuple[List[int], List[int], List[float], List[float]]): Decoder parameters,
-                total parameters, latencies and memories. 
+            (Tuple[List[Union[int, float]], List[int], List[float], List[float]]): Decoder parameters
+                or validation perplexity, total parameters, latencies and memories. 
 
         """
 
-        params, total_params, latencies, memories = [], [], [], []
+        proxies, total_params, latencies, memories = [], [], [], []
 
         for gene in genes:
             # Calculates current gene's constraints
-            _, d_params, t_params, latency, memory = self._calculate_gene_constraints(gene)
+            _, proxy, t_params, latency, memory = self._calculate_gene_constraints(gene)
 
             # Appends constraints to their corresponding lists
-            params.append(d_params)
+            proxies.append(proxy)
             total_params.append(t_params)
             latencies.append(latency)
             memories.append(memory)
             
         # Sanity checking
-        assert len(params) == len(latencies)
-        assert len(params) == len(memories)
-        assert len(params) == len(total_params)
+        assert len(proxies) == len(latencies)
+        assert len(proxies) == len(memories)
+        assert len(proxies) == len(total_params)
         
-        return params, total_params, latencies, memories
+        return proxies, total_params, latencies, memories
 
     def _update_pareto_frontier(self, is_decreasing: Optional[bool] = True) -> None:
         """Updates the Pareto-frontier of the evolutionary search.
@@ -309,11 +329,13 @@ class Evolution:
 
         self.pareto = defaultdict(list)
 
-        # Pareto over decoder params, latency, memory since
-        # higher decoder params is better for performance and lower memory and latency are better
+        # Pareto over proxies, latency and memory
         # Note we convert decoder params to a decreasing quantity since the pareto
         # finding function needs all of them to be either decreasing or increasing
-        xs = np.array(max(self.all_params)) - np.array(self.all_params).reshape(-1, 1)
+        if self.constraint_strategy == 'decoder_params':
+            xs = np.array(max(self.all_proxies)) - np.array(self.all_proxies).reshape(-1, 1)
+        else:
+            xs = np.array(self.all_proxies).reshape(-1, 1) 
         ys = np.array(self.all_latencies).reshape(-1, 1)
         zs = np.array(self.all_memories).reshape(-1, 1)
 
@@ -321,13 +343,13 @@ class Evolution:
         points_idx = find_pareto_frontier_points(points, is_decreasing=is_decreasing)
 
         assert points.shape[0] == len(self.all_population)
-        assert points.shape[0] == len(self.all_params)
+        assert points.shape[0] == len(self.all_proxies)
         assert points.shape[0] == len(self.all_total_params)
         assert points.shape[0] == len(self.all_latencies)
         assert points.shape[0] == len(self.all_memories)
         
         self.pareto['population'] = [self.all_population[i] for i in points_idx]
-        self.pareto['params'] = [self.all_params[i] for i in points_idx]
+        self.pareto['proxies'] = [self.all_proxies[i] for i in points_idx]
         self.pareto['total_params'] = [self.all_total_params[i] for i in points_idx]
         self.pareto['latencies'] = [self.all_latencies[i] for i in points_idx]
         self.pareto['memories'] = [self.all_memories[i] for i in points_idx]
@@ -461,37 +483,39 @@ class Evolution:
 
         """
 
+        constraint_strategy = ' '.join([i.title() for i in self.constraint_strategy.split('_')])
+
         all_configs = [self.converter.gene_to_config(gene) for gene in self.all_population]
-        all_params = np.asarray(self.all_params)
+        all_proxies = np.asarray(self.all_proxies)
         all_total_params = np.asarray(self.all_total_params)
         all_latencies = np.asarray(self.all_latencies)
         all_memories = np.asarray(self.all_memories)
 
         pareto_configs = [self.converter.gene_to_config(gene) for gene in self.pareto['population']]
-        pareto_params = np.asarray(self.pareto['params'])
+        pareto_proxies = np.asarray(self.pareto['proxies'])
         pareto_total_params = np.asarray(self.pareto['total_params'])
         pareto_latencies = np.asarray(self.pareto['latencies'])
         pareto_memories = np.asarray(self.pareto['memories'])
 
         if parents:
             parents_configs = [self.converter.gene_to_config(gene) for gene in parents['population']]
-            parents_params = np.asarray(parents['params'])
+            parents_proxies = np.asarray(parents['proxies'])
             parents_total_params = np.asarray(parents['total_params'])
             parents_latencies = np.asarray(parents['latencies'])
             parents_memories = np.asarray(parents['memories'])
 
         # 2D plot: number of decoder parameters x latencies 
-        visited_dict = {'x': all_params, 'y': all_latencies, 'config': all_configs}
-        pareto_dict = {'x': pareto_params, 'y': pareto_latencies, 'config': pareto_configs}
-        parents_dict = {'x': parents_params, 'y': parents_latencies, 'config': parents_configs} if parents else None
-        output_path = os.path.join(self.results_path, f'decoder_params_vs_latency_iter_{iteration}')
+        visited_dict = {'x': all_proxies, 'y': all_latencies, 'config': all_configs}
+        pareto_dict = {'x': pareto_proxies, 'y': pareto_latencies, 'config': pareto_configs}
+        parents_dict = {'x': parents_proxies, 'y': parents_latencies, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'{self.constraint_strategy}_vs_latency_iter_{iteration}')
 
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
-                       hover_template='Decoder params: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
-                       title_text=f'Decoder params vs. Latency (s) at Iteration {iteration}',
-                       xaxis_title='Decoder params',
+                       hover_template='Proxy: %{x:d}' + '<br>Latency (s): %{y:.4f}<br>' + '%{text}',
+                       title_text=f'{constraint_strategy} vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_strategy}',
                        yaxis_title='Latency (s)',
                        output_path=output_path)
 
@@ -511,17 +535,17 @@ class Evolution:
                        output_path=output_path)
 
         # 2D plot: number of decoder parameters x memories 
-        visited_dict = {'x': all_params, 'y': all_memories, 'config': all_configs}
-        pareto_dict = {'x': pareto_params, 'y': pareto_memories, 'config': pareto_configs}
-        parents_dict = {'x': parents_params, 'y': parents_memories, 'config': parents_configs} if parents else None
-        output_path = os.path.join(self.results_path, f'decoder_params_vs_memory_iter_{iteration}')
+        visited_dict = {'x': all_proxies, 'y': all_memories, 'config': all_configs}
+        pareto_dict = {'x': pareto_proxies, 'y': pareto_memories, 'config': pareto_configs}
+        parents_dict = {'x': parents_proxies, 'y': parents_memories, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'{self.constraint_strategy}_vs_memory_iter_{iteration}')
 
         plot_2d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
-                       hover_template='Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
-                       title_text=f'Decoder params vs. Memory (MB) at Iteration {iteration}',
-                       xaxis_title='Decoder params',
+                       hover_template='Proxy: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + '%{text}',
+                       title_text=f'{constraint_strategy} vs. Memory (MB) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_strategy}',
                        yaxis_title='Memory (MB)',
                        output_path=output_path)
         
@@ -541,17 +565,17 @@ class Evolution:
                        output_path=output_path)
 
         # 3D plot: number of decoder parameters x latencies x memories 
-        visited_dict = {'x': all_params, 'y': all_memories, 'z': all_latencies, 'config': all_configs}
-        pareto_dict = {'x': pareto_params, 'y': pareto_memories, 'z': pareto_latencies, 'config': pareto_configs}
-        parents_dict = {'x': parents_params, 'y': parents_memories, 'z': parents_latencies, 'config': parents_configs} if parents else None
-        output_path = os.path.join(self.results_path, f'decoder_params_vs_memory_vs_latency_iter_{iteration}')
+        visited_dict = {'x': all_proxies, 'y': all_memories, 'z': all_latencies, 'config': all_configs}
+        pareto_dict = {'x': pareto_proxies, 'y': pareto_memories, 'z': pareto_latencies, 'config': pareto_configs}
+        parents_dict = {'x': parents_proxies, 'y': parents_memories, 'z': parents_latencies, 'config': parents_configs} if parents else None
+        output_path = os.path.join(self.results_path, f'{self.constraint_strategy}_vs_memory_vs_latency_iter_{iteration}')
 
         plot_3d_pareto(visited_dict,
                        pareto_dict,
                        parents_dict,
-                       hover_template='Decoder params: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
-                       title_text=f'Decoder params vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
-                       xaxis_title='Decoder params',
+                       hover_template='Proxy: %{x:d}' + '<br>Memory (MB): %{y:.4f}<br>' + 'Latency (s): %{z:.4f}<br>' + '%{text}',
+                       title_text=f'{constraint_strategy} vs. Memory (MB) vs. Latency (s) at Iteration {iteration}',
+                       xaxis_title=f'{constraint_strategy}',
                        yaxis_title='Memory (MB)',
                        zaxis_title='Latency (s)',
                        output_path=output_path)
@@ -611,14 +635,14 @@ class Evolution:
         self._update_population_count(population)
 
         logs = {'population': [],
-                'params': [],
+                'proxies': [],
                 'total_params': [],
                 'latencies': [],
                 'memories': [],
                 'parents': [],
                 'pareto': []}
 
-        parents_params = []
+        parents_proxies = []
         parents_total_params = []
         parents_latencies = []
         parents_memories = []
@@ -627,23 +651,23 @@ class Evolution:
             idx = 0 if i == 0 else self.parent_size
             print(f'Iteration {i+1}/{self.n_iter}')
 
-            # Calculates decoder parameters, total parameters, latencies and memories
-            population_params_unseen, \
+            # Calculates proxies, total parameters, latencies and memories
+            population_proxies_unseen, \
             population_total_params_unseen, \
             population_latencies_unseen, \
             population_memories_unseen = self._calculate_population_constraints(population[idx:])
 
-            population_params = parents_params + population_params_unseen
+            population_proxies = parents_proxies + population_proxies_unseen
             population_total_params = parents_total_params + population_total_params_unseen
             population_latencies = parents_latencies + population_latencies_unseen
             population_memories = parents_memories + population_memories_unseen
 
-            assert len(population_params) == self.population_size
+            assert len(population_proxies) == self.population_size
             assert len(population_total_params) == self.population_size
             assert len(population_latencies) == self.population_size
             assert len(population_memories) == self.population_size
             
-            self.all_params += population_params_unseen
+            self.all_proxies += population_proxies_unseen
             self.all_total_params += population_total_params_unseen
             self.all_latencies += population_latencies_unseen
             self.all_memories += population_memories_unseen
@@ -660,7 +684,7 @@ class Evolution:
                                             p=weights)
 
             parents_population = [self.pareto['population'][m] for m in selected_idx]
-            parents_params = [self.pareto['params'][m] for m in selected_idx]
+            parents_proxies = [self.pareto['proxies'][m] for m in selected_idx]
             parents_total_params = [self.pareto['total_params'][m] for m in selected_idx]
             parents_latencies = [self.pareto['latencies'][m] for m in selected_idx]
             parents_memories = [self.pareto['memories'][m] for m in selected_idx]
@@ -680,14 +704,14 @@ class Evolution:
             crossovered_population, k = [], 0
             while k < self.crossover_size:
                 crossovered_gene = self._crossover(random.sample(parents_population, 2))
-                
+
                 if self._check_gene_constraints(crossovered_gene) and not self._is_seen_before(crossovered_gene):
                     crossovered_population.append(crossovered_gene)
                     k += 1
 
             # Appends current information to the logs
             logs['population'].append(copy.deepcopy(population))
-            logs['params'].append(copy.deepcopy(population_params))
+            logs['proxies'].append(copy.deepcopy(population_proxies))
             logs['total_params'].append(copy.deepcopy(population_total_params))
             logs['latencies'].append(copy.deepcopy(population_latencies))
             logs['memories'].append(copy.deepcopy(population_memories))
@@ -697,7 +721,7 @@ class Evolution:
             logs_path = os.path.join(self.results_path, f'logs_iter_{i}.pkl')
             with open(logs_path, 'wb') as f:
                 pickle.dump({'population': logs['population'][-1],
-                             'params': logs['params'][-1],
+                             'proxies': logs['proxies'][-1],
                              'total_params': logs['total_params'][-1],
                              'latencies': logs['latencies'][-1],
                              'memories': logs['memories'][-1],
@@ -712,7 +736,7 @@ class Evolution:
             self.all_population += mutated_population + crossovered_population
 
             self.plot_search_state(iteration=i,
-                                   parents={'params': parents_params, 
+                                   parents={'proxies': parents_proxies, 
                                             'total_params': parents_total_params, 
                                             'latencies': parents_latencies, 
                                             'memories': parents_memories,
@@ -772,13 +796,13 @@ class Evolution:
         for i in range(0, n_samples, batch):
             curr_population = population[i:i+batch]
 
-            curr_population_params, \
+            curr_population_proxies, \
             curr_population_total_params, \
             curr_population_latencies, \
             curr_population_memories = self._calculate_population_constraints(curr_population)
 
             self.all_population += curr_population
-            self.all_params += curr_population_params
+            self.all_proxies += curr_population_proxies
             self.all_total_params += curr_population_total_params
             self.all_latencies += curr_population_latencies
             self.all_memories += curr_population_memories
@@ -788,7 +812,7 @@ class Evolution:
             self.plot_search_state(iteration=i)
 
             logs = {'population': population,
-                    'params': curr_population_params,
+                    'proxies': curr_population_proxies,
                     'total_params': curr_population_total_params,
                     'latencies': curr_population_latencies,
                     'memories': curr_population_memories,

@@ -4,13 +4,19 @@
 """PyTorch-based constraints.
 """
 
-from typing import List, Optional
+from argparse import Namespace
+import json
+import math
+import os
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 import torch.utils.benchmark as benchmark
 from torch.profiler import ProfilerActivity, profile
 
+from archai.nlp import train
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
+from archai.nlp.metrics.text_predict.predictor import run_score
 
 
 def measure_torch_inference_latency(model: torch.nn.Module,
@@ -124,3 +130,102 @@ def measure_torch_peak_memory(model: torch.nn.Module,
     peak_memory_mb = peak_memory / (1024 ** 2)
 
     return peak_memory_mb
+
+
+def measure_torch_val_ppl(model: torch.nn.Module,
+                          model_config: Dict[str, Any],
+                          dataset: Optional[str] = 'wt103',
+                          vocab_type: Optional[str] = 'word',
+                          vocab_size: Optional[int] = 10000,
+                          max_step: Optional[int] = 100) -> Tuple[Namespace, float]:
+    """Measures a model's validation perplexity.
+
+    Args:
+        model: Model instance.
+        model_config: Configuration of the model.
+        dataset: Training dataset.
+        vocab_type: Type of vocabulary.
+        vocab_size: Vocabulary size.
+        max_step: Maximum training steps.
+
+    Returns:
+        (Tuple[Namespace, float]): Training arguments and validation perplexity.
+
+    """
+
+    try:
+        args, device = train.init()
+    except:
+        args, device = train.init(disable_multiple_dlogger=True)
+
+    args.dataset = dataset
+    args.vocab = vocab_type
+    args.vocab_size = vocab_size
+    args.max_step = max_step
+    args.warmup_step = max_step // 10
+    
+    vocab, train_itr, valid_itr, _, file_stats = train.load_data(args, device)
+    optimizer, optimizer_sparse = train.create_optimizer(args, model)
+    scaler = train.create_grad_scaler(args, model, optimizer)
+    para_model, model = train.distributed_model(args, model, device)
+    model.to(device)
+    scheduler, scheduler_sparse = train.create_scheduler(args, optimizer, optimizer_sparse)
+
+    try:
+        _, best_val_loss, _ = train.train_main(args, device, train_itr, valid_itr, model, para_model,
+                                               model_config, optimizer, optimizer_sparse, scheduler,
+                                               scheduler_sparse, scaler, vocab, file_stats[1])
+    except:
+        best_val_loss = 1e32
+
+    return args, math.exp(best_val_loss)
+
+
+def measure_torch_char_accept_rate(model: torch.nn.Module,
+                                   model_config: Dict[str, Any],
+                                   dataset: Optional[str] = 'wt103',
+                                   scoring_file: Optional[str] = None,
+                                   vocab_type: Optional[str] = 'word',
+                                   vocab_size: Optional[int] = 10000,
+                                   max_step: Optional[int] = 100) -> float:
+    """Measures a model's character accept rate with Text Predict.
+
+    Args:
+        model: Model instance.
+        model_config: Configuration of the model.
+        dataset: Training dataset.
+        scoring_file: Scoring .ljson file.
+        vocab_type: Type of vocabulary.
+        vocab_size: Vocabulary size.
+        max_step: Maximum training steps.
+
+    Returns:
+        (float): Character accept rate.
+
+    """
+
+    if vocab_type == 'word':
+        raise ValueError('`vocab_type` should be either `bbpe` or `gpt2`.')
+
+    # Re-uses the perplexity function to train the model
+    args, _ = measure_torch_val_ppl(model, model_config, dataset, vocab_type, vocab_size, max_step)
+
+    # Defines some missing variables to run TextPredict
+    model_path = os.path.join(args.work_dir, 'checkpoint_best.pt')
+    vocab_path = os.path.join(args.cache_dir, dataset, vocab_type, str(vocab_size), 'vocab', 'bbpe_tokenizer.json')
+    input_file_type = 'smartcompose'
+
+    try:
+        # Runs the Text Predict scoring function
+        run_score(args.work_dir, model_path, vocab_path, scoring_file, input_file_type, args.model_type)
+
+        # Opens the scoring result file and gathers the `CharAcceptRate`
+        scoring_result_path = os.path.join(args.work_dir, 'score', 'summary.json')
+        with open(scoring_result_path, 'r', encoding='utf-8') as f:
+            scoring_result = json.load(f)
+        char_accept_rate = scoring_result[-1]['CharAcceptRate']
+
+    except:
+        char_accept_rate = 0.0
+
+    return char_accept_rate
