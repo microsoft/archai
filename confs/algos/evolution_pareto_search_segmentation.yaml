@@ -45,6 +45,7 @@ dataset: {} # default dataset settings comes from __include__ on the top
 nas:
   search:
     init_num_models: 100 # initial random models to seed the search 
+    init_architectures_from_dir: '' # path to directory with yaml files to manually seed the search
     num_iters: 20 # number of pareto frontier search iterations 
     num_random_mix: 20 # how many random models to add to the parent mixture
     max_unseen_population: 100 # restrict the new population at each iteration to prevent blowing up of models
