@@ -273,11 +273,14 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         for p in parents:
             candidates = {}
+            nb_tries = 0
+            patience = 20
 
-            while len(candidates) < mutations_per_parent:
+            while len(candidates) < mutations_per_parent and nb_tries < patience:
                 for nbr in self.search_space.get_neighbors(p):
                     if nbr.metadata['archid'] not in self.eval_cache:
                         candidates[nbr.metadata['archid']] = nbr
+                nb_tries += 1
 
             mutations.update(candidates)
 
