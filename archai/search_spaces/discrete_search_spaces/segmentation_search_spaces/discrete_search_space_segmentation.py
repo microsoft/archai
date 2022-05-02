@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, Optional
 from overrides.overrides import overrides
 import copy
 import uuid
@@ -43,12 +43,17 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                  base_channels_binwidth:int=8,
                  min_delta_channels:int=8,
                  max_delta_channels:int=48,
-                 delta_channels_binwidth:int=8):
+                 delta_channels_binwidth:int=8,
+                 downsample_prob_ratio:float=1.5,
+                 op_subset: Optional[List[str]] = None):
         super().__init__()
         self.datasetname = datasetname
         assert self.datasetname != ''
 
         self.operations = list(OPS.keys())
+        if op_subset:
+            self.operations = [op for op in self.operations if op in op_subset]
+
         assert len(self.operations) > 0
 
         self.min_mac = min_mac
@@ -80,6 +85,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         assert len(self.delta_channels_list) > 1
 
         self.skip_connections = skip_connections
+        self.downsample_prob_ratio = downsample_prob_ratio
         
 
     @overrides
@@ -100,7 +106,8 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 max_downsample_factor=self.max_downsample_factor,
                 skip_connections=self.skip_connections,
                 max_skip_connection_length=self.max_skip_connection_length,             
-                max_scale_delta=self.max_scale_delta
+                max_scale_delta=self.max_scale_delta,
+                op_subset=self.operations
             )
 
             meta_data = {

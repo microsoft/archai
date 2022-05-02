@@ -284,9 +284,14 @@ class SegmentationNasModel(torch.nn.Module):
                     nb_layers: int = 24,
                     skip_connections: bool = True,
                     max_skip_connection_length: int = 3,
-                    max_scale_delta: Optional[int] = None):
+                    max_scale_delta: Optional[int] = None,
+                    op_subset: Optional[List[str]] = None,
+                    downsample_prob_ratio: float = 1.0):
         '''Uniform random sample an architecture (nn.Module)'''
         operations = list(OPS.keys())
+        
+        if op_subset:
+            operations = [op for op in operations if op in op_subset]
 
         # Samples `base_channels` and `delta_channels`
         base_channels = random.choice(base_channels_list)
@@ -327,10 +332,16 @@ class SegmentationNasModel(torch.nn.Module):
                 last_scale_idx = scale2idx[last_layer['scale']]
 
                 # Samples a delta value for the current scale index
-                scale_delta = random.randint(
+                scale_options = list(range(
                     max(-max_scale_delta, -last_scale_idx),
-                    min(max_scale_delta, len(ch_map) - last_scale_idx - 1)
-                )
+                    1 + min(max_scale_delta, len(ch_map) - last_scale_idx - 1)
+                ))
+                sample_weights = [
+                    1 if delta < 0 else downsample_prob_ratio
+                    for delta in scale_options
+                ]
+
+                scale_delta = random.choices(scale_options, k=1, weights=sample_weights)[0]
 
                 # Assigns the new scale to the new node
                 new_node['scale'] = idx2scale[last_scale_idx + scale_delta]
