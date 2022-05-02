@@ -56,6 +56,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.min_delta_channels = conf_search['min_delta_channels']
         self.max_delta_channels = conf_search['max_delta_channels']
         self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
+        self.op_subset = conf_search['op_subset']
+        self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
 
         self.init_architectures_from_dir = conf_search['init_architectures_from_dir']
         self.use_remote_benchmark = conf_search['use_remote_benchmark']
@@ -88,9 +90,25 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def get_search_space(self)->DiscreteSearchSpaceSegmentation:
-        return DiscreteSearchSpaceSegmentation(self.dataset_name, 
-                                               min_mac=self.min_mac, 
-                                               max_mac=self.max_mac)
+        return DiscreteSearchSpaceSegmentation(
+            self.dataset_name,
+            min_layers=self.min_layers,
+            max_layers=self.max_layers,
+            max_downsample_factor=self.max_downsample_factor,
+            skip_connections=self.skip_connections,
+            max_skip_connection_length=self.max_skip_connection_length,
+            max_scale_delta=self.max_scale_delta,
+            min_base_channels=self.min_base_channels,
+            max_base_channels=self.max_base_channels,
+            base_channels_binwidth=self.base_channels_binwidth,
+            min_delta_channels=self.min_delta_channels,
+            max_delta_channels=self.max_delta_channels,
+            delta_channels_binwidth=self.delta_channels_binwidth,
+            min_mac=self.min_mac, 
+            max_mac=self.max_mac,
+            op_subset=self.op_subset,
+            downsample_prob_ratio=self.downsample_prob_ratio
+        )
 
     @overrides
     def _sample_init_population(self) -> List[ArchWithMetaData]:
