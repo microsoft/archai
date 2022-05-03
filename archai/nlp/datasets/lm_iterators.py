@@ -189,8 +189,8 @@ class LMMultiFileIterator(LMShuffledIterator):
 
         # DDP prep: partition self.paths into world size chunks 
         # and pick chunk for this rank
-        world_size = distributed_utils.distributed.get_world_size()
-        rank = distributed_utils.distributed.get_rank()
+        world_size = distributed.get_world_size()
+        rank = distributed.get_rank()
         chunk_len = len(paths) // world_size + 1 # NOTE: this causes a slight imbalance!
         paths_chunks = [paths[i:i+chunk_len] for i in range(0, len(paths), chunk_len)]
         self.paths = paths_chunks[rank]
