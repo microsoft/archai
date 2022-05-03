@@ -20,16 +20,16 @@ from . import measure
 from ..p_utils import get_layer_metric_array
 
 
-@measure('plain', bn=True, mode='param')
+@measure("plain", bn=True, mode="param")
 def compute_plain_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
 
     for param in net.parameters():
         param.grad = None
-    
+
     N = inputs.shape[-1]
     for sp in range(split_data):
-        st=sp*N//split_data
-        en=(sp+1)*N//split_data
+        st = sp * N // split_data
+        en = (sp + 1) * N // split_data
 
         loss, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
         loss = loss.float().mean().type_as(loss)

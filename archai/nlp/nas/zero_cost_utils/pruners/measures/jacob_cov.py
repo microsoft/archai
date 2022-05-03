@@ -26,12 +26,17 @@ from archai.nlp.models.hf_gpt2.model_hf_gpt2 import HfGPT2Flex
 
 from . import measure
 
+
 class OneHotLinear(nn.Linear):
     def __init__(self, in_features, out_features, bias=True, device=None, dtype=None):
-        super(OneHotLinear, self).__init__(in_features, out_features, bias, device, dtype)
+        super(OneHotLinear, self).__init__(
+            in_features, out_features, bias, device, dtype
+        )
 
     def forward(self, input):
-        self.input_oh = torch.index_select(torch.eye(self.in_features), 0, input.view(-1).long()).view(input.size()+(self.in_features,))
+        self.input_oh = torch.index_select(
+            torch.eye(self.in_features), 0, input.view(-1).long()
+        ).view(input.size() + (self.in_features,))
         self.input_oh.requires_grad = True
         return F.linear(self.input_oh, self.weight, self.bias)
 
@@ -51,16 +56,20 @@ def forward_after_embedding(self, word_emb, target, mems=None):
             mask_shift_len = qlen - mask_len
         else:
             mask_shift_len = qlen
-        dec_attn_mask = (torch.triu(all_ones, 1+mlen)
-                            + torch.tril(all_ones, -mask_shift_len)).bool()
+        dec_attn_mask = (
+            torch.triu(all_ones, 1 + mlen) + torch.tril(all_ones, -mask_shift_len)
+        ).bool()
     else:
-        dec_attn_mask = torch.triu(word_emb.new_ones(qlen, klen), diagonal=1+mlen).bool()
+        dec_attn_mask = torch.triu(
+            word_emb.new_ones(qlen, klen), diagonal=1 + mlen
+        ).bool()
 
     hids = []
     # default
     if self.attn_type == 0:
-        pos_seq = torch.arange(klen-1, -1, -1.0, device=word_emb.device,
-                                dtype=word_emb.dtype)
+        pos_seq = torch.arange(
+            klen - 1, -1, -1.0, device=word_emb.device, dtype=word_emb.dtype
+        )
         if self.clamp_len > 0:
             pos_seq.clamp_(max=self.clamp_len)
         pos_emb = self.pos_emb(pos_seq)
@@ -71,27 +80,39 @@ def forward_after_embedding(self, word_emb, target, mems=None):
         for i, layer in enumerate(self.layers):
             hids.append(core_out.detach())
             mems_i = None if mems is None else mems[i]
-            core_out = layer(core_out, pos_emb, self.r_w_bias,
-                                self.r_r_bias, dec_attn_mask=dec_attn_mask,
-                                mems=mems_i)
+            core_out = layer(
+                core_out,
+                pos_emb,
+                self.r_w_bias,
+                self.r_r_bias,
+                dec_attn_mask=dec_attn_mask,
+                mems=mems_i,
+            )
     # learnable
     elif self.attn_type == 1:
         core_out = self.drop(word_emb)
         for i, layer in enumerate(self.layers):
             hids.append(core_out.detach())
             if self.clamp_len > 0:
-                r_emb = self.r_emb[i][-self.clamp_len:]
-                r_bias = self.r_bias[i][-self.clamp_len:]
+                r_emb = self.r_emb[i][-self.clamp_len :]
+                r_bias = self.r_bias[i][-self.clamp_len :]
             else:
                 r_emb, r_bias = self.r_emb[i], self.r_bias[i]
 
             mems_i = None if mems is None else mems[i]
-            core_out = layer(core_out, r_emb, self.r_w_bias[i],
-                                r_bias, dec_attn_mask=dec_attn_mask, mems=mems_i)
+            core_out = layer(
+                core_out,
+                r_emb,
+                self.r_w_bias[i],
+                r_bias,
+                dec_attn_mask=dec_attn_mask,
+                mems=mems_i,
+            )
     # absolute
     elif self.attn_type == 2:
-        pos_seq = torch.arange(klen - 1, -1, -1.0, device=word_emb.device,
-                                dtype=word_emb.dtype)
+        pos_seq = torch.arange(
+            klen - 1, -1, -1.0, device=word_emb.device, dtype=word_emb.dtype
+        )
         if self.clamp_len > 0:
             pos_seq.clamp_(max=self.clamp_len)
         pos_emb = self.pos_emb(pos_seq)
@@ -103,9 +124,8 @@ def forward_after_embedding(self, word_emb, target, mems=None):
             mems_i = None if mems is None else mems[i]
             if mems_i is not None and len(mems_i) and i == 0:
                 mems_i += pos_emb[:mlen]
-            core_out = layer(core_out, dec_attn_mask=dec_attn_mask,
-                                mems=mems_i)
-    
+            core_out = layer(core_out, dec_attn_mask=dec_attn_mask, mems=mems_i)
+
     elif self.attn_type == 3:
         core_out = self.drop(word_emb)
 
@@ -116,15 +136,14 @@ def forward_after_embedding(self, word_emb, target, mems=None):
                 cur_emb = self.r_emb[i][:-qlen]
                 cur_size = cur_emb.size(0)
                 if cur_size < mlen:
-                    cur_emb_pad = cur_emb[0:1].expand(mlen-cur_size, -1, -1)
+                    cur_emb_pad = cur_emb[0:1].expand(mlen - cur_size, -1, -1)
                     cur_emb = torch.cat([cur_emb_pad, cur_emb], 0)
                 else:
                     cur_emb = cur_emb[-mlen:]
                 mems_i += cur_emb.view(mlen, 1, -1)
             core_out += self.r_emb[i][-qlen:].view(qlen, 1, -1)
 
-            core_out = layer(core_out, dec_attn_mask=dec_attn_mask,
-                                mems=mems_i)
+            core_out = layer(core_out, dec_attn_mask=dec_attn_mask, mems=mems_i)
 
     core_out = self.drop(core_out)
     # core_out = self.fc_to_1class(core_out)
@@ -143,10 +162,12 @@ def forward_after_embedding(self, word_emb, target, mems=None):
 
 def forward_after_embedding_gpt2(self, word_emb, target, mems=None):
     # Causal attention mask is created inside the model
-    outputs = self.model(labels=target,
-                         inputs_embeds=word_emb,
-                         output_loss=False,
-                         output_prediction_scores=True)
+    outputs = self.model(
+        labels=target,
+        inputs_embeds=word_emb,
+        output_loss=False,
+        output_prediction_scores=True,
+    )
 
     return self.fc_to_1class(outputs.logits), None
 
@@ -166,14 +187,20 @@ def forward_after_embedding_flex(self, word_emb, target, mems=None):
             mask_shift_len = qlen - mask_len
         else:
             mask_shift_len = qlen
-        dec_attn_mask = (torch.triu(all_ones, 1+mlen) + torch.tril(all_ones, -mask_shift_len)).bool()
+        dec_attn_mask = (
+            torch.triu(all_ones, 1 + mlen) + torch.tril(all_ones, -mask_shift_len)
+        ).bool()
     else:
-        dec_attn_mask = torch.triu(word_emb.new_ones(qlen, klen), diagonal=1+mlen).bool()
+        dec_attn_mask = torch.triu(
+            word_emb.new_ones(qlen, klen), diagonal=1 + mlen
+        ).bool()
 
     hids = []
     # default
     if self.attn_type == 0:
-        pos_seq = torch.arange(klen-1, -1, -1.0, device=word_emb.device, dtype=word_emb.dtype)
+        pos_seq = torch.arange(
+            klen - 1, -1, -1.0, device=word_emb.device, dtype=word_emb.dtype
+        )
         if self.clamp_len > 0:
             pos_seq.clamp_(max=self.clamp_len)
         pos_emb = self.pos_emb(pos_seq)
@@ -186,28 +213,45 @@ def forward_after_embedding_flex(self, word_emb, target, mems=None):
             mems_i = None if mems is None else mems[i]
 
             # core_out = layer(core_out, pos_emb, self.r_w_bias[i], self.r_r_bias[i], dec_attn_mask=dec_attn_mask, mems=mems_i)
-            core_out = layer(core_out, pos_emb, getattr(self, f'r_w_bias_{i}'), getattr(self, f'r_r_bias_{i}'), dec_attn_mask=dec_attn_mask, mems=mems_i)
+            core_out = layer(
+                core_out,
+                pos_emb,
+                getattr(self, f"r_w_bias_{i}"),
+                getattr(self, f"r_r_bias_{i}"),
+                dec_attn_mask=dec_attn_mask,
+                mems=mems_i,
+            )
     # learnable
     elif self.attn_type == 1:
         core_out = self.drop(word_emb)
         for i, layer in enumerate(self.layers):
             hids.append(core_out.detach())
             if self.clamp_len > 0:
-                r_emb = getattr(self, f'r_emb_{i}')[-self.clamp_len:]
-                r_bias = getattr(self, f'r_bias_{i}')[-self.clamp_len:]
+                r_emb = getattr(self, f"r_emb_{i}")[-self.clamp_len :]
+                r_bias = getattr(self, f"r_bias_{i}")[-self.clamp_len :]
                 # r_emb = self.r_emb[i][-self.clamp_len:]
                 # r_bias = self.r_bias[i][-self.clamp_len:]
             else:
-                r_emb, r_bias = getattr(self, f'r_emb_{i}'), getattr(self, f'r_bias_{i}')
+                r_emb, r_bias = getattr(self, f"r_emb_{i}"), getattr(
+                    self, f"r_bias_{i}"
+                )
                 # r_emb, r_bias = self.r_emb[i], self.r_bias[i]
 
             mems_i = None if mems is None else mems[i]
             # core_out = layer(core_out, r_emb, self.r_w_bias[i], r_bias, dec_attn_mask=dec_attn_mask, mems=mems_i)
-            core_out = layer(core_out, r_emb, getattr(self, f'r_w_bias_{i}'), r_bias, dec_attn_mask=dec_attn_mask, mems=mems_i)
+            core_out = layer(
+                core_out,
+                r_emb,
+                getattr(self, f"r_w_bias_{i}"),
+                r_bias,
+                dec_attn_mask=dec_attn_mask,
+                mems=mems_i,
+            )
     # absolute
     elif self.attn_type == 2:
-        pos_seq = torch.arange(klen - 1, -1, -1.0, device=word_emb.device,
-                                dtype=word_emb.dtype)
+        pos_seq = torch.arange(
+            klen - 1, -1, -1.0, device=word_emb.device, dtype=word_emb.dtype
+        )
         if self.clamp_len > 0:
             pos_seq.clamp_(max=self.clamp_len)
         pos_emb = self.pos_emb(pos_seq)
@@ -219,9 +263,8 @@ def forward_after_embedding_flex(self, word_emb, target, mems=None):
             mems_i = None if mems is None else mems[i]
             if mems_i is not None and len(mems_i) and i == 0:
                 mems_i += pos_emb[:mlen]
-            core_out = layer(core_out, dec_attn_mask=dec_attn_mask,
-                                mems=mems_i)
-    
+            core_out = layer(core_out, dec_attn_mask=dec_attn_mask, mems=mems_i)
+
     elif self.attn_type == 3:
         core_out = self.drop(word_emb)
 
@@ -232,15 +275,14 @@ def forward_after_embedding_flex(self, word_emb, target, mems=None):
                 cur_emb = self.r_emb[i][:-qlen]
                 cur_size = cur_emb.size(0)
                 if cur_size < mlen:
-                    cur_emb_pad = cur_emb[0:1].expand(mlen-cur_size, -1, -1)
+                    cur_emb_pad = cur_emb[0:1].expand(mlen - cur_size, -1, -1)
                     cur_emb = torch.cat([cur_emb_pad, cur_emb], 0)
                 else:
                     cur_emb = cur_emb[-mlen:]
                 mems_i += cur_emb.view(mlen, 1, -1)
             core_out += self.r_emb[i][-qlen:].view(qlen, 1, -1)
 
-            core_out = layer(core_out, dec_attn_mask=dec_attn_mask,
-                                mems=mems_i)
+            core_out = layer(core_out, dec_attn_mask=dec_attn_mask, mems=mems_i)
 
     core_out = self.drop(core_out)
     # core_out = self.fc_to_1class(core_out)
@@ -249,52 +291,61 @@ def forward_after_embedding_flex(self, word_emb, target, mems=None):
 
     tgt_len = target.size(0)
     pred_hid = core_out[-tgt_len:]
-    
+
     out = self.crit(pred_hid.view(-1, pred_hid.size(-1)))
     # out = out.view(tgt_len, -1)
     out = self.fc_to_1class(out)
 
     return out, new_mems
 
+
 def forward_crit(self, hidden, target=None, keep_order=False):
-  '''
-      hidden :: [len*bsz x d_proj]
-  '''
-  if self.n_clusters == 0:
-    logit = self._compute_logit(hidden, self.out_layers_weights[0], self.out_layers_biases[0], self.get_out_proj(0))
-    return logit
-  else:
-    # construct weights and biases
-    weights, biases, projs = [], [], []
-    for i in range(len(self.cutoffs)):
-        if self.div_val == 1:
-            l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i + 1]
-            weight_i = self.out_layers_weights[0][l_idx:r_idx]
-            bias_i = self.out_layers_biases[0][l_idx:r_idx]
-        else:
-            weight_i = self.out_layers_weights[i]
-            bias_i = self.out_layers_biases[i]
+    """
+    hidden :: [len*bsz x d_proj]
+    """
+    if self.n_clusters == 0:
+        logit = self._compute_logit(
+            hidden,
+            self.out_layers_weights[0],
+            self.out_layers_biases[0],
+            self.get_out_proj(0),
+        )
+        return logit
+    else:
+        # construct weights and biases
+        weights, biases, projs = [], [], []
+        for i in range(len(self.cutoffs)):
+            if self.div_val == 1:
+                l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i + 1]
+                weight_i = self.out_layers_weights[0][l_idx:r_idx]
+                bias_i = self.out_layers_biases[0][l_idx:r_idx]
+            else:
+                weight_i = self.out_layers_weights[i]
+                bias_i = self.out_layers_biases[i]
 
-        if i == 0:
-            weight_i = torch.cat([weight_i, self.cluster_weight], dim=0)
-            bias_i = torch.cat([bias_i, self.cluster_bias], dim=0)
+            if i == 0:
+                weight_i = torch.cat([weight_i, self.cluster_weight], dim=0)
+                bias_i = torch.cat([bias_i, self.cluster_bias], dim=0)
 
-        weights.append(weight_i)
-        biases.append(bias_i)
-        projs.append(self.get_out_proj(i))
+            weights.append(weight_i)
+            biases.append(bias_i)
+            projs.append(self.get_out_proj(i))
 
-    head_weight, head_bias, head_proj = weights[0], biases[0], projs[0]
-    head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj)
+        head_weight, head_bias, head_proj = weights[0], biases[0], projs[0]
+        head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj)
 
-    out = hidden.new_empty((head_logit.size(0), self.n_token))
-    out[:, :self.shortlist_size] = head_logit[:, :self.shortlist_size]
+        out = hidden.new_empty((head_logit.size(0), self.n_token))
+        out[:, : self.shortlist_size] = head_logit[:, : self.shortlist_size]
 
-    for i, (start_idx, stop_idx) in enumerate(zip(self.cutoffs, self.cutoffs[1:])):
-        weight_i, bias_i, proj_i = weights[i+1], biases[i+1], projs[i+1]
-        cluster_output = self._compute_logit(hidden, weight_i, bias_i, proj_i) #self.tail[i](input)
-        out[:, start_idx:stop_idx] = cluster_output
+        for i, (start_idx, stop_idx) in enumerate(zip(self.cutoffs, self.cutoffs[1:])):
+            weight_i, bias_i, proj_i = weights[i + 1], biases[i + 1], projs[i + 1]
+            cluster_output = self._compute_logit(
+                hidden, weight_i, bias_i, proj_i
+            )  # self.tail[i](input)
+            out[:, start_idx:stop_idx] = cluster_output
 
-    return out
+        return out
+
 
 def modify_net(net):
     # for idx, l in enumerate(net.word_emb.emb_layers):
@@ -306,18 +357,19 @@ def modify_net(net):
     #         # new_layer.to(l.device)
     #         net.word_emb.emb_layers[idx] = new_layer
     #         del l
-    
+
     if isinstance(net, MemTransformerLM):
         net.forward = types.MethodType(forward_after_embedding, net)
     if isinstance(net, HfGPT2Flex):
         net.forward = types.MethodType(forward_after_embedding_gpt2, net)
-    # elif isinstance(net, MemTransformerLM_flex):    
-        # net.forward = types.MethodType(forward_after_embedding_flex, net)
+    # elif isinstance(net, MemTransformerLM_flex):
+    # net.forward = types.MethodType(forward_after_embedding_flex, net)
     else:
         raise NotImplementedError
     # net.crit.forward = types.MethodType(forward_crit, net.crit)
     net.fc_to_1class = torch.nn.Linear(net.n_token, 1, bias=False)
     return net
+
 
 def get_batch_jacobian(net, x, target, device, split_data):
     net.zero_grad()
@@ -328,8 +380,8 @@ def get_batch_jacobian(net, x, target, device, split_data):
 
     N = x.shape[-1]
     for sp in range(split_data):
-        st=sp*N//split_data
-        en=(sp+1)*N//split_data
+        st = sp * N // split_data
+        en = (sp + 1) * N // split_data
         y, _ = net(word_emb[:, st:en], target[:, st:en], mems=None)
         # y, _ = net(word_emb[:, st:en, :], target[:, st:], mems=None)
         y.backward(torch.ones_like(y))
@@ -338,20 +390,24 @@ def get_batch_jacobian(net, x, target, device, split_data):
     word_emb.requires_grad_(False)
     return jacob, target.detach()
 
+
 def eval_score(jacob, labels=None):
     corrs = np.corrcoef(jacob)
-    v, _  = np.linalg.eig(corrs)
+    v, _ = np.linalg.eig(corrs)
     k = 1e-5
-    return -np.sum(np.log(v + k) + 1./(v + k))
+    return -np.sum(np.log(v + k) + 1.0 / (v + k))
 
-@measure('jacob_cov', bn=True)
+
+@measure("jacob_cov", bn=True)
 def compute_jacob_cov(net, inputs, targets, split_data=1, loss_fn=None):
     device = inputs.device
     # Compute gradients (but don't apply them)
     net = modify_net(net).to(device)
     net.zero_grad()
 
-    jacobs, labels = get_batch_jacobian(net, inputs, targets, device, split_data=split_data)
+    jacobs, labels = get_batch_jacobian(
+        net, inputs, targets, device, split_data=split_data
+    )
     jacobs = jacobs.reshape(jacobs.size(0), -1).cpu().numpy()
 
     try:

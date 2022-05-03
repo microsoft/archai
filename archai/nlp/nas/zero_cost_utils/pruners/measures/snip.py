@@ -28,13 +28,29 @@ from ..p_utils import get_layer_metric_array
 
 
 def snip_forward_embedding(self, x):
-    return F.embedding(x, self.weight * self.weight_mask, self.padding_idx, self.max_norm,
-            self.norm_type, self.scale_grad_by_freq, self.sparse)
+    return F.embedding(
+        x,
+        self.weight * self.weight_mask,
+        self.padding_idx,
+        self.max_norm,
+        self.norm_type,
+        self.scale_grad_by_freq,
+        self.sparse,
+    )
+
 
 def snip_forward_conv2d(self, x):
     # print('computing snip measure')
-    return F.conv2d(x, self.weight * self.weight_mask, self.bias,
-                    self.stride, self.padding, self.dilation, self.groups)
+    return F.conv2d(
+        x,
+        self.weight * self.weight_mask,
+        self.bias,
+        self.stride,
+        self.padding,
+        self.dilation,
+        self.groups,
+    )
+
 
 def snip_forward_linear(self, x):
     size_out = x.size()[:-1] + (self.nf,)
@@ -42,7 +58,8 @@ def snip_forward_linear(self, x):
     x = x.view(size_out)
     return x
 
-@measure('snip', bn=True, mode='param')
+
+@measure("snip", bn=True, mode="param")
 def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
     for layer in net.modules():
         if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
@@ -61,12 +78,12 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
     net.train()
     for param in net.parameters():
         param.grad = None
-    
+
     N = inputs.shape[-1]
     for sp in range(split_data):
-        st=sp*N//split_data
-        en=(sp+1)*N//split_data
-    
+        st = sp * N // split_data
+        en = (sp + 1) * N // split_data
+
         loss, _, _, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
         loss = loss.float().mean().type_as(loss)
         loss.backward()
@@ -77,15 +94,20 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
             return torch.abs(layer.weight_mask.grad)
         else:
             return torch.zeros_like(layer.weight)
-    
+
     grads_abs = get_layer_metric_array(net, snip, mode)
-    
+
     return grads_abs
 
-@measure('snip_wemb', bn=True, mode='param')
+
+@measure("snip_wemb", bn=True, mode="param")
 def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
     for layer in net.modules():
-        if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.Linear) or isinstance(layer, nn.Embedding):
+        if (
+            isinstance(layer, nn.Conv2d)
+            or isinstance(layer, nn.Linear)
+            or isinstance(layer, nn.Embedding)
+        ):
             layer.weight_mask = nn.Parameter(torch.ones_like(layer.weight))
             layer.weight.requires_grad = False
 
@@ -104,12 +126,12 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
     net.train()
     for param in net.parameters():
         param.grad = None
-    
+
     N = inputs.shape[-1]
     for sp in range(split_data):
-        st=sp*N//split_data
-        en=(sp+1)*N//split_data
-    
+        st = sp * N // split_data
+        en = (sp + 1) * N // split_data
+
         loss, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
         loss = loss.float().mean().type_as(loss)
         loss.backward()
@@ -120,7 +142,7 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
             return torch.abs(layer.weight_mask.grad)
         else:
             return torch.zeros_like(layer.weight)
-    
+
     grads_abs = get_layer_metric_array(net, snip, mode, include_embedding=True)
 
     return grads_abs
