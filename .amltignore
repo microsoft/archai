@@ -1,4 +1,7 @@
-# Folders to be ignored when using Amulet
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+# Folders to be ignored when using AMLT
 tests/
 tools/
 archived/
