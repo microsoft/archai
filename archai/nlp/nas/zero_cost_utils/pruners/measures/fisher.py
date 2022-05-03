@@ -50,7 +50,7 @@ def fisher_forward_conv2d(self, x):
     return self.act
 
 
-def fisher_forward_linear(self, x):
+def fisher_forward_conv1d(self, x):
     size_out = x.size()[:-1] + (self.nf,)
     x = torch.addmm(self.bias, x.view(-1, x.size(-1)), self.weight)
     x = x.view(size_out)
@@ -76,11 +76,11 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
             layer.dummy = nn.Identity()
             layer.compute = 0
 
-            # replace forward method of conv/linear
+            # replace forward method of conv
             if isinstance(layer, nn.Conv2d):
                 layer.forward = types.MethodType(fisher_forward_conv2d, layer)
             if isinstance(layer, transformers.Conv1D):
-                layer.forward = types.MethodType(fisher_forward_linear, layer)
+                layer.forward = types.MethodType(fisher_forward_conv1d, layer)
 
             # function to call during backward pass (hooked on identity op at output of layer)
             def hook_factory(layer):
@@ -153,7 +153,7 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
     for layer in net.modules():
         if (
             isinstance(layer, nn.Conv2d)
-            or isinstance(layer, nn.Linear)
+            or isinstance(layer, transformers.Conv1D)
             or isinstance(layer, nn.Embedding)
         ):
             # variables/op needed for fisher computation
@@ -162,11 +162,11 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
             layer.dummy = nn.Identity()
             layer.compute = 0
 
-            # replace forward method of conv/linear
+            # replace forward method of conv/Conv1D
             if isinstance(layer, nn.Conv2d):
                 layer.forward = types.MethodType(fisher_forward_conv2d, layer)
-            if isinstance(layer, nn.Linear):
-                layer.forward = types.MethodType(fisher_forward_linear, layer)
+            if isinstance(layer, transformers.Conv1D):
+                layer.forward = types.MethodType(fisher_forward_conv1d, layer)
             if isinstance(layer, nn.Embedding):
                 layer.forward = types.MethodType(fisher_forward_embedding, layer)
 
