@@ -49,14 +49,14 @@ nas:
     num_iters: 20 # number of pareto frontier search iterations 
     num_random_mix: 20 # how many random models to add to the parent mixture
     max_unseen_population: 100 # restrict the new population at each iteration to prevent blowing up of models
-    min_mac: 500000000 # models with mac below will be rejected
-    max_mac: 10000000000 # models with mac above will be rejected
-    min_layers: 1
-    max_layers: 24
+    min_mac: 1000000000 # models with mac below will be rejected
+    max_mac: 7000000000 # models with mac above will be rejected
+    min_layers: 6
+    max_layers: 14
     max_downsample_factor: 16 # must be one of {2, 4, 8, 16}
     skip_connections: True
     max_skip_connection_length: 3
-    max_scale_delta: 3 # must be one of {1, 2, 3}
+    max_scale_delta: 1 # must be one of {1, 2, 3}
     max_post_upsample_layers: 3
     min_base_channels: 8
     max_base_channels: 36
@@ -64,7 +64,9 @@ nas:
     min_delta_channels: 8
     max_delta_channels: 48
     delta_channels_binwidth: 8
-    mutations_per_parent: 2
+    mutations_per_parent: 1
+    op_subset: []
+    downsample_prob_ratio: 1.25
     
     use_remote_benchmark: False
     remote_benchmark_config:
