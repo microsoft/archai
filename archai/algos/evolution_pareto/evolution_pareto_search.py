@@ -75,6 +75,10 @@ class EvolutionParetoSearch(Searcher):
         ''' Callback function called right after calc_task_accuracy()'''
         pass
 
+    def select_next_population(self, current_pop: List[ArchWithMetaData]) -> List[ArchWithMetaData]:
+        random.shuffle(current_pop)
+        return current_pop[:self.max_unseen_population]
+
     @overrides
     def search(self, conf_search:Config):
         
@@ -149,9 +153,8 @@ class EvolutionParetoSearch(Searcher):
 
             unseen_pop = crossovered + mutated + rand_mix
             # shuffle before we pick a smaller population for the next stage
-            random.shuffle(unseen_pop)
             logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
-            unseen_pop = unseen_pop[:self.max_unseen_population]
+            unseen_pop = self.select_next_population(unseen_pop)
             logger.info(f'iter {i}: total unseen population after restriction {len(unseen_pop)}')
 
             # update the set of architectures ever visited
