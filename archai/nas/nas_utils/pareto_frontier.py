@@ -69,6 +69,9 @@ def compute_crowding_distance(all_points: np.ndarray)->np.ndarray:
     Computes the crowding distance for each point as detailed in 
     "An effective use of crowding distance in multiobjective particle swarm optimization"
     by Raquel et al., 2005."
+    This function assumes that all the objectives (columns) are either increasing or decreasing.
+    For example if considering latency, memory and accuracy, convert accuracy to error since
+    that will make all objectives lower is better.
 
     Args:
         all_points: nd.array 2D numpy array.
@@ -99,13 +102,15 @@ def compute_crowding_distance(all_points: np.ndarray)->np.ndarray:
             higher_nbr = ids[j+1]
             lower_nbr = ids[j-1]
             dist_btw_nbrs = all_points[higher_nbr, i] - all_points[lower_nbr, i]
-            c_dists[row_num, 1] += dist_btw_nbrs 
+            c_dists[row_num] += dist_btw_nbrs 
             
         # set the maximum distance to the boundary points
         # so that they are always selected
         c_dists[ids[0]] = np.inf
         c_dists[ids[-1]] = np.inf 
 
+    assert c_dists.shape[0] == all_points.shape[0]
+    return c_dists
      
 
 
