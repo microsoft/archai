@@ -22,6 +22,7 @@ from archai.common.config import Config
 from archai.common.trainer import Trainer
 from archai.algos.evolution_pareto.evolution_pareto_search import EvolutionParetoSearch
 from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_utils import compute_crowding_distance
 from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.segmentation_search_spaces.discrete_search_space_segmentation import DiscreteSearchSpaceSegmentation
 
@@ -58,6 +59,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
         self.op_subset = conf_search['op_subset']
         self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
+
+        self.crowd_sorting = conf_search['crowd_sorting']
 
         self.init_architectures_from_dir = conf_search['init_architectures_from_dir']
         self.use_remote_benchmark = conf_search['use_remote_benchmark']
@@ -110,8 +113,19 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             downsample_prob_ratio=self.downsample_prob_ratio
         )
 
+    def _get_proxy_memory_latency(self, model: ArchWithMetaData) -> Tuple[float, float]:
+        latency = get_onnx_latency(model.arch, img_size=model.arch.img_size)
+        mem = measure_torch_peak_memory(
+            model.arch, use_quantization=False,
+            input_dims=(1, 3, model.arch.img_size, model.arch.img_size), 
+            n_threads=1, device='cpu'
+        )
+
+        return mem, latency
+
     @overrides
     def _sample_init_population(self) -> List[ArchWithMetaData]:
+        # Manual initialization
         if self.init_architectures_from_dir:
             arch_dir = Path(self.init_architectures_from_dir)
             arch_files = list(arch_dir.glob('*.yaml'))
@@ -119,27 +133,55 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             logger.info(f'Loading {len(arch_files)} seed models for first iteration.')
 
             return [search_space.load_from_file(arch_file) for arch_file in arch_files]
+        
+        # Initialization with crowd sorting
+        if self.crowd_sorting['initialization']:
+            init_pop = []
+
+            for _ in range(self.crowd_sorting['oversampling_factor']):
+                init_pop += super()._sample_init_population()
+
+            # Scores memory and latency
+            proxy_mem_latency = np.array([
+                list(self._get_proxy_memory_latency(p)) for p in init_pop
+            ])
+
+            crowd_dist = compute_crowding_distance(proxy_mem_latency)
+            idxs = np.argsort(-crowd_dist, axis=None)[:self.init_num_models]
+            return [p for pi, p in enumerate(init_pop) if pi in idxs]
+
         return super()._sample_init_population()
+
+    @overrides
+    def _sample_random_to_mix(self) -> List[ArchWithMetaData]:
+        if self.crowd_sorting['random_mix']:
+            init_pop = []
+
+            for _ in range(self.crowd_sorting['oversampling_factor']):
+                init_pop += super()._sample_random_to_mix()
+
+            # Scores memory and latency
+            proxy_mem_latency = np.array([
+                list(self._get_proxy_memory_latency(p)) for p in init_pop
+            ])
+
+            crowd_dist = compute_crowding_distance(proxy_mem_latency)
+            idxs = np.argsort(-crowd_dist, axis=None)[:self.init_num_models]
+            return [p for pi, p in enumerate(init_pop) if pi in idxs]
+
+        return super()._sample_random_to_mix()
 
     @overrides
     def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
         # computes memory and latency of each model
         cache_misses = 0
         for p in tqdm(population):
-            latency_ms = get_onnx_latency(p.arch, img_size=p.arch.img_size)
-
-            # TODO: get peak memory of the onnx model
-            # instead of the torch model
-            peak_mem_mb = measure_torch_peak_memory(p.arch,
-                                                    use_quantization=False,
-                                                    input_dims=(1, 3, p.arch.img_size, p.arch.img_size),
-                                                    n_threads=1,
-                                                    device='cpu')
+            proxy_mem, proxy_latency = self._get_proxy_memory_latency(p)
 
             if not self.use_remote_benchmark:
-                p.metadata['latency'], p.metadata['memory'] = latency_ms, peak_mem_mb
+                p.metadata['latency'], p.metadata['memory'] = proxy_latency, proxy_mem
             else:
-                p.metadata['proxy_latency'], p.metadata['proxy_memory'] = latency_ms, peak_mem_mb
+                p.metadata['proxy_latency'], p.metadata['proxy_memory'] = proxy_latency, proxy_mem
                 
                 # Checks if this architecture was already benchmarked before
                 if p.metadata['archid'] not in self.remote_benchmark:
@@ -300,17 +342,34 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def mutate_parents(self, parents:List[ArchWithMetaData], mutations_per_parent: int = 1)->List[ArchWithMetaData]:
         ''' Using the nearest neighbors as mutations'''
         mutations = {}
+        oversample_factor = (
+            self.crowd_sorting['oversampling_factor'] if self.crowd_sorting['mutation']
+            else 1
+        )
 
         for p in parents:
             candidates = {}
             nb_tries = 0
             patience = 20
 
-            while len(candidates) < mutations_per_parent and nb_tries < patience:
+            while len(candidates) < (mutations_per_parent * oversample_factor) and nb_tries < patience:
                 for nbr in self.search_space.get_neighbors(p):
                     if nbr.metadata['archid'] not in self.eval_cache:
                         candidates[nbr.metadata['archid']] = nbr
                 nb_tries += 1
+            
+            if self.crowd_sorting['mutation']:
+                candidates_list = list(candidates.items())
+
+                proxy_mem_latency = np.array([
+                    list(self._get_proxy_memory_latency(p)) for _, p in candidates_list
+                ])
+
+                crowd_dist = compute_crowding_distance(proxy_mem_latency)
+                
+                # Deletes mutations that are not on the top k
+                for idx in np.argsort(-crowd_dist, axis=None)[mutations_per_parent:]:
+                    del candidates[candidates_list[idx][0]]
 
             mutations.update(candidates)
 
