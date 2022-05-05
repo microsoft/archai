@@ -58,7 +58,7 @@ def compute_synflow_per_weight(net, inputs, targets):
     outputs = net(inputs, targets, mems=None)
 
     # TODO: should this be loss or logits?
-    torch.sum(outputs.loss).backward()
+    torch.sum(outputs.logits).backward()
 
     # select the gradients that we want to use for search/prune
     def synflow(layer):

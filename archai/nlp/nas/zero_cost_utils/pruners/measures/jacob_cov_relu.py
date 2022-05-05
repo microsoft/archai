@@ -70,7 +70,7 @@ def forward_jacob_cov(
     return self.fc_to_1class(outputs.logits)
 
 
-def forward_crit(self, hidden, target=None, keep_order=False):
+def forward_crit(self, hidden, target=None, keep_order=False, output_loss=True, output_prediction_scores=False):
     """
     hidden :: [len*bsz x d_proj]
     """
@@ -81,7 +81,7 @@ def forward_crit(self, hidden, target=None, keep_order=False):
             self.out_layers_biases[0],
             self.get_out_proj(0),
         )
-        return logit
+        return None, logit
     else:
         # construct weights and biases
         weights, biases, projs = [], [], []
@@ -115,7 +115,7 @@ def forward_crit(self, hidden, target=None, keep_order=False):
             )  # self.tail[i](input)
             out[:, start_idx:stop_idx] = cluster_output
 
-        return out
+        return None, out
 
 
 def modify_net(net, jacob_size):
@@ -130,7 +130,7 @@ def modify_net(net, jacob_size):
     #         del l
 
     net.forward = types.MethodType(forward_jacob_cov, net)
-    # net.crit.forward = types.MethodType(forward_crit, net.crit)
+    net.model.lm_head.forward = types.MethodType(forward_crit, net.model.lm_head)
     net.fc_to_1class = torch.nn.Linear(net.n_token, 1, bias=False)
 
     net.K = np.zeros((jacob_size, jacob_size))

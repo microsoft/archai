@@ -36,6 +36,37 @@ yaml.add_constructor(
     "tag:yaml.org,2002:python/object/apply:numpy.dtype", meta_constructor_mapping
 )
 
+def forward_crit(self, hidden, target=None, keep_order=False, output_loss=True, output_prediction_scores=False):
+  '''
+      hidden :: [len*bsz x d_proj]
+  '''
+  if self.n_clusters == 0:
+    logit = self._compute_logit(hidden, self.out_layers_weights[0], self.out_layers_biases[0], self.get_out_proj(0))
+    return None, logit
+  else:
+    # construct weights and biases
+    weights, biases = [], []
+    for i in range(len(self.cutoffs)):
+        if self.div_val == 1:
+            l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i + 1]
+            weight_i = self.out_layers_weights[0][l_idx:r_idx]
+            bias_i = self.out_layers_biases[0][l_idx:r_idx]
+        else:
+            weight_i = self.out_layers_weights[i]
+            bias_i = self.out_layers_biases[i]
+
+        if i == 0:
+            weight_i = torch.cat([weight_i, self.cluster_weight], dim=0)
+            bias_i = torch.cat([bias_i, self.cluster_bias], dim=0)
+
+        weights.append(weight_i)
+        biases.append(bias_i)
+
+    head_weight, head_bias, head_proj = weights[0], biases[0], self.get_out_proj(0)
+    head_logit = self._compute_logit(hidden, head_weight, head_bias, head_proj)
+    return None, head_logit
+
+
 
 def forward_synflow(
     self, data, target, mems, output_loss=True, output_prediction_scores=False
@@ -90,6 +121,7 @@ def get_scores(args, exp_name):
                 model.n_token = model_config["n_token"]
 
                 model.forward = types.MethodType(forward_synflow, model)
+                model.model.lm_head.forward = types.MethodType(forward_crit, model.model.lm_head)
 
                 # print(model)
 
