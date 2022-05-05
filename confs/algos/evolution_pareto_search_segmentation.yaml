@@ -68,6 +68,12 @@ nas:
     op_subset: []
     downsample_prob_ratio: 1.25
     
+    crowd_sorting:
+      initialization: false
+      random_mix: false
+      mutation: false
+      oversampling_factor: 3
+
     use_remote_benchmark: False
     remote_benchmark_config:
       connection_string_env_var_name: ''
