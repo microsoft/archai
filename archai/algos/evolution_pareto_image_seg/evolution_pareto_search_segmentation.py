@@ -433,7 +433,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
         all_data = {
             k: [p.metadata[k] if k in p.metadata else None for p in all_pop]
-            for k in ['archid', 'f1', 'latency', 'memory', 'proxy_latency', 'proxy_memory', 'parent']
+            for k in ['archid', 'f1', 'latency', 'memory', 'proxy_latency',
+                      'proxy_memory', 'parent', 'macs']
         }
         pareto_ids = [p.metadata['archid'] for p in pareto]
 
