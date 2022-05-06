@@ -315,25 +315,25 @@ if __name__ == '__main__':
             shutil.copy(path_to_search_config, path_to_baseline)
             shutil.rmtree(args['results_path'])
             
-            baseline_logs = profile_baseline(e, path_to_results=path_to_baseline)            
+            baseline_logs = profile_baseline(e, path_to_results=path_to_baseline, dataset=args['dataset'], device_name=args['device_name'])            
         
         elif args['select_pareto']:
             shutil.rmtree(args['results_path'])
             
-            # search_experiment = 'mem_transformer_lower_param_4.0M_upper_param_100.0M_latency_upper_0.025s_titanxp_14_04_2022_10_36_07'
-            search_experiment = 'hf_gpt2_flex_lower_param_6.0M_upper_param_100.0M_latency_upper_0.025s_titanxp_25_04_2022_14_29_40'
+            search_experiment = '{}_{}_3d'.format(args['model_type'], args['device_name'])
             last_iter = 29
             e.load_state(path_to_logs=os.path.join(args['default_path'], search_experiment, f'logs_iter_{last_iter}.pkl'))
             
-            with open(os.path.join(path_to_baseline, f'logs.pkl'), 'rb') as f:
+            with open(os.path.join(path_to_baseline, args['device_name'],'logs.pkl'), 'rb') as f:
                 baseline_logs = pickle.load(f)
             e.plot_search_state(last_iter+1, parents=None, baseline=baseline_logs)
 
-            e = select_pareto(e, path_to_results=path_to_baseline)
+            e = select_pareto(e, path_to_results=os.path.join(path_to_baseline, args['device_name']))
+            e.plot_search_state('selected_pareto', parents=None, baseline=baseline_logs)
 
             exp_name = 'pareto_jobs_{}_{}'.format(args['dataset'], args['device_name'])
             job_path = os.path.join(args['default_path'], search_experiment, exp_name)
-            create_pareto_jobs(path_to_baseline, 
+            create_pareto_jobs(os.path.join(path_to_baseline, args['device_name']), 
                                converter=e.converter,
                                model_type=e.model_type,
                                max_step=100000 if args['dataset']=='lm1b' else 40000,
@@ -345,8 +345,10 @@ if __name__ == '__main__':
         
         elif args['plot_pareto_baseline']:
             shutil.rmtree(args['results_path'])
-            search_experiment = os.path.join('/home/mojan/TransformerNAS/amlt_logs', 'pareto_transxl_wt103_titanxp_3d')
-            plot_baseline_and_pareto(e, path_to_amlt_logs=search_experiment, path_to_baseline_logs=path_to_baseline)
+            model = 'transxl' if args['model_type']=='mem_transformer' else 'gpt2_flex'
+            search_experiment = os.path.join('/home/mojan/TransformerNAS/amlt_logs', 'pareto_{}_{}_{}_3d'.format(model, args['dataset'], args['device_name']))
+            plot_baseline_and_pareto(path_to_amlt_logs=search_experiment, path_to_baseline_logs=path_to_baseline,
+                                    dataset=args['dataset'], device_name=args['device_name'])
 
         exit()
 

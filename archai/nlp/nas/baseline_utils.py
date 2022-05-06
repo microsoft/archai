@@ -109,6 +109,17 @@ def recurse_dir(path_to_dir, fname='config.yaml'):
           if '.yaml' in fname:
             with open(os.path.join(j_path), 'r') as f:
               config = yaml.safe_load(f)
+            if config is None:
+              json_file = os.path.join(path_to_dir, 'train_log.json')
+              with open(json_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                try:
+                  job_desc = re.search('DLLL \{(.+?)\}', lines[0])
+                except:
+                  return None
+                job_desc = '{'+job_desc.group(1)+'}}'
+                config = json.loads(job_desc)['data']
+          
           elif '.json' in fname:
             config = get_info_from_json(os.path.join(j_path))
           else:
@@ -124,20 +135,24 @@ def recurse_dir(path_to_dir, fname='config.yaml'):
 def config_to_key(config, name=None, keys=['n_layer', 'd_model', 'd_inner','n_head', 'div_val']):
   short_config = {}
   for k in keys:
-    short_config[k] = config[k]
+    if isinstance(config[k], list) and len(config[k])==1:
+      short_config[k] = config[k][0]
+    else:
+      short_config[k] = config[k]
   if name is not None:
     short_config['name'] = name
   return short_config
 
 
-def profile_baseline(evolution_obj, path_to_results):
-  fname = 'config.yaml' if evolution_obj.model_type == 'mem_transformer' else 'model_config.yaml'
-  path_to_configs = os.path.join(path_to_results, 'model_configs.yaml')
+def profile_baseline(evolution_obj, path_to_results, device_name, dataset):
+  training_path = os.path.join(path_to_results, dataset)
+  path_to_configs = os.path.join(training_path, 'model_configs.yaml')
   if os.path.exists(path_to_configs):
     with open(path_to_configs, 'r') as f:
       configs = yaml.safe_load(f)
   else:
-    configs = recurse_dir(path_to_results, fname=fname)
+    fname = 'config.yaml' if evolution_obj.model_type == 'mem_transformer' else 'model_config.yaml'
+    configs = recurse_dir(training_path, fname=fname)
     with open(path_to_configs, 'w') as f:
       yaml.dump(configs, f)
   
@@ -171,24 +186,24 @@ def profile_baseline(evolution_obj, path_to_results):
     logs['latencies'].append(latency)
     logs['memories'].append(memory)
 
-  logs_path = os.path.join(path_to_results, f'logs.pkl')
-  with open(logs_path, 'wb') as f:
+  logs_path = os.path.join(path_to_results, device_name)
+  with open(os.path.join(logs_path, 'logs.pkl'), 'wb') as f:
       pickle.dump({'configs': logs['configs'],
                     'proxies': logs['proxies'],
                     'total_params': logs['total_params'],
                     'latencies': logs['latencies'],
                     'memories': logs['memories']}, f)
 
-  yaml_file = os.path.join(path_to_results, 'proxies_summary.yaml')
+  yaml_file = os.path.join(logs_path, 'proxies_summary.yaml')
   with open(yaml_file, 'w') as f:
     yaml.dump(proxies, f)
-  yaml_file = os.path.join(path_to_results, 'total_params_summary.yaml')
+  yaml_file = os.path.join(logs_path, 'total_params_summary.yaml')
   with open(yaml_file, 'w') as f:
     yaml.dump(total_params, f)
-  yaml_file = os.path.join(path_to_results, 'latencies_summary.yaml')
+  yaml_file = os.path.join(logs_path, 'latencies_summary.yaml')
   with open(yaml_file, 'w') as f:
     yaml.dump(latencies, f)
-  yaml_file = os.path.join(path_to_results, 'memories_summary.yaml')
+  yaml_file = os.path.join(logs_path, 'memories_summary.yaml')
   with open(yaml_file, 'w') as f:
     yaml.dump(memories, f)
 
@@ -276,20 +291,20 @@ def select_pareto(evolution_obj, path_to_results):
   return evolution_obj
 
 
-def plot_baseline_and_pareto(evolution_obj, path_to_amlt_logs, path_to_baseline_logs): 
+def plot_baseline_and_pareto(path_to_amlt_logs, path_to_baseline_logs, dataset, device_name): 
   # load all info for baseline models
-  baseline_logs = recurse_dir(path_to_baseline_logs, fname='train_log.json')    # load baseline val_ppls
-  baseline_configs = recurse_dir(path_to_baseline_logs, fname='config.yaml')    # load baseline model configs
+  baseline_logs = recurse_dir(os.path.join(path_to_baseline_logs, dataset), fname='train_log.json')    # load baseline val_ppls
+  baseline_configs = recurse_dir(os.path.join(path_to_baseline_logs, dataset), fname='model_config.yaml')    # load baseline model configs
 
-  with open(os.path.join(path_to_baseline_logs, 'latencies_summary.yaml'), 'r') as f:   # load baseline latencies
+  with open(os.path.join(os.path.join(path_to_baseline_logs, device_name), 'latencies_summary.yaml'), 'r') as f:   # load baseline latencies
     baseline_latencies = yaml.safe_load(f)
-  with open(os.path.join(path_to_baseline_logs, 'memories_summary.yaml'), 'r') as f:    # load baseline memories
+  with open(os.path.join(os.path.join(path_to_baseline_logs, device_name), 'memories_summary.yaml'), 'r') as f:    # load baseline memories
     baseline_memories = yaml.safe_load(f)
   
   # load all info for (selected) pareto models
   pareto_train_logs = recurse_dir(path_to_amlt_logs, fname='train_log.json')   # load pareto val_ppls
   pareto_configs = recurse_dir(path_to_amlt_logs, fname='model_config.yaml')         # load pareto model configs
-  with open(os.path.join(path_to_baseline_logs, 'logs.pkl'), 'rb') as f:       # load pareto memories and latencies
+  with open(os.path.join(path_to_baseline_logs, device_name, 'logs.pkl'), 'rb') as f:       # load pareto memories and latencies
     pareto_logs = pickle.load(f)['pareto'][0]
 
   all_val_ppls = []
@@ -309,7 +324,7 @@ def plot_baseline_and_pareto(evolution_obj, path_to_amlt_logs, path_to_baseline_
       orig_config = config_to_key(pareto_logs['model_configs'][idx])
       for k, v in this_config.items():
         if isinstance(k, list):
-          assert np.sum(v == orig_config[k]) == len(v)
+          assert np.sum(v == orig_config[k]) == len(v), f'config_{config_idx}_j{job_idx}'
         else:
           assert v == orig_config[k]
       l, m = pareto_logs['latencies'][idx], pareto_logs['memories'][idx]
@@ -330,7 +345,10 @@ def plot_baseline_and_pareto(evolution_obj, path_to_amlt_logs, path_to_baseline_
   all_memories = np.asarray(all_memories)
 
   job_keys = np.sort(list(baseline_memories.keys()))
-  baseline_val_ppls = np.asarray([baseline_logs[k]['valid_perplexity'] for k in job_keys])
+  try:
+    baseline_val_ppls = np.asarray([baseline_logs[k]['valid_perplexity'] for k in job_keys])
+  except:
+    baseline_val_ppls = np.asarray([baseline_logs[k]['valid_ppl'] for k in job_keys])
   baseline_configs = np.asarray([config_to_key(baseline_configs[k], name=k) for k in job_keys])
   baseline_latencies = np.asarray([baseline_latencies[k] for k in job_keys])
   baseline_memories = np.asarray([baseline_memories[k] for k in job_keys])
