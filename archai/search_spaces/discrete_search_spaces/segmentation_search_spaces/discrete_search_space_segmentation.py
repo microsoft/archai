@@ -110,18 +110,19 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 op_subset=self.operations
             )
 
-            meta_data = {
-                'datasetname': self.datasetname,
-                'archid': model.to_hash(),
-                'parent': None
-            }
-            arch_meta = ArchWithMetaData(model, meta_data)
-
             # check if the model is within desired bounds    
             input_tensor_shape = (1, 3, model.img_size, model.img_size)
             model_stats = tw.ModelStats(model, input_tensor_shape, clone_model=True)
             if model_stats.MAdd > self.min_mac and model_stats.MAdd < self.max_mac:
                 found_valid = True
+
+            meta_data = {
+                'datasetname': self.datasetname,
+                'archid': model.to_hash(),
+                'parent': None,
+                'macs': model_stats.MAdd
+            }
+            arch_meta = ArchWithMetaData(model, meta_data)
             
         return arch_meta
         
@@ -182,17 +183,19 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
             assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
 
-            arch_meta = ArchWithMetaData(nbr_model, {
-                'datasetname': self.datasetname,
-                'archid': nbr_model.to_hash(),
-                'parent': parent_id
-            })
-            
             # check if the model is within desired bounds    
             input_tensor_shape = (1, 3, nbr_model.img_size, nbr_model.img_size)
             model_stats = tw.ModelStats(nbr_model, input_tensor_shape, clone_model=True)
             if model_stats.MAdd > self.min_mac and model_stats.MAdd < self.max_mac:
                 found_valid = True
+
+            arch_meta = ArchWithMetaData(nbr_model, {
+                'datasetname': self.datasetname,
+                'archid': nbr_model.to_hash(),
+                'parent': parent_id,
+                'macs': model_stats.MAdd
+            })
+            
 
         return [arch_meta]
 
