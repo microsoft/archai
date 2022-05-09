@@ -1,16 +1,11 @@
 import torch
 
-from archai.nlp.models.mem_transformer.model_mem_transformer import (
-    PositionwiseFF,
-    RelLearnableMultiHeadAttn,
-    RelMultiHeadAttn,
-    MultiHeadAttn,
-    RelPartialLearnableMultiHeadAttn,
-)
 from archai.nlp.models.model_utils.adaptive_embedding import AdaptiveEmbedding
 from archai.nlp.models.model_utils.proj_adaptive_softmax import (
     ProjectedAdaptiveLogSoftmax,
 )
+
+from archai.nlp.models.hf_gpt2.hf_gpt2_utils.gpt2_lm_head_model_flex import GPT2AttentionFlex, GPT2MLPFlex
 
 
 def get_list_of_layers(module, layerType=None):
@@ -37,7 +32,11 @@ def get_list_of_layers(module, layerType=None):
 
 
 def get_in_out_shape(self, input, output):
-    self.input_size = torch.tensor(input[0].size())
+    if len(input) > 0:
+        input = input[0]
+    if len(output) > 0:
+        output = output[0]
+    self.input_size = torch.tensor(input.size())
     self.output_size = torch.tensor(output.size())
 
 
@@ -48,10 +47,10 @@ def get_layer_flops(l):
         else:
             return torch.tensor([0])
 
-    elif isinstance(l, PositionwiseFF):
-        return (torch.prod(l.input_size) + torch.prod(l.output_size)) * l.d_inner
+    elif isinstance(l, GPT2MLPFlex):
+        return (torch.prod(l.input_size) + torch.prod(l.output_size)) * l.embed_dim
 
-    elif isinstance(l, RelPartialLearnableMultiHeadAttn):
+    elif isinstance(l, GPT2AttentionFlex):
         return l.flops
 
     elif isinstance(l, ProjectedAdaptiveLogSoftmax):
@@ -66,11 +65,8 @@ def get_model_flops(model, inp, tgt):
         model,
         layerType=[
             AdaptiveEmbedding,
-            PositionwiseFF,
-            MultiHeadAttn,
-            RelMultiHeadAttn,
-            RelPartialLearnableMultiHeadAttn,
-            RelLearnableMultiHeadAttn,
+            GPT2MLPFlex,
+            # GPT2AttentionFlex,
             ProjectedAdaptiveLogSoftmax,
         ],
     )
@@ -78,8 +74,9 @@ def get_model_flops(model, inp, tgt):
     # register forward hooks to record input and output sizes
     hooks = []
     for l in layers_with_flops:
-        h = l.register_forward_hook(get_in_out_shape)
-        hooks.append(h)
+        if not isinstance(l, ProjectedAdaptiveLogSoftmax):
+            h = l.register_forward_hook(get_in_out_shape)
+            hooks.append(h)
 
     model(inp, tgt, mems=None)
 
@@ -89,9 +86,9 @@ def get_model_flops(model, inp, tgt):
 
         if isinstance(l, AdaptiveEmbedding):
             key = "AdaEmb"
-        elif isinstance(l, PositionwiseFF):
+        elif isinstance(l, GPT2MLPFlex):
             key = "FFN"
-        elif isinstance(l, RelPartialLearnableMultiHeadAttn):
+        elif isinstance(l, GPT2AttentionFlex):
             key = "Attn"
         elif isinstance(l, ProjectedAdaptiveLogSoftmax):
             key = "Sftmax"

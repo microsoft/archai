@@ -52,6 +52,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
 
         self.cutoff_ends = [0] + self.cutoffs
         self.div_val = div_val
+        self.flops = 0
 
         self.shortlist_size = self.cutoffs[0] # TODO: remove? Never used...
         self.n_clusters = len(self.cutoffs) - 1 # number of clusters will be >= 0
@@ -124,11 +125,13 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
         # else apply projection to hidden and then multiply with weight matrix
         if proj is None:
             logit = F.linear(hidden, weight, bias=bias)
+            self.flops += torch.prod(torch.tensor(logit.size())) * hidden.size(-1)
         else:
             # below is equivalent to:
             # proj_hid = nn.functional.linear(hidden, proj.t().contiguous())
             # logit = nn.functional.linear(proj_hid, weight, bias=bias)
             logit = torch.einsum('bd,de,ev->bv', (hidden, proj, weight.t()))
+            self.flops += hidden.size(0) * (torch.prod(torch.tensor(proj.size())) + torch.prod(torch.tensor(weight.size())))
             if bias is not None:
                 logit = logit + bias
         return logit

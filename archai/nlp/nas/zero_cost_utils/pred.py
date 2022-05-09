@@ -1,3 +1,4 @@
+import transformers
 from pruners import predictive
 from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
 from archai.nlp.datasets import exp_utils
@@ -100,7 +101,7 @@ def get_scores(args, exp_name, tr_iter, method="snip", compute_cost=False):
             )
             scores[config_name] = measures[method]
             if compute_cost:
-                cost = cost_fn(method, model, tr_iter)
+                cost = cost_fn(method, model, tr_iter, args.device)
                 costs[config_name] = cost
                 print(count, config_name, scores[config_name], costs[config_name])
             else:
@@ -318,10 +319,13 @@ def plot(args, methods):
     plt.savefig(f"spearman_cost_zero-cost_{exp_name}.png", bbox_inches="tight")
 
 
-def cost_fn(method, model, tr_iter):
+def cost_fn(method, model, tr_iter, device):
     model.eval()
     with torch.no_grad():
+
         for _, (inp, tgt, _, _) in enumerate(tr_iter):
+            inp.to(device)
+            tgt.to(device)
             curr_flops = get_model_flops(model, inp, tgt)
             total_flops = np.sum([curr_flops[k] for k in curr_flops.keys()]).tolist()
             break
@@ -331,7 +335,7 @@ def cost_fn(method, model, tr_iter):
         n_linear_layers = 0
         found_compute_cost = 0
         for layer in model.modules():
-            if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.Linear):
+            if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
                 n_linear_layers += 1
             if hasattr(layer, "compute"):
                 cost += layer.compute

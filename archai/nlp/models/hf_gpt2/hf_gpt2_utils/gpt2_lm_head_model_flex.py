@@ -69,6 +69,7 @@ class GPT2AttentionFlex(nn.Module):
         )
         self.register_buffer("masked_bias", torch.tensor(-1e4))
 
+        self.flops = 0
         self.embed_dim = config.hidden_size
         self.num_heads = config.num_attention_heads[layer_idx]
         self.head_dim = self.embed_dim // self.num_heads
@@ -235,10 +236,13 @@ class GPT2AttentionFlex(nn.Module):
                 )
 
             query = self.q_attn(hidden_states)
+            self.flops += torch.prod(torch.tensor(query.size())) * self.embed_dim
             key, value = self.c_attn(encoder_hidden_states).split(self.split_size, dim=2)
+            self.flops += torch.prod(torch.tensor(query.size())) * self.embed_dim * 2
             attention_mask = encoder_attention_mask
         else:
             query, key, value = self.c_attn(hidden_states).split(self.split_size, dim=2)
+            self.flops += torch.prod(torch.tensor(query.size())) * self.embed_dim * 3
 
         query = self._split_heads(query, self.num_heads, self.head_dim)
         key = self._split_heads(key, self.num_heads, self.head_dim)
@@ -274,6 +278,7 @@ class GPT2MLPFlex(nn.Module):
     def __init__(self, intermediate_size, config):
         super().__init__()
         embed_dim = config.hidden_size
+        self.embed_dim = embed_dim
         self.c_fc = Conv1D(intermediate_size, embed_dim)
         self.c_proj = Conv1D(embed_dim, intermediate_size)
         self.act = ACT2FN[config.activation_function]

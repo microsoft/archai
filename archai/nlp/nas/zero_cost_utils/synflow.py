@@ -91,7 +91,7 @@ def get_scores(args, exp_name):
     yaml_file_cost = os.path.join(path_to_results, "synflow_cost.yaml")
 
     calc_scores = True
-    calc_costs = False
+    calc_costs = True
 
     device = torch.device("cpu")
 
