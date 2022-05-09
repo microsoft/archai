@@ -324,8 +324,6 @@ def cost_fn(method, model, tr_iter, device):
     with torch.no_grad():
 
         for _, (inp, tgt, _, _) in enumerate(tr_iter):
-            inp.to(device)
-            tgt.to(device)
             curr_flops = get_model_flops(model, inp, tgt)
             total_flops = np.sum([curr_flops[k] for k in curr_flops.keys()]).tolist()
             break
@@ -426,7 +424,6 @@ def parse_arguments():
 
 if __name__ == "__main__":
     args = parse_arguments()
-    device = "cuda"
 
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -446,7 +443,7 @@ if __name__ == "__main__":
         data, cache_dir, args.dataset, "gpt2", vocab_size=50257, refresh_cache=False
     )
     train_itr = corpus.get_iterator(
-        "train", eval_batch_size, eval_tgt_len, device=device, mem_len=0, ext_len=0
+        "train", eval_batch_size, eval_tgt_len, device=args.device, mem_len=0, ext_len=0
     )
 
     ntokens = len(corpus.vocab)

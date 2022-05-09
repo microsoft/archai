@@ -66,7 +66,7 @@ def get_model_flops(model, inp, tgt):
         layerType=[
             AdaptiveEmbedding,
             GPT2MLPFlex,
-            # GPT2AttentionFlex,
+            GPT2AttentionFlex,
             ProjectedAdaptiveLogSoftmax,
         ],
     )
