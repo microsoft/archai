@@ -116,6 +116,7 @@ class GPT2AttentionFlex(nn.Module):
 
     def _attn(self, query, key, value, attention_mask=None, head_mask=None):
         attn_weights = torch.matmul(query, key.transpose(-1, -2))
+        self.flops += torch.prod(torch.tensor(query.size())) * self.embed_dim
 
         if self.scale_attn_weights:
             attn_weights = attn_weights / (float(value.size(-1)) ** 0.5)
@@ -145,6 +146,7 @@ class GPT2AttentionFlex(nn.Module):
             attn_weights = attn_weights * head_mask
 
         attn_output = torch.matmul(attn_weights, value)
+        self.flops += torch.prod(torch.tensor(attn_weights.size())) * self.embed_dim
 
         return attn_output, attn_weights
 
@@ -170,10 +172,12 @@ class GPT2AttentionFlex(nn.Module):
                 q, k = query.reshape(-1, q_seq_len, dk), key.transpose(-1, -2).reshape(-1, dk, k_seq_len)
                 attn_weights = torch.baddbmm(attn_weights, q.float(), k.float(), beta=0, alpha=scale_factor)
                 attn_weights = attn_weights.reshape(bsz, num_heads, q_seq_len, k_seq_len)
+                self.flops += torch.prod(torch.tensor(attn_weights.size())) * self.embed_dim * 2
         else:
             q, k = query.reshape(-1, q_seq_len, dk), key.transpose(-1, -2).reshape(-1, dk, k_seq_len)
             attn_weights = torch.baddbmm(attn_weights, q.float(), k.float(), beta=0, alpha=scale_factor)
             attn_weights = attn_weights.reshape(bsz, num_heads, q_seq_len, k_seq_len)
+            self.flops += torch.prod(torch.tensor(attn_weights.size())) * self.embed_dim * 2
 
         if not self.is_cross_attention:
             # if only "normal" attention layer implements causal mask
@@ -198,6 +202,7 @@ class GPT2AttentionFlex(nn.Module):
             attn_weights = attn_weights * head_mask
 
         attn_output = torch.matmul(attn_weights, value)
+        self.flops += torch.prod(torch.tensor(attn_weights.size())) * self.embed_dim
 
         return attn_output, attn_weights
 
@@ -264,7 +269,10 @@ class GPT2AttentionFlex(nn.Module):
             attn_output, attn_weights = self._attn(query, key, value, attention_mask, head_mask)
 
         attn_output = self._merge_heads(attn_output, self.num_heads, self.head_dim)
+
         attn_output = self.c_proj(attn_output)
+        self.flops += torch.prod(torch.tensor(attn_output.size())) * self.embed_dim * 3
+
         attn_output = self.resid_dropout(attn_output)
 
         outputs = (attn_output, present)
