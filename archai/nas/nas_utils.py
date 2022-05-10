@@ -4,11 +4,13 @@
 from typing import List, Tuple, Optional
 from collections import namedtuple
 
+import torch
 from torch import nn
 from torch.utils.data.dataloader import DataLoader
 
 import tensorwatch as tw
 import numpy as np
+from botorch.utils.multi_objective.hypervolume import Hypervolume
 
 from archai.common.config import Config
 from archai.nas.model import Model
@@ -180,3 +182,24 @@ def compute_crowding_distance(all_points: np.ndarray)->np.ndarray:
 
     assert c_dists.shape[0] == all_points.shape[0]
     return c_dists
+
+
+def compute_pareto_hypervolume(pareto_points: np.ndarray, reference_point: np.ndarray)->float:
+    """Computes the hypervolume of a pareto frontier of points in a multi-objective *minimization* problem.
+    Assumes that all of the objectives should be minimized (e.g memory, latency, error).
+    `reference_point` is 
+
+    Args:
+        pareto_points (np.ndarray): 2D array of shape (*, num_objs) of the pareto frontier.
+        reference_point (np.ndarray): Array of shape (num_objs,) with the worst possible solution, used
+        to compute the hypervolume of the pareto points.
+
+    Returns:
+        float: Hypervolume of the pareto frontier in respect to the reference point.
+    """
+    assert len(pareto_points.shape) == 2
+    assert len(reference_point.shape) == 1
+    assert reference_point.shape[0] == pareto_points.shape[1]
+
+    hv = Hypervolume(torch.zeros_like(reference_point))
+    return hv.compute(torch.tensor(reference_point - pareto_points))
