@@ -80,7 +80,6 @@ nas:
       blob_container_name: ''
       table_name: ''
       partition_key: ''
-      metrics: ''
       overwrite: false
 
     loader:
