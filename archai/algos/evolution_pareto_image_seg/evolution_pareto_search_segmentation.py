@@ -257,13 +257,23 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
                     # Updates the metadata with the remote benchmark metrics
                     if 'mean' in metrics and metrics['mean']:
-                        if 'memory_usage' in metrics and metrics['memory_usage']:
-                            p.metadata['latency'] = metrics['mean']
-                            p.metadata['memory'] = metrics['memory_usage']
-                            
-                            if i not in evaluated:
-                                evaluated.add(i)
-                                pbar.update()
+                        p.metadata['latency'] = metrics['mean']
+                        p.metadata['memory'] = p.metadata['proxy_memory']
+                        
+                        if i not in evaluated:
+                            evaluated.add(i)
+                            pbar.update()
+
+                    if i not in evaluated and 'status' in metrics and metrics['status'] == 'complete':
+                        metrics['status'] = 'incomplete'
+                        
+                        if 'mean' in metrics:
+                            del metrics['mean']
+                        
+                        if 'total_inference_avg' in metrics:
+                            del metrics['total_inference_avg']
+
+                        self.remote_benchmark.update_entity(str(p.metadata['archid']), metrics)
 
                 if len(evaluated) < len(current_pop):
                     pbar.set_description('Sleeping...')
