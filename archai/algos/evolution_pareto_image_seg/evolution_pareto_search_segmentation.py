@@ -44,6 +44,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.conf_loader = conf_search['loader']
         self.min_mac = conf_search['min_mac']
         self.max_mac = conf_search['max_mac']
+        self.max_latency = conf_search['max_latency']
         self.min_layers = conf_search['min_layers']
         self.max_layers = conf_search['max_layers']
         self.max_downsample_factor = conf_search['max_downsample_factor']
@@ -351,6 +352,14 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             candidates = {}
             nb_tries = 0
             patience = 20
+
+            if p.metadata['latency'] > self.max_latency:
+                logger.info(
+                    f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]} '
+                    f'which is greater than {self.max_latency}. Skipping mutation.'
+                )
+
+                continue
 
             while len(candidates) < (mutations_per_parent * oversample_factor) and nb_tries < patience:
                 for nbr in self.search_space.get_neighbors(p):
