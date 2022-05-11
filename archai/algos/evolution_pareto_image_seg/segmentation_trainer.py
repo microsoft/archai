@@ -149,14 +149,14 @@ class LightningModelWrapper(pl.LightningModule):
         sample = torch.randn((1, 3, self.img_size, self.img_size)).to(self.device)
         self.logger.experiment.add_graph(self.model, sample)
 
-@ray.remote(num_gpus=0.2)
+
 class SegmentationTrainer():
 
     def __init__(self, model: SegmentationNasModel, dataset_dir: str,
                  max_steps: int = 12000, val_size: int = 2000,
                  img_size: int = 256,
                  augmentation: str = 'none', batch_size: int = 16,
-                 lr: float = 2e-4, criterion_name: str = 'ce', gpus: int = 1,
+                 lr: float = 2e-4, criterion_name: str = 'ce', 
                  val_check_interval: Union[int, float] = 0.25, 
                  lr_exp_decay_gamma: float = 0.98,
                  seed: int = 1):
@@ -178,7 +178,6 @@ class SegmentationTrainer():
         self.model = LightningModelWrapper(model, criterion_name=criterion_name, lr=lr,
                                            img_size=img_size, lr_exp_decay_gamma=lr_exp_decay_gamma)
         self.img_size = img_size
-        self.gpus = gpus
 
     def get_training_callbacks(self, run_dir: Path) -> List[pl.callbacks.Callback]:
         return [pl.callbacks.ModelCheckpoint(
@@ -202,9 +201,9 @@ class SegmentationTrainer():
         trainer = pl.Trainer(
             max_steps=self.max_steps,
             default_root_dir=run_path,
-            gpus=self.gpus,
             callbacks=self.get_training_callbacks(run_path),
-            val_check_interval=self.val_check_interval
+            val_check_interval=self.val_check_interval,
+            gpus=1
         )
 
         trainer.fit(self.model, self.tr_dataloader, self.val_dataloader)

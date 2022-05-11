@@ -323,7 +323,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.evaluate_for_steps = self.conf_train['evaluate_for_steps']  
         self.val_check_interval = self.conf_train['val_check_interval']  
         self.val_size = self.conf_train['val_size']
-        self.gpus = self.conf_train['gpus']
         self.img_size = self.conf_train['img_size']
         self.augmentation = self.conf_train['augmentation']
         self.lr = self.conf_train['lr']
@@ -335,19 +334,19 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         # train
         dataset_dir = os.path.join(self.dataroot, 'face_synthetics')
-        ref = SegmentationTrainer.remote(arch.arch, 
-                                      dataset_dir=dataset_dir, 
-                                      max_steps=self.evaluate_for_steps,
-                                      val_check_interval=self.val_check_interval,
-                                      val_size=self.val_size,
-                                      img_size=self.img_size,
-                                      augmentation=self.augmentation,
-                                      batch_size=self.batch_size,
-                                      lr=self.lr,
-                                      lr_exp_decay_gamma=self.lr_exp_decay_gamma,
-                                      criterion_name=self.criterion_name, 
-                                      gpus=self.gpus,
-                                      seed=self.seed)
+        trainer = ray.remote(
+            num_gpus=self.conf_train['gpus_per_job']
+        )(SegmentationTrainer)
+
+        ref = trainer.remote(
+            arch.arch, dataset_dir=dataset_dir, 
+            max_steps=self.evaluate_for_steps,
+            val_check_interval=self.val_check_interval,
+            val_size=self.val_size, img_size=self.img_size,
+            augmentation=self.augmentation,
+            batch_size=self.batch_size, lr=self.lr,
+            lr_exp_decay_gamma=self.lr_exp_decay_gamma,
+            criterion_name=self.criterion_name, seed=self.seed)
         return ref
 
     @overrides
