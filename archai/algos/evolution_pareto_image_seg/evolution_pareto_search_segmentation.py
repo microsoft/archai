@@ -72,6 +72,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             assert remote_config['connection_string_env_var_name'] in os.environ
 
             con_string = os.environ[remote_config['connection_string_env_var_name']]
+            self.patience = remote_config['patience']
+            self.check_interval = remote_config['check_interval']
 
             self.remote_benchmark = RemoteAzureBenchmark(
                 connection_string=con_string, 
@@ -85,6 +87,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # a network already evaluated then we don't
         # evaluate it again. 
         self.eval_cache = dict()
+
+        # Place to store models with evaluation errors
+        self.models_with_missing_results = []
 
         # init ray
         ray.init()
@@ -239,10 +244,11 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
         if self.use_remote_benchmark:
             evaluated = set()
+            nb_tries = 0
             logger.info('Gathering remote benchmark results...')
             pbar = tqdm(total=len(current_pop), desc='Gathering remote benchmark results...')
 
-            while len(evaluated) < len(current_pop):
+            while len(evaluated) < len(current_pop) and nb_tries < self.patience:
                 for i, p in enumerate(current_pop):
                     # Gets the metrics for all the models in `current_pop``.
                     # we don't need to worry about the cost of checking the same model
@@ -262,7 +268,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                         if i not in evaluated:
                             evaluated.add(i)
                             pbar.update()
+                            nb_tries = 0
 
+                    # Resets an entry from the Azure table if the status="complete" prematurely
                     if i not in evaluated and 'status' in metrics and metrics['status'] == 'complete':
                         metrics['status'] = 'incomplete'
                         
@@ -280,10 +288,34 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                         'Waiting remote benchmark results for '
                         f'{len(current_pop) - len(evaluated)} models...'
                     )
-                    time.sleep(120)
+                    time.sleep(self.check_interval)
+                    nb_tries += 1
+
+            if nb_tries == self.patience:
+                logger.warn('Patience reached. Adding missing models to the next iteration...')
+
+                for i, p in enumerate(current_pop):
+                    if i not in evaluated:
+                        # Removes possibly incomplete results
+                        p.metadata.pop('latency', None)
+                        p.metadata.pop('memory', None)
+
+                        # Removes entry from the Azure table
+                        self.remote_benchmark.delete_model(p.metadata['archid'])
+                        self.models_with_missing_results.append(p)
+                
+                # Removes the models from the current population
+                for p in self.models_with_missing_results:
+                    current_pop.remove(p)
 
             logger.info('Finished gathering remote benchmark results.')
 
+    @overrides
+    def on_search_iteration_start(self, current_pop: List[ArchWithMetaData]) -> None:
+        if self.use_remote_benchmark and self.models_with_missing_results:
+            logger.info(f'Adding missing models to the next iteration...')
+            current_pop.extend(self.models_with_missing_results)
+            self.models_with_missing_results = []
 
     def _create_training_job(self, arch:ArchWithMetaData)->List:
         ''' Creates a ray actor that will train a single architecture '''
