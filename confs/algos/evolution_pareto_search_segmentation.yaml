@@ -89,7 +89,7 @@ nas:
       dataset:
         _copy: '/dataset'
     trainer:
-      gpus: 1 # this many gpus will be used by each lighting trainer. only 1 works at the moment.
+      gpus_per_job: 0.2 # fraction of GPUs to use per job
       evaluate_for_steps: 5625
       val_size: 2000
       img_size: 256
