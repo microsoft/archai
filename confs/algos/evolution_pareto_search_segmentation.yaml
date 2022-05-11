@@ -49,6 +49,8 @@ nas:
     num_iters: 20 # number of pareto frontier search iterations 
     num_random_mix: 20 # how many random models to add to the parent mixture
     max_unseen_population: 100 # restrict the new population at each iteration to prevent blowing up of models
+    min_mac: 100_000000 # models with mac below will be rejected
+    max_mac: 7000_000000 # models with mac above will be rejected
     max_latency: 10_000 # In microseconds, models with latency above will not be mutaded
     min_layers: 5
     max_layers: 14
