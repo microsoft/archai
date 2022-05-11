@@ -75,6 +75,10 @@ class EvolutionParetoSearch(Searcher):
         ''' Callback function called right after calc_task_accuracy()'''
         pass
 
+    def on_search_iteration_start(self, current_pop: List[ArchWithMetaData]) -> None:
+        ''' Callback function called right before each search iteration'''
+        pass
+
     def select_next_population(self, current_pop: List[ArchWithMetaData]) -> List[ArchWithMetaData]:
         random.shuffle(current_pop)
         return current_pop[:self.max_unseen_population]
@@ -105,6 +109,7 @@ class EvolutionParetoSearch(Searcher):
         for i in range(self.num_iters):
             self.iter_num = i
             logger.info(f'starting evolution pareto iter {i}')
+            self.on_search_iteration_start(unseen_pop)
             
             # for the unseen population 
             # calculates the memory and latency
