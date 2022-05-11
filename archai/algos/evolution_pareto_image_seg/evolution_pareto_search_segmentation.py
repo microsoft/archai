@@ -28,6 +28,7 @@ from archai.search_spaces.discrete_search_spaces.segmentation_search_spaces.disc
 
 from archai.algos.evolution_pareto_image_seg.segmentation_trainer import SegmentationTrainer, get_custom_overall_metrics
 from archai.algos.evolution_pareto_image_seg.utils import get_onnx_latency, to_onnx, get_utc_date
+from archai.algos.evolution_pareto_image_seg.report import get_search_status_df, save_3d_pareto_plot, save_2d_pareto_evolution_plot
 from archai.algos.evolution_pareto_image_seg.remote_benchmark import RemoteAzureBenchmark
 
 from archai.nas.constraints.torch_constraints import measure_torch_inference_latency, measure_torch_peak_memory
@@ -45,6 +46,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.min_mac = conf_search['min_mac']
         self.max_mac = conf_search['max_mac']
         self.max_latency = conf_search['max_latency']
+        self.max_memory = conf_search['max_memory']
         self.min_layers = conf_search['min_layers']
         self.max_layers = conf_search['max_layers']
         self.max_downsample_factor = conf_search['max_downsample_factor']
@@ -154,9 +156,14 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
             crowd_dist = compute_crowding_distance(proxy_mem_latency)
             idxs = np.argsort(-crowd_dist, axis=None)[:self.init_num_models]
-            return [p for pi, p in enumerate(init_pop) if pi in idxs]
+            model_list = [p for pi, p in enumerate(init_pop) if pi in idxs]
+        else:
+            model_list = super()._sample_init_population()
 
-        return super()._sample_init_population()
+        for model in model_list:
+            model.metadata['generation'] = self.iter_num
+
+        return model_list
 
     @overrides
     def _sample_random_to_mix(self) -> List[ArchWithMetaData]:
@@ -173,9 +180,14 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
             crowd_dist = compute_crowding_distance(proxy_mem_latency)
             idxs = np.argsort(-crowd_dist, axis=None)[:self.init_num_models]
-            return [p for pi, p in enumerate(init_pop) if pi in idxs]
+            model_list = [p for pi, p in enumerate(init_pop) if pi in idxs]
+        else:
+            model_list = super()._sample_random_to_mix()
 
-        return super()._sample_random_to_mix()
+        for model in model_list:
+            model.metadata['generation'] = self.iter_num
+
+        return model_list
 
     @overrides
     def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
@@ -369,7 +381,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         return pareto_points
 
-
     def _save_yaml(self, points:List[ArchWithMetaData], basename='pareto')->None:
         exp_dir = utils.full_path(get_expdir())
         save_folder = os.path.join(exp_dir, f'{basename}_iter_{self.iter_num}')
@@ -377,7 +388,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         for p in points:
             this_name = os.path.join(save_folder, str(p.metadata['archid']) + '.yaml')
             p.arch.to_file(this_name)
-
 
     @overrides
     def mutate_parents(self, parents:List[ArchWithMetaData], mutations_per_parent: int = 1)->List[ArchWithMetaData]:
@@ -393,10 +403,10 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             nb_tries = 0
             patience = 20
 
-            if p.metadata['latency'] > self.max_latency:
+            if p.metadata['latency'] > self.max_latency or p.metadata['memory'] > self.max_memory:
                 logger.info(
-                    f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]} '
-                    f'which is greater than {self.max_latency}. Skipping mutation.'
+                    f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]}'
+                    f' or memory {p.metadata["memory"]} that is too high. Skipping mutation.'
                 )
 
                 continue
@@ -404,6 +414,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             while len(candidates) < (mutations_per_parent * oversample_factor) and nb_tries < patience:
                 for nbr in self.search_space.get_neighbors(p):
                     if nbr.metadata['archid'] not in self.eval_cache:
+                        nbr.metadata['generation'] = self.iter_num
                         candidates[nbr.metadata['archid']] = nbr
                 nb_tries += 1
             
@@ -422,10 +433,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
             mutations.update(candidates)
 
-        # TODO: there will be a lot of neighbors
-        # so might want to downsample them
         return list(mutations.values())
-
 
     @overrides
     def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
@@ -434,65 +442,31 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
-        # TODO: refactor this function to use a dataframe instead of the model list
-        all_data, pareto_data = [
-            {k: [p.metadata[k] for p in pop] for k in ['f1', 'latency', 'memory', 'archid'] }
-            for pop in [all_pop, pareto]
-        ]
+        expdir = Path(get_expdir())
+        save_3d_pareto_plot(all_pop, pareto, ['f1', 'latency', 'memory'], iter_num, expdir)
+        
+        status_df = get_search_status_df(
+            all_pop, pareto, iter_num, fields=['archid', 'f1', 'latency', 'memory', 'generation']
+        )
 
-        # Converts archids to str
-        all_data['archid'] = list(map(str, all_data['archid']))
+        save_2d_pareto_evolution_plot(
+            status_df, x='latency', y='f1', save_path=expdir / 'latency_f1_2d_pareto.png',
+            x_increasing=False, max_x=self.max_latency, y_increasing=True, max_y=1.0
+        )
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter3d(x=all_data['f1'], 
-                                   y=all_data['latency'], 
-                                   z=all_data['memory'],
-                                   text=all_data['archid'],
-                                   mode='markers',
-                                   marker_color='blue',
-                                   showlegend=True,
-                                   name='All visited architectures'))
+        save_2d_pareto_evolution_plot(
+            status_df, x='memory', y='f1', save_path=expdir / 'memory_f1_2d_pareto.png',
+            x_increasing=False, max_x=self.max_memory, y_increasing=True, max_y=1.0
+        )
 
-        fig.add_trace(go.Scatter3d(x=pareto_data['f1'], 
-                                   y=pareto_data['latency'], 
-                                   z=pareto_data['memory'],
-                                   text=pareto_data['archid'],
-                                   mode='markers',
-                                   marker_color='red',
-                                   showlegend=True,
-                                   name='Pareto architectures'))
-
-        title_text = f'Search State Iter {iter_num}'
-        xaxis_title = 'Accuracy (validation f1)'
-        yaxis_title = 'Latency (ms)'
-        zaxis_title = 'Memory (mb)'
-
-        fig.update_layout(title_text=title_text,
-                          scene=dict(xaxis_title=xaxis_title,
-                                     yaxis_title=yaxis_title,
-                                     zaxis_title=zaxis_title))
-
-        expdir = get_expdir()
-        html_path = os.path.join(expdir, f'search_state_{iter_num}.html')
-        fig.write_html(html_path)
-
-        png_path = os.path.join(expdir, f'search_state_{iter_num}.png')
-        fig.write_image(png_path, engine='kaleido', width=1500, height=1500, scale=1) 
 
     @overrides
     def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
-        all_data = {
-            k: [p.metadata[k] if k in p.metadata else None for p in all_pop]
-            for k in ['archid', 'f1', 'latency', 'memory', 'proxy_latency',
-                      'proxy_memory', 'parent', 'macs']
-        }
-        pareto_ids = [p.metadata['archid'] for p in pareto]
+        fields = [
+            'archid', 'f1', 'latency', 'memory', 'proxy_latency', 
+            'proxy_memory', 'parent', 'macs', 'generation'
+        ]
 
-        status_df = pd.DataFrame(all_data)
-        status_df['nb_iterations'] = iter_num
-        status_df['is_pareto'] = False
-        status_df.loc[status_df['archid'].isin(pareto_ids), 'is_pareto'] = True
-
-        # Saves the status
-        expdir = get_expdir()
-        status_df.to_csv(os.path.join(expdir, f'search_status_{iter_num}.csv'))
+        status_df = get_search_status_df(all_pop, pareto, iter_num, fields)
+        expdir = Path(get_expdir())
+        status_df.to_csv(expdir / f'search_status_{iter_num}.csv')

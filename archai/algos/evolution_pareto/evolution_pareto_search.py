@@ -101,13 +101,13 @@ class EvolutionParetoSearch(Searcher):
         assert isinstance(self.search_space, DiscreteSearchSpace)
 
         # sample the initial population
+        self.iter_num = 0
         unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
-
-        self.iter_num = -1
 
         self.all_pop = unseen_pop
         for i in range(self.num_iters):
-            self.iter_num = i
+            self.iter_num = i + 1
+
             logger.info(f'starting evolution pareto iter {i}')
             self.on_search_iteration_start(unseen_pop)
             
