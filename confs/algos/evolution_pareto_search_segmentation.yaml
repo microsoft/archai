@@ -80,8 +80,9 @@ nas:
       blob_container_name: ''
       table_name: ''
       partition_key: ''
-      metrics: ''
       overwrite: false
+      patience: 5 # how many times to wait if the number of evaluated models does not increase
+      check_interval: 120 # how often (seconds) to check if the number of evaluated models has increased 
 
     loader:
       batch_size: 16 # TODO: batch size 16 has lr 2e-4. can we increase batch size? what lr?
