@@ -54,8 +54,6 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
         return DiscreteSearchSpaceNatsbenchTSS(self.dataset_name, 
                                                self.natsbench_location)
 
-
-
     @overrides
     def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
         # DEBUG: uses the benchmark's latency, and params for memory
