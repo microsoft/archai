@@ -70,6 +70,15 @@ class RemoteAzureBenchmark():
         with open(src_path, 'rb') as data:
             blob_client.upload_blob(data, overwrite=self.overwrite)
 
+    def delete_blobs(self, prefix: str) -> None:
+        container_client = self.blob_service_client.get_container_client(
+            self.blob_container_name
+        )
+
+        # List all blobs in the container starting with the given prefix
+        blobs = container_client.list_blobs(name_starts_with=prefix)
+        container_client.delete_blobs(*blobs)
+
     def get_entity(self, rowkey_id: str) -> Dict:
         return self.table_client.get_entity(
             partition_key=self.partition_key, row_key=rowkey_id
@@ -112,3 +121,7 @@ class RemoteAzureBenchmark():
         entity['status'] = 'new'
 
         self.update_entity(archid, entity)
+
+    def delete_model(self, model_id: str) -> None:
+        self.table_client.delete_entity(partition_key=self.partition_key, row_key=model_id)
+        self.delete_blobs(f'{model_id}/')
