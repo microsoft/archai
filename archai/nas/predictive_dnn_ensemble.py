@@ -1,7 +1,9 @@
 from typing import Tuple
+from overrides.overrides import overrides
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as f
 import numpy as np
 
 from archai.common.common import logger
@@ -9,9 +11,6 @@ from archai.common.config import Config
 from archai.common.trainer import Trainer
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.predictive_function import MeanVar, PredictiveFunction
-
-
-
 
 class PredictiveDNNEnsemble(PredictiveFunction):
 
@@ -21,10 +20,16 @@ class PredictiveDNNEnsemble(PredictiveFunction):
         # TODO: should have an architecture featurizer
         # object here and the featurizer should tell 
         # us what is the feature size
+        # TODO: get from config
         self.input_feat_len = 128
+        self.num_layers = 5
+        self.width = 64
 
         # build the ensemble
-        self.ensemble = [FFEnsembleMember(input_feat_len=self.input_feat_len) for _ in range(self.num_ensemble_members)]
+        self.ensemble = [FFEnsembleMember(input_feat_len=self.input_feat_len, 
+                                          num_layers=self.num_layers, 
+                                          width=self.width).cuda() 
+                                          for _ in range(self.num_ensemble_members)]
 
         
     def fit(self, x:torch.Tensor, y:torch.Tensor, conf_train:Config)->None:
@@ -50,11 +55,12 @@ class PredictiveDNNEnsemble(PredictiveFunction):
             criterion = torch.nn.MSELoss(reduction='sum')
             optimizer = torch.optim.SGD(member.parameters(), lr=lr)
             member.train()
-            for t in num_steps:
+            for t in range(num_steps):
                 y_pred = member(x)
                 loss = criterion(y_pred, y)
                 if t % 10 == 9:
                     logger.info(f'step {t}: training loss {loss.item()}')
+                    print(f'step {t}: training loss {loss.item()}')
 
                 optimizer.zero_grad()
                 loss.backward()
@@ -62,6 +68,7 @@ class PredictiveDNNEnsemble(PredictiveFunction):
             logger.popd()
 
 
+    @overrides
     def predict(self, x:torch.Tensor)->MeanVar:
         ''' x: torch.Tensor architecture feature '''
         
@@ -87,20 +94,18 @@ class PredictiveDNNEnsemble(PredictiveFunction):
 
 
 class FFEnsembleMember(nn.Module):
-    def __init__(self, input_feat_len:int):
+    def __init__(self, input_feat_len:int=128, num_layers:int=10, width:int=20):
         super(FFEnsembleMember, self).__init__()
 
         self.input_feat_len = input_feat_len
+        self.num_layers = num_layers
+        self.width = width
 
-        self.net = nn.Sequential(
-            nn.Linear(self.input_feat_len, self.input_feat_len*3),
-            nn.ReLU(),
-            nn.Linear(self.input_feat_len*3, self.input_feat_len*3),
-            nn.ReLU(),
-            nn.Linear(self.input_feat_len*3, self.input_feat_len),
-            nn.ReLU(),
-            nn.Linear(self.input_feat_len, 1)
-        )
+        self.linears = nn.ModuleList([nn.Linear(self.input_feat_len, width)])
+        self.linears.extend([nn.Linear(width, width) for i in range(1, self.num_layers-1)])
+        self.output = nn.Linear(width, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.net(x)
+        for layer in self.linears:
+            x = f.relu(layer(x))
+        return self.output(x)
