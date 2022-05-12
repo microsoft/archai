@@ -22,7 +22,7 @@ from archai.common.config import Config
 from archai.common.trainer import Trainer
 from archai.algos.evolution_pareto.evolution_pareto_search import EvolutionParetoSearch
 from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.nas_utils import compute_crowding_distance
+from archai.nas.nas_utils import compute_crowding_distance, compute_pareto_hypervolume
 from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.segmentation_search_spaces.discrete_search_space_segmentation import DiscreteSearchSpaceSegmentation
 
@@ -475,5 +475,17 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         ]
 
         status_df = get_search_status_df(all_pop, pareto, iter_num, fields)
+
+        # Adds pareto hypervolume
+        pareto_points = np.array([
+            [p.metadata['latency'], p.metadata['memory'], 1 - p.metadata['f1']]
+            for p in pareto
+        ])
+        
+        status_df['pareto_hypervolume'] = compute_pareto_hypervolume(
+            pareto_points, 
+            np.array([self.objectives['latency']['max'], self.objectives['memory']['max'], 1.0], dtype=np.float32)
+        )
+
         expdir = Path(get_expdir())
         status_df.to_csv(expdir / f'search_status_{iter_num}.csv')
