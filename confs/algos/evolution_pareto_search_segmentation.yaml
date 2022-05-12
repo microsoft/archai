@@ -52,6 +52,7 @@ nas:
     min_mac: 100_000000 # models with mac below will be rejected
     max_mac: 7000_000000 # models with mac above will be rejected
     max_latency: 10_000 # In microseconds, models with latency above will not be mutaded
+    max_memory: 400 # Peak torch memory in megabytes. Models with memory above will not be mutaded
     min_layers: 5
     max_layers: 14
     max_downsample_factor: 16 # must be one of {2, 4, 8, 16}
