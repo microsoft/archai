@@ -45,8 +45,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.conf_loader = conf_search['loader']
         self.min_mac = conf_search['min_mac']
         self.max_mac = conf_search['max_mac']
-        self.max_latency = conf_search['max_latency']
-        self.max_memory = conf_search['max_memory']
         self.min_layers = conf_search['min_layers']
         self.max_layers = conf_search['max_layers']
         self.max_downsample_factor = conf_search['max_downsample_factor']
@@ -62,6 +60,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
         self.op_subset = conf_search['op_subset']
         self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
+
+        self.objectives = conf_search['objectives']
 
         self.crowd_sorting = conf_search['crowd_sorting']
 
@@ -122,14 +122,19 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         )
 
     def _get_proxy_memory_latency(self, model: ArchWithMetaData) -> Tuple[float, float]:
-        latency = get_onnx_latency(model.arch, img_size=model.arch.img_size)
-        mem = measure_torch_peak_memory(
-            model.arch, use_quantization=False,
-            input_dims=(1, 3, model.arch.img_size, model.arch.img_size), 
-            n_threads=1, device='cpu'
-        )
+        memory, latency = 0, 0
+        
+        if self.objectives['latency']['enabled']:
+            latency = get_onnx_latency(model.arch, img_size=model.arch.img_size)
 
-        return mem, latency
+        if self.objectives['memory']['enabled']:
+            memory = measure_torch_peak_memory(
+                model.arch, use_quantization=False,
+                input_dims=(1, 3, model.arch.img_size, model.arch.img_size), 
+                n_threads=1, device='cpu'
+            )
+
+        return memory, latency
 
     @overrides
     def _sample_init_population(self) -> List[ArchWithMetaData]:
@@ -363,16 +368,16 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        # need all decreasing or increasing quantities 
-        all_errors = [1.0 - p.metadata['f1'] for p in population]
-        all_latencies = [p.metadata['latency']  for p in population]
-        all_memories = [p.metadata['memory']  for p in population]
-
-        xs = np.array(all_errors).reshape(-1, 1)
-        ys = np.array(all_latencies).reshape(-1, 1)
-        zs = np.array(all_memories).reshape(-1, 1)
+        # need all decreasing or increasing quantities
+        objs = [
+            [1.0 - p.metadata['f1'] for p in population],
+            [p.metadata['latency']  for p in population],
+            [p.metadata['memory'] for p in population]
+        ]
         
-        points = np.concatenate((xs, ys, zs), axis=1)
+        objs = [np.array(obj).reshape(-1, 1) for obj in objs]
+
+        points = np.concatenate(objs, axis=1)
         points_idx = find_pareto_frontier_points(points, is_decreasing=True)
         pareto_points = [population[idx] for idx in points_idx]
 
@@ -402,8 +407,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             candidates = {}
             nb_tries = 0
             patience = 20
+            max_latency, max_memory = [self.objectives[k]['max'] for k in ['latency', 'memory']]
 
-            if p.metadata['latency'] > self.max_latency or p.metadata['memory'] > self.max_memory:
+            if p.metadata['latency'] > max_latency or p.metadata['memory'] > max_memory:
                 logger.info(
                     f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]}'
                     f' or memory {p.metadata["memory"]} that is too high. Skipping mutation.'
@@ -451,12 +457,12 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         save_2d_pareto_evolution_plot(
             status_df, x='latency', y='f1', save_path=expdir / 'latency_f1_2d_pareto.png',
-            x_increasing=False, max_x=self.max_latency, y_increasing=True, max_y=1.0
+            x_increasing=False, max_x=self.objectives['latency']['max'], y_increasing=True, max_y=1.0
         )
 
         save_2d_pareto_evolution_plot(
             status_df, x='memory', y='f1', save_path=expdir / 'memory_f1_2d_pareto.png',
-            x_increasing=False, max_x=self.max_memory, y_increasing=True, max_y=1.0
+            x_increasing=False, max_x=self.objectives['memory']['max'], y_increasing=True, max_y=1.0
         )
 
 
