@@ -184,7 +184,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             ])
 
             crowd_dist = compute_crowding_distance(proxy_mem_latency)
-            idxs = np.argsort(-crowd_dist, axis=None)[:self.init_num_models]
+            idxs = np.argsort(-crowd_dist, axis=None)[:self.num_random_mix]
             model_list = [p for pi, p in enumerate(init_pop) if pi in idxs]
         else:
             model_list = super()._sample_random_to_mix()
