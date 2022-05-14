@@ -45,7 +45,7 @@ class EvolutionParetoSearch(Searcher):
 
 
     @abstractmethod
-    def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
+    def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1)->List[ArchWithMetaData]:
         pass
 
 
@@ -91,6 +91,7 @@ class EvolutionParetoSearch(Searcher):
         self.num_random_mix = conf_search['num_random_mix']
         self.max_unseen_population = conf_search['max_unseen_population']
         self.mutations_per_parent = conf_search.get('mutations_per_parent', 1)
+        self.num_crossovers = conf_search.get('num_crossovers', 1)
 
         assert self.init_num_models > 0 
         assert self.num_iters > 0
@@ -149,7 +150,7 @@ class EvolutionParetoSearch(Searcher):
             # crossover random 'k' subsets of the parents
             # while ensuring the mutations fall within 
             # desired constraint limits
-            crossovered = self.crossover_parents(parents)
+            crossovered = self.crossover_parents(parents, self.num_crossovers)
             logger.info(f'iter {i}: crossover yielded {len(crossovered)} new models')
 
             # sample some random samples to add to the parent mix 

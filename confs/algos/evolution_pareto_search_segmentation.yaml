@@ -65,6 +65,7 @@ nas:
     max_delta_channels: 48
     delta_channels_binwidth: 8
     mutations_per_parent: 1
+    num_crossovers: 0
     op_subset: []
     downsample_prob_ratio: 1.25
   
