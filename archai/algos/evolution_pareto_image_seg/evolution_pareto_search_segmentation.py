@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 import pandas as pd
+import random
 import ray
 
 import torch
@@ -442,9 +443,20 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         return list(mutations.values())
 
     @overrides
-    def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        '''TODO: Returning empty for now '''
-        return []
+    def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1)->List[ArchWithMetaData]:
+        # Randomly samples k distinct pairs from `parents`
+        children, children_hashes = [], set()
+        pairs = [random.sample(parents, 2) for _ in range(num_crossovers)]
+
+        for p1, p2 in pairs:
+            child = self.search_space.crossover(p1, p2)
+
+            if child and child.metadata['archid'] not in children_hashes:
+                children.append(child)
+                children_hashes.add(child.metadata['archid'])
+
+        return children
+
 
     @overrides
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
@@ -470,7 +482,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
         fields = [
             'archid', 'f1', 'latency', 'memory', 'proxy_latency', 
-            'proxy_memory', 'parent', 'macs', 'generation'
+            'proxy_memory', 'parent', 'parents', 'macs', 'generation'
         ]
 
         status_df = get_search_status_df(all_pop, pareto, iter_num, fields)

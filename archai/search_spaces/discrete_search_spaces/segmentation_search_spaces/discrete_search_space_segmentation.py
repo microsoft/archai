@@ -1,5 +1,5 @@
 import random
-from typing import List, Optional
+from typing import List, Optional, Dict
 from overrides.overrides import overrides
 import copy
 import uuid
@@ -199,6 +199,15 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
         return [arch_meta]
 
+    def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
+                        post_upsample_layers: int = 1) -> ArchWithMetaData:
+        model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
+        
+        return ArchWithMetaData(model, {
+            'datasetname': self.datasetname,
+            'archid': model.to_hash(),
+            'parent': None
+        })
 
     def load_from_file(self, config_file: str) -> ArchWithMetaData:
         model = SegmentationNasModel.from_file(config_file)
@@ -209,3 +218,107 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             'parent': None
         })
 
+    def crossover(self, model_1: ArchWithMetaData, model_2: ArchWithMetaData, 
+                  patience: int = 10) -> Optional[ArchWithMetaData]:
+        # Chooses left and right models
+        left_m, right_m = random.sample([model_1, model_2], 2)
+        left_g, right_g = [list(m.arch.graph.values()) for m in [left_m, right_m]]
+        left_n, right_n = [list(m.arch.graph.keys()) for m in [left_m, right_m]]
+
+        if len(left_n) <= 2 or len(right_n) <= 2:
+            return
+
+        # Tries to merge left_m and right_m
+        result_g = None
+        nb_tries = 0
+
+        while result_g is None and nb_tries < patience:
+            left_g, right_g = copy.deepcopy(left_g), copy.deepcopy(right_g)
+            nb_tries += 1
+
+            # Samples a pivot node from the left model
+            left_pivot_idx = random.randint(1, len(left_n) - 2)
+            left_pivot = left_n[left_pivot_idx]
+
+            # Samples a pivot node from the right model w/ the same scale as the left_pivot
+            # excluding input and output nodes
+            right_candidates = [
+                i
+                for i, fields in enumerate(right_g)
+                if fields['scale'] == left_g[left_pivot_idx]['scale'] and\
+                0 < i < (len(right_n) - 1)
+            ]
+
+            if len(right_candidates) > 0:
+                # Picks a right pivot
+                right_pivot_idx = random.choice(right_candidates)
+
+                # Splits right_g and left_g using the pivot nodes
+                left_half = left_g[:left_pivot_idx + 1]
+                right_half = right_g[right_pivot_idx:]
+
+                # Gets node2idx for right model
+                right_node2idx = {node: i for i, node in enumerate(right_n)}
+                
+                # Renames nodes in right_half to avoid name collisions
+                for fields in right_half:
+                    fields['name'] = f'right_{fields["name"]}'
+
+                # Corrects connections from right_g
+                for fields in right_half[::-1]:
+                    for inp_idx, inp in enumerate(fields['inputs']):
+                        # Checks if this connection falls inside of right_half
+                        if inp in right_n[right_pivot_idx:]:
+                            fields['inputs'][inp_idx] = f'right_{inp}'
+                        else:
+                            # Gets the input scale
+                            inp_scale = right_g[right_node2idx[inp]]['scale']
+                            
+                            # Finds a new starting node to connect this edge
+                            candidates = [
+                                n['name'] for n in left_half if n['scale'] == inp_scale
+                            ]
+
+                            if len(candidates) > 0:
+                                fields['inputs'][inp_idx] = random.choice(candidates) 
+                            else:
+                                # If no candidate is found, deletes this edge
+                                fields['inputs'].pop(inp_idx)
+
+                
+                # Renames end node
+                right_half[-1]['name'] = 'output'
+
+                # Connects left_half and right_half
+                if left_pivot not in right_half[0]['inputs']:
+                    right_half[0]['inputs'].append(left_pivot)
+
+                result_g = left_half + right_half
+        
+        # Renames nodes in result_g to avoid name collisions
+        if result_g:
+            rename_map = {'input': 'input', 'output': 'output'}
+
+            for i, fields in enumerate(result_g):
+                if fields['name']  == 'input':
+                    continue
+
+                rename_map[fields['name']] = f'layer_{i}'
+                fields['name'] = f'layer_{i}' if fields['name'] != 'output' else 'output'
+
+                for inp_idx, inp in enumerate(fields['inputs']):
+                    fields['inputs'][inp_idx] = rename_map[inp]
+                
+            ch_map = random.choice(
+                [left_m.arch.channels_per_scale, right_m.arch.channels_per_scale]
+            )
+            
+            result_g = self.load_from_graph(
+                result_g, 
+                {'base_channels': ch_map['base_channels'], 'delta_channels': ch_map['delta_channels']},
+                left_m.arch.post_upsample_layers
+            )
+
+            result_g.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
+
+        return result_g
