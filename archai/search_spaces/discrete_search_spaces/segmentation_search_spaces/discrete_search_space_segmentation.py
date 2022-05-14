@@ -308,15 +308,20 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
                 for inp_idx, inp in enumerate(fields['inputs']):
                     fields['inputs'][inp_idx] = rename_map[inp]
-                
+
+            # Pick `channels_per_scale` and `post_upsample_layers` from left_m or right_m
             ch_map = random.choice(
                 [left_m.arch.channels_per_scale, right_m.arch.channels_per_scale]
             )
-            
+
+            post_upsample_layers = random.choice(
+                [left_m.arch.post_upsample_layers, right_m.arch.post_upsample_layers]
+            )
+
             result_g = self.load_from_graph(
                 result_g, 
                 {'base_channels': ch_map['base_channels'], 'delta_channels': ch_map['delta_channels']},
-                left_m.arch.post_upsample_layers
+                post_upsample_layers
             )
 
             result_g.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
