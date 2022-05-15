@@ -25,7 +25,7 @@ def _get_hyperparams(model_config: Dict[str, Any]) -> Tuple[int, int, int, List[
 
 
 def get_params_hf_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
-    n_token, tgt_len, d_model, d_embed, d_inner, n_head, d_head = _get_hyperparams(model_config)
+    n_token, tgt_len, d_model, _, d_inner, n_head, d_head = _get_hyperparams(model_config)
 
     params = {
         'embedding': 0,
@@ -37,7 +37,7 @@ def get_params_hf_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
     }
     
     # Embedding
-    params['embedding'] = n_token * d_embed + tgt_len * d_embed
+    params['embedding'] = n_token * d_model + tgt_len * d_model
 
     for _ in range(len(n_head)):
         # Attention
@@ -53,7 +53,7 @@ def get_params_hf_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
         params['layer_norm'] += 2 * d_model * 2
 
     # Layer normalization (final)
-    params['layer_norm'] += 2 * d_embed
+    params['layer_norm'] += 2 * d_model
 
     params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm']
     params['total'] = params['embedding'] + params['non_embedding']
@@ -62,7 +62,7 @@ def get_params_hf_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def get_params_hf_gpt2_flex_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
-    n_token, tgt_len, d_model, d_embed, d_inner, n_head, d_head = _get_hyperparams(model_config)
+    n_token, tgt_len, d_model, _, d_inner, n_head, d_head = _get_hyperparams(model_config)
 
     params = {
         'embedding': 0,
@@ -74,7 +74,7 @@ def get_params_hf_gpt2_flex_formula(model_config: Dict[str, Any]) -> Dict[str, A
     }
     
     # Embedding
-    params['embedding'] = n_token * d_embed + tgt_len * d_embed
+    params['embedding'] = n_token * d_model + tgt_len * d_model
 
     for d_i, n_h, d_h in zip(d_inner, n_head, d_head):
         # Attention
@@ -90,7 +90,7 @@ def get_params_hf_gpt2_flex_formula(model_config: Dict[str, Any]) -> Dict[str, A
         params['layer_norm'] += 2 * d_model * 2
 
     # Layer normalization (final)
-    params['layer_norm'] += 2 * d_embed
+    params['layer_norm'] += 2 * d_model
 
     params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm']
     params['total'] = params['embedding'] + params['non_embedding']
@@ -162,8 +162,8 @@ def get_params_hf_transfo_xl_formula(model_config: Dict[str, Any]) -> Dict[str, 
             params['softmax'] += d_model * d_emb_i
             params['softmax'] += d_emb_i * (r_idx - l_idx) + (r_idx - l_idx)
 
-    params['non_embedding'] = params['softmax'] + params['attention'] + params['ff']
-    params['total'] = params['embedding'] + params['non_embedding']
+    params['non_embedding'] = params['attention'] + params['ff']
+    params['total'] = params['embedding'] + params['non_embedding'] + params['softmax']
 
     return params
 
@@ -241,7 +241,7 @@ def get_params_mem_transformer_formula(model_config: Dict[str, Any]) -> Dict[str
             if not tie_weight:
                 params['softmax'] += (r_idx - l_idx) * d_emb_i
 
-    params['non_embedding'] = params['softmax'] + params['attention'] + params['ff'] + params['layer_norm']
-    params['total'] = params['embedding'] + params['non_embedding']
+    params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm']
+    params['total'] = params['embedding'] + params['non_embedding'] + params['softmax']
 
     return params
