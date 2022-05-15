@@ -86,7 +86,7 @@ class HfGPT2Flex(ArchaiModel):
         super().__init__()
 
         self.config = HfGPT2FlexConfig(**kwargs)
-        assert all(self.config.n_head[0] == n_h for n_h in self.config.n_head), 'HfGPT2Flex does not support different `n_head`.'
+        # assert all(self.config.n_head[0] == n_h for n_h in self.config.n_head), 'HfGPT2Flex does not support different `n_head`.'
 
         self.model = GPT2LMHeadModelFlex(self.config)
 
