@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 import pandas as pd
+import random
 import ray
 
 import torch
@@ -22,7 +23,7 @@ from archai.common.config import Config
 from archai.common.trainer import Trainer
 from archai.algos.evolution_pareto.evolution_pareto_search import EvolutionParetoSearch
 from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.nas_utils import compute_crowding_distance
+from archai.nas.nas_utils import compute_crowding_distance, compute_pareto_hypervolume
 from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.segmentation_search_spaces.discrete_search_space_segmentation import DiscreteSearchSpaceSegmentation
 
@@ -45,8 +46,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.conf_loader = conf_search['loader']
         self.min_mac = conf_search['min_mac']
         self.max_mac = conf_search['max_mac']
-        self.max_latency = conf_search['max_latency']
-        self.max_memory = conf_search['max_memory']
         self.min_layers = conf_search['min_layers']
         self.max_layers = conf_search['max_layers']
         self.max_downsample_factor = conf_search['max_downsample_factor']
@@ -62,6 +61,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
         self.op_subset = conf_search['op_subset']
         self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
+
+        self.objectives = conf_search['objectives']
 
         self.crowd_sorting = conf_search['crowd_sorting']
 
@@ -122,14 +123,19 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         )
 
     def _get_proxy_memory_latency(self, model: ArchWithMetaData) -> Tuple[float, float]:
-        latency = get_onnx_latency(model.arch, img_size=model.arch.img_size)
-        mem = measure_torch_peak_memory(
-            model.arch, use_quantization=False,
-            input_dims=(1, 3, model.arch.img_size, model.arch.img_size), 
-            n_threads=1, device='cpu'
-        )
+        memory, latency = 0, 0
+        
+        if self.objectives['latency']['enabled']:
+            latency = get_onnx_latency(model.arch, img_size=model.arch.img_size)
 
-        return mem, latency
+        if self.objectives['memory']['enabled']:
+            memory = measure_torch_peak_memory(
+                model.arch, use_quantization=False,
+                input_dims=(1, 3, model.arch.img_size, model.arch.img_size), 
+                n_threads=1, device='cpu'
+            )
+
+        return memory, latency
 
     @overrides
     def _sample_init_population(self) -> List[ArchWithMetaData]:
@@ -179,7 +185,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             ])
 
             crowd_dist = compute_crowding_distance(proxy_mem_latency)
-            idxs = np.argsort(-crowd_dist, axis=None)[:self.init_num_models]
+            idxs = np.argsort(-crowd_dist, axis=None)[:self.num_random_mix]
             model_list = [p for pi, p in enumerate(init_pop) if pi in idxs]
         else:
             model_list = super()._sample_random_to_mix()
@@ -363,16 +369,16 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        # need all decreasing or increasing quantities 
-        all_errors = [1.0 - p.metadata['f1'] for p in population]
-        all_latencies = [p.metadata['latency']  for p in population]
-        all_memories = [p.metadata['memory']  for p in population]
-
-        xs = np.array(all_errors).reshape(-1, 1)
-        ys = np.array(all_latencies).reshape(-1, 1)
-        zs = np.array(all_memories).reshape(-1, 1)
+        # need all decreasing or increasing quantities
+        objs = [
+            [1.0 - p.metadata['f1'] for p in population],
+            [p.metadata['latency']  for p in population],
+            [p.metadata['memory'] for p in population]
+        ]
         
-        points = np.concatenate((xs, ys, zs), axis=1)
+        objs = [np.array(obj).reshape(-1, 1) for obj in objs]
+
+        points = np.concatenate(objs, axis=1)
         points_idx = find_pareto_frontier_points(points, is_decreasing=True)
         pareto_points = [population[idx] for idx in points_idx]
 
@@ -402,8 +408,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             candidates = {}
             nb_tries = 0
             patience = 20
+            max_latency, max_memory = [self.objectives[k]['max'] for k in ['latency', 'memory']]
 
-            if p.metadata['latency'] > self.max_latency or p.metadata['memory'] > self.max_memory:
+            if p.metadata['latency'] > max_latency or p.metadata['memory'] > max_memory:
                 logger.info(
                     f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]}'
                     f' or memory {p.metadata["memory"]} that is too high. Skipping mutation.'
@@ -436,9 +443,20 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         return list(mutations.values())
 
     @overrides
-    def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        '''TODO: Returning empty for now '''
-        return []
+    def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1)->List[ArchWithMetaData]:
+        # Randomly samples k distinct pairs from `parents`
+        children, children_hashes = [], set()
+        pairs = [random.sample(parents, 2) for _ in range(num_crossovers)]
+
+        for p1, p2 in pairs:
+            child = self.search_space.crossover(p1, p2)
+
+            if child and child.metadata['archid'] not in children_hashes:
+                children.append(child)
+                children_hashes.add(child.metadata['archid'])
+
+        return children
+
 
     @overrides
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
@@ -451,12 +469,12 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         save_2d_pareto_evolution_plot(
             status_df, x='latency', y='f1', save_path=expdir / 'latency_f1_2d_pareto.png',
-            x_increasing=False, max_x=self.max_latency, y_increasing=True, max_y=1.0
+            x_increasing=False, max_x=self.objectives['latency']['max'], y_increasing=True, max_y=1.0
         )
 
         save_2d_pareto_evolution_plot(
             status_df, x='memory', y='f1', save_path=expdir / 'memory_f1_2d_pareto.png',
-            x_increasing=False, max_x=self.max_memory, y_increasing=True, max_y=1.0
+            x_increasing=False, max_x=self.objectives['memory']['max'], y_increasing=True, max_y=1.0
         )
 
 
@@ -464,9 +482,21 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
         fields = [
             'archid', 'f1', 'latency', 'memory', 'proxy_latency', 
-            'proxy_memory', 'parent', 'macs', 'generation'
+            'proxy_memory', 'parent', 'parents', 'macs', 'generation'
         ]
 
         status_df = get_search_status_df(all_pop, pareto, iter_num, fields)
+
+        # Adds pareto hypervolume
+        pareto_points = np.array([
+            [p.metadata['latency'], p.metadata['memory'], 1 - p.metadata['f1']]
+            for p in pareto
+        ])
+        
+        status_df['pareto_hypervolume'] = compute_pareto_hypervolume(
+            pareto_points, 
+            np.array([self.objectives['latency']['max'], self.objectives['memory']['max'], 1.0], dtype=np.float32)
+        )
+
         expdir = Path(get_expdir())
         status_df.to_csv(expdir / f'search_status_{iter_num}.csv')

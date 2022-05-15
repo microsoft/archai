@@ -51,7 +51,6 @@ nas:
     max_unseen_population: 100 # restrict the new population at each iteration to prevent blowing up of models
     min_mac: 100_000000 # models with mac below will be rejected
     max_mac: 7000_000000 # models with mac above will be rejected
-    max_latency: 10_000 # In microseconds, models with latency above will not be mutaded
     min_layers: 5
     max_layers: 14
     max_downsample_factor: 16 # must be one of {2, 4, 8, 16}
@@ -66,9 +65,26 @@ nas:
     max_delta_channels: 48
     delta_channels_binwidth: 8
     mutations_per_parent: 1
+    num_crossovers: 0
     op_subset: []
     downsample_prob_ratio: 1.25
-    
+  
+    objectives:
+      f1: 
+        enabled: true # Has to be true for now
+        min: 0.0
+        max: 1.0
+
+      latency: 
+        enabled: true
+        min: 0.0
+        max: 10000.0 # Microseconds
+
+      memory: 
+        enabled: true
+        min: 0.0
+        max: 400.0 # Megabytes
+
     crowd_sorting:
       initialization: false
       random_mix: false

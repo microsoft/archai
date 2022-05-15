@@ -50,7 +50,7 @@ def find_pareto_frontier_points(all_points: np.ndarray,
             else:
                 diff = other_point - this_point
 
-            if sum(diff > 0) == dim:
+            if sum(diff >= 0) == dim:
                 # Other point is smaller/larger on all dimensions
                 # so we have found at least one dominating point
                 is_pareto = False

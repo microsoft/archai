@@ -201,5 +201,5 @@ def compute_pareto_hypervolume(pareto_points: np.ndarray, reference_point: np.nd
     assert len(reference_point.shape) == 1
     assert reference_point.shape[0] == pareto_points.shape[1]
 
-    hv = Hypervolume(torch.zeros_like(reference_point))
+    hv = Hypervolume(torch.tensor(np.zeros_like(reference_point)))
     return hv.compute(torch.tensor(reference_point - pareto_points))
