@@ -14,12 +14,16 @@ def main():
     x = torch.rand(num_points, feat_dim)
     y = torch.rand(num_points, 1)
 
-    conf_train = dict(lr=0.0001, num_steps=20000)
+    conf_train = dict(lr=0.0001, num_steps=20)
 
     # fit
     ensemble.fit(x=x, y=y, conf_train=conf_train)
 
-    print('dummy')
+    # predict
+    x_test = torch.rand(1, feat_dim)
+    meanvar = ensemble.predict(x_test)
+
+    print('done')
 
     
 
