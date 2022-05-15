@@ -3,6 +3,8 @@ from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 import random
 
+import torch
+
 import numpy as np
 import plotly.graph_objects as go
 from tqdm import tqdm
@@ -15,6 +17,7 @@ from archai.common.common import logger
 from archai.common.config import Config
 from archai.common.trainer import Trainer
 from archai.algos.bananas.bananas_search import BananasSearch
+from archai.nas.predictive_dnn_ensemble import PredictiveDNNEnsemble
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.predictive_function import PredictiveFunction
 from archai.common import utils
@@ -52,12 +55,10 @@ class BananasSearchNatsbench(BananasSearch):
         # evaluate it again. 
         self.eval_cache = {}
 
+        # architecture feature store
+        self.arch_feature_store:List[Tuple[torch.Tensor, torch.Tensor]] = []
+
         super().search(conf_search)
-
-
-    @overrides
-    def get_predictive_obj(self) -> PredictiveFunction:
-        return PredictiveDNNEnsemble(self.num_ensemble_members)
 
 
     @overrides
@@ -67,13 +68,33 @@ class BananasSearchNatsbench(BananasSearch):
 
 
     @overrides
+    def get_predictive_obj(self) -> PredictiveFunction:
+        return PredictiveDNNEnsemble(self.num_ensemble_members)
+
+
+    @overrides
     def calc_task_accuracy(self, population:List[ArchWithMetaData])->None:
         # computes task accuracy of each model
         # and updates the meta data
-        # TODO: parallelize it via ray in the future
         for p in tqdm(population):
-            train_top1 = self._evaluate(p) 
-            p.metadata['train_top1'] = train_top1
+
+            # see if we have visited this arch before
+            if p.metadata['archid'] in self.eval_cache:
+                logger.info(f"{p.metadata['archid']} is in cache! Do nothing.")
+                continue    
+            else:
+                train_top1 = self._evaluate(p) 
+                p.metadata['train_top1'] = train_top1
+
+                # encode and store the architecture
+                # this will be used to train the predictive 
+                # function 
+                arch_feat = self._featurize_arch(p)
+                self.arch_feature_store.append((arch_feat, torch.Tensor([train_top1])))
+                
+            
+
+        
 
 
     def _evaluate(self, arch:ArchWithMetaData)->float:
@@ -84,14 +105,11 @@ class BananasSearchNatsbench(BananasSearch):
             # get training accuracy at 'n' epochs
             # from the benchmark
             train_top1 = self.search_space.get_training_accuracy_at_n_epoch(arch.metadata['archid'],
-            datasetname=self.dataset_name,
-            epoch=self.evaluate_at_epoch)
+                                                                            datasetname=self.dataset_name,
+                                                                            epoch=self.evaluate_at_epoch)
             return train_top1
 
-        # see if we have visited this arch before
-        if arch.metadata['archid'] in self.eval_cache:
-            logger.info(f"{arch.metadata['archid']} is in cache! Returning from cache.")
-            return self.eval_cache[arch.metadata['archid']].metadata['train_top1']
+        
         
         # if not in cache actually evaluate it
         # -------------------------------------
@@ -119,4 +137,17 @@ class BananasSearchNatsbench(BananasSearch):
 
     @overrides
     def update_predictive_function(self) -> None:
-        
+        # gather all the architecture encodings and
+        # their accuracies
+        x = torch.Tensor([f[0] for f in self.arch_feature_store])
+        y = torch.Tensor([f[1] for f in self.arch_feature_store])
+
+        assert x.shape[0] == y.shape[0]
+
+        # TODO: get from config
+        conf_train = dict(lr=0.0001, num_steps=20)
+        # train the predictive function
+        self.pred_obj.fit(x=x, y=y, conf_train=conf_train)
+
+
+          
