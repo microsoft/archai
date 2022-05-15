@@ -16,6 +16,7 @@ import shutil
 import sys
 import time
 from datetime import datetime
+from packaging import version
 from typing import Tuple
 
 import dllogger
@@ -472,7 +473,7 @@ class EvalMetrics:
 
 
 def train_iteration(model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                    optimizer, device, delay_unscale, args):
+                    optimizer, device, delay_unscale, args, autocast):
     # trains a given chunk
     cpu = torch.device('cpu')
     input_ids_i = input_ids_chunks[i].contiguous()
@@ -481,7 +482,7 @@ def train_iteration(model, i, mems, input_ids_chunks, labels_chunks, scaler,
     if args.swap_mem and mems[i] is not None:
         mems[i] = mems[i].to(device, non_blocking=True)
 
-    with torch.cuda.amp.autocast(args.fp16):
+    with autocast:
         loss, _, mems[i], _ = model(input_ids_i, labels_i, mems[i])
         loss = loss.float().mean().type_as(loss) / args.batch_chunk
 
@@ -519,6 +520,12 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
     else:
         train_iter = train_itr
 
+    # Supports different autocast signatures and usage of bfloat16
+    autocast = torch.cuda.amp.autocast(enabled=args.fp16)
+    if version.parse(torch.__version__) >= version.parse('1.10'):
+        fp16_type = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        autocast = torch.cuda.amp.autocast(enabled=args.fp16, dtype=fp16_type)
+
     logging.info('Starting training...')
     for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
         log_step += 1
@@ -537,12 +544,12 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                 with para_model.no_sync():
                     train_loss_chunk = train_iteration(
                         para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                        optimizer, device, True, args
+                        optimizer, device, True, args, autocast
                     )
             else:
                 train_loss_chunk = train_iteration(
                     para_model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                    optimizer, device, False, args
+                    optimizer, device, False, args, autocast
                 )
 
             train_loss += train_loss_chunk

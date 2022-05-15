@@ -18,8 +18,7 @@ class HfGPT2Config(Config):
     attribute_map = {
         'n_token': 'vocab_size',
         'tgt_len': 'n_positions',
-        'd_model': 'n_ctx',
-        'd_embed': 'hidden_size',
+        'd_model': 'n_embd',
         'd_inner': 'n_inner',
         'dropout': 'resid_pdrop',
         'dropatt': 'attn_pdrop',
