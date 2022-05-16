@@ -233,6 +233,8 @@ class GPT2AttentionFlex(nn.Module):
         use_cache=False,
         output_attentions=False,
     ):
+        self.flops = 0
+        
         if encoder_hidden_states is not None:
             if not hasattr(self, "q_attn"):
                 raise ValueError(

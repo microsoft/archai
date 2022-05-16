@@ -210,6 +210,8 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             target :: [len*bsz]
         '''
 
+        self.flops = 0
+
         if target is not None and hidden.size(0) != target.size(0):
             raise RuntimeError('Input and target should have the same size '
                                'in the batch dimension.')
