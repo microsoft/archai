@@ -1,4 +1,4 @@
-# Archai Documentation
+# Archai
 
 Archai is a platform for Neural Network Search (NAS) that allows you to generate efficient deep networks for your applications.
 
