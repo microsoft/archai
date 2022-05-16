@@ -28,8 +28,18 @@ class PredictiveDNNEnsemble(PredictiveFunction):
         # build the ensemble
         self.ensemble = [FFEnsembleMember(input_feat_len=self.input_feat_len, 
                                           num_layers=self.num_layers, 
-                                          width=self.width).cuda() 
+                                          width=self.width) 
                                           for _ in range(self.num_ensemble_members)]
+
+        self.is_fit = False
+
+    def to_cuda(self):
+        for m in self.ensemble:
+            m.cuda()
+
+    def to_cpu(self):
+        for m in self.ensemble:
+            m.cpu()
 
         
     def fit(self, x:torch.Tensor, y:torch.Tensor, conf_train:Config)->None:
@@ -44,9 +54,6 @@ class PredictiveDNNEnsemble(PredictiveFunction):
 
         lr = conf_train['lr']
         num_steps = conf_train['num_steps']
-
-        x = x.cuda()
-        y = y.cuda()
 
         # TODO: should we be splitting data into 
         # train and val?
@@ -67,10 +74,18 @@ class PredictiveDNNEnsemble(PredictiveFunction):
                 optimizer.step()
             logger.popd()
 
+        # set the flag that it has been fit
+        self.is_fit = True
+
 
     @overrides
     def predict(self, x:torch.Tensor)->MeanVar:
-        ''' x: torch.Tensor architecture feature '''
+        ''' x: torch.Tensor [1xfeat_dim] 
+            architecture feature for a single datapoint
+        '''
+        assert x.shape[0] == 1
+
+        assert self.is_fit, 'PredictiveDNNEnsemble: predict called before fit!' 
         
         preds = []
         for member in self.ensemble:
@@ -82,15 +97,6 @@ class PredictiveDNNEnsemble(PredictiveFunction):
         var = std * std
 
         return MeanVar(mean=mean, var=var)
-
-
-            
-
-
-
-
-
-
 
 
 class FFEnsembleMember(nn.Module):
