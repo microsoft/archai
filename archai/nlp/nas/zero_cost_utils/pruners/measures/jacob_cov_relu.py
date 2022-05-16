@@ -13,8 +13,6 @@
 # limitations under the License.
 # =============================================================================
 
-from builtins import isinstance
-import copy
 import types
 from typing import Optional, Tuple
 import numpy as np
@@ -22,10 +20,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
-
-# from archai.nlp.nvidia_transformer_xl.zero_cost_nas.synflow import forward_crit
 
 from . import measure
 
@@ -163,11 +157,11 @@ def get_batch_jacobian(net, x, target, device, split_data):
     word_emb = x_emb.data
     word_emb.requires_grad_(True)
 
-    N = x.shape[-1]
+    N = x.shape[0]
     for sp in range(split_data):
         st = sp * N // split_data
         en = (sp + 1) * N // split_data
-        y, _ = net(word_emb[:, st:en], target[:, st:en], mems=None)
+        y, _ = net(word_emb[st:en, :], target[st:en, :], mems=None)
         # y, _ = net(word_emb[:, st:en, :], target[:, st:], mems=None)
         y.backward(torch.ones_like(y))
 

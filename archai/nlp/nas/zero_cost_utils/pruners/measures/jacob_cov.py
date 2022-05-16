@@ -13,7 +13,6 @@
 # limitations under the License.
 # =============================================================================
 
-from builtins import isinstance
 import types
 import numpy as np
 
@@ -251,11 +250,11 @@ def get_batch_jacobian(net, x, target, device, split_data):
     word_emb = x_emb.data
     word_emb.requires_grad_(True)
 
-    N = x.shape[-1]
+    N = x.shape[0]
     for sp in range(split_data):
         st = sp * N // split_data
         en = (sp + 1) * N // split_data
-        y, _ = net(word_emb[:, st:en], target[:, st:en], mems=None)
+        y, _ = net(word_emb[st:en, :], target[st:en, :], mems=None)
         # y, _ = net(word_emb[:, st:en, :], target[:, st:], mems=None)
         y.backward(torch.ones_like(y))
 

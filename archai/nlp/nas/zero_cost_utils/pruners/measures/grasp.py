@@ -15,7 +15,6 @@
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.autograd as autograd
 import transformers
 
@@ -39,14 +38,14 @@ def compute_grasp_per_weight(
     # NOTE original code had some input/target splitting into 2
     # I am guessing this was because of GPU mem limit
     net.zero_grad()
-    N = inputs.shape[-1]
+    N = inputs.shape[0]
     for sp in range(split_data):
         st = sp * N // split_data
         en = (sp + 1) * N // split_data
 
         # forward/grad pass #1
         grad_w = None
-        loss, _, _, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _, _, _ = net.forward(inputs[st:en, :], targets[st:en, :], mems=None)
         loss = loss.float().mean().type_as(loss)
         grad_w_p = autograd.grad(loss, weights, allow_unused=True)
         if grad_w is None:
@@ -60,7 +59,7 @@ def compute_grasp_per_weight(
         en = (sp + 1) * N // split_data
 
         # forward/grad pass #2
-        loss, _, _, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _, _, _ = net.forward(inputs[st:en, :], targets[st:en, :], mems=None)
         loss = loss.float().mean().type_as(loss)
         grad_f = autograd.grad(loss, weights, create_graph=True, allow_unused=True)
 

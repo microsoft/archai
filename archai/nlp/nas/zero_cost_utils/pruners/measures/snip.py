@@ -13,12 +13,10 @@
 # limitations under the License.
 # =============================================================================
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import copy
 import types
 
 import transformers
@@ -79,12 +77,12 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
     for param in net.parameters():
         param.grad = None
 
-    N = inputs.shape[-1]
+    N = inputs.shape[0]
     for sp in range(split_data):
         st = sp * N // split_data
         en = (sp + 1) * N // split_data
 
-        loss, _, _, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _, _, _ = net.forward(inputs[st:en, :], targets[st:en, :], mems=None)
         loss = loss.float().mean().type_as(loss)
         loss.backward()
 
@@ -127,12 +125,12 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
     for param in net.parameters():
         param.grad = None
 
-    N = inputs.shape[-1]
+    N = inputs.shape[0]
     for sp in range(split_data):
         st = sp * N // split_data
         en = (sp + 1) * N // split_data
 
-        loss, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _ = net.forward(inputs[st:en, :], targets[st:en, :], mems=None)
         loss = loss.float().mean().type_as(loss)
         loss.backward()
 

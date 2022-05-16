@@ -14,9 +14,6 @@
 # =============================================================================
 
 import torch
-import torch.nn.functional as F
-
-import copy
 
 from . import measure
 from ..p_utils import get_layer_metric_array
@@ -28,12 +25,12 @@ def get_grad_norm_arr(net, inputs, targets, loss_fn, split_data=1, skip_grad=Fal
     for param in net.parameters():
         param.grad = None
 
-    N = inputs.shape[-1]
+    N = inputs.shape[0]
     for sp in range(split_data):
         st = sp * N // split_data
         en = (sp + 1) * N // split_data
 
-        loss, _, _, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _, _, _ = net.forward(inputs[st:en, :], targets[st:en, :], mems=None)
         loss = loss.float().mean().type_as(loss)
         loss.backward()
 
@@ -54,12 +51,12 @@ def get_grad_norm_arr(net, inputs, targets, loss_fn, split_data=1, skip_grad=Fal
     for param in net.parameters():
         param.grad = None
 
-    N = inputs.shape[-1]
+    N = inputs.shape[0]
     for sp in range(split_data):
         st = sp * N // split_data
         en = (sp + 1) * N // split_data
 
-        loss, _ = net.forward(inputs[:, st:en], targets[:, st:en], mems=None)
+        loss, _ = net.forward(inputs[st:en, :], targets[st:en, :], mems=None)
         loss = loss.float().mean().type_as(loss)
         loss.backward()
 
