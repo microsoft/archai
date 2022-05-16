@@ -11,7 +11,7 @@ import yaml
 from torch import nn
 import torch
 
-from archai.algos.evolution_pareto_image_seg.ops import OPS
+from archai.algos.evolution_pareto_image_seg.ops import OPS, SeparableConvBlock, NormalConvBlock
 
 class Block(nn.Module):
     def __init__(self, in_ch: int, out_ch: int, in_scale: int, out_scale: int, op_name: str):
@@ -39,8 +39,8 @@ class Block(nn.Module):
 
 class SegmentationNasModel(torch.nn.Module):
     def __init__(self, graph: List[Dict], channels_per_scale: Dict, post_upsample_layers: int = 1,
-                 stem_stride: int = 2, img_size: int = 256, nb_classes: int = 19, ):
-        """Creates a SegmentationModel from a configuration
+                 stem_stride: int = 2, img_size: int = 256, nb_classes: int = 19):
+        """Creates a SegmentationNasModel from a configuration
 
         Args:
             graph (List[Dict]): List of dictionaries with the following keys:
@@ -51,7 +51,7 @@ class SegmentationNasModel(torch.nn.Module):
             channels_per_scale (Dict): Dictionary with the number of channels that should be 
                 used for each scale value, e.g: {1: 32, 2: 64, 4: 128} or a dictionary containing
                 `base_channels` and `delta_channels`, e.g: {'base_channels': 24, 'delta_channels': 2}, which
-                is equivalent to {1: 24, 2: 26, 4: 28, 8: 32, 16: 34}.
+                is equivalent to {1: 24, 2: 26, 4: 28, 8: 30, 16: 32}.
             post_upsample_layers (int): Number of post-upsample layers
             stem_strid (int): Stride of the first convolution
             img_size (int): Image size
