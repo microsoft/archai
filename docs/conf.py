@@ -39,8 +39,9 @@ exclude_patterns = [
 ]
 
 # Options for HTML output
-html_title = 'Archai'
+html_title = project
 html_theme = 'sphinxawesome_theme'
+html_logo = 'assets/img/logo.png'
 
 html_last_updated_fmt = ''
 html_static_path = ['assets']
