@@ -21,8 +21,6 @@ Archai is compatible with: **Python 3.6+** and **PyTorch 1.2+**.
     * [Installation](#installation)
     * [Running Experiments](#running-experiments)
     * [Tutorials](#tutorials)
-    * [Visual Studio Code](#visual-studio-code)
-    * [AzureML Experiments](#azureml-experiments)
  * [Support](#support)
     * [Contributions](#contributions)
     * [Team](#team)
@@ -58,7 +56,7 @@ install.sh # on Windows, use install.bat
 
 Please refer to the [installation guide](docs/getting-started/install.md) for more information.
 
-### Running Algorithms
+### Running Experiments
 
 To run a specific NAS algorithm, specify it by the `--algos` switch:
 
@@ -72,13 +70,13 @@ Please refer to [running algorithms](docs/user-guide/tutorial.md#running-existin
 
 The best way to familiarize yourself with Archai is to take a quick tour through our [30-minute tutorial](docs/user-guide/tutorial.md). Additionally, one can dive into the [Petridish tutorial](docs/user-guide/petridish.md) developed at Microsoft Research and available at Archai.
 
-### Visual Studio Code
+#### Visual Studio Code
 
 We highly recommend [Visual Studio Code](https://code.visualstudio.com/) to take advantage of predefined run configurations and interactive debugging.
 
 From the archai directory, launch Visual Studio Code. Select the Run button (Ctrl+Shift+D), choose the run configuration you want, and click on the Play icon.
 
-### AzureML Experiments
+#### AzureML Experiments
 
 To run NAS experiments at scale, you can use [Archai on Azure](tools/azure/README.md).
 
