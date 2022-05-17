@@ -42,6 +42,7 @@ exclude_patterns = [
 html_title = project
 html_theme = 'sphinxawesome_theme'
 html_logo = 'assets/img/logo.png'
+html_favicon = 'assets/img/favicon.ico'
 
 html_last_updated_fmt = ''
 html_static_path = ['assets']
