@@ -27,6 +27,41 @@ def random_neighbor(param_values: List[int], current_value: int):
     
     return param_values[current_idx + offset]
 
+
+def rename_dag_node_list(node_list: List[Dict], prefix: str = '', 
+                         rename_input_output: bool = True,
+                         add_input_output: bool = False) -> List[Dict]:
+    node_list = copy.deepcopy(node_list)
+    prefix = prefix + '_' if prefix else ''
+
+    rename_map = {}
+    if not rename_input_output:
+        rename_map = {'input': 'input', 'output': 'output'}
+
+    for i, node in enumerate(node_list):
+        if node['name'] not in rename_map:
+
+            if add_input_output:
+                new_name = (
+                    'input' if i == 0 else 
+                    'output' if i == len(node_list) - 1 else
+                    prefix + f'layer_{i}'
+                )
+            else:
+                new_name = prefix + f'layer_{i}'
+
+            rename_map[node['name']] = new_name
+            node['name'] = new_name
+        
+        if node['inputs']:
+            node['inputs'] = [
+                rename_map[inp_name] 
+                for inp_name in node['inputs']
+                if inp_name and inp_name in rename_map
+            ]
+
+    return node_list
+
 class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
     def __init__(self, datasetname:str, 
                  min_mac:int=0, 
@@ -217,13 +252,18 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             'archid': model.to_hash(),
             'parent': None
         })
-
+   
     def crossover(self, model_1: ArchWithMetaData, model_2: ArchWithMetaData, 
-                  patience: int = 10) -> Optional[ArchWithMetaData]:
-        # Chooses left and right models
+                patience: int = 10) -> Optional[ArchWithMetaData]:
+        # Chooses randomly left and right models
         left_m, right_m = random.sample([model_1, model_2], 2)
         left_g, right_g = [list(m.arch.graph.values()) for m in [left_m, right_m]]
-        left_n, right_n = [list(m.arch.graph.keys()) for m in [left_m, right_m]]
+
+        # Renames nodes to avoid name collision
+        left_g, right_g = rename_dag_node_list(left_g, 'left'), rename_dag_node_list(right_g, 'right')
+
+        # Stores node names
+        left_n, right_n = [[n['name'] for n in g] for g in [left_g, right_g]]
 
         if len(left_n) <= 2 or len(right_n) <= 2:
             return
@@ -259,33 +299,25 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
                 # Gets node2idx for right model
                 right_node2idx = {node: i for i, node in enumerate(right_n)}
-                
-                # Renames nodes in right_half to avoid name collisions
-                for fields in right_half:
-                    fields['name'] = f'right_{fields["name"]}'
 
                 # Corrects connections from right_g
                 for fields in right_half[::-1]:
                     for inp_idx, inp in enumerate(fields['inputs']):
-                        # Checks if this connection falls inside of right_half
-                        if inp in right_n[right_pivot_idx:]:
-                            fields['inputs'][inp_idx] = f'right_{inp}'
-                        else:
-                            # Gets the input scale
-                            inp_scale = right_g[right_node2idx[inp]]['scale']
-                            
+
+                        # Checks if this connection falls outside of right_half
+                        if inp not in right_n[right_pivot_idx:]:
                             # Finds a new starting node to connect this edge
+                            # with the same original input scale
                             candidates = [
-                                n['name'] for n in left_half if n['scale'] == inp_scale
+                                n['name'] for n in left_half
+                                if n['scale'] == right_g[right_node2idx[inp]]['scale']
                             ]
 
-                            if len(candidates) > 0:
-                                fields['inputs'][inp_idx] = random.choice(candidates) 
-                            else:
-                                # If no candidate is found, deletes this edge
-                                fields['inputs'].pop(inp_idx)
-
-                
+                            fields['inputs'][inp_idx] = (
+                                random.choice(candidates) if len(candidates) > 0
+                                else None
+                            )
+                            
                 # Renames end node
                 right_half[-1]['name'] = 'output'
 
@@ -293,22 +325,10 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 if left_pivot not in right_half[0]['inputs']:
                     right_half[0]['inputs'].append(left_pivot)
 
-                result_g = left_half + right_half
+                # Merge and rename nodes
+                result_g = rename_dag_node_list(left_half + right_half, add_input_output=True)
         
-        # Renames nodes in result_g to avoid name collisions
         if result_g:
-            rename_map = {'input': 'input', 'output': 'output'}
-
-            for i, fields in enumerate(result_g):
-                if fields['name']  == 'input':
-                    continue
-
-                rename_map[fields['name']] = f'layer_{i}'
-                fields['name'] = f'layer_{i}' if fields['name'] != 'output' else 'output'
-
-                for inp_idx, inp in enumerate(fields['inputs']):
-                    fields['inputs'][inp_idx] = rename_map[inp]
-
             # Pick `channels_per_scale` and `post_upsample_layers` from left_m or right_m
             ch_map = random.choice(
                 [left_m.arch.channels_per_scale, right_m.arch.channels_per_scale]
@@ -318,6 +338,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 [left_m.arch.post_upsample_layers, right_m.arch.post_upsample_layers]
             )
 
+            # Re-builds model and adds crossover metadata
             result_g = self.load_from_graph(
                 result_g, 
                 {'base_channels': ch_map['base_channels'], 'delta_channels': ch_map['delta_channels']},
@@ -326,4 +347,4 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
             result_g.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
 
-        return result_g
+            return result_g
