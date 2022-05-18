@@ -10,7 +10,7 @@ from archai.common.common import logger
 from archai.common.config import Config
 from archai.common.trainer import Trainer
 from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.predictive_function import MeanVar, PredictiveFunction
+from archai.nas.surrogate.predictive_function import MeanVar, PredictiveFunction
 
 class PredictiveDNNEnsemble(PredictiveFunction):
 

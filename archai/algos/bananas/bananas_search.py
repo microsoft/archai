@@ -10,7 +10,7 @@ import torch.nn as nn
 from archai.common.common import logger
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
-from archai.nas.predictive_function import PredictiveFunction
+from archai.nas.surrogate.predictive_function import PredictiveFunction
 from archai.nas.searcher import Searcher, SearchResult
 from archai.common.config import Config
 

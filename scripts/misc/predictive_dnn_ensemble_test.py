@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from archai.nas.predictive_dnn_ensemble import PredictiveDNNEnsemble
+from archai.nas.surrogate.predictive_dnn_ensemble import PredictiveDNNEnsemble
 
 
 def main():
