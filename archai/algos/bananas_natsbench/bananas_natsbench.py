@@ -17,9 +17,9 @@ from archai.common.common import logger
 from archai.common.config import Config
 from archai.common.trainer import Trainer
 from archai.algos.bananas.bananas_search import BananasSearch
-from archai.nas.predictive_dnn_ensemble import PredictiveDNNEnsemble
+from archai.nas.surrogate.predictive_dnn_ensemble import PredictiveDNNEnsemble
 from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.predictive_function import PredictiveFunction
+from archai.nas.surrogate.predictive_function import PredictiveFunction
 from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.natsbench_tss_search_spaces.discrete_search_space_natsbench_tss import DiscreteSearchSpaceNatsbenchTSS
 
