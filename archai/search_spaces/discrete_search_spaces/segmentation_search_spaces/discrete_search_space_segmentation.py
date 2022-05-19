@@ -260,7 +260,7 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
         if 'channels' in self.encoder_features:
             ch_map = arch.arch.channels_per_scale
             x.append(
-                [[ch_map['base_channels'], ch_map['delta_channels']] for _ in graph.values()]
+                [[ch_map['base_channels'] / 64, ch_map['delta_channels'] / 64] for _ in graph.values()]
             )
 
         # Builds node feature matrix
