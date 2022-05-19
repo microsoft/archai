@@ -6,11 +6,12 @@ import uuid
 import sys
 
 import torch
+import torch_geometric
 
 import tensorwatch as tw
 
 from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.discrete_search_space import DiscreteSearchSpace
+from archai.nas.discrete_search_space import EncodableDiscreteSearchSpace
 
 from archai.algos.evolution_pareto_image_seg.model import OPS, SegmentationNasModel
 
@@ -62,8 +63,9 @@ def rename_dag_node_list(node_list: List[Dict], prefix: str = '',
 
     return node_list
 
-class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
+class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
     def __init__(self, datasetname:str, 
+                 encoder_features: Optional[List[str]] = None,
                  min_mac:int=0, 
                  max_mac:int=sys.maxsize,
                  min_layers:int=1,
@@ -90,6 +92,8 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             self.operations = [op for op in self.operations if op in op_subset]
 
         assert len(self.operations) > 0
+
+        self.encoder_features = ['scale', 'channels', 'op'] if not encoder_features else encoder_features
 
         self.min_mac = min_mac
         self.max_mac = max_mac
@@ -233,6 +237,47 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             
 
         return [arch_meta]
+
+    @overrides
+    def get_arch_repr(self, arch: ArchWithMetaData) -> torch_geometric.data.Data:
+        graph = arch.arch.graph
+        scale_levels = [1, 2, 4, 8, 16] # TODO: get this dynamically
+
+        # Gets node features
+        onehot = lambda x, categories: [category == x for category in categories]
+        x = []
+
+        if 'scale' in self.encoder_features:
+            x.append(
+                [onehot(n['scale'], scale_levels) for n in graph.values()]
+            )
+
+        if 'op' in self.encoder_features:
+            x.append(
+                [onehot(n['op'], self.operations) for n in graph.values()]
+            )
+        
+        if 'channels' in self.encoder_features:
+            ch_map = arch.arch.channels_per_scale
+            x.append(
+                [[ch_map['base_channels'], ch_map['delta_channels']] for _ in graph.values()]
+            )
+
+        # Builds node feature matrix
+        x = torch.cat([torch.tensor(xi, dtype=torch.float) for xi in x], axis=1)
+        assert len(x.shape) == 2 and x.shape[0] == len(graph), 'Invalid node features'
+
+        # Builds edge_index COO matrix
+        nodename2idx = {n['name']: i for i, n in enumerate(graph.values())}
+        edges = [
+            [nodename2idx[v_name], nodename2idx[u['name']]]
+            for u in graph.values() if u['inputs']
+            for v_name in u['inputs']
+        ]
+        edge_index = torch.tensor(edges, dtype=torch.long).T
+
+        # Returns torch_geometric.data.Data object
+        return torch_geometric.data.Data(x=x, edge_index=edge_index, archid=arch.metadata['archid'])
 
     def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
                         post_upsample_layers: int = 1) -> ArchWithMetaData:
