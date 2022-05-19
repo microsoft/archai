@@ -446,14 +446,16 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1)->List[ArchWithMetaData]:
         # Randomly samples k distinct pairs from `parents`
         children, children_hashes = [], set()
-        pairs = [random.sample(parents, 2) for _ in range(num_crossovers)]
 
-        for p1, p2 in pairs:
-            child = self.search_space.crossover(p1, p2)
+        if len(parents) >= 2:
+            pairs = [random.sample(parents, 2) for _ in range(num_crossovers)]
 
-            if child and child.metadata['archid'] not in children_hashes:
-                children.append(child)
-                children_hashes.add(child.metadata['archid'])
+            for p1, p2 in pairs:
+                child = self.search_space.crossover(p1, p2)
+
+                if child and child.metadata['archid'] not in children_hashes:
+                    children.append(child)
+                    children_hashes.add(child.metadata['archid'])
 
         return children
 
