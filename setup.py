@@ -19,7 +19,7 @@ install_requires=[
     # nvidia transformer-xl
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
     'pytorch-transformers', 'sacremoses', 'pynvml', 'kaleido', 'albumentations', 'segmentation-models-pytorch @ git+https://github.com/qubvel/segmentation_models.pytorch',
-    'onnx', 'onnxruntime', 'efficientnet_pytorch', 'azure-storage-blob', 'azure-data-tables', 'azure-identity', 'botorch', 'torch_geometric'
+    'onnx', 'onnxruntime', 'azure-storage-blob', 'azure-data-tables', 'azure-identity', 'botorch', 'torch_geometric'
 ]
 
 setuptools.setup(
