@@ -65,13 +65,6 @@ def to_onnx(model: torch.nn.Module, output_path: Path,
         print('An interpolation method different than "nearest" was detected. '
               f'ONNX export will use opset_version = {opset_version} to ensure compatibility.')
 
-    if hasattr(model, 'encoder_name') and 'efficientnet' in model.encoder_name:
-        model.model.encoder.set_swish(memory_efficient=False)
-    else:
-        for module in model.modules():
-            if isinstance(module, MBConvBlock):
-                module.set_swish(memory_efficient=False)
-    
     # Warning: Constant folding - Only steps=1 can be constant folded for opset >= 10 onnx::Slice op. Constant folding not applied.
     # https://github.com/pytorch/pytorch/issues/73843
     # Might be an issue in quantization
