@@ -269,6 +269,8 @@ def parse_args():
                           help='Trains with differential privacy')
     training.add_argument('--noise_multiplier', type=float, default=1.1,
                      help='Differential privacy noise multiplier')
+    training.add_argument('--max_grad_sample', type=float, default=1.0,
+                     help='Differential max per-sample gradient')
 
     val = parser.add_argument_group('validation setup')
     val.add_argument('--eval_tgt_len', type=int, default=192,
@@ -588,8 +590,8 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
 
         if args.fp16:
             scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
-        else:
+
+        if not args.diffp:
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
 
         if args.fp16:
@@ -1088,7 +1090,7 @@ def create_scheduler(args, optimizer, optimizer_sparse):
     return scheduler, scheduler_sparse
 
 
-def make_private_and_validate(module, optimizer, data_loader, noise_multiplier):
+def make_private_and_validate(module, optimizer, data_loader, noise_multiplier, max_grad_sample):
 
     errors = ModuleValidator.validate(module, strict=True)
 
@@ -1102,7 +1104,7 @@ def make_private_and_validate(module, optimizer, data_loader, noise_multiplier):
             optimizer=optimizer,
             data_loader=data_loader,
             noise_multiplier=noise_multiplier,
-            max_grad_norm=1.0), privacy_engine
+            max_grad_norm=max_grad_sample), privacy_engine
 
 
 def train_main(args, device, train_itr, valid_itr, model, para_model, model_config,
@@ -1264,7 +1266,7 @@ def main():
     privacy_engine = None
 
     if args.diffp:
-        (para_model, optimizer, train_itr), privacy_engine = make_private_and_validate(para_model, optimizer, train_itr, args.noise_multiplier)
+        (para_model, optimizer, train_itr), privacy_engine = make_private_and_validate(para_model, optimizer, train_itr, args.noise_multiplier, args.max_grad_sample)
 
     # create scheduler
     scheduler, scheduler_sparse = create_scheduler(args, optimizer, optimizer_sparse)
