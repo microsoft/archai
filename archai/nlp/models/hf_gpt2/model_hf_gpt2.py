@@ -32,13 +32,6 @@ class HfGPT2(ArchaiModel):
 
         if self.config.tie_weight:
             self.model.tie_weights()
-            # Set the shared attribute so that archai.nlp.diffp.opacus_utils._grad_sample_capture_backprops_hook 
-            # knows that the gradients must be summed and are not a new batch. This attributes only works
-            # due to the _grad_sample_capture_backprops_hook modification.
-
-            # Originally Opacus would think that 2 backprops to the same parameters (from distinct layers) are
-            # from two different batches and would break.
-            self.model.lm_head.shared = True
 
     def forward(self,
                 input_ids: torch.Tensor,
@@ -99,13 +92,6 @@ class HfGPT2Flex(ArchaiModel):
 
         if self.config.tie_weight:
             self.model.tie_weights()
-            # Set the shared attribute so that archai.nlp.diffp.opacus_utils._grad_sample_capture_backprops_hook 
-            # knows that the gradients must be summed and are not a new batch. This attributes only works
-            # due to the _grad_sample_capture_backprops_hook modification.
-
-            # Originally Opacus would think that 2 backprops to the same parameters (from distinct layers) are
-            # from two different batches and would break.
-            self.model.lm_head.shared = True
 
     def forward(self,
                 input_ids: torch.Tensor,
