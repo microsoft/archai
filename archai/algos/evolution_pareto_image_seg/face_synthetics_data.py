@@ -16,7 +16,7 @@ class FaceSynthetics(torch.utils.data.Dataset):
                  mask_size=None, debug=False):
 
         root = Path(root)
-        assert root.is_dir()
+        assert root.is_dir(), f'{root} does not exist'
         assert isinstance(img_size, tuple)
 
         assert augmentation in AUGMENTATIONS
