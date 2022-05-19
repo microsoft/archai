@@ -4,16 +4,18 @@
 """Constraints pipelines used throughout the search procedure.
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 import torch
 
 from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_disk_memory,
                                                                    measure_onnx_inference_latency,
                                                                    measure_onnx_parameters)
-from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_inference_latency,
+from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_char_accept_rate,
+                                                                    measure_torch_inference_latency,
                                                                     measure_torch_parameters,
-                                                                    measure_torch_peak_memory)
+                                                                    measure_torch_peak_memory,
+                                                                    measure_torch_val_ppl)
 
 # Latency upper bound on different device targets
 # Any model with more latency than this will be removed from consideration during search
@@ -86,6 +88,12 @@ class TorchConstraintPipeline(ConstraintPipeline):
     """
 
     def __init__(self,
+                 training_strategy: Optional[str] = 'decoder_params',
+                 dataset: Optional[str] = 'wt103',
+                 scoring_file: Optional[str] = None,
+                 vocab_type: Optional[str] = 'word',
+                 vocab_size: Optional[int] = 10000,
+                 training_max_step: Optional[int] = 100,
                  use_quantization: Optional[bool] = False,
                  use_median: Optional[bool] = False,
                  batch_size: Optional[int] = 1,
@@ -96,6 +104,12 @@ class TorchConstraintPipeline(ConstraintPipeline):
         """Overrides initialization method.
 
         Args:
+            training_strategy: Training strategy (`decoder_params`, `val_ppl` or `char_accept_rate`).
+            dataset: Dataset (if not using `decoder_params`).
+            scoring_file: Scoring .ljson file (if using `char_accept_rate`).
+            vocab_type: Type of vocabulary (if not using `decoder_params`).
+            vocab_size: Size of vocabulary (if not using `decoder_params`).
+            training_max_step: Maximum training steps (if not using `decoder_params`).
             use_quantization: Whether measurement should be calculated with quantizated model or not.
             use_median: Whether should use median instead of mean for measurement.
             batch_size: Batch size.
@@ -106,24 +120,57 @@ class TorchConstraintPipeline(ConstraintPipeline):
 
         """
 
+        self.training_strategy = training_strategy
+        self.dataset = dataset
+        self.scoring_file = scoring_file
+        self.vocab_type = vocab_type
+        self.vocab_size = vocab_size
+        self.training_max_step = training_max_step
+
         super().__init__(use_quantization, use_median, batch_size,
                          seq_len, n_threads, n_trials, device)
 
-    def __call__(self, model: torch.nn.Module) -> Tuple[int, int, float, float]:
+    def __call__(self,
+                 model: torch.nn.Module,
+                 model_config: Dict[str, Any]) -> Tuple[Union[int, float], int, float, float]:
         """Invokes the built-in call method.
 
         Args:
             model: Model to be used within constraint pipeline.
+            model_config: Configuration of model.
 
         Returns:
-            (Tuple[int, int, float, float]): Decoder parameters, total parameters,
-                latency and peak memory.
+            (Tuple[Union[int, float], int, float, float]): Decoder parameters, validation perplexity
+                or character accept rate, total parameters, latency and peak memory.
 
         """
 
-        return (
+        if self.training_strategy == 'decoder_params':
             # Number of decoder (non-embedding) parameters
-            measure_torch_parameters(model, ['non_embedding']),
+            measure_torch_proxy = measure_torch_parameters(model, ['non_embedding'])
+        elif self.training_strategy == 'val_ppl':
+            # Validation perplexity
+            _, measure_torch_proxy = measure_torch_val_ppl(model,
+                                                           model_config,
+                                                           dataset=self.dataset,
+                                                           vocab_type=self.vocab_type,
+                                                           vocab_size=self.vocab_size,
+                                                           max_step=self.training_max_step)
+        elif self.training_strategy == 'char_accept_rate':
+            # Text Predict with character acceptance rate
+            measure_torch_proxy = measure_torch_char_accept_rate(model,
+                                                                 model_config,
+                                                                 dataset=self.dataset,
+                                                                 scoring_file=self.scoring_file,
+                                                                 vocab_type=self.vocab_type,
+                                                                 vocab_size=self.vocab_size,
+                                                                 max_step=self.training_max_step)
+        else:
+            raise NotImplementedError(f'training_strategy: {self.training_strategy} has not been implemented yet.')
+
+        return (
+            # Proxy (decoder parameters, validation perplexity or character acceptance rate)
+            measure_torch_proxy,
 
             # Number of total parameters
             measure_torch_parameters(model, ['total']),

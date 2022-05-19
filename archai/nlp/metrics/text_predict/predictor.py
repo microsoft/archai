@@ -330,7 +330,7 @@ class TextPredictionSequence(OrderedDict):
         logging.info(f'Loading SmartCompose file: {file_name}.')
 
         lines = []
-        with open(file_name) as f:
+        with open(file_name, encoding='utf-8') as f:
             lines = f.readlines()
 
         sequence = TextPredictionSequence(predictor, **kwargs)
