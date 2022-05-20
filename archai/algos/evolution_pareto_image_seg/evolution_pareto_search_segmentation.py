@@ -369,18 +369,23 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
+        valid_population = [
+            p for p in population 
+            if all(k in p.metadata and p.metadata[k] for k in ['latency', 'memory', 'f1'])
+        ]
+
         # need all decreasing or increasing quantities
         objs = [
-            [1.0 - p.metadata['f1'] for p in population],
-            [p.metadata['latency']  for p in population],
-            [p.metadata['memory'] for p in population]
+            [1.0 - p.metadata['f1'] for p in valid_population],
+            [p.metadata['latency']  for p in valid_population],
+            [p.metadata['memory'] for p in valid_population]
         ]
         
         objs = [np.array(obj).reshape(-1, 1) for obj in objs]
 
         points = np.concatenate(objs, axis=1)
         points_idx = find_pareto_frontier_points(points, is_decreasing=True)
-        pareto_points = [population[idx] for idx in points_idx]
+        pareto_points = [valid_population[idx] for idx in points_idx]
 
         # save all the pareto points
         self._save_yaml(pareto_points, basename='pareto')
