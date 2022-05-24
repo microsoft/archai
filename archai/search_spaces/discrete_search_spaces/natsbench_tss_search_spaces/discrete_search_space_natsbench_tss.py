@@ -1,12 +1,17 @@
 import random
 from typing import List
+from numpy import dtype
 from overrides.overrides import overrides
 
-from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.discrete_search_space import DiscreteSearchSpace
-from archai.algos.natsbench.natsbench_utils import create_natsbench_tss_api, model_from_natsbench_tss
+import torch
+import torch_geometric
 
-class DiscreteSearchSpaceNatsbenchTSS(DiscreteSearchSpace):
+from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.discrete_search_space import EncodableDiscreteSearchSpace
+from archai.algos.natsbench.natsbench_utils import create_natsbench_tss_api, model_from_natsbench_tss
+from archai.algos.natsbench.lib.models.cell_searchs import CellStructure
+
+class DiscreteSearchSpaceNatsbenchTSS(EncodableDiscreteSearchSpace):
     def __init__(self, datasetname:str, natsbench_location:str):
         super().__init__()
         self.datasetname = datasetname
@@ -95,3 +100,44 @@ class DiscreteSearchSpaceNatsbenchTSS(DiscreteSearchSpace):
             if i < len(nodes) - 1 and nodes[i+1] == 0:
                 strings.append('+|')
         return ''.join(strings)
+
+    @overrides
+    def get_arch_repr(self, arch: ArchWithMetaData) -> torch_geometric.data.Data:
+        string_rep = self.api.get_net_config(
+            arch.metadata['archid'], self.datasetname
+        )['arch_str']
+
+        model_arch = list(CellStructure.str2fullstructure(string_rep).nodes)
+        model_arch.insert(0, (('input', None),))
+        onehot = lambda x: [int(op == x) for op in self.OPS + ['input', 'output']]
+
+        # Node features and edges
+        node_features, edges = [], []
+        node_names = {}
+
+        for out_level, out_level_nodes in enumerate(model_arch):
+            node_names[out_level] = []
+
+            for op, in_level in out_level_nodes:
+                out_node = len(node_features)
+                
+                if in_level is not None:
+                    edges += [
+                        [in_node, out_node] for in_node in node_names[in_level]
+                    ]
+
+                node_names[out_level].append(out_node)
+                node_features.append(onehot(op))
+
+        # Adds output node info
+        edges += [
+            [in_node, len(node_features)] for in_node in node_names[out_level]
+        ]
+        node_features.append(onehot('output'))
+
+        # Returns torch_geometric.data.Data object
+        return torch_geometric.data.Data(
+            x=torch.tensor(node_features, dtype=torch.float),
+            edge_index=torch.tensor(edges, dtype=torch.long),
+            archid=arch.metadata['archid']
+        )
