@@ -1,64 +1,87 @@
 import sys
 import math
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 from functools import lru_cache
+from collections import defaultdict
+
+from torch_geometric.data import Data as GraphData
 
 
-def get_graph_ngrams(graph: Dict[str, Dict], node_vars: List[str],
-                     n: int = 3, output_node_only: bool = False) -> List[Tuple[Tuple]]:
-    """Lists all node n-grams from a graph with node attributes
+def get_graph_ngrams(graph: GraphData, n: int = 3,
+                     node_features: Optional[List[int]] = None,
+                     output_node_only: bool = False) -> List[Tuple[Tuple]]:
+    """Lists all node n-grams from a torch_geometric graph
 
     Args:
-        graph (Dict[str, Dict]): Node name to node attributes mapping.
-        node_vars (List[str]): List of node attributes that should be considered
-        n (int, optional): n-gram length. Defaults to 5.
-        output_node_only (bool, optional): If all of the node n-grams should end in 
-        the output node. Defaults to False.
+        graph (torch_geometric.data.Data): Torch geometric graph
+        node_features (List[int]): List of node attributes that should be considered. 
+    If None, all node attributes are considered.
+        n (int, optional): n-gram length.
+        output_node_only (bool, optional): If all of the listed node n-grams should end in 
+    the output node. Defaults to False.
 
     Returns:
-        List[List[Tuple]]: List of node n-grams (tuples of tuples) 
-    """    
+        List[Tuple[Tuple]]: List of node features n-grams (tuples of tuples) 
+    """
+    # Converts the edge list to a node dict
+    edges = graph.edge_index.T.numpy().tolist()
+    node_features = graph.x.numpy()[:, node_features] if node_features else graph.x.numpy()
+
+    graph_dict = {
+        node: {
+            'inputs': [],
+            'features': node_features[node]
+        } for node in range(graph.num_nodes)
+    }
+
+    for in_node, out_node in edges:
+        graph_dict[out_node]['inputs'].append(in_node)
 
     @lru_cache(maxsize=20_000)
-    def _ngrams_ending_in(node_name: str, n: int):
-        node = graph[node_name]
-        node_info = [tuple(node[var] for var in node_vars)]
+    def _ngrams_ending_in(node_id: int, n: int):
+        node = graph_dict[node_id]
+        features = [tuple(node['features'].tolist())]
 
-        if n == 1 or (output_node_only and node_name == 'input'):
-            return [node_info]
+        if n == 1 or (output_node_only and node_id == 0):
+            return [features]
 
-        if node_name == 'input' and not output_node_only:
+        if node['inputs'] is None and not output_node_only:
             return [None]
 
         return [
-            path + node_info
+            path + features
             for p_node in node['inputs']
             for path in _ngrams_ending_in(p_node, n-1)
             if path
         ]
     
     if output_node_only:
-        return [tuple(p) for p in _ngrams_ending_in('output', n)]
+        return [tuple(p) for p in _ngrams_ending_in(len(node_features) - 1, n)]
 
     return [
-        tuple(path) 
-        for terminal_node in graph
+        tuple(path)
+        for terminal_node in graph_dict
         for path in _ngrams_ending_in(terminal_node, n)
         if path
     ]
 
-def get_graph_paths(graph: Dict[str, Dict], node_vars: List[str]) -> List[Tuple[Tuple]]:
+
+def get_graph_paths(graph: GraphData, node_features: Optional[List[int]] = None) -> List[Tuple[Tuple]]:
     """Lists all paths from a architecture graph. 
 
     Args:
-        graph (Dict[str, Dict]): Node name to node attributes mapping.
-        node_vars (List[str]): List of node attributes that should be considered
+        graph (torch_geometric.data.Data): Torch geometric graph
+        node_features (List[int]): List of node attributes that should be considered. 
+    If None, all node attributes are considered.
         the output node. Defaults to False.
 
     Returns:
-        List[List[Tuple]]: List of paths (tuples of tuples) 
+        List[Tuple[Tuple]]: List of node features n-grams (tuples of tuples) 
     """
-    return get_graph_ngrams(graph, node_vars, n=sys.maxsize, output_node_only=True)
+    return get_graph_ngrams(
+        graph, n=sys.maxsize, node_features=node_features,
+        output_node_only=True
+    )
 
 
 def graph_ngram_cossim(graph1: Dict, graph2: Dict, node_vars: List[str], 
