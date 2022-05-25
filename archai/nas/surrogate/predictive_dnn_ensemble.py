@@ -14,21 +14,23 @@ from archai.nas.surrogate.predictive_function import MeanVar, PredictiveFunction
 
 class PredictiveDNNEnsemble(PredictiveFunction):
 
-    def __init__(self, num_ensemble_members:int=5):
+    def __init__(self, num_features: int, num_layers: int = 5, width: int = 64,
+                 num_ensemble_members: int = 5, sigmoid: bool = False):
         self.num_ensemble_members = num_ensemble_members
 
         # TODO: should have an architecture featurizer
         # object here and the featurizer should tell 
         # us what is the feature size
         # TODO: get from config
-        self.input_feat_len = 128
-        self.num_layers = 5
-        self.width = 64
+        self.input_feat_len = num_features
+        self.num_layers = num_layers
+        self.width = width
+        self.sigmoid = sigmoid
 
         # build the ensemble
         self.ensemble = [FFEnsembleMember(input_feat_len=self.input_feat_len, 
                                           num_layers=self.num_layers, 
-                                          width=self.width) 
+                                          width=self.width, sigmoid=self.sigmoid) 
                                           for _ in range(self.num_ensemble_members)]
 
         self.is_fit = False
@@ -100,7 +102,7 @@ class PredictiveDNNEnsemble(PredictiveFunction):
 
 
 class FFEnsembleMember(nn.Module):
-    def __init__(self, input_feat_len:int=128, num_layers:int=10, width:int=20):
+    def __init__(self, input_feat_len:int=128, num_layers:int=10, width:int=20, sigmoid: bool = False):
         super(FFEnsembleMember, self).__init__()
 
         self.input_feat_len = input_feat_len
@@ -109,7 +111,15 @@ class FFEnsembleMember(nn.Module):
 
         self.linears = nn.ModuleList([nn.Linear(self.input_feat_len, width)])
         self.linears.extend([nn.Linear(width, width) for i in range(1, self.num_layers-1)])
-        self.output = nn.Linear(width, 1)
+        
+        output_layers = [
+            nn.Linear(width, 1)
+        ]
+        
+        if sigmoid: 
+            output_layers.append(nn.Sigmoid())
+        
+        self.output = nn.Sequential(*output_layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         for layer in self.linears:
