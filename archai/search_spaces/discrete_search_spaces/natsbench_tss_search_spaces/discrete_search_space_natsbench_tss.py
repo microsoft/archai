@@ -106,7 +106,10 @@ class DiscreteSearchSpaceNatsbenchTSS(EncodableDiscreteSearchSpace):
         string_rep = self.api.get_net_config(
             arch.metadata['archid'], self.datasetname
         )['arch_str']
+        
+        return self.get_arch_repr_from_archstr(string_rep)
 
+    def get_arch_repr_from_archstr(self, string_rep: str) -> torch_geometric.data.Data:
         model_arch = list(CellStructure.str2fullstructure(string_rep).nodes)
         model_arch.insert(0, (('input', None),))
         onehot = lambda x: [int(op == x) for op in self.OPS + ['input', 'output']]
@@ -138,6 +141,5 @@ class DiscreteSearchSpaceNatsbenchTSS(EncodableDiscreteSearchSpace):
         # Returns torch_geometric.data.Data object
         return torch_geometric.data.Data(
             x=torch.tensor(node_features, dtype=torch.float),
-            edge_index=torch.tensor(edges, dtype=torch.long).T,
-            archid=arch.metadata['archid']
+            edge_index=torch.tensor(edges, dtype=torch.long).T
         )
