@@ -138,6 +138,6 @@ class DiscreteSearchSpaceNatsbenchTSS(EncodableDiscreteSearchSpace):
         # Returns torch_geometric.data.Data object
         return torch_geometric.data.Data(
             x=torch.tensor(node_features, dtype=torch.float),
-            edge_index=torch.tensor(edges, dtype=torch.long),
+            edge_index=torch.tensor(edges, dtype=torch.long).T,
             archid=arch.metadata['archid']
         )
