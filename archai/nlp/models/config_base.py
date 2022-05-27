@@ -129,9 +129,8 @@ class OnnxConfig:
             
         """
 
-        model_config['model_type'] = model_type
-
         self.config = Config(**model_config)
+        self.config.__class__.model_type = model_type
         self.batch_size = batch_size
         self.seq_len = seq_len
 
