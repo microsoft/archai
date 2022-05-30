@@ -159,6 +159,8 @@ class SegmentationTrainer():
                  lr: float = 2e-4, criterion_name: str = 'ce', 
                  val_check_interval: Union[int, float] = 0.25, 
                  lr_exp_decay_gamma: float = 0.98,
+                 tr_dataloader_workers: int = 3,
+                 val_dataloader_workers: int = 1,
                  seed: int = 1):
         torch.manual_seed(seed)
         random.seed(seed)
@@ -172,8 +174,12 @@ class SegmentationTrainer():
         self.val_dataset = FaceSynthetics(self.data_dir, subset='validation', val_size=val_size,
                                           img_size=(img_size, img_size), augmentation=augmentation)
 
-        self.tr_dataloader = DataLoader(self.tr_dataset, batch_size=batch_size, num_workers=8, shuffle=True)
-        self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=8, shuffle=False)
+        self.tr_dataloader = DataLoader(
+            self.tr_dataset, batch_size=batch_size, num_workers=tr_dataloader_workers, shuffle=True
+        )
+        self.val_dataloader = DataLoader(
+            self.val_dataset, batch_size=batch_size, num_workers=val_dataloader_workers, shuffle=False
+        )
 
         self.model = LightningModelWrapper(model, criterion_name=criterion_name, lr=lr,
                                            img_size=img_size, lr_exp_decay_gamma=lr_exp_decay_gamma)
