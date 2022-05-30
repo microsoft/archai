@@ -367,7 +367,10 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             augmentation=self.augmentation,
             batch_size=self.batch_size, lr=self.lr,
             lr_exp_decay_gamma=self.lr_exp_decay_gamma,
-            criterion_name=self.criterion_name, seed=self.seed)
+            criterion_name=self.criterion_name, seed=self.seed,
+            tr_dataloader_workers=self.conf_train['tr_dataloader_workers'],
+            val_dataloader_workers=self.conf_train['val_dataloader_workers'],
+        )
         return ref
 
     @overrides
