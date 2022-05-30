@@ -115,3 +115,6 @@ nas:
       criterion_name: 'ce'
       val_check_interval: 1.0 # how often to evaluate validation accuracy per epoch
       lr_exp_decay_gamma: 0.973435286
+      tr_dataloader_workers: 3
+      val_dataloader_workers: 1
+
