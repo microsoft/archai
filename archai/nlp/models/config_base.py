@@ -26,6 +26,10 @@ class Config(PretrainedConfig):
 
         super().__init__(**kwargs)
 
+        # Re-assures that model_type overwrites interal attribute from base class
+        if 'model_type' in kwargs:
+            self.__class__.model_type = kwargs['model_type']
+
     def _map_to_list(self,
                      variable: Union[int, float, List[Union[int, float]]],
                      size: int) -> List[Union[int, float]]:
@@ -129,8 +133,7 @@ class OnnxConfig:
             
         """
 
-        self.config = Config(**model_config)
-        self.config.__class__.model_type = model_type
+        self.config = Config(**model_config, model_type=model_type)
         self.batch_size = batch_size
         self.seq_len = seq_len
 
