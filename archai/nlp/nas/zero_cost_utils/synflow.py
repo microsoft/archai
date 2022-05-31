@@ -72,10 +72,13 @@ def forward_synflow(
     self, data, target, mems, output_loss=True, output_prediction_scores=False
 ):
     # Causal attention mask is created inside the model
+    emb_ = self.model.transformer.wte(data)
+    word_emb = torch.ones_like(emb_)
+   
     outputs = self.model(
-        input_ids=data,
+        inputs_embeds=word_emb,
         labels=target,
-        attention_mask=torch.ones_like(data),
+        # attention_mask=torch.ones_like(data),
         output_loss=output_loss,
         output_prediction_scores=output_prediction_scores,
     )
@@ -113,10 +116,14 @@ def get_scores(args, exp_name):
         count = 1
         for _f in set(files):
             if "model_config.yaml" in _f:
-                config_name = "model_config.yaml"
+                idx =  re.search('(config_[0-9]+)', _f).span()[0]
+                job = _f[idx:]
+                config_name = job.split('/')[0]
+                config_name += '_' + job.split('/')[1]
+
                 with open(_f, "r") as f:
                     model_config = yaml.full_load(f)
-
+                # model_config['d_model'] = 768
                 model = load_model_from_config("hf_gpt2_flex", model_config)
                 model.n_token = model_config["n_token"]
 
@@ -149,6 +156,7 @@ def get_scores(args, exp_name):
                         break
                     scores[config_name] = score.tolist()
                     print(count, config_name, scores[config_name])
+                    count += 1
 
                 if calc_costs:
                     model.eval()

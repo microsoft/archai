@@ -65,7 +65,7 @@ def get_metrics(
 
 def get_scores(args, exp_name, tr_iter, method="snip", compute_cost=False):
     path_to_results = exp_name
-    yaml_file = os.path.join(path_to_results, f"{method}_scores_seed_{args.seed}.yaml")
+    
 
     scores = {}
     costs = {}
@@ -82,12 +82,20 @@ def get_scores(args, exp_name, tr_iter, method="snip", compute_cost=False):
             )
 
     count = 1
+    yaml_file = os.path.join(path_to_results, f"{method}_scores_seed_{args.seed}.yaml")
     for _f in set(files):
         if "model_config.yaml" in _f:
-            config_name = "model_config.yaml"
+            # yaml_file = os.path.join(os.path.abspath(os.path.join(_f, os.pardir)), f"{method}_scores_seed_{args.seed}.yaml")
+            
+            idx =  re.search('(config_[0-9]+)', _f).span()[0]
+            job = _f[idx:]
+            config_name = job.split('/')[0]
+            config_name += '_' + job.split('/')[1]
+
+            # config_name = "model_config.yaml"
             with open(_f, "r") as f:
                 model_config = yaml.full_load(f)
-
+            # model_config['d_model'] = 768
             model = load_model_from_config("hf_gpt2_flex", model_config)
             model.n_token = model_config["n_token"]
 
@@ -107,7 +115,8 @@ def get_scores(args, exp_name, tr_iter, method="snip", compute_cost=False):
             else:
                 print(count, config_name, scores[config_name])
             count += 1
-
+      
+    print(f'saving to {yaml_file}')
     with open(yaml_file, "w") as f:
         yaml.dump(scores, f)
 
@@ -333,7 +342,7 @@ def cost_fn(method, model, tr_iter, device):
         n_linear_layers = 0
         found_compute_cost = 0
         for layer in model.modules():
-            if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
+            if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D) or isinstance(layer, nn.Linear):
                 n_linear_layers += 1
             if hasattr(layer, "compute"):
                 cost += layer.compute
@@ -450,7 +459,7 @@ if __name__ == "__main__":
     vocab = corpus.vocab
     args.n_token = ntokens
 
-    methods = ["snip", "grad_norm", "fisher", "jacob_cov", "grasp", "jacob_cov_relu"]
+    methods = ["jacob_cov"]#["snip", "grad_norm", "jacob_cov", "grasp", "jacob_cov_relu"]
     for method in methods:
         get_scores(
             args, args.exp_name, train_itr, method=method, compute_cost=args.get_cost

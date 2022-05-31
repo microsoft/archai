@@ -55,6 +55,7 @@ def compute_synflow_per_weight(net, inputs, targets):
     # Compute gradients with input of 1s
     net.zero_grad()
     net.double()
+
     outputs = net(inputs, targets, mems=None)
 
     # TODO: should this be loss or logits?

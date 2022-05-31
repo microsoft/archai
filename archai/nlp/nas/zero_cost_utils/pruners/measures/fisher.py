@@ -49,10 +49,16 @@ def fisher_forward_conv2d(self, x):
     return self.act
 
 
+def fisher_forward_linear(self, x):
+    x = F.linear(x, self.weight, self.bias)
+    self.act = self.dummy(x)
+    return self.act
+
+
 def fisher_forward_conv1d(self, x):
     size_out = x.size()[:-1] + (self.nf,)
     x = torch.addmm(self.bias, x.view(-1, x.size(-1)), self.weight)
-    x = x.view(size_out)
+    x = x.view(*size_out)
     self.act = self.dummy(x)
     return self.act
 
@@ -67,8 +73,9 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
 
     net.train()
     all_hooks = []
+
     for layer in net.modules():
-        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
+        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D) or isinstance(layer, nn.Linear):
             # variables/op needed for fisher computation
             layer.fisher = None
             layer.act = 0.0
@@ -80,12 +87,14 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
                 layer.forward = types.MethodType(fisher_forward_conv2d, layer)
             if isinstance(layer, transformers.Conv1D):
                 layer.forward = types.MethodType(fisher_forward_conv1d, layer)
+            if isinstance(layer, nn.Linear):
+                layer.forward = types.MethodType(fisher_forward_linear, layer)
 
             # function to call during backward pass (hooked on identity op at output of layer)
             def hook_factory(layer):
                 def hook(module, grad_input, grad_output):
-                    act = layer.act.detach()
-                    grad = grad_output[0].detach()
+                    act = layer.act.detach().reshape(-1,layer.act.size(-1))
+                    grad = grad_output[0].detach().reshape(-1,grad_output[0].size(-1))
                     if len(act.shape) > 2:
                         g_nk = torch.sum((act * grad), list(range(2, len(act.shape))))
                     else:
@@ -106,7 +115,7 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
 
             # register backward hook on identity fcn to compute fisher info
             layer.dummy.register_backward_hook(hook_factory(layer))
-
+    
     for param in net.parameters():
         param.grad = None
 

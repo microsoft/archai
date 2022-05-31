@@ -292,12 +292,13 @@ class GPT2MLPFlex(nn.Module):
         self.c_fc = Conv1D(intermediate_size, embed_dim)
         self.c_proj = Conv1D(embed_dim, intermediate_size)
         self.act = ACT2FN[config.activation_function]
+        self.dummy = nn.Identity()
         self.dropout = nn.Dropout(config.resid_pdrop)
         self.primer_square = config.primer_square
 
     def forward(self, hidden_states):
         hidden_states = self.c_fc(hidden_states)
-        hidden_states = self.act(hidden_states)
+        hidden_states = self.act(self.dummy(hidden_states))
         if self.primer_square:
             hidden_states = hidden_states ** 2
         hidden_states = self.c_proj(hidden_states)

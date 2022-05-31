@@ -146,7 +146,7 @@ def modify_net(net, jacob_size):
             pass
 
     for module in net.modules():
-        if "NewGELUActivation" in str(type(module)):
+        if 'Identity' in str(type(module)):
             module.register_forward_hook(counting_forward_hook)
 
 
