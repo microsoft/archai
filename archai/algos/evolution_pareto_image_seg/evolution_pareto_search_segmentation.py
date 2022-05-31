@@ -146,7 +146,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             search_space = self.get_search_space()
             logger.info(f'Loading {len(arch_files)} seed models for first iteration.')
 
-            return [search_space.load_from_file(arch_file) for arch_file in arch_files]
+            model_list = [search_space.load_from_file(arch_file) for arch_file in arch_files]
         
         # Initialization with crowd sorting
         if self.crowd_sorting['initialization']:
