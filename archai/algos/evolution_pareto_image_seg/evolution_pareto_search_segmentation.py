@@ -139,7 +139,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def _sample_init_population(self) -> List[ArchWithMetaData]:
-        # Manual initialization
         if self.init_architectures_from_dir:
             arch_dir = Path(self.init_architectures_from_dir)
             arch_files = list(arch_dir.glob('*.yaml'))
@@ -147,9 +146,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             logger.info(f'Loading {len(arch_files)} seed models for first iteration.')
 
             model_list = [search_space.load_from_file(arch_file) for arch_file in arch_files]
-
-        # Initialization with crowd sorting
-        if self.crowd_sorting['initialization']:
+        elif self.crowd_sorting['initialization']:
             init_pop = []
 
             for _ in range(self.crowd_sorting['oversampling_factor']):
