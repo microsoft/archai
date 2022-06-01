@@ -203,14 +203,21 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             # choose up to k inputs from previous nodes
             max_inputs = 3 # TODO: make config 
 
+            # Gets the out connections for each node
+            edges = [tuple(k.split('-')) for k in base_model.arch.edge_dict.keys()]
+            out_degree = lambda x: len([(orig, dest) for orig, dest in edges if orig == x])
+
             if node['name'] != 'input':
                 k = min(chosen_node_idx, random.randint(1, max_inputs))
                 input_idxs = random.sample(range(chosen_node_idx), k)
 
-                node['inputs'] = [graph[chosen_node_idx - 1]['name']]
+                # Removes everything except inputs that have out degree == 1
+                node['inputs'] = [input for input in node['inputs'] if out_degree(input) <= 1]
+
+                # Adds `k` new inputs
                 node['inputs'] += [
                     graph[idx]['name'] for idx in input_idxs
-                    if graph[idx]['name'] != graph[chosen_node_idx-1]['name']
+                    if graph[idx]['name'] not in node['inputs']
                 ]
 
             # compile the model
@@ -224,7 +231,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
             
             except Exception as e:
-                print(f'{base_model.to_hash()} -> {nbr_model.to_hash()} failed')
+                print(f'{base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
                 print(str(e))
                 continue
 
