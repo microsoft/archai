@@ -147,9 +147,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             logger.info(f'Loading {len(arch_files)} seed models for first iteration.')
 
             model_list = [search_space.load_from_file(arch_file) for arch_file in arch_files]
-        
-        # Initialization with crowd sorting
-        if self.crowd_sorting['initialization']:
+        elif self.crowd_sorting['initialization']:
             init_pop = []
 
             for _ in range(self.crowd_sorting['oversampling_factor']):
