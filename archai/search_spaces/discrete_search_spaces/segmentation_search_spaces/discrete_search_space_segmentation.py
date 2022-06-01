@@ -215,11 +215,18 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
             # compile the model
             nbr_model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
-            out_shape = nbr_model.validate_forward(
-                torch.randn(1, 3, nbr_model.img_size, nbr_model.img_size)
-            ).shape
+            
+            try:
+                out_shape = nbr_model.validate_forward(
+                    torch.randn(1, 3, nbr_model.img_size, nbr_model.img_size)
+                ).shape
 
-            assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
+                assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
+            
+            except Exception as e:
+                print(f'{base_model.to_hash()} -> {nbr_model.to_hash()} failed')
+                print(str(e))
+                continue
 
             # check if the model is within desired bounds    
             input_tensor_shape = (1, 3, nbr_model.img_size, nbr_model.img_size)
