@@ -139,7 +139,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def _sample_init_population(self) -> List[ArchWithMetaData]:
-        # Manual initialization
         if self.init_architectures_from_dir:
             arch_dir = Path(self.init_architectures_from_dir)
             arch_files = list(arch_dir.glob('*.yaml'))
