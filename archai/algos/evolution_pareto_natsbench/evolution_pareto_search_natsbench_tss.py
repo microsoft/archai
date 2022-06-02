@@ -55,7 +55,7 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
                                                self.natsbench_location)
 
     @overrides
-    def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
+    def calc_secondary_objectives(self, population:List[ArchWithMetaData])->None:
         # DEBUG: uses the benchmark's latency, and params for memory
         for p in tqdm(population):
             cost_info = self.search_space.api.get_cost_info(p.metadata['archid'], self.dataset_name)
