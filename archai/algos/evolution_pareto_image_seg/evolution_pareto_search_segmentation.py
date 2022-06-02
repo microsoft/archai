@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
+from collections import OrderedDict
 import pandas as pd
 import random
 import ray
@@ -122,20 +123,35 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             downsample_prob_ratio=self.downsample_prob_ratio
         )
 
-    def _get_proxy_memory_latency(self, model: ArchWithMetaData) -> Tuple[float, float]:
-        memory, latency = 0, 0
+    def _get_secondary_objectives_proxy(self, model: ArchWithMetaData) -> Tuple[float, float]:
+        ''' Gets a proxy for all secondary objectives (latency, memory and soft_constraints)''' 
+        # TODO: Filter secondary objectives in a smarter way
+        proxy_objs = OrderedDict(
+            (obj, 0.0) 
+            for obj in self.objectives if obj != 'f1'
+        )
         
         if self.objectives['latency']['enabled']:
-            latency = get_onnx_latency(model.arch, img_size=model.arch.img_size)
+            proxy_objs['latency'] = get_onnx_latency(model.arch, img_size=model.arch.img_size)
 
         if self.objectives['memory']['enabled']:
-            memory = measure_torch_peak_memory(
+            proxy_objs['memory'] = measure_torch_peak_memory(
                 model.arch, use_quantization=False,
                 input_dims=(1, 3, model.arch.img_size, model.arch.img_size), 
                 n_threads=1, device='cpu'
             )
+        
+        if self.objectives['soft_constraints_penalty']['enabled']:
+            soft_constraints = self.objectives['soft_constraints_penalty']
 
-        return memory, latency
+            proxy_objs['soft_constraints_penalty'] = sum(
+                node['scale'] not in soft_constraints['allowed_scales'] or
+                node['op'] not in soft_constraints['allowed_ops'] or 
+                model.arch.channels_per_scale[node['scale']] not in soft_constraints['allowed_channels']
+                for node in model.arch.graph.values()
+            ) / len(model.arch.graph.values())
+
+        return proxy_objs
 
     @overrides
     def _sample_init_population(self) -> List[ArchWithMetaData]:
@@ -153,11 +169,11 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                 init_pop += super()._sample_init_population()
 
             # Scores memory and latency
-            proxy_mem_latency = np.array([
-                list(self._get_proxy_memory_latency(p)) for p in init_pop
+            secondary_objs_proxy = np.array([
+                list(self._get_secondary_objectives_proxy(p).values()) for p in init_pop
             ])
 
-            crowd_dist = compute_crowding_distance(proxy_mem_latency)
+            crowd_dist = compute_crowding_distance(secondary_objs_proxy)
             idxs = np.argsort(-crowd_dist, axis=None)[:self.init_num_models]
             model_list = [p for pi, p in enumerate(init_pop) if pi in idxs]
         else:
@@ -176,12 +192,12 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             for _ in range(self.crowd_sorting['oversampling_factor']):
                 init_pop += super()._sample_random_to_mix()
 
-            # Scores memory and latency
-            proxy_mem_latency = np.array([
-                list(self._get_proxy_memory_latency(p)) for p in init_pop
+            # Scores memory, latency and soft constraints penalty
+            secondary_objs = np.array([
+                list(self._get_secondary_objectives_proxy(p).values()) for p in init_pop
             ])
 
-            crowd_dist = compute_crowding_distance(proxy_mem_latency)
+            crowd_dist = compute_crowding_distance(secondary_objs)
             idxs = np.argsort(-crowd_dist, axis=None)[:self.num_random_mix]
             model_list = [p for pi, p in enumerate(init_pop) if pi in idxs]
         else:
@@ -193,12 +209,17 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         return model_list
 
     @overrides
-    def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
-        # computes memory and latency of each model
+    def calc_secondary_objectives(self, population:List[ArchWithMetaData])->None:
         cache_misses = 0
-        for p in tqdm(population):
-            proxy_mem, proxy_latency = self._get_proxy_memory_latency(p)
 
+        for p in tqdm(population):
+            sec_objs_proxy = self._get_secondary_objectives_proxy(p)
+
+            # TODO: Avoid special casing here and use a general logic for 
+            # computing secondary objectives remotely or not
+            proxy_latency, proxy_mem = sec_objs_proxy['latency'], sec_objs_proxy['memory']
+            p.metadata['soft_constraints_penalty'] = sec_objs_proxy['soft_constraints_penalty']
+            
             if not self.use_remote_benchmark:
                 p.metadata['latency'], p.metadata['memory'] = proxy_latency, proxy_mem
             else:
@@ -208,6 +229,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                 if p.metadata['archid'] not in self.remote_benchmark:
                     cache_misses += 1
                     self.remote_benchmark.send_model(p)
+
         if self.use_remote_benchmark:
             logger.info(f'{len(population) - cache_misses} benchmark cache hits')
 
@@ -372,11 +394,12 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
     @overrides
     def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        # need all decreasing or increasing quantities
+        # TODO: Make this more general
         objs = [
             [1.0 - p.metadata['f1'] for p in population],
             [p.metadata['latency']  for p in population],
-            [p.metadata['memory'] for p in population]
+            [p.metadata['memory'] for p in population],
+            [p.metadata['soft_constraints_penalty'] for p in population]
         ]
         
         objs = [np.array(obj).reshape(-1, 1) for obj in objs]
@@ -389,6 +412,17 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self._save_yaml(pareto_points, basename='pareto')
 
         return pareto_points
+
+    def _filter_population(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
+        ''' Filter the population based on the objectives constraints '''
+        return [
+            p for p in population 
+            if all(
+                obj_data['min'] <= p.metadata[obj_name] <= obj_data['max']
+                for obj_name, obj_data in self.objectives.items() 
+                if obj_data['enabled'] and obj_name in p.metadata 
+            )
+        ]
 
     def _save_yaml(self, points:List[ArchWithMetaData], basename='pareto')->None:
         exp_dir = utils.full_path(get_expdir())
@@ -411,9 +445,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             candidates = {}
             nb_tries = 0
             patience = 20
-            max_latency, max_memory = [self.objectives[k]['max'] for k in ['latency', 'memory']]
 
-            if p.metadata['latency'] > max_latency or p.metadata['memory'] > max_memory:
+            if len(self._filter_population([p])) == 0:
                 logger.info(
                     f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]}'
                     f' or memory {p.metadata["memory"]} that is too high. Skipping mutation.'
@@ -431,11 +464,11 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             if self.crowd_sorting['mutation']:
                 candidates_list = list(candidates.items())
 
-                proxy_mem_latency = np.array([
-                    list(self._get_proxy_memory_latency(p)) for _, p in candidates_list
+                secondary_objs_proxy = np.array([
+                    list(self._get_secondary_objectives_proxy(p).values()) for _, p in candidates_list
                 ])
 
-                crowd_dist = compute_crowding_distance(proxy_mem_latency)
+                crowd_dist = compute_crowding_distance(secondary_objs_proxy)
                 
                 # Deletes mutations that are not on the top k
                 for idx in np.argsort(-crowd_dist, axis=None)[mutations_per_parent:]:
@@ -470,7 +503,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         save_3d_pareto_plot(all_pop, pareto, ['f1', 'latency', 'memory'], iter_num, expdir)
         
         status_df = get_search_status_df(
-            all_pop, pareto, iter_num, fields=['archid', 'f1', 'latency', 'memory', 'generation']
+            all_pop, pareto, iter_num, 
+            fields=['archid', 'f1', 'latency', 'memory', 'soft_constraints_penalty', 'generation']
         )
 
         save_2d_pareto_evolution_plot(
@@ -483,12 +517,17 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             x_increasing=False, max_x=self.objectives['memory']['max'], y_increasing=True, max_y=1.0
         )
 
+        save_2d_pareto_evolution_plot(
+            status_df, x='soft_constraints_penalty', y='f1', save_path=expdir / 'softconstraints_f1_2d_pareto.png',
+            x_increasing=False, max_x=self.objectives['soft_constraints_penalty']['max'], y_increasing=True, max_y=1.0
+        )
 
     @overrides
     def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
         fields = [
             'archid', 'f1', 'latency', 'memory', 'proxy_latency', 
-            'proxy_memory', 'parent', 'parents', 'macs', 'generation'
+            'proxy_memory', 'soft_constraints_penalty', 
+            'parent', 'parents', 'macs', 'generation'
         ]
 
         status_df = get_search_status_df(all_pop, pareto, iter_num, fields)
