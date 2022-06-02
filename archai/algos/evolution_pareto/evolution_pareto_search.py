@@ -22,7 +22,7 @@ class EvolutionParetoSearch(Searcher):
 
 
     @abstractmethod
-    def calc_memory_latency(self, population:List[ArchWithMetaData])->None:
+    def calc_secondary_objectives(self, population:List[ArchWithMetaData])->None:
         # computes memory and latency of each model
         # and updates the meta data
         pass
@@ -116,7 +116,7 @@ class EvolutionParetoSearch(Searcher):
             # calculates the memory and latency
             # and inserts it into the meta data of each member
             logger.info(f'iter {i}: calculating memory latency for {len(unseen_pop)} models') 
-            self.calc_memory_latency(unseen_pop)
+            self.calc_secondary_objectives(unseen_pop)
 
             # calculate task accuracy proxy
             # could be anything from zero-cost proxy

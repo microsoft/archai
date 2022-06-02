@@ -87,6 +87,8 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         assert self.datasetname != ''
 
         self.operations = list(OPS.keys())
+        op_subset = op_subset.split(',')
+
         if op_subset:
             self.operations = [op for op in self.operations if op in op_subset]
 
@@ -221,9 +223,8 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 ]
 
             # compile the model
-            nbr_model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
-            
             try:
+                nbr_model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
                 out_shape = nbr_model.validate_forward(
                     torch.randn(1, 3, nbr_model.img_size, nbr_model.img_size)
                 ).shape
@@ -231,7 +232,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
             
             except Exception as e:
-                print(f'{base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
+                print(f'Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
                 print(str(e))
                 continue
 
