@@ -87,6 +87,8 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         assert self.datasetname != ''
 
         self.operations = list(OPS.keys())
+        op_subset = op_subset.split(',')
+
         if op_subset:
             self.operations = [op for op in self.operations if op in op_subset]
 
