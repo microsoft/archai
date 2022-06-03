@@ -5,7 +5,6 @@ from tempfile import TemporaryDirectory
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 from collections import OrderedDict
-import pandas as pd
 import random
 import ray
 
@@ -63,6 +62,12 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.mult_delta = conf_search.get('mult_delta', False)
         self.op_subset = conf_search['op_subset']
         self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
+
+        # Parses soft constraints parameters
+        soft_constraints = conf_search['objectives']['soft_constraints_penalty']
+        soft_constraints['allowed_ops'] = soft_constraints['allowed_ops'].split(',')
+        soft_constraints['allowed_scales'] = [int(s) for s in soft_constraints['allowed_scales'].split(',')]
+        soft_constraints['allowed_channels'] = [int(s) for s in soft_constraints['allowed_channels'].split(',')]
 
         self.objectives = conf_search['objectives']
 
