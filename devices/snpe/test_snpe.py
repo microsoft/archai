@@ -222,7 +222,8 @@ def download_results(input_images, start, output_dir):
             raw_file = os.path.splitext(name)[0] + '.raw'
             index += 1
             if not output_filename:
-                device_result = shell.run(os.getcwd(), adb(f"shell ls {DEVICE_WORKING_DIR}/{TASK}/{MODEL}/output/{line}/"), False)
+                cmd = adb(f"shell ls {DEVICE_WORKING_DIR}/{TASK}/{MODEL}/output/{line}/")
+                device_result = shell.run(os.getcwd(), cmd, False)
                 output_filename = device_result.strip()
             print(f"{line}/{output_filename} ===> {raw_file}")
             device_result = f"{DEVICE_WORKING_DIR}/{TASK}/{MODEL}/output/{line}/{output_filename}"
@@ -477,7 +478,7 @@ def run_benchmark(model, name, shape, snpe_root, iterations, random_input_count)
         json.dump(config, f, indent=2)
 
     if SNPE_BENCH is None:
-        from snpe_bench import snpe_bench
+        from snpe_bench import snpe_bench   # noqa: F811
         SNPE_BENCH = snpe_bench
 
     SNPE_BENCH('snpe_bench', ['-c', config_file, '-s', '2'])
@@ -505,7 +506,8 @@ def run_throughput(model, duration):
     rc = shell.run(
         os.getcwd(),
         adb(f"shell \"{setup} &&" +
-            f"snpe-throughput-net-run --container ./{model} {use_dsp} --duration {duration} --iterations 1 --perf_profile high_performance " +
+            f"snpe-throughput-net-run --container ./{model} {use_dsp} --duration {duration} " +
+            "--iterations 1 --perf_profile high_performance " +
             f"--input_raw {filename} \""), VERBOSE)
     lines = rc.split('\n')
     for out in lines:
@@ -537,7 +539,7 @@ def run_batches(model, images, output_dir):
     start = 0
     while start < len(files):
         if start + MAX_BATCH_SIZE < len(files):
-            print(f"==================== Running Batch of {MAX_BATCH_SIZE} from {start} =====================================")
+            print(f"==================== Running Batch of {MAX_BATCH_SIZE} from {start} ==============================")
         clear_images()
         batch = files[start: start + MAX_BATCH_SIZE]
         setup_images(images, batch)
@@ -547,11 +549,14 @@ def run_batches(model, images, output_dir):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Run a model on the QUALCOMM DSP using adb and SNPE SDK to quantize the model')
+    parser = argparse.ArgumentParser(description='Run a model on the QUALCOMM DSP using adb and SNPE SDK to quantize ' +
+                                     'the model')
     parser.add_argument('--snpe', '-s', help='Location of SNPE SDK for setup on the device (defaults to SNPE_ROOT)')
     parser.add_argument('--device', '-d', help='The Android device id (as returned by adb devices)', default=None)
-    parser.add_argument('--images', '-i', help='Location of local test image dataset (created with create_data.py)', default=TEST_IMAGES)
-    parser.add_argument('--model', '-m', help="Name of model to test (e.g. model.quant.dlc).  If you name a .onnx model it will convert it to .dlc and quantize it.")
+    parser.add_argument('--images', '-i', help='Location of local test image dataset (created with create_data.py)',
+                        default=TEST_IMAGES)
+    parser.add_argument('--model', '-m', help='Name of model to test (e.g. model.quant.dlc).  If you name a .onnx ' +
+                        'model it will convert it to .dlc and quantize it.')
     parser.add_argument('--benchmark', '-b', help='Run snpe_benchmark on the given model', action="store_true")
     parser.add_argument('--iterations', type=int, help='Number of benchmark iterations (default 5)', default=5)
     parser.add_argument('--throughput', '-t', help='Run performance test of the given model', action="store_true")
@@ -581,7 +586,6 @@ if __name__ == '__main__':
             print(error)
             sys.exit(1)
 
-
     snpe = args.snpe
     if not snpe:
         snpe = os.getenv("SNPE_ROOT")
@@ -590,7 +594,7 @@ if __name__ == '__main__':
 
     if snpe:
         sys.path += [f'{snpe}/benchmarks', f'{snpe}/lib/python']
-        from snpe_bench import snpe_bench
+        from snpe_bench import snpe_bench  # noqa: F401
         SNPE_IMPORTED = True
         setup_libs(snpe)
 

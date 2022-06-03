@@ -32,11 +32,10 @@ def get_dlc_metrics(html):
                 macs = line[i + len(TOTAL_MACS):].split('(')[0].strip()
                 if 'M' in macs:
                     macs = macs.split('M')[0]
-                macs = int(macs) 
+                macs = int(macs)
                 break
             if TOTAL_PARAMS in line:
                 i = line.index(TOTAL_PARAMS)
-                params = line[i + len(TOTAL_PARAMS):].split('(')[0].strip()                
+                params = line[i + len(TOTAL_PARAMS):].split('(')[0].strip()
                 params = int(params)
     return (macs, params)
-

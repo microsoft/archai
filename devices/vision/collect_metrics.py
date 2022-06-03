@@ -15,6 +15,7 @@ USE_PILLOW = False
 
 # Check the outputs of the Mask C-RNN model inference
 
+
 def get_dataset_image(filename, dataset):
     inp_f = os.path.splitext(filename)[0] + ".png"
     img_file = os.path.join(dataset, inp_f)
@@ -238,10 +239,12 @@ def get_metrics(img_shape, transpose, dataset, outputs, use_pillow=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Check the outputs of the Mask C-RNN model inference and produce ' +
-        'a .csv file named test_results.csv and a .png plot named pr_curve.png')
-    parser.add_argument('--input', help='Location of the original input images (defaults to INPUT_DATASET environment variable)')
+                                     'a .csv file named test_results.csv and a .png plot named pr_curve.png')
+    parser.add_argument('--input', help='Location of the original input images ' +
+                        '(defaults to INPUT_DATASET environment variable)')
     parser.add_argument('--show', '-s', help='Show the outputs on screen', action="store_true")
-    parser.add_argument('--output', '-o', help='Location of the outputs to analyze (default "snpe_output")', default='snpe_output')
+    parser.add_argument('--output', '-o', help='Location of the outputs to analyze (default "snpe_output")',
+                        default='snpe_output')
     parser.add_argument('--transpose', '-t', help='Transpose channels by (1,2,0)', action="store_true")
     parser.add_argument('--pillow', help="Resize images using Pillow instead of numpy", action="store_true")
     args = parser.parse_args()

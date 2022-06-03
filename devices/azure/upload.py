@@ -99,7 +99,9 @@ if __name__ == '__main__':
         f'{CONNECTION_NAME} environment variable.')
     parser.add_argument('model', help='Path to the .onnx file to upload to Azure')
     parser.add_argument('--name', help='Friendly name if you already have one allocated.')
-    parser.add_argument('--priority', type=int, help='Optional priority override for this job.  Larger numbers mean lower priority')
-    parser.add_argument('--benchmark_only', help='Run only the benchmark tests and skip all the F1 tests', action="store_true")
+    parser.add_argument('--priority', type=int, help='Optional priority override for this job. ' +
+                        'Larger numbers mean lower priority')
+    parser.add_argument('--benchmark_only', help='Run only the benchmark tests and skip all the F1 tests',
+                        action="store_true")
     args = parser.parse_args()
     upload(args.model, args.name, priority=args.priority, benchmark_only=args.benchmark_only)

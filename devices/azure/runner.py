@@ -519,7 +519,7 @@ def node_quantizing():
     return count > 0
 
 
-def find_work_prioritized( use_device, benchmark_only, subset_list, no_quantization):
+def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantization):
     queue = PriorityQueue()
     quantizing = no_quantization or node_quantizing()
     for entity in get_all_status_entities(status='complete', not_equal=True):
@@ -671,7 +671,8 @@ if __name__ == '__main__':
         sys.exit(1)
 
     sys.path += [f'{snpe_root}/benchmarks', f'{snpe_root}/lib/python']
-    from snpe_bench import snpe_bench
+    # make sure we can import snpe_bench!
+    from snpe_bench import snpe_bench  # noqa: F401
 
     ndk = os.getenv("ANDROID_NDK_ROOT")
     if not ndk:
@@ -697,10 +698,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Test the models as they appears in our Azure table')
     parser.add_argument('--device', '-d', help='Specify which Qualcomm device device to use (default None).')
     parser.add_argument('--benchmark', help='Run benchmark tests only (no F1 tests).', action="store_true")
-    parser.add_argument('--max_benchmark_runs', type=int, help='Set maximum number of benchmark runs per model (default 5).', default=5)
-    parser.add_argument('--subset', help='Comma separated list of friendly model names to focus on, ignoring all other models.')
-    parser.add_argument('--clear_random_inputs', type=int, help='How many benchmark runs before clearing random_inputs (default 0 means no clearing).', default=0)
-    parser.add_argument('--no_quantization', help='Do not do any quantization work on this machine.', action="store_true")
+    parser.add_argument('--max_benchmark_runs', type=int, help='Set maximum number of benchmark runs per model ' +
+                        '(default 5).', default=5)
+    parser.add_argument('--subset', help='Comma separated list of friendly model names to focus on, ' +
+                        'ignoring all other models.')
+    parser.add_argument('--clear_random_inputs', type=int, help='How many benchmark runs before clearing ' +
+                        'random_inputs (default 0 means no clearing).', default=0)
+    parser.add_argument('--no_quantization', help='Do not do any quantization work on this machine.',
+                        action="store_true")
 
     args = parser.parse_args()
     MAX_BENCHMARK_RUNS = args.max_benchmark_runs

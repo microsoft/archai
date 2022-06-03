@@ -42,7 +42,8 @@ def cleanup_results(dataset, output_dir):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Check the outputs from the device')
-    parser.add_argument('--input', help='Location of the original input images (defaults to INPUT_DATASET environment variable)')
+    parser.add_argument('--input', help='Location of the original input images ' +
+                        '(defaults to INPUT_DATASET environment variable)')
     parser.add_argument('--output', '-o', help='Location of the folder containing Result* folders')
     args = parser.parse_args()
     dataset = args.input

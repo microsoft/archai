@@ -78,8 +78,10 @@ if __name__ == '__main__':
     model = os.path.join('model', 'model.onnx')
     output = os.path.join('onnx_outputs')
 
-    parser = argparse.ArgumentParser(description='Run an ONNX model test on a batch of input images and write the outputs to a given folder')
-    parser.add_argument('--input', help='Location of the original input images (default INPUT_DATASET environment variable')
+    parser = argparse.ArgumentParser(description='Run an ONNX model test on a batch of input images and write ' +
+                                     'the outputs to a given folder')
+    parser.add_argument('--input', help='Location of the original input images ' +
+                        '(default INPUT_DATASET environment variable')
     parser.add_argument('--model', '-m', help="Name of model to test (e.g. model/model.onnx)", default=model)
     parser.add_argument('--output', '-o', help="Location to write outputs (default 'onnx_outputs')", default=output)
     parser.add_argument('--show', '-s', help="Show each inference image", action="store_true")

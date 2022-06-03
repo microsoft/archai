@@ -85,7 +85,7 @@ def add_usage(name, start, end, service=None):
     global USAGE_TABLE
     if not service:
         service = get_usage_table_service()
-    table_client = service.create_table_if_not_exists(USAGE_TABLE)
+    service.create_table_if_not_exists(USAGE_TABLE)
 
     entity = {
         'PartitionKey': 'main',
