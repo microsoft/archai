@@ -60,6 +60,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.min_delta_channels = conf_search['min_delta_channels']
         self.max_delta_channels = conf_search['max_delta_channels']
         self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
+        self.mult_delta = conf_search.get('mult_delta', False)
         self.op_subset = conf_search['op_subset']
         self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
 
@@ -120,7 +121,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             min_mac=self.min_mac, 
             max_mac=self.max_mac,
             op_subset=self.op_subset,
-            downsample_prob_ratio=self.downsample_prob_ratio
+            downsample_prob_ratio=self.downsample_prob_ratio,
+            mult_delta=self.mult_delta
         )
 
     def _get_secondary_objectives_proxy(self, model: ArchWithMetaData) -> Tuple[float, float]:

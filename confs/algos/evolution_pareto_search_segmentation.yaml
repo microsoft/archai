@@ -64,6 +64,7 @@ nas:
     min_delta_channels: 8
     max_delta_channels: 48
     delta_channels_binwidth: 8
+    mult_delta: false
     mutations_per_parent: 1
     num_crossovers: 0
     op_subset: ''

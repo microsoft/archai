@@ -50,8 +50,10 @@ class SegmentationNasModel(torch.nn.Module):
                 * scale (int): Scale of the node (higher means smaller resolutions)
             channels_per_scale (Dict): Dictionary with the number of channels that should be 
                 used for each scale value, e.g: {1: 32, 2: 64, 4: 128} or a dictionary containing
-                `base_channels` and `delta_channels`, e.g: {'base_channels': 24, 'delta_channels': 2}, which
-                is equivalent to {1: 24, 2: 26, 4: 28, 8: 30, 16: 32}.
+                `base_channels`, `delta_channels` and optionally a `mult_delta` flag.
+                For instance, {'base_channels': 24, 'delta_channels': 2}, is equivalent to
+                {1: 24, 2: 26, 4: 28, 8: 30, 16: 32}, and {'base_channels': 24, 'delta_channels': 2,
+                mult_delta: True} is equivalent to {1: 24, 2: 48, 4: 96, 8: 192, 16: 384}.
             post_upsample_layers (int): Number of post-upsample layers
             stem_strid (int): Stride of the first convolution
             img_size (int): Image size
@@ -97,20 +99,38 @@ class SegmentationNasModel(torch.nn.Module):
             kernel_size=1
         )
 
-    def _get_channels_per_scale(self, channels_per_scale: Dict) -> Dict:
-        channels_per_scale = deepcopy(channels_per_scale)
-
-        # Builds `channels_per_scale` using `base_channels` and `delta_channels`
-        if all((k in channels_per_scale and channels_per_scale[k]) for k in ['base_channels', 'delta_channels']):
-            assert len(channels_per_scale.keys()) == 2,\
-                'Cannot use `base_channels`/`delta_channels` with channels_per_level map.'
-
-            channels_per_scale.update({
-                scale: channels_per_scale['base_channels'] + i*channels_per_scale['delta_channels']
-                for i, scale in enumerate([1, 2, 4, 8, 16])
-            })
+    @classmethod
+    def _get_channels_per_scale(cls, ch_per_scale: Dict, max_downsample_factor: int = 16, 
+                                remove_spec: bool = False) -> Dict:
+        ch_per_scale = deepcopy(ch_per_scale)
+        scales = [1, 2, 4, 8, 16]
+        scales = [s for s in scales if s <= max_downsample_factor]
+ 
+        # Builds `ch_per_scale` using `base_channels` and `delta_channels`
+        ch_per_scale['mult_delta'] = ch_per_scale.get('mult_delta', False)
+        assert 'base_channels' in ch_per_scale
+        assert 'delta_channels' in ch_per_scale
         
-        return channels_per_scale
+        assert len(ch_per_scale.keys()) == 3, \
+            'Must specify only `base_channels`, `delta_channels` and `mult_delta`'
+
+        if ch_per_scale['mult_delta']:
+            ch_per_scale.update({
+                scale: ch_per_scale['base_channels'] * ch_per_scale['delta_channels']**i
+                for i, scale in enumerate(scales)
+            })
+        else:
+           ch_per_scale.update({
+                scale: ch_per_scale['base_channels'] + ch_per_scale['delta_channels']*i
+                for i, scale in enumerate(scales)
+            }) 
+        
+        if remove_spec:
+            ch_per_scale.pop('base_channels', None)
+            ch_per_scale.pop('delta_channels', None)
+            ch_per_scale.pop('mult_delta', None)
+        
+        return ch_per_scale
 
     def _get_edge_list(self, graph: 'OrderedDict[str, Dict]',
                          channels_per_scale: Dict) -> MutableMapping[Tuple[str, str], nn.Module]:
@@ -245,10 +265,16 @@ class SegmentationNasModel(torch.nn.Module):
 
     def to_config(self) -> Dict:
         ch_map = self.channels_per_scale
-        ch_map = (
-            {k: ch_map[k] for k in ['base_channels', 'delta_channels']}
-            if 'base_channels' in ch_map else ch_map
-        )
+        
+        if 'base_channels' in ch_map:
+            ch_map = {
+                'base_channels': ch_map['base_channels'],
+                'delta_channels': ch_map['delta_channels']
+            }
+        
+            # We only put the `mult_delta` flag in config dict if it's active 
+            if self.channels_per_scale['mult_delta']:
+                ch_map['mult_delta'] = True
 
         return {
             'post_upsample_layers': self.post_upsample_layers,
@@ -286,7 +312,8 @@ class SegmentationNasModel(torch.nn.Module):
                     max_skip_connection_length: int = 3,
                     max_scale_delta: Optional[int] = None,
                     op_subset: Optional[List[str]] = None,
-                    downsample_prob_ratio: float = 1.0):
+                    downsample_prob_ratio: float = 1.0,
+                    mult_delta: bool = False):
         '''Uniform random sample an architecture (nn.Module)'''
         operations = list(OPS.keys())
         
@@ -294,20 +321,19 @@ class SegmentationNasModel(torch.nn.Module):
             operations = [op for op in operations if op in op_subset]
 
         # Samples `base_channels` and `delta_channels`
-        base_channels = random.choice(base_channels_list)
-        delta_channels = random.choice(delta_channels_list)
+        ch_per_scale = {
+            'base_channels': random.choice(base_channels_list),
+            'delta_channels': random.choice(delta_channels_list),
+            'mult_delta': mult_delta
+        }
 
         # Samples `post_upsample_layers`
-        post_upsample_layers = random.choice(post_upsample_layer_list)
+        post_upsample_layers = (
+            random.choice(post_upsample_layer_list) if post_upsample_layer_list else 1
+        )
 
         # Builds channels per level map using the sampled `base_channels` and `delta_channels`
-        scales = [1, 2, 4, 8, 16]
-        scales = [s for s in scales if s <= max_downsample_factor]
-
-        ch_map = {
-            scale: base_channels + i*delta_channels
-            for i, scale in enumerate(scales)
-        }
+        ch_map = cls._get_channels_per_scale(ch_per_scale, max_downsample_factor, True)
 
         # Input node
         graph = [{'name': 'input', 'inputs': None, 'op': random.choice(operations), 'scale': 1}]
@@ -358,6 +384,4 @@ class SegmentationNasModel(torch.nn.Module):
             graph.append(new_node)
             node_list.append(new_node['name'])
 
-        channels_per_scale = {'base_channels': base_channels, 'delta_channels': delta_channels}
-
-        return SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
+        return SegmentationNasModel(graph, ch_per_scale, post_upsample_layers)

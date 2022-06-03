@@ -82,13 +82,14 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
                  max_delta_channels:int=48,
                  delta_channels_binwidth:int=8,
                  downsample_prob_ratio:float=1.5,
-                 op_subset: Optional[List[str]] = None):
+                 op_subset: Optional[List[str]] = None,
+                 mult_delta: bool = False):
         super().__init__()
         self.datasetname = datasetname
         assert self.datasetname != ''
 
         self.operations = list(OPS.keys())
-        op_subset = op_subset.split(',')
+        op_subset = op_subset.split(',') if op_subset is not None else []
 
         if op_subset:
             self.operations = [op for op in self.operations if op in op_subset]
@@ -118,12 +119,13 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
         assert len(self.post_upsample_layers_list) < 5
 
         self.base_channels_list = list(range(min_base_channels, max_base_channels + 1, base_channels_binwidth))
-        assert min_base_channels < max_base_channels
+        assert min_base_channels <= max_base_channels
         assert len(self.base_channels_list) > 1
         
         self.delta_channels_list = list(range(min_delta_channels, max_delta_channels + 1, delta_channels_binwidth))
-        assert min_delta_channels < max_delta_channels
-        assert len(self.delta_channels_list) > 1
+        self.mult_delta = mult_delta
+        assert min_delta_channels <= max_delta_channels
+        assert len(self.delta_channels_list) >= 1
 
         self.skip_connections = skip_connections
         self.downsample_prob_ratio = downsample_prob_ratio
@@ -148,7 +150,8 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
                 skip_connections=self.skip_connections,
                 max_skip_connection_length=self.max_skip_connection_length,             
                 max_scale_delta=self.max_scale_delta,
-                op_subset=self.operations
+                op_subset=self.operations,
+                mult_delta=self.mult_delta
             )
 
             # check if the model is within desired bounds    
@@ -186,6 +189,7 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
             channels_per_scale = {
                 'base_channels': random_neighbor(self.base_channels_list, channels_per_scale['base_channels']),
                 'delta_channels': random_neighbor(self.delta_channels_list, channels_per_scale['delta_channels']),
+                'mult_delta': base_model.arch.channels_per_scale['mult_delta']
             }
 
             # `post_upsample_layers` mutation
@@ -314,7 +318,7 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
         })
    
     def crossover(self, model_1: ArchWithMetaData, model_2: ArchWithMetaData, 
-                patience: int = 10) -> Optional[ArchWithMetaData]:
+                  patience: int = 10) -> Optional[ArchWithMetaData]:
         # Chooses randomly left and right models
         left_m, right_m = random.sample([model_1, model_2], 2)
         left_g, right_g = [list(m.arch.graph.values()) for m in [left_m, right_m]]
@@ -401,7 +405,9 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
             # Re-builds model and adds crossover metadata
             result_g = self.load_from_graph(
                 result_g, 
-                {'base_channels': ch_map['base_channels'], 'delta_channels': ch_map['delta_channels']},
+                {'base_channels': ch_map['base_channels'],
+                 'delta_channels': ch_map['delta_channels'],
+                 'mult_delta': ch_map['mult_delta']},
                 post_upsample_layers
             )
 
