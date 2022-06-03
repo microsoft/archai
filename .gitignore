@@ -120,3 +120,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# docker build .env files
+.env
+devices/docker/build.ps1
