@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import argparse
 from datetime import datetime
 import csv
@@ -545,7 +547,7 @@ def run_batches(model, images, output_dir):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Run a model test on the QUALCOMM Lahaina dev board using adb')
+    parser = argparse.ArgumentParser(description='Run a model on the QUALCOMM DSP using adb and SNPE SDK to quantize the model')
     parser.add_argument('--snpe', '-s', help='Location of SNPE SDK for setup on the device (defaults to SNPE_ROOT)')
     parser.add_argument('--device', '-d', help='The Android device id (as returned by adb devices)', default=None)
     parser.add_argument('--images', '-i', help='Location of local test image dataset (created with create_data.py)', default=TEST_IMAGES)

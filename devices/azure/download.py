@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import argparse
 import os
 import sys
@@ -15,7 +17,8 @@ def has_model(friendly_name, conn_string, specific_file):
 def get_model_blob(friendly_name, conn_string, specific_file):
     logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy')
     logger.setLevel(logging.ERROR)
-    container = ContainerClient.from_connection_string(conn_string, container_name="models", logger=logger, logging_enable=False)
+    container = ContainerClient.from_connection_string(conn_string, container_name="models", logger=logger,
+                                                       logging_enable=False)
     if not container.exists():
         return (False, None)
 
@@ -29,7 +32,8 @@ def download_model(friendly_name, folder, conn_string, specific_file=None, all_f
     it will download all files associated with the friendly name.  """
     logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy')
     logger.setLevel(logging.ERROR)
-    container = ContainerClient.from_connection_string(conn_string, container_name="models", logger=logger, logging_enable=False)
+    container = ContainerClient.from_connection_string(conn_string, container_name="models", logger=logger,
+                                                       logging_enable=False)
     if not container.exists():
         return (False, None)
 

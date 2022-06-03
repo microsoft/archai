@@ -1,5 +1,8 @@
 ## Readme
 
+This folder contains code for running models using the Qualcomm SNPE Neural Processing SDK,
+including quantizing those models and running them on the Qualcomm DSP.
+
 1. **Snapdragon 888 Dev Kit** - get one of these [Snapdragon 888 HDK](https://developer.qualcomm.com/hardware/snapdragon-888-hdk) boards.
 
 1. **Download dataset**.  Get the dataset from https://github.com/microsoft/FaceSynthetics.

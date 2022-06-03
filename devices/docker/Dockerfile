@@ -16,15 +16,15 @@ RUN apt-get update && apt-get install -y git unzip curl python3 python3-pip cmak
 # UnicodeEncodeError: 'ascii' codec can't encode character '\xe7' in position 17: ordinal not in range(128)
 RUN locale-gen en_US.UTF-8
 
-WORKDIR /home/chris
+WORKDIR /home/archai
 
-RUN echo "export MODEL_STORAGE_CONNECTION_STRING=\"$MODEL_STORAGE_CONNECTION_STRING\"" >> /home/chris/.profile
-RUN echo "export SNPE_ROOT=$SNPE_ROOT" >> /home/chris/.profile
-RUN echo "export ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" >> /home/chris/.profile
-RUN echo "export GITHUB_PAT=$GITHUB_PAT" >> /home/chris/.profile
-RUN echo "export INPUT_DATASET=/home/chris/datasets/FaceSynthetics" >> /home/chris/.profile
-RUN echo "export PATH=$PATH:/home/chris" >> /home/chris/.profile
-RUN echo "export LC_ALL=en_US.UTF-8" >> /home/chris/.profile
+RUN echo "export MODEL_STORAGE_CONNECTION_STRING=\"$MODEL_STORAGE_CONNECTION_STRING\"" >> /home/archai/.profile
+RUN echo "export SNPE_ROOT=$SNPE_ROOT" >> /home/archai/.profile
+RUN echo "export ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" >> /home/archai/.profile
+RUN echo "export GITHUB_PAT=$GITHUB_PAT" >> /home/archai/.profile
+RUN echo "export INPUT_DATASET=/home/archai/datasets/FaceSynthetics" >> /home/archai/.profile
+RUN echo "export PATH=$PATH:/home/archai" >> /home/archai/.profile
+RUN echo "export LC_ALL=en_US.UTF-8" >> /home/archai/.profile
 
 RUN curl -O --location "${SNPE_SDK}"
 RUN unzip "${SNPE_SDK_FILENAME}"
@@ -35,18 +35,18 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 
 # this echo is a trick to bypass docker build cache.  
 # simply change the echo string every time you want docker build to pull down new bits.
-RUN echo '05/31/2022 11:19 AM' >/dev/null && git clone "https://lovettchris:${GITHUB_PAT}@github.com/lovettchris/snpe_runner.git"
+RUN echo '06/03/2022 01:30 PM' >/dev/null && git clone "https://lovettchris:${GITHUB_PAT}@github.com/lovettchris/snpe_runner.git"
 
-RUN source /home/chris/.profile && \
-    pushd /home/chris/snpe_runner/ && \
+RUN source /home/archai/.profile && \
+    pushd /home/archai/snpe_runner/ && \
     python3 --version && \
     pip3 install --upgrade pip && \
     pip3 install -r requirements.txt
 
-COPY run.sh /home/chris/run.sh
-RUN ls -al /home/chris
+COPY run.sh /home/archai/run.sh
+RUN ls -al /home/archai
 RUN cat run.sh
 
-RUN chmod u+x /home/chris/run.sh
+RUN chmod u+x /home/archai/run.sh
 
-CMD ["bash", "-c", "/home/chris/run.sh"]
+CMD ["bash", "-c", "/home/archai/run.sh"]

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # This script monitors an Azure blob store using connection string defined
 # in the environmentvariable "FaceSyntheticsModelStorageAccount".
 # When a file named "go" shows up in a folder containing a new model to test
@@ -24,6 +27,10 @@ from status import get_all_status_entities, get_utc_date, merge_status_entity
 from usage import add_usage
 from azure.data.tables import EntityProperty, EdmType
 
+# This file contains wrappers on the snpe execution of the model connecting everything
+# to the Azure table describing the jobs that need to be run, and keeping the status
+# rows up to date while these jobs are running.
+
 
 CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 SNPE_OUTPUT_DIR = 'snpe_output'
@@ -39,7 +46,7 @@ UNIQUE_NODE_ID = None
 BENCHMARK_RUN_COUNT = 0
 
 SCRIPT_DIR = os.path.dirname(__file__)
-sys.path += [os.path.join(SCRIPT_DIR, '..', 'qualcomm')]
+sys.path += [os.path.join(SCRIPT_DIR, '..', 'snpe')]
 sys.path += [os.path.join(SCRIPT_DIR, '..', 'util')]
 sys.path += [os.path.join(SCRIPT_DIR, '..', 'vision')]
 rss_start = None
@@ -48,13 +55,13 @@ rss_start = None
 logging.getLogger('azure').setLevel(logging.ERROR)
 logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.ERROR)
 
-from run import setup_libs, convert_model, quantize_model, setup_model, run_benchmark, run_batches, set_device, get_device
+from test_snpe import setup_libs, convert_model, quantize_model, setup_model, run_benchmark
+from test_snpe import run_batches, set_device, get_device
 from create_data import create_dataset
 from collect_metrics import get_metrics
 from status import get_status, update_status_entity
 from upload import upload_blob
 from download import download_model, has_model
-from shell import Shell
 from test_onnx import run_onnx
 from dlc_helper import view_model, get_dlc_metrics
 
@@ -136,7 +143,6 @@ def convert(name, entity, long_name, model_path):
 
 
 def quantize(name, entity, model):
-
     entity['status'] = 'quantizing'
     update_status_entity(entity)
 
@@ -266,7 +272,7 @@ def get_int64_value(entity, name):
     x = 0
     if name in entity:
         x = entity[name]
-        if type(x) == type(EntityProperty(0,EdmType.INT64)):
+        if isinstance(x, EntityProperty) and x.edm_type is EdmType.INT64:
             x = x.value
         else:
             x = int(x)

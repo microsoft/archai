@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import os
 import sys
 
@@ -7,6 +9,7 @@ from shell import Shell
 
 
 def view_model(dlc_file):
+    """ Run the snpe-dlc-viewer and return the filename containing the html output """
     dir = os.path.dirname(dlc_file)
     filename = os.path.basename(dlc_file)
     basename = os.path.splitext(filename)[0]
@@ -17,6 +20,7 @@ def view_model(dlc_file):
 
 
 def get_dlc_metrics(html):
+    """ Read the HTML output from snpe-dlc-viewer and return the macs and total params """
     TOTAL_MACS = "Total Macs</td><td>"
     TOTAL_PARAMS = "Total Params</td><td>"
     macs = None
