@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # uniquify and sort the names list.
 import os
 script_dir = os.path.dirname(os.path.abspath(__file__))

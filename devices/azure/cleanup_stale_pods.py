@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import os
 import json
 import sys
@@ -37,7 +39,7 @@ for e in get_all_status_entities():
             print(f"Clearing lock on non-existant pod: {node}")
             del e['node']
             changed = True
-         
+
     if changed:
         print(f"Updating row {name}")
         update_status_entity(e)

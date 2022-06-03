@@ -1,8 +1,10 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import os
 import sys
 
 SCRIPT_DIR = os.path.dirname(__file__)
-sys.path += [os.path.join(SCRIPT_DIR, '..', 'qualcomm')]
+sys.path += [os.path.join(SCRIPT_DIR, '..', 'snpe')]
 
 from dlc_helper import get_dlc_metrics
 from status import get_all_status_entities, update_status_entity
@@ -39,7 +41,7 @@ def update_total_params(conn_string):
                     update_status_entity(e)
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     conn_string = os.getenv(CONNECTION_NAME)
     if not conn_string:
         print(f"Please specify your {CONNECTION_NAME} environment variable.")

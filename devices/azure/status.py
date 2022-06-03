@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import argparse
 import os
 import sys
@@ -160,9 +162,9 @@ def print_entities(entities):
         for k in keys:
             if k in e:
                 x = e[k]
-                if type(x) == type(EntityProperty(0,EdmType.INT64)):
+                if isinstance(x, EntityProperty) and x.edm_type is EdmType.INT64:
                     x = x.value
-                v = str(x).replace(',',' ')
+                v = str(x).replace(',', ' ')
                 print(f"{v}", end='')
             print(', ', end='')
         print()

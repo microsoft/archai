@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import argparse
 import os
 import time
@@ -33,7 +35,7 @@ def test(entity, delay, service):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Test lock/unlock at a given rate ')
+        description='Unit test for the lock/unlock methods on our Azure status table.')
     parser.add_argument('--name', help='Name of entity to use.')
     parser.add_argument('--delay', type=float, help='Seconds delay between lock unlock ops (default 1).', default=1)
     args = parser.parse_args()
