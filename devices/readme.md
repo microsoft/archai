@@ -1,23 +1,23 @@
-# snpe_runner
+# Readme
 
-This repository contains code that automates the testing of FaceSynthetics models across
-one or more machines that are connected to Qualcomm 888 boards.  Many thanks to 
+This folder contains code that automates the testing of FaceSynthetics models across
+one or more machines that are connected to Qualcomm 888 boards.  Many thanks to
 Yatao Zhong for the original device code included in this test suite.
 
 The code is organized into:
-1. [Device Code](device/readme.md) that knows how to use the Qualcomm SNPE SDK to talk
+1. [Device Code](snpe/readme.md) that knows how to use the Qualcomm SNPE SDK to talk
 to the device, convert ONNX models to .dlc, quantize them, and test them on the board
 using the Android `adb` tool.
 
 1. [Azure Code](azure/readme.md) that talks to a configured Azure storage account for
 uploading models to test, downloading them, uploading test results, and keeping an
-Azure table "status" that summarizes results so far. 
+Azure table "status" that summarizes results so far.
 
 1. [Notebooks](notebook/gallery_performance.md) contains a Jupyter Notebook that can
-visualize the results from the Azure store.
+visualize the results from the Azure table.
 
 Both are based on Python, so it is best if you setup a new Conda Python environment
-for Python 3.6 with the `requirements.txt` included here using:
+for Python 3.7 with the `requirements.txt` included here using:
 
 ```shell
 pip install -r requirements.txt
@@ -29,9 +29,9 @@ Then follow additional setup in each of the above readmes.
 ## Workflow
 
 The overall workflow looks like this. One or more Linux machines are
-setup as above and are running `azure/runner.py`.  They look for work, and 
+setup as above and are running `azure/runner.py`.  They look for work, and
 execute it in priority order where the prioritization is defined by the
-`find_work_prioritized` function in the runner.  This prioritization 
+`find_work_prioritized` function in the runner.  This prioritization
 maps to the columns of the status table as follows:
 
 1. **macs:** convert to .dlc and post Macs score and `snpe-dlc-viewer` output and do model quantization (runs on Linux) - priority 20
@@ -49,7 +49,7 @@ You can set any priority number you want, if you specify priority 0 it will run 
 can be handy if you have a cool new model that you want to bump to the top of the list.
 
 Notice some of the above jobs can run on Linux and do not require Qualcomm device.
-So in order to maximize throughput on machines that do have a Qualcomm devices you 
+So in order to maximize throughput on machines that do have a Qualcomm devices you
 can allocate other Linux machines with no Qualcomm devices to do the other work, namely, converting models,
 quantizing them, and running the `onnxruntime` test set.
 
