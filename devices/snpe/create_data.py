@@ -82,9 +82,12 @@ def create_dataset(src_root, subset, shape, count, trans=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create the quant and test datasets')
-    parser.add_argument('--input', help='Location of the original input images (default INPUT_DATASET environment variable')
-    parser.add_argument('--count', '-c', type=int, help="Number of images in the test dataset folder (default 1000)", default=1000)
-    parser.add_argument('--dim', '-d', type=int, help="New dimension for the images (assumes square dimensions, default 256)", default=256)
+    parser.add_argument('--input', help='Location of the original input images ' +
+                        '(default INPUT_DATASET environment variable')
+    parser.add_argument('--count', '-c', type=int, help='Number of images in the test dataset folder ' +
+                        '(default 1000)', default=1000)
+    parser.add_argument('--dim', '-d', type=int, help='New dimension for the images ' +
+                        '(assumes square dimensions, default 256)', default=256)
     parser.add_argument('--transpose', '-t', help="Apply image transpose of '(2, 0 1)'", action="store_true")
     args = parser.parse_args()
 

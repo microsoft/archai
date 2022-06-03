@@ -12,6 +12,7 @@ CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 STDEV_THRESHOLD = 10     # redo any runs that have a stdev > 10% of the mean.
 MAX_COUNT = 100
 
+
 def find_unsteady_runs(threshold, reset, limit=None):
     conn_string = os.getenv(CONNECTION_NAME)
     if not conn_string:

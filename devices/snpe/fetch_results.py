@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 import os
-from run import download_results
+from test_snpe import download_results
 from shutil import rmtree
 
 SNPE_OUTPUT_DIR = 'snpe_output'
