@@ -49,7 +49,7 @@ class DataGenerator():
 
 
 def create_dataset(src_root, subset, shape, count, trans=None):
-    print(f"Creating {subset} dataset for input shape {shape}...")
+    print(f"Creating {subset} dataset of {count} images with input shape {shape}...")
 
     image_size = (shape[0], shape[1])
     device_working_dir = f'{DEVICE_WORKING_DIR}/{TASK}'
