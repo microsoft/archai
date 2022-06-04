@@ -34,7 +34,7 @@ jobs:
           cd docs
           make clean
           make html
-      - name: Pushes to gh-pages branch
+      - name: Push to gh-pages branch
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
