@@ -245,7 +245,7 @@ def onnx(name, dataset, model_path, test_size):
 
 
 def is_complete(entity, prop):
-    return prop in entity and entity[prop]
+    return prop in entity
 
 
 def get_total_inference_avg(entity):
