@@ -2,7 +2,6 @@ import random
 from typing import List, Optional, Dict
 from overrides.overrides import overrides
 import copy
-import uuid
 import sys
 
 import torch
@@ -96,7 +95,7 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
         assert self.datasetname != ''
 
         self.operations = list(OPS.keys())
-        op_subset = op_subset.split(',') if op_subset is not None else []
+        op_subset = op_subset.split(',') if op_subset else []
 
         if op_subset:
             self.operations = [op for op in self.operations if op in op_subset]
@@ -181,7 +180,7 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
         
 
     @overrides
-    def get_neighbors(self, base_model: ArchWithMetaData, patience: int = 20) -> List[ArchWithMetaData]:
+    def get_neighbors(self, base_model: ArchWithMetaData, patience: int = 5) -> List[ArchWithMetaData]:
         parent_id = base_model.metadata['archid']
         neighbors = []
         nb_tries = 0
@@ -200,7 +199,7 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
             channels_per_scale = {
                 'base_channels': random_neighbor(self.base_channels_list, channels_per_scale['base_channels']),
                 'delta_channels': random_neighbor(self.delta_channels_list, channels_per_scale['delta_channels']),
-                'mult_delta': base_model.arch.channels_per_scale['mult_delta']
+                'mult_delta': self.mult_delta
             }
 
             # `post_upsample_layers` mutation
