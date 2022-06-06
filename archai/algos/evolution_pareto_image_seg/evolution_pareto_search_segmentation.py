@@ -465,7 +465,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                         candidates[nbr.metadata['archid']] = nbr
                 nb_tries += 1
             
-            if self.crowd_sorting['mutation']:
+            if candidates and self.crowd_sorting['mutation']:
                 candidates_list = list(candidates.items())
 
                 secondary_objs_proxy = np.array([

@@ -172,11 +172,13 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
         
 
     @overrides
-    def get_neighbors(self, base_model: ArchWithMetaData) -> List[ArchWithMetaData]:
+    def get_neighbors(self, base_model: ArchWithMetaData, patience: int = 20) -> List[ArchWithMetaData]:
         parent_id = base_model.metadata['archid']
-        found_valid = False
+        neighbors = []
+        nb_tries = 0
 
-        while not found_valid:    
+        while nb_tries < patience and len(neighbors) == 0:
+            nb_tries += 1
             graph = copy.deepcopy(list(base_model.arch.graph.values()))
             channels_per_scale = copy.deepcopy(base_model.arch.channels_per_scale)
 
@@ -245,17 +247,14 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
             input_tensor_shape = (1, 3, nbr_model.img_size, nbr_model.img_size)
             model_stats = tw.ModelStats(nbr_model, input_tensor_shape, clone_model=True)
             if model_stats.MAdd > self.min_mac and model_stats.MAdd < self.max_mac:
-                found_valid = True
+                neighbors += [ArchWithMetaData(nbr_model, {
+                    'datasetname': self.datasetname,
+                    'archid': nbr_model.to_hash(),
+                    'parent': parent_id,
+                    'macs': model_stats.MAdd
+                })]
 
-            arch_meta = ArchWithMetaData(nbr_model, {
-                'datasetname': self.datasetname,
-                'archid': nbr_model.to_hash(),
-                'parent': parent_id,
-                'macs': model_stats.MAdd
-            })
-            
-
-        return [arch_meta]
+        return neighbors
 
     @overrides
     def get_arch_repr(self, arch: ArchWithMetaData) -> torch_geometric.data.Data:
