@@ -90,8 +90,8 @@ nas:
       soft_constraints_penalty:
         enabled: false
         allowed_ops: 'conv3x3,mbconv3x3_e1,mbconv3x3_e2'
-        allowed_scales: '4,8,16'
-        allowed_channels: '64,128,245,512'
+        allowed_scales: '2,4,8,16'
+        allowed_channels: '64,128,256,512'
         min: 0.0
         max: 10.0 # Maximum penalty. Everything above this threshold will be discarded
 
