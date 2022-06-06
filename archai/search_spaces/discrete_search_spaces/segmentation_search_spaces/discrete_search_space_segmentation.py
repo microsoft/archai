@@ -10,6 +10,7 @@ import torch_geometric
 
 import tensorwatch as tw
 
+from archai.common.common import logger
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import EncodableDiscreteSearchSpace
 
@@ -20,7 +21,12 @@ def random_neighbor(param_values: List[int], current_value: int):
     param_values = sorted(copy.deepcopy(param_values))
     param2idx = {param: idx for idx, param in enumerate(param_values)}
 
-    current_idx = param2idx[current_value]
+    # Gets the index of the closest value to the current value
+    if current_value in param2idx:
+        current_idx = param2idx[current_value]
+    else:
+        current_idx = param2idx[min(param2idx, key=lambda k: abs(k - current_value))]
+
     offset = random.randint(
         a=-1 if current_idx > 0 else 0,
         b=1 if current_idx < len(param_values) - 1 else 0
@@ -245,8 +251,8 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
                 assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
             
             except Exception as e:
-                print(f'Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
-                print(str(e))
+                logger.info(f'Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
+                logger.info(str(e))
                 continue
 
             # check if the model is within desired bounds    
@@ -259,6 +265,9 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
                     'parent': parent_id,
                     'macs': model_stats.MAdd
                 })]
+            else:
+                logger.info(f'Model {base_model.arch.to_hash()} neighbor MACs {model_stats.MAdd}'
+                            f' falls outside of acceptable range. Retrying (nb_tries = {nb_tries})')
 
         return neighbors
 
