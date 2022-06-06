@@ -83,7 +83,8 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
                  delta_channels_binwidth:int=8,
                  downsample_prob_ratio:float=1.5,
                  op_subset: Optional[List[str]] = None,
-                 mult_delta: bool = False):
+                 mult_delta: bool = False,
+                 img_size: int = 256):
         super().__init__()
         self.datasetname = datasetname
         assert self.datasetname != ''
@@ -129,6 +130,7 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
 
         self.skip_connections = skip_connections
         self.downsample_prob_ratio = downsample_prob_ratio
+        self.img_size = img_size
         
 
     @overrides
@@ -151,7 +153,8 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
                 max_skip_connection_length=self.max_skip_connection_length,             
                 max_scale_delta=self.max_scale_delta,
                 op_subset=self.operations,
-                mult_delta=self.mult_delta
+                mult_delta=self.mult_delta,
+                img_size=self.img_size
             )
 
             # check if the model is within desired bounds    
@@ -231,7 +234,10 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
 
             # compile the model
             try:
-                nbr_model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
+                nbr_model = SegmentationNasModel(
+                    graph, channels_per_scale, post_upsample_layers,
+                    img_size=self.img_size    
+                )
                 out_shape = nbr_model.validate_forward(
                     torch.randn(1, 3, nbr_model.img_size, nbr_model.img_size)
                 ).shape
@@ -299,7 +305,10 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
 
     def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
                         post_upsample_layers: int = 1) -> ArchWithMetaData:
-        model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
+        model = SegmentationNasModel(
+            graph, channels_per_scale, post_upsample_layers,
+            img_size=self.img_size
+        )
         
         return ArchWithMetaData(model, {
             'datasetname': self.datasetname,
@@ -308,7 +317,7 @@ class DiscreteSearchSpaceSegmentation(EncodableDiscreteSearchSpace):
         })
 
     def load_from_file(self, config_file: str) -> ArchWithMetaData:
-        model = SegmentationNasModel.from_file(config_file)
+        model = SegmentationNasModel.from_file(config_file, img_size=self.img_size)
         
         return ArchWithMetaData(model, {
             'datasetname': self.datasetname,

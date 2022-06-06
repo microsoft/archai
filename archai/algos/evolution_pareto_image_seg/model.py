@@ -176,7 +176,7 @@ class SegmentationNasModel(torch.nn.Module):
     def validate_forward(self, x: torch.Tensor) -> torch.Tensor:
         ''' Checks if the constructed model is working as expected.'''
         in_nodes = set()
-        resolution = (256 // self.stem_stride)
+        resolution = (self.img_size // self.stem_stride)
 
         inputs = {node_name: 0 for node_name in self.node_names}
         inputs['input'] = self.stem_block(x)
@@ -201,7 +201,7 @@ class SegmentationNasModel(torch.nn.Module):
         return self.classifier(output)
 
     @classmethod
-    def from_file(cls, config_file: str) -> 'SegmentationNasModel':
+    def from_file(cls, config_file: str, img_size: int = 256) -> 'SegmentationNasModel':
         """Creates a SegmentationNasModel from a YAML config file
 
         Args:
@@ -225,6 +225,7 @@ class SegmentationNasModel(torch.nn.Module):
                       op: conv3x3
                       inputs: [node0, node1]
                 ```
+            img_size (int): The size of the input image.
         Returns:
             SegmentationNasModel: A SegmentationNasModel instance
         """
@@ -234,7 +235,7 @@ class SegmentationNasModel(torch.nn.Module):
 
         config_dict = yaml.safe_load(open(config_file))
         return cls(config_dict['architecture'], config_dict['channels_per_scale'],
-                   config_dict['post_upsample_layers'])
+                   config_dict['post_upsample_layers'], img_size=img_size)
 
     def view(self):
         import graphviz
@@ -313,7 +314,8 @@ class SegmentationNasModel(torch.nn.Module):
                     max_scale_delta: Optional[int] = None,
                     op_subset: Optional[List[str]] = None,
                     downsample_prob_ratio: float = 1.0,
-                    mult_delta: bool = False):
+                    mult_delta: bool = False,
+                    img_size: int = 256):
         '''Uniform random sample an architecture (nn.Module)'''
         operations = list(OPS.keys())
         
@@ -384,4 +386,4 @@ class SegmentationNasModel(torch.nn.Module):
             graph.append(new_node)
             node_list.append(new_node['name'])
 
-        return SegmentationNasModel(graph, ch_per_scale, post_upsample_layers)
+        return SegmentationNasModel(graph, ch_per_scale, post_upsample_layers, img_size=img_size)
