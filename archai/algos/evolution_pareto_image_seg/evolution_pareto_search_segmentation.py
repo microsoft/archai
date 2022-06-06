@@ -62,6 +62,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.mult_delta = conf_search.get('mult_delta', False)
         self.op_subset = conf_search['op_subset']
         self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
+        self.img_size = conf_search['trainer']['img_size']
 
         # Parses soft constraints parameters
         soft_constraints = conf_search['objectives']['soft_constraints_penalty']
@@ -127,7 +128,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             max_mac=self.max_mac,
             op_subset=self.op_subset,
             downsample_prob_ratio=self.downsample_prob_ratio,
-            mult_delta=self.mult_delta
+            mult_delta=self.mult_delta,
+            img_size=self.img_size
         )
 
     def _get_secondary_objectives_proxy(self, model: ArchWithMetaData) -> Tuple[float, float]:
@@ -370,7 +372,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.evaluate_for_steps = self.conf_train['evaluate_for_steps']  
         self.val_check_interval = self.conf_train['val_check_interval']  
         self.val_size = self.conf_train['val_size']
-        self.img_size = self.conf_train['img_size']
         self.augmentation = self.conf_train['augmentation']
         self.lr = self.conf_train['lr']
         self.lr_exp_decay_gamma = self.conf_train['lr_exp_decay_gamma']
