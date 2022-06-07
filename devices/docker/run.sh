@@ -18,7 +18,7 @@ pushd /home/archai/experiment
 
 while true
 do
-    python3 -u /home/archai/snpe_runner/azure/runner.py
+    python3 -u /home/archai/archai/devices/azure/runner.py
     if [ $? != 0 ]; then
       echo "Script returned an error code!"
     fi

@@ -38,7 +38,7 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 RUN echo '06/07/2022 10:46 PM' >/dev/null && git clone "https://lovettchris:${GITHUB_PAT}@github.com/microsoft/archai.git"
 
 RUN source /home/archai/.profile && \
-    pushd /home/archai/snpe_runner/ && \
+    pushd /home/archai/archai/devices && \
     python3 --version && \
     pip3 install --upgrade pip && \
     pip3 install -r requirements.txt
