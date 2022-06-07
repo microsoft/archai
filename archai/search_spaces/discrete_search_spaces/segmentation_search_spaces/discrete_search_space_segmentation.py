@@ -2,13 +2,13 @@ import random
 from typing import List, Optional, Dict
 from overrides.overrides import overrides
 import copy
-import uuid
 import sys
 
 import torch
 
 import tensorwatch as tw
 
+from archai.common.common import logger
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 
@@ -19,7 +19,12 @@ def random_neighbor(param_values: List[int], current_value: int):
     param_values = sorted(copy.deepcopy(param_values))
     param2idx = {param: idx for idx, param in enumerate(param_values)}
 
-    current_idx = param2idx[current_value]
+    # Gets the index of the closest value to the current value
+    if current_value in param2idx:
+        current_idx = param2idx[current_value]
+    else:
+        current_idx = param2idx[min(param2idx, key=lambda k: abs(k - current_value))]
+
     offset = random.randint(
         a=-1 if current_idx > 0 else 0,
         b=1 if current_idx < len(param_values) - 1 else 0
@@ -81,12 +86,16 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                  max_delta_channels:int=48,
                  delta_channels_binwidth:int=8,
                  downsample_prob_ratio:float=1.5,
-                 op_subset: Optional[List[str]] = None):
+                 op_subset: Optional[List[str]] = None,
+                 mult_delta: bool = False,
+                 img_size: int = 256):
         super().__init__()
         self.datasetname = datasetname
         assert self.datasetname != ''
 
         self.operations = list(OPS.keys())
+        op_subset = op_subset.split(',') if op_subset else []
+
         if op_subset:
             self.operations = [op for op in self.operations if op in op_subset.split(',')]
 
@@ -115,15 +124,17 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         assert len(self.post_upsample_layers_list) < 5
 
         self.base_channels_list = list(range(min_base_channels, max_base_channels + 1, base_channels_binwidth))
-        assert min_base_channels < max_base_channels
+        assert min_base_channels <= max_base_channels
         assert len(self.base_channels_list) > 1
         
         self.delta_channels_list = list(range(min_delta_channels, max_delta_channels + 1, delta_channels_binwidth))
-        assert min_delta_channels < max_delta_channels
-        assert len(self.delta_channels_list) > 1
+        self.mult_delta = mult_delta
+        assert min_delta_channels <= max_delta_channels
+        assert len(self.delta_channels_list) >= 1
 
         self.skip_connections = skip_connections
         self.downsample_prob_ratio = downsample_prob_ratio
+        self.img_size = img_size
         
 
     @overrides
@@ -145,7 +156,9 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 skip_connections=self.skip_connections,
                 max_skip_connection_length=self.max_skip_connection_length,             
                 max_scale_delta=self.max_scale_delta,
-                op_subset=self.operations
+                op_subset=self.operations,
+                mult_delta=self.mult_delta,
+                img_size=self.img_size
             )
 
             # check if the model is within desired bounds    
@@ -166,11 +179,13 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         
 
     @overrides
-    def get_neighbors(self, base_model: ArchWithMetaData) -> List[ArchWithMetaData]:
+    def get_neighbors(self, base_model: ArchWithMetaData, patience: int = 5) -> List[ArchWithMetaData]:
         parent_id = base_model.metadata['archid']
-        found_valid = False
+        neighbors = []
+        nb_tries = 0
 
-        while not found_valid:    
+        while nb_tries < patience and len(neighbors) == 0:
+            nb_tries += 1
             graph = copy.deepcopy(list(base_model.arch.graph.values()))
             channels_per_scale = copy.deepcopy(base_model.arch.channels_per_scale)
 
@@ -183,6 +198,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             channels_per_scale = {
                 'base_channels': random_neighbor(self.base_channels_list, channels_per_scale['base_channels']),
                 'delta_channels': random_neighbor(self.delta_channels_list, channels_per_scale['delta_channels']),
+                'mult_delta': self.mult_delta
             }
 
             # `post_upsample_layers` mutation
@@ -222,7 +238,10 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
             # compile the model
             try:
-                nbr_model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
+                nbr_model = SegmentationNasModel(
+                    graph, channels_per_scale, post_upsample_layers,
+                    img_size=self.img_size    
+                )
                 out_shape = nbr_model.validate_forward(
                     torch.randn(1, 3, nbr_model.img_size, nbr_model.img_size)
                 ).shape
@@ -230,29 +249,32 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
             
             except Exception as e:
-                print(f'Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
-                print(str(e))
+                logger.info(f'Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
+                logger.info(str(e))
                 continue
 
             # check if the model is within desired bounds    
             input_tensor_shape = (1, 3, nbr_model.img_size, nbr_model.img_size)
             model_stats = tw.ModelStats(nbr_model, input_tensor_shape, clone_model=True)
             if model_stats.MAdd > self.min_mac and model_stats.MAdd < self.max_mac:
-                found_valid = True
+                neighbors += [ArchWithMetaData(nbr_model, {
+                    'datasetname': self.datasetname,
+                    'archid': nbr_model.to_hash(),
+                    'parent': parent_id,
+                    'macs': model_stats.MAdd
+                })]
+            else:
+                logger.info(f'Model {base_model.arch.to_hash()} neighbor MACs {model_stats.MAdd}'
+                            f' falls outside of acceptable range. Retrying (nb_tries = {nb_tries})')
 
-            arch_meta = ArchWithMetaData(nbr_model, {
-                'datasetname': self.datasetname,
-                'archid': nbr_model.to_hash(),
-                'parent': parent_id,
-                'macs': model_stats.MAdd
-            })
-            
-
-        return [arch_meta]
+        return neighbors
 
     def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
                         post_upsample_layers: int = 1) -> ArchWithMetaData:
-        model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
+        model = SegmentationNasModel(
+            graph, channels_per_scale, post_upsample_layers,
+            img_size=self.img_size
+        )
         
         return ArchWithMetaData(model, {
             'datasetname': self.datasetname,
@@ -261,7 +283,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         })
 
     def load_from_file(self, config_file: str) -> ArchWithMetaData:
-        model = SegmentationNasModel.from_file(config_file)
+        model = SegmentationNasModel.from_file(config_file, img_size=self.img_size)
         
         return ArchWithMetaData(model, {
             'datasetname': self.datasetname,
@@ -270,16 +292,16 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         })
    
     def crossover(self, model_1: ArchWithMetaData, model_2: ArchWithMetaData, 
-                patience: int = 10) -> Optional[ArchWithMetaData]:
+                  patience: int = 30) -> Optional[ArchWithMetaData]:
         # Chooses randomly left and right models
         left_m, right_m = random.sample([model_1, model_2], 2)
-        left_g, right_g = [list(m.arch.graph.values()) for m in [left_m, right_m]]
+        left_arch, right_arch = [list(m.arch.graph.values()) for m in [left_m, right_m]]
 
         # Renames nodes to avoid name collision
-        left_g, right_g = rename_dag_node_list(left_g, 'left'), rename_dag_node_list(right_g, 'right')
+        left_arch, right_arch = rename_dag_node_list(left_arch, 'left'), rename_dag_node_list(right_arch, 'right')
 
         # Stores node names
-        left_n, right_n = [[n['name'] for n in g] for g in [left_g, right_g]]
+        left_n, right_n = [[n['name'] for n in g] for g in [left_arch, right_arch]]
 
         if len(left_n) <= 2 or len(right_n) <= 2:
             return
@@ -288,8 +310,8 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         result_g = None
         nb_tries = 0
 
-        while result_g is None and nb_tries < patience:
-            left_g, right_g = copy.deepcopy(left_g), copy.deepcopy(right_g)
+        for nb_tries in range(patience):
+            left_g, right_g = copy.deepcopy(left_arch), copy.deepcopy(right_arch)
             nb_tries += 1
 
             # Samples a pivot node from the left model
@@ -343,24 +365,56 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
                 # Merge and rename nodes
                 result_g = rename_dag_node_list(left_half + right_half, add_input_output=True)
+                
+                # Pick `channels_per_scale` and `post_upsample_layers` from left_m or right_m
+                ch_map = random.choice(
+                    [copy.deepcopy(model_1.arch.channels_per_scale), copy.deepcopy(model_2.arch.channels_per_scale)]
+                )
+
+                post_upsample_layers = random.choice(
+                    [model_1.arch.post_upsample_layers, model_2.arch.post_upsample_layers]
+                )
+
+                result_model = self.load_from_graph(
+                    result_g,
+                    {'base_channels': ch_map['base_channels'],
+                    'delta_channels': ch_map['delta_channels'],
+                    'mult_delta': ch_map['mult_delta']},
+                    post_upsample_layers
+                )
+
+                try:
+                    out_shape = result_model.arch.validate_forward(
+                        torch.randn(1, 3, result_model.arch.img_size, result_model.arch.img_size)
+                    ).shape
+
+                    assert out_shape == torch.Size([1, 19, result_model.arch.img_size, result_model.arch.img_size])
+                
+                except Exception as e:
+                    logger.info(
+                        f'Crossover between {model_1.arch.to_hash()}, {model_2.arch.to_hash()} failed '
+                        f'(nb_tries = {nb_tries})'
+                    )
+                    logger.info(str(e))
+                    continue
+                
+                result_model.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
+
+                return result_model
+
+
+    def find_valid_arch_from(self, arch: ArchWithMetaData) -> Optional[ArchWithMetaData]:
+        '''Finds a valid architecture (inside the search space) from a given arbitrary architecture.''' 
+        model = arch.arch.model
+
+        # Valid operations and scales
+        for node in model.graph:
+            if node['op'] not in self.operations:
+                # For now, picks a random valid operation
+                node['op'] = random.choice(self.operations)
+            
+            if node['scale'] >= self.max_downsample_factor:
+                node['scale'] = self.max_downsample_factor
+
+        # Base, delta and post upsample layers
         
-        if result_g:
-            # Pick `channels_per_scale` and `post_upsample_layers` from left_m or right_m
-            ch_map = random.choice(
-                [left_m.arch.channels_per_scale, right_m.arch.channels_per_scale]
-            )
-
-            post_upsample_layers = random.choice(
-                [left_m.arch.post_upsample_layers, right_m.arch.post_upsample_layers]
-            )
-
-            # Re-builds model and adds crossover metadata
-            result_g = self.load_from_graph(
-                result_g, 
-                {'base_channels': ch_map['base_channels'], 'delta_channels': ch_map['delta_channels']},
-                post_upsample_layers
-            )
-
-            result_g.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
-
-            return result_g

@@ -5,7 +5,6 @@ from tempfile import TemporaryDirectory
 from overrides.overrides import overrides
 from typing import List, Tuple, Optional, Dict
 from collections import OrderedDict
-import pandas as pd
 import random
 import ray
 
@@ -60,8 +59,16 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.min_delta_channels = conf_search['min_delta_channels']
         self.max_delta_channels = conf_search['max_delta_channels']
         self.delta_channels_binwidth = conf_search['delta_channels_binwidth']
+        self.mult_delta = conf_search.get('mult_delta', False)
         self.op_subset = conf_search['op_subset']
         self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
+        self.img_size = conf_search['trainer']['img_size']
+
+        # Parses soft constraints parameters
+        soft_constraints = conf_search['objectives']['soft_constraints_penalty']
+        soft_constraints['allowed_ops'] = soft_constraints['allowed_ops'].split(',')
+        soft_constraints['allowed_scales'] = [int(s) for s in soft_constraints['allowed_scales'].split(',')]
+        soft_constraints['allowed_channels'] = [int(s) for s in soft_constraints['allowed_channels'].split(',')]
 
         self.objectives = conf_search['objectives']
 
@@ -120,7 +127,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             min_mac=self.min_mac, 
             max_mac=self.max_mac,
             op_subset=self.op_subset,
-            downsample_prob_ratio=self.downsample_prob_ratio
+            downsample_prob_ratio=self.downsample_prob_ratio,
+            mult_delta=self.mult_delta,
+            img_size=self.img_size
         )
 
     def _get_secondary_objectives_proxy(self, model: ArchWithMetaData) -> Tuple[float, float]:
@@ -146,7 +155,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
             proxy_objs['soft_constraints_penalty'] = sum(
                 node['scale'] not in soft_constraints['allowed_scales'] or
-                node['op'] not in soft_constraints['allowed_ops'] or 
+                (node['op'] not in soft_constraints['allowed_ops'] and node['op']) or 
                 model.arch.channels_per_scale[node['scale']] not in soft_constraints['allowed_channels']
                 for node in model.arch.graph.values()
             ) / len(model.arch.graph.values())
@@ -363,7 +372,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.evaluate_for_steps = self.conf_train['evaluate_for_steps']  
         self.val_check_interval = self.conf_train['val_check_interval']  
         self.val_size = self.conf_train['val_size']
-        self.img_size = self.conf_train['img_size']
         self.augmentation = self.conf_train['augmentation']
         self.lr = self.conf_train['lr']
         self.lr_exp_decay_gamma = self.conf_train['lr_exp_decay_gamma']
@@ -461,7 +469,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                         candidates[nbr.metadata['archid']] = nbr
                 nb_tries += 1
             
-            if self.crowd_sorting['mutation']:
+            if candidates and self.crowd_sorting['mutation']:
                 candidates_list = list(candidates.items())
 
                 secondary_objs_proxy = np.array([
