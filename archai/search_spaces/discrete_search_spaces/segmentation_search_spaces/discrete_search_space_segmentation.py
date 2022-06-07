@@ -288,16 +288,16 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         })
    
     def crossover(self, model_1: ArchWithMetaData, model_2: ArchWithMetaData, 
-                  patience: int = 10) -> Optional[ArchWithMetaData]:
+                  patience: int = 30) -> Optional[ArchWithMetaData]:
         # Chooses randomly left and right models
         left_m, right_m = random.sample([model_1, model_2], 2)
-        left_g, right_g = [list(m.arch.graph.values()) for m in [left_m, right_m]]
+        left_arch, right_arch = [list(m.arch.graph.values()) for m in [left_m, right_m]]
 
         # Renames nodes to avoid name collision
-        left_g, right_g = rename_dag_node_list(left_g, 'left'), rename_dag_node_list(right_g, 'right')
+        left_arch, right_arch = rename_dag_node_list(left_arch, 'left'), rename_dag_node_list(right_arch, 'right')
 
         # Stores node names
-        left_n, right_n = [[n['name'] for n in g] for g in [left_g, right_g]]
+        left_n, right_n = [[n['name'] for n in g] for g in [left_arch, right_arch]]
 
         if len(left_n) <= 2 or len(right_n) <= 2:
             return
@@ -306,8 +306,8 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         result_g = None
         nb_tries = 0
 
-        while result_g is None and nb_tries < patience:
-            left_g, right_g = copy.deepcopy(left_g), copy.deepcopy(right_g)
+        for nb_tries in range(patience):
+            left_g, right_g = copy.deepcopy(left_arch), copy.deepcopy(right_arch)
             nb_tries += 1
 
             # Samples a pivot node from the left model
@@ -361,26 +361,56 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
                 # Merge and rename nodes
                 result_g = rename_dag_node_list(left_half + right_half, add_input_output=True)
+                
+                # Pick `channels_per_scale` and `post_upsample_layers` from left_m or right_m
+                ch_map = random.choice(
+                    [copy.deepcopy(model_1.arch.channels_per_scale), copy.deepcopy(model_2.arch.channels_per_scale)]
+                )
+
+                post_upsample_layers = random.choice(
+                    [model_1.arch.post_upsample_layers, model_2.arch.post_upsample_layers]
+                )
+
+                result_model = self.load_from_graph(
+                    result_g,
+                    {'base_channels': ch_map['base_channels'],
+                    'delta_channels': ch_map['delta_channels'],
+                    'mult_delta': ch_map['mult_delta']},
+                    post_upsample_layers
+                )
+
+                try:
+                    out_shape = result_model.arch.validate_forward(
+                        torch.randn(1, 3, result_model.arch.img_size, result_model.arch.img_size)
+                    ).shape
+
+                    assert out_shape == torch.Size([1, 19, result_model.arch.img_size, result_model.arch.img_size])
+                
+                except Exception as e:
+                    logger.info(
+                        f'Crossover between {model_1.arch.to_hash()}, {model_2.arch.to_hash()} failed '
+                        f'(nb_tries = {nb_tries})'
+                    )
+                    logger.info(str(e))
+                    continue
+                
+                result_model.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
+
+                return result_model
+
+
+    def find_valid_arch_from(self, arch: ArchWithMetaData) -> Optional[ArchWithMetaData]:
+        '''Finds a valid architecture (inside the search space) from a given arbitrary architecture.''' 
+        model = arch.arch.model
+
+        # Valid operations and scales
+        for node in model.graph:
+            if node['op'] not in self.operations:
+                # For now, picks a random valid operation
+                node['op'] = random.choice(self.operations)
+            
+            if node['scale'] >= self.max_downsample_factor:
+                node['scale'] = self.max_downsample_factor
+
+        # Base, delta and post upsample layers
         
-        if result_g:
-            # Pick `channels_per_scale` and `post_upsample_layers` from left_m or right_m
-            ch_map = random.choice(
-                [left_m.arch.channels_per_scale, right_m.arch.channels_per_scale]
-            )
-
-            post_upsample_layers = random.choice(
-                [left_m.arch.post_upsample_layers, right_m.arch.post_upsample_layers]
-            )
-
-            # Re-builds model and adds crossover metadata
-            result_g = self.load_from_graph(
-                result_g, 
-                {'base_channels': ch_map['base_channels'],
-                 'delta_channels': ch_map['delta_channels'],
-                 'mult_delta': ch_map['mult_delta']},
-                post_upsample_layers
-            )
-
-            result_g.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
-
-            return result_g
