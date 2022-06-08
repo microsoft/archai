@@ -43,7 +43,7 @@ class LightningModelWrapper(pl.LightningModule):
                  criterion_name: str = 'ce',
                  lr: float = 2e-4,
                  lr_exp_decay_gamma: float = 0.98,
-                 img_size: int = 256):
+                 img_size: Tuple[int, int] = (256, 256)):
 
         super().__init__()
 
@@ -151,21 +151,19 @@ class LightningModelWrapper(pl.LightningModule):
         return [optimizer], [scheduler]
 
     def on_train_start(self) -> None:
-        sample = torch.randn((1, 3, self.img_size, self.img_size)).to(self.device)
+        sample = torch.randn((1, 3, self.img_size[1], self.img_size[0])).to(self.device)
         self.logger.experiment.add_graph(self.model, sample)
 
 
 class SegmentationTrainer():
 
-    def __init__(self, model: SegmentationNasModel, dataset_dir: str,
-                 max_steps: int = 12000, val_size: int = 2000,
-                 img_size: int = 256,
-                 augmentation: str = 'none', batch_size: int = 16,
-                 lr: float = 2e-4, criterion_name: str = 'ce', 
+    def __init__(self, model: SegmentationNasModel,
+                 dataset_conf: Config,
+                 max_steps: int = 12000, img_size: Tuple[int, int] = (256, 256),
+                 batch_size: int = 16, lr: float = 2e-4,
+                 criterion_name: str = 'ce', 
                  val_check_interval: Union[int, float] = 0.25, 
                  lr_exp_decay_gamma: float = 0.98,
-                 tr_dataloader_workers: int = 3,
-                 val_dataloader_workers: int = 1,
                  seed: int = 1):
         torch.manual_seed(seed)
         random.seed(seed)

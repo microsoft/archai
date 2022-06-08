@@ -39,7 +39,7 @@ class Block(nn.Module):
 
 class SegmentationNasModel(torch.nn.Module):
     def __init__(self, graph: List[Dict], channels_per_scale: Dict, post_upsample_layers: int = 1,
-                 stem_stride: int = 2, img_size: int = 256, nb_classes: int = 19):
+                 stem_stride: int = 2, img_size: Tuple[int, int] = (256, 256), nb_classes: int = 19):
         """Creates a SegmentationNasModel from a configuration
 
         Args:
@@ -64,7 +64,10 @@ class SegmentationNasModel(torch.nn.Module):
         """
 
         super().__init__()
-        assert img_size % 32 == 0, 'Image size must be a multiple of 32'
+        if isinstance(img_size, int):
+            assert img_size % 32 == 0, 'Image size must be a multiple of 32'
+        else:
+            assert img_size[0] % 32 == 0 and img_size[1] % 32 == 0, 'Image size must be a multiple of 32'
 
         self.graph = OrderedDict([(n['name'], n) for n in graph])
         self.node_names = [n['name'] for n in self.graph.values()]
@@ -83,7 +86,8 @@ class SegmentationNasModel(torch.nn.Module):
         self.stem_block = OPS['conv3x3'](3, stem_ch, stride=self.stem_stride)
 
         # Upsample layers
-        self.up = nn.Upsample(size=(self.img_size, self.img_size), mode='nearest')
+        w, h = self.img_size
+        self.up = nn.Upsample(size=(h, w), mode='nearest')
         output_ch = self.channels_per_scale[self.graph['output']['scale']]
 
         self.post_upsample = nn.Sequential(
@@ -201,7 +205,7 @@ class SegmentationNasModel(torch.nn.Module):
         return self.classifier(output)
 
     @classmethod
-    def from_file(cls, config_file: str, img_size: int = 256) -> 'SegmentationNasModel':
+    def from_file(cls, config_file: str, img_size: int = 256, nb_classes: int = 19) -> 'SegmentationNasModel':
         """Creates a SegmentationNasModel from a YAML config file
 
         Args:
@@ -226,6 +230,7 @@ class SegmentationNasModel(torch.nn.Module):
                       inputs: [node0, node1]
                 ```
             img_size (int): The size of the input image.
+            nb_classes (int): The number of classes in the dataset.
         Returns:
             SegmentationNasModel: A SegmentationNasModel instance
         """
@@ -235,7 +240,7 @@ class SegmentationNasModel(torch.nn.Module):
 
         config_dict = yaml.safe_load(open(config_file))
         return cls(config_dict['architecture'], config_dict['channels_per_scale'],
-                   config_dict['post_upsample_layers'], img_size=img_size)
+                   config_dict['post_upsample_layers'], img_size=img_size, nb_classes=nb_classes)
 
     def view(self):
         import graphviz
@@ -289,7 +294,7 @@ class SegmentationNasModel(torch.nn.Module):
         with open(path, 'w') as fp:
             fp.write(yaml.dump(content))
 
-        m = SegmentationNasModel.from_file(path)
+        m = SegmentationNasModel.from_file(path, self.img_size, self.nb_classes)
         assert content['architecture'] == list(m.graph.values())
         assert content['post_upsample_layers'] == len(self.post_upsample)
         assert all(
