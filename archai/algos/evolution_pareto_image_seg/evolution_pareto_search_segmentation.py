@@ -443,7 +443,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             else 1
         )
 
-        for p in parents:
+        for p in tqdm(parents, desc='Mutating parents'):
             candidates = {}
             nb_tries = 0
             patience = 20
