@@ -17,3 +17,4 @@ from .providers.intel_image_provider import IntelImageProvider
 from .providers.spherical_cifar100_provider import SphericalCifar100Provider
 from .providers.ninapro_provider import NinaproProvider
 from .providers.darcyflow_provider import DarcyflowProvider
+from .providers.lmdb_image_provider import TensorpackLmdbImageProvider
