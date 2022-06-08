@@ -372,7 +372,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.evaluate_for_steps = self.conf_train['evaluate_for_steps']  
         self.val_check_interval = self.conf_train['val_check_interval']  
         self.val_size = self.conf_train['val_size']
-        self.augmentation = self.conf_train['augmentation']
         self.lr = self.conf_train['lr']
         self.lr_exp_decay_gamma = self.conf_train['lr_exp_decay_gamma']
         self.criterion_name = self.conf_train['criterion_name']
@@ -381,23 +380,17 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         # region
 
         # train
-        dataset_dir = os.path.join(self.dataroot, 'face_synthetics')
         trainer = ray.remote(
             num_gpus=self.conf_train['gpus_per_job']
         )(SegmentationTrainer)
 
         ref = trainer.remote(
-            arch.arch, dataset_dir=dataset_dir, 
+            arch.arch, dataset_conf=self.dataset_conf, 
             max_steps=self.evaluate_for_steps,
             val_check_interval=self.val_check_interval,
-            val_size=self.val_size, img_size=self.img_size,
-            augmentation=self.augmentation,
-            batch_size=self.batch_size, lr=self.lr,
+            img_size=self.img_size, batch_size=self.batch_size, lr=self.lr,
             lr_exp_decay_gamma=self.lr_exp_decay_gamma,
-            criterion_name=self.criterion_name, seed=self.seed,
-            tr_dataloader_workers=self.conf_train['tr_dataloader_workers'],
-            val_dataloader_workers=self.conf_train['val_dataloader_workers'],
-        )
+            criterion_name=self.criterion_name, seed=self.seed)
         return ref
 
     @overrides

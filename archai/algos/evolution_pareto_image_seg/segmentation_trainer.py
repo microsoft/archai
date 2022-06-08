@@ -1,17 +1,17 @@
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Tuple
 import random
 from pathlib import Path
 
-import ray
-
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, default_collate
 import numpy as np
 import pytorch_lightning as pl
-from archai.algos.evolution_pareto_image_seg.model import SegmentationNasModel
-from archai.algos.evolution_pareto_image_seg.face_synthetics_data import FaceSynthetics
 import segmentation_models_pytorch as smp
+
+from archai.common.config import Config
+from archai.algos.evolution_pareto_image_seg.model import SegmentationNasModel
+from archai.datasets.data import create_dataset_provider
 
 
 def get_custom_overall_metrics(tp, fp, fn, tn, stage):
@@ -31,6 +31,11 @@ def get_custom_overall_metrics(tp, fp, fn, tn, stage):
         f'{stage}_overall_iou': overall_iou
     }
 
+
+def collate_ignore_empty(batch):
+    '''Removes empty samples (due to loading errors) from batch.'''
+    batch = [b for b in batch if b]
+    return default_collate(batch)
 
 class LightningModelWrapper(pl.LightningModule):
     def __init__(self,
@@ -168,18 +173,12 @@ class SegmentationTrainer():
 
         self.max_steps = max_steps
         self.val_check_interval = val_check_interval
-        self.data_dir = Path(dataset_dir)
-        self.tr_dataset = FaceSynthetics(self.data_dir, subset='train', val_size=val_size,
-                                         img_size=(img_size, img_size), augmentation=augmentation)
-        self.val_dataset = FaceSynthetics(self.data_dir, subset='validation', val_size=val_size,
-                                          img_size=(img_size, img_size), augmentation=augmentation)
+        
+        self.dp = create_dataset_provider(dataset_conf)
+        self.tr_dataset, self.val_dataset = self.dp.get_train_val_datasets()
 
-        self.tr_dataloader = DataLoader(
-            self.tr_dataset, batch_size=batch_size, num_workers=tr_dataloader_workers, shuffle=True
-        )
-        self.val_dataloader = DataLoader(
-            self.val_dataset, batch_size=batch_size, num_workers=val_dataloader_workers, shuffle=False
-        )
+        self.tr_dataloader = DataLoader(self.tr_dataset, batch_size=batch_size, num_workers=4, shuffle=True, collate_fn=collate_ignore_empty)
+        self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=4, shuffle=False, collate_fn=collate_ignore_empty)
 
         self.model = LightningModelWrapper(model, criterion_name=criterion_name, lr=lr,
                                            img_size=img_size, lr_exp_decay_gamma=lr_exp_decay_gamma)
