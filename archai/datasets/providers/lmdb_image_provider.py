@@ -110,9 +110,7 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
                     mask = cv2.imdecode(mask_cv2_buf, cv2.IMREAD_GRAYSCALE)
                 
                 if self.img_size:
-                    print(img.shape)
                     img = cv2.resize(img, self.img_size)
-                    print(img.shape)
                     mask = cv2.resize(mask, self.img_size, interpolation=cv2.INTER_NEAREST)
 
                 if self.valid_resolutions:
