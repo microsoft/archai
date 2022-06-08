@@ -40,8 +40,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     @overrides
     def search(self, conf_search:Config)->SearchResult:
 
-        self.dataroot = utils.full_path(conf_search['loader']['dataset']['dataroot'])
-        self.dataset_name = conf_search['loader']['dataset']['name']
+        self.dataset_conf = conf_search['loader']['dataset']
+        self.dataroot = utils.full_path(self.dataset_conf['dataroot'])
+        self.dataset_name = self.dataset_conf['name']
         self.conf_train = conf_search['trainer']
         self.conf_loader = conf_search['loader']
         self.min_mac = conf_search['min_mac']
