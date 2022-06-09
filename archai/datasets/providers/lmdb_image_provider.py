@@ -82,9 +82,10 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
 
         for d_key in [self.img_key, self.mask_key]:
             if d_key and d_key not in sample:
+                available_keys = sample.keys() if isinstance(sample, dict) else []
                 raise KeyError(
                     f'{d_key} not found in sample. '
-                    f'Available keys: {sample.keys()}'
+                    f'Available keys: {available_keys}'
                 )
 
             if d_key and isinstance(sample[d_key], dict) and b'data' in sample[d_key]:
@@ -93,9 +94,9 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
         return sample
 
     def __getitem__(self, idx)->Tuple[torch.Tensor, Any]:
-        sample = self._get_datapoint(idx)
-
         try:
+            sample = self._get_datapoint(idx)
+
             if self.img_format == 'numpy':
                 img = np.frombuffer(sample[self.img_key], dtype=np.uint8).reshape((-1, 1))
                 img = cv2.imdecode(img, cv2.IMREAD_COLOR)
