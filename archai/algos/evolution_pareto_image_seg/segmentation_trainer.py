@@ -4,7 +4,7 @@ from pathlib import Path
 
 import torch
 from torch import nn
-from torch.utils.data import DataLoader, default_collate
+from torch.utils.data.dataloader import DataLoader, default_collate
 import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
