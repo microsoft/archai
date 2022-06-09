@@ -1,4 +1,4 @@
-from typing import List, Union, Dict, Tuple
+from typing import List, Union, Dict, Tuple, Optional
 import random
 from pathlib import Path
 
@@ -14,7 +14,7 @@ from archai.algos.evolution_pareto_image_seg.model import SegmentationNasModel
 from archai.datasets.data import create_dataset_provider
 
 
-def get_custom_overall_metrics(tp, fp, fn, tn, stage):
+def get_custom_overall_metrics(tp, fp, fn, tn, stage, ignore_classes: Optional[List[int]] = None):
     gt_pos = (tp + fn).sum(axis=0)
     pd_pos = (tp + fp).sum(axis=0)
 
@@ -22,9 +22,13 @@ def get_custom_overall_metrics(tp, fp, fn, tn, stage):
     f1 = 2 * tp_diag / torch.maximum(torch.ones_like(gt_pos), gt_pos + pd_pos)
     iou = tp_diag / torch.maximum(torch.ones_like(gt_pos), gt_pos + pd_pos - tp_diag)
 
-    weight = 1 / torch.sqrt(gt_pos[1:18])
-    overall_f1 = torch.sum(f1[1:18] * weight) / torch.sum(weight)
-    overall_iou = torch.sum(iou[1:18] * weight) / torch.sum(weight)
+    class_mask = torch.ones(tp.shape[1], dtype=torch.bool)
+    if ignore_classes is not None:
+        class_mask = [c not in ignore_classes for c in torch.arange(tp.shape[1])]
+    
+    weight = 1 / torch.sqrt(gt_pos[class_mask])
+    overall_f1 = torch.sum(f1[class_mask] * weight) / torch.sum(weight)
+    overall_iou = torch.sum(iou[class_mask] * weight) / torch.sum(weight)
 
     return {
         f'{stage}_overall_f1': overall_f1,
@@ -43,7 +47,8 @@ class LightningModelWrapper(pl.LightningModule):
                  criterion_name: str = 'ce',
                  lr: float = 2e-4,
                  lr_exp_decay_gamma: float = 0.98,
-                 img_size: Tuple[int, int] = (256, 256)):
+                 img_size: Tuple[int, int] = (256, 256),
+                 metrics_ignore_classes: Optional[List[int]] = None):
 
         super().__init__()
 
@@ -55,14 +60,19 @@ class LightningModelWrapper(pl.LightningModule):
         
         self.set_loss(criterion_name)
         self.save_hyperparameters()
+        self.metrics_ignore_classes = metrics_ignore_classes
 
     def set_loss(self, criterion_name):
+        mode = smp.losses.MULTICLASS_MODE if self.model.nb_classes > 1 else smp.losses.BINARY_MODE
         if criterion_name == 'ce':
-            self.loss_fn = smp.losses.SoftCrossEntropyLoss(ignore_index=255, smooth_factor=0)
+            if self.model.nb_classes > 1:
+                self.loss_fn = smp.losses.SoftCrossEntropyLoss(ignore_index=255, smooth_factor=0)
+            else:
+                self.loss_fn = smp.losses.SoftBCEWithLogitsLoss(smooth_factor=0)
         elif criterion_name == 'dice':
-            self.loss_fn = smp.losses.DiceLoss(smp.losses.MULTICLASS_MODE, from_logits=True, ignore_index=255)
+            self.loss_fn = smp.losses.DiceLoss(mode, from_logits=True, ignore_index=255)
         elif criterion_name == 'lovasz':
-            self.loss_fn = smp.losses.LovaszLoss(smp.losses.MULTICLASS_MODE, ignore_index=255, from_logits=True)
+            self.loss_fn = smp.losses.LovaszLoss(mode, ignore_index=255, from_logits=True)
 
     def forward(self, image):
         return self.model(image)
@@ -85,14 +95,19 @@ class LightningModelWrapper(pl.LightningModule):
 
         mask = batch['mask']
         logits_mask = self.forward(image)
+        mask = (mask/255.0).unsqueeze(1) if self.model.nb_classes == 1 else mask
         loss = self.loss_fn(logits_mask, mask)
 
-        pred_classes = logits_mask.argmax(axis=1)
-
-        tp, fp, fn, tn = smp.metrics.get_stats(
-            pred_classes, mask.long(), mode='multiclass',
-            num_classes=self.model.nb_classes, ignore_index=255
-        )
+        if self.model.nb_classes == 1:
+            tp, fp, fn, tn = smp.metrics.get_stats(
+                logits_mask, (mask >= 0.5).long(), 
+                mode='binary', threshold=0.5
+            )
+        else:
+            tp, fp, fn, tn = smp.metrics.get_stats(
+                logits_mask.argmax(axis=1), mask.long(), mode='multiclass',
+                num_classes=self.model.nb_classes, ignore_index=255
+            )
 
         metrics_result = {
             'tp': tp,
@@ -131,7 +146,10 @@ class LightningModelWrapper(pl.LightningModule):
         tn = torch.cat([x['tn'] for x in outputs])
         avg_loss = torch.tensor([x['loss'] for x in outputs]).mean()
 
-        results = get_custom_overall_metrics(tp, fp, fn, tn, stage=stage)
+        results = get_custom_overall_metrics(
+            tp, fp, fn, tn, stage=stage,
+            ignore_classes=self.metrics_ignore_classes
+        )
         results[f'{stage}_loss'] = avg_loss
 
         if log:
@@ -179,7 +197,8 @@ class SegmentationTrainer():
         self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=4, shuffle=False, collate_fn=collate_ignore_empty)
 
         self.model = LightningModelWrapper(model, criterion_name=criterion_name, lr=lr,
-                                           img_size=img_size, lr_exp_decay_gamma=lr_exp_decay_gamma)
+                                           img_size=img_size, lr_exp_decay_gamma=lr_exp_decay_gamma,
+                                           metrics_ignore_classes=dataset_conf.get('metrics_ignore_classes', None))
         self.img_size = img_size
 
     def get_training_callbacks(self, run_dir: Path) -> List[pl.callbacks.Callback]:
