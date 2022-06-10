@@ -41,6 +41,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def search(self, conf_search:Config)->SearchResult:
 
         self.dataset_conf = conf_search['loader']['dataset']
+        self.nb_classes = self.dataset_conf.get('nb_classes', 19)
         self.dataroot = utils.full_path(self.dataset_conf['dataroot'])
         self.dataset_name = self.dataset_conf['name']
         self.conf_train = conf_search['trainer']
@@ -63,7 +64,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.mult_delta = conf_search.get('mult_delta', False)
         self.op_subset = conf_search['op_subset']
         self.downsample_prob_ratio = conf_search['downsample_prob_ratio']
-        self.img_size = conf_search['trainer']['img_size']
+        self.img_size = self.dataset_conf['img_size']
 
         # Parses soft constraints parameters
         soft_constraints = conf_search['objectives']['soft_constraints_penalty']
@@ -130,7 +131,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             op_subset=self.op_subset,
             downsample_prob_ratio=self.downsample_prob_ratio,
             mult_delta=self.mult_delta,
-            img_size=self.img_size
+            img_size=self.img_size,
+            nb_classes=self.nb_classes
         )
 
     def _get_secondary_objectives_proxy(self, model: ArchWithMetaData) -> Tuple[float, float]:
@@ -378,7 +380,6 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         self.criterion_name = self.conf_train['criterion_name']
         self.batch_size = self.conf_loader['batch_size']
         self.seed = get_conf_common()['seed']
-        # region
 
         # train
         trainer = ray.remote(
@@ -391,7 +392,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             val_check_interval=self.val_check_interval,
             img_size=self.img_size, batch_size=self.batch_size, lr=self.lr,
             lr_exp_decay_gamma=self.lr_exp_decay_gamma,
-            criterion_name=self.criterion_name, seed=self.seed)
+            criterion_name=self.criterion_name, seed=self.seed
+        )
         return ref
 
     @overrides
