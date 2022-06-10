@@ -29,11 +29,18 @@ def get_last_checkpoint(checkpoint_dir: Path):
     return max(checkpoints, key=lambda x: int(re.sub('[^0-9]', '', str(x))), default=None)
 
 
-def get_onnx_latency(model: torch.nn.Module, opset_version: Optional[int] = 11, img_size: Optional[int] = None):
-    if not img_size:
-        # Tries to infer img_size
-        img_size = model.hparams['img_size']
+def get_onnx_latency(model: torch.nn.Module, img_size: Tuple[int, int], 
+                     opset_version: Optional[int] = 11) -> float:
+    """Gets the ONNX latency of a Pytorch module.
 
+    Args:
+        model (torch.nn.Module): Pytorch torch.nn.Module.
+        img_size (Tuple[int, int]): Image size (Width, Height)
+        opset_version (Optional[int], optional): ONNX opset version. Defaults to 11.
+
+    Returns:
+        float: Latency in milliseconds.
+    """    
     with tempfile.NamedTemporaryFile() as tmp:
         to_onnx(model, Path(tmp.name), img_size=img_size, opset_version=opset_version)
         latency = profile_onnx(output_path=Path(tmp.name), img_size=img_size)
@@ -41,9 +48,18 @@ def get_onnx_latency(model: torch.nn.Module, opset_version: Optional[int] = 11, 
 
 
 def to_onnx(model: torch.nn.Module, output_path: Path,
-            img_size: Optional[int] = None,
+            img_size: Tuple[int, int],
             opset_version: Optional[int] = 11,
             overwrite: bool = True) -> None:
+    """Converts a Pytorch model to ONNX format.
+
+    Args:
+        model (torch.nn.Module): Model to convert.
+        output_path (Path): Path to save the ONNX model.
+        img_size (Tuple[int, int]): Image size (Width, Height)
+        opset_version (Optional[int], optional): ONNX opset version. Defaults to 11.
+        overwrite (bool, optional): Overwrites file in `output_path`. Defaults to True.
+    """
     model.eval().to('cpu')
     output_path = Path(output_path)
 
@@ -70,7 +86,7 @@ def to_onnx(model: torch.nn.Module, output_path: Path,
     # Might be an issue in quantization
     try:
         torch.onnx.export(
-            model, (torch.randn(1, 3, img_size, img_size)),
+            model, (torch.randn(1, 3, *img_size[::-1])),
             str(output_path),
             opset_version=opset_version,
             verbose=False,
@@ -81,14 +97,21 @@ def to_onnx(model: torch.nn.Module, output_path: Path,
         print(str(e))  # So you can pipe this error message to a file for better reading
         raise e
 
-    # print(f'ONNX model saved in {output_path}')
 
+def profile_onnx(output_path: Path, img_size: Tuple[int, int]) -> Dict:
+    """Profiles an ONNX model.
 
-def profile_onnx(output_path: Path, img_size: int) -> Dict:
+    Args:
+        output_path (Path): Path to the ONNX model.
+        img_size (Tuple[int, int]): Image size (Width, Height)
+
+    Returns:
+        Dict: Dictionary containing the profiling stats.
+    """
     onnx_session = InferenceSession(str(output_path))
 
     dummy_inputs = [
-        torch.randn(bsz, 3, img_size, img_size) / 255
+        torch.randn(bsz, 3, *img_size[::-1]) / 255
         for bsz in [1]
         for _ in range(30)
     ]
@@ -138,7 +161,16 @@ def inference_stats(model: torch.nn.Module, **inputs) -> Tuple[int, int, int]:
     return self_mem, self_time, flops, inf_cpu
 
 
-def profile_torch(model: torch.nn.Module, img_size: Optional[int] = None) -> Dict:
+def profile_torch(model: torch.nn.Module, img_size: Tuple[int, int]) -> Dict:
+    """Profiles a Pytorch model using torch.autograd.profiler.
+
+    Args:
+        model (torch.nn.Module): Model to profile.
+        img_size (Tuple[int, int]): Image size (Width, Height).
+
+    Returns:
+        Dict: Dictionary containing the profiling stats.
+    """    
     model = model.to('cpu').eval()
 
     if not img_size:
