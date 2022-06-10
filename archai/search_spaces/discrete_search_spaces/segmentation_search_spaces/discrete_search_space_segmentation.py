@@ -1,5 +1,5 @@
 import random
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 from overrides.overrides import overrides
 import copy
 import sys
@@ -69,6 +69,7 @@ def rename_dag_node_list(node_list: List[Dict], prefix: str = '',
 
 class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
     def __init__(self, datasetname:str, 
+                 nb_classes: int,
                  encoder_features: Optional[List[str]] = None,
                  min_mac:int=0, 
                  max_mac:int=sys.maxsize,
@@ -88,9 +89,10 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                  downsample_prob_ratio:float=1.5,
                  op_subset: Optional[List[str]] = None,
                  mult_delta: bool = False,
-                 img_size: int = 256):
+                 img_size: Tuple[int, int] = (256, 256)):
         super().__init__()
         self.datasetname = datasetname
+        self.nb_classes = nb_classes
         assert self.datasetname != ''
 
         self.operations = list(OPS.keys())
@@ -133,7 +135,6 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         self.skip_connections = skip_connections
         self.downsample_prob_ratio = downsample_prob_ratio
         self.img_size = img_size
-        
 
     @overrides
     def random_sample(self)->ArchWithMetaData:
@@ -156,11 +157,12 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 max_scale_delta=self.max_scale_delta,
                 op_subset=self.operations,
                 mult_delta=self.mult_delta,
-                img_size=self.img_size
+                img_size=self.img_size,
+                nb_classes=self.nb_classes
             )
 
             # check if the model is within desired bounds    
-            input_tensor_shape = (1, 3, model.img_size, model.img_size)
+            input_tensor_shape = (1, 3, *model.img_size)
             model_stats = tw.ModelStats(model, input_tensor_shape, clone_model=True)
             if model_stats.MAdd > self.min_mac and model_stats.MAdd < self.max_mac:
                 found_valid = True
@@ -239,10 +241,10 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             
             try:
                 out_shape = nbr_model.validate_forward(
-                    torch.randn(1, 3, nbr_model.img_size, nbr_model.img_size)
+                    torch.randn(1, 3, *nbr_model.img_size[::-1])
                 ).shape
 
-                assert out_shape == torch.Size([1, 19, nbr_model.img_size, nbr_model.img_size])
+                assert out_shape == torch.Size([1, self.nb_classes, *nbr_model.img_size[::-1]])
             
             except Exception as e:
                 print(f'{base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
@@ -250,7 +252,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 continue
 
             # check if the model is within desired bounds    
-            input_tensor_shape = (1, 3, nbr_model.img_size, nbr_model.img_size)
+            input_tensor_shape = (1, 3, *nbr_model.img_size[::-1])
             model_stats = tw.ModelStats(nbr_model, input_tensor_shape, clone_model=True)
             if model_stats.MAdd > self.min_mac and model_stats.MAdd < self.max_mac:
                 neighbors += [ArchWithMetaData(nbr_model, {
@@ -269,7 +271,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                         post_upsample_layers: int = 1) -> ArchWithMetaData:
         model = SegmentationNasModel(
             graph, channels_per_scale, post_upsample_layers,
-            img_size=self.img_size
+            img_size=self.img_size, nb_classes=self.nb_classes
         )
         
         return ArchWithMetaData(model, {
@@ -279,7 +281,9 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         })
 
     def load_from_file(self, config_file: str) -> ArchWithMetaData:
-        model = SegmentationNasModel.from_file(config_file, img_size=self.img_size)
+        model = SegmentationNasModel.from_file(
+            config_file, img_size=self.img_size, nb_classes=self.nb_classes
+        )
         
         return ArchWithMetaData(model, {
             'datasetname': self.datasetname,
@@ -381,10 +385,10 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
                 try:
                     out_shape = result_model.arch.validate_forward(
-                        torch.randn(1, 3, result_model.arch.img_size, result_model.arch.img_size)
+                        torch.randn(1, 3, *result_model.arch.img_size[::-1])
                     ).shape
 
-                    assert out_shape == torch.Size([1, 19, result_model.arch.img_size, result_model.arch.img_size])
+                    assert out_shape == torch.Size([1, self.nb_classes, *result_model.arch.img_size[::-1]])
                 
                 except Exception as e:
                     logger.info(

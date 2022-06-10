@@ -56,7 +56,7 @@ class SegmentationNasModel(torch.nn.Module):
                 mult_delta: True} is equivalent to {1: 24, 2: 48, 4: 96, 8: 192, 16: 384}.
             post_upsample_layers (int): Number of post-upsample layers
             stem_strid (int): Stride of the first convolution
-            img_size (int): Image size
+            img_size (Tuple[int, int]): Image size (width, height)
             nb_classes (int): Number of classes for segmentation
 
         Returns:
@@ -180,7 +180,7 @@ class SegmentationNasModel(torch.nn.Module):
     def validate_forward(self, x: torch.Tensor) -> torch.Tensor:
         ''' Checks if the constructed model is working as expected.'''
         in_nodes = set()
-        resolution = (self.img_size // self.stem_stride)
+        res_w, res_h = [d // self.stem_stride for d in self.img_size]
 
         inputs = {node_name: 0 for node_name in self.node_names}
         inputs['input'] = self.stem_block(x)
@@ -190,7 +190,9 @@ class SegmentationNasModel(torch.nn.Module):
             in_nodes.add(in_node)
 
             # Checks if the resolution of each node is correct
-            assert inputs[in_node].shape[3] == int(resolution // self.graph[in_node]['scale']),\
+            assert inputs[in_node].shape[2] == int(res_h // self.graph[in_node]['scale']),\
+                'Input resolution does not match the node resolution.'
+            assert inputs[in_node].shape[3] == int(res_w // self.graph[in_node]['scale']),\
                 'Input resolution does not match the node resolution.'
 
             inputs[out_node] = inputs[out_node] + module(inputs[in_node])
@@ -320,7 +322,8 @@ class SegmentationNasModel(torch.nn.Module):
                     op_subset: Optional[List[str]] = None,
                     downsample_prob_ratio: float = 1.0,
                     mult_delta: bool = False,
-                    img_size: int = 256):
+                    img_size: Tuple[int, int] = (256, 256),
+                    nb_classes: int = 19) -> 'SegmentationNasModel':
         '''Uniform random sample an architecture (nn.Module)'''
         operations = list(OPS.keys())
         
@@ -391,4 +394,7 @@ class SegmentationNasModel(torch.nn.Module):
             graph.append(new_node)
             node_list.append(new_node['name'])
 
-        return SegmentationNasModel(graph, ch_per_scale, post_upsample_layers, img_size=img_size)
+        return SegmentationNasModel(
+            graph, ch_per_scale, post_upsample_layers, img_size=img_size,
+            nb_classes=nb_classes
+        )
