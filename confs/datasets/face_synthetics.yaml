@@ -2,7 +2,10 @@ __include__: './dataroot.yaml' # default dataset settings are for cifar
 
 dataset:
   name: 'face_synthetics'
-  n_classes: 18
-  channels: 3 # number of channels in image
-  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+  nb_classes: 19
   storage_name: 'face_synthetics' # name of folder or tar file to copy from cloud storage
+  img_size: [256, 256]
+  mask_size: [256, 256]
+  augmentation: 'none'
+  ignore_index: 225
+  metrics_ignore_classes: [0, 18]
