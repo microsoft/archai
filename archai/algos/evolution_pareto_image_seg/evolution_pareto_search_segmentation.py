@@ -149,7 +149,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
         if self.objectives['memory']['enabled']:
             proxy_objs['memory'] = measure_torch_peak_memory(
                 model.arch, use_quantization=False,
-                input_dims=(1, 3, model.arch.img_size, model.arch.img_size), 
+                input_dims=(1, 3, *model.arch.img_size[::-1]), 
                 n_threads=1, device='cpu'
             )
         
