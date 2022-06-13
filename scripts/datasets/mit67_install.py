@@ -54,7 +54,7 @@ def check_mit67(dataroot: str) -> bool:
 
 
 def download(dataroot: str):
-    DOWNLOAD_URL = 'http://groups.csail.mit.edu/vision/LabelMe/NewImages/indoorCVPR_09.tar'
+    DOWNLOAD_URL = 'https://groups.csail.mit.edu/vision/LabelMe/NewImages/indoorCVPR_09.tar'
     with tempfile.TemporaryDirectory() as tempdir:
         download_and_extract_archive(
             DOWNLOAD_URL, tempdir, extract_root=dataroot, remove_finished=True)
