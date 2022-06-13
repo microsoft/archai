@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 """
-The code below is 
+The code below is
 directly from https://raw.githubusercontent.com/IssamLaradji/sls/master/others/cocob.py
 Two coin betting optimization algorithms are implemented here :
 Cocob Backprop: https://arxiv.org/pdf/1705.07795.pdf
@@ -14,7 +14,7 @@ convex functions.
 Cocob-Ons is an experimental variation from paper.
 Please don't use it yet.
 
-Please check http://francesco.orabona.com/papers/slides_cocob.pdf for
+Please check https://francesco.orabona.com/papers/slides_cocob.pdf for
 simple explanation for going from coin betting game to convex optimization.
 Both algorithms are similar except the coin betting strategy used.
 """
