@@ -14,15 +14,15 @@ from torchvision.datasets.utils import check_integrity, download_url
 
 _ARCHIVE_DICT = {
     'train': {
-        'url': 'http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_train.tar',
+        'url': 'https://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_train.tar',
         'md5': '1d675b47d978889d74fa0da5fadfb00e',
     },
     'val': {
-        'url': 'http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_val.tar',
+        'url': 'https://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_val.tar',
         'md5': '29b22e2961454d5413ddabcf34fc5622',
     },
     'devkit': {
-        'url': 'http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_devkit_t12.tar.gz',
+        'url': 'https://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_devkit_t12.tar.gz',
         'md5': 'fa75699e90414af021442c21a62c3abf',
     }
 }
@@ -30,7 +30,7 @@ _ARCHIVE_DICT = {
 # copy ILSVRC/ImageSets/CLS-LOC/train_cls.txt to ./root/
 # to skip os walk (it's too slow) using ILSVRC/ImageSets/CLS-LOC/train_cls.txt file
 class ImageNetFolder(torchvision.datasets.ImageFolder):
-    """`ImageNetFolder <http://image-net.org/>`_ 2012 Classification Dataset.
+    """`ImageNetFolder <https://image-net.org/>`_ 2012 Classification Dataset.
 
     Args:
         root (string): Root directory of the ImageNet Dataset.

@@ -12,7 +12,7 @@ _InceptionOuputs = namedtuple('InceptionOuputs', ['logits', 'aux_logits'])
 
 def inception_v3(pretrained=False, progress=True, device='cpu', **kwargs):
     r"""Inception v3 model architecture from
-    `"Rethinking the Inception Architecture for Computer Vision" <http://arxiv.org/abs/1512.00567>`_.
+    `"Rethinking the Inception Architecture for Computer Vision" <https://arxiv.org/abs/1512.00567>`_.
 
     .. note::
         **Important**: In contrast to the other models the inception_v3 expects tensors with a size of
@@ -39,7 +39,7 @@ class Inception3(nn.Module):
         super(Inception3, self).__init__()
         self.aux_logits = aux_logits
         self.transform_input = transform_input
-        
+
         ## CIFAR10: stride 2->1, padding 0 -> 1
         self.Conv2d_1a_3x3 = BasicConv2d(3, 192, kernel_size=3, stride=1, padding=1)
 #         self.Conv2d_2a_3x3 = BasicConv2d(32, 32, kernel_size=3)
@@ -82,7 +82,7 @@ class Inception3(nn.Module):
             x = torch.cat((x_ch0, x_ch1, x_ch2), 1)
         # N x 3 x 299 x 299
         x = self.Conv2d_1a_3x3(x)
-        
+
         ## CIFAR10
         # N x 32 x 149 x 149
 #         x = self.Conv2d_2a_3x3(x)
