@@ -1,5 +1,5 @@
 # assumes you have already run "az login" and "az account set --subscription id"
-# also assume you have run "az aks install-cli"
+# also assumes you have run "az aks install-cli"
 
 $resource_group = "snpe-quantizaton-rg"
 $registry_name = "snpecontainerregistry001"
@@ -105,7 +105,7 @@ if ($rc.Contains("ResourceNotFound")) {
     Write-Host Creating container registry $registry_name...
     $rc = &az acr create --resource-group $resource_group --name $registry_name --sku Standard 2>&1
     Check-Provisioning -result $rc
-    $rc = &az acr az acr update --name $resource_group --anonymous-pull-enabled true --admin-enabled true 
+    $rc = &az acr az acr update --name $resource_group --anonymous-pull-enabled true --admin-enabled true
 }
 
 Check-Provisioning -result $rc
@@ -176,14 +176,15 @@ Write-Host docker build --build-arg "`"MODEL_STORAGE_CONNECTION_STRING=$Env:MODE
   --build-arg "GITHUB_PAT=$Env:GITHUB_PAT" . --progress plain
 
 Write-Host ""
-Write-Host "### Run the above docker builld to build the docker image and the following to publish it..."
+Write-Host "### Run the above docker build to build the docker image and the following to publish it..."
 Write-Host "Get the password from Azure portal for $registry_name under Access keys:"
 Write-Host "  docker login $acrServer -u $registry_name -p <get password>"
-Write-Host "  docker tag ... snpecontainerregistry001.azurecr.io/quantizer:1.1"
-Write-Host "  docker push snpecontainerregistry001.azurecr.io/quantizer:1.1"
-Write-Host "  az acr repository delete --name $registry_name --image <previous_version> -u $registry_name -p <get password>"
-Write-Host "### Make sure the right image version is mentioned in quant.yaml..."
 Write-Host "  az aks get-credentials --resource-group $resource_group --name $aks_cluster"
+Write-Host "  docker tag ... $registry_name.azurecr.io/quantizer:1.1"
+Write-Host "  docker push $registry_name.azurecr.io/quantizer:1.1"
+Write-Host "  az acr repository delete --name $registry_name --image <previous_version> -u $registry_name -p <get password>"
+Write-Host ""
+Write-Host "### Make sure the mtaching image version is mentioned in quant.yaml..."
 Write-Host "  kubectl apply -f quant.yaml"
 
 # $output = Join-String -Separator "`n" -InputObject $rc
