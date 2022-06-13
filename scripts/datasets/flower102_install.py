@@ -54,7 +54,7 @@ def check_flower102(dataroot: str) -> bool:
 
 
 def download(dataroot: str):
-    DOWNLOAD_URL = 'http://www.robots.ox.ac.uk/~vgg/data/flowers/102/102flowers.tgz'
+    DOWNLOAD_URL = 'https://www.robots.ox.ac.uk/~vgg/data/flowers/102/102flowers.tgz'
     with tempfile.TemporaryDirectory() as tempdir:
         download_and_extract_archive(
             DOWNLOAD_URL, tempdir, extract_root=dataroot, remove_finished=True)
