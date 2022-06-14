@@ -63,7 +63,7 @@ def prepare_data(dataroot:str)->None:
 
 
 def download(dataroot:str):
-    DOWNLOAD_URL = 'http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz'
+    DOWNLOAD_URL = 'https://data.vision.ee.ethz.ch/cvl/food-101.tar.gz'
     download_and_extract_archive(DOWNLOAD_URL, tempfile.tempdir, extract_root=dataroot, remove_finished=True)
 
 if __name__ == '__main__':
@@ -74,7 +74,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     prepare_data(args.dataroot)
-
-
-
-
