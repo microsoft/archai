@@ -387,7 +387,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
     quantized_model = os.path.join(snpe_model_dir, 'model.quant.dlc')
     if not os.path.isfile(quantized_model):
         _, long_name, model = download_model(name, snpe_model_dir, conn_string, 'model.quant.dlc')
-        if not os.path.isfile(model):
+        if not model or not os.path.isfile(model):
             raise Exception("??? quantized model should exist at this point...")
     else:
         model = quantized_model
