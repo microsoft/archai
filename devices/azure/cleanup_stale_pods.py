@@ -31,7 +31,7 @@ for row in podinfo['items']:
 for e in get_all_status_entities():
     name = e['name']
     changed = False
-    if 'node' in e:
+    if 'node' in e and e['node']:
         node = e['node']
         status = e['status'] if 'status' in e else 'none'
         print(f"Found lock by {node} with status {status}")
