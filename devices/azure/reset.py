@@ -11,14 +11,11 @@ CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 def reset_metrics(entity, f1, ifs, macs):
     # now clear all data to force a full re-run of everything.
-    if f1 and "f1_1k" in entity:
-        del entity["f1_1k"]
-    if f1 and "f1_10k" in entity:
-        del entity["f1_10k"]
-    if f1 and "f1_1k_f" in entity:
-        del entity["f1_1k_f"]
-    if f1 and "f1_onnx" in entity:
-        del entity["f1_onnx"]
+    if f1:
+        for key in ['f1_1k', 'f1_10k', 'f1_1k_f', 'f1_onnx']:
+            if key in entity:
+                print(f"Resetting '{key}'")
+                del entity[key]
     if ifs:
         if "mean" in entity:
             del entity["mean"]
@@ -60,6 +57,7 @@ if __name__ == '__main__':
 
     entity = get_status(friendly_name)
     reset_metrics(entity, f1, ifs, macs)
+    entity['status'] = 'reset'
     update_status_entity(entity)
 
     if quant:
