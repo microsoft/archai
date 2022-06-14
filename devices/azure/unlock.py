@@ -3,9 +3,10 @@
 import argparse
 import os
 import sys
-from status import get_all_status_entities, update_status_entity
+from status import get_all_status_entities, merge_status_entity
 
 CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
+
 
 def unlock(node_name=None):
     conn_string = os.getenv(CONNECTION_NAME)
@@ -21,12 +22,12 @@ def unlock(node_name=None):
         if 'node' in e:
             if node_name and node_name != node:
                 continue
-            del e['node']
+            e['node'] = ''
             changed = True
 
         if changed:
             print(f"Unlocking job {name} on node {node}")
-            update_status_entity(e)
+            merge_status_entity(e)
 
 
 if __name__ == '__main__':

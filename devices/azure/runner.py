@@ -59,7 +59,7 @@ from test_snpe import setup_libs, convert_model, quantize_model, setup_model, ru
 from test_snpe import run_batches, set_device, get_device
 from create_data import create_dataset
 from collect_metrics import get_metrics
-from status import get_status, update_status_entity
+from status import get_status, merge_status_entity
 from upload import upload_blob
 from download import download_model, has_model
 from test_onnx import run_onnx
@@ -117,7 +117,7 @@ def convert(name, entity, long_name, model_path):
 
     entity['model_name'] = long_name
     entity['status'] = 'converting'
-    update_status_entity(entity)
+    merge_status_entity(entity)
 
     shape = None
     if 'shape' in entity:
@@ -128,12 +128,12 @@ def convert(name, entity, long_name, model_path):
     if error:
         entity['status'] = 'error'
         entity['error'] = error
-        update_status_entity(entity)
+        merge_status_entity(entity)
         return 'error'
 
     if shape != input_shape:
         entity['shape'] = str(input_shape)
-        update_status_entity(entity)
+        merge_status_entity(entity)
 
     if not quantized:
         print("Uploading converted model: " + model)
@@ -144,7 +144,7 @@ def convert(name, entity, long_name, model_path):
 
 def quantize(name, entity, model):
     entity['status'] = 'quantizing'
-    update_status_entity(entity)
+    merge_status_entity(entity)
 
     input_shape = eval(entity['shape'])
     check_dataset(input_shape, 'quant', 1000)
@@ -154,7 +154,7 @@ def quantize(name, entity, model):
     if error:
         entity['status'] = 'error'
         entity['error'] = error
-        update_status_entity(entity)
+        merge_status_entity(entity)
         return 'error'
 
     # save the quantized .dlc since it takes so long to produce.
@@ -296,7 +296,7 @@ def benchmark(entity, model, name):
             BENCHMARK_RUN_COUNT = 0
         print(f"Running benchmark iteration {total_benchmark_runs} of {MAX_BENCHMARK_RUNS}...")
         entity['status'] = 'running benchmark'
-        update_status_entity(entity)
+        merge_status_entity(entity)
 
         start = get_utc_date()
         ifs, perf_result = run_benchmark(model, name, input_shape, snpe_root, 5, BENCHMARK_INPUT_SIZE)
@@ -320,7 +320,7 @@ def benchmark(entity, model, name):
     if is_benchmark_only(entity, False) and total_benchmark_runs == MAX_BENCHMARK_RUNS:
         entity['status'] = 'complete'
         entity['completed'] = get_utc_date()
-    update_status_entity(entity)
+    merge_status_entity(entity)
     return True
 
 
@@ -353,7 +353,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
     if not onnx_model_found or not os.path.isfile(onnx_model):
         entity['status'] = 'error'
         entity['error'] = 'missing model'
-        update_status_entity(entity)
+        merge_status_entity(entity)
         print(f"### no model found for {name}")
         return
 
@@ -371,7 +371,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
     elif not is_quantized and not converted:
         entity['status'] = 'error'
         entity['error'] = 'missing model'
-        update_status_entity(entity)
+        merge_status_entity(entity)
         print(f"### no model found for {name}")
         return
 
@@ -400,7 +400,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         entity['macs'] = macs
         entity['params'] = EntityProperty(params, EdmType.INT64)
         entity['status'] = 'converted'
-        update_status_entity(entity)
+        merge_status_entity(entity)
         upload_blob(name, html)
         return
 
@@ -425,7 +425,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
             # this is a model that is prequantized, we don't have the original
             entity[prop] = 'n/a'
             entity['status'] = '.dlc model not found'
-            update_status_entity(entity)
+            merge_status_entity(entity)
             return
         model = os.path.join(snpe_model_dir, 'model.dlc')
         os.remove(quantized_model)  # make sure we can't run this one.
@@ -452,15 +452,15 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         if not onnx_model_found:
             entity[prop] = 'n/a'
             entity['status'] = 'onnx file not found'
-            update_status_entity(entity)
+            merge_status_entity(entity)
             return
         else:
             entity['status'] = f'Running {prop}'
-            update_status_entity(entity)
+            merge_status_entity(entity)
             snpe_output_dir = onnx(name, dataset, onnx_model, test_size)
     else:
         entity['status'] = f'Running {prop}'
-        update_status_entity(entity)
+        merge_status_entity(entity)
         test_input = os.path.join('data', 'test')
         start = get_utc_date()
         run_batches(filename, test_input, snpe_output_dir)
@@ -473,19 +473,19 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
     except Exception as ex:
         entity['status'] = 'error'
         entity['error'] = str(ex)
-        update_status_entity(entity)
+        merge_status_entity(entity)
         return
 
     print(f"### Saving {prop} score of {f1score}")
     entity[prop] = f1score
-    update_status_entity(entity)
+    merge_status_entity(entity)
     upload_blob(name, test_results, f"test_results_{prop}.png")
     upload_blob(name, chart, f"pr_curve_{prop}.csv")
 
     if 'f1_1k' in entity and 'f1_10k' in entity and 'f1_1k_f' in entity and 'f1_onnx' in entity:
         entity['status'] = 'complete'
         print(f"Completed {name}")
-    update_status_entity(entity)
+        merge_status_entity(entity)
 
 
 def clear_random_inputs():

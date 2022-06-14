@@ -6,7 +6,7 @@ import random
 import sys
 import platform
 from azure.storage.blob import BlobClient, ContainerClient
-from status import get_status, update_status_entity, get_all_status_entities, get_utc_date
+from status import get_status, merge_status_entity, get_all_status_entities, get_utc_date
 from reset import reset_metrics
 from delete import delete_blobs
 
@@ -74,7 +74,7 @@ def upload(model, name, priority=None, benchmark_only=False):
 
     e['status'] = 'uploading'
     e['node'] = get_node_id()  # lock the row until upload complete
-    update_status_entity(e)
+    merge_status_entity(e)
     upload_blob(name, model)
     # remove any cached dlc files since they need to be redone now.
     delete_blobs(name, 'model.dlc')
@@ -83,14 +83,13 @@ def upload(model, name, priority=None, benchmark_only=False):
     # record status of new record.
     reset_metrics(e, True, True, True)
     e['status'] = 'new'
-    del e['node']  # unlock the row.
     e['model_date'] = get_utc_date()
     if priority:
         e['priority'] = priority
     if benchmark_only:
         e['benchmark_only'] = 1 if benchmark_only else 0
 
-    update_status_entity(e)
+    merge_status_entity(e)
 
 
 if __name__ == '__main__':
