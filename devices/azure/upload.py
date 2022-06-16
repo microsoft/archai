@@ -63,7 +63,7 @@ def upload_blob(name, file, blob_name=None):
         blob_client.upload_blob(data, overwrite=True)
 
 
-def upload(model, name, priority=None, benchmark_only=False):
+def upload(model, name, priority=None, benchmark_only=False, use_pillow=False):
     if not name:
         name = allocate_name()
         print(f"Model friendly name allocated: {name}")
@@ -88,6 +88,8 @@ def upload(model, name, priority=None, benchmark_only=False):
         e['priority'] = priority
     if benchmark_only:
         e['benchmark_only'] = 1 if benchmark_only else 0
+    if use_pillow:
+        e['use_pillow'] = 1 if use_pillow else 0
 
     merge_status_entity(e)
 
@@ -102,5 +104,8 @@ if __name__ == '__main__':
                         'Larger numbers mean lower priority')
     parser.add_argument('--benchmark_only', help='Run only the benchmark tests and skip all the F1 tests',
                         action="store_true")
+    parser.add_argument('--use_pillow', help='The image resizing should be done using pillow instead of opencv',
+                        action="store_true")
     args = parser.parse_args()
-    upload(args.model, args.name, priority=args.priority, benchmark_only=args.benchmark_only)
+    upload(args.model, args.name, priority=args.priority, benchmark_only=args.benchmark_only,
+           use_pillow=args.use_pillow)

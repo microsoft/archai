@@ -10,7 +10,7 @@ import tqdm
 from create_data import DataGenerator
 
 
-def run_onnx(dataset_dir, model, out_dir, test_size=1000, show=False):
+def test_onnx(dataset_dir, model, out_dir, test_size=1000, show=False):
     os.makedirs(out_dir, exist_ok=True)
     provider_list = ['CPUExecutionProvider']
     if 'CUDAExecutionProvider' in get_available_providers():
@@ -94,4 +94,4 @@ if __name__ == '__main__':
             print("please provide --input or set your INPUT_DATASET environment vairable")
             sys.exit(1)
 
-    run_onnx(dataset, args.model, args.output, show=args.show)
+    test_onnx(dataset, args.model, args.output, show=args.show)

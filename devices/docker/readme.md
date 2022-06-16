@@ -32,11 +32,11 @@ talk to the right azure storage account.
 ## Dockerfile
 
 This builds a docker image that you can run in a Azure Kubernetes cluster that will do SNPE model
-quantization in the cloud.  This frees up your Linux box that is managine Qualcomm devices and helps
+quantization in the cloud.  This frees up your Linux box that is managing Qualcomm devices and helps
 you increase your Qualcomm device utilization.
 
 The `Setup.ps1` script shows what docker commands to run to build the image, how to login to your
-azure docker container registry, how to take your image for that container registry, and push it
+azure docker container registry, how to take your image for that container registry and push it
 to Azure.  So you do not need to use the public docker.org container registry.  You will decide
 what version number to attach to your image here and the same version needs to be specified in the
 following `quant.yaml`.
@@ -57,8 +57,11 @@ of the image to use is specified in this file so you may need to edit the file a
 version `1.13` to whatever you just tagged and pushed to the azure container registry.
 
 Notice this yaml configures AKS to scale up to 100 nodes if necessary and the scaling is triggered
-when a given node passes 40% CPU utilization.  You can tweak these numbers however you like to
-fit your budget.
+when a given node passes 40% CPU utilization.  You can tweak these numbers however you like to fit
+your budget. But you may be surprised by how cheap AKS is. In a month of quantizing over 8000
+models, my Azure cost analysis shows a total cost of around $8. A drop in the bucket compared to
+model training costs. The AKS cluster auto-scales, so most of the time it is scaled down to 1 node
+and sitting idle, generating very little cost.
 
 You can run `kubectl get pods` to see what is running in Azure and you should see something like this:
 ```
@@ -67,14 +70,7 @@ snpe-quantizer-54dcf74c99-kfj8p   0/1     ContainerCreating   0          4s
 snpe-quantizer-845c7cfcd8-q8kjh   1/1     Running             0          47h
 ```
 
-
 ## run.sh
 
 This little script is used as the entry point to the Docker image, you will see this in the last
-`RUN` command in the Dockerfile.  But you may be surprised by how cheap AKS is. In a month of
-quantizing over 8000 models, my Azure cost analysis shows a total cost of around $8. A drop in the
-bucket compared to model training costs. The AKS cluster auto-scales, so most of the time it is
-scaled down to 1 node and sitting idle, generating very little cost.
-
-
-
+`RUN` command in the Dockerfile.
