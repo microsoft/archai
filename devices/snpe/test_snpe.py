@@ -47,7 +47,7 @@ def get_device():
     return DEVICE
 
 
-def get_input_layout(shape):
+def _get_input_layout(shape):
     # snpe-onnx-to-dlc supported input layouts are:
     # NCHW, NHWC, NFC, NCF, NTF, TNF, NF, NC, F, NONTRIVIAL
     # N = Batch, C = Channels, H = Height, W = Width, F = Feature, T = Time
@@ -78,7 +78,7 @@ def onnx_to_dlc(model, model_dir):
     shape = input_meta.shape
     if len(shape) == 4:
         shape = shape[1:]  # trim off batch dimension
-    layout = get_input_layout(shape)
+    layout = _get_input_layout(shape)
     input_shape = ",".join([str(i) for i in input_meta.shape])
     output_dlc = f"{model_dir}/{basename}.dlc"
     # snpe-onnx-to-dlc changes the model input to NHWC.
@@ -102,18 +102,8 @@ def onnx_to_dlc(model, model_dir):
     return [output_dlc, dlc_shape]
 
 
-def tensorflow_to_dlc(model):
-    print("Tensorflow not yet supported")
-    return [None, None]
-
-
-def pytorch_to_dlc(model):
-    print("Pytorch not yet supported")
-    return [None, None]
-
-
 def convert_model(model, model_dir, input_shape=None):
-    """ Converts the given model from .onnx or .pt, or .pd formats and returns
+    """ Converts the given model from .onnx form to .dlc and returns
     the path to the .dlc file, True if a conversion was run, and an optional
     error message if something went wrong.  Also returns the input shape.
     It also returns True if the model is already quantized.  So the result
@@ -147,10 +137,6 @@ def convert_model(model, model_dir, input_shape=None):
                 if model != newfile:
                     copyfile(model, newfile)
                 return [newfile, input_shape, True, None]
-    elif ext == ".pb":
-        model, shape = tensorflow_to_dlc(model)
-    elif ext == ".pt":
-        model, shape = pytorch_to_dlc(model)
 
     if model is None:
         return [None, None, False, f"### Model extension {ext} not supported"]
@@ -515,7 +501,8 @@ def run_throughput(model, duration):
             print(out)
 
 
-def compute_results():
+def compute_results(shape):
+    image_size = tuple(shape)[1:2]
     output_dir = os.path.join('snpe_output')
     if not os.path.isdir(output_dir):
         print("No 'snpe_output' folder, please run --download first")
@@ -525,7 +512,7 @@ def compute_results():
         print("Please set your INPUT_DATASET environment variable")
         return
 
-    return get_metrics((256, 256), False, dataset, output_dir)
+    return get_metrics(image_size, False, dataset, output_dir)
 
 
 def run_batches(model, images, output_dir):
@@ -614,4 +601,4 @@ if __name__ == '__main__':
 
     if args.images:
         run_batches(model, args.images, OUTPUT_DIR)
-        compute_results()
+        compute_results(shape)

@@ -11,25 +11,23 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import PrecisionRecallDisplay
 from PIL import Image
 
-USE_PILLOW = False
-
 # Check the outputs of the Mask C-RNN model inference
 
 
-def get_dataset_image(filename, dataset):
+def _get_dataset_image(filename, image_shape, dataset):
     inp_f = os.path.splitext(filename)[0] + ".png"
     img_file = os.path.join(dataset, inp_f)
     if not os.path.isfile(img_file):
-        print(f"### ground truth {img_file} not found")
+        print(f"### dataset {img_file} not found")
         sys.exit(1)
 
     img = cv2.imread(img_file)[..., ::-1]     # BGR to RGB
-    img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_LINEAR)
-    img = img[..., ::-1]  # BGR to R
+    img = cv2.resize(img, image_shape, interpolation=cv2.INTER_LINEAR)
+    img = img[..., ::-1]  # BGR to RGB
     return img
 
 
-def get_dataset_gt(filename, dataset, img_shape, use_pillow=False):
+def _get_dataset_gt(filename, dataset, img_shape, use_pillow=False):
     seg_name = os.path.splitext(filename)[0] + '_seg.png'
     gt_f = os.path.join(dataset, seg_name)
     if not os.path.isfile(gt_f):
@@ -51,18 +49,10 @@ def show_output(img_shape, transpose, dataset, outputs):
     output_list = [x for x in os.listdir(outputs) if x.endswith('.raw')]
     output_list.sort()
     for out_f in output_list:
-        inp_f = os.path.splitext(out_f)[0] + ".png"
-        img_file = os.path.join(dataset, inp_f)
-        if not os.path.isfile(img_file):
-            print(f"### ground truth {img_file} not found")
-            continue
-
-        img = get_dataset_image(out_f, dataset)
-        img = cv2.imread(img_file)[..., ::-1]     # BGR to RGB
-        img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_LINEAR)
-        img = img[..., ::-1]  # BGR to RGB
+        img = _get_dataset_image(out_f, img_shape, dataset)
 
         logits = np.fromfile(os.path.join(outputs, out_f), dtype=np.float32)
+        print(img_shape)
         if (transpose):
             logits = logits.reshape((-1, img_shape[0], img_shape[1])).transpose(transpose)
         else:
@@ -121,7 +111,7 @@ def get_metrics(img_shape, transpose, dataset, outputs, use_pillow=False):
     neg_by_score = np.zeros((num_classes, bins + 1))
     with tqdm.tqdm(total=len(output_list)) as pbar:
         for out_f in output_list:
-            gt_seg = get_dataset_gt(out_f, dataset, img_shape, use_pillow)
+            gt_seg = _get_dataset_gt(out_f, dataset, img_shape, use_pillow)
             ignore_mask = (gt_seg == 255)
             gt_seg[ignore_mask] = 0
             gt_seg = gt_seg.astype(np.int32)
@@ -247,6 +237,7 @@ if __name__ == '__main__':
                         default='snpe_output')
     parser.add_argument('--transpose', '-t', help='Transpose channels by (1,2,0)', action="store_true")
     parser.add_argument('--pillow', help="Resize images using Pillow instead of numpy", action="store_true")
+    parser.add_argument('--image_shape', help="Resize images this size, must match the size of the output images (default '256,256')")
     args = parser.parse_args()
 
     use_pillow = args.pillow
@@ -270,7 +261,11 @@ if __name__ == '__main__':
         print("Experiment 'output' dir not found: " + output_dir)
         sys.exit(1)
 
+    image_shape = (256, 256)
+    if args.image_shape:
+        image_shape = tuple(eval(args.image_shape))
+
     if args.show:
-        show_output((256, 256), transpose, dataset, output_dir)
+        show_output(image_shape, transpose, dataset, output_dir)
     else:
-        get_metrics((256, 256), transpose, dataset, output_dir, use_pillow)
+        get_metrics(image_shape, transpose, dataset, output_dir, use_pillow)
