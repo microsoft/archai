@@ -50,21 +50,6 @@ if ("$Env:INPUT_TESTSET" -eq ""){
     exit 1
 }
 
-if ("$Env:GITHUB_PAT" -eq ""){
-    Write-Host "Please set your GITHUB_PAT so we can access the https://github.com/lovettchris/snpe_runner repository"
-    exit 1
-}
-
-if ("$Env:MODEL_STORAGE_CONNECTION_STRING" -eq ""){
-    Write-Host "Please set your MODEL_STORAGE_CONNECTION_STRING to specify which storage account to use for the model runner."
-    exit 1
-}
-
-if (-not $Env:MODEL_STORAGE_CONNECTION_STRING.contains($storage_container)){
-    Write-Host "Please check your MODEL_STORAGE_CONNECTION_STRING is pointing to $storage_container."
-    exit 1
-}
-
 Write-Host "Checking azure account..."
 $output = &az account show 2>&1
 if ($output.Contains("ERROR:"))
@@ -97,7 +82,6 @@ if ($rc.Contains("ResourceNotFound")) {
 Check-Provisioning -result $rc
 
 $conn_str = GetConnectionString
-Write-Host "Connection string is $conn_str"
 
 Write-Host Checking container registry $registry_name
 $rc = &az acr show --resource-group $resource_group --name $registry_name 2>&1
@@ -170,10 +154,12 @@ $test_set_url="https://$storage_account_name.blob.core.windows.net/downloads/$fi
 Write-Host "Test set url is $test_set_url"
 
 # ================= Write out info/next steps ================
-Write-Host docker build --build-arg "`"MODEL_STORAGE_CONNECTION_STRING=$Env:MODEL_STORAGE_CONNECTION_STRING`"" `
+
+Write-Host ""
+Write-Host docker build --build-arg "`"MODEL_STORAGE_CONNECTION_STRING=$conn_str`"" `
   --build-arg "SNPE_SDK=$snpe_sdk_url" --build-arg "SNPE_SDK_FILENAME=$snpe_sdk_filename" --build-arg "SNPE_ROOT=/home/archai/$snpe_root" `
   --build-arg "ANDROID_NDK=$android_ndk_url" --build-arg "ANDROID_NDK_FILENAME=$android_ndk_filename" --build-arg "ANDROID_NDK_ROOT=/home/archai/$android_ndk_root" `
-  --build-arg "GITHUB_PAT=$Env:GITHUB_PAT" . --progress plain
+  . --progress plain
 
 Write-Host ""
 Write-Host "### Run the above docker build to build the docker image and the following to publish it..."
@@ -187,5 +173,6 @@ Write-Host ""
 Write-Host "### Make sure the mtaching image version is mentioned in quant.yaml..."
 Write-Host "  kubectl apply -f quant.yaml"
 
-# $output = Join-String -Separator "`n" -InputObject $rc
-# Write-Host $output
+Write-Host ""
+Write-Host "### To run the runner script locally please set the following environment variable: "
+Write-HOst "set MODEL_STORAGE_CONNECTION_STRING=$conn_str"
