@@ -8,7 +8,6 @@ ARG SNPE_ROOT
 ARG ANDROID_NDK
 ARG ANDROID_NDK_FILENAME
 ARG ANDROID_NDK_ROOT
-ARG GITHUB_PAT
 
 RUN apt-get update && apt-get install -y git unzip curl python3 python3-pip cmake ffmpeg libsm6 libxext6 wget locales
 
@@ -21,7 +20,6 @@ WORKDIR /home/archai
 RUN echo "export MODEL_STORAGE_CONNECTION_STRING=\"$MODEL_STORAGE_CONNECTION_STRING\"" >> /home/archai/.profile
 RUN echo "export SNPE_ROOT=$SNPE_ROOT" >> /home/archai/.profile
 RUN echo "export ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" >> /home/archai/.profile
-RUN echo "export GITHUB_PAT=$GITHUB_PAT" >> /home/archai/.profile
 RUN echo "export INPUT_DATASET=/home/archai/datasets/FaceSynthetics" >> /home/archai/.profile
 RUN echo "export PATH=$PATH:/home/archai" >> /home/archai/.profile
 RUN echo "export LC_ALL=en_US.UTF-8" >> /home/archai/.profile
@@ -35,7 +33,7 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 
 # this echo is a trick to bypass docker build cache.
 # simply change the echo string every time you want docker build to pull down new bits.
-RUN echo '06/13/2022 05:57 PM' >/dev/null && git clone "https://lovettchris:${GITHUB_PAT}@github.com/microsoft/archai.git"
+RUN echo '06/16/2022 10:16 AM' >/dev/null && git clone "https://github.com/microsoft/archai.git"
 
 RUN source /home/archai/.profile && \
     pushd /home/archai/archai/devices && \

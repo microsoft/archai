@@ -22,7 +22,6 @@ import psutil
 import logging
 import traceback
 from shutil import rmtree
-from priority_queue import PriorityQueue
 from status import get_all_status_entities, get_utc_date, merge_status_entity
 from usage import add_usage
 from azure.data.tables import EntityProperty, EdmType
@@ -59,6 +58,7 @@ from test_snpe import setup_libs, convert_model, quantize_model, setup_model, ru
 from test_snpe import run_batches, set_device, get_device
 from create_data import create_dataset
 from collect_metrics import get_metrics
+from priority_queue import PriorityQueue
 from status import get_status, merge_status_entity
 from upload import upload_blob
 from download import download_model, has_model
