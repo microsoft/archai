@@ -62,7 +62,7 @@ from priority_queue import PriorityQueue
 from status import get_status, merge_status_entity
 from upload import upload_blob
 from download import download_model, has_model
-from test_onnx import run_onnx
+from test_onnx import test_onnx
 from dlc_helper import view_model, get_dlc_metrics
 
 
@@ -236,11 +236,11 @@ def unlock_job(entity, service=None):
     return entity
 
 
-def onnx(name, dataset, model_path, test_size):
+def run_onnx(name, dataset, model_path, test_size):
     out_dir = os.path.join(name, SNPE_OUTPUT_DIR, 'onnx_outputs')
     if os.path.isdir(out_dir):
         rmtree(out_dir)
-    run_onnx(dataset, model_path, out_dir, test_size)
+    test_onnx(dataset, model_path, out_dir, test_size)
     return out_dir
 
 
@@ -440,11 +440,13 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         # why are we here?
         return
 
+    input_shape = eval(entity['shape'])
+    input_size = tuple(input_shape)[0:2]  # e.g. (256,256)
+
     # copy model to the device.
     if prop != 'f1_onnx':
         # now that we have the shape, we can create the appropriate quant and test
         # datasets!
-        input_shape = eval(entity['shape'])
         check_dataset(input_shape, 'test', test_size)
         filename = setup_model(model)
 
@@ -457,7 +459,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         else:
             entity['status'] = f'Running {prop}'
             merge_status_entity(entity)
-            snpe_output_dir = onnx(name, dataset, onnx_model, test_size)
+            snpe_output_dir = run_onnx(name, dataset, onnx_model, test_size)
     else:
         entity['status'] = f'Running {prop}'
         merge_status_entity(entity)
@@ -468,8 +470,8 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         add_usage(get_device(), start, end)
 
     try:
-        use_pillow = True if name.startswith('Deci') else False
-        test_results, chart, f1score = get_metrics((256, 256), False, dataset, snpe_output_dir, use_pillow)
+        use_pillow = 'use_pillow' in entity and entity['use_pillow']
+        test_results, chart, f1score = get_metrics(input_size, False, dataset, snpe_output_dir, use_pillow)
     except Exception as ex:
         entity['status'] = 'error'
         entity['error'] = str(ex)
@@ -526,12 +528,6 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
         name = entity['name']
         if subset_list is not None and name not in subset_list:
             continue
-
-        if 'shape' in entity:
-            input_shape = eval(entity['shape'])
-            if input_shape != [256, 256, 3]:
-                # skip these for now!
-                continue
 
         total_benchmark_runs = benchmarks_complete(entity)
         if is_locked(entity):
