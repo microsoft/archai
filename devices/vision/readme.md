@@ -4,7 +4,7 @@
 folder, run `collect_metrics.py --help` to see the command line args. The `--show` option visualizes
 the results, for example:
     ```
-    python collect_metrics.py --input d:\datasets\FaceSynthetics --show
+    python collect_metrics.py --input d:\datasets\FaceSynthetics --output .\Results --show
     ```
     You should see something like this:
 

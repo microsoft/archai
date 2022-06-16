@@ -9,14 +9,14 @@ and `Show Keys` and copy the one named `Connection string`.
 In Linux you should use double quotes around the connection string like this:
 
 ```
-export MODEL_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=mymodels;AccountKey=OKk3V12346789wr5No+tIc/C7DFIY12812721BURfR  ... ==;EndpointSuffix=core.windows.net"
+export MODEL_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=mymodels;AccountKey=...==;EndpointSuffix=core.windows.net"
 ```
 
 You'll use it a lot so it is handy if you put it in your `~/.profile`.
 
 Then you can use the scripts here as follows:
 
-1. `upload.py` - upload a new model, it will allocate a friendly name for your model if you 
+1. `upload.py` - upload a new model, it will allocate a friendly name for your model if you
 can't think of one.  All the charts and graphs and tables are more readable if you stick with
 the allocated friendly names.  But the actual model file names can be whatever large name you need.
 

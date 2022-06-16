@@ -1,6 +1,6 @@
 # Readme
 
-This folder contains code that automates the testing of FaceSynthetics models across
+This folder contains code that automates the testing of ONNX models across
 one or more machines that are connected to Qualcomm 888 boards.  Many thanks to
 Yatao Zhong for the original device code included in this test suite.
 
@@ -12,6 +12,9 @@ using the Android `adb` tool.
 1. [Azure Code](azure/readme.md) that talks to a configured Azure storage account for
 uploading models to test, downloading them, uploading test results, and keeping an
 Azure table "status" that summarizes results so far.
+
+1. [Docker](docker/readme.md) scripts for setting up your Azure account and optionally
+creating a docker image for running in an Azure Kubernetes cluster.
 
 1. [Notebooks](notebook/gallery_performance.md) contains a Jupyter Notebook that can
 visualize the results from the Azure table.
