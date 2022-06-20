@@ -97,7 +97,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
         self.operations = list(OPS.keys())
         if op_subset:
-            self.operations = [op for op in self.operations if op in op_subset.split(',')]
+            self.operations = [op for op in self.operations if op in op_subset]
 
         assert len(self.operations) > 0
 
