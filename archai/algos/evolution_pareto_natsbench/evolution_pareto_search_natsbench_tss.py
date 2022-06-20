@@ -169,10 +169,13 @@ class EvolutionParetoSearchNatsbenchTSS(EvolutionParetoSearch):
 
 
     @overrides
-    def crossover_parents(self, parents:List[ArchWithMetaData])->List[ArchWithMetaData]:
+    def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1)->List[ArchWithMetaData]:
         '''TODO: Returning empty for now '''
         return []
 
+    @overrides
+    def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
+        pass
 
     @overrides
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
