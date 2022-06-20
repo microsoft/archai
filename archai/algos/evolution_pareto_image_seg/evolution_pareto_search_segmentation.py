@@ -8,31 +8,27 @@ from collections import OrderedDict
 import random
 import ray
 
-import torch
-
 import numpy as np
 import plotly.graph_objects as go
 from tqdm import tqdm
 
-from archai.common.common import get_conf, get_conf_common
+from archai.common.common import get_conf_common
 from archai.common.common import get_expdir
-from archai.nas.discrete_search_space import DiscreteSearchSpace
-from archai.nas.searcher import Searcher, SearchResult
+from archai.nas.searcher import SearchResult
 from archai.common.common import logger
 from archai.common.config import Config
-from archai.common.trainer import Trainer
 from archai.algos.evolution_pareto.evolution_pareto_search import EvolutionParetoSearch
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.nas_utils import compute_crowding_distance, compute_pareto_hypervolume
 from archai.common import utils
 from archai.search_spaces.discrete_search_spaces.segmentation_search_spaces.discrete_search_space_segmentation import DiscreteSearchSpaceSegmentation
 
-from archai.algos.evolution_pareto_image_seg.segmentation_trainer import SegmentationTrainer, get_custom_overall_metrics
-from archai.algos.evolution_pareto_image_seg.utils import get_onnx_latency, to_onnx, get_utc_date
+from archai.algos.evolution_pareto_image_seg.segmentation_trainer import SegmentationTrainer
+from archai.algos.evolution_pareto_image_seg.utils import get_onnx_latency
 from archai.algos.evolution_pareto_image_seg.report import get_search_status_df, save_3d_pareto_plot, save_2d_pareto_evolution_plot
 from archai.algos.evolution_pareto_image_seg.remote_benchmark import RemoteAzureBenchmark
 
-from archai.nas.constraints.torch_constraints import measure_torch_inference_latency, measure_torch_peak_memory
+from archai.nas.constraints.torch_constraints import measure_torch_peak_memory
 from archai.nas.constraints.pareto_frontier import find_pareto_frontier_points
 
 class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):

@@ -11,31 +11,7 @@ import yaml
 from torch import nn
 import torch
 
-from archai.algos.evolution_pareto_image_seg.ops import OPS, SeparableConvBlock, NormalConvBlock
-
-class Block(nn.Module):
-    def __init__(self, in_ch: int, out_ch: int, in_scale: int, out_scale: int, op_name: str):
-        super().__init__()
-        self.in_ch, self.out_ch = in_ch, out_ch
-        self.in_scale, self.out_scale = in_scale, out_scale
-        self.op_name = op_name
-
-        assert op_name in OPS
-        assert (out_scale % in_scale == 0) or (in_scale % out_scale == 0)
-
-        if out_scale >= in_scale:
-            self.op = nn.Sequential(
-                OPS[op_name](in_ch, out_ch, stride=int(out_scale // in_scale))
-            )
-        else:
-            self.op = nn.Sequential(
-                OPS[op_name](in_ch, out_ch, stride=1),
-                nn.Upsample(scale_factor=int(in_scale // out_scale), mode='nearest')
-            )
-
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        return self.op(input)
-
+from archai.algos.evolution_pareto_image_seg.ops import OPS, Block
 
 class SegmentationNasModel(torch.nn.Module):
     def __init__(self, graph: List[Dict], channels_per_scale: Dict, post_upsample_layers: int = 1,
