@@ -49,6 +49,9 @@ nas:
     num_random_mix: 20 # how many random models to add to the parent mixture 
     use_benchmark: True
     evaluate_at_epoch: 100
+    max_unseen_population: 100
+    mutations_per_parent: 1
+    num_crossovers: 0
     natsbench:
       natsbench_tss_fast: 'NATS-tss-v1_0-3ffb9-simple' # folder name in dataroot/natsbench that contains the tss fast mode folder
     finalizer: 'default' # options are 'random' or 'default'
