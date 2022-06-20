@@ -154,7 +154,7 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
             proxy_objs['soft_constraints_penalty'] = sum(
                 node['scale'] not in soft_constraints['allowed_scales'] or
-                (node['op'] not in soft_constraints['allowed_ops'] and node['op']) or 
+                (node['op'] not in soft_constraints['allowed_ops'] and bool(node['op'])) or 
                 model.arch.channels_per_scale[node['scale']] not in soft_constraints['allowed_channels']
                 for node in model.arch.graph.values()
             ) / len(model.arch.graph.values())
