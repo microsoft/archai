@@ -449,21 +449,16 @@ class GPT2ModelFlex(GPT2PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
 
-        self.embed_dim = config.hidden_size
-
-        if config.div_val >= 1:
-            self.wte = AdaptiveEmbedding(config.vocab_size,
-                                         self.embed_dim,
-                                         config.hidden_size,
-                                         config.cutoffs,
-                                         div_val=config.div_val)
-        else:
-            self.wte = nn.Embedding(config.vocab_size, self.embed_dim)
-        self.wpe = nn.Embedding(config.max_position_embeddings, self.embed_dim)
+        self.wte = AdaptiveEmbedding(config.vocab_size,
+                                        config.d_embed,
+                                        config.hidden_size,
+                                        config.cutoffs,
+                                        div_val=config.div_val)
+        self.wpe = nn.Embedding(config.max_position_embeddings, config.hidden_size)
+        self.ln_f = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_epsilon)
 
         self.drop = nn.Dropout(config.embd_pdrop)
         self.h = nn.ModuleList([GPT2BlockFlex(config, layer_idx=i) for i in range(config.num_hidden_layers)])
-        self.ln_f = nn.LayerNorm(self.embed_dim, eps=config.layer_norm_epsilon)
 
         # Model parallel
         self.model_parallel = False
@@ -719,22 +714,19 @@ class GPT2LMHeadModelFlex(GPT2PreTrainedModel):
         super().__init__(config)
         self.transformer = GPT2ModelFlex(config)
         
-        if config.div_val >= 1:
-            emb_layers = None
-            if config.tie_weight:
-                emb_layers = [i.weight for i in self.transformer.wte.emb_layers]    
-            emb_projs = self.transformer.wte.emb_projs
-            self.lm_head = ProjectedAdaptiveLogSoftmax(config.vocab_size,
-                                                       config.n_embd,
-                                                       config.hidden_size,
-                                                       config.cutoffs,
-                                                       config.adaptive,
-                                                       div_val=config.div_val,
-                                                       tie_projs=config.tie_projs,
-                                                       out_layers_weights=emb_layers,
-                                                       out_projs=emb_projs)
-        else:
-            self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+        emb_layers = None
+        if config.tie_weight:
+            emb_layers = [i.weight for i in self.transformer.wte.emb_layers]    
+        emb_projs = self.transformer.wte.emb_projs
+        self.lm_head = ProjectedAdaptiveLogSoftmax(config.vocab_size,
+                                                    config.d_embed,
+                                                    config.hidden_size,
+                                                    config.cutoffs,
+                                                    config.adaptive,
+                                                    div_val=config.div_val,
+                                                    tie_projs=config.tie_projs,
+                                                    out_layers_weights=emb_layers,
+                                                    out_projs=emb_projs)
 
         # Model parallel
         self.model_parallel = False
