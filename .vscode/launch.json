@@ -1061,6 +1061,15 @@
                     "--out-dir", "/home/dedey/archai_experiment_reports/allavg_heatmaps"]
         },
         {
+            "name": "HF Featurize",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/scripts/misc/hf_featurize.py",
+            "console": "integratedTerminal",
+            "args": [],
+            "env": {"HF_DATASETS_OFFLINE": "0"}
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",
