@@ -1,6 +1,6 @@
 ![archai_logo_black_bg_cropped](https://user-images.githubusercontent.com/9354770/171523113-70c7214b-8298-4d7e-abd9-81f5788f6e19.png)
 
-# Archai: Plataform for Neural Architecture Search
+# Archai: Platform for Neural Architecture Search
 
 [![License](https://img.shields.io/github/license/microsoft/archai)](https://github.com/microsoft/archai/blob/main/LICENSE)
 [![Issues](https://img.shields.io/github/issues/microsoft/archai)](https://github.com/microsoft/archai/issues)
