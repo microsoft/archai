@@ -18,4 +18,5 @@ from .providers.spherical_cifar100_provider import SphericalCifar100Provider
 from .providers.ninapro_provider import NinaproProvider
 from .providers.darcyflow_provider import DarcyflowProvider
 from .providers.lmdb_image_provider import TensorpackLmdbImageProvider
+from .providers.multi_lmdb_image_provider import MultiTensorpackLmdbImageProvider
 from .providers.face_synthetics import FaceSyntheticsProvider
