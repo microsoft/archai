@@ -182,7 +182,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     entities = get_all_status_entities(args.status, args.not_equal)
     if args.locked:
-        entities = [e for e in entities if 'node' in e and e['node'] ]
+        entities = [e for e in entities if 'node' in e and e['node']]
 
     columns = None
     if args.cols:

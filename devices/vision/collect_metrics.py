@@ -237,7 +237,8 @@ if __name__ == '__main__':
                         default='snpe_output')
     parser.add_argument('--transpose', '-t', help='Transpose channels by (1,2,0)', action="store_true")
     parser.add_argument('--pillow', help="Resize images using Pillow instead of numpy", action="store_true")
-    parser.add_argument('--image_shape', help="Resize images this size, must match the size of the output images (default '256,256')")
+    parser.add_argument('--image_shape', help="Resize images this size, must match the size of the output images " +
+                                              "(default '256,256')")
     args = parser.parse_args()
 
     use_pillow = args.pillow

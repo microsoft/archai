@@ -1,3 +1,7 @@
+azure-storage-blob
+azure-data-tables
+azure-identity
+
 numpy==1.19.5
 sphinx==4.5.0
 scipy==1.5.4
@@ -15,6 +19,3 @@ tqdm
 pandas
 flake8
 psutil
-azure-storage-blob
-azure-data-tables
-azure-identity

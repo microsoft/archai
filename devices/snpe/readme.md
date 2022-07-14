@@ -24,12 +24,12 @@ You may need to run `sudo usermod -aG plugdev $LOGNAME`.
 
 1. **Install SNPE SDK on Ubuntu 18.04**.
 See [SNPE Setup](https://developer.qualcomm.com/sites/default/files/docs/snpe/setup.html).
-See [Neural Processing SDK Download](https://developer.qualcomm.com/downloads/qualcomm-neural-processing-sdk-ai-v1600?referrer=node/34505).  It works in Windows WSL2 with an Anaconda Python 3.6 environment.  You can skip the
+See [Neural Processing SDK Download](https://developer.qualcomm.com/downloads/qualcomm-neural-processing-sdk-ai-v1600?referrer=node/34505).  It works in Windows WSL2 with an Anaconda Python 3.8 environment.  You can skip the
 Caffe setup, but use the `requirements.txt` pip install list, the one
 posted in the Qualcomm setup page has conflicting versions.  Then set your `SNPE_ROOT` environment variable
 pointing to the folder containing the unzipped bits.
 
-1. **Install python packages**.  In your Python 3.6 Conda environment run `pip install -r requirements.txt`
+1. **Install python packages**.  In your Python 3.8 Conda environment run `pip install -r requirements.txt`
 
 1. **Create experiment folder**.  The subsequent scripts all assume you are in a folder for running your
 experiment.
@@ -71,12 +71,12 @@ trained ONNX model into this folder.  You should have something like:
 1. **Setup your snpe environment**.  For onnx toolset use the following:
     ```
     pushd ~/snpe/snpe-1.60.0.3313
-    source bin/envsetup.sh -o ~/anaconda3/envs/snap/lib/python3.6/site-packages/onnx
+    source bin/envsetup.sh -o ~/anaconda3/envs/snap/lib/python3.8/site-packages/onnx
     ```
     For tensorflow use:
     ```
     pushd ~/snpe/snpe-1.60.0.3313
-    source bin/envsetup.sh -ot ~/anaconda3/envs/snap/lib/python3.6/site-packages/tensorflow
+    source bin/envsetup.sh -ot ~/anaconda3/envs/snap/lib/python3.8/site-packages/tensorflow
     ```
 
 1. **Convert and quantize model**. Inside your experiment folder, run `bash convert_tf.sh` or `bash

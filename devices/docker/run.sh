@@ -12,7 +12,7 @@ if [[ ! -d /home/archai/datasets/FaceSynthetics ]]; then
 fi
 
 pushd $SNPE_ROOT
-source $SNPE_ROOT/bin/envsetup.sh -o /usr/local/lib/python3.6/dist-packages/onnx
+source $SNPE_ROOT/bin/envsetup.sh -o /usr/local/lib/python3.8/dist-packages/onnx
 popd
 pushd /home/archai/experiment
 
