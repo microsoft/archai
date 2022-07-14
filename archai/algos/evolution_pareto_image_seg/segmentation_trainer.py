@@ -181,7 +181,9 @@ class SegmentationTrainer():
                  criterion_name: str = 'ce', 
                  val_check_interval: Union[int, float] = 0.25, 
                  lr_exp_decay_gamma: float = 0.98,
-                 seed: int = 1):
+                 seed: int = 1,
+                 tr_num_workers: int = 4, 
+                 val_num_workers: int = 4):
         torch.manual_seed(seed)
         random.seed(seed)
         np.random.seed(int(seed))
@@ -192,8 +194,8 @@ class SegmentationTrainer():
         self.dp = create_dataset_provider(dataset_conf)
         self.tr_dataset, self.val_dataset = self.dp.get_train_val_datasets()
 
-        self.tr_dataloader = DataLoader(self.tr_dataset, batch_size=batch_size, num_workers=4, shuffle=True, collate_fn=collate_ignore_empty)
-        self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=4, shuffle=False, collate_fn=collate_ignore_empty)
+        self.tr_dataloader = DataLoader(self.tr_dataset, batch_size=batch_size, num_workers=tr_num_workers, shuffle=True, collate_fn=collate_ignore_empty)
+        self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=val_num_workers, shuffle=False, collate_fn=collate_ignore_empty)
 
         self.model = LightningModelWrapper(model, criterion_name=criterion_name, lr=lr,
                                            img_size=img_size, lr_exp_decay_gamma=lr_exp_decay_gamma,
