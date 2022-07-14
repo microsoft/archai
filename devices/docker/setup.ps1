@@ -3,18 +3,17 @@
 
 $resource_group = "snpe-quantizaton-rg"
 $registry_name = "snpecontainerregistry001"
-$storage_account_name = "nasmodelstorage"
+$storage_account_name = "nasfacemodels"
 $plan_location = "westus2"
 $aks_cluster = "snpe-quantizer-aks"
 $aks_node_vm = "Standard_D16s_v3"
-$storage_container = "nasfacemodels"
 
 function Check-Provisioning($result) {
     $rc = Join-String -Separator "`n" -InputObject $rc
     $x = ConvertFrom-Json $rc
     if ($x.provisioningState -ne "Succeeded") {
-        Write-Host "Failed to create registry"
-        Write-Host $rc
+        Write-Error "Failed to create registry"
+        Write-Error $rc
         exit 1
     }
 }
@@ -23,6 +22,20 @@ function GetConnectionString()
 {
     $x = az storage account show-connection-string --name $storage_account_name  --resource-group $resource_group | ConvertFrom-Json
     return $x.connectionString
+}
+
+function CreateBlobContainer($name)
+{
+    Write-Host "Checking blob container '$name' exists"
+    $rc = &az storage container exists --name $name --connection-string $conn_str  | ConvertFrom-Json
+    if (-not $rc.exists) {
+        Write-Host "Creating blob container $name"
+        $rc = &az storage container create --name $name --resource-group $resource_group --connection-string $conn_str  | ConvertFrom-Json
+        if (-not $rc.created) {
+            Write-Error "Failed to create blob container $name"
+            Write-Error $rc
+        }
+    }
 }
 
 function GetZipRootName($zip)
@@ -82,6 +95,9 @@ if ($rc.Contains("ResourceNotFound")) {
 Check-Provisioning -result $rc
 
 $conn_str = GetConnectionString
+
+CreateBlobContainer -name "models"
+CreateBlobContainer -name "downloads"
 
 Write-Host Checking container registry $registry_name
 $rc = &az acr show --resource-group $resource_group --name $registry_name 2>&1

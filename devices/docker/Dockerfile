@@ -9,7 +9,10 @@ ARG ANDROID_NDK
 ARG ANDROID_NDK_FILENAME
 ARG ANDROID_NDK_ROOT
 
-RUN apt-get update && apt-get install -y git unzip curl python3 python3-pip cmake ffmpeg libsm6 libxext6 wget locales
+RUN apt-get update && apt-get install -y git unzip curl python3.8 python3.8-distutils cmake ffmpeg libsm6 libxext6 wget locales
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 5
+RUN curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
+RUN python3 get-pip.py
 
 # have to ensure default locale is utf-8 otherwise python bails with this error:
 # UnicodeEncodeError: 'ascii' codec can't encode character '\xe7' in position 17: ordinal not in range(128)
@@ -33,12 +36,11 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 
 # this echo is a trick to bypass docker build cache.
 # simply change the echo string every time you want docker build to pull down new bits.
-RUN echo '06/16/2022 10:16 AM' >/dev/null && git clone "https://github.com/microsoft/archai.git"
+RUN echo '07/14/2022 16:35 AM' >/dev/null && git clone "https://github.com/microsoft/archai.git"
 
 RUN source /home/archai/.profile && \
     pushd /home/archai/archai/devices && \
     python3 --version && \
-    pip3 install --upgrade pip && \
     pip3 install -r requirements.txt
 
 COPY run.sh /home/archai/run.sh
