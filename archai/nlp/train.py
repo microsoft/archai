@@ -1070,6 +1070,8 @@ def train_main(args, device, train_itr, valid_itr, model, para_model, model_conf
 
             model.apply(functools.partial(update_dropout, args=args))
             model.apply(functools.partial(update_dropatt, args=args))
+            
+            para_model, model = distributed_model(args, model, device)
         except FileNotFoundError:
             logging.info(f'Could not load checkpoint from {args.restart}, '
                          f'starting training from random init')
