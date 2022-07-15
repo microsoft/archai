@@ -24,7 +24,7 @@ function GetConnectionString()
     return $x.connectionString
 }
 
-function CreateBlobContainer($name)
+function CreateBlobContainer($name, $conn_str)
 {
     Write-Host "Checking blob container '$name' exists"
     $rc = &az storage container exists --name $name --connection-string $conn_str  | ConvertFrom-Json
@@ -35,6 +35,15 @@ function CreateBlobContainer($name)
             Write-Error "Failed to create blob container $name"
             Write-Error $rc
         }
+    }
+}
+
+function EnablePublicAccess($name, $conn_str){
+    Write-Host "Checking blob container '$name' has public access"
+    $rc = &az storage container show-permission --name $name --connection-string $conn_str | ConvertFrom-Json
+    if ($rc.publicAccess -ne "blob" ){
+        Write-Host "Setting blob container '$name' permissions for public access"
+        $rc = &az storage container set-permission --name $name --public-access blob --connection-string $conn_str
     }
 }
 
@@ -96,8 +105,9 @@ Check-Provisioning -result $rc
 
 $conn_str = GetConnectionString
 
-CreateBlobContainer -name "models"
-CreateBlobContainer -name "downloads"
+CreateBlobContainer -name "models" -conn_str $conn_str
+CreateBlobContainer -name "downloads" -conn_str $conn_str
+EnablePublicAccess -name "downloads" -conn_str $conn_str
 
 Write-Host Checking container registry $registry_name
 $rc = &az acr show --resource-group $resource_group --name $registry_name 2>&1
