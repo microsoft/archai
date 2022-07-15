@@ -144,10 +144,7 @@ class TensorpackLmdbImageProvider(DatasetProvider):
         Expects a configuration file with the following keys:
         - tr_lmdb: relative path to the dataroot of the training LMDB 
         - te_lmdb: relative path to the dataroot of the test LMDB  (optional)
-        - kwargs from the TensorpackLmdbImageDataset constructor
-
-        Expects training and test datasets to be in distinct directories following
-        the pattern: `{dataset-name}_{subset}` where `subset` is either `train` or `test`.
+        - kwargs from the TensorpackLmdbImageDataset constructor (img_key, mask_key, ...)
 
         Args:
             conf_dataset (Config): configuration for the dataset
