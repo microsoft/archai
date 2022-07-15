@@ -20,7 +20,7 @@ creating a docker image for running in an Azure Kubernetes cluster.
 visualize the results from the Azure table.
 
 Both are based on Python, so it is best if you setup a new Conda Python environment
-for Python 3.8 with the `requirements.txt` included here using:
+for Python 3.6 with the `requirements.txt` included here using:
 
 ```shell
 pip install -r requirements.txt

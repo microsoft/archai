@@ -526,23 +526,24 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
     for entity in get_all_status_entities(status='complete', not_equal=True):
         name = entity['name']
         if subset_list is not None and name not in subset_list:
+            print(f"# skipping model {name} because it is in the subset list")
             continue
-
         total_benchmark_runs = benchmarks_complete(entity)
         if is_locked(entity):
-            # skip entity someone else is working on.
+            print(f"# skip entity {name} because someone else is working on it")
             continue
         if 'error' in entity:
-            # skip it something went wrong on previous step.
+            print(f"# skipping {name} because something went wrong on previous step.")
             continue
         if not is_complete(entity, 'macs'):
             if quantizing:
-                continue  # skip this for now until other quantization finishes on our node.
+                print(f"skip {name} for now until other quantization finishes on our node")
+                continue
             priority = 20
         elif use_device and (total_benchmark_runs < MAX_BENCHMARK_RUNS):
             priority = 30 + total_benchmark_runs
         elif is_benchmark_only(entity, benchmark_only):
-            # perhaps this node cannot run benchmarks...
+            print(f"# skipping {name} because this node cannot run benchmarks...")
             continue
         elif not is_complete(entity, 'f1_onnx'):
             priority = 60

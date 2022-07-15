@@ -9,10 +9,7 @@ ARG ANDROID_NDK
 ARG ANDROID_NDK_FILENAME
 ARG ANDROID_NDK_ROOT
 
-RUN apt-get update && apt-get install -y git unzip curl python3.8 python3.8-distutils cmake ffmpeg libsm6 libxext6 wget locales
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 5
-RUN curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
-RUN python3 get-pip.py
+RUN apt-get update && apt-get install -y git unzip curl python3 python3-distutils python3-pip cmake ffmpeg libsm6 libxext6 wget locales
 
 # have to ensure default locale is utf-8 otherwise python bails with this error:
 # UnicodeEncodeError: 'ascii' codec can't encode character '\xe7' in position 17: ordinal not in range(128)
