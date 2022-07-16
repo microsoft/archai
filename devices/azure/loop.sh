@@ -3,6 +3,7 @@
 # the process terminates with 'killed', this loop will restart the runner.
 script_dir="$(dirname ${BASH_SOURCE})"
 
+source ~/anaconda3/etc/profile.d/conda.sh
 conda activate snap
 pushd $SNPE_ROOT
 source bin/envsetup.sh -o ~/anaconda3/envs/snap/lib/python3.6/site-packages/onnx
