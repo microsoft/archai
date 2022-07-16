@@ -702,8 +702,12 @@ if __name__ == '__main__':
                         'random_inputs (default 0 means no clearing).', default=0)
     parser.add_argument('--no_quantization', help='Do not do any quantization work on this machine.',
                         action="store_true")
+    parser.add_argument('--working', help='Use this working folder for all downloaded models and temp files (default cwd).')
 
     args = parser.parse_args()
+    if args.working:
+        os.chdir(args.working)
+
     MAX_BENCHMARK_RUNS = args.max_benchmark_runs
     CLEAR_RANDOM_INPUTS = args.clear_random_inputs
     device = args.device
