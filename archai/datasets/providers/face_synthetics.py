@@ -1,9 +1,9 @@
-from typing import Tuple, Optional, Dict
+from typing import Tuple, Optional, Dict, Callable, Union
 from pathlib import Path
 
 import cv2
 import torch
-from torch.utils.data import Dataset, Subset
+from torch.utils.data import Dataset
 import numpy as np
 from overrides import overrides
 import albumentations as A
@@ -44,7 +44,8 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
                  subset: str = 'train', val_size: int = 2000,
                  ignore_index: int = 255, augmentation: str = 'none',
                  mask_size: Optional[Tuple[int, int]] = None,
-                 debug: bool = False, **kwargs):
+                 debug: bool = False, augmentation_fn: Union[Optional[Callable], str] = None, 
+                 **kwargs):
 
         root = Path(root)
         assert root.is_dir(), f'{root} does not exist'
@@ -76,7 +77,17 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
 
         self.img_files = [s.replace("_seg.png",".png") for s in self.seg_files]
         self.ignore_index = ignore_index
-    
+        
+        if isinstance(augmentation_fn, str):
+            if augmentation_fn not in self.AUGMENTATIONS:
+                raise ValueError(f'Unknown augmentation {augmentation_fn}')
+            
+            self.augmentation_fn = self.AUGMENTATIONS[augmentation_fn]
+        elif callable(augmentation_fn):
+            self.augmentation_fn = augmentation_fn
+        else:
+            raise ValueError(f'Invalid augmentation_fn {augmentation_fn}')
+
     def __len__(self) -> int:
         return len(self.img_files)
     
@@ -133,13 +144,16 @@ class FaceSyntheticsProvider(DatasetProvider):
     def get_transforms(self) -> tuple:
         return None, None
 
-    def get_train_val_datasets(self) -> Tuple[Dataset, Dataset]:
+    def get_train_val_datasets(self, transform_train: Optional[Callable],
+                               transform_val: Optional[Callable]) -> Tuple[Dataset, Dataset]:
         tr_dataset = FaceSyntheticsDataset(
-            self.datadir, subset='train', **self.conf_dataset
+            self.datadir, subset='train', **self.conf_dataset,
+            augmentation_fn=transform_train
         )
 
         val_dataset = FaceSyntheticsDataset(
-            self.datadir, subset='validation', **self.conf_dataset
+            self.datadir, subset='validation', **self.conf_dataset,
+            augmentation_fn=transform_val
         )
 
         return tr_dataset, val_dataset
