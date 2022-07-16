@@ -706,6 +706,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.working:
+        print(f"Using working folder: {args.working}")
         os.chdir(args.working)
 
     MAX_BENCHMARK_RUNS = args.max_benchmark_runs
