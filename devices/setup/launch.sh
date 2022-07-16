@@ -6,8 +6,7 @@ next=1
 DeviceRunner () {
     folder="~/snpe/experiment$next"
     mkdir -p $folder
-    echo cd $folder
-    echo screen -dmS $1 $command --device $1 --no_quantization
+    echo screen -dmS $1 $command --device $1 --no_quantization --working $folder
     next=$((next+1))
 }
 
