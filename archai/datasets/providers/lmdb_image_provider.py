@@ -28,6 +28,7 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
                  zeroes_mask: bool = False, raise_errors: bool = True,
                  is_bgr: bool = True, valid_resolutions: Optional[List[Tuple]] = None,
                  augmentation_fn: Optional[Callable] = None,
+                 mask_interpolation_method: int = cv2.INTER_NEAREST,
                  **kwargs):
         """Tensorpack LMDB torch Dataset.
 
@@ -47,6 +48,7 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
             augmentation_fn (Optional[Callable], optional): augmentation function of format
             aug_fn(image: np.ndarray, mask: np.ndarray) and returns a dictionary with
             'image' and 'mask' keys. Defaults to None.
+            mask_interpolation_method (int, optional): interpolation method for mask. Defaults to cv2.INTER_NEAREST.
         """
         self.lmdb_path = lmdb_path
         self.db = lmdb.open(
@@ -75,6 +77,7 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
         self.raise_errors = raise_errors
         self.valid_resolutions = valid_resolutions
         self.augmentation_fn = augmentation_fn
+        self.mask_interpolation_method = mask_interpolation_method
 
     def _get_datapoint(self, idx)->Dict:
         key = self.keys[idx]
@@ -115,9 +118,17 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
                     mask_cv2_buf = np.frombuffer(sample[self.mask_key], dtype=np.uint8).reshape((-1, 1))
                     mask = cv2.imdecode(mask_cv2_buf, cv2.IMREAD_GRAYSCALE)
                 
+                sample = {'image': img, 'mask': mask}
+
+                if self.augmentation_fn:
+                    sample = self.augmentation_fn(**sample)
+
                 if self.img_size:
-                    img = cv2.resize(img, self.img_size)
-                    mask = cv2.resize(mask, self.img_size, interpolation=cv2.INTER_NEAREST)
+                    sample['image'] = cv2.resize(sample['image'], self.img_size)
+                    sample['mask'] = cv2.resize(
+                        sample['mask'], self.img_size,
+                        interpolation=self.mask_interpolation_method
+                    )
 
                 if self.valid_resolutions:
                     assert img.shape[:2] in self.valid_resolutions
@@ -126,14 +137,14 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
             else:
                 raise NotImplementedError(f'unsupported image format {self.img_format}')
 
-            sample = {'image': img, 'mask': mask}
-
-            if self.augmentation_fn:
-                sample = self.augmentation_fn(**sample)
 
             return {
-                'image': torch.tensor(sample['image'], dtype=torch.float),
+                'image': torch.tensor(
+                    sample['image'].transpose(2, 0, 1) / 255.0, dtype=torch.float
+                ),
                 'mask': torch.tensor(sample['mask'], dtype=torch.long),
+                'dataset_path': self.lmdb_path,
+                'key': self.keys[idx]
             }
 
         except Exception as e:
