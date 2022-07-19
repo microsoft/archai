@@ -1,4 +1,4 @@
-from typing import List, Union, Dict, Tuple, Optional
+from typing import List, Union, Dict, Tuple, Optional, Callable
 import random
 from pathlib import Path
 
@@ -177,9 +177,9 @@ class SegmentationTrainer():
                  criterion_name: str = 'ce', 
                  val_check_interval: Union[int, float] = 0.25, 
                  lr_exp_decay_gamma: float = 0.98,
-                 seed: int = 1,
-                 tr_num_workers: int = 4, 
-                 val_num_workers: int = 4):
+                 seed: int = 1, tr_num_workers: int = 4, val_num_workers: int = 4,
+                 tr_augmentation_fn: Optional[Callable] = None, 
+                 val_augmentation_fn: Optional[Callable] = None):
         torch.manual_seed(seed)
         random.seed(seed)
         np.random.seed(int(seed))
@@ -188,7 +188,9 @@ class SegmentationTrainer():
         self.val_check_interval = val_check_interval
         
         self.dp = create_dataset_provider(dataset_conf)
-        self.tr_dataset, self.val_dataset = self.dp.get_train_val_datasets()
+        self.tr_dataset, self.val_dataset = self.dp.get_train_val_datasets(
+            tr_augmentation_fn, val_augmentation_fn
+        )
 
         self.tr_dataloader = DataLoader(self.tr_dataset, batch_size=batch_size, num_workers=tr_num_workers, shuffle=True)
         self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=val_num_workers, shuffle=False)
