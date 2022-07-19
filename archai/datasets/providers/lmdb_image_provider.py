@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Dict, Optional, Any
+from typing import List, Tuple, Dict, Optional, Any, Callable
 from pathlib import Path
 import os
 
@@ -27,6 +27,8 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
                  img_format: str = 'numpy', ones_mask: bool = False,
                  zeroes_mask: bool = False, raise_errors: bool = True,
                  is_bgr: bool = True, valid_resolutions: Optional[List[Tuple]] = None,
+                 augmentation_fn: Optional[Callable] = None,
+                 mask_interpolation_method: int = cv2.INTER_NEAREST,
                  **kwargs):
         """Tensorpack LMDB torch Dataset.
 
@@ -43,6 +45,10 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
             is_bgr (bool, optional): if image is in BGR format. Defaults to True.
             valid_resolutions (Optional[List[Tuple]], optional): list of valid resolutions to validate inputs.
             Defaults to None.
+            augmentation_fn (Optional[Callable], optional): augmentation function of format
+            aug_fn(image: np.ndarray, mask: np.ndarray) and returns a dictionary with
+            'image' and 'mask' keys. Defaults to None.
+            mask_interpolation_method (int, optional): interpolation method for mask. Defaults to cv2.INTER_NEAREST.
         """
         self.lmdb_path = lmdb_path
         self.db = lmdb.open(
@@ -70,6 +76,8 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
         self.is_bgr = is_bgr
         self.raise_errors = raise_errors
         self.valid_resolutions = valid_resolutions
+        self.augmentation_fn = augmentation_fn
+        self.mask_interpolation_method = mask_interpolation_method
 
     def _get_datapoint(self, idx)->Dict:
         key = self.keys[idx]
@@ -110,17 +118,33 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
                     mask_cv2_buf = np.frombuffer(sample[self.mask_key], dtype=np.uint8).reshape((-1, 1))
                     mask = cv2.imdecode(mask_cv2_buf, cv2.IMREAD_GRAYSCALE)
                 
+                sample = {'image': img, 'mask': mask}
+
+                if self.augmentation_fn:
+                    sample = self.augmentation_fn(**sample)
+
                 if self.img_size:
-                    img = cv2.resize(img, self.img_size)
-                    mask = cv2.resize(mask, self.img_size, interpolation=cv2.INTER_NEAREST)
+                    sample['image'] = cv2.resize(sample['image'], self.img_size)
+                    sample['mask'] = cv2.resize(
+                        sample['mask'], self.img_size,
+                        interpolation=self.mask_interpolation_method
+                    )
 
                 if self.valid_resolutions:
                     assert img.shape[:2] in self.valid_resolutions
                     assert mask.shape[:2] in self.valid_resolutions
 
+            else:
+                raise NotImplementedError(f'unsupported image format {self.img_format}')
+
+
             return {
-                'image': torch.tensor(img.transpose(2, 0, 1) / 255.0, dtype=torch.float),
-                'mask': torch.tensor(mask, dtype=torch.long),
+                'image': torch.tensor(
+                    sample['image'].transpose(2, 0, 1) / 255.0, dtype=torch.float
+                ),
+                'mask': torch.tensor(sample['mask'], dtype=torch.long),
+                'dataset_path': self.lmdb_path,
+                'key': self.keys[idx]
             }
 
         except Exception as e:
@@ -178,21 +202,28 @@ class TensorpackLmdbImageProvider(DatasetProvider):
 
         return trainset, testset
 
-    def get_train_val_datasets(self) -> Tuple[Dataset, Dataset]:
+    def get_train_val_datasets(self, transform_train: Optional[Callable] = None,
+                               transform_val: Optional[Callable] = None) -> Tuple[Dataset, Dataset]:
         """Returns train and validation datasets."""
-        base_tr_dataset = TensorpackLmdbImageDataset(
-            str(self.tr_lmdb), **self.conf_dataset
+        tr_dataset = TensorpackLmdbImageDataset(
+            str(self.tr_lmdb), **self.conf_dataset, augmentation_fn=transform_train
         )
 
-        split_point = int(len(base_tr_dataset) * (1 - self.val_split))
+        val_dataset = TensorpackLmdbImageDataset(
+            str(self.tr_lmdb), **self.conf_dataset, augmentation_fn=transform_val
+        )
+
+        split_point = int(len(tr_dataset) * (1 - self.val_split))
 
         tr_subset = Subset(
-            base_tr_dataset, list(range(split_point))
+            tr_dataset, list(range(split_point))
         )
 
         val_subset = Subset(
-            base_tr_dataset, list(range(split_point, len(base_tr_dataset)))
+            val_dataset, list(range(split_point, len(tr_dataset)))
         )
+
+        assert len(tr_subset) + len(val_subset) == len(tr_dataset)
         
         return tr_subset, val_subset
 

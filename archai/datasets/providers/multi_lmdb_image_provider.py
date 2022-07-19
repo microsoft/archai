@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Dict, Optional, Any
+from typing import List, Tuple, Dict, Optional, Callable
 from pathlib import Path
 import os
 
@@ -80,7 +80,8 @@ class MultiTensorpackLmdbImageProvider(DatasetProvider):
 
         return trainset, testset
 
-    def get_train_val_datasets(self) -> Tuple[Dataset, Dataset]:
+    def get_train_val_datasets(self, transform_train: Optional[Callable] = None,
+                               transform_val: Optional[Callable] = None) -> Tuple[Dataset, Dataset]:
         """Returns train and validation datasets."""
 
         if 'random_seed' in self.conf_dataset:
