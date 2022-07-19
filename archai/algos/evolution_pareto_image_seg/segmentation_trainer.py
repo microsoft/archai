@@ -90,7 +90,8 @@ class LightningModelWrapper(pl.LightningModule):
         assert image.ndim == 4
 
         h, w = image.shape[2:]
-        assert h % 32 == 0 and w % 32 == 0
+        assert h % 32 == 0 and w % 32 == 0, \
+            f'found invalid image size ({image.shape}) in batch {batch}'
 
         mask = batch['mask']
         logits_mask = self.forward(image)
