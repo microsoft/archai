@@ -35,11 +35,6 @@ def get_custom_overall_metrics(tp, fp, fn, tn, stage, ignore_classes: Optional[L
     }
 
 
-def collate_ignore_empty(batch):
-    '''Removes empty samples (due to loading errors) from batch.'''
-    batch = [b for b in batch if b]
-    return default_collate(batch)
-
 class LightningModelWrapper(pl.LightningModule):
     def __init__(self,
                  model: SegmentationNasModel,
@@ -195,8 +190,8 @@ class SegmentationTrainer():
         self.dp = create_dataset_provider(dataset_conf)
         self.tr_dataset, self.val_dataset = self.dp.get_train_val_datasets()
 
-        self.tr_dataloader = DataLoader(self.tr_dataset, batch_size=batch_size, num_workers=tr_num_workers, shuffle=True, collate_fn=collate_ignore_empty)
-        self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=val_num_workers, shuffle=False, collate_fn=collate_ignore_empty)
+        self.tr_dataloader = DataLoader(self.tr_dataset, batch_size=batch_size, num_workers=tr_num_workers, shuffle=True)
+        self.val_dataloader = DataLoader(self.val_dataset, batch_size=batch_size, num_workers=val_num_workers, shuffle=False)
 
         self.model = LightningModelWrapper(model, criterion_name=criterion_name, lr=lr,
                                            img_size=img_size, lr_exp_decay_gamma=lr_exp_decay_gamma,
