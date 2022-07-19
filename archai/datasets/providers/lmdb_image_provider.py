@@ -191,8 +191,8 @@ class TensorpackLmdbImageProvider(DatasetProvider):
 
         return trainset, testset
 
-    def get_train_val_datasets(self, transform_train: Optional[Callable],
-                               transform_val: Optional[Callable]) -> Tuple[Dataset, Dataset]:
+    def get_train_val_datasets(self, transform_train: Optional[Callable] = None,
+                               transform_val: Optional[Callable] = None) -> Tuple[Dataset, Dataset]:
         """Returns train and validation datasets."""
         tr_dataset = TensorpackLmdbImageDataset(
             str(self.tr_lmdb), **self.conf_dataset, augmentation_fn=transform_train
