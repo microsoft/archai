@@ -8,7 +8,7 @@ import os
 import torch
 import msgpack
 import numpy as np
-import cv2
+from tqdm import tqdm
 from overrides import overrides
 
 from torch.utils.data import Dataset, Subset
@@ -89,7 +89,7 @@ class MultiTensorpackLmdbImageProvider(DatasetProvider):
 
         base_tr_dataset = torch.utils.data.ConcatDataset([
             TensorpackLmdbImageDataset(str(self._dataroot / d['tr_lmdb']), **d)
-            for d in self.datasets
+            for d in tqdm(self.datasets, desc='Loading LMDB datasets...')
         ])
 
         idxs = np.arange(len(base_tr_dataset))
