@@ -27,19 +27,20 @@ class HfCodeGenConfig(Config):
     attribute_map.update(CodeGenConfig.attribute_map)
 
     def __init__(self,
-                 n_token: Optional[int] = 10000,
-                 tgt_len: Optional[int] = 192,
-                 d_model: Optional[int] = 512,
-                 d_inner: Optional[int] = 2048,
-                 n_layer: Optional[int] = 12,
-                 n_head: Optional[int] = 8,
-                 rotary_dim: Optional[int] = 64,
+                 n_token: Optional[int] = 51200,
+                 tgt_len: Optional[int] = 2048,
+                 d_model: Optional[int] = 1024,
+                 d_inner: Optional[int] = 4096,
+                 n_layer: Optional[int] = 20,
+                 n_head: Optional[int] = 16,
+                 rotary_dim: Optional[int] = 32,
                  dropout: Optional[float] = 0.1,
                  dropatt: Optional[float] = 0.0,
                  embd_pdrop: Optional[float] = 0.1,
                  layer_norm_epsilon: Optional[float] = 0.00001,
                  scale_attn_weights: Optional[bool] = True,
                  weight_init_std: Optional[float] = 0.02,
+                 tie_weight: Optional[bool] = False,
                  **kwargs) -> None:
         """Initializes the class by overriding default arguments.
 
@@ -57,6 +58,7 @@ class HfCodeGenConfig(Config):
             layer_norm_epsilon: Epsilon used in layer normalization.
             scale_attn_weights: Whether to scale attention weights.
             weight_init_std: Standard deviation to initialize the weights.
+            tie_weight: Whether embedding and softmax weights should be tied.
 
         """
 
@@ -73,6 +75,8 @@ class HfCodeGenConfig(Config):
         self.layer_norm_epsilon = layer_norm_epsilon
         self.scale_attn_weights = scale_attn_weights
         self.weight_init_std = weight_init_std
+        self.tie_weight = tie_weight
+        kwargs["tie_word_embeddings"] = tie_weight
 
         additional_config = CodeGenConfig().to_dict()
         for key, value in additional_config.items():
