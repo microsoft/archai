@@ -138,7 +138,7 @@ def parse_args():
 
     model = parser.add_argument_group('model setup - defaults are for base model')
     model.add_argument('--model_type', default='mem_transformer', type=str,
-                     choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
+                     choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_opt', 'hf_transfo_xl', 'mem_transformer'],
                      help='Which model type to use')
     model.add_argument('--n_layer', type=int, default=16,
                        help='Number of total layers')
