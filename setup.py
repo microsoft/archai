@@ -12,7 +12,7 @@ install_requires=[
     'kaleido', 'matplotlib', 'plotly', 'seaborn', 
     'h5py', 'psutil', 'pynvml', 'pyunpack', 'pyyaml', 'rarfile', 'Send2Trash',
     'overrides==3.1.0', 'runstats', 'statopt',
-    'datasets', 'sacremoses', 'tokenizers>=0.10.3', 'transformers>=4.16.2',
+    'datasets', 'sacremoses', 'tokenizers>=0.10.3', 'transformers>=4.20.1',
     'onnx==1.10.2', 'onnxruntime==1.10.0',
     'coloredlogs', 'sympy', 'ftfy', # needed for text predict, fixes text for you
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
