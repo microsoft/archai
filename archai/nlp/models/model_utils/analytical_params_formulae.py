@@ -25,7 +25,7 @@ def _get_hyperparams(model_config: Dict[str, Any]) -> Tuple[int, int, int, List[
 
 
 def get_params_hf_codegen_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
-    n_token, tgt_len, d_model, _, d_inner, n_head, d_head = _get_hyperparams(model_config)
+    n_token, _, d_model, _, d_inner, n_head, d_head = _get_hyperparams(model_config)
 
     params = {
         'embedding': 0,
@@ -37,20 +37,20 @@ def get_params_hf_codegen_formula(model_config: Dict[str, Any]) -> Dict[str, Any
     }
     
     # Embedding
-    params['embedding'] = n_token * d_model + tgt_len * d_model
+    params['embedding'] = n_token * d_model
 
     for _ in range(len(n_head)):
         # Attention
         # QKV
-        params['attention'] += d_model * 3 * n_head[0] * d_head[0] + 3 * n_head[0] * d_head[0]
+        params['attention'] += d_model * 3 * n_head[0] * d_head[0]
         # Projection
-        params['attention'] += n_head[0] * d_head[0] * d_model + d_model
+        params['attention'] += n_head[0] * d_head[0] * d_model
 
         # Feed-forward
         params['ff'] += (d_model * d_inner[0] + d_inner[0]) + (d_inner[0] * d_model + d_model)
 
         # Layer normalization
-        params['layer_norm'] += 2 * d_model * 2
+        params['layer_norm'] += 2 * d_model
 
     # Layer normalization (final)
     params['layer_norm'] += 2 * d_model
