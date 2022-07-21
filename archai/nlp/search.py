@@ -35,7 +35,7 @@ def parse_args():
     search.add_argument('--model_type',
                         type=str,
                         default='mem_transformer',
-                        choices=['hf_gpt2', 'hf_gpt2_flex', 'hf_transfo_xl', 'mem_transformer'],
+                        choices=['hf_codegen', 'hf_gpt2', 'hf_gpt2_flex', 'hf_opt', 'hf_transfo_xl', 'mem_transformer'],
                         help='Type of model to be searched.')
 
     search.add_argument('--model_config',

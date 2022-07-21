@@ -24,6 +24,43 @@ def _get_hyperparams(model_config: Dict[str, Any]) -> Tuple[int, int, int, List[
     return n_token, tgt_len, d_model, d_embed, d_inner, n_head, d_head
 
 
+def get_params_hf_codegen_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
+    n_token, tgt_len, d_model, _, d_inner, n_head, d_head = _get_hyperparams(model_config)
+
+    params = {
+        'embedding': 0,
+        'attention': 0,
+        'ff': 0,
+        'layer_norm': 0,
+        'non_embedding': 0,
+        'total': 0
+    }
+    
+    # Embedding
+    params['embedding'] = n_token * d_model + tgt_len * d_model
+
+    for _ in range(len(n_head)):
+        # Attention
+        # QKV
+        params['attention'] += d_model * 3 * n_head[0] * d_head[0] + 3 * n_head[0] * d_head[0]
+        # Projection
+        params['attention'] += n_head[0] * d_head[0] * d_model + d_model
+
+        # Feed-forward
+        params['ff'] += (d_model * d_inner[0] + d_inner[0]) + (d_inner[0] * d_model + d_model)
+
+        # Layer normalization
+        params['layer_norm'] += 2 * d_model * 2
+
+    # Layer normalization (final)
+    params['layer_norm'] += 2 * d_model
+
+    params['non_embedding'] = params['attention'] + params['ff'] + params['layer_norm']
+    params['total'] = params['embedding'] + params['non_embedding']
+
+    return params
+
+
 def get_params_hf_gpt2_formula(model_config: Dict[str, Any]) -> Dict[str, Any]:
     n_token, tgt_len, d_model, _, d_inner, n_head, d_head = _get_hyperparams(model_config)
 

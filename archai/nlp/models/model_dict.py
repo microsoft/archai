@@ -4,6 +4,10 @@
 """Availability dictionaries of implemented Transformer-based classes.
 """
 
+# Huggingface's CodeGen
+from archai.nlp.models.hf_codegen.config_hf_codegen import HfCodeGenConfig, HfCodeGenSearchConfig
+from archai.nlp.models.hf_codegen.model_hf_codegen import HfCodeGen
+
 # Huggingface's Open AI GPT-2
 from archai.nlp.models.hf_gpt2.config_hf_gpt2 import (HfGPT2Config, HfGPT2SearchConfig,
                                                       HfGPT2FlexConfig, HfGPT2FlexSearchConfig)
@@ -29,13 +33,15 @@ from archai.nlp.models.mem_transformer.onnx_mem_transformer import (MemTransform
                                                                     MemTransformerLMOnnxModel)
 
 # Analytical parameters formulae
-from archai.nlp.models.model_utils.analytical_params_formulae import (get_params_hf_gpt2_formula,
+from archai.nlp.models.model_utils.analytical_params_formulae import (get_params_hf_codegen_formula,
+                                                                      get_params_hf_gpt2_formula,
                                                                       get_params_hf_gpt2_flex_formula,
                                                                       get_params_hf_opt_formula,
                                                                       get_params_hf_transfo_xl_formula,
                                                                       get_params_mem_transformer_formula)
 
 MODELS = {
+    'hf_codegen': HfCodeGen,
     'hf_gpt2': HfGPT2,
     'hf_gpt2_flex': HfGPT2Flex,
     'hf_opt': HfOPT,
@@ -44,6 +50,7 @@ MODELS = {
 }
 
 MODELS_CONFIGS = {
+    'hf_codegen': HfCodeGenConfig,
     'hf_gpt2': HfGPT2Config,
     'hf_gpt2_flex': HfGPT2FlexConfig,
     'hf_opt': HfOPTConfig,
@@ -52,6 +59,7 @@ MODELS_CONFIGS = {
 }
 
 MODELS_SEARCH_CONFIGS = {
+    'hf_codegen': HfCodeGenSearchConfig,
     'hf_gpt2': HfGPT2SearchConfig,
     'hf_gpt2_flex': HfGPT2FlexSearchConfig,
     'hf_opt': HfOPTSearchConfig,
@@ -60,6 +68,7 @@ MODELS_SEARCH_CONFIGS = {
 }
 
 MODELS_PARAMS_FORMULAE = {
+    'hf_codegen': get_params_hf_codegen_formula,
     'hf_gpt2': get_params_hf_gpt2_formula,
     'hf_gpt2_flex': get_params_hf_gpt2_flex_formula,
     'hf_opt': get_params_hf_opt_formula,
