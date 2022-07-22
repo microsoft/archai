@@ -84,22 +84,33 @@ class MultiTensorpackLmdbImageProvider(DatasetProvider):
 
     def get_train_val_datasets(self, transform_train: Optional[Callable] = None,
                                transform_val: Optional[Callable] = None) -> Tuple[Dataset, Dataset]:
-        """Returns train and validation datasets."""
-
-        if 'random_seed' in self.conf_dataset:
-            np.random.seed(self.conf_dataset['random_seed'])
-
-        base_tr_dataset = torch.utils.data.ConcatDataset([
-            TensorpackLmdbImageDataset(str(self._dataroot / d['tr_lmdb']), **d)
-            for d in tqdm(self.datasets, desc='Loading LMDB datasets...')
+        """Returns train and validation datasets using the `val_split` parameter."""
+        # Creates two copies of the dataset using different transforms
+        tr_dataset = torch.utils.data.ConcatDataset([
+            TensorpackLmdbImageDataset(
+                str(self._dataroot / d['tr_lmdb']), **d, augmentation_fn=transform_train
+            ) for d in tqdm(self.datasets, desc='Loading LMDB datasets...')
         ])
 
-        idxs = np.arange(len(base_tr_dataset))
-        split_point = int(len(base_tr_dataset) * (1 - self.val_split))
-        np.random.shuffle(idxs)
+        val_dataset = torch.utils.data.ConcatDataset([
+            TensorpackLmdbImageDataset(
+                str(self._dataroot / d['tr_lmdb']), **d, augmentation_fn=transform_val
+            ) for d in tqdm(self.datasets, desc='Loading LMDB datasets...')
+        ])
 
-        tr_subset = Subset(base_tr_dataset, idxs[:split_point])
-        val_subset = Subset(base_tr_dataset, idxs[split_point:])
+        # Performs train-validation split
+        split_point = int(len(tr_dataset) * (1 - self.val_split))
+
+        tr_subset = Subset(
+            tr_dataset, list(range(split_point))
+        )
+
+        val_subset = Subset(
+            val_dataset, list(range(split_point, len(tr_dataset)))
+        )
+
+        assert len(tr_subset) + len(val_subset) == len(tr_dataset)
+        assert len(set(tr_subset.indices).intersection(set(val_subset.indices))) == 0  
 
         return tr_subset, val_subset
 
