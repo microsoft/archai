@@ -1045,24 +1045,6 @@
                     "--out-dir", "/home/dedey/archai_experiment_reports/transnasbench_heatmaps"]
         },
         {
-            "name": "HF Featurize",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/misc/hf_featurize.py",
-            "console": "integratedTerminal",
-            "args": [],
-            "env": {"HF_DATASETS_OFFLINE": "0"}
-        },
-        {
-            "name": "HF Explore Pile",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/misc/hf_explore_pile.py",
-            "console": "integratedTerminal",
-            "args": [],
-            "env": {"HF_DATASETS_OFFLINE": "0"}
-        },
-        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",
