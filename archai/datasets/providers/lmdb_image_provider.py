@@ -187,17 +187,17 @@ class TensorpackLmdbImageProvider(DatasetProvider):
 
     @overrides
     def get_datasets(self, load_train:bool, load_test:bool,
-                     transform_train, transform_test)->TrainTestDatasets:
+                     transform_train: Callable, transform_test: Callable)->TrainTestDatasets:
         trainset, testset = None, None
 
         if load_train:
             trainset = TensorpackLmdbImageDataset(
-                str(self.tr_lmdb), **self.conf_dataset
+                str(self.tr_lmdb), **self.conf_dataset, augmentation_fn=transform_train
             )
 
         if load_test:
             testset = TensorpackLmdbImageDataset(
-                str(self.te_lmdb), **self.conf_dataset
+                str(self.te_lmdb), **self.conf_dataset, augmentation_fn=transform_test
             )
 
         return trainset, testset
