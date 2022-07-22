@@ -63,19 +63,21 @@ class MultiTensorpackLmdbImageProvider(DatasetProvider):
 
     @overrides
     def get_datasets(self, load_train:bool, load_test:bool,
-                     transform_train, transform_test)->TrainTestDatasets:
+                     transform_train: Callable, transform_test: Callable)->TrainTestDatasets:
         trainset, testset = None, None
         
         if load_train:
             trainset = torch.utils.data.ConcatDataset([
-                TensorpackLmdbImageDataset(str(self._dataroot / d['tr_lmdb']), **d)
-                for d in self.datasets
+                TensorpackLmdbImageDataset(
+                    str(self._dataroot / d['tr_lmdb']), **d, augmentation_fn=transform_train
+                ) for d in self.datasets
             ])
 
         if load_test:
             testset = torch.utils.data.ConcatDataset([
-                TensorpackLmdbImageDataset(str(self._dataroot / d['te_lmdb']), **d)
-                for d in self.datasets
+                TensorpackLmdbImageDataset(
+                    str(self._dataroot / d['te_lmdb']), **d, augmentation_fn=transform_test
+                ) for d in self.datasets
             ])
 
         return trainset, testset
