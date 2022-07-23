@@ -6,7 +6,6 @@ from pathlib import Path
 import os
 
 import torch
-import msgpack
 import numpy as np
 from tqdm import tqdm
 from overrides import overrides
@@ -99,14 +98,16 @@ class MultiTensorpackLmdbImageProvider(DatasetProvider):
         ])
 
         # Performs train-validation split
+        indices = np.arange(len(tr_dataset))
+        np.random.shuffle(indices)
         split_point = int(len(tr_dataset) * (1 - self.val_split))
 
         tr_subset = Subset(
-            tr_dataset, list(range(split_point))
+            tr_dataset, indices[:split_point]
         )
 
         val_subset = Subset(
-            val_dataset, list(range(split_point, len(tr_dataset)))
+            val_dataset, indices[split_point:]
         )
 
         assert len(tr_subset) + len(val_subset) == len(tr_dataset)
