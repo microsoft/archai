@@ -27,12 +27,16 @@ def cleanup_results(dataset, output_dir):
 
     test_files = all_seg_files[len(all_seg_files) - test_size:]
 
+    raw_file_name = 'output.raw'
     index = 0
     for name in test_files:
         name = os.path.basename(name).split('_')[0]
         result = f"Result_{index}"
         if result in result_dirs:
-            raw_file = os.path.join(output_dir, result, 'output.raw')
+            raw_file = os.path.join(output_dir, result, raw_file_name)
+            if not os.path.isfile(raw_file):
+                raw_file_name = os.listdir(os.path.join(output_dir, result))[0]
+                raw_file = os.path.join(output_dir, result, raw_file_name)
             output_file = os.path.join(output_dir, name + '.raw')
             print(f"{raw_file} ===> {output_file}")
             copyfile(raw_file, output_file)
