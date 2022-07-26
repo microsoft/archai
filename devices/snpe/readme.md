@@ -70,12 +70,12 @@ trained ONNX model into this folder.  You should have something like:
 
 1. **Setup your snpe environment**.  For onnx toolset use the following:
     ```
-    pushd ~/snpe/snpe-1.60.0.3313
+    pushd ~/snpe/snpe-1.64.0.3605
     source bin/envsetup.sh -o ~/anaconda3/envs/snap/lib/python3.6/site-packages/onnx
     ```
     For tensorflow use:
     ```
-    pushd ~/snpe/snpe-1.60.0.3313
+    pushd ~/snpe/snpe-1.64.0.3605
     source bin/envsetup.sh -ot ~/anaconda3/envs/snap/lib/python3.6/site-packages/tensorflow
     ```
 

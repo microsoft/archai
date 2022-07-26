@@ -54,7 +54,7 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 
 # this echo is a trick to bypass docker build cache.
 # simply change the echo string every time you want docker build to pull down new bits.
-RUN echo '07/14/2022 16:35 AM' >/dev/null && git clone "https://github.com/microsoft/archai.git"
+RUN echo '07/26/2022 04:36 PM' >/dev/null && git clone "https://github.com/microsoft/archai.git"
 
 RUN source /home/archai/.profile && \
     pushd /home/archai/archai/devices && \
