@@ -28,7 +28,7 @@ DEVICE = None
 # device parameters
 # the /data mount on the device has 64GB available.
 DEVICE_WORKING_DIR = "/data/local/tmp"
-SNPE_TARGET_ARCH = "aarch64-android-clang6.0"
+SNPE_TARGET_ARCH = "aarch64-android-clang8.0"
 SNPE_TARGET_STL = "libgnustl_shared.so"
 SNPE_BENCH = None
 RANDOM_INPUTS = 'random_inputs'

@@ -176,6 +176,7 @@ if __name__ == '__main__':
         description='Print status in .csv format using ' +
         f'{CONNECTION_NAME} environment variable.')
     parser.add_argument('--status', help='Optional match for the status column (default None).')
+    parser.add_argument('--name', help='Optional name of single status row to return (default None).')
     parser.add_argument('--not_equal', '-ne', help='Switch the match to a not-equal comparison.', action="store_true")
     parser.add_argument('--locked', help='Find entities that are locked by a node.', action="store_true")
     parser.add_argument('--cols', help='Comma separated list of columns to report (default is to print all)')
@@ -183,6 +184,8 @@ if __name__ == '__main__':
     entities = get_all_status_entities(args.status, args.not_equal)
     if args.locked:
         entities = [e for e in entities if 'node' in e and e['node']]
+    if args.name:
+        entities = [e for e in entities if 'name' in e and e['name'] == args.name]
 
     columns = None
     if args.cols:

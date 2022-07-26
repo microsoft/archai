@@ -95,7 +95,7 @@ if __name__ == '__main__':
     if not dataset:
         dataset = os.getenv("INPUT_DATASET")
         if not dataset:
-            print("please provide --input or set your INPUT_DATASET environment vairable")
+            print("please provide --input or set your INPUT_DATASET environment variable")
             sys.exit(1)
 
     count = args.count
