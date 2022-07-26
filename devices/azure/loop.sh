@@ -2,6 +2,13 @@
 # If the python app runs out of memory due to various leaks in python libraries
 # the process terminates with 'killed', this loop will restart the runner.
 script_dir="$(dirname ${BASH_SOURCE})"
+
+source ~/anaconda3/etc/profile.d/conda.sh
+conda activate snap
+pushd $SNPE_ROOT
+source bin/envsetup.sh -o ~/anaconda3/envs/snap/lib/python3.6/site-packages/onnx
+popd
+
 while true
 do
     python ${script_dir}/runner.py $@
