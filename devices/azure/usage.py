@@ -44,8 +44,7 @@ def get_connection_string():
     return CONNECTION_STRING
 
 
-def get_usage_table_service():
-    conn_str = get_connection_string()
+def get_usage_table_service(conn_str):
     logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy')
     logger.setLevel(logging.ERROR)
     return TableServiceClient.from_connection_string(conn_str=conn_str, logger=logger, logging_enable=False)
@@ -55,7 +54,7 @@ def get_all_usage_entities(name_filter=None, service=None):
     """ Get all usage entities with optional device name filter """
     global USAGE_TABLE
     if not service:
-        service = get_usage_table_service()
+        service = get_usage_table_service(get_connection_string())
     table_client = service.create_table_if_not_exists(USAGE_TABLE)
 
     entities = []
@@ -76,7 +75,7 @@ def get_all_usage_entities(name_filter=None, service=None):
 def update_usage_entity(entity, service=None):
     global USAGE_TABLE
     if not service:
-        service = get_usage_table_service()
+        service = get_usage_table_service(get_connection_string())
     table_client = service.create_table_if_not_exists(USAGE_TABLE)
     table_client.upsert_entity(entity=entity, mode=UpdateMode.REPLACE)
 
@@ -84,7 +83,7 @@ def update_usage_entity(entity, service=None):
 def add_usage(name, start, end, service=None):
     global USAGE_TABLE
     if not service:
-        service = get_usage_table_service()
+        service = get_usage_table_service(get_connection_string())
     service.create_table_if_not_exists(USAGE_TABLE)
 
     entity = {

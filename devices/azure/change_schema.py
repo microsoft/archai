@@ -3,7 +3,7 @@
 import os
 import json
 import sys
-from status import get_all_status_entities, update_status_entity, get_status_table_service
+from status import get_all_status_entities, update_status_entity, get_status_table_service, get_connection_string
 from azure.storage.blob import ContainerClient
 
 CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
@@ -25,7 +25,7 @@ def get_last_modified_date(e, blob_name):
     return None
 
 
-service = get_status_table_service()
+service = get_status_table_service(get_connection_string())
 
 
 # fix the 'complete' status...

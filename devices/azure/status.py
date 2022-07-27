@@ -43,8 +43,7 @@ def get_connection_string():
     return CONNECTION_STRING
 
 
-def get_status_table_service():
-    conn_str = get_connection_string()
+def get_status_table_service(conn_str):
     logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy')
     logger.setLevel(logging.ERROR)
     return TableServiceClient.from_connection_string(conn_str=conn_str, logger=logger, logging_enable=False)
@@ -58,7 +57,7 @@ def get_all_status_entities(status=None, not_equal=False, service=None):
     """
     global STATUS_TABLE
     if not service:
-        service = get_status_table_service()
+        service = get_status_table_service(get_connection_string())
     table_client = service.create_table_if_not_exists(STATUS_TABLE)
 
     entities = []
@@ -83,7 +82,7 @@ def get_all_status_entities(status=None, not_equal=False, service=None):
 def get_status(name, service=None):
     global STATUS_TABLE
     if not service:
-        service = get_status_table_service()
+        service = get_status_table_service(get_connection_string())
     table_client = service.create_table_if_not_exists(STATUS_TABLE)
 
     try:
@@ -101,7 +100,7 @@ def get_status(name, service=None):
 def update_status_entity(entity, service=None):
     global STATUS_TABLE
     if not service:
-        service = get_status_table_service()
+        service = get_status_table_service(get_connection_string())
     table_client = service.create_table_if_not_exists(STATUS_TABLE)
     table_client.upsert_entity(entity=entity, mode=UpdateMode.REPLACE)
 
@@ -109,7 +108,7 @@ def update_status_entity(entity, service=None):
 def merge_status_entity(entity, service=None):
     global STATUS_TABLE
     if not service:
-        service = get_status_table_service()
+        service = get_status_table_service(get_connection_string())
     table_client = service.create_table_if_not_exists(STATUS_TABLE)
     table_client.update_entity(entity=entity, mode=UpdateMode.MERGE)
 
@@ -117,7 +116,7 @@ def merge_status_entity(entity, service=None):
 def update_status(name, status, priority=None, service=None):
     global STATUS_TABLE
     if not service:
-        service = get_status_table_service()
+        service = get_status_table_service(get_connection_string())
     table_client = service.create_table_if_not_exists(STATUS_TABLE)
 
     try:
@@ -140,7 +139,7 @@ def update_status(name, status, priority=None, service=None):
 def delete_status(name, service=None):
     global STATUS_TABLE
     if not service:
-        service = get_status_table_service()
+        service = get_status_table_service(get_connection_string())
     table_client = service.create_table_if_not_exists(STATUS_TABLE)
 
     for e in get_all_status_entities():

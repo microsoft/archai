@@ -28,12 +28,12 @@ DEVICE = None
 # device parameters
 # the /data mount on the device has 64GB available.
 DEVICE_WORKING_DIR = "/data/local/tmp"
-SNPE_TARGET_ARCH = "aarch64-android-clang8.0"
 SNPE_TARGET_STL = "libgnustl_shared.so"
 SNPE_BENCH = None
 RANDOM_INPUTS = 'random_inputs'
 RANDOM_INPUT_LIST = 'random_raw_list.txt'
-
+SNPE_ROOT = None
+snpe_target_arch = None
 
 def set_device(device):
     global DEVICE
@@ -219,21 +219,34 @@ def download_results(input_images, start, output_dir):
                 sys.exit(1)
 
 
-def setup_libs(snpe_root):
+def get_target_arch(snpe_root):
+    global SNPE_ROOT
+    SNPE_ROOT = snpe_root
     if not os.path.isdir(snpe_root):
         print("SNPE_ROOT folder {} not found".format(snpe_root))
         sys.exit(1)
+    for name in os.listdir(snpe_root):
+        if name.startswith('aarch64-android'):
+            return name
+
+    print("SNPE_ROOT folder {} missing aarch64-android-*".format(snpe_root))
+    sys.exit(1)
+
+
+def setup_libs(snpe_root):
+    global snpe_target_arch
+    snpe_target_arch = get_target_arch(snpe_root)
 
     print("Pushing SNPE binaries and libraries to device...")
     shell = Shell()
-    for dir in [f"{DEVICE_WORKING_DIR}/{SNPE_TARGET_ARCH}/bin",
-                f"{DEVICE_WORKING_DIR}/{SNPE_TARGET_ARCH}/lib",
+    for dir in [f"{DEVICE_WORKING_DIR}/{snpe_target_arch}/bin",
+                f"{DEVICE_WORKING_DIR}/{snpe_target_arch}/lib",
                 f"{DEVICE_WORKING_DIR}/dsp/lib"]:
         shell.run(os.getcwd(), adb(f"shell \"mkdir -p {dir}\""))
 
     shell.run(
-        os.path.join(snpe_root, "lib", SNPE_TARGET_ARCH),
-        adb(f"push . {DEVICE_WORKING_DIR}/{SNPE_TARGET_ARCH}/lib"), VERBOSE)
+        os.path.join(snpe_root, "lib", snpe_target_arch),
+        adb(f"push . {DEVICE_WORKING_DIR}/{snpe_target_arch}/lib"), VERBOSE)
 
     shell.run(
         os.path.join(snpe_root, "lib", 'dsp'),
@@ -241,12 +254,12 @@ def setup_libs(snpe_root):
 
     for program in ['snpe-net-run', 'snpe-parallel-run', 'snpe-platform-validator', 'snpe-throughput-net-run']:
         shell.run(
-            os.path.join(snpe_root, "bin", SNPE_TARGET_ARCH),
-            adb(f"push {program} {DEVICE_WORKING_DIR}/{SNPE_TARGET_ARCH}/bin"), VERBOSE)
+            os.path.join(snpe_root, "bin", snpe_target_arch),
+            adb(f"push {program} {DEVICE_WORKING_DIR}/{snpe_target_arch}/bin"), VERBOSE)
 
         shell.run(
-            os.path.join(snpe_root, "bin", SNPE_TARGET_ARCH),
-            adb(f"shell \"chmod u+x {DEVICE_WORKING_DIR}/{SNPE_TARGET_ARCH}/bin/{program}\""))
+            os.path.join(snpe_root, "bin", snpe_target_arch),
+            adb(f"shell \"chmod u+x {DEVICE_WORKING_DIR}/{snpe_target_arch}/bin/{program}\""))
 
 
 def clear_images():
@@ -309,10 +322,15 @@ def setup_model(model):
 
 
 def get_setup():
+    global snpe_target_arch
+    if not snpe_target_arch:
+        print(f"snpe_target_arch is not set")
+        sys.exit(1)
+
     lib_path = f"{DEVICE_WORKING_DIR}/dsp/lib;/system/lib/rfsa/adsp;/system/vendor/lib/rfsa/adsp;/dsp"
-    setup = f"export SNPE_TARGET_ARCH={SNPE_TARGET_ARCH} && " + \
-        f"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{DEVICE_WORKING_DIR}/{SNPE_TARGET_ARCH}/lib && " + \
-        f"export PATH=$PATH:{DEVICE_WORKING_DIR}/{SNPE_TARGET_ARCH}/bin && " + \
+    setup = f"export SNPE_TARGET_ARCH={snpe_target_arch} && " + \
+        f"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:{DEVICE_WORKING_DIR}/{snpe_target_arch}/lib && " + \
+        f"export PATH=$PATH:{DEVICE_WORKING_DIR}/{snpe_target_arch}/bin && " + \
         f"export ADSP_LIBRARY_PATH='{lib_path}' && " + \
         f"cd {DEVICE_WORKING_DIR}/{TASK}/{MODEL}"
 
@@ -325,6 +343,12 @@ def run_test(model):
     if not model:
         print("### --run needs the --model parameter")
         sys.exit(1)
+
+    global snpe_target_arch
+    if not snpe_target_arch:
+        print(f"snpe_target_arch is not set")
+        sys.exit(1)
+
     shell = Shell()
     # make sure any previous run output is cleared.
     shell.run(os.getcwd(), adb(f'shell \"rm -rf  {DEVICE_WORKING_DIR}/{TASK}/{MODEL}/output\"'))
@@ -333,7 +357,7 @@ def run_test(model):
     setup = get_setup()
     shell.run(
         os.getcwd(),
-        adb(f"shell \"export SNPE_TARGET_ARCH={SNPE_TARGET_ARCH} && {setup} &&" +
+        adb(f"shell \"export SNPE_TARGET_ARCH={snpe_target_arch} && {setup} &&" +
             f"snpe-net-run --container ./{model} --input_list ../data/test/input_list_for_device.txt {use_dsp}\""))
 
 
@@ -422,6 +446,9 @@ def run_benchmark(model, name, shape, snpe_root, iterations, random_input_count)
     elif not os.path.isdir(snpe_root):
         print(f"The --snpe {snpe_root} not found")
         sys.exit(1)
+
+    global snpe_target_arch
+    snpe_target_arch = get_target_arch(snpe_root)
 
     cwd = os.getcwd()
     benchmark_dir = os.path.join(cwd, name, 'benchmark')
@@ -515,7 +542,11 @@ def compute_results(shape):
     return get_metrics(image_size, False, dataset, output_dir)
 
 
-def run_batches(model, images, output_dir):
+def run_batches(model, snpe_root, images, output_dir):
+
+    global snpe_target_arch
+    snpe_target_arch = get_target_arch(snpe_root)
+
     files = [x for x in os.listdir(images) if x.endswith(".bin")]
     files.sort()
 
@@ -578,6 +609,9 @@ if __name__ == '__main__':
         snpe = os.getenv("SNPE_ROOT")
         if not snpe:
             print("please set your SNPE_ROOT environment variable, see readme.md")
+            sys.exit(1)
+
+    snpe_target_arch = get_target_arch(snpe)
 
     if snpe:
         sys.path += [f'{snpe}/benchmarks', f'{snpe}/lib/python']
@@ -600,5 +634,5 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if args.images:
-        run_batches(model, args.images, OUTPUT_DIR)
+        run_batches(model, snpe, args.images, OUTPUT_DIR)
         compute_results(shape)
