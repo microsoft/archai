@@ -315,9 +315,6 @@ def parse_args():
 
     args.config = config_args.config
 
-    print(args)
-    raise
-
     return args
 
 
