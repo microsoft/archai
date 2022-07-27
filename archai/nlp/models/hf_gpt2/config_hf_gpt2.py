@@ -58,6 +58,9 @@ class HfGPT2Config(Config):
 
         """
 
+        if d_embed == -1:
+            d_embed = d_model
+
         self.n_token = n_token
         self.tgt_len = tgt_len
         self.d_model = d_model
