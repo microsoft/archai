@@ -310,7 +310,13 @@ def parse_args():
     if args.debug is None:
         args.debug = utils.is_debugging()
 
+    if args.eta_min == -1.0:
+        args.eta_min = args.lr / 10
+
     args.config = config_args.config
+
+    print(args)
+    raise
 
     return args
 
