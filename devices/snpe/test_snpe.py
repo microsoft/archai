@@ -225,8 +225,9 @@ def get_target_arch(snpe_root):
     if not os.path.isdir(snpe_root):
         print("SNPE_ROOT folder {} not found".format(snpe_root))
         sys.exit(1)
-    for name in os.listdir(snpe_root):
+    for name in os.listdir(os.path.join(snpe_root, 'lib')):
         if name.startswith('aarch64-android'):
+            print(f"Using SNPE_TARGET_ARCH {name}")
             return name
 
     print("SNPE_ROOT folder {} missing aarch64-android-*".format(snpe_root))
