@@ -25,7 +25,6 @@ def delete_blobs(friendly_name, specific_file=None):
         if specific_file and file_name != specific_file:
             continue
 
-        print("Deleting blob: " + file_name)
         container.delete_blob(blob)
 
 

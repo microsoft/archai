@@ -97,6 +97,18 @@ def get_status(name, service=None):
     return entity
 
 
+def get_existing_status(name, service=None):
+    global STATUS_TABLE
+    if not service:
+        service = get_status_table_service(get_connection_string())
+    table_client = service.create_table_if_not_exists(STATUS_TABLE)
+
+    try:
+        return table_client.get_entity(partition_key='main', row_key=name)
+    except Exception:
+        return None
+
+
 def update_status_entity(entity, service=None):
     global STATUS_TABLE
     if not service:
