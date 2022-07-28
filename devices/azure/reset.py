@@ -15,7 +15,6 @@ def reset_metrics(entity, f1, ifs, macs):
     if f1:
         for key in ['f1_1k', 'f1_10k', 'f1_1k_f', 'f1_onnx']:
             if key in entity:
-                print(f"Resetting '{key}'")
                 del entity[key]
     if ifs:
         if "mean" in entity:
