@@ -4,7 +4,7 @@ import argparse
 import os
 import time
 from runner import lock_job, unlock_job, get_unique_node_id, set_unique_node_id
-from status import update_status, get_status_table_service, get_status
+from status import update_status, get_status_table_service, get_status, get_connection_string
 
 
 def get_lock(entity):
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     set_unique_node_id(get_unique_node_id() + f'_{os.getpid()}')
     name = args.name
     delay = args.delay
-    service = get_status_table_service()
+    service = get_status_table_service(get_connection_string())
     entity = update_status(name, 'testing', service=service)
 
     count = 100
