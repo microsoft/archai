@@ -18,7 +18,7 @@ AKS.
 
 The setup script requires the following environment variables be set before hand:
 
-- **SNPE_SDK** - points to a local zip file containing SNPE SKK version `snpe-1.61.0.zip`
+- **SNPE_SDK** - points to a local zip file containing SNPE SDK version `snpe-1.64.0_3605.zip`
 - **ANDROID_NDK** - points to a local zip file containing the Android NDK zip file version `android-ndk-r23b-linux.zip`
 - **INPUT_TESTSET** - points to a local zip file containing 10,000 image test set from your dataset.
 
