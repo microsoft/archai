@@ -58,7 +58,7 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
         self.img_key = img_key
         self.mask_key = mask_key
         self.txn = self.db.begin()
-        self.keys = [k for k, _ in self.txn.cursor()]
+        self.keys = [k for k, _ in self.txn.cursor() if k != b'__keys__']
         self.img_size = img_size
         self.serializer = serializer
         self.img_format = img_format
