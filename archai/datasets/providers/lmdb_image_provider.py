@@ -112,7 +112,7 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
 
                 if self.ones_mask:
                     mask = np.ones(img.shape[:2], dtype=np.uint8)
-                elif self.zeroes_mask:
+                elif self.zeroes_mask or len(sample[self.mask_key]) == 0:
                     mask = np.zeros(img.shape[:2], dtype=np.uint8)
                 else:
                     mask_cv2_buf = np.frombuffer(sample[self.mask_key], dtype=np.uint8).reshape((-1, 1))
