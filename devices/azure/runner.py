@@ -66,8 +66,6 @@ from dlc_helper import view_model, get_dlc_metrics
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel('INFO')
-logger.addHandler(logging.FileHandler('runner.log', 'a'))
 
 
 def log(msg):
@@ -721,6 +719,9 @@ if __name__ == '__main__':
     if args.working:
         log(f"Using working folder: {args.working}")
         os.chdir(args.working)
+
+    logger.setLevel('INFO')
+    logger.addHandler(logging.FileHandler('runner.log', 'a'))
 
     MAX_BENCHMARK_RUNS = args.max_benchmark_runs
     CLEAR_RANDOM_INPUTS = args.clear_random_inputs
