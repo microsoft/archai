@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from overrides.overrides import overrides
+from pathlib import Path
 
 import random
 from typing import Tuple, List
@@ -57,6 +58,8 @@ class EvolutionParetoSearch(Searcher):
     def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
         pass
 
+    def read_search_status(self, search_state:Path)->Tuple[List[ArchWithMetaData], List[ArchWithMetaData], int]:
+        raise(NotImplementedError)
 
     def _sample_init_population(self)->List[ArchWithMetaData]:
         init_pop:List[ArchWithMetaData] = []
@@ -84,7 +87,7 @@ class EvolutionParetoSearch(Searcher):
         return current_pop[:self.max_unseen_population]
 
     @overrides
-    def search(self, conf_search:Config):
+    def search(self, conf_search:Config, prev_search_state:Path):
         
         self.init_num_models = conf_search['init_num_models']
         self.num_iters = conf_search['num_iters']
@@ -101,77 +104,93 @@ class EvolutionParetoSearch(Searcher):
         self.search_space = self.get_search_space()
         assert isinstance(self.search_space, DiscreteSearchSpace)
 
-        # sample the initial population
-        self.iter_num = 0
-        unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
+        if (prev_search_state is None):
+            # sample the initial population
+            self.iter_num = 0
+            curr_iter = 0
+            unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
+            self.all_pop = unseen_pop
+        else:
+            # Load population from previously saved search state and continue search
+            seen_pop, pareto, last_iter = self.read_search_status(prev_search_state)
+            self.all_pop = seen_pop
+            curr_iter = last_iter + 1
+            unseen_pop = self._populate_next_generation(pareto, curr_iter)
 
-        self.all_pop = unseen_pop
+
         logger.info(f'self.all_pop len = {len(self.all_pop)}; 1')
-        for i in range(self.num_iters):
-            self.iter_num = i + 1
+        while curr_iter < self.num_iters:
+            self.iter_num = curr_iter + 1
 
-            logger.info(f'starting evolution pareto iter {i}')
+            logger.info(f'starting evolution pareto iter {curr_iter}')
             logger.info(f'self.all_pop len = {len(self.all_pop)}; 2')
             self.on_search_iteration_start(unseen_pop)
             
             # for the unseen population 
             # calculates the memory and latency
             # and inserts it into the meta data of each member
-            logger.info(f'iter {i}: calculating memory latency for {len(unseen_pop)} models') 
+            logger.info(f'iter {curr_iter}: calculating memory latency for {len(unseen_pop)} models') 
             self.calc_secondary_objectives(unseen_pop)
 
             # calculate task accuracy proxy
             # could be anything from zero-cost proxy
             # to partial training
-            logger.info(f'iter {i}: calculating task accuracy for {len(unseen_pop)} models')
+            logger.info(f'iter {curr_iter}: calculating task accuracy for {len(unseen_pop)} models')
             self.calc_task_accuracy(unseen_pop)  
             logger.info(f'self.all_pop len = {len(self.all_pop)}; 3')
             self.on_calc_task_accuracy_end(unseen_pop)
 
             # update the pareto frontier
-            logger.info(f'iter {i}: updating the pareto')
+            logger.info(f'iter {curr_iter}: updating the pareto')
             logger.info(f'self.all_pop len = {len(self.all_pop)}; 4')
             pareto:List[ArchWithMetaData] = self.update_pareto_frontier(self.all_pop)
-            logger.info(f'iter {i}: found {len(pareto)} members')
-
-            # select parents for the next iteration from 
-            # the current estimate of the frontier while
-            # giving more weight to newer parents
-            # TODO
-            parents = pareto # for now
-            logger.info(f'iter {i}: chose {len(parents)} parents')
+            logger.info(f'iter {curr_iter}: found {len(pareto)} members')
 
             # plot the state of search
-            self.save_search_status(all_pop=self.all_pop, pareto=pareto, iter_num=i)
-            self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=i)
+            self.save_search_status(all_pop=self.all_pop, pareto=pareto, iter_num=curr_iter)
+            self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=curr_iter)
 
-            # mutate random 'k' subsets of the parents
-            # while ensuring the mutations fall within 
-            # desired constraint limits
-            mutated = self.mutate_parents(parents, self.mutations_per_parent)
-            logger.info(f'iter {i}: mutation yielded {len(mutated)} new models')
+            unseen_pop = self._populate_next_generation(pareto, curr_iter)
 
-            logger.info(f'self.all_pop len = {len(self.all_pop)}; 5')
+            curr_iter += 1
 
-            # crossover random 'k' subsets of the parents
-            # while ensuring the mutations fall within 
-            # desired constraint limits
-            crossovered = self.crossover_parents(parents, self.num_crossovers)
-            logger.info(f'iter {i}: crossover yielded {len(crossovered)} new models')
+    def _populate_next_generation(self, pareto, iter):
+        # select parents for the next iteration from 
+        # the current estimate of the frontier while
+        # giving more weight to newer parents
+        # TODO
+        parents = pareto # for now
+        logger.info(f'iter {iter}: chose {len(parents)} parents')
 
-            # sample some random samples to add to the parent mix 
-            # to mitigage local minima
-            rand_mix = self._sample_random_to_mix()
+        # mutate random 'k' subsets of the parents
+        # while ensuring the mutations fall within 
+        # desired constraint limits
+        mutated = self.mutate_parents(parents, self.mutations_per_parent)
+        logger.info(f'iter {iter}: mutation yielded {len(mutated)} new models')
 
-            unseen_pop = crossovered + mutated + rand_mix
-            # shuffle before we pick a smaller population for the next stage
-            logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
-            unseen_pop = self.select_next_population(unseen_pop)
-            logger.info(f'iter {i}: total unseen population after restriction {len(unseen_pop)}')
+        logger.info(f'self.all_pop len = {len(self.all_pop)}; 5')
 
-            # update the set of architectures ever visited
-            self.all_pop.extend(unseen_pop)
-            logger.info(f'self.all_pop len = {len(self.all_pop)}; 6')
+        # crossover random 'k' subsets of the parents
+        # while ensuring the mutations fall within 
+        # desired constraint limits
+        crossovered = self.crossover_parents(parents, self.num_crossovers)
+        logger.info(f'iter {iter}: crossover yielded {len(crossovered)} new models')
+
+        # sample some random samples to add to the parent mix 
+        # to mitigage local minima
+        rand_mix = self._sample_random_to_mix()
+
+        unseen_pop = crossovered + mutated + rand_mix
+        # shuffle before we pick a smaller population for the next stage
+        logger.info(f'iter {iter}: total unseen population before restriction {len(unseen_pop)}')
+        unseen_pop = self.select_next_population(unseen_pop)
+        logger.info(f'iter {iter}: total unseen population after restriction {len(unseen_pop)}')
+
+        # update the set of architectures ever visited
+        self.all_pop.extend(unseen_pop)
+        logger.info(f'self.all_pop len = {len(self.all_pop)}; 6')
+
+        return unseen_pop
 
     def finalize (self, final_iter, arch_ids : List) -> None:
 
@@ -202,16 +221,4 @@ class EvolutionParetoSearch(Searcher):
 
             # plot the state of search
         self.save_search_status(all_pop=self.all_pop, pareto=pareto, iter_num=final_iter)
-        self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=final_iter)
-            
-            
-
-
-
-            
-
-
-
-
-
-    
+        self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=final_iter)    
