@@ -65,6 +65,14 @@ from test_onnx import test_onnx
 from dlc_helper import view_model, get_dlc_metrics
 
 
+logger = logging.getLogger(__name__)
+
+
+def log(msg):
+    print(msg)
+    logger.info(msg)
+
+
 def read_shape(dir):
     shape_file = os.path.join(dir, 'shape.txt')
     if os.path.isfile(shape_file):
@@ -98,12 +106,12 @@ def check_dataset(shape, name, test_size):
     if os.path.isdir(test):
         s = read_shape(test)
         if s != shape:
-            print(f"recreating {name} folder since shape needs to change from {s} to {shape}")
+            log(f"recreating {name} folder since shape needs to change from {s} to {shape}")
             rmtree(test)
         else:
             bins = [x for x in os.listdir(test) if x.endswith('.bin')]
             if len(bins) != test_size:
-                print(f"recreating test folder since it had {len(bins)} images")
+                log(f"recreating test folder since it had {len(bins)} images")
                 rmtree(test)
 
     if not os.path.isdir(test):
@@ -112,8 +120,7 @@ def check_dataset(shape, name, test_size):
 
 
 def convert(name, entity, long_name, model_path):
-    print("Converting model: " + long_name)
-
+    log("Converting model: " + long_name)
     entity['model_name'] = long_name
     entity['status'] = 'converting'
     merge_status_entity(entity)
@@ -135,7 +142,7 @@ def convert(name, entity, long_name, model_path):
         merge_status_entity(entity)
 
     if not quantized:
-        print("Uploading converted model: " + model)
+        log("Uploading converted model: " + model)
         upload_blob(name, model)
 
     return model
@@ -157,7 +164,7 @@ def quantize(name, entity, model):
         return 'error'
 
     # save the quantized .dlc since it takes so long to produce.
-    print("Uploading quantized model: " + model)
+    log("Uploading quantized model: " + model)
     upload_blob(name, model)
     return model
 
@@ -180,7 +187,7 @@ def is_locked(entity):
         name = entity['name']
         locked = entity['node']
         if locked != node:
-            print(f"{node}: model {name} is running on: {locked}")
+            log(f"{node}: model {name} is running on: {locked}")
             return 'busy'
     return None
 
@@ -202,7 +209,7 @@ def lock_job(entity, service=None):
             break
         except:
             # someone beat us to it!
-            print("lock failed, entity changed by someone else, trying again...")
+            log("lock failed, entity changed by someone else, trying again...")
 
     # make sure we really got the lock!
     entity = get_status(name)
@@ -230,7 +237,7 @@ def unlock_job(entity, service=None):
                     break
                 except:
                     # someone beat us to it!
-                    print("unlock failed, entity changed by someone else, trying again...")
+                    log("unlock failed, entity changed by someone else, trying again...")
 
     return entity
 
@@ -293,7 +300,7 @@ def benchmark(entity, model, name):
         if CLEAR_RANDOM_INPUTS > 0 and BENCHMARK_RUN_COUNT >= CLEAR_RANDOM_INPUTS:
             clear_random_inputs()
             BENCHMARK_RUN_COUNT = 0
-        print(f"Running benchmark iteration {total_benchmark_runs} of {MAX_BENCHMARK_RUNS}...")
+        log(f"Running benchmark iteration {total_benchmark_runs} of {MAX_BENCHMARK_RUNS}...")
         entity['status'] = 'running benchmark'
         merge_status_entity(entity)
 
@@ -324,9 +331,9 @@ def benchmark(entity, model, name):
 
 
 def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only):
-    print("===================================================================================================")
-    print(f"Checking model: {name} on node {get_unique_node_id()}")
-    print("===================================================================================================")
+    log("===================================================================================================")
+    log(f"Checking model: {name} on node {get_unique_node_id()}")
+    log("===================================================================================================")
 
     with open('name.txt', 'w', encoding='utf-8') as file:
         file.write(name + '\n')
@@ -353,7 +360,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         entity['status'] = 'error'
         entity['error'] = 'missing model'
         merge_status_entity(entity)
-        print(f"### no model found for {name}")
+        log(f"### no model found for {name}")
         return
 
     # see if we have converted the model or not.
@@ -371,7 +378,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         entity['status'] = 'error'
         entity['error'] = 'missing model'
         merge_status_entity(entity)
-        print(f"### no model found for {name}")
+        log(f"### no model found for {name}")
         return
 
     # see if we have a quantized model or not.
@@ -391,7 +398,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
     else:
         model = quantized_model
 
-    print(f"==> using model {model}")
+    log(f"==> using model {model}")
 
     if 'macs' not in entity:
         html = view_model(model)
@@ -408,7 +415,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
             return
 
     if benchmark_only:
-        print(f"Benchmark only has nothing to do on model {name}")
+        log(f"Benchmark only has nothing to do on model {name}")
         return
 
     # next highest priority is to get the 1k f1 score.
@@ -477,7 +484,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         merge_status_entity(entity)
         return
 
-    print(f"### Saving {prop} score of {f1score}")
+    log(f"### Saving {prop} score of {f1score}")
     entity[prop] = f1score
     merge_status_entity(entity)
     upload_blob(name, test_results, f"test_results_{prop}.png")
@@ -485,13 +492,13 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
 
     if 'f1_1k' in entity and 'f1_10k' in entity and 'f1_1k_f' in entity and 'f1_onnx' in entity:
         entity['status'] = 'complete'
-        print(f"Completed {name}")
+        log(f"Completed {name}")
         merge_status_entity(entity)
 
 
 def clear_random_inputs():
     if os.path.isdir('random_inputs'):
-        print("Clearing random_inputs.")
+        log("Clearing random_inputs.")
         rmtree('random_inputs')
 
 
@@ -526,24 +533,25 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
     for entity in get_all_status_entities(status='complete', not_equal=True):
         name = entity['name']
         if subset_list is not None and name not in subset_list:
-            print(f"# skipping model {name} because it is in the subset list")
+            log(f"# skipping model {name} because it is in the subset list")
             continue
         total_benchmark_runs = benchmarks_complete(entity)
         if is_locked(entity):
-            print(f"# skip entity {name} because someone else is working on it")
+            log(f"# skip entity {name} because someone else is working on it")
             continue
         if 'error' in entity:
-            print(f"# skipping {name} because something went wrong on previous step.")
+            log(f"# skipping {name} because something went wrong on previous step.")
             continue
         if not is_complete(entity, 'macs'):
             if quantizing:
-                print(f"skip {name} for now until other quantization finishes on our node")
+                if not no_quantization:
+                    log(f"skip {name} for now until other quantization finishes on our node")
                 continue
             priority = 20
         elif use_device and (total_benchmark_runs < MAX_BENCHMARK_RUNS):
             priority = 30 + total_benchmark_runs
         elif is_benchmark_only(entity, benchmark_only):
-            print(f"# skipping {name} because this node cannot run benchmarks...")
+            log(f"# skipping {name} because this node cannot run benchmarks...")
             continue
         elif not is_complete(entity, 'f1_onnx'):
             priority = 60
@@ -574,7 +582,7 @@ def garbage_collect():
         if os.path.isdir(f) and f != 'data' and f != 'random_inputs' and f != 'DEVICE_FILE':
             mod = os.path.getmtime(f)
             if now - mod > one_day:
-                print(f"Garbage collecting {f}...")
+                log(f"Garbage collecting {f}...")
                 rmtree(f)
 
 
@@ -582,7 +590,7 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
     global rss_start
     conn_string = os.getenv(CONNECTION_NAME)
     if not conn_string:
-        print(f"Please specify your {CONNECTION_NAME} environment variable.")
+        log(f"Please specify your {CONNECTION_NAME} environment variable.")
         sys.exit(1)
 
     logging.basicConfig(filename=LOG_FILE_NAME, filemode='a',
@@ -602,18 +610,18 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
     # loop and start a fesh process and pick any code modifications.
     while growth < 10:
         if file_mod != os.path.getmtime(__file__):
-            print("Code has changed, need to restart.")
+            log("Code has changed, need to restart.")
             sys.exit(0)
 
         try:
             queue = find_work_prioritized(use_device, benchmark_only, subset_list, no_quantization)
         except Exception as e:
-            print(f"Error in find_work_prioritized: {e}")
+            log(f"Error in find_work_prioritized: {e}")
             time.sleep(60)
             continue
 
         if queue.size() == 0:
-            print("No work found.")
+            log("No work found.")
             sys.exit(0)
         else:
             garbage_collect()
@@ -637,12 +645,15 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
 
                 unlock_job(entity)
             except Exception as e:
-                traceback.print_exception(*sys.exc_info())
+                errorType, value, stack = sys.exc_info()
                 if str(e) == 'lock encountered':
-                    print("model is running on another machine")
+                    log("model is running on another machine")
                 else:
                     # bug in the script somewhere... don't leave the node locked.
                     unlock_job(entity)
+                    log(f'### Exception: {errorType}: {value}')
+                    for line in traceback.format_tb(stack):
+                        log(line.strip())
                     sys.exit(1)
 
         time.sleep(10)  # give other machines a chance to grab work so we don't get stuck in retry loops.
@@ -653,17 +664,17 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
 
     # we terminate here to reclaim the leaked memory, and to ensure we shut down cleanly without
     # leaving any rows in the table locked, we have an outer loop.sh script that will restart the runner.
-    print("Memory leak detected")
+    log("Memory leak detected")
     sys.exit(0)
 
 
 if __name__ == '__main__':
     snpe_root = os.getenv("SNPE_ROOT")
     if not snpe_root:
-        print("Please specify your 'SNPE_ROOT' environment variable.")
+        log("Please specify your 'SNPE_ROOT' environment variable.")
         sys.exit(1)
     if not os.path.isdir(snpe_root):
-        print(f"Your SNPE_ROOT '{snpe_root} is not found.")
+        log(f"Your SNPE_ROOT '{snpe_root} is not found.")
         sys.exit(1)
 
     sys.path += [f'{snpe_root}/benchmarks', f'{snpe_root}/lib/python']
@@ -672,23 +683,23 @@ if __name__ == '__main__':
 
     ndk = os.getenv("ANDROID_NDK_ROOT")
     if not ndk:
-        print("you must have a ANDROID_NDK_ROOT installed, see the ../device/readme.md")
+        log("you must have a ANDROID_NDK_ROOT installed, see the ../device/readme.md")
         sys.exit(1)
     if not os.path.isdir(ndk):
-        print(f"Your ANDROID_NDK_ROOT '{ndk} is not found.")
+        log(f"Your ANDROID_NDK_ROOT '{ndk} is not found.")
         sys.exit(1)
 
     dataset = os.getenv("INPUT_DATASET")
     if not dataset:
-        print("please provide --input or set your INPUT_DATASET environment vairable")
+        log("please provide --input or set your INPUT_DATASET environment vairable")
         sys.exit(1)
     if not os.path.isdir(dataset):
-        print(f"Your INPUT_DATASET '{dataset} is not found.")
+        log(f"Your INPUT_DATASET '{dataset} is not found.")
         sys.exit(1)
 
     con_str = os.getenv(CONNECTION_NAME)
     if not con_str:
-        print(f"Please set your {CONNECTION_NAME} environment variable.")
+        log(f"Please set your {CONNECTION_NAME} environment variable.")
         sys.exit(1)
 
     parser = argparse.ArgumentParser(description='Test the models as they appears in our Azure table')
@@ -706,8 +717,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.working:
-        print(f"Using working folder: {args.working}")
+        log(f"Using working folder: {args.working}")
         os.chdir(args.working)
+
+    logger.setLevel('INFO')
+    logger.addHandler(logging.FileHandler('runner.log', 'a'))
 
     MAX_BENCHMARK_RUNS = args.max_benchmark_runs
     CLEAR_RANDOM_INPUTS = args.clear_random_inputs
