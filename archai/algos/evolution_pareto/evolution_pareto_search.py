@@ -87,8 +87,12 @@ class EvolutionParetoSearch(Searcher):
         return current_pop[:self.max_unseen_population]
 
     @overrides
-    def search(self, conf_search:Config, prev_search_state:Path):
-        
+    def search(self, conf_search:Config, prev_search_state:Path = None):
+        # Passing in the optional prev_search_state file path as saved by the save_search_status
+        # method allows search to continue from saved state instead of starting from scratch.
+        # This could be passed in as argument to the derived search class.
+        # If prev_search_state path is passed in, make sure read_search_status method is implemented.
+        # To start search from beginning, avoid passing the optional parameter prev_search_state.
         self.init_num_models = conf_search['init_num_models']
         self.num_iters = conf_search['num_iters']
         self.num_random_mix = conf_search['num_random_mix']
