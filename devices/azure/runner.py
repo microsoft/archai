@@ -473,7 +473,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         merge_status_entity(entity)
         test_input = os.path.join('data', 'test')
         start = get_utc_date()
-        run_batches(filename, test_input, snpe_output_dir)
+        run_batches(filename, snpe_root, test_input, snpe_output_dir)
         end = get_utc_date()
         add_usage(get_device(), start, end)
 
@@ -558,12 +558,12 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
         elif not is_complete(entity, 'f1_onnx'):
             priority = 60
         elif use_device and not is_complete(entity, 'f1_1k'):
-            priority = get_mean_benchmark(entity)
+            priority = 100 + get_mean_benchmark(entity)
         elif use_device and not is_complete(entity, 'f1_1k_f'):
-            priority = get_mean_benchmark(entity) * 10
+            priority = 100 + get_mean_benchmark(entity) * 10
         elif use_device and not is_complete(entity, 'f1_10k'):
             # prioritize by how fast the model is!
-            priority = get_mean_benchmark(entity) * 100
+            priority = 100 + get_mean_benchmark(entity) * 100
         else:
             # this model is done!
             continue
