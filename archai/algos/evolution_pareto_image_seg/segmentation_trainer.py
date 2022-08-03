@@ -187,6 +187,7 @@ class SegmentationTrainer():
         self.max_steps = max_steps
         self.val_check_interval = val_check_interval
         
+        self.dataset_conf = dataset_conf
         self.dp = create_dataset_provider(dataset_conf)
         self.tr_dataset, self.val_dataset = self.dp.get_train_val_datasets(
             tr_augmentation_fn, val_augmentation_fn
