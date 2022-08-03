@@ -94,13 +94,12 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-### Team
-
-Archai has been created and maintained by [Shital Shah](https://shitalshah.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Cesar Teodoro Mendes, Piero Kauffmann in the [Reinforcement Learning Group](https://www.microsoft.com/en-us/research/group/reinforcement-learning-redmond) at Microsoft Research, Redmond, USA. Archai has benefited immensely from discussions with [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd), [John Langford](https://www.microsoft.com/en-us/research/people/jcl), [Rich Caruana](https://www.microsoft.com/en-us/research/people/rcaruana), [Eric Horvitz](https://www.microsoft.com/en-us/research/people/horvitz) and [Alekh Agarwal](https://www.microsoft.com/en-us/research/people/alekha).
+## Team
+Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Cesar Teodoro Mendes, Piero Kauffmann, [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
 
 ### Credits
 
-Archai builds on several open source codebases. These includes: [Fast AutoAugment](https://github.com/kakaobrain/fast-autoaugment), [pt.darts](https://github.com/khanrc/pt.darts), [DARTS-PyTorch](https://github.com/dragen1860/DARTS-PyTorch), [DARTS](https://github.com/quark0/darts), [petridishnn](https://github.com/microsoft/petridishnn), [PyTorch CIFAR-10 Models](https://github.com/huyvnphan/PyTorch-CIFAR10), [NVidia DeepLearning Examples](https://github.com/NVIDIA/DeepLearningExamples), [PyTorch Warmup Scheduler](https://github.com/ildoonet/pytorch-gradual-warmup-lr), [NAS Evaluation is Frustratingly Hard](https://github.com/antoyang/NAS-Benchmark), [NASBench-PyTorch](https://github.com/romulus0914/NASBench-PyTorch). 
+Archai builds on several open source codebases. These includes: [Fast AutoAugment](https://github.com/kakaobrain/fast-autoaugment), [pt.darts](https://github.com/khanrc/pt.darts), [DARTS-PyTorch](https://github.com/dragen1860/DARTS-PyTorch), [DARTS](https://github.com/quark0/darts), [petridishnn](https://github.com/microsoft/petridishnn), [PyTorch CIFAR-10 Models](https://github.com/huyvnphan/PyTorch-CIFAR10), [NVidia DeepLearning Examples](https://github.com/NVIDIA/DeepLearningExamples), [PyTorch Warmup Scheduler](https://github.com/ildoonet/pytorch-gradual-warmup-lr), [NAS Evaluation is Frustratingly Hard](https://github.com/antoyang/NAS-Benchmark), [NASBench-PyTorch](https://github.com/romulus0914/NASBench-PyTorch).
 
 Please see `install_requires` section in [setup.py](setup.py) for up-to-date dependencies list. If you feel credit to any material is missing, please let us know by filing an [issue](https://github.com/microsoft/archai/issues).
 

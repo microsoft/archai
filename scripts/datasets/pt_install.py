@@ -59,7 +59,7 @@ def untar_dataset(conf_name:str, pt_data_dir:str, conf_dataset:Config, dataroot:
 
     utils.exec_shell_command(command)
 
-    print(f'dataset copied from {tar_filepath} to {local_dataroot} sucessfully')
+    print(f'dataset copied from {tar_filepath} to {local_dataroot} successfully')
 
 def _is_pt()->bool:
     """Is this code running in pt infrastrucuture"""
