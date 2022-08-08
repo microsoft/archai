@@ -18,7 +18,16 @@ install_requires=[
     'ftfy', # needed for text scoring, fixes text for you
     # nvidia transformer-xl
     'nv_dllogger', # needed for compatibility between pip and setuptools
-    'pytorch-transformers', 'sacremoses', 'pynvml'
+    'pytorch-transformers', 'sacremoses', 'pynvml',
+    'hyperopt', 'gorilla', 'ray>=1.0.0', 'sklearn',
+    'tensorboard', 'tensorwatch>=0.9.1', 'tqdm',
+    'kaleido', 'matplotlib', 'plotly', 'seaborn',
+    'h5py', 'psutil', 'pynvml', 'pyunpack', 'pyyaml', 'rarfile', 'Send2Trash',
+    'overrides==3.1.0', 'runstats', 'statopt',
+    'datasets', 'sacremoses', 'tokenizers>=0.10.3', 'transformers>=4.20.1',
+    'onnx==1.10.2', 'onnxruntime==1.10.0',
+    'coloredlogs', 'sympy', 'ftfy', # needed for text predict, fixes text for you
+    'dllogger @ git+https://github.com/NVIDIA/dllogger.git'
 ]
 
 setup(
@@ -27,19 +36,18 @@ setup(
     description="Research platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Shital Shah, Debadeepta Dey",
-    author_email="shitals@microsoft.com, dedey@microsoft.com",
     url="https://github.com/microsoft/archai",
 	license="MIT",
     install_requires=install_requires,
     packages=find_packages(),
-    include_package_data=True,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Intended Audience :: Science/Research',
         "Topic :: Software Development :: Libraries",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: Libraries :: Python Modules"
     ],
+    include_package_data=True
 )

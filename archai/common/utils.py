@@ -1,14 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
+from typing import Dict, Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union, Sized
 import  numpy as np
 import logging
 import csv
 from collections import OrderedDict
 import sys
 import  os
+import functools
 import pathlib
+from pathlib import Path
 import random
 from itertools import zip_longest
 import shutil
@@ -123,7 +125,7 @@ def is_debugging()->bool:
 
 def full_path(path:str, create=False)->str:
     assert path
-    path = os.path.abspath(
+    path = os.path.realpath(
             os.path.expanduser(
                 os.path.expandvars(path)))
     if create:
@@ -137,7 +139,7 @@ def zero_file(filepath)->None:
 def write_string(filepath:str, content:str)->None:
     pathlib.Path(filepath).write_text(content)
 def read_string(filepath:str)->str:
-    return pathlib.Path(filepath).read_text()
+    return pathlib.Path(filepath).read_text(encoding='utf-8')
 
 def create_logger(filepath:Optional[str]=None,
                   name:Optional[str]=None,
@@ -178,6 +180,8 @@ def fmt(val:Any)->str:
 
 def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t'):
     fieldnames, rows = [], []
+
+    # get existing field names and rows
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
             dr = csv.DictReader(f, delimiter=delimiter)
@@ -186,10 +190,12 @@ def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t')
     if fieldnames is None:
         fieldnames = []
 
+    # add field names from old file and new row
     new_fieldnames = OrderedDict([(fn, None) for fn, v in new_row])
     for fn in fieldnames:
         new_fieldnames[fn]=None
 
+    # write new CSV file
     with open(filepath, 'w', newline='') as f:
         dr = csv.DictWriter(f, fieldnames=new_fieldnames.keys(), delimiter=delimiter)
         dr.writeheader()
@@ -381,3 +387,77 @@ def get_ranks(items:list, key=lambda v:v, reverse=False)->List[int]:
                       reverse=reverse)
     sorted_map = dict((t[1], i) for i, t in enumerate(sorted_t))
     return [sorted_map[i] for i in range(len(items))]
+
+def dedup_list(l:List)->List:
+    return list(OrderedDict.fromkeys(l))
+
+def delete_file(filepath:str)->bool:
+    if os.path.isfile(filepath):
+        os.remove(filepath)
+        return True
+    else:
+        return False
+
+def save_as_yaml(obj, filepath:str)->None:
+    with open(filepath, 'w', encoding='utf-8') as f:
+        yaml.dump(obj, f, default_flow_style=False)
+
+def create_file_name_identifier(file_name:Path, identifier:str)->Path:
+    return file_name.parent.joinpath(file_name.stem + identifier).with_suffix(file_name.suffix)
+
+def map_to_list(variable:Union[int,float,Sized], size:int)->Sized:
+    if isinstance(variable, Sized):
+        size_diff = size - len(variable)
+
+        if size_diff < 0:
+            return variable[:size]
+        elif size_diff == 0:
+            return variable
+        elif size_diff > 0:
+            return variable + [variable[0]] * size_diff
+
+    return [variable] * size
+
+def rsetattr(obj:Any, attr:Any, value:Any)->None:
+    # Copyright @ https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
+    pre_attr, _, post_attr = attr.rpartition('.')
+
+    return setattr(rgetattr(obj, pre_attr) if pre_attr else obj, post_attr, value)
+
+def rgetattr(obj:Any, attr:Any, *args)->Any:
+    # Copyright @ https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
+    def _getattr(obj:Any, attr:Any)->Any:
+        return getattr(obj, attr, *args)
+
+    return functools.reduce(_getattr, [obj] + attr.split('.'))
+
+def attr_to_dict(obj:Any, recursive:bool=True)->Dict[str, Any]:
+    MAX_LIST_LEN = 10
+    variables = {}
+
+    var_dict = dict(vars(obj.__class__))
+    try:
+        var_dict.update(dict(vars(obj)))
+    except TypeError:
+        pass
+
+    for k, v in var_dict.items():
+        if k[0] == '_':
+            continue
+
+        if isinstance(v, (int, float, str)):
+            variables[k.lower()] = v
+
+        elif isinstance(v, list) and (len(v) == 0 or isinstance(v[0], (int, float, str))):
+            variables[k.lower()] = v[:MAX_LIST_LEN]
+
+        elif isinstance(v, set) and (len(v) == 0 or isinstance(next(iter(v)), (int, float, str))):
+            variables[k.lower()] = list(v)[:MAX_LIST_LEN]
+
+        elif recursive:
+            settings_fn = getattr(v, 'settings', None)
+
+            if callable(settings_fn):
+                variables[k.lower()] = settings_fn()
+
+    return variables

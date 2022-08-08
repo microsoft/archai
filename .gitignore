@@ -118,9 +118,16 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Pyre type checker
-.pyre/
-
 # docker build .env files
 .env
 devices/docker/build.ps1
+
+# pyre type checker
+.pyre/
+
+# additional files
+model.th
+*.onnx
+*.log*
+evo_search/
+
