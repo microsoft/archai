@@ -647,13 +647,17 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
             except Exception as e:
                 errorType, value, stack = sys.exc_info()
                 if str(e) == 'lock encountered':
-                    log("model is running on another machine")
+                    log('model is running on another machine')
+                elif 'ConnectionResetError' in str(e):
+                    log('ConnectionResetError: Ignoring Azure flakiness...')
+                    unlock_job(entity)
                 else:
                     # bug in the script somewhere... don't leave the node locked.
-                    unlock_job(entity)
                     log(f'### Exception: {errorType}: {value}')
                     for line in traceback.format_tb(stack):
                         log(line.strip())
+
+                    unlock_job(entity)
                     sys.exit(1)
 
         time.sleep(10)  # give other machines a chance to grab work so we don't get stuck in retry loops.
