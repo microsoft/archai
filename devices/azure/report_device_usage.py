@@ -15,6 +15,10 @@ def parse_date(date):
 
 def report(report_start, report_end):
     devices = {}
+
+    first = None
+    last = None
+
     for e in get_all_usage_entities():
         device = e['name']
         start = parse_date(e['start'])
@@ -26,22 +30,61 @@ def report(report_start, report_end):
         if device not in devices:
             devices[device] = []
         devices[device] += [(start, end)]
+        if first is None or start < first:
+            first = start
+        if last is None or end > last:
+            last = end
 
-    for k in devices:
-        data = devices[k]
-        s = sorted(data, key=lambda x: x[0])
-        start = s[0][0]
-        end = s[-1][1]
+    if first is None:
+        print("No data found")
+        return
+
+    # column headings
+    print("date,{}".format(",".join([k for k in devices])))
+
+    start = datetime.datetime(first.year, first.month, first.day, 0, 0, 0, 0, first.tzinfo)
+    last = datetime.datetime(last.year, last.month, last.day, 23, 59, 59, 999999, first.tzinfo)
+    while start < last:
+        du = []
+        end = start + datetime.timedelta(days=1)
         total = (end - start).total_seconds()
+        for k in devices:
+            s = devices[k]
+            used = 0
+            for d in s:
+                ds = d[0]
+                de = d[1]
+                if ds > end or de < start:
+                    continue
+                if ds < start:
+                    ds = start
+                if de > end:
+                    de = end
+                u = (de - ds).total_seconds()
+                if u < 0:
+                    print("?")
+                used += u
+
+            x = int((used * 100) / total)
+            du += [x]
+
+        st = start.strftime("%x")
+        print("{},{}".format(st, ",".join([str(x) for x in du])))
+        start = end
+
+    total_seconds = (last - first).total_seconds()
+    total_used = []
+    for k in devices:
+        s = devices[k]
         used = 0
         for d in s:
             u = (d[1] - d[0]).total_seconds()
             used += u
 
-        x = int((used * 100) / total)
-        st = start.strftime("%x %X")
-        et = end.strftime("%x %X")
-        print(f"Device {k} used from {st} to {et} was utilized {x} percent")
+        x = int((used * 100) / total_seconds)
+        total_used += [x]
+
+    print("total,{}".format(",".join([str(x) for x in total_used])))
 
 
 if __name__ == '__main__':
