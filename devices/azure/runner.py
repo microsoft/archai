@@ -505,7 +505,7 @@ def clear_random_inputs():
 def is_benchmark_only(entity, benchmark_only):
     benchmark_only_flag = benchmark_only
     if 'benchmark_only' in entity:
-        benchmark_only_flag = int(entity['benchmark_only'])
+        benchmark_only_flag = get_int64_value(entity, 'benchmark_only')
     return benchmark_only_flag
 
 
@@ -568,7 +568,7 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
 
         if 'priority' in entity:
             # allow user to override the priority
-            priority = int(entity['priority'])
+            priority = get_int64_value(entity, 'priority')
 
         queue.enqueue(priority, entity)
     return queue
