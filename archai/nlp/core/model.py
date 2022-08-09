@@ -140,7 +140,7 @@ class ArchaiModel:
 
         config_cls_name = model[0]
         model_cls_name = model[1]
-        model_module = importlib.import_module("archai_nlp.models")
+        model_module = importlib.import_module("archai.nlp.models")
         config_cls = getattr(model_module, config_cls_name)
         model_cls = getattr(model_module, model_cls_name)
 
@@ -199,7 +199,7 @@ class ArchaiModel:
             )
 
         model_cls_name = model[1]
-        model_module = importlib.import_module("archai_nlp.models")
+        model_module = importlib.import_module("archai.nlp.models")
         model_cls = getattr(model_module, model_cls_name)
 
         # logger.info(f"Loading model from: {pre_trained_model_path}")
