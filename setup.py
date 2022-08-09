@@ -32,7 +32,7 @@ install_requires=[
 
 setup(
     name="archai",
-    version="0.6.4",
+    version="0.6.5",
     description="Research platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
