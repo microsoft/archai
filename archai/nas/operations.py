@@ -34,6 +34,8 @@ _ops_factory:Dict[str, Callable] = {
                             SepConv(op_desc, 3, 1, affine),
     'sep_conv_5x5':     lambda op_desc, arch_params, affine:
                             SepConv(op_desc, 5, 2, affine),
+    'dwsep_conv_3x3':     lambda op_desc, arch_params, affine:
+                            DepthwiseSeparableConv(op_desc, 3, 1, 1, affine),
     'convbnrelu_3x3':     lambda op_desc, arch_params, affine: # used by NASBench-101
                             ConvBNReLU(op_desc, 3, 1, 1, affine),
     'convbnrelu_1x1':     lambda op_desc, arch_params, affine: # used by NASBench-101
@@ -309,6 +311,34 @@ class SepConv(Op):
     def forward(self, x):
         return self.op(x)
 
+class DepthwiseSeparableConv(Op):
+    """ Depthwise separable conv (used in Mobilenet v1)
+    depthwise separable - BN - ReLU - Pointwise - BN - ReLU
+    """
+
+    def __init__(self, op_desc:OpDesc, kernel_size:int, stride:int, padding:int,
+                 affine:bool):
+        super(DepthwiseSeparableConv, self).__init__()
+
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+
+        self.op = nn.Sequential(
+            # depthwise conv
+            nn.Conv2d(ch_in, ch_in, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
+            nn.BatchNorm2d(ch_out, affine=affine),
+            nn.ReLU(),
+
+            # pointwise conv
+            nn.Conv2d(ch_in, ch_out, kernel_size=1, padding=0, bias=False),
+            nn.BatchNorm2d(ch_out, affine=affine),
+            nn.ReLU()
+        )
+
+    @overrides
+    def forward(self, x):
+        return self.op(x)
 
 class Identity(Op):
     def __init__(self, op_desc:OpDesc):
