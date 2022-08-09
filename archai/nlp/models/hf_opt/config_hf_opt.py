@@ -97,9 +97,9 @@ class HfOPTSearchConfig(SearchConfig):
         """
         
         # Default HfOPT search options: n_layer, d_model, d_inner and n_head
-        n_layer = SearchConfigParameter(per_layer=False, value=list(range(3, 25, 1)))
-        d_model = SearchConfigParameter(per_layer=False, value=list(range(128, 1088, 64)))
-        d_inner = SearchConfigParameter(per_layer=False, value=list(range(128, 4160, 64)))
+        n_layer = SearchConfigParameter(per_layer=False, value=list(range(3, 30, 1)))
+        d_model = SearchConfigParameter(per_layer=False, value=list(range(512, 1536, 64)))
+        d_inner = SearchConfigParameter(per_layer=False, value=list(range(512, 6144, 64)))
         n_head = SearchConfigParameter(per_layer=False, value=[2, 4, 8, 16])
 
         super().__init__(n_layer=n_layer,
