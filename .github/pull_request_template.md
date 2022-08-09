@@ -17,7 +17,7 @@ Please delete options that are not relevant.
 
 ## Tests
 
-Describe if additional tests have been implemented and reproduced.
+The unitary tests suite will be built.
 
 **Configuration**:
 * Archai version:
@@ -31,7 +31,5 @@ Describe if additional tests have been implemented and reproduced.
 - [ ] Commented code in hard-to-understand areas
 - [ ] Corresponding changes to the documentation
 - [ ] Changes generate no new warnings
-- [ ] Added tests to assert changes
-- [ ] Unit tests pass locally with added changes
 - [ ] Dependent changes have already been merged
 - [ ] Checked code correction any misspellings
