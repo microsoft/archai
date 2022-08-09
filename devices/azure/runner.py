@@ -551,7 +551,6 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
         elif use_device and (total_benchmark_runs < MAX_BENCHMARK_RUNS):
             priority = 30 + total_benchmark_runs
         elif is_benchmark_only(entity, benchmark_only):
-            log(f"# skipping {name} because this node cannot run benchmarks...")
             continue
         elif not is_complete(entity, 'f1_onnx'):
             priority = 60
