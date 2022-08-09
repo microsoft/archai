@@ -62,6 +62,10 @@ _ops_factory:Dict[str, Callable] = {
                             StemConv3x3S4(op_desc, affine),
     'stem_conv3x3_s4s2':   lambda op_desc, arch_params, affine:
                             StemConv3x3S4S2(op_desc, affine),
+    'stem_conv3x3_s2':   lambda op_desc, arch_params, affine:
+                            StemConv3x3S2(op_desc, affine),
+    'stem_identity':   lambda op_desc, arch_params, affine:
+                            StemIdentity(op_desc, affine),
     'pool_adaptive_avg2d':       lambda op_desc, arch_params, affine:
                             PoolAdaptiveAvg2D(),
     'pool_avg2d7x7':    lambda op_desc, arch_params, affine:
@@ -485,6 +489,41 @@ class StemConv3x3S4S2(StemBase):
     @overrides
     def can_drop_path(self)->bool:
         return False
+
+class StemConv3x3S2(StemBase):
+    def __init__(self, op_desc, affine:bool)->None:
+        super().__init__(2)
+
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+
+        self._op = nn.Sequential(
+            # keep in sync with StemConv3x3S4S2
+            nn.Conv2d(ch_in, ch_out, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(ch_out, affine=affine),
+            nn.ReLU(inplace=True),
+        )
+    @overrides
+    def forward(self, x):
+        return self._op(x)
+    @overrides
+    def can_drop_path(self)->bool:
+        return False
+#end of class
+
+class StemIdentity(StemBase):
+    def __init__(self, op_desc, affine:bool)->None:
+        super().__init__(1)
+
+    @overrides
+    def forward(self, x):
+        return x
+
+    @overrides
+    def can_drop_path(self)->bool:
+        return False
+#end of class
 
 class AvgPool2d7x7(Op):
     def __init__(self)->None:

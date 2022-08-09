@@ -103,7 +103,7 @@ class Model(ArchModule):
         #print(-1, 'out', out.shape)
         #print(-1, 'logits', logits.shape)
 
-        return logits, logits_aux
+        return logits #, logits_aux
 
     def device_type(self)->str:
         return next(self.parameters()).device.type
