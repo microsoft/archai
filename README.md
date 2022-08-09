@@ -2,9 +2,10 @@
 
 # Archai: Platform for Neural Architecture Search
 
-[![License](https://img.shields.io/github/license/microsoft/archai)](https://github.com/microsoft/archai/blob/main/LICENSE)
-[![Issues](https://img.shields.io/github/issues/microsoft/archai)](https://github.com/microsoft/archai/issues)
-[![Latest release](https://img.shields.io/github/release/microsoft/archai)](https://github.com/microsoft/archai/releases)
+[![Latest release](https://img.shields.io/github/release/microsoft/archai?color=0E8A16)](https://github.com/microsoft/archai/releases)
+[![Commits since latest release](https://img.shields.io/github/commits-since/microsoft/archai/latest?color=FBCA04)](https://github.com/microsoft/archai/commits/master)
+[![Issues](https://img.shields.io/github/issues/microsoft/archai?color=FEF2C0)](https://github.com/microsoft/archai/issues)
+[![License](https://img.shields.io/github/license/microsoft/archai?color=EEEEEE)](https://github.com/microsoft/archai/blob/main/LICENSE)
 
 **Archai** is a platform for Neural Network Search (NAS) that allows you to generate efficient deep networks for your applications. It offers the following advantages:
 

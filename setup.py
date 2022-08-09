@@ -3,8 +3,8 @@
 
 from setuptools import find_packages, setup
 
-with open("README.md", "r", encoding='utf_8') as fh:
-    long_description = fh.read()
+with open("README.md", "r", encoding="utf_8") as f:
+    long_description = f.read()
 
 install_requires=[
     'pystopwatch2',
@@ -17,7 +17,7 @@ install_requires=[
     'transformers', 'pytorch_lightning', 'tokenizers', 'datasets',
     'ftfy', # needed for text scoring, fixes text for you
     # nvidia transformer-xl
-    'nv_dllogger', # needed for compatibility between pip and setuptools
+    'nv-dllogger' # same as dllogger, but PyPI installabled
     'pytorch-transformers', 'sacremoses', 'pynvml',
     'hyperopt', 'gorilla', 'ray>=1.0.0', 'sklearn',
     'tensorboard', 'tensorwatch>=0.9.1', 'tqdm',
@@ -27,12 +27,11 @@ install_requires=[
     'datasets', 'sacremoses', 'tokenizers>=0.10.3', 'transformers>=4.20.1',
     'onnx==1.10.2', 'onnxruntime==1.10.0',
     'coloredlogs', 'sympy', 'ftfy', # needed for text predict, fixes text for you
-    'dllogger @ git+https://github.com/NVIDIA/dllogger.git'
 ]
 
 setup(
     name="archai",
-    version="0.6.4",
+    version="0.6.5",
     description="Research platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
