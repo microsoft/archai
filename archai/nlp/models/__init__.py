@@ -1,6 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Abstract classes, such as model, configuration and ONNX-based configuration,
-as well as loading-based functions and availability dictionaries.
+"""Transformer-based models.
 """
+
+from archai.nlp.models.opt import (
+    OPTConfig,
+    OPTFlexConfig,
+    OPTFlexForCLM,
+    OPTForCLM,
+    OPTTokenizer,
+)
