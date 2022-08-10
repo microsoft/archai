@@ -68,6 +68,8 @@ _ops_factory:Dict[str, Callable] = {
                             StemConv3x3S2(op_desc, affine),
     'stem_identity':   lambda op_desc, arch_params, affine:
                             StemIdentity(op_desc, affine),
+    'linear_bottleneck':   lambda op_desc, arch_params, affine:
+                            LinearBottleneck(op_desc, affine),      
     'pool_adaptive_avg2d':       lambda op_desc, arch_params, affine:
                             PoolAdaptiveAvg2D(),
     'pool_avg2d7x7':    lambda op_desc, arch_params, affine:
@@ -554,6 +556,46 @@ class StemIdentity(StemBase):
     def can_drop_path(self)->bool:
         return False
 #end of class
+
+class LinearBottleneck(StemBase):
+    def __init__(self, op_desc, affine:bool)->None:
+        super().__init__(8)
+
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+        stride = op_desc.params['stride']
+        assert stride in [1, 2]
+
+        #Place holder: should this be a learnable parameter; how do we handle this??
+        expand_ratio = 6  
+
+        hidden_dim = round(ch_in * expand_ratio)
+        #self.identity = stride == 1 and ch_in == ch_out
+
+        self._op = nn.Sequential(
+            # pw
+            nn.Conv2d(ch_in, hidden_dim, 1, 1, 0, bias=False),
+            nn.BatchNorm2d(hidden_dim),
+            nn.ReLU6(inplace=True),
+            # dw
+            nn.Conv2d(hidden_dim, hidden_dim, 3, stride, 1, groups=hidden_dim, bias=False),
+            nn.BatchNorm2d(hidden_dim),
+            nn.ReLU6(inplace=True),
+            # pw-linear
+            nn.Conv2d(hidden_dim, ch_out, 1, 1, 0, bias=False),
+            nn.BatchNorm2d(ch_out),
+        )
+
+    @overrides
+    def forward(self, x):
+        #Supposedly the resudual sum up is handled by the DAG? if self.identity:  return x + self._op(x) else 
+        return self._op(x)
+
+    @overrides
+    def can_drop_path(self)->bool:
+        return False                    
+#endofclass
 
 class AvgPool2d7x7(Op):
     def __init__(self)->None:

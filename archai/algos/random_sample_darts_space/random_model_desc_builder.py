@@ -19,10 +19,11 @@ class RandOps:
         'max_pool_3x3',
         'avg_pool_3x3',
         'skip_connect',  # identity
+        'linear_bottleneck',
         'sep_conv_3x3',
-        'sep_conv_5x5',
-        'dil_conv_3x3',
-        'dil_conv_5x5',
+#        'sep_conv_5x5',
+#        'dil_conv_3x3',
+#        'dil_conv_5x5',
         # we don't allow none edge for random ops
         # 'none'  # this must be at the end so top1 doesn't choose it
     ]
