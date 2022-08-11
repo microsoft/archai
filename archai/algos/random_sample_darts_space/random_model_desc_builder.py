@@ -19,6 +19,7 @@ class RandOps:
         'max_pool_3x3',
         'avg_pool_3x3',
         'skip_connect',  # identity
+        'dwsep_conv_3x3',
         'linear_bottleneck',
         'sep_conv_3x3',
 #        'sep_conv_5x5',

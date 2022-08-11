@@ -35,7 +35,7 @@ _ops_factory:Dict[str, Callable] = {
     'sep_conv_5x5':     lambda op_desc, arch_params, affine:
                             SepConv(op_desc, 5, 2, affine),
     'dwsep_conv_3x3':     lambda op_desc, arch_params, affine:
-                            DepthwiseSeparableConv(op_desc, 3, 1, 1, affine),
+                            DepthwiseSeparableConv(op_desc, 3, 1, affine),
     'convbnrelu_3x3':     lambda op_desc, arch_params, affine: # used by NASBench-101
                             ConvBNReLU(op_desc, 3, 1, 1, affine),
     'convbnrelu_1x1':     lambda op_desc, arch_params, affine: # used by NASBench-101
@@ -318,13 +318,14 @@ class DepthwiseSeparableConv(Op):
     depthwise separable - BN - ReLU - Pointwise - BN - ReLU
     """
 
-    def __init__(self, op_desc:OpDesc, kernel_size:int, stride:int, padding:int,
-                 affine:bool):
+    def __init__(self, op_desc:OpDesc, kernel_size:int, padding:int, affine:bool):
         super(DepthwiseSeparableConv, self).__init__()
 
         conv_params:ConvMacroParams = op_desc.params['conv']
         ch_in = conv_params.ch_in
         ch_out = conv_params.ch_out
+        stride = op_desc.params['stride']
+        assert stride in [1, 2]
 
         self.op = nn.Sequential(
             # depthwise conv
