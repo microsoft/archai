@@ -30,8 +30,6 @@ def get_custom_overall_metrics(tp, fp, fn, tn, stage, ignore_classes: Optional[L
     overall_iou = torch.sum(iou[class_mask] * weight) / torch.sum(weight)
 
     return {
-        f'{stage}_f1': f1,
-        f'{stage}_iou': iou,
         f'{stage}_overall_f1': overall_f1,
         f'{stage}_overall_iou': overall_iou
     }
