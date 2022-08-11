@@ -559,13 +559,14 @@ class StemIdentity(StemBase):
 
 class LinearBottleneck(StemBase):
     def __init__(self, op_desc, affine:bool)->None:
-        super().__init__(8)
+        
+        stride = op_desc.params['stride']
+        assert stride in [1, 2]
+        super().__init__(stride)
 
         conv_params:ConvMacroParams = op_desc.params['conv']
         ch_in = conv_params.ch_in
         ch_out = conv_params.ch_out
-        stride = op_desc.params['stride']
-        assert stride in [1, 2]
 
         #Place holder: should this be a learnable parameter; how do we handle this??
         expand_ratio = 6  
@@ -585,6 +586,7 @@ class LinearBottleneck(StemBase):
             # pw-linear
             nn.Conv2d(hidden_dim, ch_out, 1, 1, 0, bias=False),
             nn.BatchNorm2d(ch_out),
+            #Note: No ReLu here. Hence, "linear"
         )
 
     @overrides
