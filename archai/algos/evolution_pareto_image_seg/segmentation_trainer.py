@@ -217,8 +217,11 @@ class SegmentationTrainer():
         arch.to_file(run_path / 'architecture.yaml')
 
         # Saves architecture diagram
-        digraph = arch.view()
-        digraph.render(str(run_path / 'architecture'), format='png')
+        try:
+            digraph = arch.view()
+            digraph.render(str(run_path / 'architecture'), format='png')
+        except AttributeError:
+            pass
 
         trainer = pl.Trainer(
             max_steps=self.max_steps,
