@@ -14,7 +14,7 @@ install_requires=[
     'requests', 'seaborn', 'h5py', 'rarfile',
     'gorilla', 'pyyaml', 'overrides==3.1.0', 'runstats', 'psutil', 'statopt',
     'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash', 'plotly',
-    'transformers', 'pytorch-lightning', 'tokenizers', 'datasets', 'nats_bench',
+    'transformers', 'pytorch-lightning==1.6', 'tokenizers', 'datasets', 'nats_bench',
     'ftfy', # needed for text scoring, fixes text for you
     # nvidia transformer-xl
     'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
