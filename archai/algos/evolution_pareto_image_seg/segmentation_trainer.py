@@ -3,7 +3,7 @@ import random
 from pathlib import Path
 
 import torch
-from torch.utils.data.dataloader import DataLoader, default_collate
+from torch.utils.data.dataloader import DataLoader
 import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
@@ -109,7 +109,9 @@ class LightningModelWrapper(pl.LightningModule):
             'fp': fp,
             'fn': fn,
             'tn': tn,
-            'loss': loss
+            'loss': loss,
+            'logits_mask': logits_mask,
+            'image': image
         }
 
         return metrics_result
