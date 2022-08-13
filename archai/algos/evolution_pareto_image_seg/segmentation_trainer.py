@@ -109,9 +109,7 @@ class LightningModelWrapper(pl.LightningModule):
             'fp': fp,
             'fn': fn,
             'tn': tn,
-            'loss': loss,
-            'logits_mask': logits_mask.detach().cpu(),
-            'image': image.detach().cpu()
+            'loss': loss
         }
 
         return metrics_result
