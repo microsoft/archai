@@ -1,5 +1,6 @@
 import copy
 import random
+from statistics import mode
 from typing import List, Optional
 from overrides.overrides import overrides
 
@@ -126,7 +127,20 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         self.arch_counter += 1
         return ArchWithMetaData(model, meta_data)
 
-    
+    def get_archwithmetadata(self, model: Model, archid: int) -> ArchWithMetaData:
+        ''' Retrieves ArchWithMetaData object given the model and arch id.
+        This is useful when recreating objects from a saved state during search.
+        '''
+        assert model is not None
+        assert isinstance(model, Model)
+        assert archid >= 0
+
+        meta_data = {'archid': archid}
+        # Keep updating arch counter for every read model, 
+        # so that the next generated architecture has the right archid property
+        self.arch_counter = archid + 1 
+        return ArchWithMetaData(model, meta_data)
+
     def _create_nbr(self, central_desc:ModelDesc, 
                     nbr_cells:List[CellDesc], 
                     cell_type:CellType)->ModelDesc:
