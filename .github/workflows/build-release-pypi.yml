@@ -14,20 +14,17 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Sets the Environment
-        # Installs a Python 3.7 environment
+      - name: Sets the environment
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
       - name: Installs pypa/build
-        # Install the `build` package for further building
         run: >-
           python -m
           pip install
           build
           --user
-      - name: Builds the Wheel
-        # Runs the `build` command to create the wheel and source tarball
+      - name: Builds the wheel
         run: >-
           python -m
           build
@@ -36,7 +33,6 @@ jobs:
           --outdir dist/
           .
       - name: Publishes to PyPI
-        # Publishes the builded package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}

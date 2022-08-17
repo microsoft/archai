@@ -16,8 +16,6 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    strategy:
-      fail-fast: false
     steps:
       - name: Pulls the repository
         uses: actions/checkout@v3
