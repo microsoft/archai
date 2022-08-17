@@ -2,7 +2,7 @@
 name: Feature Request
 about: We always welcome new features
 title: "[NEW]"
-labels: enhancement
+labels: feature
 assignees: ''
 
 ---
