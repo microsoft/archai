@@ -42,12 +42,14 @@ class LightningModelWrapper(pl.LightningModule):
                  lr: float = 2e-4,
                  lr_exp_decay_gamma: float = 0.98,
                  img_size: Tuple[int, int] = (256, 256),
-                 metrics_ignore_classes: Optional[List[int]] = None):
+                 metrics_ignore_classes: Optional[List[int]] = None,
+                 weight_decay: float = 0.0):
 
         super().__init__()
 
         self.model = model
         self.lr = lr
+        self.weight_decay = weight_decay
         self.lr_exp_decay_gamma = lr_exp_decay_gamma
         self.latency = None
         self.img_size = img_size
@@ -153,7 +155,7 @@ class LightningModelWrapper(pl.LightningModule):
         return results
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
         scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=self.lr_exp_decay_gamma)
 
         scheduler = {
