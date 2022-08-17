@@ -2,7 +2,7 @@
 name: Regular Issue
 about: If your issue is not a bug nor a feature request
 title: "[REG]"
-labels: general
+labels: support
 assignees: ''
 
 ---
