@@ -16,7 +16,7 @@
 
 Please refer to the [documentation](https://microsoft.github.io/archai) for more information.
 
-Archai is compatible with: **Python 3.6+** and **PyTorch 1.2+**.
+Archai is compatible with: **Python 3.7+** and **PyTorch 1.2.0+**.
 
 ## Table of contents
 
