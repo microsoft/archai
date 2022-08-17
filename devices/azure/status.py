@@ -176,7 +176,7 @@ def print_entities(entities, columns=None):
                 x = e[k]
                 if isinstance(x, EntityProperty) and x.edm_type is EdmType.INT64:
                     x = x.value
-                v = str(x).replace(',', ' ')
+                v = str(x).replace(',', ' ').replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ')
                 print(f"{v}", end='')
             print(', ', end='')
         print()
