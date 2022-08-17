@@ -33,7 +33,8 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         self.config = get_conf()
         self.conf_model_desc = self.config['nas']['search']['model_desc']
         self.drop_path_prob = self.config['nas']['search']['trainer']['drop_path_prob']
-
+        self.primitives = self.config['primitives'] if self.config['primitives'] is not None else DiscreteSearchSpaceDARTS.PRIMITIVES
+        print(self.primitives)
 
     def _get_regular_cell(self, model_desc:ModelDesc)->CellDesc:
         ''' Returns the first regular cell type encountered '''
@@ -87,7 +88,7 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         op_nbrs = []
         for j, node in enumerate(cell_desc._nodes):
             for k, edge in enumerate(node.edges):
-                available = [op_name for op_name in DiscreteSearchSpaceDARTS.PRIMITIVES if op_name!=edge.op_desc.name]
+                available = [op_name for op_name in self.primitives if op_name!=edge.op_desc.name]
                 for op_name in available:
                     # change one op to be different
                     this_nbr = self._change_cell_op(central_desc, j, k, op_name, cell_desc.cell_type)

@@ -70,6 +70,8 @@ _ops_factory:Dict[str, Callable] = {
                             StemIdentity(op_desc, affine),
     'linear_bottleneck':   lambda op_desc, arch_params, affine:
                             LinearBottleneck(op_desc, affine),      
+    'linear_bottleneck_se':   lambda op_desc, arch_params, affine:
+                            LinearBottleneck(op_desc, affine, True),      
     'pool_adaptive_avg2d':       lambda op_desc, arch_params, affine:
                             PoolAdaptiveAvg2D(),
     'pool_avg2d7x7':    lambda op_desc, arch_params, affine:
@@ -558,8 +560,57 @@ class StemIdentity(StemBase):
         return False
 #end of class
 
+#SE block implemented per MobileNet v3, supposedly improved accuracy
+class HardSigmoid(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.relu = nn.ReLU6(inplace=True)
+        print (type(self.relu))
+
+    @overrides
+    def forward(self, x):
+        return self.relu(x + 3) / 6
+
+class HardSwish(StemBase): #supposedly better perf compare to ReLU
+    def __init__(self):
+        super().__init__(1)
+        self.hsigmoid = HardSigmoid(inplace=True)
+        
+    @overrides
+    def forward(self, x):
+        return x * self.hsigmoid(x)
+
+    @overrides
+    def can_drop_path(self)->bool:
+        return False                
+
+class SqueezeAndExcite(nn.Module):
+    def __init__(self, ch, affine:bool = True)->None:
+        super().__init__()
+        self.reduction = 4 #per MNv3, does this need to be a parameter? 
+        assert (ch % self.reduction == 0)     #otherwise
+        ch_reduced = ch // self.reduction          
+
+        self._op1 = nn.AdaptiveAvgPool2d(1);
+        self._op2 = nn.Sequential(
+                nn.Linear(ch, ch_reduced),
+                nn.ReLU(inplace=True),
+                nn.Linear(ch_reduced, ch),
+                HardSigmoid()
+        )
+        print (type(self._op2))
+    @overrides
+    def forward(self, x):
+        n, c, _, _ = x.size()
+        x1 = self._op1(x).view(n, c)
+        x2 = self._op2(x1).view(n, c, 1, 1)
+        return x * x2
+#endofclass
+
+#Linearbottlenetck implemented per MobileNet v2 
+#SE added per MobileNet v3
 class LinearBottleneck(StemBase):
-    def __init__(self, op_desc, affine:bool)->None:
+    def __init__(self, op_desc, affine:bool, use_se = False)->None:
         
         stride = op_desc.params['stride']
         assert stride in [1, 2]
@@ -569,7 +620,7 @@ class LinearBottleneck(StemBase):
         ch_in = conv_params.ch_in
         ch_out = conv_params.ch_out
 
-        #Place holder: should this be a learnable parameter; how do we handle this??
+        #Place holder: should this be a learnable parameter; how do we handle this?? MNv3 has variable numbers
         expand_ratio = 6  
 
         hidden_dim = round(ch_in * expand_ratio)
@@ -583,6 +634,7 @@ class LinearBottleneck(StemBase):
             # dw
             nn.Conv2d(hidden_dim, hidden_dim, 3, stride, 1, groups=hidden_dim, bias=False),
             nn.BatchNorm2d(hidden_dim),
+            SqueezeAndExcite (hidden_dim) if use_se else nn.Identity(),        
             nn.ReLU6(inplace=True),
             # pw-linear
             nn.Conv2d(hidden_dim, ch_out, 1, 1, 0, bias=False),
