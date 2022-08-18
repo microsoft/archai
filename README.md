@@ -2,12 +2,11 @@
 
 # Archai: Platform for Neural Architecture Search
 
-[![Latest release](https://img.shields.io/github/release/microsoft/archai?color=0E8A16)](https://github.com/microsoft/archai/releases)
-[![Commits since latest release](https://img.shields.io/github/commits-since/microsoft/archai/latest?color=FBCA04)](https://github.com/microsoft/archai/commits/master)
-[![Issues](https://img.shields.io/github/issues/microsoft/archai?color=FEF2C0)](https://github.com/microsoft/archai/issues)
-[![License](https://img.shields.io/github/license/microsoft/archai?color=EEEEEE)](https://github.com/microsoft/archai/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/microsoft/archai)](https://github.com/microsoft/archai/blob/main/LICENSE)
+[![Issues](https://img.shields.io/github/issues/microsoft/archai)](https://github.com/microsoft/archai/issues)
+[![Latest release](https://img.shields.io/github/release/microsoft/archai)](https://github.com/microsoft/archai/releases)
 
-**Archai** is a platform for Neural Network Search (NAS) that allows you to generate efficient deep networks for your applications. It offers the following advantages:
+**Archai** is a Neural Network Search (NAS) platform that allows you to generate efficient deep networks for your applications. It offers the following advantages:
 
 * 🔬 Easy mix-and-match between different algorithms;
 * 📈 Self-documented hyper-parameters and fair comparison;
@@ -16,13 +15,14 @@
 
 Please refer to the [documentation](https://microsoft.github.io/archai) for more information.
 
-Archai is compatible with: **Python 3.7+** and **PyTorch 1.2.0+**.
+Package compatibility: **Python 3.7+** and **PyTorch 1.2.0+**.
+OS compatibility: **Windows**, **Linux** and **MacOS**.
 
 ## Table of contents
 
  * [Quickstart](#quickstart)
     * [Installation](#installation)
-    * [Running Experiments](#running-experiments)
+    * [Running an Algorithm](#running-an-algorithm)
     * [Tutorials](#tutorials)
  * [Support](#support)
     * [Contributions](#contributions)
@@ -35,9 +35,7 @@ Archai is compatible with: **Python 3.7+** and **PyTorch 1.2.0+**.
 
 ### Installation
 
-There are many alternatives to installing Archai, ranging from PyPI to Docker. Feel free to choose your preferred, but note that regardless of choice, we recommend using it within a virtual environment, such as `conda` or `pyenv`.
-
-*Archai is compatible with Windows, Linux, and MacOS.*
+There are many alternatives to installing Archai, but note that regardless of choice, we recommend using it within a virtual environment, such as `conda` or `pyenv`.
 
 #### PyPI
 
@@ -57,9 +55,9 @@ cd archai
 install.sh # on Windows, use install.bat
 ```
 
-Please refer to the [installation guide](docs/getting-started/install.md) for more information.
+Please refer to the [installation guide](https://microsoft.github.io/archai/getting-started/install.html) for more information.
 
-### Running Experiments
+### Running an Algorithm
 
 To run a specific NAS algorithm, specify it by the `--algos` switch:
 
@@ -67,25 +65,17 @@ To run a specific NAS algorithm, specify it by the `--algos` switch:
 python scripts/main.py --algos darts --full
 ```
 
-Please refer to [running algorithms](docs/user-guide/tutorial.md#running-existing-algorithms) for more information on available switches and algorithms.
+Please refer to [running algorithms](https://microsoft.github.io/archai/user-guide/tutorial.html#running-existing-algorithms) for more information on available switches and algorithms.
 
 ### Tutorials
 
-The best way to familiarize yourself with Archai is to take a quick tour through our [30-minute tutorial](docs/user-guide/tutorial.md). Additionally, one can dive into the [Petridish tutorial](docs/user-guide/petridish.md) developed at Microsoft Research and available at Archai.
+The best way to familiarize yourself with Archai is to take a quick tour through our [30-minute tutorial](https://microsoft.github.io/archai/user-guide/tutorial.html). Additionally, one can dive into the [Petridish tutorial](https://microsoft.github.io/archai/user-guide/petridish.html) developed at Microsoft Research and available at Archai.
 
-#### Visual Studio Code
+We highly recommend [Visual Studio Code](https://code.visualstudio.com) to take advantage of predefined run configurations and interactive debugging. From the `archai` directory, launch Visual Studio Code, select **Run** (Ctrl+Shift+D), choose the configuration and click on **Play**.
 
-We highly recommend [Visual Studio Code](https://code.visualstudio.com/) to take advantage of predefined run configurations and interactive debugging.
-
-From the archai directory, launch Visual Studio Code. Select the Run button (Ctrl+Shift+D), choose the run configuration you want, and click on the Play icon.
-
-#### AzureML Experiments
-
-To run NAS experiments at scale, you can use [Archai on Azure](tools/azure/README.md).
+On the other hand, you can use [Archai on Azure](tools/azure/README.md) to run NAS experiments at scale.
 
 ## Support
-
-Join Archai on [Facebook](https://www.facebook.com/groups/1133660130366735) to stay up-to-date or ask questions.
 
 ### Contributions
 
@@ -96,17 +86,18 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
 ## Team
-Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Cesar Teodoro Mendes, Piero Kauffmann, [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
+
+Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann/), and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
 
 ### Credits
 
-Archai builds on several open source codebases. These includes: [Fast AutoAugment](https://github.com/kakaobrain/fast-autoaugment), [pt.darts](https://github.com/khanrc/pt.darts), [DARTS-PyTorch](https://github.com/dragen1860/DARTS-PyTorch), [DARTS](https://github.com/quark0/darts), [petridishnn](https://github.com/microsoft/petridishnn), [PyTorch CIFAR-10 Models](https://github.com/huyvnphan/PyTorch-CIFAR10), [NVidia DeepLearning Examples](https://github.com/NVIDIA/DeepLearningExamples), [PyTorch Warmup Scheduler](https://github.com/ildoonet/pytorch-gradual-warmup-lr), [NAS Evaluation is Frustratingly Hard](https://github.com/antoyang/NAS-Benchmark), [NASBench-PyTorch](https://github.com/romulus0914/NASBench-PyTorch).
+Archai builds on several open-source codebases. These includes: [Fast AutoAugment](https://github.com/kakaobrain/fast-autoaugment), [pt.darts](https://github.com/khanrc/pt.darts), [DARTS-PyTorch](https://github.com/dragen1860/DARTS-PyTorch), [DARTS](https://github.com/quark0/darts), [petridishnn](https://github.com/microsoft/petridishnn), [PyTorch CIFAR-10 Models](https://github.com/huyvnphan/PyTorch-CIFAR10), [NVidia DeepLearning Examples](https://github.com/NVIDIA/DeepLearningExamples), [PyTorch Warmup Scheduler](https://github.com/ildoonet/pytorch-gradual-warmup-lr), [NAS Evaluation is Frustratingly Hard](https://github.com/antoyang/NAS-Benchmark), [NASBench-PyTorch](https://github.com/romulus0914/NASBench-PyTorch).
 
-Please see `install_requires` section in [setup.py](setup.py) for up-to-date dependencies list. If you feel credit to any material is missing, please let us know by filing an [issue](https://github.com/microsoft/archai/issues).
+Please see `install_requires` section in [setup.py](https://github.com/microsoft/archai/blob/master/setup.py) for up-to-date dependencies list. If you feel credit to any material is missing, please let us know by filing an [issue](https://github.com/microsoft/archai/issues).
 
 ### License
 
-This project is released under the MIT License. Please review the [file](https://github.com/microsoft/archai/blob/main/LICENSE) for more details.
+This project is released under the MIT License. Please review the [file](https://github.com/microsoft/archai/blob/master/LICENSE) for more details.
 
 ### Trademark
 
