@@ -375,15 +375,15 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                     [model_1.arch.post_upsample_layers, model_2.arch.post_upsample_layers]
                 )
 
-                result_model = self.load_from_graph(
-                    result_g,
-                    {'base_channels': ch_map['base_channels'],
-                    'delta_channels': ch_map['delta_channels'],
-                    'mult_delta': ch_map['mult_delta']},
-                    post_upsample_layers
-                )
-
                 try:
+                    result_model = self.load_from_graph(
+                        result_g,
+                        {'base_channels': ch_map['base_channels'],
+                        'delta_channels': ch_map['delta_channels'],
+                        'mult_delta': ch_map['mult_delta']},
+                        post_upsample_layers
+                    )
+                    
                     out_shape = result_model.arch.validate_forward(
                         torch.randn(1, 3, *result_model.arch.img_size[::-1])
                     ).shape
@@ -401,20 +401,3 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 result_model.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
 
                 return result_model
-
-
-    def find_valid_arch_from(self, arch: ArchWithMetaData) -> Optional[ArchWithMetaData]:
-        '''Finds a valid architecture (inside the search space) from a given arbitrary architecture.''' 
-        model = arch.arch.model
-
-        # Valid operations and scales
-        for node in model.graph:
-            if node['op'] not in self.operations:
-                # For now, picks a random valid operation
-                node['op'] = random.choice(self.operations)
-            
-            if node['scale'] >= self.max_downsample_factor:
-                node['scale'] = self.max_downsample_factor
-
-        # Base, delta and post upsample layers
-        
