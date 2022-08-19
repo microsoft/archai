@@ -10,7 +10,7 @@ from archai.nas.model import Model
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 from archai.nas.model_desc import CellDesc, ModelDesc, CellType
-from archai.common.common import get_con
+from archai.common.common import get_conf
 
 
 class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
@@ -19,12 +19,10 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         'max_pool_3x3',
         'avg_pool_3x3',
         'skip_connect',  # identity
-        'dwsep_conv_3x3',
-        'linear_bottleneck',
         'sep_conv_3x3',
-        #'sep_conv_5x5',
-        #'dil_conv_3x3',
-        #'dil_conv_5x5'    
+        'sep_conv_5x5',
+        'dil_conv_3x3',
+        'dil_conv_5x5'    
     ]
 
     def __init__(self):
