@@ -42,7 +42,7 @@ install_requires = [
 
 setuptools.setup(
     name="archai",
-    version="0.6.6",
+    version="0.6.7",
     description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
