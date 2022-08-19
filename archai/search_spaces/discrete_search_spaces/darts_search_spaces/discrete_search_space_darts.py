@@ -199,9 +199,7 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
             arch_meta = ArchWithMetaData(model, meta_data)
             all_arch_meta.append(arch_meta)
         return all_arch_meta
-
     
-
 
 
 
