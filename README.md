@@ -16,6 +16,7 @@
 Please refer to the [documentation](https://microsoft.github.io/archai) for more information.
 
 Package compatibility: **Python 3.7+** and **PyTorch 1.2.0+**.
+
 OS compatibility: **Windows**, **Linux** and **MacOS**.
 
 ## Table of contents
