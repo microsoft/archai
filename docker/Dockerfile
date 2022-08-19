@@ -11,7 +11,7 @@ LABEL description="NVIDIA Docker with Archai" \
       tag="latest" \
       creator="microsoft" \
       tooltype="archai" \
-      tooltypeversion="0.6.6" \
+      tooltypeversion="0.6.7" \
       createtime="08/19/2022"
 
 # Exports environment variables
@@ -24,6 +24,6 @@ RUN apt-get install -y apt-utils git
 
 # Installs Archai
 # Note that APEX is not needed because it comes with NVIDIA's image
-RUN git clone -b v0.6.6 --single-branch https://github.com/microsoft/archai.git
+RUN git clone -b v0.6.7 --single-branch https://github.com/microsoft/archai.git
 WORKDIR /workspace/archai
 RUN pip install --user --no-cache-dir .
