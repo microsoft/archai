@@ -409,9 +409,6 @@ class ModelDescBuilder(EnforceOverrides):
                           in_len=1, trainables=None) \
                 for op_name in ops]
 
-        #stems = [OpDesc(name=op_name, params={'conv': conv_params},
-        #                  in_len=1, trainables=None) \
-        #        for op_name in ops]
 
         # get reduction factors  done by each stem, typically they should be same but for
         # imagenet they can differ
