@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 coloredlogs>=15.0.1
 datasets>=2.4.0
 ftfy>=6.1.1

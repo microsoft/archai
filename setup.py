@@ -43,7 +43,7 @@ install_requires = [
 setup(
     name="archai",
     version="0.6.6",
-    description="Research platform for Neural Architecture Search",
+    description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/microsoft/archai",
