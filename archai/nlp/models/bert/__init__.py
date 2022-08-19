@@ -1,14 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Transformer-based models.
+"""BERT-related model and tokenizer.
 """
 
-from archai.nlp.models.bert import (
+from archai.nlp.models.bert.bert_model import (
     BERTConfig,
     BERTForCLM,
     BERTForMLM,
     BERTForPreTraining,
     BERTForSequenceClassification,
-    BERTTokenizer,
 )
+from archai.nlp.models.bert.bert_tokenizer import BERTTokenizer
