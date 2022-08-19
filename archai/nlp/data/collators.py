@@ -45,7 +45,7 @@ def load_collator(collator_name: str, **kwargs) -> DataCollator:
     else:
         raise NotImplementedError(f"collator: {collator_name} has not been implemented yet.")
 
-    collator_module = importlib.import_module("archai_nlp.data.collators")
+    collator_module = importlib.import_module("archai.nlp.data.collators")
     collator_cls = getattr(collator_module, collator_cls_name)
 
     logger.info(f"Loading data collator: {collator_name}")

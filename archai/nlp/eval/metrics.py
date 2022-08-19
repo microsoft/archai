@@ -36,7 +36,7 @@ def load_metric(
     logger.info(f"Loading metric: {metric_name}")
 
     if metric_name in CUSTOM_METRICS.keys():
-        metric_module = importlib.import_module("archai_nlp.eval.metrics")
+        metric_module = importlib.import_module("archai.nlp.eval.metrics")
         metric = getattr(metric_module, CUSTOM_METRICS[metric_name])
         logger.info("Metric loaded from custom implementation.")
     else:
