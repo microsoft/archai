@@ -11,8 +11,8 @@ install_requires = [
     "datasets>=2.4.0",
     "ftfy>=6.1.1",
     "gorilla>=0.4.0",
-    "hyperopt>=0.2.7",
     "h5py>=3.7.0",
+    "hyperopt>=0.2.7",
     "kaleido>=0.2.1",
     "matplotlib>=3.5.3",
     "nv-dllogger>=1.0.0",
@@ -28,16 +28,16 @@ install_requires = [
     "requests==2.25.1",
     "runstats>=2.0.0",
     "sacremoses>=0.0.53",
+    "scikit-learn>=1.0.2",
     "seaborn>=0.11.2",
     "send2trash>=1.8.0",
-    "scikit-learn>=1.0.2",
     "statopt>=0.2",
     "sympy>=1.10.1",
     "tensorboard>=2.10.0",
     "tensorwatch>=0.9.1",
     "tokenizers>=0.12.1",
-    "transformers>=4.21.1",
     "tqdm>=4.64.0",
+    "transformers>=4.21.1",
 ]
 
 setup(
