@@ -526,6 +526,8 @@ class StemConv3x3S4S2(StemBase):
         return False
 
 class StemConv3x3S2(StemBase):
+    """ Stardard stem for mobilenet v2/v3 (https://arxiv.org/pdf/1801.04381v4.pdf)
+    """    
     def __init__(self, op_desc, affine:bool)->None:
         super().__init__(2)
 
@@ -560,7 +562,6 @@ class StemIdentity(StemBase):
         return False
 #end of class
 
-#SE block implemented per MobileNet v3, supposedly improved accuracy
 class HardSigmoid(nn.Module):
     def __init__(self):
         super().__init__()
@@ -585,6 +586,9 @@ class HardSwish(StemBase): #supposedly better perf compare to ReLU
         return False                
 
 class SqueezeAndExcite(nn.Module):
+    """ squeeze-and-excite per mobilenetv3. See small increase of complexity and huge increase in number of parameters
+        (#https://arxiv.org/pdf/1905.02244.pdf)"""    
+    
     def __init__(self, ch, affine:bool = True)->None:
         super().__init__()
         self.reduction = 4 #per MNv3, does this need to be a parameter? 
@@ -607,9 +611,9 @@ class SqueezeAndExcite(nn.Module):
         return x * x2
 #endofclass
 
-#Linearbottlenetck implemented per MobileNet v2 
-#SE added per MobileNet v3
 class LinearBottleneck(StemBase):
+    """Linearbottlenetck implemented per MobileNet v2  (https://arxiv.org/pdf/1801.04381v4.pdf)
+       SE added per MobileNet v3"""
     def __init__(self, op_desc, affine:bool, use_se = False)->None:
         
         stride = op_desc.params['stride']
