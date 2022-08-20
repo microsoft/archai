@@ -82,6 +82,10 @@ class EvolutionParetoSearch(Searcher):
     def on_search_iteration_start(self, current_pop: List[ArchWithMetaData]) -> None:
         ''' Callback function called right before each search iteration'''
         pass
+    
+    def on_search_end(self, pareto_models: List[ArchWithMetaData]) -> None:
+        ''' Callback function called after the search has finished '''
+        pass
 
     def select_next_population(self, current_pop: List[ArchWithMetaData]) -> List[ArchWithMetaData]:
         random.shuffle(current_pop)
@@ -152,6 +156,8 @@ class EvolutionParetoSearch(Searcher):
             unseen_pop = self._populate_next_generation(pareto, curr_iter)
 
             curr_iter += 1
+        
+        self.on_search_end(pareto)
 
     def _populate_next_generation(self, pareto: List[ArchWithMetaData], iter: int)->List[ArchWithMetaData]:
         # select parents for the next iteration from 
