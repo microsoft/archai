@@ -59,7 +59,8 @@ class EvolutionParetoSearch(Searcher):
         pass
 
     def read_search_status(self, search_state:Path)->Tuple[List[ArchWithMetaData], List[ArchWithMetaData], int]:
-        raise(NotImplementedError)
+        ''' Optional method for loading the search status from a previous search. '''
+        raise NotImplementedError
 
     def _sample_init_population(self)->List[ArchWithMetaData]:
         init_pop:List[ArchWithMetaData] = []
@@ -87,12 +88,7 @@ class EvolutionParetoSearch(Searcher):
         return current_pop[:self.max_unseen_population]
 
     @overrides
-    def search(self, conf_search:Config, prev_search_state:Path = None):
-        # Passing in the optional prev_search_state file path as saved by the save_search_status
-        # method allows search to continue from saved state instead of starting from scratch.
-        # This could be passed in as argument to the derived search class.
-        # If prev_search_state path is passed in, make sure read_search_status method is implemented.
-        # To start search from beginning, avoid passing the optional parameter prev_search_state.
+    def search(self, conf_search:Config):
         self.init_num_models = conf_search['init_num_models']
         self.num_iters = conf_search['num_iters']
         self.num_random_mix = conf_search['num_random_mix']
@@ -107,22 +103,24 @@ class EvolutionParetoSearch(Searcher):
 
         self.search_space = self.get_search_space()
         assert isinstance(self.search_space, DiscreteSearchSpace)
+        
+        # Gets the previous search state path from search config parameter `resume_search_from`.
+        # If previous search state path is passed in, make sure read_search_status method is implemented.
+        prev_search_state = conf_search.get('resume_search_from', None)
 
-        if (prev_search_state is None):
+        if prev_search_state:
+            # Load population from previously saved search state and continue search
+            seen_pop, pareto, last_iter = self.read_search_status(Path(prev_search_state))
+            self.all_pop = seen_pop
+            curr_iter = last_iter + 1
+            unseen_pop = self._populate_next_generation(pareto, curr_iter)
+        else:
             # sample the initial population
             self.iter_num = 0
             curr_iter = 0
             unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
             self.all_pop = unseen_pop
-        else:
-            # Load population from previously saved search state and continue search
-            seen_pop, pareto, last_iter = self.read_search_status(prev_search_state)
-            self.all_pop = seen_pop
-            curr_iter = last_iter + 1
-            unseen_pop = self._populate_next_generation(pareto, curr_iter)
 
-
-        logger.info(f'self.all_pop len = {len(self.all_pop)}; 1')
         while curr_iter < self.num_iters:
             self.iter_num = curr_iter + 1
 
@@ -158,7 +156,7 @@ class EvolutionParetoSearch(Searcher):
 
             curr_iter += 1
 
-    def _populate_next_generation(self, pareto, iter):
+    def _populate_next_generation(self, pareto: List[ArchWithMetaData], iter: int)->List[ArchWithMetaData]:
         # select parents for the next iteration from 
         # the current estimate of the frontier while
         # giving more weight to newer parents
