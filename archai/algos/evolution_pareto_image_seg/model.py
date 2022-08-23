@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Tuple, List, Dict, MutableMapping, Optional
+from typing import Tuple, List, Dict, MutableMapping, Union, Optional
 from pathlib import Path
 import random
 import json
@@ -183,7 +183,7 @@ class SegmentationNasModel(torch.nn.Module):
         return self.classifier(output)
 
     @classmethod
-    def from_file(cls, config_file: str, img_size: int = 256, nb_classes: int = 19) -> 'SegmentationNasModel':
+    def from_file(cls, config_file: Union[str, Path], img_size: int = 256, nb_classes: int = 19) -> 'SegmentationNasModel':
         """Creates a SegmentationNasModel from a YAML config file
 
         Args:
@@ -283,7 +283,7 @@ class SegmentationNasModel(torch.nn.Module):
     def to_hash(self) -> str:
         config = self.to_config()
         arch_str = json.dumps(config, sort_keys=True, ensure_ascii=True)
-        return sha1(arch_str.encode('ascii')).hexdigest()
+        return sha1(arch_str.encode('ascii')).hexdigest() + f'_{self.img_size[0]}_{self.img_size[1]}'
 
     @classmethod
     def sample_model(cls, 
