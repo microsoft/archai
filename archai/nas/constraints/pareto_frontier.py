@@ -35,11 +35,14 @@ def find_pareto_frontier_points(all_points: np.ndarray,
 
     dim = all_points.shape[1]
 
-    for i in range(all_points.shape[0]):
+    # Gets the indices of unique points
+    _, unique_indices = np.unique(all_points, axis=0, return_index=True)
+
+    for i in unique_indices:
         this_point = all_points[i,:]
         is_pareto = True
 
-        for j in range(all_points.shape[0]):
+        for j in unique_indices:
             if j == i:
                 continue
 
