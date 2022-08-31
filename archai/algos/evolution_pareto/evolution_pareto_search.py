@@ -195,34 +195,4 @@ class EvolutionParetoSearch(Searcher):
         logger.info(f'self.all_pop len = {len(self.all_pop)}; 6')
 
         return unseen_pop
-
-    def finalize (self, final_iter, arch_ids : List) -> None:
-
-        self.search_space = self.get_search_space()
-        assert isinstance(self.search_space, DiscreteSearchSpace)
-        unseen_pop:List[ArchWithMetaData] = [self.search_space._sample_archid (curr_archid) for curr_archid in arch_ids]
-
-        self.all_pop = unseen_pop
-        self.on_search_iteration_start(unseen_pop)
-        final_iter = final_iter + 1
-            
-        logger.info(f'iter {final_iter}: calculating memory latency for {len(unseen_pop)} models') 
-        self.calc_secondary_objectives(unseen_pop)
-
-        # calculate task accuracy proxy
-        # could be anything from zero-cost proxy
-        # to partial training
-        logger.info(f'iter {final_iter}: calculating task accuracy for {len(unseen_pop)} models')
-        self.calc_task_accuracy(unseen_pop)  
-        logger.info(f'self.all_pop len = {len(self.all_pop)}; 3')
-        self.on_calc_task_accuracy_end(unseen_pop)
-
-        # update the pareto frontier
-        logger.info(f'iter {final_iter}: updating the pareto')
-        logger.info(f'self.all_pop len = {len(self.all_pop)}; 4')
-        pareto:List[ArchWithMetaData] = self.update_pareto_frontier(self.all_pop)
-        logger.info(f'iter {final_iter}: found {len(pareto)} members')
-
-            # plot the state of search
-        self.save_search_status(all_pop=self.all_pop, pareto=pareto, iter_num=final_iter)
-        self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=final_iter)    
+        
