@@ -488,11 +488,12 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
             for p1, p2 in pairs:
                 child = self.search_space.crossover(p1, p2)
+                child_id = child.metadata['archid']
 
-                if child and child.metadata['archid'] not in children_hashes:
+                if child and child_id not in children_hashes and child_id not in self.eval_cache:
                     child.metadata['generation'] = self.iter_num
                     children.append(child)
-                    children_hashes.add(child.metadata['archid'])
+                    children_hashes.add(child_id)
 
         return children
 
