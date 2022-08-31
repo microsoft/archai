@@ -19,12 +19,10 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         'max_pool_3x3',
         'avg_pool_3x3',
         'skip_connect',  # identity
-        'dwsep_conv_3x3',
-        'linear_bottleneck',
         'sep_conv_3x3',
-        #'sep_conv_5x5',
-        #'dil_conv_3x3',
-        #'dil_conv_5x5'    
+        'sep_conv_5x5',
+        'dil_conv_3x3',
+        'dil_conv_5x5'    
     ]
 
     def __init__(self):
@@ -171,11 +169,11 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
         op_nbrs_regular = self._get_ops_neighbors(central_regular_cell, central_desc)
         op_nbrs_reduction = self._get_ops_neighbors(central_reduction_cell, central_desc)
 
-        #assert len(op_nbrs_regular) == 48
-        #assert len(op_nbrs_reduction) == 48
+        assert len(op_nbrs_regular) == 48
+        assert len(op_nbrs_reduction) == 48
                     
         op_nbrs = op_nbrs_regular + op_nbrs_reduction
-        #assert len(op_nbrs) == 96
+        assert len(op_nbrs) == 96
 
         # # now create the edge neighbors where the 
         # # only difference is in one of the input edges
@@ -201,9 +199,7 @@ class DiscreteSearchSpaceDARTS(DiscreteSearchSpace):
             arch_meta = ArchWithMetaData(model, meta_data)
             all_arch_meta.append(arch_meta)
         return all_arch_meta
-
     
-
 
 
 

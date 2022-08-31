@@ -32,7 +32,7 @@ class RandOps:
         # get list of primitives either from conf or use default list
         conf = common.get_conf()
         primitives = conf.get_val('primitives', RandOps.PRIMITIVES)
-        
+
         # use separate instance of random class 
         # generator to avoid sharing state with the 
         # rest of the code
