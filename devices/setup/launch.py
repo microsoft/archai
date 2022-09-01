@@ -79,6 +79,13 @@ def allocate_folder(map, id):
             next += 1
 
 
+def read_lock(folder):
+    lock_file = os.path.join(folder, "lock.txt")
+    if os.path.exists(lock_file):
+        return open(lock_file).read().strip()
+    return None
+
+
 def main():
     devices = find_devices()
     if len(devices) == 0:
@@ -93,10 +100,13 @@ def main():
             folder = map[id]
         else:
             folder = allocate_folder(map, id)
+        lock = read_lock(folder)
         print(f"Device {id}, mapped to folder {folder}")
         if id in screens:
             proc = screens[id]
             print(f"  Screen is running: {proc}.{id}")
+        elif lock:
+            print(f"  Locked by: {lock}")
         else:
             print(f"  Please run:  screen -dmS {id} {command} --device {id} --no_quantization --working {folder}")
 
