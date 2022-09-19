@@ -96,8 +96,9 @@ class LightningModelWrapper(pl.LightningModule):
         loss = self.loss_fn(logits_mask, mask)
 
         if self.model.nb_classes == 1:
+            pred_mask = torch.sigmoid(logits_mask)
             tp, fp, fn, tn = smp.metrics.get_stats(
-                logits_mask, (mask >= 0.5).long(), 
+                pred_mask, (mask >= 0.5).long(), 
                 mode='binary', threshold=0.5
             )
         else:
