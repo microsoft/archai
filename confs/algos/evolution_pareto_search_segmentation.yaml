@@ -86,6 +86,11 @@ nas:
         min: 0.0
         max: 400.0 # Megabytes
 
+      macs:
+        enabled: true
+        min: 0.0
+        max: 1_000_000_000_000_000
+
       # Penalty score that measures the proportion of nodes that violate a set of constraints
       soft_constraints_penalty:
         enabled: false
