@@ -28,6 +28,7 @@ from archai.algos.evolution_pareto_image_seg.utils import get_onnx_latency
 from archai.algos.evolution_pareto_image_seg.report import get_search_status_df, save_3d_pareto_plot, save_2d_pareto_evolution_plot
 from archai.algos.evolution_pareto_image_seg.remote_benchmark import RemoteAzureBenchmark
 
+from archai.nas.constraints.macs import calculate_macs
 from archai.nas.constraints.torch_constraints import measure_torch_peak_memory
 from archai.nas.constraints.pareto_frontier import find_pareto_frontier_points
 
@@ -159,6 +160,9 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
                 for node in model.arch.graph.values()
             ) / len(model.arch.graph.values())
 
+        if self.objectives['macs']['enabled']:
+            proxy_objs['macs'] = calculate_macs(model.arch, (1, 3, *model.arch.img_size[::-1]))
+
         return proxy_objs
 
     @overrides
@@ -227,7 +231,8 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
             # computing secondary objectives remotely or not
             proxy_latency, proxy_mem = sec_objs_proxy['latency'], sec_objs_proxy['memory']
             p.metadata['soft_constraints_penalty'] = sec_objs_proxy['soft_constraints_penalty']
-            
+            p.metadata['macs'] = sec_objs_proxy['macs']
+
             if not self.use_remote_benchmark:
                 p.metadata['latency'], p.metadata['memory'] = proxy_latency, proxy_mem
             else:
@@ -503,15 +508,22 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int) -> None:
         expdir = Path(get_expdir())
         save_3d_pareto_plot(all_pop, pareto, ['f1', 'latency', 'memory'], iter_num, expdir)
+        save_3d_pareto_plot(all_pop, pareto, ['f1', 'latency', 'macs'], f'{iter_num}_macs', expdir)
         
         status_df = get_search_status_df(
             all_pop, pareto, iter_num, 
-            fields=['archid', 'f1', 'latency', 'memory', 'soft_constraints_penalty', 'generation']
+            fields=['archid', 'f1', 'latency', 'memory',
+                    'soft_constraints_penalty', 'macs',  'generation']
         )
 
         save_2d_pareto_evolution_plot(
             status_df, x='latency', y='f1', save_path=expdir / 'latency_f1_2d_pareto.png',
             x_increasing=False, max_x=self.objectives['latency']['max'], y_increasing=True, max_y=1.0
+        )
+
+        save_2d_pareto_evolution_plot(
+            status_df, x='macs', y='f1', save_path=expdir / 'macs_f1_2d_pareto.png',
+            x_increasing=False, max_x=self.objectives['macs']['max'], y_increasing=True, max_y=1.0
         )
 
         save_2d_pareto_evolution_plot(
@@ -536,13 +548,18 @@ class EvolutionParetoSearchSegmentation(EvolutionParetoSearch):
 
         # Adds pareto hypervolume
         pareto_points = np.array([
-            [p.metadata['latency'], p.metadata['memory'], 1 - p.metadata['f1']]
+            [p.metadata['latency'], p.metadata['memory'], p.metadata['macs'], 1 - p.metadata['f1']]
             for p in pareto
         ])
         
         status_df['pareto_hypervolume'] = compute_pareto_hypervolume(
             pareto_points, 
-            np.array([self.objectives['latency']['max'], self.objectives['memory']['max'], 1.0], dtype=np.float32)
+            np.array([
+                self.objectives['latency']['max'],
+                self.objectives['memory']['max'],
+                self.objectives['macs']['max'],
+                1.0
+            ], dtype=np.float32)
         )
 
         expdir = Path(get_expdir())
