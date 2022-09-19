@@ -11,6 +11,7 @@ import msgpack
 import numpy as np
 import cv2
 from overrides import overrides
+import matplotlib.pyplot as plt
 
 from torch.utils.data import Dataset, Subset
 
@@ -161,6 +162,18 @@ class TensorpackLmdbImageDataset(torch.utils.data.Dataset):
     def __len__(self)->int:
         return len(self.keys)
 
+    def show(self, idx: int):
+        # Plots image and mask
+        sample = self[idx]
+        img = sample['image'].numpy().transpose(1, 2, 0)
+        mask = sample['mask'].numpy()
+
+        plt.figure(figsize=(10, 10))
+        plt.subplot(1, 2, 1)
+        plt.imshow(img)
+        plt.subplot(1, 2, 2)
+        plt.imshow(mask)
+        
 
 class TensorpackLmdbImageProvider(DatasetProvider):
     def __init__(self, conf_dataset:Config):
