@@ -164,11 +164,11 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
         return node_list
 
     @overrides
-    def save_arch(self, model):
-        pass
+    def save_arch(self, model: ArchWithMetaData, path: str) -> None:
+        model.arch.to_file(path)
 
     @overrides
-    def load_arch(self, path: str) -> torch.nn.Module:
+    def load_arch(self, path: str) -> ArchWithMetaData:
         model = SegmentationDagModel.from_file(
             path, img_size=self.img_size, nb_classes=self.nb_classes
         )
@@ -176,35 +176,35 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
         return ArchWithMetaData(model, {
             'archid': model.to_hash(),
             'parent': None
-        }).arch
+        })
 
     @overrides
     def get(self, random_seed: List[int]) -> ArchWithMetaData:
         ''' Gets a random model from the search space using `random_seed[0]` as random seed ''' 
-        seed = np.random.RandomState(seed=random_seed[0])
+        rng = random.Random(random_seed[0])
         found_valid = False
 
         while not found_valid:
             # randomly pick number of layers    
-            nb_layers = seed.randint(self.min_layers, self.max_layers + 1)
+            nb_layers = rng.randint(self.min_layers, self.max_layers + 1)
 
             # Samples `base_channels` and `delta_channels`
             ch_per_scale = {
-                'base_channels': seed.choice(self.base_channels_list),
-                'delta_channels': seed.choice(self.delta_channels_list),
+                'base_channels': rng.choice(self.base_channels_list),
+                'delta_channels': rng.choice(self.delta_channels_list),
                 'mult_delta': self.mult_delta
             }
 
             # Samples `post_upsample_layers`
             post_upsample_layers = (
-                seed.choice(self.post_upsample_layers_list) if self.post_upsample_layers_list else 1
+                rng.choice(self.post_upsample_layers_list) if self.post_upsample_layers_list else 1
             )
 
             # Builds channels per level map using the sampled `base_channels` and `delta_channels`
             ch_map = SegmentationDagModel._get_channels_per_scale(ch_per_scale, self.max_downsample_factor, True)
 
             # Input node
-            graph = [{'name': 'input', 'inputs': None, 'op': seed.choice(self.operations), 'scale': 1}]
+            graph = [{'name': 'input', 'inputs': None, 'op': rng.choice(self.operations), 'scale': 1}]
             node_list = ['input']
 
             # Used to control `max_scale_delta`
@@ -217,7 +217,7 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
 
                 new_node = {
                     'name': 'output' if is_output else f'layer_{layer}',
-                    'op': None if is_output else seed.choice(self.operations),
+                    'op': None if is_output else rng.choice(self.operations),
                     'inputs': [last_layer['name']]
                 }
 
@@ -234,16 +234,15 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
                     1 if delta < 0 else self.downsample_prob_ratio
                     for delta in scale_options
                 ])
-                sample_weights = sample_weights / sample_weights.sum()
-                scale_delta = seed.choice(scale_options, size=1, p=sample_weights)[0]
+                scale_delta = rng.choices(scale_options, k=1, weights=sample_weights)[0]
 
                 # Assigns the new scale to the new node
                 new_node['scale'] = idx2scale[last_scale_idx + scale_delta]
 
                 # Choose inputs
                 if len(node_list) > 1:
-                    for i in range(2, 1 + seed.randint(2, 1 + min(len(node_list), self.max_skip_connection_length))):
-                        if self.skip_connections and seed.random() < 0.5:
+                    for i in range(2, 1 + rng.randint(2, 1 + min(len(node_list), self.max_skip_connection_length))):
+                        if self.skip_connections and rng.random() < 0.5:
                             new_node['inputs'].append(node_list[-i])
 
                 # Adds node
