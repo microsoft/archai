@@ -41,10 +41,7 @@ class SegmentationDagModel(torch.nn.Module):
         """
 
         super().__init__()
-        if isinstance(img_size, int):
-            assert img_size % 32 == 0, 'Image size must be a multiple of 32'
-        else:
-            assert img_size[0] % 32 == 0 and img_size[1] % 32 == 0, 'Image size must be a multiple of 32'
+        assert img_size[0] % 32 == 0 and img_size[1] % 32 == 0, 'Image size must be a multiple of 32'
 
         self.graph = OrderedDict([(n['name'], n) for n in graph])
         self.node_names = [n['name'] for n in self.graph.values()]
@@ -184,7 +181,8 @@ class SegmentationDagModel(torch.nn.Module):
         return self.classifier(output)
 
     @classmethod
-    def from_file(cls, config_file: Union[str, Path], img_size: int = 256, nb_classes: int = 19) -> 'SegmentationNasModel':
+    def from_file(cls, config_file: Union[str, Path], img_size: Tuple[int, int] = 256,
+                  nb_classes: int = 19) -> 'SegmentationDagModel':
         """Creates a SegmentationNasModel from a YAML config file
 
         Args:
@@ -208,7 +206,7 @@ class SegmentationDagModel(torch.nn.Module):
                       op: conv3x3
                       inputs: [node0, node1]
                 ```
-            img_size (int): The size of the input image.
+            img_size (int or Tuple[int, int]): The size of the input image.
             nb_classes (int): The number of classes in the dataset.
         Returns:
             SegmentationNasModel: A SegmentationNasModel instance
@@ -253,8 +251,8 @@ class SegmentationDagModel(torch.nn.Module):
         
         if 'base_channels' in ch_map:
             ch_map = {
-                'base_channels': int(ch_map['base_channels']),
-                'delta_channels': int(ch_map['delta_channels'])
+                'base_channels': ch_map['base_channels'],
+                'delta_channels': ch_map['delta_channels']
             }
         
             # We only put the `mult_delta` flag in config dict if it's active 
@@ -273,7 +271,7 @@ class SegmentationDagModel(torch.nn.Module):
         with open(path, 'w') as fp:
             fp.write(yaml.dump(content))
 
-        m = SegmentationNasModel.from_file(path, self.img_size, self.nb_classes)
+        m = SegmentationDagModel.from_file(path, self.img_size, self.nb_classes)
         assert content['architecture'] == list(m.graph.values())
         assert content['post_upsample_layers'] == len(self.post_upsample)
         assert all(
@@ -285,93 +283,3 @@ class SegmentationDagModel(torch.nn.Module):
         config = self.to_config()
         arch_str = json.dumps(config, sort_keys=True, ensure_ascii=True)
         return sha1(arch_str.encode('ascii')).hexdigest() + f'_{self.img_size[0]}_{self.img_size[1]}'
-
-    @classmethod
-    def sample_model(cls, 
-                    base_channels_list: List[int],
-                    delta_channels_list: List[int],
-                    post_upsample_layer_list: List[int],
-                    max_downsample_factor: int = 16,
-                    nb_layers: int = 24,
-                    skip_connections: bool = True,
-                    max_skip_connection_length: int = 3,
-                    max_scale_delta: Optional[int] = None,
-                    op_subset: Optional[List[str]] = None,
-                    downsample_prob_ratio: float = 1.0,
-                    mult_delta: bool = False,
-                    img_size: Tuple[int, int] = (256, 256),
-                    nb_classes: int = 19) -> 'SegmentationNasModel':
-        '''Uniform random sample an architecture (nn.Module)'''
-        operations = list(OPS.keys())
-        
-        if op_subset:
-            operations = [op for op in operations if op in op_subset]
-
-        # Samples `base_channels` and `delta_channels`
-        ch_per_scale = {
-            'base_channels': random.choice(base_channels_list),
-            'delta_channels': random.choice(delta_channels_list),
-            'mult_delta': mult_delta
-        }
-
-        # Samples `post_upsample_layers`
-        post_upsample_layers = (
-            random.choice(post_upsample_layer_list) if post_upsample_layer_list else 1
-        )
-
-        # Builds channels per level map using the sampled `base_channels` and `delta_channels`
-        ch_map = cls._get_channels_per_scale(ch_per_scale, max_downsample_factor, True)
-
-        # Input node
-        graph = [{'name': 'input', 'inputs': None, 'op': random.choice(operations), 'scale': 1}]
-        node_list = ['input']
-
-        # Used to control `max_scale_delta`
-        idx2scale = list(ch_map.keys())
-        scale2idx = {scale: i for i, scale in enumerate(ch_map.keys())}
-
-        for layer in range(nb_layers):
-            is_output = (layer == nb_layers - 1)
-            last_layer = graph[-1]
-
-            new_node = {
-                'name': 'output' if is_output else f'layer_{layer}',
-                'op': None if is_output else random.choice(operations),
-                'inputs': [last_layer['name']]
-            }
-
-            # Choose scale
-            if max_scale_delta:
-                last_scale_idx = scale2idx[last_layer['scale']]
-
-                # Samples a delta value for the current scale index
-                scale_options = list(range(
-                    max(-max_scale_delta, -last_scale_idx),
-                    1 + min(max_scale_delta, len(ch_map) - last_scale_idx - 1)
-                ))
-                sample_weights = [
-                    1 if delta < 0 else downsample_prob_ratio
-                    for delta in scale_options
-                ]
-
-                scale_delta = random.choices(scale_options, k=1, weights=sample_weights)[0]
-
-                # Assigns the new scale to the new node
-                new_node['scale'] = idx2scale[last_scale_idx + scale_delta]
-            else:
-                new_node['scale'] = random.choice(idx2scale)
-
-            # Choose inputs
-            if len(node_list) > 1:
-                for i in range(2, 1 + random.randint(2, min(len(node_list), max_skip_connection_length))):
-                    if skip_connections and random.random() < 0.5:
-                        new_node['inputs'].append(node_list[-i])
-
-            # Adds node
-            graph.append(new_node)
-            node_list.append(new_node['name'])
-
-        return SegmentationNasModel(
-            graph, ch_per_scale, post_upsample_layers, img_size=img_size,
-            nb_classes=nb_classes
-        )
