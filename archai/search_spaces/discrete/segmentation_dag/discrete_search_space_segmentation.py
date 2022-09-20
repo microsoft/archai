@@ -67,6 +67,7 @@ def rename_dag_node_list(node_list: List[Dict], prefix: str = '',
 
     return node_list
 
+
 class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
     def __init__(self, datasetname:str, 
                  nb_classes: int,
@@ -175,8 +176,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             }
             arch_meta = ArchWithMetaData(model, meta_data)
             
-        return arch_meta
-        
+        return arch_meta     
 
     @overrides
     def get_neighbors(self, base_model: ArchWithMetaData, patience: int = 5) -> List[ArchWithMetaData]:
