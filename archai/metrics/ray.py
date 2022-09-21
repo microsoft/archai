@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import ray
 from overrides import overrides
@@ -15,7 +15,8 @@ def wrap_metric_calculate(class_method):
 
 
 class RayParallelMetric(BaseAsyncMetric):
-    def __init__(self, metric: BaseMetric, timeout: Optional[float] = None,  **ray_kwargs):
+    def __init__(self, metric: BaseMetric, timeout: Optional[float] = None, force_stop: bool = False, 
+                 **ray_kwargs):
         """Wraps a synchronous `BaseMetric` as an asynchronous metric to be computed in parallel using Ray.
         `RayParallelMetric` expects a stateless metric, meaning that any `metric.compute` call cannot alter 
         the state of `metric` in any way.
@@ -24,6 +25,8 @@ class RayParallelMetric(BaseAsyncMetric):
             metric (BaseMetric): A metric object
             timeout (Optional[float], optional): Timeout for `receive_all`. Jobs not finished after the time limit
                 are canceled and returned as None. Defaults to None.
+            force_stop (bool, optional): If incomplete tasks (within `timeout` seconds) should be force-killed. If 
+                set to `False`, Ray will just send a `KeyboardInterrupt` signal to the process.
             **ray_kwargs: Key-value arguments for ray.remote(), e.g: num_gpus, num_cpus, max_task_retries.
         """        
         assert isinstance(metric, BaseMetric)
@@ -32,19 +35,39 @@ class RayParallelMetric(BaseAsyncMetric):
         self.compute_fn = ray.remote(**ray_kwargs)(wrap_metric_calculate(metric.compute))
         self.higher_is_better = metric.higher_is_better
         self.timeout = timeout
+        self.force_stop = force_stop
         self.object_refs = []
-
-        if timeout:
-            raise NotImplementedError
 
     @overrides
     def send(self, arch: ArchWithMetaData, dataset: DatasetProvider) -> None:
         self.object_refs.append(self.compute_fn.remote(arch, dataset))
 
     @overrides
-    def receive_all(self) -> List[float]:
-        ''' Receives results from all previous `.send` calls and resets state. '''
-        # TODO: use ray.wait to get only finished jobs after `timeout`
-        results = ray.get(self.object_refs, timeout=self.timeout)
+    def fetch_all(self) -> List[Union[float, None]]:
+        results = [None] * len(self.object_refs)
+
+        if not self.timeout:
+            results = ray.get(self.object_refs, timeout=self.timeout)
+        else:
+            # Maps each object from the object_refs list to its index
+            ref2idx = {ref: i for i, ref in enumerate(self.object_refs)}
+            
+            # Gets all results available within `self.timeout` seconds.
+            complete_objs, incomplete_objs = ray.wait(
+                self.object_refs, timeout=self.timeout,
+                num_returns=len(self.object_refs)
+            )
+            partial_results = ray.get(complete_objs)
+            
+            # Update results with the partial results fetched
+            for ref, result in zip(complete_objs, partial_results):
+                results[ref2idx[ref]] = result
+
+            # Cancels incomplete jobs
+            for incomplete_obj in incomplete_objs:
+                ray.cancel(incomplete_obj, force=self.force_stop)
+
+        # Resets metric state
         self.object_refs = []
+
         return results
