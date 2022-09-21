@@ -186,7 +186,7 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
 
         while not found_valid:
             # randomly pick number of layers    
-            nb_layers = rng.randint(self.min_layers, self.max_layers + 1)
+            nb_layers = rng.randint(self.min_layers, self.max_layers)
 
             # Samples `base_channels` and `delta_channels`
             ch_per_scale = {
@@ -241,7 +241,7 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
 
                 # Choose inputs
                 if len(node_list) > 1:
-                    for i in range(2, 1 + rng.randint(2, 1 + min(len(node_list), self.max_skip_connection_length))):
+                    for i in range(2, 1 + rng.randint(2, min(len(node_list), self.max_skip_connection_length))):
                         if self.skip_connections and rng.random() < 0.5:
                             new_node['inputs'].append(node_list[-i])
 
