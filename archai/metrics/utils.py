@@ -51,6 +51,6 @@ def calculate_objectives(objectives: List[Union[BaseMetric, BaseAsyncMetric]],
 
     # Gets results from async objectives
     for obj_idx, obj in tqdm(async_objectives, desc=f'Gathering results for async objectives...'):
-        objective_results[obj_idx] = obj.receive_all()
+        objective_results[obj_idx] = obj.fetch_all()
 
     return objective_results
