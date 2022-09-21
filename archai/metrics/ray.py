@@ -23,7 +23,8 @@ class RayParallelMetric(BaseAsyncMetric):
         Args:
             metric (BaseMetric): A metric object
             timeout (Optional[float], optional): Timeout for `receive_all`. Jobs not finished after the time limit
-            are canceled and returned as None. Defaults to None.
+                are canceled and returned as None. Defaults to None.
+            **ray_kwargs: Key-value arguments for ray.remote(), e.g: num_gpus, num_cpus, max_task_retries.
         """        
         assert isinstance(metric, BaseMetric)
 
@@ -33,6 +34,9 @@ class RayParallelMetric(BaseAsyncMetric):
         self.timeout = timeout
         self.object_refs = []
 
+        if timeout:
+            raise NotImplementedError
+
     @overrides
     def send(self, arch: ArchWithMetaData, dataset: DatasetProvider) -> None:
         self.object_refs.append(self.compute_fn.remote(arch, dataset))
@@ -40,6 +44,7 @@ class RayParallelMetric(BaseAsyncMetric):
     @overrides
     def receive_all(self) -> List[float]:
         ''' Receives results from all previous `.send` calls and resets state. '''
+        # TODO: use ray.wait to get only finished jobs after `timeout`
         results = ray.get(self.object_refs, timeout=self.timeout)
         self.object_refs = []
         return results
