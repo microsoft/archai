@@ -28,8 +28,8 @@ class BaseAsyncMetric(EnforceOverrides):
         pass
 
     @abstractmethod
-    def receive_all(self, timeout: Optional[float] = None) -> List[Union[float, None]]:
-        ''' Receives results from all previous `.send` calls and resets the state. '''
+    def fetch_all(self) -> List[Union[float, None]]:
+        ''' Fetch results from all previous `.send` calls and resets the state. '''
         pass
 
     def __neg__(self) -> 'BaseAsyncMetric':
