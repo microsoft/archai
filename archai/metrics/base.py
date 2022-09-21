@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import List, Union, Optional
 from overrides import EnforceOverrides
 
 from archai.nas.arch_meta import ArchWithMetaData
@@ -10,4 +11,17 @@ class BaseMetric(EnforceOverrides):
 
     @abstractmethod
     def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider) -> float:
+        pass
+
+
+class BaseAsyncMetric(EnforceOverrides):
+    higher_is_better: bool = False
+
+    @abstractmethod
+    def send(self, arch: ArchWithMetaData, dataset: DatasetProvider) -> None:
+        pass
+
+    @abstractmethod
+    def receive_all(self, timeout: Optional[float] = None) -> List[Union[float, None]]:
+        ''' Receives results from all previous `.send` calls and resets the state. '''
         pass
