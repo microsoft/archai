@@ -1,76 +1,82 @@
-# Welcome to Archai
+# LiteTransformerSearch: Training-free On-device Search for Efficient Autoregressive Language Models
 
-Archai is a platform for Neural Network Search (NAS) that allows you to generate efficient deep networks for your applications. Archai aspires to accelerate NAS research by enabling easy mix and match between different techniques while ensuring reproducibility, self-documented hyper-parameters and fair comparison. To achieve this, Archai uses a common code base that unifies several algorithms. Archai is extensible and modular to allow rapid experimentation of new research ideas and develop new NAS algorithms. Archai also hopes to make NAS research more accessible to non-experts by providing powerful configuration system and easy to use tools.
+*This repository holds all the necessary code to run the very-same experiments described in the paper "LiteTransformerSearch: Training-free On-device Search for Efficient Autoregressive Language Models".*
 
-[Extensive feature list](docs/features.md)
+---
 
-## Installation
+## References
 
-### Prerequisites
+If you use our work to fulfill any of your needs, please cite us:
 
-Archai requires Python 3.6+ and [PyTorch](https://pytorch.org/get-started/locally/) 1.2+. To install Python we highly recommend [Anaconda](https://www.anaconda.com/products/individual#Downloads). Archai works both on Linux as well as Windows.
-
-### Install from source code
-
-We recommend installing from the source code:
-
-```bash
-git clone https://github.com/microsoft/archai.git
-cd archai
-install.sh # on Windows, use install.bat
+```BibTex
+@misc{Mojan:22,
+  doi = {10.48550/ARXIV.2203.02094},
+  url = {https://arxiv.org/abs/2203.02094},
+  author = {Javaheripi, Mojan and Shah, Shital and Mukherjee, Subhabrata and Religa, Tomasz L. and Mendes, Caio C. T. and de Rosa, Gustavo H. and Bubeck, Sebastien and Koushanfar, Farinaz and Dey, Debadeepta},
+  keywords = {Machine Learning (cs.LG), Computation and Language (cs.CL), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  title = {LiteTransformerSearch: Training-free On-device Search for Efficient Autoregressive Language Models},
+  publisher = {arXiv},
+  year = {2022},
+  copyright = {Creative Commons Attribution 4.0 International}
+}
 ```
 
-For more information, please see [Install guide](docs/install.md)
+---
 
-## Quick Start
+## Package Guidelines
 
-### Running Algorithms
+### Installation
 
-To run a specific NAS algorithm, specify it by `--algos` switch:
+Install all the requirements using:
 
-```bash
-python scripts/main.py --algos darts --full
+```Python
+pip install -e .
 ```
 
-For more information on available switches and algorithms, please see [running algorithms](docs/blitz.md#running-existing-algorithms).
+*If you encounter any problems with the automatic installation of the [archai](https://github.com/microsoft/archai) package, contact us.*
 
-### Tutorials
+### Data Loading and Utilities
 
-The best way to familiarize yourself with Archai is to take a quick tour through our [30 Minute tutorial](docs/blitz.md).
+#### Corpus
 
-We also have the [tutorial for Petridish](docs/petridish.md) algorithm that was developed at Microsoft Research and now available through Archai.
+Corpus stands for a collection of pre-processed texts, which will be converted/trained into vocabularies and tokenizers. Although it is straightforward to add a new corpus, LTS uses the following ones provided by the `datasets/corpus` module:
 
-### Visual Studio Code
+* [WikiText-2 and WikiText-103](https://arxiv.org/abs/1609.07843);
+* [1 Billion Word (lm1b)](http://www.statmt.org/lm-benchmark).
 
-We highly recommend [Visual Studio Code](https://code.visualstudio.com/) to take advantage of predefined run configurations and interactive debugging.
+#### Vocabularies and Tokenizers
 
-From the archai directory, launch Visual Studio Code. Select the Run button (Ctrl+Shift+D), chose the run configuration you want and click on Play icon.
+After defining the loaded data (dataset type), one can produce a new vocabulary and train a new tokenizer. There are several vocabulary/tokenization methods, depending on the task that will be employed or the model that will be used. Thus, LTS uses the following vocabularies and tokenizers from the `datasets/tokenizer_utils` package:
 
-### Running experiments on Azure AML
+* [Word-based](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/tokenizer_utils/word_vocab.py);
+* [GPT-2](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/tokenizer_utils/gpt2_vocab.py).
 
-To run NAS experiments at scale, you can use [Archai on Azure](tools/azure/README.md).
+#### Iterators
 
-### Documentation
+The Causal Language Modeling (CLM) task aims to predict a `t+1` token based on the previous `t` tokens, i.e., predict a token followed by a sequence of tokens. In such a task, the model only attends to the left part of the context (previously seen tokens), often used by auto-regressive and text-generation models. LTS uses two types of CLM iterators, as follows:
 
-[Docs and API reference](https://microsoft.github.io/archai) is available for browsing and searching.
+* [Ordered iterator](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/lm_iterators.py#L7);
+* [Multi-file iterator](https://github.com/microsoft/archai/blob/nlp/archai/nlp/datasets/lm_iterators.py#L177).
 
-## Contribute
 
-We would love community contributions, feedback, questions, algorithm implementations and feature requests! Please [file a Github issue](https://github.com/microsoft/archai/issues/new) or send us a pull request. Please review the [Microsoft Code of Conduct](https://opensource.microsoft.com/codeofconduct/) and [learn more](https://github.com/microsoft/archai/blob/master/CONTRIBUTING.md).
+---
 
-## Contact
+## Usage
 
-Join the Archai group on [Facebook](https://www.facebook.com/groups/1133660130366735/) to stay up to date or ask any questions.
+### LiteTransformer Search
 
-## Team
-Archai has been created and maintained by [Shital Shah](https://shitalshah.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa/), [Caio Cesar Teodoro Mendes]() in the [Reinforcement Learning Group](https://www.microsoft.com/en-us/research/group/reinforcement-learning-redmond/) at Microsoft Research, Redmond, USA. Archai has benefited immensely from discussions with [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd/), [John Langford](https://www.microsoft.com/en-us/research/people/jcl/), [Rich Caruana](https://www.microsoft.com/en-us/research/people/rcaruana/), [Eric Horvitz](https://www.microsoft.com/en-us/research/people/horvitz/) and [Alekh Agarwal](https://www.microsoft.com/en-us/research/people/alekha/).
+One can use the provided shell script to conduct every step needed to accomplish the search experimentation used throughout this paper, as follows:
 
-We look forward to Archai becoming more community driven and including major contributors here.
+```Bash
+./archai/nlp/run_search.sh
+```
 
-## Credits
+*LTS comprises four steps: profiling the baseline scales, actual search, Pareto frontier selection, and baseline x Pareto frontier comparison.*
 
-Archai builds on several open source codebases. These includes: [Fast AutoAugment](https://github.com/kakaobrain/fast-autoaugment), [pt.darts](https://github.com/khanrc/pt.darts), [DARTS-PyTorch](https://github.com/dragen1860/DARTS-PyTorch), [DARTS](https://github.com/quark0/darts), [petridishnn](https://github.com/microsoft/petridishnn), [PyTorch CIFAR-10 Models](https://github.com/huyvnphan/PyTorch-CIFAR10), [NVidia DeepLearning Examples](https://github.com/NVIDIA/DeepLearningExamples), [PyTorch Warmup Scheduler](https://github.com/ildoonet/pytorch-gradual-warmup-lr), [NAS Evaluation is Frustratingly Hard](https://github.com/antoyang/NAS-Benchmark), [NASBench-PyTorch](https://github.com/romulus0914/NASBench-PyTorch). Please see `install_requires` section in [setup.py](setup.py) for up to date dependencies list. If you feel credit to any material is missing, please let us know by filing a [Github issue](https://github.com/microsoft/archai/issues/new).
+---
 
-## License
+## Support
 
-This project is released under the MIT License. Please review the [License file](LICENSE.txt) for more details.
+We know that we do our best, but it is inevitable to acknowledge that we make mistakes. If you ever need to report a bug, please do so! We will be available at our bests in this repository.
+
+---
