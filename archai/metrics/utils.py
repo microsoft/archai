@@ -1,5 +1,8 @@
-from typing import Union, List
+from typing import Union, List, Optional
 
+import numpy as np
+import warnings
+from dataclasses import dataclass
 from tqdm import tqdm
 
 from archai.nas.arch_meta import ArchWithMetaData
@@ -7,18 +10,21 @@ from archai.datasets.dataset_provider import DatasetProvider
 from archai.metrics.base import BaseMetric, BaseAsyncMetric
 
 
-def calculate_objectives(objectives: List[Union[BaseMetric, BaseAsyncMetric]], 
-                         models: List[ArchWithMetaData],
-                         dataset_providers: Union[DatasetProvider, List[DatasetProvider]]):
-    """Calculates objectives for a list of models and dataset(s).
+def evaluate_models(models: List[ArchWithMetaData],
+                    objectives: List[Union[BaseMetric, BaseAsyncMetric]],  
+                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]]) -> np.ndarray:
+    """Evaluates a list of models using a list of objective functions.
 
     Args:
+        models (List[ArchWithMetadata]): List of architectures from a search space.
         objectives (List[Union[BaseMetric, BaseAsyncMetric]]): List of objectives, possibly containing 
             asynchronous metrics. All asynchronous metrics will be dispatched before normal metrics, 
             following the original list order.
-        models (List[ArchWithMetadata]): List of architectures from a search space.
         dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or list of
              dataset providers with the same length as `models`.
+    
+    Returns:
+        np.ndarray: `np.array` of shape (len(models), len(objectives)).
     """
 
     assert isinstance(objectives, list)
@@ -53,4 +59,10 @@ def calculate_objectives(objectives: List[Union[BaseMetric, BaseAsyncMetric]],
     for obj_idx, obj in tqdm(async_objectives, desc=f'Gathering results for async objectives...'):
         objective_results[obj_idx] = obj.fetch_all()
 
-    return objective_results
+    # Returns a np.array (len(models), len(objectives)) with the results.
+    # by setting dtype to float, values with `None` are automatically converted to `np.nan`
+    return np.array([
+        objective_results[obj_idx]
+        for obj_idx in range(len(objectives))
+    ], dtype=np.float64).T
+
