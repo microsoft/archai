@@ -1,75 +1,165 @@
+import random
 from abc import ABCMeta, abstractmethod
 from overrides.overrides import overrides
+from typing import Tuple, List, Union, Dict, Optional
+from tqdm import tqdm
+from pathlib import Path
 
-import random
-from typing import Tuple, List
-
-import torch.nn as nn
+import numpy as np
 
 from archai.common.common import logger
 from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.discrete_search_space import DiscreteSearchSpace
-from archai.nas.searcher import Searcher, SearchResult
+from archai.search_spaces.discrete.base import EvolutionarySearchSpaceBase
+from archai.metrics.base import BaseMetric, BaseAsyncMetric
+from archai.metrics import evaluate_models, SearchResults
+from archai.nas.searcher import Searcher
 from archai.common.config import Config
+from archai.datasets.data import DatasetProvider
 
 
 class EvolutionParetoSearch(Searcher):
+    def __init__(self, search_space: EvolutionarySearchSpaceBase, 
+                 objectives: List[Union[BaseMetric, BaseAsyncMetric]], 
+                 dataset_provider: DatasetProvider,
+                 output_dir: str,
+                 num_iters: int = 10, init_num_models: int = 10,
+                 init_pop_from_paths: Optional[List[str]] = None, 
+                 num_random_mix: int = 5, max_unseen_population: int = 100,
+                 mutations_per_parent: int = 1, num_crossovers: int = 5, 
+                 obj_valid_ranges: Optional[List[Tuple[float, float]]] = None,
+                 crowd_sorting: Optional[Dict[str, Union[bool, float]]] = None, seed: int = 1):
+        
+        assert isinstance(search_space, EvolutionarySearchSpaceBase), \
+            f'{str(search_space.__class__)} is not compatible with {str(self.__class__)}'
+        
+        self.iter_num = 0
+        self.search_space = search_space
+        self.objectives = objectives
+        self.dataset_provider = dataset_provider
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(exist_ok=True, parents=True)
 
+        # Algorithm settings
+        self.num_iters = num_iters
+        self.init_num_models = init_num_models
+        self.init_pop_from_paths = init_pop_from_paths
+        self.num_random_mix = num_random_mix
+        self.max_unseen_population = max_unseen_population
+        self.mutations_per_parent = mutations_per_parent
+        self.num_crossovers = num_crossovers
+        self.obj_valid_ranges = obj_valid_ranges
+        self.crowd_sorting = crowd_sorting
 
-    @abstractmethod
-    def get_search_space(self)->DiscreteSearchSpace:
+        # Utils
+        self.search_state = SearchResults(search_space, objectives)
+        self.seed = seed
+        self.rng = random.Random(seed)
+        self.eval_cache = dict()
+        self.num_sampled_archs = 0
+
+        assert self.init_num_models > 0 
+        assert self.num_iters > 0
+        assert self.num_random_mix > 0
+        assert self.max_unseen_population > 0
+
+    def filter_population(self, population: List[ArchWithMetaData]):
+        ''' Filter the population based on the objectives constraints '''
+        if not self.obj_valid_ranges:
+            return population
+
+        return [
+            p for p in population 
+            if all(
+                self.obj_valid_ranges[obj_idx][0] <= score <= self.obj_valid_ranges[obj_idx][1]
+                for obj_idx, score in enumerate(p.metadata['objective'])
+            )
+        ]
+
+    def update_pareto_frontier(self, population:List[ArchWithMetaData]) -> List[ArchWithMetaData]:
         pass
 
+    def mutate_parents(self, parents:List[ArchWithMetaData],
+                       mutations_per_parent: int = 1,
+                       patience: int = 20) -> List[ArchWithMetaData]:
+        mutations = {}
+        oversample_factor = 1
 
-    @abstractmethod
-    def calc_secondary_objectives(self, population:List[ArchWithMetaData])->None:
-        # computes memory and latency of each model
-        # and updates the meta data
-        pass
+        if self.crowd_sorting:
+            oversample_factor = (
+                self.crowd_sorting['oversampling_factor'] if self.crowd_sorting['mutation']
+                else 1
+            )
 
-    @abstractmethod
-    def calc_task_accuracy(self, population:List[ArchWithMetaData])->None:
-        # computes task accuracy of each model
-        # and updates the meta data
-        pass
+        for p in tqdm(parents, desc='Mutating parents'):
+            candidates = {}
+            nb_tries = 0
 
+            if len(self.filter_population([p])) == 0:
+                logger.info(
+                    f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]}'
+                    f' or memory {p.metadata["memory"]} that is too high. Skipping mutation.'
+                )
 
-    @abstractmethod
-    def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
-        pass
+                continue
 
+            while len(candidates) < (mutations_per_parent * oversample_factor) and nb_tries < patience:
+                for nbr in self.search_space.mutate(p):
+                    if nbr.metadata['archid'] not in self.eval_cache:
+                        nbr.metadata['generation'] = self.iter_num
+                        candidates[nbr.metadata['archid']] = nbr
+                nb_tries += 1
+            
+            # TODO: Figure out a way to use crowd sorting here
+            # if candidates and self.crowd_sorting and self.crowd_sorting['mutation']:
+            #     candidates_list = list(candidates.items())
 
-    @abstractmethod
-    def mutate_parents(self, parents:List[ArchWithMetaData], mutations_per_parent: int = 1)->List[ArchWithMetaData]:
-        pass
+            #     secondary_objs_proxy = np.array([
+            #         list(self._get_secondary_objectives_proxy(p).values()) for _, p in candidates_list
+            #     ])
 
+            #     crowd_dist = compute_crowding_distance(secondary_objs_proxy)
+                
+            #     # Deletes mutations that are not on the top k
+            #     for idx in np.argsort(-crowd_dist, axis=None)[mutations_per_parent:]:
+            #         del candidates[candidates_list[idx][0]]
 
-    @abstractmethod
-    def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1)->List[ArchWithMetaData]:
-        pass
+            mutations.update(candidates)
 
+        return list(mutations.values())
 
-    @abstractmethod
+    def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1) -> List[ArchWithMetaData]:
+        # Randomly samples k distinct pairs from `parents`
+        children, children_hashes = [], set()
+
+        if len(parents) >= 2:
+            pairs = [random.sample(parents, 2) for _ in range(num_crossovers)]
+            for p1, p2 in pairs:
+                child = self.search_space.crossover(p1, p2)
+
+                if child:
+                    child_id = child.metadata['archid']
+
+                    if child_id not in children_hashes and child_id not in self.eval_cache:
+                        child.metadata['generation'] = self.iter_num
+                        children.append(child)
+                        children_hashes.add(child_id)
+
+        return children
+
+    def sample_random_models(self, num_models: int) -> List[ArchWithMetaData]:
+        mix_pop = []
+        
+        while len(mix_pop) < num_models:
+            self.num_sampled_archs += 1
+            mix_pop.append(self.search_space.get([self.seed + self.num_sampled_archs]))
+
+        return mix_pop
+
     def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
         pass
 
-    @abstractmethod
     def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
         pass
-
-
-    def _sample_init_population(self)->List[ArchWithMetaData]:
-        init_pop:List[ArchWithMetaData] = []
-        while len(init_pop) < self.init_num_models:
-            init_pop.append(self.search_space.random_sample())  
-        return init_pop
-
-
-    def _sample_random_to_mix(self)->List[ArchWithMetaData]:
-        mix_pop:List[ArchWithMetaData] = []
-        while len(mix_pop) < self.num_random_mix:
-            mix_pop.append(self.search_space.random_sample())
-        return mix_pop
 
     def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
         ''' Callback function called right after calc_task_accuracy()'''
@@ -84,51 +174,38 @@ class EvolutionParetoSearch(Searcher):
         return current_pop[:self.max_unseen_population]
 
     @overrides
-    def search(self, conf_search:Config):
-        
-        self.init_num_models = conf_search['init_num_models']
-        self.num_iters = conf_search['num_iters']
-        self.num_random_mix = conf_search['num_random_mix']
-        self.max_unseen_population = conf_search['max_unseen_population']
-        self.mutations_per_parent = conf_search.get('mutations_per_parent', 1)
-        self.num_crossovers = conf_search.get('num_crossovers', 1)
-
-        assert self.init_num_models > 0 
-        assert self.num_iters > 0
-        assert self.num_random_mix > 0
-        assert self.max_unseen_population > 0
-
-        self.search_space = self.get_search_space()
-        assert isinstance(self.search_space, DiscreteSearchSpace)
-
+    def search(self):
         # sample the initial population
         self.iter_num = 0
-        unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
-
+        unseen_pop = self.sample_random_models(self.init_num_models)
         self.all_pop = unseen_pop
+
         for i in range(self.num_iters):
             self.iter_num = i + 1
 
             logger.info(f'starting evolution pareto iter {i}')
             self.on_search_iteration_start(unseen_pop)
-            
-            # for the unseen population 
-            # calculates the memory and latency
-            # and inserts it into the meta data of each member
-            logger.info(f'iter {i}: calculating memory latency for {len(unseen_pop)} models') 
-            self.calc_secondary_objectives(unseen_pop)
 
-            # calculate task accuracy proxy
-            # could be anything from zero-cost proxy
-            # to partial training
-            logger.info(f'iter {i}: calculating task accuracy for {len(unseen_pop)} models')
-            self.calc_task_accuracy(unseen_pop)  
-            self.on_calc_task_accuracy_end(unseen_pop)
+            # Calculates objectives
+            logger.info(
+                f'iter {i}: calculating search objectives {str(self.objectives)} for'
+                f' {len(unseen_pop)} models'
+            )
+            
+            results = evaluate_models(unseen_pop, self.objectives, self.dataset_provider)
+            self.search_state.add_iteration_results(unseen_pop, results)
 
             # update the pareto frontier
             logger.info(f'iter {i}: updating the pareto')
-            pareto:List[ArchWithMetaData] = self.update_pareto_frontier(self.all_pop)
+            pareto = self.search_state.get_pareto_frontier()['models']
             logger.info(f'iter {i}: found {len(pareto)} members')
+
+            # plot the state of search
+            # self.search_results.save_search_state()
+            # self.search_results.save_pareto_2d_projection_plot()
+            self.search_state.save_search_state(
+                str(self.output_dir / f'search_state_{self.iter_num}.csv')
+            )
 
             # select parents for the next iteration from 
             # the current estimate of the frontier while
@@ -137,9 +214,9 @@ class EvolutionParetoSearch(Searcher):
             parents = pareto # for now
             logger.info(f'iter {i}: chose {len(parents)} parents')
 
-            # plot the state of search
-            self.save_search_status(all_pop=self.all_pop, pareto=pareto, iter_num=i)
-            self.plot_search_state(all_pop=self.all_pop, pareto=pareto, iter_num=i)
+            # Filters parents
+            parents = self.filter_population(parents)
+            logger.info(f'iter {i}: number of parents after objective fn. filter = {len(parents)}')
 
             # mutate random 'k' subsets of the parents
             # while ensuring the mutations fall within 
@@ -155,9 +232,9 @@ class EvolutionParetoSearch(Searcher):
 
             # sample some random samples to add to the parent mix 
             # to mitigage local minima
-            rand_mix = self._sample_random_to_mix()
-
+            rand_mix = self.sample_random_models(self.num_random_mix)
             unseen_pop = crossovered + mutated + rand_mix
+
             # shuffle before we pick a smaller population for the next stage
             logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
             unseen_pop = self.select_next_population(unseen_pop)
@@ -165,16 +242,3 @@ class EvolutionParetoSearch(Searcher):
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)
-
-            
-            
-
-
-
-            
-
-
-
-
-
-    
