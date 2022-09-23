@@ -18,6 +18,7 @@ from archai.search_spaces.discrete.segmentation_dag.model import SegmentationDag
 class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
     def __init__(self, 
                  nb_classes: int,
+                 img_size: Tuple[int, int],
                  min_mac: int = 0, 
                  max_mac: int = sys.maxsize,
                  min_layers: int = 1,
@@ -35,8 +36,7 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
                  delta_channels_binwidth: int = 8,
                  downsample_prob_ratio: float = 1.5,
                  op_subset: Optional[str] = None,
-                 mult_delta: bool = False,
-                 img_size: Tuple[int, int] = (256, 256)):
+                 mult_delta: bool = False):
         super().__init__()
 
         self.nb_classes = nb_classes
@@ -449,5 +449,4 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
                     continue
                 
                 result_model.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
-
                 return result_model
