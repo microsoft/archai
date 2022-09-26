@@ -14,12 +14,44 @@ from archai.common.config import Config
 
 
 class EvolutionParetoSearch(Searcher):
+    def mutate_parents(self, parents:List[ArchWithMetaData],
+                       mutations_per_parent: int = 1,
+                       patience: int = 20) -> List[ArchWithMetaData]:
+        mutations = {}
+        oversample_factor = 1
 
+        if self.crowd_sorting:
+            oversample_factor = (
+                self.crowd_sorting['oversampling_factor'] if self.crowd_sorting['mutation']
+                else 1
+            )
 
-    @abstractmethod
-    def get_search_space(self)->DiscreteSearchSpace:
-        pass
+        for p in tqdm(parents, desc='Mutating parents'):
+            candidates = {}
+            nb_tries = 0
 
+            if len(self.filter_population([p])) == 0:
+                logger.info(
+                    f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]}'
+                    f' or memory {p.metadata["memory"]} that is too high. Skipping mutation.'
+                )
+
+                continue
+
+            while len(candidates) < (mutations_per_parent * oversample_factor) and nb_tries < patience:
+                for nbr in self.search_space.mutate(p):
+                    if nbr.metadata['archid'] not in self.eval_cache:
+                        nbr.metadata['generation'] = self.iter_num
+                        candidates[nbr.metadata['archid']] = nbr
+                nb_tries += 1
+            
+            # TODO: Figure out a way to use crowd sorting here
+            # if candidates and self.crowd_sorting and self.crowd_sorting['mutation']:
+            #     candidates_list = list(candidates.items())
+
+            #     secondary_objs_proxy = np.array([
+            #         list(self._get_secondary_objectives_proxy(p).values()) for _, p in candidates_list
+            #     ])
 
     @abstractmethod
     def calc_secondary_objectives(self, population:List[ArchWithMetaData])->None:
@@ -48,28 +80,6 @@ class EvolutionParetoSearch(Searcher):
     def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1)->List[ArchWithMetaData]:
         pass
 
-
-    @abstractmethod
-    def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
-        pass
-
-    @abstractmethod
-    def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
-        pass
-
-
-    def _sample_init_population(self)->List[ArchWithMetaData]:
-        init_pop:List[ArchWithMetaData] = []
-        while len(init_pop) < self.init_num_models:
-            init_pop.append(self.search_space.random_sample())  
-        return init_pop
-
-
-    def _sample_random_to_mix(self)->List[ArchWithMetaData]:
-        mix_pop:List[ArchWithMetaData] = []
-        while len(mix_pop) < self.num_random_mix:
-            mix_pop.append(self.search_space.random_sample())
-        return mix_pop
 
     def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
         ''' Callback function called right after calc_task_accuracy()'''
