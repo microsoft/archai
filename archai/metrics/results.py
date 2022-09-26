@@ -42,7 +42,7 @@ class SearchResults():
             assert all(len(v) == len(models) for v in extra_model_data.values())
 
         self.results.append({
-            'models': models,
+            'models': [m for m in models], # To avoid creating a reference to `models` variable
             'evaluation_results': evaluation_results.tolist(),
             **extra_model_data
         })
