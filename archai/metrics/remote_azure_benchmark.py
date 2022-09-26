@@ -124,9 +124,11 @@ class RemoteAzureBenchmarkMetric(BaseAsyncMetric):
         if archid in self:
             entity = self.get_entity(archid)
             if entity['status'] == 'complete':
+                self.archids.append(archid)
                 return
             
             if self.metric_key in entity and entity[self.metric_key]:
+                self.archids.append(archid)
                 return
 
         entity = {
