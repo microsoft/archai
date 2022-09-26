@@ -75,9 +75,6 @@ class EvolutionParetoSearch(Searcher):
             )
         ]
 
-    def update_pareto_frontier(self, population:List[ArchWithMetaData]) -> List[ArchWithMetaData]:
-        pass
-
     def mutate_parents(self, parents:List[ArchWithMetaData],
                        mutations_per_parent: int = 1,
                        patience: int = 20) -> List[ArchWithMetaData]:
@@ -154,12 +151,6 @@ class EvolutionParetoSearch(Searcher):
             mix_pop.append(self.search_space.get([self.seed + self.num_sampled_archs]))
 
         return mix_pop
-
-    def plot_search_state(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
-        pass
-
-    def save_search_status(self, all_pop:List[ArchWithMetaData], pareto:List[ArchWithMetaData], iter_num:int)->None:
-        pass
 
     def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
         ''' Callback function called right after calc_task_accuracy()'''
