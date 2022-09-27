@@ -100,7 +100,10 @@ class EvolutionParetoSearch(Searcher):
                 continue
 
             while len(candidates) < (mutations_per_parent * oversample_factor) and nb_tries < patience:
-                for nbr in self.search_space.mutate(p):
+                mutated_model = self.search_space.mutate(p)
+                mutated_models = [mutated_model] if not isinstance(mutated_model, list) else mutated_model
+
+                for nbr in mutated_models:
                     if nbr.metadata['archid'] not in self.eval_cache:
                         nbr.metadata['generation'] = self.iter_num
                         candidates[nbr.metadata['archid']] = nbr
