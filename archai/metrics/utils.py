@@ -34,7 +34,6 @@ def evaluate_models(models: List[ArchWithMetaData],
     if isinstance(dataset_providers, list):
         assert len(dataset_providers) == len(models)
     else:
-        assert isinstance(dataset_providers, DatasetProvider)
         dataset_providers = [dataset_providers] * len(models)
 
     objective_results = dict()
