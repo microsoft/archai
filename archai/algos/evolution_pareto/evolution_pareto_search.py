@@ -14,6 +14,63 @@ from archai.common.config import Config
 
 
 class EvolutionParetoSearch(Searcher):
+    def __init__(self, search_space: EvolutionarySearchSpaceBase, 
+                 objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]], 
+                 dataset_provider: DatasetProvider,
+                 output_dir: str,
+                 num_iters: int = 10, init_num_models: int = 10,
+                 init_pop_from_paths: Optional[List[str]] = None, 
+                 num_random_mix: int = 5, max_unseen_population: int = 100,
+                 mutations_per_parent: int = 1, num_crossovers: int = 5, 
+                 obj_valid_ranges: Optional[List[Tuple[float, float]]] = None,
+                 crowd_sorting: Optional[Dict[str, Union[bool, float]]] = None, seed: int = 1):
+        
+        assert isinstance(search_space, EvolutionarySearchSpaceBase), \
+            f'{str(search_space.__class__)} is not compatible with {str(self.__class__)}'
+        
+        self.iter_num = 0
+        self.search_space = search_space
+        self.objectives = objectives
+        self.dataset_provider = dataset_provider
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(exist_ok=True, parents=True)
+
+        # Algorithm settings
+        self.num_iters = num_iters
+        self.init_num_models = init_num_models
+        self.init_pop_from_paths = init_pop_from_paths
+        self.num_random_mix = num_random_mix
+        self.max_unseen_population = max_unseen_population
+        self.mutations_per_parent = mutations_per_parent
+        self.num_crossovers = num_crossovers
+        self.obj_valid_ranges = obj_valid_ranges
+        self.crowd_sorting = crowd_sorting
+
+        # Utils
+        self.search_state = SearchResults(search_space, objectives)
+        self.seed = seed
+        self.rng = random.Random(seed)
+        self.eval_cache = dict()
+        self.num_sampled_archs = 0
+
+        assert self.init_num_models > 0 
+        assert self.num_iters > 0
+        assert self.num_random_mix > 0
+        assert self.max_unseen_population > 0
+
+    def filter_population(self, population: List[ArchWithMetaData]):
+        ''' Filter the population based on the objectives constraints '''
+        if not self.obj_valid_ranges:
+            return population
+
+        return [
+            p for p in population 
+            if all(
+                self.obj_valid_ranges[obj_idx][0] <= score <= self.obj_valid_ranges[obj_idx][1]
+                for obj_idx, score in enumerate(p.metadata['objective'])
+            )
+        ]
+
     def mutate_parents(self, parents:List[ArchWithMetaData],
                        mutations_per_parent: int = 1,
                        patience: int = 20) -> List[ArchWithMetaData]:
