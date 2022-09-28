@@ -1,4 +1,4 @@
-from typing import Union, List, Optional, Dict, Tuple
+from typing import Union, List, Optional, Dict, Tuple, Any
 from pathlib import Path
 import re
 
@@ -124,7 +124,7 @@ class SearchResults():
         for model in pareto_frontier['models']:
             self.search_space.save_arch(model, str(dir_path / f'{model.metadata["archid"]}'))
  
-    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str) -> None:
+    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str) -> Any:
         obj_x, obj_y = objective_names
         status_df = self.get_search_state_df().copy()
 
@@ -163,16 +163,23 @@ class SearchResults():
         fig.colorbar(sm, ax=ax)
         fig.savefig(path)
 
-    def save_all_2d_pareto_evolution_plots(self, directory: str) -> None:
+        return fig
+
+    def save_all_2d_pareto_evolution_plots(self, directory: str) -> List[Any]:
         path = Path(directory)
         path.mkdir(exist_ok=True, parents=True)
 
         objective_names = list(self.objectives.keys())
+        plots = []
 
         for i, obj_x in enumerate(objective_names):
             for obj_y in objective_names[(i + 1):]:
                 # Sanitizes filename
-                fname = f'pareto_{obj_x}_{obj_y}.png'.strip().replace(' ', '_')
+                fname = f'pareto_{obj_x}_vs_{obj_y}.png'.strip().replace(' ', '_')
                 fname = re.sub(r'(?u)[^-\w.]', '', fname)
 
-                self.save_2d_pareto_evolution_plot((obj_x, obj_y), str(path / fname))
+                plots.append(
+                    self.save_2d_pareto_evolution_plot((obj_x, obj_y), str(path / fname))
+                )
+
+        return plots
