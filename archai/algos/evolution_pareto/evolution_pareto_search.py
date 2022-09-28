@@ -200,6 +200,17 @@ class EvolutionParetoSearch(Searcher):
             pareto:List[ArchWithMetaData] = self.update_pareto_frontier(self.all_pop)
             logger.info(f'iter {i}: found {len(pareto)} members')
 
+            # Saves search iteration results
+            self.search_state.save_search_state(
+                str(self.output_dir / f'search_state_{self.iter_num}.csv')
+            )
+
+            self.search_state.save_pareto_frontier_models(
+                str(self.output_dir / f'pareto_models_iter_{self.iter_num}')
+            )
+
+            self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
+
             # select parents for the next iteration from 
             # the current estimate of the frontier while
             # giving more weight to newer parents
