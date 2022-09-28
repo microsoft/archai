@@ -213,7 +213,6 @@ class SegmentationDagModel(torch.nn.Module):
         """
         config_file = Path(config_file)
         assert config_file.is_file()
-        assert config_file.suffix == '.yaml'
 
         config_dict = yaml.safe_load(open(config_file))
         return cls(config_dict['architecture'], config_dict['channels_per_scale'],
