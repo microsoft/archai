@@ -194,12 +194,16 @@ class EvolutionParetoSearch(Searcher):
             pareto = self.search_state.get_pareto_frontier()['models']
             logger.info(f'iter {i}: found {len(pareto)} members')
 
-            # plot the state of search
-            # self.search_results.save_search_state()
-            # self.search_results.save_pareto_2d_projection_plot()
+            # Saves search iteration results
             self.search_state.save_search_state(
                 str(self.output_dir / f'search_state_{self.iter_num}.csv')
             )
+
+            self.search_state.save_pareto_frontier_models(
+                str(self.output_dir / f'pareto_models_iter_{self.iter_num}')
+            )
+
+            self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
 
             # select parents for the next iteration from 
             # the current estimate of the frontier while

@@ -123,5 +123,56 @@ class SearchResults():
         pareto_frontier = self.get_pareto_frontier()
         for model in pareto_frontier['models']:
             self.search_space.save_arch(model, str(dir_path / f'{model.metadata["archid"]}'))
-            self.search_space.save_arch(model, str(dir_path / f'{model["archid"]}'))
  
+    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str) -> None:
+        obj_x, obj_y = objective_names
+        status_df = self.get_search_state_df().copy()
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+        status_range = range(0, self.iteration_num + 1)
+        
+        # Transforms dimensions to be decreasing if necessary
+        max_x, max_y = status_df[obj_x].max(), status_df[obj_y].max()
+        status_df['x'], status_df['y'] = status_df[obj_x], status_df[obj_y]
+
+        if self.objectives[obj_x].higher_is_better:
+            status_df['x'] = (max_x - status_df['x'])
+        
+        if self.objectives[obj_y].higher_is_better:
+            status_df['y'] = (max_y - status_df['y'])
+
+        colors = plt.cm.plasma(np.linspace(0, 1, self.iteration_num + 1))
+        sm = plt.cm.ScalarMappable(cmap=plt.cm.plasma, norm=plt.Normalize(vmin=0, vmax=self.iteration_num + 1))
+
+        for s in status_range:
+            generation_df = status_df.query(f'iteration_num <= {s}').copy()
+            
+            points = generation_df[['x', 'y']].values
+            pareto_df = generation_df.iloc[_find_pareto_frontier_points(points)].copy()
+            pareto_df = pareto_df.sort_values('x')
+
+            ax.step(
+                pareto_df[obj_x], pareto_df[obj_y],
+                where='post',
+                color=colors[s]
+            )
+            ax.plot(pareto_df[obj_x], pareto_df[obj_y], 'o', color=colors[s])
+        
+        ax.set_xlabel(obj_x)
+        ax.set_ylabel(obj_y)
+        fig.colorbar(sm, ax=ax)
+        fig.savefig(path)
+
+    def save_all_2d_pareto_evolution_plots(self, directory: str) -> None:
+        path = Path(directory)
+        path.mkdir(exist_ok=True, parents=True)
+
+        objective_names = list(self.objectives.keys())
+
+        for i, obj_x in enumerate(objective_names):
+            for obj_y in objective_names[(i + 1):]:
+                # Sanitizes filename
+                fname = f'pareto_{obj_x}_{obj_y}.png'.strip().replace(' ', '_')
+                fname = re.sub(r'(?u)[^-\w.]', '', fname)
+
+                self.save_2d_pareto_evolution_plot((obj_x, obj_y), str(path / fname))
