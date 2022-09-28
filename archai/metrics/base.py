@@ -28,7 +28,7 @@ class BaseAsyncMetric(EnforceOverrides):
         pass
 
     @abstractmethod
-    def fetch_all(self) -> List[Union[float, None]]:
+    def fetch_all(self) -> List[Optional[float]]:
         ''' Fetch results from all previous `.send` calls and resets the state. '''
         pass
 
