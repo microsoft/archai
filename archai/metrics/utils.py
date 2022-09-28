@@ -1,4 +1,4 @@
-from typing import Union, List, Optional, Dict
+from typing import Union, List, Dict
 
 import numpy as np
 import warnings
@@ -11,24 +11,36 @@ from archai.metrics.base import BaseMetric, BaseAsyncMetric
 
 
 def evaluate_models(models: List[ArchWithMetaData],
-                    objectives: List[Union[BaseMetric, BaseAsyncMetric]],  
-                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]]) -> np.ndarray:
-    """Evaluates a list of models using a list of objective functions.
+                    objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]],  
+                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]]) -> Dict[str, np.ndarray]:
+    """Evaluates all objective functions on a list of models and dataset(s).
+    
+    Metrics are evaluated in the following order:
+        (1) Asynchronous metrics are dispatched by calling `.send`
+        (2) Synchronous metrics are computed using `.compute`
+        (3) Asynchornous metrics results are gathered by calling `.fetch_all`
 
     Args:
         models (List[ArchWithMetadata]): List of architectures from a search space.
-        objectives (List[Union[BaseMetric, BaseAsyncMetric]]): List of objectives, possibly containing 
-            asynchronous metrics. All asynchronous metrics will be dispatched before normal metrics, 
-            following the original list order.
-        dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or list of
-             dataset providers with the same length as `models`.
+        objectives (Mapping[str, Union[BaseMetric, BaseAsyncMetric]]): Dictionary mapping
+            an objective identifier to a metric (either `BaseMetric` or `BaseAsyncMetric`), e.g:
+                ```
+                   {
+                        'Latency (ms)': MyMetricX(),
+                        'Validation Accuracy': MyMetricY(),
+                        ...
+                   } 
+                ```.
+        dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): A single dataset provider
+             or list of dataset providers with the same length of `models`.
     
     Returns:
-        np.ndarray: `np.array` of shape (len(models), len(objectives)).
+        Dict[str, np.array]: Evaluation results (`np.array` of size `len(models)`) for each metric passed
+            in `objectives`.
     """
 
-    assert isinstance(objectives, list)
-    assert all(isinstance(obj, (BaseMetric, BaseAsyncMetric)) for obj in objectives)
+    assert all(isinstance(obj, (BaseMetric, BaseAsyncMetric)) for obj in objectives.values()),\
+        'All objectives must subclass `BaseMetric` or `BaseAsyncMetric`.'
     assert isinstance(models, list)
 
     if isinstance(dataset_providers, list):
@@ -39,8 +51,8 @@ def evaluate_models(models: List[ArchWithMetaData],
     objective_results = dict()
     inputs = list(zip(models, dataset_providers))
 
-    sync_objectives = [t for t in enumerate(objectives) if isinstance(t[1], BaseMetric)]
-    async_objectives = [t for t in enumerate(objectives) if isinstance(t[1], BaseAsyncMetric)]
+    sync_objectives = [t for t in objectives.items() if isinstance(t[1], BaseMetric)]
+    async_objectives = [t for t in objectives.items() if isinstance(t[1], BaseAsyncMetric)]
 
     # Dispatches jobs for all async objectives first
     for _, obj in async_objectives:        
@@ -48,39 +60,43 @@ def evaluate_models(models: List[ArchWithMetaData],
             obj.send(arch, dataset)
     
     # Calculates synchronous objectives in order
-    for obj_idx, obj in sync_objectives:
-        objective_results[obj_idx] = [
+    for obj_name, obj in sync_objectives:
+        objective_results[obj_name] = np.array([
             obj.compute(arch, dataset) 
             for arch, dataset in tqdm(inputs, desc=f'Calculating {str(obj.__class__)}...')
-        ]
+        ], dtype=np.float64)
 
     # Gets results from async objectives
-    for obj_idx, obj in tqdm(async_objectives, desc=f'Gathering results for async objectives...'):
-        objective_results[obj_idx] = obj.fetch_all()
+    for obj_name, obj in tqdm(async_objectives, desc=f'Gathering results for async objectives...'):
+        objective_results[obj_name] = np.array(obj.fetch_all(), dtype=np.float64)
 
-    # Returns a np.array (len(models), len(objectives)) with the results.
-    # by setting dtype to float, values with `None` are automatically converted to `np.nan`
-    return np.array([
-        objective_results[obj_idx]
-        for obj_idx in range(len(objectives))
-    ], dtype=np.float64).T
-
+    return objective_results
 
 def get_pareto_frontier(models: List[ArchWithMetaData], 
-                        evaluation_results: np.ndarray,
-                        objectives: List[Union[BaseMetric, BaseAsyncMetric]]) -> Dict:    
+                        evaluation_results: Dict[str, np.ndarray],
+                        objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]]) -> Dict:
+    assert len(objectives) == len(evaluation_results)
+    assert all(len(r) == len(models) for r in evaluation_results.values())
+
     # Inverts maximization objectives 
-    for obj_idx, obj in enumerate(objectives):
-        if obj.higher_is_better:
-            evaluation_results[:, obj_idx] = -evaluation_results[:, obj_idx]
+    inverted_results = {
+        obj_name: (-obj_results if objectives[obj_name].higher_is_better else obj_results)
+        for obj_name, obj_results in evaluation_results.items()
+    }
+
+    # Converts results to an array of shape (len(models), len(objectives))
+    results_array = np.vstack(list(inverted_results.values())).T
 
     pareto_points = np.array(
-        _find_pareto_frontier_points(evaluation_results, is_decreasing=True)
+        _find_pareto_frontier_points(results_array, is_decreasing=True)
     )
 
     return {
         'models': [models[idx] for idx in pareto_points],
-        'evaluation_results': evaluation_results[pareto_points, :],
+        'evaluation_results': {
+            obj_name: obj_results[pareto_points]
+            for obj_name, obj_results in evaluation_results.items()
+        },
         'indices': pareto_points
     }
 

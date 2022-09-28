@@ -19,7 +19,7 @@ from archai.datasets.data import DatasetProvider
 
 class EvolutionParetoSearch(Searcher):
     def __init__(self, search_space: EvolutionarySearchSpaceBase, 
-                 objectives: List[Union[BaseMetric, BaseAsyncMetric]], 
+                 objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]], 
                  dataset_provider: DatasetProvider,
                  output_dir: str,
                  num_iters: int = 10, init_num_models: int = 10,
