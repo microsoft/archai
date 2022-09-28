@@ -54,7 +54,7 @@ class EvolutionParetoSearch(Searcher):
         self.search_state = SearchResults(search_space, objectives)
         self.seed = seed
         self.rng = random.Random(seed)
-        self.eval_cache = dict()
+        self.evaluated_architectures = set()
         self.num_sampled_archs = 0
 
         assert self.init_num_models > 0 
@@ -101,10 +101,12 @@ class EvolutionParetoSearch(Searcher):
 
             while len(candidates) < (mutations_per_parent * oversample_factor) and nb_tries < patience:
                 mutated_model = self.search_space.mutate(p)
+                mutated_model.metadata['parent'] = p.metadata['archid']
+
                 mutated_models = [mutated_model] if not isinstance(mutated_model, list) else mutated_model
 
                 for nbr in mutated_models:
-                    if nbr.metadata['archid'] not in self.eval_cache:
+                    if nbr.metadata['archid'] not in self.evaluated_architectures:
                         nbr.metadata['generation'] = self.iter_num
                         candidates[nbr.metadata['archid']] = nbr
                 nb_tries += 1
@@ -139,8 +141,9 @@ class EvolutionParetoSearch(Searcher):
                 if child:
                     child_id = child.metadata['archid']
 
-                    if child_id not in children_hashes and child_id not in self.eval_cache:
+                    if child_id not in children_hashes and child_id not in self.evaluated_architectures:
                         child.metadata['generation'] = self.iter_num
+                        child.metadata['parents'] = f'{p1.metadata["archid"]},{p2.metadata["archid"]}'
                         children.append(child)
                         children_hashes.add(child_id)
 
@@ -168,7 +171,7 @@ class EvolutionParetoSearch(Searcher):
         return current_pop[:self.max_unseen_population]
 
     @overrides
-    def search(self):
+    def search(self) -> SearchResults:
         # sample the initial population
         self.iter_num = 0
         unseen_pop = self.sample_random_models(self.init_num_models)
@@ -187,7 +190,18 @@ class EvolutionParetoSearch(Searcher):
             )
             
             results = evaluate_models(unseen_pop, self.objectives, self.dataset_provider)
-            self.search_state.add_iteration_results(unseen_pop, results)
+            self.search_state.add_iteration_results(
+                unseen_pop, results,
+                
+                # Mutation and crossover info
+                extra_model_data={
+                    'parent': [p.metadata.get('parent', None) for p in unseen_pop],
+                    'parents': [p.metadata.get('parents', None) for p in unseen_pop],
+                }
+            )
+
+            # Records evaluated archs to avoid computing the same architecture twice
+            self.evaluated_architectures.update([m.metadata['archid'] for m in unseen_pop])
 
             # update the pareto frontier
             logger.info(f'iter {i}: updating the pareto')
@@ -240,3 +254,5 @@ class EvolutionParetoSearch(Searcher):
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)
+
+        return self.search_state
