@@ -80,7 +80,6 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
             layer.fisher = None
             layer.act = 0.0
             layer.dummy = nn.Identity()
-            layer.compute = 0
 
             # replace forward method of conv
             if isinstance(layer, nn.Conv2d):
@@ -104,13 +103,9 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
                         layer.fisher = del_k
                     else:
                         layer.fisher += del_k
-                    layer.compute = (
-                        2 * torch.prod(torch.tensor(layer.act.size())).item()
-                    )
-                    del (
-                        layer.act
-                    )  # without deleting this, a nasty memory leak occurs! related: https://discuss.pytorch.org/t/memory-leak-when-using-forward-hook-and-backward-hook-simultaneously/27555
-
+                    
+                    layer.compute = (2 * torch.prod(torch.tensor(layer.act.size())).item())
+                    del (layer.act)  # without deleting this, a nasty memory leak occurs! related: https://discuss.pytorch.org/t/memory-leak-when-using-forward-hook-and-backward-hook-simultaneously/27555
                 return hook
 
             # register backward hook on identity fcn to compute fisher info
@@ -162,6 +157,7 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
         if (
             isinstance(layer, nn.Conv2d)
             or isinstance(layer, transformers.Conv1D)
+            or isinstance(layer, nn.Linear)
             or isinstance(layer, nn.Embedding)
         ):
             # variables/op needed for fisher computation
@@ -192,12 +188,8 @@ def compute_fisher_per_weight(net, inputs, targets, loss_fn, mode, split_data=1)
                         layer.fisher = del_k
                     else:
                         layer.fisher += del_k
-                    layer.compute = (
-                        2 * torch.prod(torch.tensor(layer.act.size())).item()
-                    )
-                    del (
-                        layer.act
-                    )  # without deleting this, a nasty memory leak occurs! related: https://discuss.pytorch.org/t/memory-leak-when-using-forward-hook-and-backward-hook-simultaneously/27555
+                    layer.compute = (2 * torch.prod(torch.tensor(layer.act.size())).item())
+                    del (layer.act)  # without deleting this, a nasty memory leak occurs! related: https://discuss.pytorch.org/t/memory-leak-when-using-forward-hook-and-backward-hook-simultaneously/27555
 
                 return hook
 

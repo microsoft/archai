@@ -50,6 +50,11 @@ def snip_forward_conv2d(self, x):
     )
 
 
+def snip_forward_linear(self, x):
+    # print('computing snip measure')
+    return F.linear(x, self.weight * self.weight_mask, self.bias)
+
+
 def snip_forward_conv1d(self, x):
     size_out = x.size()[:-1] + (self.nf,)
     x = torch.addmm(self.bias, x.view(-1, x.size(-1)), self.weight * self.weight_mask)
@@ -60,7 +65,7 @@ def snip_forward_conv1d(self, x):
 @measure("snip", bn=True, mode="param")
 def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
     for layer in net.modules():
-        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
+        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D) or isinstance(layer, nn.Linear):
             layer.weight_mask = nn.Parameter(torch.ones_like(layer.weight))
             layer.weight.requires_grad = False
 
@@ -70,6 +75,9 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
 
         if isinstance(layer, transformers.Conv1D):
             layer.forward = types.MethodType(snip_forward_conv1d, layer)
+
+        if isinstance(layer, nn.Linear):
+            layer.forward = types.MethodType(snip_forward_linear, layer)
 
     # Compute gradients (but don't apply them)
     # net.zero_grad()
@@ -112,9 +120,12 @@ def compute_snip_per_weight(net, inputs, targets, mode, loss_fn, split_data=1):
         # Override the forward methods:
         if isinstance(layer, nn.Conv2d):
             layer.forward = types.MethodType(snip_forward_conv2d, layer)
-
+            
         if isinstance(layer, transformers.Conv1D):
             layer.forward = types.MethodType(snip_forward_conv1d, layer)
+
+        if isinstance(layer, nn.Linear):
+            layer.forward = types.MethodType(snip_forward_linear, layer)
 
         if isinstance(layer, nn.Embedding):
             layer.forward = types.MethodType(snip_forward_embedding, layer)

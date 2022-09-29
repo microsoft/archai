@@ -75,7 +75,7 @@ def get_layer_metric_array(net, metric, mode, include_embedding=False):
     for layer in net.modules():
         if mode == "channel" and hasattr(layer, "dont_ch_prune"):
             continue
-        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
+        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D) or isinstance(layer, nn.Linear):
             metric_array.append(metric(layer))
         if isinstance(layer, nn.Embedding) and include_embedding:
             metric_array.append(metric(layer))

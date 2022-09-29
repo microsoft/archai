@@ -30,7 +30,7 @@ def compute_grasp_per_weight(
     # get all applicable weights
     weights = []
     for layer in net.modules():
-        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
+        if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D) or isinstance(layer, nn.Linear):
             weights.append(layer.weight)
             layer.weight.requires_grad_(True)  # TODO isn't this already true?
             layer.compute = 0
@@ -66,12 +66,10 @@ def compute_grasp_per_weight(
         # accumulate gradients computed in previous step and call backwards
         z, count = 0, 0
         for layer in net.modules():
-            if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D):
+            if isinstance(layer, nn.Conv2d) or isinstance(layer, transformers.Conv1D) or isinstance(layer, nn.Linear):
                 if grad_w[count] is not None:
                     z += (grad_w[count].data * grad_f[count]).sum()
-                    layer.compute += torch.prod(
-                        torch.tensor(grad_w[count].size())
-                    ).item()
+                    layer.compute += torch.prod(torch.tensor(grad_w[count].size())).item()
                 count += 1
         z.backward()
 

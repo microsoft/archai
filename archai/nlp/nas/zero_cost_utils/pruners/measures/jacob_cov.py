@@ -40,13 +40,19 @@ class OneHotLinear(nn.Linear):
         return F.linear(self.input_oh, self.weight, self.bias)
 
 
-def forward_after_embedding(self, word_emb, target, mems=None):
+def forward_after_embedding_memformer(self, word_emb, labels, mems=None, past_key_values=None):
+    if labels is not None:
+        labels = labels.t()
+
     if mems is None:
         mems = self.init_mems()
+    if past_key_values is None:
+            past_key_values = tuple([None] * self.n_layer)
 
     qlen, bsz = word_emb.size(0), word_emb.size(1)
 
     mlen = mems[0].size(0) if mems is not None else 0
+    plen = past_key_values[0][0].size(0) if past_key_values[0] is not None else 0
     klen = mlen + qlen
     if self.same_length:
         all_ones = word_emb.new_ones(qlen, klen)
@@ -55,20 +61,18 @@ def forward_after_embedding(self, word_emb, target, mems=None):
             mask_shift_len = qlen - mask_len
         else:
             mask_shift_len = qlen
-        dec_attn_mask = (
-            torch.triu(all_ones, 1 + mlen) + torch.tril(all_ones, -mask_shift_len)
-        ).bool()
+        dec_attn_mask = (torch.triu(all_ones, 1+mlen+plen)
+                             + torch.tril(all_ones, -mask_shift_len)).bool()
     else:
         dec_attn_mask = torch.triu(
-            word_emb.new_ones(qlen, klen), diagonal=1 + mlen
-        ).bool()
+                word_emb.new_ones(qlen, klen+plen), diagonal=1+mlen+plen).bool()
 
     hids = []
+    pasts_key_values = ()
     # default
     if self.attn_type == 0:
-        pos_seq = torch.arange(
-            klen - 1, -1, -1.0, device=word_emb.device, dtype=word_emb.dtype
-        )
+        pos_seq = torch.arange(klen+plen-1, plen-1, -1.0, device=word_emb.device,
+                                dtype=word_emb.dtype)
         if self.clamp_len > 0:
             pos_seq.clamp_(max=self.clamp_len)
         pos_emb = self.pos_emb(pos_seq)
@@ -76,87 +80,80 @@ def forward_after_embedding(self, word_emb, target, mems=None):
         core_out = self.drop(word_emb)
         pos_emb = self.drop(pos_emb)
 
-        for i, layer in enumerate(self.layers):
+        for i, (layer, past_key_values_i) in enumerate(zip(self.layers, past_key_values)):
             hids.append(core_out.detach())
             mems_i = None if mems is None else mems[i]
-            core_out = layer(
-                core_out,
-                pos_emb,
-                self.r_w_bias,
-                self.r_r_bias,
-                dec_attn_mask=dec_attn_mask,
-                mems=mems_i,
-            )
+            core_out, past_key_values_i = layer(core_out, pos_emb, getattr(self, f'r_w_bias_{i}'),
+                                                getattr(self, f'r_r_bias_{i}'), dec_attn_mask=dec_attn_mask,
+                                                mems=mems_i, past_key_values=past_key_values_i)
+            pasts_key_values = pasts_key_values + (past_key_values_i, )
     # learnable
     elif self.attn_type == 1:
         core_out = self.drop(word_emb)
-        for i, layer in enumerate(self.layers):
+        for i, (layer, past_key_values_i) in enumerate(zip(self.layers, past_key_values)):
             hids.append(core_out.detach())
             if self.clamp_len > 0:
-                r_emb = self.r_emb[i][-self.clamp_len :]
-                r_bias = self.r_bias[i][-self.clamp_len :]
+                r_emb = getattr(self, f'r_emb_{i}')[-self.clamp_len:]
+                r_bias = getattr(self, f'r_bias_{i}')[-self.clamp_len:]
             else:
-                r_emb, r_bias = self.r_emb[i], self.r_bias[i]
+                r_emb, r_bias = getattr(self, f'r_emb_{i}'), getattr(self, f'r_bias_{i}')
 
             mems_i = None if mems is None else mems[i]
-            core_out = layer(
-                core_out,
-                r_emb,
-                self.r_w_bias[i],
-                r_bias,
-                dec_attn_mask=dec_attn_mask,
-                mems=mems_i,
-            )
+            core_out, past_key_values_i = layer(core_out, r_emb, getattr(self, f'r_w_bias_{i}'),
+                                                r_bias, dec_attn_mask=dec_attn_mask, mems=mems_i,
+                                                past_key_values=past_key_values_i)
+            pasts_key_values = pasts_key_values + (past_key_values_i, )
     # absolute
     elif self.attn_type == 2:
-        pos_seq = torch.arange(
-            klen - 1, -1, -1.0, device=word_emb.device, dtype=word_emb.dtype
-        )
+        pos_seq = torch.arange(klen - 1, -1, -1.0, device=word_emb.device,
+                                dtype=word_emb.dtype)
         if self.clamp_len > 0:
             pos_seq.clamp_(max=self.clamp_len)
         pos_emb = self.pos_emb(pos_seq)
 
         core_out = self.drop(word_emb + pos_emb[-qlen:])
 
-        for i, layer in enumerate(self.layers):
+        for i, (layer, past_key_values_i) in enumerate(zip(self.layers, past_key_values)):
             hids.append(core_out.detach())
             mems_i = None if mems is None else mems[i]
             if mems_i is not None and len(mems_i) and i == 0:
                 mems_i += pos_emb[:mlen]
-            core_out = layer(core_out, dec_attn_mask=dec_attn_mask, mems=mems_i)
-
+            core_out, past_key_values_i = layer(core_out, dec_attn_mask=dec_attn_mask,
+                                                mems=mems_i, past_key_values=past_key_values_i)
+            pasts_key_values = pasts_key_values + (past_key_values_i, )
     elif self.attn_type == 3:
         core_out = self.drop(word_emb)
 
-        for i, layer in enumerate(self.layers):
+        for i, (layer, past_key_values_i) in enumerate(zip(self.layers, past_key_values)):
             hids.append(core_out.detach())
             mems_i = None if mems is None else mems[i]
             if mems_i is not None and len(mems_i) and mlen > 0:
                 cur_emb = self.r_emb[i][:-qlen]
                 cur_size = cur_emb.size(0)
                 if cur_size < mlen:
-                    cur_emb_pad = cur_emb[0:1].expand(mlen - cur_size, -1, -1)
+                    cur_emb_pad = cur_emb[0:1].expand(mlen-cur_size, -1, -1)
                     cur_emb = torch.cat([cur_emb_pad, cur_emb], 0)
                 else:
                     cur_emb = cur_emb[-mlen:]
                 mems_i += cur_emb.view(mlen, 1, -1)
             core_out += self.r_emb[i][-qlen:].view(qlen, 1, -1)
 
-            core_out = layer(core_out, dec_attn_mask=dec_attn_mask, mems=mems_i)
+            core_out, past_key_values_i = layer(core_out, dec_attn_mask=dec_attn_mask,
+                                                mems=mems_i, past_key_values=past_key_values_i)
+            pasts_key_values = pasts_key_values + (past_key_values_i, )
 
     core_out = self.drop(core_out)
     # core_out = self.fc_to_1class(core_out)
 
     new_mems = self._update_mems(hids, mems, qlen, mlen)
 
-    tgt_len = target.size(0)
+    tgt_len = labels.size(0)
     pred_hid = core_out[-tgt_len:]
-
-    out = self.crit(pred_hid.view(-1, pred_hid.size(-1)))
+    _, out = self.crit(pred_hid.view(-1, pred_hid.size(-1)))
     # out = out.view(tgt_len, -1)
     out = self.fc_to_1class(out)
 
-    return out, new_mems
+    return out, None
 
 
 def forward_after_embedding_gpt2(self, word_emb, target, mems=None):
@@ -222,7 +219,6 @@ def forward_crit(self, hidden, target=None, keep_order=False, output_loss=True, 
 def modify_net(net):
     # for idx, l in enumerate(net.word_emb.emb_layers):
     #     if isinstance(l, nn.Embedding):
-    #         print('found one')
     #         assert l.sparse==False, 'sparse embedding cannot be converted to nn.Linear layer'
     #         new_layer = OneHotLinear(l.num_embeddings, l.embedding_dim, bias=False)#EmbeddingMul(l.num_embeddings, l.embedding_dim, _weight=l.weight.data)
     #         new_layer.weight.data = copy.deepcopy(l.weight.data.transpose(1, 0))
@@ -231,14 +227,13 @@ def modify_net(net):
     #         del l
 
     if isinstance(net, MemTransformerLM):
-        net.forward = types.MethodType(forward_after_embedding, net)
-    if isinstance(net, HfGPT2Flex):
+        net.forward = types.MethodType(forward_after_embedding_memformer, net)
+        net.crit.forward = types.MethodType(forward_crit, net.crit)
+    elif isinstance(net, HfGPT2Flex):
         net.forward = types.MethodType(forward_after_embedding_gpt2, net)
-    # elif isinstance(net, MemTransformerLM_flex):
-    # net.forward = types.MethodType(forward_after_embedding_flex, net)
+        net.model.lm_head.forward = types.MethodType(forward_crit, net.model.lm_head)
     else:
         raise NotImplementedError
-    net.model.lm_head.forward = types.MethodType(forward_crit, net.model.lm_head)
     net.fc_to_1class = torch.nn.Linear(net.n_token, 1, bias=False)
     return net
 
@@ -246,7 +241,11 @@ def modify_net(net):
 def get_batch_jacobian(net, x, target, device, split_data):
     net.zero_grad()
 
-    x_emb = net.model.transformer.wte(x)
+    if isinstance(net, MemTransformerLM):
+        x = x.t()
+        x_emb = net.word_emb(x)
+    if isinstance(net, HfGPT2Flex):    
+        x_emb = net.model.transformer.wte(x)
     word_emb = x_emb.data
     word_emb.requires_grad_(True)
 

@@ -257,20 +257,26 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
         super(RelPartialLearnableMultiHeadAttn, self).__init__(*args, **kwargs)
 
         self.r_net = nn.Linear(self.d_model, self.n_head * self.d_head, bias=False)
+        self.flops = 0
 
     def forward(self, w, r, r_w_bias, r_r_bias, attn_mask=None, mems=None, past_key_values=None):
         qlen, rlen, bsz = w.size(0), r.size(0), w.size(1)
 
+        self.flops = 0
         if mems is not None:
             cat = torch.cat([mems, w], 0)
             if self.pre_lnorm:
                 w_heads = self.qkv_net(self.layer_norm(cat))
             else:
                 w_heads = self.qkv_net(cat)
+            self.flops += torch.prod(torch.tensor(w_heads.size())) * self.d_model
+            
             r_head_k = self.r_net(r)
+            self.flops += torch.prod(torch.tensor(r_head_k.size())) * self.d_model
 
             if self.primer_ez:
                 w_heads = self.dconv(w_heads)
+                self.flops += torch.prod(torch.tensor(w_heads.size())) * self.dconv.kernel_size * self.dconv.kernel_size
 
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
             w_head_q = w_head_q[-qlen:]
@@ -279,10 +285,14 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
                 w_heads = self.qkv_net(self.layer_norm(w))
             else:
                 w_heads = self.qkv_net(w)
+            self.flops += torch.prod(torch.tensor(w_heads.size())) * self.d_model
+
             r_head_k = self.r_net(r)
+            self.flops += torch.prod(torch.tensor(r_head_k.size())) * self.d_model
 
             if self.primer_ez:
                 w_heads = self.dconv(w_heads)
+                self.flops += torch.prod(torch.tensor(w_heads.size())) * self.dconv.kernel_size * self.dconv.kernel_size
 
             w_head_q, w_head_k, w_head_v = torch.chunk(w_heads, 3, dim=-1)
 
@@ -311,9 +321,11 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
         # compute attention score
         rw_head_q = w_head_q + r_w_bias                                # qlen x bsz x n_head x d_head
         AC = torch.einsum('ibnd,jbnd->bnij', (rw_head_q, w_head_k))    # bsz x n_head x qlen x klen
+        self.flops += torch.prod(torch.tensor(AC.size())) * w_head_k.size(-1)
 
         rr_head_q = w_head_q + r_r_bias
         BD = torch.einsum('ibnd,jnd->bnij', (rr_head_q, r_head_k))     # bsz x n_head x qlen x klen
+        self.flops += torch.prod(torch.tensor(BD.size())) * r_head_k.size(-1)
         BD = self._rel_shift(BD)
 
         # [bsz x n_head x qlen x klen]
@@ -332,6 +344,7 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
 
         # compute attention vector
         attn_vec = torch.einsum('bnij,jbnd->ibnd', (attn_prob, w_head_v))
+        self.flops += torch.prod(torch.tensor(attn_vec.size())) * attn_prob.size(-1)
 
         # [qlen x bsz x n_head x d_head]
         attn_vec = attn_vec.contiguous().view(
@@ -339,6 +352,7 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
 
         # linear projection
         attn_out = self.o_net(attn_vec)
+        self.flops += torch.prod(torch.tensor(attn_out.size())) * attn_vec.size(-1)
         attn_out = self.drop(attn_out)
 
         if self.pre_lnorm:

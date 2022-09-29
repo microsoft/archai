@@ -1,11 +1,10 @@
 import torch
 
 from archai.nlp.models.model_utils.adaptive_embedding import AdaptiveEmbedding
-from archai.nlp.models.model_utils.proj_adaptive_softmax import (
-    ProjectedAdaptiveLogSoftmax,
-)
+from archai.nlp.models.model_utils.proj_adaptive_softmax import ProjectedAdaptiveLogSoftmax
 
 from archai.nlp.models.hf_gpt2.hf_gpt2_utils.gpt2_lm_head_model_flex import GPT2AttentionFlex, GPT2MLPFlex
+from archai.nlp.models.mem_transformer.model_mem_transformer import PositionwiseFF, RelPartialLearnableMultiHeadAttn
 
 
 def get_list_of_layers(module, layerType=None):
@@ -32,10 +31,11 @@ def get_list_of_layers(module, layerType=None):
 
 
 def get_in_out_shape(self, input, output):
-    if len(input) > 0:
+    if isinstance(input, tuple):
         input = input[0]
-    if len(output) > 0:
+    if isinstance(output, tuple):
         output = output[0]
+    
     self.input_size = torch.tensor(input.size())
     self.output_size = torch.tensor(output.size())
 
@@ -47,6 +47,17 @@ def get_layer_flops(l):
         else:
             return torch.tensor([0])
 
+    # Memtransformer layers
+    elif isinstance(l, PositionwiseFF):
+        return (torch.prod(l.input_size) + torch.prod(l.output_size)) * l.d_inner
+
+    elif isinstance(l, RelPartialLearnableMultiHeadAttn):
+        return l.flops
+
+    elif isinstance(l, ProjectedAdaptiveLogSoftmax):
+        return l.flops
+
+    # GPT-specific layers
     elif isinstance(l, GPT2MLPFlex):
         return (torch.prod(l.input_size) + torch.prod(l.output_size)) * l.embed_dim
 
@@ -67,6 +78,8 @@ def get_model_flops(model, inp, tgt):
             AdaptiveEmbedding,
             GPT2MLPFlex,
             GPT2AttentionFlex,
+            PositionwiseFF,
+            RelPartialLearnableMultiHeadAttn,
             ProjectedAdaptiveLogSoftmax,
         ],
     )
@@ -86,9 +99,9 @@ def get_model_flops(model, inp, tgt):
 
         if isinstance(l, AdaptiveEmbedding):
             key = "AdaEmb"
-        elif isinstance(l, GPT2MLPFlex):
+        elif isinstance(l, GPT2MLPFlex) or isinstance(l, PositionwiseFF):
             key = "FFN"
-        elif isinstance(l, GPT2AttentionFlex):
+        elif isinstance(l, GPT2AttentionFlex) or isinstance(l, RelPartialLearnableMultiHeadAttn):
             key = "Attn"
         elif isinstance(l, ProjectedAdaptiveLogSoftmax):
             key = "Sftmax"
