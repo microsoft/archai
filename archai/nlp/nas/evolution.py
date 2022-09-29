@@ -58,6 +58,7 @@ class Evolution:
                  n_threads: Optional[int] = 1,
                  latency_repeat: Optional[int] = 10,
                  device: Optional[str] = 'cpu',
+                 do_profile: Optional[bool] = True,
                  **choices) -> None:
         """Initializes attributes.
 
@@ -178,7 +179,8 @@ class Evolution:
 
         # Performs a quick profiling over the search space
         # to find the biggest architecture measurements
-        self._profile()
+        if do_profile:
+            self._profile()
 
     def _profile(self) -> None:
         """Profiles the search space.
@@ -272,7 +274,7 @@ class Evolution:
         """
 
         config = self.converter.gene_to_config(gene)
-        
+
         model_config = copy.deepcopy(self.model_config)
         model_config.update(config)
         model_config = model_config.to_dict()

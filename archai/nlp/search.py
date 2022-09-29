@@ -19,7 +19,7 @@ from archai.common import utils
 from archai.nlp.nas.evolution import Evolution
 from archai.nlp.nas.nas_utils.constraints.constraint_pipeline import DEVICE_LATENCY_CONSTRAINT
 from archai.nlp.nas.nas_utils.dispatcher import create_pareto_jobs
-from archai.nlp.nas.baseline_utils import plot_baseline_and_pareto, profile_baseline, select_pareto
+from archai.nlp.nas.baseline_utils import plot_baseline_and_pareto, profile_baseline, select_pareto, get_latex_tables
 
 
 def parse_args():
@@ -47,7 +47,10 @@ def parse_args():
     baseline.add_argument('--plot_pareto_baseline',
                           action='store_true',
                           help='Print selected pareto points and baseline after full training.')
-
+    
+    baseline.add_argument('--gen_tables',
+                            action='store_true',
+                            help='generate latex tables from the pareto front models on a device')
 
     search = parser.add_argument_group('Search configuration')
     search.add_argument('--default_path',
@@ -277,6 +280,8 @@ if __name__ == '__main__':
     except:
         args['model_config'] = {}
 
+    do_profile = False if (args['profile_baseline'] or args['select_pareto'] or args['plot_pareto_baseline']) or args['gen_tables'] else True
+
     # Creates the evolutionary search instance
     e = Evolution(args['results_path'],
                   model_type=args['model_type'],
@@ -306,9 +311,10 @@ if __name__ == '__main__':
                   d_inner=args['d_inner'],
                   n_head=args['n_head'],
                   div_val=args['div_val'],
-                  device=args['device'])
+                  device=args['device'],
+                  do_profile=do_profile)
     
-    if args['profile_baseline'] or args['select_pareto'] or args['plot_pareto_baseline']:
+    if args['profile_baseline'] or args['select_pareto'] or args['plot_pareto_baseline'] or args['gen_tables']:
         path_to_baseline = os.path.join(args['baseline_path'], args['model_type'])
         
         if args['profile_baseline']:
@@ -327,7 +333,6 @@ if __name__ == '__main__':
             with open(os.path.join(path_to_baseline, args['device_name'],'logs.pkl'), 'rb') as f:
                 baseline_logs = pickle.load(f)
             e.plot_search_state(last_iter+1, parents=None, baseline=baseline_logs)
-
             e = select_pareto(e, path_to_results=os.path.join(path_to_baseline, args['device_name']))
             e.plot_search_state('selected_pareto', parents=None, baseline=baseline_logs)
 
@@ -350,6 +355,13 @@ if __name__ == '__main__':
             plot_baseline_and_pareto(path_to_amlt_logs=search_experiment, path_to_baseline_logs=path_to_baseline,
                                     dataset=args['dataset'], device_name=args['device_name'])
 
+        elif args['gen_tables']: # generate latex tables from the pareto front models on a device
+            shutil.rmtree(args['results_path'])
+            model = 'transxl' if args['model_type']=='mem_transformer' else 'gpt2_flex'
+            search_experiment = os.path.join('/home/mojan/TransformerNAS/amlt_logs', 'pareto_{}_{}_{}_3d'.format(model, args['dataset'], args['device_name']))
+            get_latex_tables(path_to_baseline_logs=path_to_baseline, 
+                            dataset=args['dataset'], device_name=args['device_name'])
+        
         exit()
 
     # Runs the evolutionary search or the brute force version
