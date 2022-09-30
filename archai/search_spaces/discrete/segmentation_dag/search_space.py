@@ -264,12 +264,11 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
         return arch_meta
 
     @overrides
-    def mutate(self, base_model: ArchWithMetaData, patience: int = 5) -> List[ArchWithMetaData]:
+    def mutate(self, base_model: ArchWithMetaData, patience: int = 5) -> ArchWithMetaData:
         parent_id = base_model.metadata['archid']
-        neighbors = []
         nb_tries = 0
 
-        while nb_tries < patience and len(neighbors) == 0:
+        while nb_tries < patience:
             nb_tries += 1
             graph = copy.deepcopy(list(base_model.arch.graph.values()))
             channels_per_scale = copy.deepcopy(base_model.arch.channels_per_scale)
@@ -331,12 +330,11 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
                 logger.info(f'Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
                 continue
 
-            neighbors += [ArchWithMetaData(nbr_model, {
+            return ArchWithMetaData(nbr_model, {
                 'archid': nbr_model.to_hash(),
                 'parent': parent_id
-            })]
+            })
 
-        return neighbors
 
     @overrides
     def crossover(self, model_1: ArchWithMetaData, model_2: ArchWithMetaData, 
