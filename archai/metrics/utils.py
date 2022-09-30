@@ -120,6 +120,7 @@ def evaluate_models(models: List[ArchWithMetaData],
 
     return objective_results
 
+
 def get_pareto_frontier(models: List[ArchWithMetaData], 
                         evaluation_results: Dict[str, np.ndarray],
                         objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]]) -> Dict:
@@ -201,3 +202,29 @@ def _find_pareto_frontier_points(all_points: np.ndarray, is_decreasing: bool = T
             pareto_inds.append(i)
 
     return pareto_inds
+
+
+def _find_non_dominated_sorting(all_points: np.ndarray, is_decreasing: bool = True) -> List[List[int]]:
+    """Finds non-dominated sorting frontiers from a matrix (#points, #objectives).
+
+    Args:
+        all_points (np.ndarray): N-dimensional points.
+        is_decreasing (bool, optional): Whether pareto-frontier decreases or not. Defaults to True.
+
+    Returns:
+        List[List[int]]: List of frontier indices
+    """    
+    all_indices = np.arange(all_points.shape[0])
+    available_indices = np.ones_like(all_indices).astype(bool)
+    frontiers = []
+
+    while available_indices.sum() > 0:
+        frontier_indices = _find_pareto_frontier_points(
+            all_points[available_indices], is_decreasing=is_decreasing
+        )
+        frontier_indices = all_indices[available_indices][frontier_indices]
+
+        frontiers.append(frontier_indices.tolist())
+        available_indices[frontier_indices] = 0
+
+    return frontiers
