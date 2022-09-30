@@ -1,6 +1,6 @@
 import copy
 from abc import abstractmethod
-from typing import List, Union, Optional
+from typing import List, Optional
 from overrides import EnforceOverrides
 
 from archai.nas.arch_meta import ArchWithMetaData
@@ -11,7 +11,8 @@ class BaseMetric(EnforceOverrides):
     higher_is_better: bool = False
 
     @abstractmethod
-    def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider) -> float:
+    def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+                budget: Optional[float] = None) -> float:
         pass
 
     def __neg__(self) -> 'BaseMetric':
@@ -24,7 +25,8 @@ class BaseAsyncMetric(EnforceOverrides):
     higher_is_better: bool = False
 
     @abstractmethod
-    def send(self, arch: ArchWithMetaData, dataset: DatasetProvider) -> None:
+    def send(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+             budget: Optional[float] = None) -> None:
         pass
 
     @abstractmethod
