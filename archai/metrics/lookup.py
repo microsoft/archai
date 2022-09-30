@@ -43,9 +43,11 @@ class NatsBenchMetric(BaseMetric):
         self.cost_info_kwargs = cost_info_kwargs or dict()
 
     @overrides
-    def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider) -> Optional[float]:
+    def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+                budget: Optional[float] = None) -> Optional[float]:
         archid = arch.metadata['archid']
         natsbench_id = self.archid_pattern.match(archid)
+        budget = int(budget) if budget else budget
 
         if not natsbench_id:
             if self.raise_not_found:
@@ -59,7 +61,7 @@ class NatsBenchMetric(BaseMetric):
         
         info = self.api.get_more_info(
             int(natsbench_id.group(1)), dataset=self.dataset_name,
-            iepoch=self.epochs, **self.more_info_kwargs
+            iepoch=budget or self.epochs, **self.more_info_kwargs
         )
 
         info.update(self.api.get_cost_info(
