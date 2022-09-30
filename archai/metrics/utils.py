@@ -12,16 +12,18 @@ from archai.metrics.base import BaseMetric, BaseAsyncMetric
 
 def evaluate_models(models: List[ArchWithMetaData],
                     objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]],  
-                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]]) -> Dict[str, np.ndarray]:
+                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
+                    budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None) -> Dict[str, np.ndarray]:
     """Evaluates all objective functions on a list of models and dataset(s).
     
     Metrics are evaluated in the following order:
         (1) Asynchronous metrics are dispatched by calling `.send`
         (2) Synchronous metrics are computed using `.compute`
-        (3) Asynchornous metrics results are gathered by calling `.fetch_all`
+        (3) Asynchronous metrics results are gathered by calling `.fetch_all`
 
     Args:
         models (List[ArchWithMetadata]): List of architectures from a search space.
+        
         objectives (Mapping[str, Union[BaseMetric, BaseAsyncMetric]]): Dictionary mapping
             an objective identifier to a metric (either `BaseMetric` or `BaseAsyncMetric`), e.g:
                 ```
@@ -31,8 +33,35 @@ def evaluate_models(models: List[ArchWithMetaData],
                         ...
                    } 
                 ```.
+        
         dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): A single dataset provider
              or list of dataset providers with the same length of `models`.
+        
+        budgets (Union[Dict[str, float], Dict[str, List[float]], None]): Dictionary containing budget values
+            for each objective or objective-model combination:
+            1. Constant budget for each objective function (Dict[str, float]), e.g:
+                ```
+                    {
+                        'Latency (ms)': 1.0,
+                        'Validation Accuracy': 2.5
+                    }
+                ```
+            2. Budget value for each objective-model combination (Dict[str, List[float]]), e.g:
+                ```
+                    {
+                        'Latency (ms)': [
+                            1.0, # Budget for model 1
+                            2.0, # Budget for model 2
+                            ...
+                        ],
+                        'Validation Accuracy': [
+                            ...
+                        ]
+
+                    }
+                ```
+            3. Default budget for all objectives (`budgets=None`)
+            Defaults to None.
     
     Returns:
         Dict[str, np.array]: Evaluation results (`np.array` of size `len(models)`) for each metric passed
@@ -48,26 +77,45 @@ def evaluate_models(models: List[ArchWithMetaData],
     else:
         dataset_providers = [dataset_providers] * len(models)
 
+    if budgets:
+        for obj_name, budget in budgets.items():
+            if not isinstance(budget, list):
+                budgets[obj_name] = [budget] * len(models)
+
     objective_results = dict()
-    inputs = list(zip(models, dataset_providers))
+    inputs = list(enumerate(zip(models, dataset_providers)))
 
     sync_objectives = [t for t in objectives.items() if isinstance(t[1], BaseMetric)]
     async_objectives = [t for t in objectives.items() if isinstance(t[1], BaseAsyncMetric)]
 
     # Dispatches jobs for all async objectives first
-    for _, obj in async_objectives:        
-        for arch, dataset in tqdm(inputs, desc=f'Dispatching jobs for {str(obj.__class__)}...'):
-            obj.send(arch, dataset)
+    for obj_name, obj in async_objectives:
+        pbar = tqdm(inputs, desc=f'Dispatching jobs for {str(obj.__class__)}...')
+        
+        for arch_idx, (arch, dataset) in pbar:
+            if budgets:
+                obj.send(arch, dataset, budget=budgets[obj_name][arch_idx])
+            else:
+                obj.send(arch, dataset)
     
     # Calculates synchronous objectives in order
     for obj_name, obj in sync_objectives:
-        objective_results[obj_name] = np.array([
-            obj.compute(arch, dataset) 
-            for arch, dataset in tqdm(inputs, desc=f'Calculating {str(obj.__class__)}...')
-        ], dtype=np.float64)
+        pbar = tqdm(inputs, desc=f'Calculating {str(obj.__class__)}...')
+
+        if budgets:
+            objective_results[obj_name] = np.array([
+                obj.compute(arch, dataset, budget=budgets[obj_name][arch_idx]) 
+                for arch_idx, (arch, dataset) in pbar
+            ], dtype=np.float64)
+        else:
+            objective_results[obj_name] = np.array([
+                obj.compute(arch, dataset) 
+                for _, (arch, dataset) in pbar
+            ], dtype=np.float64)
 
     # Gets results from async objectives
-    for obj_name, obj in tqdm(async_objectives, desc=f'Gathering results for async objectives...'):
+    pbar = tqdm(async_objectives, desc=f'Gathering results for async objectives...')
+    for obj_name, obj in pbar:
         objective_results[obj_name] = np.array(obj.fetch_all(), dtype=np.float64)
 
     return objective_results
