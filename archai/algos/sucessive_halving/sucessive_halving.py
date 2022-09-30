@@ -126,3 +126,6 @@ class SucessiveHalvingAlgo(Searcher):
             # Update parameters for next iteration
             self.iter_num += 1
             current_budget = current_budget * self.budget_multiplier
+        
+        return self.search_state
+
