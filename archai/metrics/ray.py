@@ -9,8 +9,8 @@ from archai.metrics.base import BaseMetric, BaseAsyncMetric
 
 
 def wrap_metric_calculate(class_method):
-    def calculate(arch: ArchWithMetaData, dataset: DatasetProvider):
-        return class_method(arch, dataset)
+    def calculate(arch: ArchWithMetaData, dataset: DatasetProvider, budget: Optional[float] = None):
+        return class_method(arch, dataset, budget)
     return calculate
 
 
@@ -39,8 +39,9 @@ class RayParallelMetric(BaseAsyncMetric):
         self.object_refs = []
 
     @overrides
-    def send(self, arch: ArchWithMetaData, dataset: DatasetProvider) -> None:
-        self.object_refs.append(self.compute_fn.remote(arch, dataset))
+    def send(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+             budget: Optional[float] = None) -> None:
+        self.object_refs.append(self.compute_fn.remote(arch, dataset, budget))
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:

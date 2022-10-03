@@ -32,7 +32,8 @@ class AvgOnnxLatencyMetric(BaseMetric):
         self.inf_session_kwargs = inf_session_kwargs or dict()
 
     @overrides
-    def compute(self, model: ArchWithMetaData, dataset_provider: DatasetProvider) -> float:
+    def compute(self, model: ArchWithMetaData, dataset_provider: DatasetProvider,
+                budget: Optional[float] = None) -> float:
         model.arch.to('cpu')
 
         # Exports model to ONNX
