@@ -117,7 +117,8 @@ class RemoteAzureBenchmarkMetric(BaseAsyncMetric):
         return self.table_client.upsert_entity(entity, mode=UpdateMode.REPLACE)
 
     @overrides
-    def send(self, model: ArchWithMetaData, dataset_provider: DatasetProvider) -> None:
+    def send(self, model: ArchWithMetaData, dataset_provider: DatasetProvider,
+             budget: Optional[float] = None) -> None:
         archid = str(model.metadata['archid'])
 
         # Checks if architecture was already benchmarked
