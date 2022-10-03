@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 from overrides import overrides
 
 from archai.metrics.base import BaseMetric
@@ -19,5 +19,6 @@ class FunctionalMetric(BaseMetric):
         self.higher_is_better = higher_is_better
 
     @overrides
-    def compute(self, model: ArchWithMetaData, dataset_provider: DatasetProvider) -> float:
-        return self.evaluation_fn(model, dataset_provider)
+    def compute(self, model: ArchWithMetaData, dataset_provider: DatasetProvider,
+                budget: Optional[float] = None) -> float:
+        return self.evaluation_fn(model, dataset_provider, budget)

@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Tuple
+from typing import Tuple, Optional
 
 from overrides import overrides
 import tensorwatch as tw
@@ -23,7 +23,8 @@ class TensorwatchMetric(BaseMetric):
         self.higher_is_better = False
 
     @overrides
-    def compute(self, model: ArchWithMetaData, dataset_provider: DatasetProvider) -> float:
+    def compute(self, model: ArchWithMetaData, dataset_provider: DatasetProvider, 
+                budget: Optional[float] = None) -> float:
         model_stats = tw.ModelStats(model.arch, self.input_shape, clone_model=True)
         return model_stats.__dict__[self.metric_name]
 
