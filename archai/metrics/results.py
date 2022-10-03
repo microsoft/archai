@@ -1,6 +1,7 @@
 from typing import Union, List, Optional, Dict, Tuple, Any
 from pathlib import Path
 import re
+import copy
 
 import numpy as np
 import pandas as pd
@@ -40,7 +41,8 @@ class SearchResults():
         
         if extra_model_data:
             assert all(len(v) == len(models) for v in extra_model_data.values())
-
+        
+        evaluation_results = copy.deepcopy(evaluation_results)
         evaluation_results.update(extra_model_data)
 
         self.results.append({
