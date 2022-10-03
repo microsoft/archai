@@ -97,6 +97,8 @@ class SucessiveHalvingAlgo(Searcher):
                 str(self.output_dir / f'search_state_{self.iter_num}.csv')
             )
 
+            self.search_state.save_all_2d_pareto_evolution_plots(self.output_dir)
+
             # Keeps only the best `1/self.budget_multiplier` NDS frontiers
             logger.info(f'Choosing models for the next iteration..')
             nds_frontiers = get_non_dominated_sorting(selected_models, results, self.objectives)
