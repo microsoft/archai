@@ -168,6 +168,10 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
         model.arch.to_file(path)
 
     @overrides
+    def save_model_weights(self, model: ArchWithMetaData, path: str) -> None:
+        torch.save(model.arch.state_dict(), path)
+
+    @overrides
     def load_arch(self, path: str) -> ArchWithMetaData:
         model = SegmentationDagModel.from_file(
             path, img_size=self.img_size, nb_classes=self.nb_classes
@@ -177,6 +181,10 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
             'archid': model.to_hash(),
             'parent': None
         })
+    
+    @overrides
+    def load_model_weights(self, model: ArchWithMetaData, path: str) -> None:
+        model.arch.load_state_dict(torch.load(path))
 
     @overrides
     def get(self, random_seed: List[int]) -> ArchWithMetaData:

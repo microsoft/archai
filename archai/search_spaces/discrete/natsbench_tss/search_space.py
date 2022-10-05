@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import List
 from overrides import overrides
 
+import numpy as np
+import torch
 import nats_bench
 
 from archai.nas.arch_meta import ArchWithMetaData
@@ -77,6 +79,14 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase):
             )
 
         return self.get([int(natsbenchid.group(1))])
+
+    @overrides
+    def load_model_weights(self, model: ArchWithMetaData, path: str) -> None:
+        model.arch.load_state_dict(torch.load(path))
+
+    @overrides
+    def save_model_weights(self, model: ArchWithMetaData, path: str) -> None:
+        torch.save(model.arch.state_dict(), path)
 
     @overrides
     def get(self, idx_vector: List[int]) -> ArchWithMetaData:
