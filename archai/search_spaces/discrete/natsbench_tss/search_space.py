@@ -11,13 +11,13 @@ import torch
 import nats_bench
 
 from archai.nas.arch_meta import ArchWithMetaData
-from archai.search_spaces.discrete.base import EvolutionarySearchSpaceBase
+from archai.search_spaces.discrete.base import EvolutionarySearchSpaceBase, BayesOptSearchSpaceBase
 from archai.algos.natsbench.natsbench_utils import model_from_natsbench_tss
 
 
-class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase):
+class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase, BayesOptSearchSpaceBase):
     # Natsbench TSS valid operations
-    OPS = ['avg_pool_3x3', 'nor_conv_1x1', 'nor_conv_3x3', 'none', 'skip_connect']
+    OPS = ['none', 'avg_pool_3x3', 'nor_conv_1x1', 'nor_conv_3x3', 'skip_connect']
 
     def __init__(self, natsbench_location: str, base_dataset: str) -> None:
         self.natsbench_location = Path(natsbench_location)
@@ -133,3 +133,29 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase):
     @overrides
     def crossover(self, arch_list: List[ArchWithMetaData]) -> ArchWithMetaData:
         raise NotImplementedError
+
+    @overrides
+    def encode(self, arch: ArchWithMetaData) -> np.ndarray:
+        ''' Stacks one-hot encoding representations of each op '''
+        enc_dict = {
+            'none': [0, 0, 0, 0],
+            'avg_pool_3x3': [1, 0, 0, 0],
+            'nor_conv_1x1': [0, 1, 0, 0],
+            'nor_conv_3x3': [0, 0, 1, 0],
+            'skip_connect': [0, 0, 0, 1]
+        }
+        
+        # Gets string repr for `arch`
+        natsbenchid = self.archid_pattern.match(arch.metadata['archid'])
+        if not natsbenchid:
+            raise ValueError(
+                f'Architecture {arch.metadata["archid"]} does not belong'
+                ' to `NatsbenchTssSearchSpace`. '
+            )
+
+        arch_str = self.api[int(natsbenchid.group(1))]
+        arch_ops = re.findall(r'([^\|\~\+]+)~\d', arch_str)
+
+        return np.hstack([
+            np.array(enc_dict[op_name]) for op_name in arch_ops
+        ])
