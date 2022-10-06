@@ -88,7 +88,7 @@ def evaluate_models(models: List[ArchWithMetaData],
 
     # Dispatches jobs for all async objectives first
     for obj_name, obj in async_objectives:
-        pbar = tqdm(inputs, desc=f'Dispatching jobs for {str(obj.__class__)}...')
+        pbar = tqdm(inputs, desc=f'Dispatching jobs for "{obj_name}"...')
         
         for arch_idx, (arch, dataset) in pbar:
             if budgets:
@@ -98,7 +98,7 @@ def evaluate_models(models: List[ArchWithMetaData],
     
     # Calculates synchronous objectives in order
     for obj_name, obj in sync_objectives:
-        pbar = tqdm(inputs, desc=f'Calculating {str(obj.__class__)}...')
+        pbar = tqdm(inputs, desc=f'Calculating "{obj_name}"...')
 
         if budgets:
             objective_results[obj_name] = np.array([
@@ -112,7 +112,7 @@ def evaluate_models(models: List[ArchWithMetaData],
             ], dtype=np.float64)
 
     # Gets results from async objectives
-    pbar = tqdm(async_objectives, desc=f'Gathering results for async objectives...')
+    pbar = tqdm(async_objectives, desc=f'Gathering results from async objectives...')
     for obj_name, obj in pbar:
         objective_results[obj_name] = np.array(obj.fetch_all(), dtype=np.float64)
 
