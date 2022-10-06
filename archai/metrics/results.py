@@ -22,6 +22,16 @@ class SearchResults():
         self.iteration_num = 0
         self.results = []
 
+    @property
+    def all_evaluation_results(self):
+        return {
+            obj_name: np.array([
+                r 
+                for iter_results in self.results
+                for r in iter_results[obj_name]
+            ], dtype=np.float32) for obj_name in self.objectives
+        }
+
     def add_iteration_results(self, models: List[ArchWithMetaData],
                               evaluation_results: Dict[str, np.ndarray],
                               extra_model_data: Optional[Dict[str, List]] = None):
@@ -37,7 +47,7 @@ class SearchResults():
         assert len(self.objectives) == len(evaluation_results)
         assert all(len(r) == len(models) for r in evaluation_results.values())
 
-        extra_model_data = extra_model_data or dict()
+        extra_model_data = copy.deepcopy(extra_model_data) or dict()
         
         if extra_model_data:
             assert all(len(v) == len(models) for v in extra_model_data.values())
@@ -111,7 +121,7 @@ class SearchResults():
 
         return state_df
 
-    def save_search_state(self, file: str) -> None:
+    def save_search_state(self, file: Union[str, Path]) -> None:
         state_df = self.get_search_state_df()
         state_df.to_csv(file, index=False)
 
@@ -167,7 +177,7 @@ class SearchResults():
 
         return fig
 
-    def save_all_2d_pareto_evolution_plots(self, directory: str) -> List[Any]:
+    def save_all_2d_pareto_evolution_plots(self, directory: Union[str, Path]) -> List[Any]:
         path = Path(directory)
         path.mkdir(exist_ok=True, parents=True)
 
