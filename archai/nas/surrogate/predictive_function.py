@@ -17,7 +17,7 @@ class PredictiveFunction(EnforceOverrides, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def predict(self, encoded_archs: np.ndarray) -> List[MeanVar]:
+    def predict(self, encoded_archs: np.ndarray) -> MeanVar:
         """Predicts the performance of an array of architec encoded by 
         by a subclass implementation of `BayesOptSearchSpaceBase.encode`
 
@@ -25,7 +25,7 @@ class PredictiveFunction(EnforceOverrides, metaclass=ABCMeta):
             encoded_archs (np.ndarray): Array of encoded architectyres
 
         Returns:
-            List[MeanVar]: List of tuples with mean and variance for each prediction
+            MeanVar: Named tuple with `mean` and `var` (possibly multidimensional) arrays.
         """        
         ''' Array of architectures encoded by a subclass of `BayesOptSearchSpaceBase`'''
         pass
