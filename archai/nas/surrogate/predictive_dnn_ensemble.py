@@ -36,6 +36,8 @@ from archai.nas.surrogate.predictive_function import MeanVar, PredictiveFunction
 
         self.is_fit = False
         self.device = 'cuda'
+        self.X_meanvar = None
+        self.y_meanvar = None
 
     def to_cuda(self):
         for m in self.ensemble:
@@ -50,38 +52,43 @@ from archai.nas.surrogate.predictive_function import MeanVar, PredictiveFunction
     @overrides
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
         assert len(X.shape) == 2
+        assert len(y.shape) == 2
+
         _, num_features = X.shape
+        _, num_objectives = y.shape
+
+        self.X_meansd = np.mean(X, axis=0), np.std(X, axis=0)
+        self.y_meansd = np.mean(y, axis=0), np.std(y, axis=0)
 
         # Init ensemble models
         self.ensemble = [
-            FFEnsembleMember(num_features, self.num_layers, self.width).to(self.device)
+            FFEnsembleMember(num_objectives, num_features, self.num_layers, self.width).to(self.device)
             for _ in range(self.num_ensemble_members)
         ]
+
+        # Normalizes features and targets
+        X = (X.copy() - self.X_meansd[0]) / self.X_meansd[1]
+        y = (y.copy() - self.y_meansd[0]) / self.y_meansd[1]
 
         Xt = torch.tensor(X, dtype=torch.float32).to(self.device)
         yt = torch.tensor(y, dtype=torch.float32).to(self.device)
 
         # TODO: should we be splitting data into 
         # train and val?
-        for idx, member in tqdm(enumerate(self.ensemble), desc='Training DNN Ensemble...'):
-            logger.pushd(f'train ensemble_{idx}')
+        for member in tqdm(self.ensemble, desc='Training DNN Ensemble...'):
             criterion = torch.nn.MSELoss(reduction='sum')
             optimizer = torch.optim.Adam(member.parameters(), lr=self.lr)
             member.train()
 
             for t in range(self.num_tr_steps):
                 y_pred = member(Xt)
-                loss = criterion(y_pred.squeeze(), yt.squeeze())
-
-                if t % 10 == 9:
-                    logger.info(f'step {t}: training loss {loss.item()}')
-                    print(f'step {t}: training loss {loss.item()}')
+                loss = criterion(y_pred.squeeze(), yt.squeeze())        
 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-
-            logger.popd()
+            
+            print(f'Final training loss {loss.item()}')
 
         self.is_fit = True
 
@@ -90,13 +97,15 @@ from archai.nas.surrogate.predictive_function import MeanVar, PredictiveFunction
         assert len(X.shape) == 2
         assert self.is_fit, 'PredictiveDNNEnsemble: predict called before fit!' 
 
+        X = (X.copy() - self.X_meansd[0]) / self.X_meansd[1]
         Xt = torch.tensor(X, dtype=torch.float32).to(self.device)
-        
+
         preds = []
         with torch.no_grad():
             for member in self.ensemble:
                 member.eval()
-                preds.append(member(Xt).to('cpu').numpy())
+                pred = member(Xt).to('cpu').numpy()
+                preds.append(pred * self.y_meansd[1] + self.y_meansd[0])
         
         preds = np.array(preds)
         return MeanVar(mean=np.mean(preds, axis=0), var=np.var(preds, axis=0))
