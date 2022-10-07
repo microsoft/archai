@@ -2,6 +2,7 @@ from typing import Union, List, Optional, Dict, Tuple, Any
 from pathlib import Path
 import re
 import copy
+from time import time
 
 import numpy as np
 import pandas as pd
@@ -20,6 +21,9 @@ class SearchResults():
         self.search_space = search_space
         self.objectives = objectives
         self.iteration_num = 0
+        
+        self.init_time = time()
+        self.search_walltimes = []
         self.results = []
 
     @property
@@ -61,6 +65,8 @@ class SearchResults():
             **evaluation_results
         })
 
+        # Adds current search duration in hours
+        self.search_walltimes += [(time() - self.init_time) / 3600] * len(models)
         self.iteration_num += 1
 
     def get_pareto_frontier(self, start_iteration: int = 0, end_iteration: Optional[int] = None) -> Dict:
@@ -113,6 +119,7 @@ class SearchResults():
             pd.DataFrame(it_results).assign(iteration_num=it)
             for it, it_results in enumerate(self.results)
         ], axis=0).reset_index(drop=True)
+        state_df['Search walltime (hours)'] = self.search_walltimes
 
         pareto_frontier = self.get_pareto_frontier()
 
