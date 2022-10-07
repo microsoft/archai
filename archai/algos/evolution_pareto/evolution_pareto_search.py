@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from archai.common.common import logger
+from archai.common.utils import create_logger
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.search_spaces.discrete.base import EvolutionarySearchSpaceBase
 from archai.metrics.base import BaseMetric, BaseAsyncMetric
@@ -56,6 +56,7 @@ class EvolutionParetoSearch(Searcher):
         self.rng = random.Random(seed)
         self.evaluated_architectures = set()
         self.num_sampled_archs = 0
+        self.logger = create_logger(str(self.output_dir / 'log.log'), enable_stdout=True)
 
         assert self.init_num_models > 0 
         assert self.num_iters > 0
@@ -92,7 +93,7 @@ class EvolutionParetoSearch(Searcher):
             nb_tries = 0
 
             if len(self.filter_population([p])) == 0:
-                logger.info(
+                self.logger.info(
                     f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]}'
                     f' or memory {p.metadata["memory"]} that is too high. Skipping mutation.'
                 )
@@ -180,11 +181,11 @@ class EvolutionParetoSearch(Searcher):
         for i in range(self.num_iters):
             self.iter_num = i + 1
 
-            logger.info(f'starting evolution pareto iter {i}')
+            self.logger.info(f'starting evolution pareto iter {i}')
             self.on_search_iteration_start(unseen_pop)
 
             # Calculates objectives
-            logger.info(
+            self.logger.info(
                 f'iter {i}: calculating search objectives {str(self.objectives)} for'
                 f' {len(unseen_pop)} models'
             )
@@ -204,9 +205,9 @@ class EvolutionParetoSearch(Searcher):
             self.evaluated_architectures.update([m.metadata['archid'] for m in unseen_pop])
 
             # update the pareto frontier
-            logger.info(f'iter {i}: updating the pareto')
+            self.logger.info(f'iter {i}: updating the pareto')
             pareto = self.search_state.get_pareto_frontier()['models']
-            logger.info(f'iter {i}: found {len(pareto)} members')
+            self.logger.info(f'iter {i}: found {len(pareto)} members')
 
             # Saves search iteration results
             self.search_state.save_search_state(
@@ -224,23 +225,23 @@ class EvolutionParetoSearch(Searcher):
             # giving more weight to newer parents
             # TODO
             parents = pareto # for now
-            logger.info(f'iter {i}: chose {len(parents)} parents')
+            self.logger.info(f'iter {i}: chose {len(parents)} parents')
 
             # Filters parents
             parents = self.filter_population(parents)
-            logger.info(f'iter {i}: number of parents after objective fn. filter = {len(parents)}')
+            self.logger.info(f'iter {i}: number of parents after objective fn. filter = {len(parents)}')
 
             # mutate random 'k' subsets of the parents
             # while ensuring the mutations fall within 
             # desired constraint limits
             mutated = self.mutate_parents(parents, self.mutations_per_parent)
-            logger.info(f'iter {i}: mutation yielded {len(mutated)} new models')
+            self.logger.info(f'iter {i}: mutation yielded {len(mutated)} new models')
 
             # crossover random 'k' subsets of the parents
             # while ensuring the mutations fall within 
             # desired constraint limits
             crossovered = self.crossover_parents(parents, self.num_crossovers)
-            logger.info(f'iter {i}: crossover yielded {len(crossovered)} new models')
+            self.logger.info(f'iter {i}: crossover yielded {len(crossovered)} new models')
 
             # sample some random samples to add to the parent mix 
             # to mitigage local minima
@@ -248,9 +249,9 @@ class EvolutionParetoSearch(Searcher):
             unseen_pop = crossovered + mutated + rand_mix
 
             # shuffle before we pick a smaller population for the next stage
-            logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
+            self.logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
             unseen_pop = self.select_next_population(unseen_pop)
-            logger.info(f'iter {i}: total unseen population after restriction {len(unseen_pop)}')
+            self.logger.info(f'iter {i}: total unseen population after restriction {len(unseen_pop)}')
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)
