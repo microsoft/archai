@@ -19,7 +19,7 @@ class RayParallelMetric(BaseAsyncMetric):
                  **ray_kwargs):
         """Wraps a synchronous `BaseMetric` as an asynchronous metric to be computed in parallel using Ray.
         `RayParallelMetric` expects a stateless metric, meaning that any `metric.compute` call cannot alter 
-        the state of `metric` in any way.
+        the state of `metric` or `arch` in any way. 
 
         Args:
             metric (BaseMetric): A metric object
