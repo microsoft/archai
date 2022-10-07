@@ -17,17 +17,12 @@ from archai.datasets.dataset_provider import DatasetProvider
 from archai.common.config import Config
 
 
-DEFAULT_SURROGATES = {
-    'dnn_ensemble': PredictiveDNNEnsemble()
-}
-
-
 class MoBananasSearch(Searcher):
     def __init__(self, output_dir: str,
                  search_space: BayesOptSearchSpaceBase, 
                  objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]], 
                  dataset_provider: DatasetProvider,
-                 surrogate_model: Union[PredictiveFunction, str] = 'dnn_ensemble',
+                 surrogate_model: Optional[PredictiveFunction] = None,
                  cheap_objectives: Optional[List[str]] = None,
                  num_iters: int = 10, init_num_models: int = 10,
                  num_parents: int = 10, mutations_per_parent: int = 5,
@@ -37,9 +32,8 @@ class MoBananasSearch(Searcher):
         assert isinstance(search_space, EvolutionarySearchSpaceBase)
         assert isinstance(surrogate_model, (PredictiveFunction, str))
         
-        if isinstance(surrogate_model, str):
-            assert surrogate_model in DEFAULT_SURROGATES
-            surrogate_model = DEFAULT_SURROGATES[surrogate_model]
+        if not surrogate_model:
+            surrogate_model = PredictiveDNNEnsemble()
 
         self.output_dir = Path(output_dir)
         self.search_space = search_space
