@@ -3,13 +3,13 @@ from typing import List, Optional, Union
 import ray
 from overrides import overrides
 
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.datasets.dataset_provider import DatasetProvider
 from archai.metrics.base import BaseMetric, BaseAsyncMetric
 
 
 def wrap_metric_calculate(class_method):
-    def calculate(arch: ArchWithMetaData, dataset: DatasetProvider, budget: Optional[float] = None):
+    def calculate(arch: NasModel, dataset: DatasetProvider, budget: Optional[float] = None):
         return class_method(arch, dataset, budget)
     return calculate
 
@@ -39,9 +39,9 @@ class RayParallelMetric(BaseAsyncMetric):
         self.object_refs = []
 
     @overrides
-    def send(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+    def send(self, nas_model: NasModel, dataset: DatasetProvider,
              budget: Optional[float] = None) -> None:
-        self.object_refs.append(self.compute_fn.remote(arch, dataset, budget))
+        self.object_refs.append(self.compute_fn.remote(nas_model, dataset, budget))
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:

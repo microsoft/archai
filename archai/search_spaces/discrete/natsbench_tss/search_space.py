@@ -10,7 +10,7 @@ import numpy as np
 import torch
 import nats_bench
 
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.search_spaces.discrete.base import EvolutionarySearchSpaceBase, BayesOptSearchSpaceBase
 from archai.algos.natsbench.natsbench_utils import model_from_natsbench_tss
 
@@ -41,7 +41,7 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase, BayesOptSearchSpaceBa
         ''' Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py '''
         # Given a string, get the list of operations
         tokens = string.split('|')
-        ops = [t.split('~')[0] for i,t in enumerate(tokens) if i not in [0,2,5,9]]
+        ops = [t.split('~')[0] for i, t in enumerate(tokens) if i not in [0, 2, 5, 9]]
         
         return ops
 
@@ -59,17 +59,17 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase, BayesOptSearchSpaceBa
         return ''.join(strings)
 
     @overrides
-    def save_arch(self, model: ArchWithMetaData, path: str) -> None:
+    def save_arch(self, model: NasModel, path: str) -> None:
         yaml.safe_dump(model.metadata, open(path, 'w', encoding='utf-8'))
 
     @overrides
-    def load_arch(self, path: str) -> ArchWithMetaData:
+    def load_arch(self, path: str) -> NasModel:
         metadata = yaml.safe_load(open(path, encoding='utf-8'))
-        natsbenchid = self.archid_pattern.match(metadata['archid'])
+        natsbenchid = self.archid_pattern.match(metadata.archid)
 
         if not natsbenchid:
             raise ValueError(
-                f'Architecture {metadata["archid"]} does not belong to the `NatsbenchTssSearchSpace`. '
+                f'Architecture {metadata.archid} does not belong to the `NatsbenchTssSearchSpace`. '
             )
 
         if metadata['dataset'] != self.base_dataset:
@@ -81,32 +81,32 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase, BayesOptSearchSpaceBa
         return self.get([int(natsbenchid.group(1))])
 
     @overrides
-    def load_model_weights(self, model: ArchWithMetaData, path: str) -> None:
+    def load_model_weights(self, model: NasModel, path: str) -> None:
         model.arch.load_state_dict(torch.load(path))
 
     @overrides
-    def save_model_weights(self, model: ArchWithMetaData, path: str) -> None:
+    def save_model_weights(self, model: NasModel, path: str) -> None:
         torch.save(model.arch.state_dict(), path)
 
     @overrides
-    def get(self, idx_vector: List[int]) -> ArchWithMetaData:
+    def get(self, idx_vector: List[int]) -> NasModel:
         idx = idx_vector[0] % len(self.api)
         
-        return ArchWithMetaData(
-            model=model_from_natsbench_tss(idx, self.base_dataset, self.api),
-            extradata={'archid': f'natsbench-tss-{idx}', 'dataset': self.base_dataset}
+        return NasModel(
+            arch=model_from_natsbench_tss(idx, self.base_dataset, self.api),
+            archid=f'natsbench-tss-{idx}',
+            metadata={'dataset': self.base_dataset}
         )
 
     @overrides
-    def mutate(self, arch: ArchWithMetaData) -> ArchWithMetaData:
+    def mutate(self, model: NasModel) -> NasModel:
         ''' Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py '''
         # First get the string representation of the current architecture
-        archid = arch.metadata['archid']
-        natsbenchid = self.archid_pattern.match(archid)
+        natsbenchid = self.archid_pattern.match(model.archid)
 
         if not natsbenchid:
             raise ValueError(
-                f'Architecture {archid} does not belong to the `NatsbenchTssSearchSpace`. '
+                f'Architecture {model.archid} does not belong to the `NatsbenchTssSearchSpace`. '
             )
 
         natsbenchid = int(natsbenchid.group(1))
@@ -131,11 +131,11 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase, BayesOptSearchSpaceBa
         return self.get([mutation_natsbenchid])
 
     @overrides
-    def crossover(self, arch_list: List[ArchWithMetaData]) -> ArchWithMetaData:
+    def crossover(self, arch_list: List[NasModel]) -> NasModel:
         raise NotImplementedError
 
     @overrides
-    def encode(self, arch: ArchWithMetaData) -> np.ndarray:
+    def encode(self, arch: NasModel) -> np.ndarray:
         ''' Stacks one-hot encoding representations of each op '''
         enc_dict = {
             'none': [0, 0, 0, 0],
@@ -146,10 +146,10 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpaceBase, BayesOptSearchSpaceBa
         }
         
         # Gets string repr for `arch`
-        natsbenchid = self.archid_pattern.match(arch.metadata['archid'])
+        natsbenchid = self.archid_pattern.match(arch.archid)
         if not natsbenchid:
             raise ValueError(
-                f'Architecture {arch.metadata["archid"]} does not belong'
+                f'Architecture {arch.archid} does not belong'
                 ' to `NatsbenchTssSearchSpace`. '
             )
 
