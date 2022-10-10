@@ -12,7 +12,7 @@ from archai.metrics.base import BaseMetric, BaseAsyncMetric
 
 def ray_wrap_training_fn(training_fn):
     def stateful_training_fn(arch, dataset, budget, training_state: Optional[Dict] = None):
-        metric_result, training_state = training_fn(arch, dataset, budget, training_state: Optional[Dict] = None)
+        metric_result, training_state = training_fn(arch, dataset, budget, training_state)
         return arch, metric_result, training_state
     
     return stateful_training_fn
@@ -48,7 +48,12 @@ class RayProgressiveTrainingMetric(BaseAsyncMetric):
                  **ray_kwargs):
 
         self.search_space = search_space
-        self.compute_fn = ray.remote(**ray_kwargs)(ray_wrap_training_fn(training_fn))
+        
+        if ray_kwargs:
+            self.compute_fn = ray.remote(**ray_kwargs)(ray_wrap_training_fn(training_fn))
+        else:
+            self.compute_fn = ray.remote(ray_wrap_training_fn(training_fn))
+        
         self.higher_is_better = higher_is_better
         self.timeout = timeout
         self.force_stop = force_stop
