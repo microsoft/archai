@@ -67,8 +67,8 @@ from archai.nas.surrogate.predictive_function import MeanVar, PredictiveFunction
         ]
 
         # Normalizes features and targets
-        X = (X.copy() - self.X_meansd[0]) / self.X_meansd[1]
-        y = (y.copy() - self.y_meansd[0]) / self.y_meansd[1]
+        X = (X.copy() - self.X_meansd[0]) / (self.X_meansd[1] + 1e-7)
+        y = (y.copy() - self.y_meansd[0]) / (self.y_meansd[1] + 1e-7)
 
         Xt = torch.tensor(X, dtype=torch.float32).to(self.device)
         yt = torch.tensor(y, dtype=torch.float32).to(self.device)
@@ -97,7 +97,7 @@ from archai.nas.surrogate.predictive_function import MeanVar, PredictiveFunction
         assert len(X.shape) == 2
         assert self.is_fit, 'PredictiveDNNEnsemble: predict called before fit!' 
 
-        X = (X.copy() - self.X_meansd[0]) / self.X_meansd[1]
+        X = (X.copy() - self.X_meansd[0]) / (self.X_meansd[1] + 1e-7)
         Xt = torch.tensor(X, dtype=torch.float32).to(self.device)
 
         preds = []
@@ -105,7 +105,7 @@ from archai.nas.surrogate.predictive_function import MeanVar, PredictiveFunction
             for member in self.ensemble:
                 member.eval()
                 pred = member(Xt).to('cpu').numpy()
-                preds.append(pred * self.y_meansd[1] + self.y_meansd[0])
+                preds.append(pred * (self.y_meansd[1] + 1e-7) + self.y_meansd[0])
         
         preds = np.array(preds)
         return MeanVar(mean=np.mean(preds, axis=0), var=np.var(preds, axis=0))
