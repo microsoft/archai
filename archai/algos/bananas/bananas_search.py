@@ -30,7 +30,9 @@ class MoBananasSearch(Searcher):
 
         assert isinstance(search_space, BayesOptSearchSpaceBase)
         assert isinstance(search_space, EvolutionarySearchSpaceBase)
-        assert isinstance(surrogate_model, (PredictiveFunction, str))
+        
+        if surrogate_model:
+            assert isinstance(surrogate_model, (PredictiveFunction, str))
         
         if not surrogate_model:
             surrogate_model = PredictiveDNNEnsemble()
