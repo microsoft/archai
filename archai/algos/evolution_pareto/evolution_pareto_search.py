@@ -7,9 +7,11 @@ from typing import Tuple, List
 import torch.nn as nn
 
 from archai.common.utils import create_logger
-from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.discrete_search_space import DiscreteSearchSpace
-from archai.nas.searcher import Searcher, SearchResult
+from archai.nas.nas_model import NasModel
+from archai.search_spaces.discrete.base import EvolutionarySearchSpaceBase
+from archai.metrics.base import BaseMetric, BaseAsyncMetric
+from archai.metrics import evaluate_models, SearchResults
+from archai.nas.searcher import Searcher
 from archai.common.config import Config
 
 
@@ -59,7 +61,7 @@ class EvolutionParetoSearch(Searcher):
         assert self.num_random_mix > 0
         assert self.max_unseen_population > 0
 
-    def filter_population(self, population: List[ArchWithMetaData]):
+    def filter_population(self, population: List[NasModel]):
         ''' Filter the population based on the objectives constraints '''
         if not self.obj_valid_ranges:
             return population
@@ -72,9 +74,9 @@ class EvolutionParetoSearch(Searcher):
             )
         ]
 
-    def mutate_parents(self, parents:List[ArchWithMetaData],
+    def mutate_parents(self, parents:List[NasModel],
                        mutations_per_parent: int = 1,
-                       patience: int = 20) -> List[ArchWithMetaData]:
+                       patience: int = 20) -> List[NasModel]:
         mutations = {}
         oversample_factor = 1
 
@@ -90,7 +92,7 @@ class EvolutionParetoSearch(Searcher):
 
             if len(self.filter_population([p])) == 0:
                 self.logger.info(
-                    f'Model {p.metadata["archid"]} has latency {p.metadata["latency"]}'
+                    f'Model {p.archid} has latency {p.metadata["latency"]}'
                     f' or memory {p.metadata["memory"]} that is too high. Skipping mutation.'
                 )
 
@@ -98,14 +100,14 @@ class EvolutionParetoSearch(Searcher):
 
             while len(candidates) < (mutations_per_parent * oversample_factor) and nb_tries < patience:
                 mutated_model = self.search_space.mutate(p)
-                mutated_model.metadata['parent'] = p.metadata['archid']
+                mutated_model.metadata['parent'] = p.archid
 
                 mutated_models = [mutated_model] if not isinstance(mutated_model, list) else mutated_model
 
                 for nbr in mutated_models:
-                    if nbr.metadata['archid'] not in self.evaluated_architectures:
+                    if nbr.archid not in self.evaluated_architectures:
                         nbr.metadata['generation'] = self.iter_num
-                        candidates[nbr.metadata['archid']] = nbr
+                        candidates[nbr.archid] = nbr
                 nb_tries += 1
             
             # TODO: Figure out a way to use crowd sorting here
@@ -128,33 +130,39 @@ class EvolutionParetoSearch(Searcher):
         # and updates the meta data
         pass
 
+    def crossover_parents(self, parents: List[NasModel], num_crossovers: int = 1) -> List[NasModel]:
+        # Randomly samples k distinct pairs from `parents`
+        children, children_hashes = [], set()
 
     @abstractmethod
     def update_pareto_frontier(self, population:List[ArchWithMetaData])->List[ArchWithMetaData]:
         pass
 
-
-                    if child_id not in children_hashes and child_id not in self.evaluated_architectures:
+                if child:
+                    if child.archid not in children_hashes and child.archid not in self.evaluated_architectures:
                         child.metadata['generation'] = self.iter_num
-                        child.metadata['parents'] = f'{p1.metadata["archid"]},{p2.metadata["archid"]}'
+                        child.metadata['parents'] = f'{p1.archid},{p2.archid}'
                         children.append(child)
-                        children_hashes.add(child_id)
+                        children_hashes.add(child.archid)
 
 
-    @abstractmethod
-    def crossover_parents(self, parents:List[ArchWithMetaData], num_crossovers: int = 1)->List[ArchWithMetaData]:
-        pass
+    def sample_random_models(self, num_models: int) -> List[NasModel]:
+        mix_pop = []
+        
+        while len(mix_pop) < num_models:
+            self.num_sampled_archs += 1
+            mix_pop.append(self.search_space.get([self.seed + self.num_sampled_archs]))
 
 
-    def on_calc_task_accuracy_end(self, current_pop: List[ArchWithMetaData]) -> None:
+    def on_calc_task_accuracy_end(self, current_pop: List[NasModel]) -> None:
         ''' Callback function called right after calc_task_accuracy()'''
         pass
 
-    def on_search_iteration_start(self, current_pop: List[ArchWithMetaData]) -> None:
+    def on_search_iteration_start(self, current_pop: List[NasModel]) -> None:
         ''' Callback function called right before each search iteration'''
         pass
 
-    def select_next_population(self, current_pop: List[ArchWithMetaData]) -> List[ArchWithMetaData]:
+    def select_next_population(self, current_pop: List[NasModel]) -> List[NasModel]:
         random.shuffle(current_pop)
         return current_pop[:self.max_unseen_population]
 
@@ -189,7 +197,7 @@ class EvolutionParetoSearch(Searcher):
             )
 
             # Records evaluated archs to avoid computing the same architecture twice
-            self.evaluated_architectures.update([m.metadata['archid'] for m in unseen_pop])
+            self.evaluated_architectures.update([m.archid for m in unseen_pop])
 
             # update the pareto frontier
             self.logger.info(f'iter {i}: updating the pareto')

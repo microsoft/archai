@@ -4,7 +4,7 @@ from typing import Tuple, Optional
 from overrides import overrides
 import tensorwatch as tw
 
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.datasets.dataset_provider import DatasetProvider
 from archai.metrics.base import BaseMetric
 
@@ -23,7 +23,7 @@ class TensorwatchMetric(BaseMetric):
         self.higher_is_better = False
 
     @overrides
-    def compute(self, model: ArchWithMetaData, dataset_provider: DatasetProvider, 
+    def compute(self, model: NasModel, dataset_provider: DatasetProvider, 
                 budget: Optional[float] = None) -> float:
         model_stats = tw.ModelStats(model.arch, self.input_shape, clone_model=True)
         return model_stats.__dict__[self.metric_name]

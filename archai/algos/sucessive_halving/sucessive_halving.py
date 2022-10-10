@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 
 from archai.common.utils import create_logger
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.search_spaces.discrete.base import DiscreteSearchSpaceBase
 from archai.metrics.base import BaseMetric, BaseAsyncMetric
 from archai.metrics import evaluate_models, get_non_dominated_sorting, SearchResults
@@ -50,7 +50,7 @@ class SucessiveHalvingAlgo(Searcher):
 
         self.output_dir.mkdir(exist_ok=True, parents=True)
 
-    def sample_init_models(self, sample_size: int) -> List[ArchWithMetaData]:
+    def sample_init_models(self, sample_size: int) -> List[NasModel]:
         architectures = [
             self.search_space.get([self.seed + i]) for i in range(sample_size)
         ]
@@ -66,7 +66,7 @@ class SucessiveHalvingAlgo(Searcher):
 
         for i in range(self.num_iters):
             if len(selected_models) <= 1:
-                self.logger.info(f'Search ended. Architecture selected: {selected_models[0].metadata["archid"]}')
+                self.logger.info(f'Search ended. Architecture selected: {selected_models[0].archid}')
                 self.search_space.save_arch(selected_models[0], self.output_dir / 'final_model')
                 
                 break
@@ -94,7 +94,7 @@ class SucessiveHalvingAlgo(Searcher):
             models_dir.mkdir(exist_ok=True)
 
             for model in selected_models:
-                self.search_space.save_arch(model, str(models_dir / f'{model.metadata["archid"]}'))
+                self.search_space.save_arch(model, str(models_dir / f'{model.archid}'))
 
             self.search_state.save_search_state(
                 str(self.output_dir / f'search_state_{self.iter_num}.csv')

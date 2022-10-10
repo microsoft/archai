@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 
 from archai.common.utils import create_logger
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.search_spaces.discrete.base import BayesOptSearchSpaceBase, EvolutionarySearchSpaceBase
 from archai.metrics.base import BaseMetric, BaseAsyncMetric
 from archai.nas.surrogate.predictive_function import PredictiveFunction, MeanVar
@@ -65,7 +65,7 @@ class MoBananasSearch(Searcher):
         self.surrogate_dataset = []
         self.search_state = SearchResults(search_space, objectives)
 
-    def sample_random_models(self, num_models: int) -> List[ArchWithMetaData]:
+    def sample_random_models(self, num_models: int) -> List[NasModel]:
         sample = []
         
         while len(sample) < num_models:
@@ -74,7 +74,7 @@ class MoBananasSearch(Searcher):
 
         return sample
 
-    def calc_cheap_objectives(self, archs: List[ArchWithMetaData]) -> Dict[str, np.ndarray]:
+    def calc_cheap_objectives(self, archs: List[NasModel]) -> Dict[str, np.ndarray]:
         cheap_objectives = {
             obj_name: obj 
             for obj_name, obj in self.objectives.items()
@@ -92,8 +92,8 @@ class MoBananasSearch(Searcher):
 
         return encoded_archs, target
     
-    def mutate_parents(self, parents: List[ArchWithMetaData],
-                       mutations_per_parent: int = 1) -> List[ArchWithMetaData]:
+    def mutate_parents(self, parents: List[NasModel],
+                       mutations_per_parent: int = 1) -> List[NasModel]:
         mutated_models = [
             self.search_space.mutate(p)
             for p in parents
@@ -103,7 +103,7 @@ class MoBananasSearch(Searcher):
         # Removes duplicates
         mutated_models = [
             m for m in mutated_models 
-            if m.metadata['archid'] not in self.evaluated_archids
+            if m.archid not in self.evaluated_archids
         ]
 
         if not mutated_models:
@@ -114,7 +114,7 @@ class MoBananasSearch(Searcher):
 
         return mutated_models
 
-    def predict_expensive_objectives(self, archs: List[ArchWithMetaData]) -> Dict[str, MeanVar]:
+    def predict_expensive_objectives(self, archs: List[NasModel]) -> Dict[str, MeanVar]:
         ''' Predicts expensive objectives for `archs` using surrogate model ''' 
         encoded_archs = np.vstack([self.search_space.encode(m) for m in archs])
         pred_results = self.surrogate_model.predict(encoded_archs)
@@ -124,7 +124,7 @@ class MoBananasSearch(Searcher):
             for i, obj_name  in enumerate(self.expensive_objectives)
         }
 
-    def thompson_sampling(self, archs: List[ArchWithMetaData], sample_size: int,
+    def thompson_sampling(self, archs: List[NasModel], sample_size: int,
                           pred_expensive_objs: Dict[str, MeanVar],
                           cheap_objs: Dict[str, np.ndarray]) -> List[int]:
         ''' Returns the selected architecture list indices from Thompson Sampling  '''                           
@@ -159,7 +159,7 @@ class MoBananasSearch(Searcher):
             iter_results = evaluate_models(unseen_pop, self.objectives, self.dataset_provider)
 
             # Updates evaluated architectures ids
-            self.evaluated_archids.update([m.metadata['archid'] for m in unseen_pop])
+            self.evaluated_archids.update([m.archid for m in unseen_pop])
             
             # Adds iteration results and predictions from the previous iteration for comparison
             extra_model_data = {

@@ -3,12 +3,12 @@ from typing import Union, List, Dict, Optional
 import numpy as np
 from tqdm import tqdm
 
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.datasets.dataset_provider import DatasetProvider
 from archai.metrics.base import BaseMetric, BaseAsyncMetric
 
 
-def evaluate_models(models: List[ArchWithMetaData],
+def evaluate_models(models: List[NasModel],
                     objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]],  
                     dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                     budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None) -> Dict[str, np.ndarray]:
@@ -20,7 +20,7 @@ def evaluate_models(models: List[ArchWithMetaData],
         (3) Asynchronous metrics results are gathered by calling `.fetch_all`
 
     Args:
-        models (List[ArchWithMetadata]): List of architectures from a search space.
+        models (List[NasModel]): List of architectures from a search space.
         
         objectives (Mapping[str, Union[BaseMetric, BaseAsyncMetric]]): Dictionary mapping
             an objective identifier to a metric (either `BaseMetric` or `BaseAsyncMetric`), e.g:
@@ -119,7 +119,7 @@ def evaluate_models(models: List[ArchWithMetaData],
     return objective_results
 
 
-def get_pareto_frontier(models: List[ArchWithMetaData], 
+def get_pareto_frontier(models: List[NasModel], 
                         evaluation_results: Dict[str, np.ndarray],
                         objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]]) -> Dict:
     assert len(objectives) == len(evaluation_results)
@@ -148,7 +148,7 @@ def get_pareto_frontier(models: List[ArchWithMetaData],
     }
 
 
-def get_non_dominated_sorting(models: List[ArchWithMetaData],
+def get_non_dominated_sorting(models: List[NasModel],
                               evaluation_results: Dict[str, np.ndarray],
                               objectives: Dict[str, Union[BaseMetric, BaseAsyncMetric]]) -> List[Dict]:
     assert len(objectives) == len(evaluation_results)

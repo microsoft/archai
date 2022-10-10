@@ -6,7 +6,7 @@ import re
 import nats_bench
 
 from archai.metrics.base import BaseMetric
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.search_spaces.discrete.natsbench_tss.search_space import NatsbenchTssSearchSpace
 from archai.datasets.dataset_provider import DatasetProvider
 
@@ -38,16 +38,15 @@ class NatsBenchMetric(BaseMetric):
         self.total_time_spent = 0
 
     @overrides
-    def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+    def compute(self, model: NasModel, dataset: DatasetProvider,
                 budget: Optional[float] = None) -> Optional[float]:
-        archid = arch.metadata['archid']
-        natsbench_id = self.archid_pattern.match(archid)
+        natsbench_id = self.archid_pattern.match(model.archid)
         budget = int(budget) if budget else budget
 
         if not natsbench_id:
             if self.raise_not_found:
                 raise ValueError(
-                    f'Architecture {archid} does not belong to the NatsBench search space. '
+                    f'Architecture {model.archid} does not belong to the NatsBench search space. '
                     'Please refer to `archai.search_spaces.discrete.NatsbenchSearchSpace` to '
                     'use the Natsbench search space.'
                 )

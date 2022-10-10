@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.datasets.dataset_provider import DatasetProvider
 from archai.metrics.base import BaseMetric, BaseAsyncMetric
 from archai.search_spaces.discrete.base import DiscreteSearchSpaceBase
@@ -36,13 +36,13 @@ class SearchResults():
             ], dtype=np.float32) for obj_name in self.objectives
         }
 
-    def add_iteration_results(self, models: List[ArchWithMetaData],
+    def add_iteration_results(self, models: List[NasModel],
                               evaluation_results: Dict[str, np.ndarray],
                               extra_model_data: Optional[Dict[str, List]] = None):
         """Stores results of the current search iteration.
 
         Args:
-            models (List[ArchWithMetaData]): Models evaluated in the search iteration
+            models (List[NasModel]): Models evaluated in the search iteration
             evaluation_results (Dict[str, np.ndarray]): Evaluation results from `archai.metrics.evaluate_models()`
             extra_model_data (Dict[str, List], optional): Additional model information to be
                 stored in the search state file. Must be a list of the same size as `models` and
@@ -60,7 +60,7 @@ class SearchResults():
         evaluation_results.update(extra_model_data)
 
         self.results.append({
-            'archid': [m.metadata['archid'] for m in models],
+            'archid': [m.archid for m in models],
             'models': [m for m in models], # To avoid creating a reference to `models` variable
             **evaluation_results
         })
@@ -141,7 +141,7 @@ class SearchResults():
 
         pareto_frontier = self.get_pareto_frontier()
         for model in pareto_frontier['models']:
-            self.search_space.save_arch(model, str(dir_path / f'{model.metadata["archid"]}'))
+            self.search_space.save_arch(model, str(dir_path / f'{model.archid}'))
  
     def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str) -> Any:
         obj_x, obj_y = objective_names

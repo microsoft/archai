@@ -3,7 +3,7 @@ from abc import abstractmethod
 from typing import List, Optional
 from overrides import EnforceOverrides
 
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.datasets.dataset_provider import DatasetProvider
 
 
@@ -11,7 +11,7 @@ class BaseMetric(EnforceOverrides):
     higher_is_better: bool = False
 
     @abstractmethod
-    def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+    def compute(self, arch: NasModel, dataset: DatasetProvider,
                 budget: Optional[float] = None) -> float:
         pass
 
@@ -25,7 +25,7 @@ class BaseAsyncMetric(EnforceOverrides):
     higher_is_better: bool = False
 
     @abstractmethod
-    def send(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+    def send(self, arch: NasModel, dataset: DatasetProvider,
              budget: Optional[float] = None) -> None:
         pass
 
