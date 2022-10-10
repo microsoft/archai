@@ -35,6 +35,7 @@ class NatsBenchMetric(BaseMetric):
         self.raise_not_found = raise_not_found
         self.more_info_kwargs = more_info_kwargs or dict()
         self.cost_info_kwargs = cost_info_kwargs or dict()
+        self.total_time_spent = 0
 
     @overrides
     def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider,
@@ -58,15 +59,20 @@ class NatsBenchMetric(BaseMetric):
             iepoch=budget or self.epochs, **self.more_info_kwargs
         )
 
-        info.update(self.api.get_cost_info(
+        cost_info = self.api.get_cost_info(
             int(natsbench_id.group(1)), dataset=self.search_space.base_dataset,
             **self.cost_info_kwargs
-        ))
+        )
 
-        if self.metric_name not in info:
+        if self.metric_name in info:
+            result = info[self.metric_name]
+            self.total_time_spent += info['train-all-time'] + info['test-all-time']
+        elif self.metric_name in cost_info:
+            result = info[self.metric_name]
+        else:
             raise KeyError(
                 f'`metric_name` {self.metric_name} not found. Available metrics = {str(list(info.keys()))}'
             )
 
-        return info[self.metric_name]
+        return result
 
