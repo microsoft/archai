@@ -11,7 +11,7 @@ import yaml
 from torch import nn
 import torch
 
-from archai.algos.evolution_pareto_image_seg.ops import OPS, Block
+from archai.search_spaces.discrete.segmentation_dag.ops import OPS, Block
 
 
 class SegmentationDagModel(torch.nn.Module):
