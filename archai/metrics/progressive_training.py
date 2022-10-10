@@ -4,7 +4,7 @@ import tempfile
 import ray
 from overrides import overrides
 
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.datasets.dataset_provider import DatasetProvider
 from archai.search_spaces.discrete.base import DiscreteSearchSpaceBase
 from archai.metrics.base import BaseMetric, BaseAsyncMetric
@@ -29,14 +29,14 @@ class ProgressiveTrainingMetric(BaseMetric):
         self.training_states = {}
 
     @overrides
-    def compute(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+    def compute(self, nas_model: NasModel, dataset: DatasetProvider,
                 budget: Optional[float] = None) -> float:
         # Tries to retrieve previous training state
-        tr_state = self.training_states.get(arch.metadata['archid'], None)
+        tr_state = self.training_states.get(nas_model.archid, None)
 
         # Computes metric and updates training state
-        metric_result, updated_tr_state = self.training_fn(arch, dataset, budget, tr_state)
-        self.training_states[arch.metadata['archid']] = updated_tr_state
+        metric_result, updated_tr_state = self.training_fn(nas_model, dataset, budget, tr_state)
+        self.training_states[nas_model.archid] = updated_tr_state
 
         return metric_result
 
@@ -64,14 +64,15 @@ class RayProgressiveTrainingMetric(BaseAsyncMetric):
         self.training_states = {}
 
     @overrides
-    def send(self, arch: ArchWithMetaData, dataset: DatasetProvider,
+    def send(self, nas_model: NasModel, dataset: DatasetProvider,
              budget: Optional[float] = None) -> None:
-        # Adds model to buffer to store original reference
-        self.models.append(arch)
+        # Stores original model reference
+        self.models.append(nas_model)
 
-        # Tries to retrieve training state for this archid and sends a new job
-        tr_state = self.training_states.get(arch.metadata['archid'], None)
-        self.results_ref.append(self.compute_fn.remote(arch, dataset, budget, tr_state))
+        current_tr_state = self.training_states.get(nas_model.archid, None)
+        self.results_ref.append(self.compute_fn.remote(
+            nas_model, dataset, budget, current_tr_state
+        ))
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
@@ -91,11 +92,9 @@ class RayProgressiveTrainingMetric(BaseAsyncMetric):
             )
             partial_results = ray.get(complete_objs)
             
-            # Update results with the partial results fetched
             for ref, result in zip(complete_objs, partial_results):
                 results[ref2idx[ref]] = result
 
-            # Cancels incomplete jobs
             for incomplete_obj in incomplete_objs:
                 ray.cancel(incomplete_obj, force=self.force_stop)
 
@@ -112,7 +111,7 @@ class RayProgressiveTrainingMetric(BaseAsyncMetric):
                     self.search_space.load_model_weights(self.models[job_id], tmp.name)
                 
                 # Syncs training state
-                self.training_states[trained_model.metadata['archid']] = training_state
+                self.training_states[trained_model.archid] = training_state
 
                 metric_results.append(job_metric)
 

@@ -5,7 +5,7 @@ import torch
 from overrides import overrides
 import onnxruntime as rt
 
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.datasets.dataset_provider import DatasetProvider
 from archai.metrics.base import BaseMetric
 from archai.common.timing import MeasureBlockTime
@@ -32,7 +32,7 @@ class AvgOnnxLatencyMetric(BaseMetric):
         self.inf_session_kwargs = inf_session_kwargs or dict()
 
     @overrides
-    def compute(self, model: ArchWithMetaData, dataset_provider: DatasetProvider,
+    def compute(self, model: NasModel, dataset_provider: DatasetProvider,
                 budget: Optional[float] = None) -> float:
         model.arch.to('cpu')
 

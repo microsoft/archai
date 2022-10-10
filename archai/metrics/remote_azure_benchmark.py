@@ -14,7 +14,7 @@ from azure.data.tables import TableServiceClient, UpdateMode
 
 from archai.metrics.base import BaseAsyncMetric
 from archai.datasets.dataset_provider import DatasetProvider
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 
 def get_utc_date():
     current_date = datetime.datetime.now()
@@ -117,9 +117,9 @@ class RemoteAzureBenchmarkMetric(BaseAsyncMetric):
         return self.table_client.upsert_entity(entity, mode=UpdateMode.REPLACE)
 
     @overrides
-    def send(self, model: ArchWithMetaData, dataset_provider: DatasetProvider,
+    def send(self, nas_model: NasModel, dataset_provider: DatasetProvider,
              budget: Optional[float] = None) -> None:
-        archid = str(model.metadata['archid'])
+        archid = str(nas_model.archid)
 
         # Checks if architecture was already benchmarked
         if archid in self:
@@ -142,11 +142,11 @@ class RemoteAzureBenchmarkMetric(BaseAsyncMetric):
             tmp_dir = Path(tmp_dir)
 
             # Uploads ONNX file to blob storage and updates the table entry
-            model.arch.to('cpu')
+            nas_model.arch.to('cpu')
 
             # Exports model to ONNX
             torch.onnx.export(
-                model.arch, self.sample_input, str(tmp_dir / 'model.onnx'),
+                nas_model.arch, self.sample_input, str(tmp_dir / 'model.onnx'),
                 input_names=[f'input_{i}' for i in range(len(self.sample_input))],
                 **self.onnx_export_kwargs
             )

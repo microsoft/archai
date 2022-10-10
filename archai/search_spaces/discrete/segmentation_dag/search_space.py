@@ -10,7 +10,7 @@ import numpy as np
 import tensorwatch as tw
 
 from archai.common.common import logger
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.nas.nas_model import NasModel
 from archai.search_spaces.discrete.base import EvolutionarySearchSpaceBase
 from archai.search_spaces.discrete.segmentation_dag.model import SegmentationDagModel, OPS
 
@@ -98,17 +98,17 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
         return is_valid
 
     def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
-                        post_upsample_layers: int = 1) -> ArchWithMetaData:
+                        post_upsample_layers: int = 1) -> NasModel:
         ''' Utility method to create a SegmentationDagModel from a DAG ''' 
         model = SegmentationDagModel(
             graph, channels_per_scale, post_upsample_layers,
             img_size=self.img_size, nb_classes=self.nb_classes
         )
         
-        return ArchWithMetaData(model, {
-            'archid': model.to_hash(),
-            'parent': None
-        })
+        return NasModel(
+            arch=model, archid=model.to_hash(),
+            metadata={'parent': None}
+        )
 
     def random_neighbor(self, param_values: List[int], current_value: int) -> int:
         ''' Utility method to sample a random neighbor from an element of a list'''
@@ -164,30 +164,27 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
         return node_list
 
     @overrides
-    def save_arch(self, model: ArchWithMetaData, path: str) -> None:
+    def save_arch(self, model: NasModel, path: str) -> None:
         model.arch.to_file(path)
 
     @overrides
-    def save_model_weights(self, model: ArchWithMetaData, path: str) -> None:
-        torch.save(model.arch.state_dict(), path)
+    def save_model_weights(self, model: NasModel, path: str) -> None:
+        torch.save(model.arch.to('cpu').state_dict(), path)
 
     @overrides
-    def load_arch(self, path: str) -> ArchWithMetaData:
+    def load_arch(self, path: str) -> NasModel:
         model = SegmentationDagModel.from_file(
             path, img_size=self.img_size, nb_classes=self.nb_classes
         )
         
-        return ArchWithMetaData(model, {
-            'archid': model.to_hash(),
-            'parent': None
-        })
+        return NasModel(model, model.to_hash(), metadata={'parent': None})
     
     @overrides
-    def load_model_weights(self, model: ArchWithMetaData, path: str) -> None:
+    def load_model_weights(self, model: NasModel, path: str) -> None:
         model.arch.load_state_dict(torch.load(path))
 
     @overrides
-    def get(self, random_seed: List[int]) -> ArchWithMetaData:
+    def get(self, random_seed: List[int]) -> NasModel:
         ''' Gets a random model from the search space using `random_seed[0]` as random seed ''' 
         rng = random.Random(random_seed[0])
         found_valid = False
@@ -264,16 +261,13 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
             )
 
             found_valid = self.is_valid_model(model)
-            arch_meta = ArchWithMetaData(model, {
-                'archid': model.to_hash(),
-                'parent': None
-            })
+            nas_model = NasModel(model, model.to_hash(), {'parent': None})
 
-        return arch_meta
+        return nas_model
 
     @overrides
-    def mutate(self, base_model: ArchWithMetaData, patience: int = 5) -> ArchWithMetaData:
-        parent_id = base_model.metadata['archid']
+    def mutate(self, base_model: NasModel, patience: int = 5) -> NasModel:
+        parent_id = base_model.archid
         nb_tries = 0
 
         while nb_tries < patience:
@@ -338,15 +332,12 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
                 logger.info(f'Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
                 continue
 
-            return ArchWithMetaData(nbr_model, {
-                'archid': nbr_model.to_hash(),
-                'parent': parent_id
-            })
+            return NasModel(nbr_model, nbr_model.to_hash(), metadata={'parent': parent_id})
 
 
     @overrides
-    def crossover(self, model_1: ArchWithMetaData, model_2: ArchWithMetaData, 
-                  patience: int = 30) -> Optional[ArchWithMetaData]:
+    def crossover(self, model_1: NasModel, model_2: NasModel, 
+                  patience: int = 30) -> Optional[NasModel]:
         # Chooses randomly left and right models
         left_m, right_m = random.sample([model_1, model_2], 2)
         left_arch, right_arch = [list(m.arch.graph.values()) for m in [left_m, right_m]]
@@ -454,5 +445,5 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpaceBase):
                     print(str(e))
                     continue
                 
-                result_model.metadata['parents'] = left_m.metadata['archid'] + ',' + right_m.metadata['archid']
+                result_model.metadata['parents'] = left_m.archid + ',' + right_m.archid
                 return result_model
