@@ -28,12 +28,12 @@ class HfOPTConfig(Config):
     attribute_map.update(CONFIG_MAPPING['opt']().attribute_map)
 
     def __init__(self,
-                 n_token: Optional[int] = 50272,
-                 tgt_len: Optional[int] = 2048,
-                 d_model: Optional[int] = 1024,
-                 d_inner: Optional[int] = 4096,
-                 n_layer: Optional[int] = 24,
-                 n_head: Optional[int] = 16,
+                 n_token: Optional[int] = 10000,
+                 tgt_len: Optional[int] = 192,
+                 d_model: Optional[int] = 512,
+                 d_inner: Optional[int] = 2048,
+                 n_layer: Optional[int] = 12,
+                 n_head: Optional[int] = 8,
                  do_layer_norm_before: Optional[bool] = True,
                  word_embed_proj_dim: Optional[int] = None,
                  dropout: Optional[float] = 0.1,
@@ -97,10 +97,10 @@ class HfOPTSearchConfig(SearchConfig):
         """
         
         # Default HfOPT search options: n_layer, d_model, d_inner and n_head
-        n_layer = SearchConfigParameter(per_layer=False, value=list(range(3, 30, 1)))
-        d_model = SearchConfigParameter(per_layer=False, value=list(range(512, 1536, 64)))
-        d_inner = SearchConfigParameter(per_layer=False, value=list(range(512, 6144, 64)))
-        n_head = SearchConfigParameter(per_layer=False, value=[2, 4, 8, 16])
+        n_layer = SearchConfigParameter(per_layer=False, value=[3, 4, 5, 6, 7, 8, 9, 10])
+        d_model = SearchConfigParameter(per_layer=False, value=list(range(128, 1024, 64)))
+        d_inner = SearchConfigParameter(per_layer=False, value=list(range(128, 4096, 64)))
+        n_head = SearchConfigParameter(per_layer=False, value=[2, 4, 8])
 
         super().__init__(n_layer=n_layer,
                          d_model=d_model,

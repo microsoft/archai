@@ -8,6 +8,8 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[
+                "--status", "complete",
+                "--not_equal"
             ]
         }
     ]

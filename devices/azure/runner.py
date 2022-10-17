@@ -505,7 +505,7 @@ def clear_random_inputs():
 def is_benchmark_only(entity, benchmark_only):
     benchmark_only_flag = benchmark_only
     if 'benchmark_only' in entity:
-        benchmark_only_flag = get_int64_value(entity, 'benchmark_only')
+        benchmark_only_flag = int(entity['benchmark_only'])
     return benchmark_only_flag
 
 
@@ -551,6 +551,7 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
         elif use_device and (total_benchmark_runs < MAX_BENCHMARK_RUNS):
             priority = 30 + total_benchmark_runs
         elif is_benchmark_only(entity, benchmark_only):
+            log(f"# skipping {name} because this node cannot run benchmarks...")
             continue
         elif not is_complete(entity, 'f1_onnx'):
             priority = 60
@@ -567,7 +568,7 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
 
         if 'priority' in entity:
             # allow user to override the priority
-            priority = get_int64_value(entity, 'priority')
+            priority = int(entity['priority'])
 
         queue.enqueue(priority, entity)
     return queue
@@ -646,17 +647,13 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
             except Exception as e:
                 errorType, value, stack = sys.exc_info()
                 if str(e) == 'lock encountered':
-                    log('model is running on another machine')
-                elif 'ConnectionResetError' in str(e):
-                    log('ConnectionResetError: Ignoring Azure flakiness...')
-                    unlock_job(entity)
+                    log("model is running on another machine")
                 else:
                     # bug in the script somewhere... don't leave the node locked.
+                    unlock_job(entity)
                     log(f'### Exception: {errorType}: {value}')
                     for line in traceback.format_tb(stack):
                         log(line.strip())
-
-                    unlock_job(entity)
                     sys.exit(1)
 
         time.sleep(10)  # give other machines a chance to grab work so we don't get stuck in retry loops.
