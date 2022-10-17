@@ -69,11 +69,7 @@ class Trainer(EnforceOverrides):
 
         assert data_loaders.train_dl is not None
 
-        self._metrics = self.init_metrics()
-
-        # NOTE: critical that pre_fit is called before creating optimizers
-        # as otherwise FreezeTrainer does not work correctly    
-        self.pre_fit(train_dl, val_dl)
+        self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
         # create optimizers and schedulers
         self._multi_optim = self.create_multi_optim(len(data_loaders.train_dl))
@@ -158,7 +154,6 @@ class Trainer(EnforceOverrides):
 
     def get_optimizer(self, index=0)->Optimizer:
         return self._multi_optim[index].optim
-
     def get_scheduler(self, index=0)->Optional[_LRScheduler]:
         return self._multi_optim[index].sched
 
@@ -182,25 +177,6 @@ class Trainer(EnforceOverrides):
     #########################  hooks #########################
     def pre_fit(self, data_loaders:data.DataLoaders)->None:
         self._metrics.pre_run()
-        
-        # compute model stats per minibatch of training data
-        data_iterator = iter(train_dl)
-        x, target = next(data_iterator)
-        x_shape = list(x.shape)
-        x_shape[0] = 1 # to prevent overflow errors with large batch size we will use a batch size of 1
-        model_stats = get_model_stats(self.model, input_tensor_shape=x_shape, clone_model=True)
-
-        # important to do to avoid overflow
-        mega_flops = float(model_stats.Flops)/1e6
-        mega_madd = float(model_stats.MAdd)/1e6
-
-        # log model stats
-        logger.info({'num_params': model_stats.parameters})
-        logger.info({'mega_flops_per_batch': mega_flops * float(train_dl.batch_size)})
-        logger.info({'mega_madd_per_batch': mega_madd * float(train_dl.batch_size)})
-        logger.info({'num_batches': len(train_dl)})
-        logger.info({'total_mega_flops_epoch': len(train_dl) * mega_flops * train_dl.batch_size})
-
 
     def post_fit(self, data_loaders:data.DataLoaders)->None:
         test_metrics = None
