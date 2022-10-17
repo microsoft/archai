@@ -8,28 +8,14 @@ import numpy as np
 from archai.discrete_search.api.predictor import Predictor, MeanVar
 
 
-    def __init__(self, num_features: int, num_layers: int = 5, width: int = 64,
-                 num_ensemble_members: int = 5, sigmoid: bool = False):
+class PredictiveDNNEnsemble(Predictor):
+    def __init__(self, num_ensemble_members: int = 5, num_layers: int = 5,
+                 width: int = 64, lr: float = 1e-4, num_tr_steps: int = 2_000):
         self.num_ensemble_members = num_ensemble_members
         self.num_layers = num_layers
         self.width = width
         self.lr = lr
         self.num_tr_steps = num_tr_steps
-
-        # TODO: should have an architecture featurizer
-        # object here and the featurizer should tell 
-        # us what is the feature size
-        # TODO: get from config
-        self.input_feat_len = num_features
-        self.num_layers = num_layers
-        self.width = width
-        self.sigmoid = sigmoid
-
-        # build the ensemble
-        self.ensemble = [FFEnsembleMember(input_feat_len=self.input_feat_len, 
-                                          num_layers=self.num_layers, 
-                                          width=self.width, sigmoid=self.sigmoid) 
-                                          for _ in range(self.num_ensemble_members)]
 
         self.is_fit = False
         self.device = 'cuda'
@@ -109,7 +95,12 @@ from archai.discrete_search.api.predictor import Predictor, MeanVar
 
 
 class FFEnsembleMember(nn.Module):
+<<<<<<< HEAD
     def __init__(self, input_feat_len:int=128, num_layers:int=10, width:int=20, sigmoid: bool = False):
+=======
+    def __init__(self, num_objectives: int = 1, input_feat_len: int = 128,
+                 num_layers: int = 10, width: int = 20):
+>>>>>>> 8b37b1d204329ecf2d671201d45445863a72129c
         super(FFEnsembleMember, self).__init__()
 
         self.input_feat_len = input_feat_len
@@ -118,6 +109,7 @@ class FFEnsembleMember(nn.Module):
 
         self.linears = nn.ModuleList([nn.Linear(self.input_feat_len, width)])
         self.linears.extend([nn.Linear(width, width) for i in range(1, self.num_layers-1)])
+<<<<<<< HEAD
         
         output_layers = [
             nn.Linear(width, 1)
@@ -127,8 +119,15 @@ class FFEnsembleMember(nn.Module):
             output_layers.append(nn.Sigmoid())
         
         self.output = nn.Sequential(*output_layers)
+=======
+        self.output = nn.Linear(width, num_objectives)
+>>>>>>> 8b37b1d204329ecf2d671201d45445863a72129c
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         for layer in self.linears:
             x = f.relu(layer(x))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8b37b1d204329ecf2d671201d45445863a72129c
         return self.output(x)
