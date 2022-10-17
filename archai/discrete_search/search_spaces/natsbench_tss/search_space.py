@@ -13,7 +13,7 @@ import nats_bench
 from archai.discrete_search import (
     NasModel, EvolutionarySearchSpace, BayesOptSearchSpace
 )
-from archai.algos.natsbench.natsbench_utils import model_from_natsbench_tss
+from archai.discrete_search.search_spaces.natsbench_tss.lib.models import get_cell_based_tiny_net
 
 
 class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
@@ -59,6 +59,10 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                 strings.append('+|')
         return ''.join(strings)
 
+    def model_from_natsbench_tss(self, natsbench_id: int):
+        config = self.api.get_net_config(natsbench_id, self.base_dataset)
+        return get_cell_based_tiny_net(config)
+    
     @overrides
     def save_arch(self, model: NasModel, path: str) -> None:
         yaml.safe_dump(model.metadata, open(path, 'w', encoding='utf-8'))
@@ -82,7 +86,7 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         idx = int(natsbenchid.group(1))
 
         return NasModel(
-            arch=model_from_natsbench_tss(idx, self.base_dataset, self.api),
+            arch=self.model_from_natsbench_tss(idx),
             archid=f'natsbench-tss-{idx}',
             metadata={'dataset': self.base_dataset}
         )
@@ -100,7 +104,7 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         idx = self.rng.randint(0, len(self.api))
         
         return NasModel(
-            arch=model_from_natsbench_tss(idx, self.base_dataset, self.api),
+            arch=self.model_from_natsbench_tss(idx),
             archid=f'natsbench-tss-{idx}',
             metadata={'dataset': self.base_dataset}
         )
@@ -136,7 +140,7 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         mutation_natsbenchid = self.api.archstr2index[mutation_str]
         
         return NasModel(
-            arch=model_from_natsbench_tss(mutation_natsbenchid, self.base_dataset, self.api),
+            arch=self.model_from_natsbench_tss(mutation_natsbenchid),
             archid=f'natsbench-tss-{mutation_natsbenchid}',
             metadata={'dataset': self.base_dataset}
         )
