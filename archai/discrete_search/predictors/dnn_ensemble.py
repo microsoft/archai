@@ -95,12 +95,8 @@ class PredictiveDNNEnsemble(Predictor):
 
 
 class FFEnsembleMember(nn.Module):
-<<<<<<< HEAD
-    def __init__(self, input_feat_len:int=128, num_layers:int=10, width:int=20, sigmoid: bool = False):
-=======
     def __init__(self, num_objectives: int = 1, input_feat_len: int = 128,
                  num_layers: int = 10, width: int = 20):
->>>>>>> 8b37b1d204329ecf2d671201d45445863a72129c
         super(FFEnsembleMember, self).__init__()
 
         self.input_feat_len = input_feat_len
@@ -109,25 +105,9 @@ class FFEnsembleMember(nn.Module):
 
         self.linears = nn.ModuleList([nn.Linear(self.input_feat_len, width)])
         self.linears.extend([nn.Linear(width, width) for i in range(1, self.num_layers-1)])
-<<<<<<< HEAD
-        
-        output_layers = [
-            nn.Linear(width, 1)
-        ]
-        
-        if sigmoid: 
-            output_layers.append(nn.Sigmoid())
-        
-        self.output = nn.Sequential(*output_layers)
-=======
         self.output = nn.Linear(width, num_objectives)
->>>>>>> 8b37b1d204329ecf2d671201d45445863a72129c
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         for layer in self.linears:
             x = f.relu(layer(x))
-<<<<<<< HEAD
-=======
-
->>>>>>> 8b37b1d204329ecf2d671201d45445863a72129c
         return self.output(x)
