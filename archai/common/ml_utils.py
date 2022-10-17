@@ -19,7 +19,7 @@ import statopt
 
 from .config import Config
 from .cocob import CocobBackprop
-from .ml_losses import SmoothCrossEntropyLoss, LpLoss
+from .ml_losses import SmoothCrossEntropyLoss
 from .warmup_scheduler import GradualWarmupScheduler
 
 
@@ -103,7 +103,7 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
     if conf_warmup is not None and 'epochs' in conf_warmup:
         warmup_epochs = conf_warmup['epochs']
 
-    if conf_lrs: 
+    if conf_lrs is not None:
         lr_scheduler_type = conf_lrs['type'] # TODO: default should be none?
 
         if lr_scheduler_type == 'cosine':
@@ -163,8 +163,6 @@ def get_lossfn(conf_lossfn:Config)->_Loss:
         return nn.CrossEntropyLoss()
     elif type == 'CrossEntropyLabelSmooth':
         return SmoothCrossEntropyLoss(smoothing=conf_lossfn['smoothing'])
-    elif type == 'L2Loss':
-        return LpLoss(d=2, p=2) # constraining dimension to be 2 and p to be 2
     else:
         raise ValueError('criterian type "{}" is not supported'.format(type))
 

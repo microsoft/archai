@@ -20,7 +20,6 @@ from archai.datasets import data
 from archai.common.checkpoint import CheckPoint
 from archai.common.apex_utils import ApexUtils
 from archai.common.multi_optim import MultiOptim, OptimSched
-from archai.nas.nas_utils import get_model_stats
 
 
 class Trainer(EnforceOverrides):
@@ -51,9 +50,10 @@ class Trainer(EnforceOverrides):
         self.model = model
 
         self._lossfn = ml_utils.get_lossfn(conf_lossfn)
-        
-        self.init_tester(conf_validation, model)
-
+        # using separate apex for Tester is not possible because we must use
+        # same distributed model as Trainer and hence they must share apex
+        self._tester = Tester(conf_validation, model, self._apex) \
+                        if conf_validation else None
         self._metrics:Optional[Metrics] = None
 
         self._droppath_module = self._get_droppath_module()
@@ -63,15 +63,6 @@ class Trainer(EnforceOverrides):
         self._start_epoch = -1 # nothing is started yet
 
         logger.popd()
-
-    def init_tester(self, conf_validation, model):
-        # using separate apex for Tester is not possible because we must use
-        # same distributed model as Trainer and hence they must share apex
-        self._tester = Tester(conf_validation, model, self._apex) \
-                        if conf_validation else None
-
-    def init_metrics(self):
-        return Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
     def fit(self, data_loaders:data.DataLoaders)->Metrics:
         logger.pushd(self._title)
@@ -119,7 +110,6 @@ class Trainer(EnforceOverrides):
 
         if self._start_epoch >= self._epochs:
             logger.warn(f'fit done because start_epoch {self._start_epoch}>={self._epochs}')
-            logger.popd()
             return self.get_metrics() # we already finished the run, we might be checkpointed
 
         logger.pushd('epochs')
@@ -130,8 +120,6 @@ class Trainer(EnforceOverrides):
             self._train_epoch(data_loaders.train_dl)
             self.post_epoch(data_loaders)
             logger.popd()
-            if self._should_terminate():
-                break
         logger.popd()
         self.post_fit(data_loaders)
 
@@ -148,7 +136,7 @@ class Trainer(EnforceOverrides):
 
         # optimizers, schedulers needs to be recreated for each fit call
         # as they have state specific to each run
-        optim = self.create_optimizer(self.conf_optim, filter(lambda p: p.requires_grad, self.model.parameters()))
+        optim = self.create_optimizer(self.conf_optim, self.model.parameters())
         # create scheduler for optim before applying amp
         sched, sched_on_epoch = self.create_scheduler(self.conf_sched, optim, train_len)
 
@@ -191,9 +179,6 @@ class Trainer(EnforceOverrides):
 
         assert self._metrics.epochs() == epoch
 
-    def _should_terminate(self):
-        return False
-
     #########################  hooks #########################
     def pre_fit(self, data_loaders:data.DataLoaders)->None:
         self._metrics.pre_run()
@@ -235,7 +220,7 @@ class Trainer(EnforceOverrides):
             if self._metrics.epochs() % self._validation_freq == 0 or \
                     self._metrics.epochs() >= self._epochs: # last epoch
 
-                # these asserts makes sure train and val are not overlapping
+                # these asserts makes sure train and val are not ovrlapiing
                 # assert train_dl.sampler.epoch == val_dl.sampler.epoch
                 # tidx = list(train_dl.sampler)
                 # vidx = list(val_dl.sampler)

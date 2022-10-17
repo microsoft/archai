@@ -1,5 +1,0 @@
-__include__: './dataroot.yaml' # default dataset settings are for cifar
-
-dataset:
-  name: 'natsbench'
-  storage_name: 'natsbench' # name of folder or tar file to copy from cloud storage
