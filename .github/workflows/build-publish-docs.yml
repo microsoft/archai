@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "docs/**"
   pull_request:
     branches:
       - master
+    paths:
+      - "docs/**"
 
 jobs:
   build-publish:
@@ -34,7 +38,7 @@ jobs:
           cd docs
           make clean
           make html
-      - name: Push to gh-pages branch
+      - name: Pushes to gh-pages branch
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: peaceiris/actions-gh-pages@v3
         with:

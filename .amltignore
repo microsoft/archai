@@ -2,10 +2,7 @@
 # Licensed under the MIT license.
 
 # Folders to be ignored when using AMLT
-
-tests/
-tools/
-archived/
+devices/
 dockers/
 docs/
 scripts/
