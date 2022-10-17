@@ -1,3 +1,0 @@
-# Deployment
-
-## Azure Machine Learning
