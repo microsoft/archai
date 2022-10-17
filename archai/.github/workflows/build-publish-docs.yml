@@ -1,0 +1,46 @@
+name: Build and Publish Documentation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "docs/**"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "docs/**"
+
+jobs:
+  build-publish:
+    name: Builds and publishes a Sphinx-based documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pulls the repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Sets up the conda environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: 3.7
+          activate-environment: archai
+      - name: Installs the requirements
+        shell: bash -l {0}
+        run: |
+          python -m pip install --user -e .
+          cd docs
+          python -m pip install --user -r requirements.txt
+      - name: Builds the documentation
+        shell: bash -l {0}
+        run: |
+          cd docs
+          make clean
+          make html
+      - name: Pushes to gh-pages branch
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html/

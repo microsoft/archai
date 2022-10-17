@@ -1,0 +1,26 @@
+__include__: "darts.yaml" # defaults are loaded from this file
+
+# XNAS's parameters
+nas:
+  search:
+    xnas:
+      to_evict: True
+    loader:
+      train_batch: 64
+    trainer:
+      grad_clip: 1.0
+      epochs: 50
+      optimizer:
+        type: "sgd"
+        lr: 0.025
+        decay: 0.0
+        momentum: 0.0
+        nesterov: False
+        warmup: null
+
+
+# NOTE: XNAS uses 1500 epochs and lots of tricks like scheduled drop-path, label smoothing
+# AutoAugment and weight decay of 3.10^-4 and sgd optimizer with nesterov-momentum of 0.9. 
+# We are deliberately choosing not to implement those features in the interest of keeping 
+# comparisons to other algorithms fair. So all other algorithms have the same final training procedure. 
+
