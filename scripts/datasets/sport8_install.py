@@ -73,7 +73,7 @@ def dataset_valid(dataroot: str) -> bool:
 
 
 def download():
-    DOWNLOAD_URL = 'http://vision.stanford.edu/lijiali/event_dataset/event_dataset.rar'
+    DOWNLOAD_URL = 'https://vision.stanford.edu/lijiali/event_dataset/event_dataset.rar'
 
     # make sport8 directory
     sport8 = utils.full_path(os.path.join(dataroot, 'sport8'))

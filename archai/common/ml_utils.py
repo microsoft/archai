@@ -2,12 +2,14 @@
 # Licensed under the MIT license.
 
 from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Sequence
+from collections import defaultdict, Counter, OrderedDict
 import  numpy as np
 import math
+import gc
 
 import  torch
 from torch import Tensor, nn
-from torch.optim import lr_scheduler, SGD, Adam, RMSprop
+from torch.optim import lr_scheduler, SGD, Adam
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.nn.modules.loss import _WeightedLoss, _Loss
@@ -17,7 +19,7 @@ import statopt
 
 from .config import Config
 from .cocob import CocobBackprop
-from .ml_losses import SmoothCrossEntropyLoss, LpLoss
+from .ml_losses import SmoothCrossEntropyLoss
 from .warmup_scheduler import GradualWarmupScheduler
 
 
@@ -51,11 +53,6 @@ def create_optimizer(conf_opt:Config, params)->Optimizer:
             lr=lr,
             betas=conf_opt['betas'],
             weight_decay=decay)
-    elif optim_type == 'rmsprop':
-        return RMSprop(params, 
-        lr=lr, 
-        weight_decay=decay, 
-        momentum=conf_opt['momentum'])
     elif optim_type == 'cocob':
         return CocobBackprop(params,
             alpha=conf_opt['alpha'])
@@ -106,7 +103,7 @@ def create_lr_scheduler(conf_lrs:Config, epochs:int, optimizer:Optimizer,
     if conf_warmup is not None and 'epochs' in conf_warmup:
         warmup_epochs = conf_warmup['epochs']
 
-    if conf_lrs: 
+    if conf_lrs is not None:
         lr_scheduler_type = conf_lrs['type'] # TODO: default should be none?
 
         if lr_scheduler_type == 'cosine':
@@ -166,16 +163,14 @@ def get_lossfn(conf_lossfn:Config)->_Loss:
         return nn.CrossEntropyLoss()
     elif type == 'CrossEntropyLabelSmooth':
         return SmoothCrossEntropyLoss(smoothing=conf_lossfn['smoothing'])
-    elif type == 'L2Loss':
-        return LpLoss(d=2, p=2) # constraining dimension to be 2 and p to be 2
     else:
         raise ValueError('criterian type "{}" is not supported'.format(type))
 
-def param_size(module:nn.Module):
+def param_size(module:nn.Module, ignore_aux=True, only_req_grad=False):
     """count all parameters excluding auxiliary"""
     return np.sum(v.numel() for name, v in module.named_parameters() \
-        if "auxiliary" not in name)
-
+        if (not ignore_aux or ("auxiliary" not in name)) \
+            and (not only_req_grad or v.requires_grad))
 
 def save_model(model, model_path):
     #logger.info('saved to model: {}'.format(model_path))
@@ -237,3 +232,33 @@ def channel_norm(dataset, channel_dim=1)->tuple:
     mean = torch.mean(l, dim=1) #size: [C]
     std = torch.std(l, dim=1) #size: [C]
     return mean, std
+
+def clear_gpu_memory():
+    gc.collect()
+    torch.cuda.empty_cache()
+    for obj in gc.get_objects():
+        if torch.is_tensor(obj):
+            obj.cpu()
+    gc.collect()
+    torch.cuda.empty_cache()
+
+def memory_allocated(device=None, max=False)->float:
+    """Returns allocated memory on device in MBs"""
+    if device:
+        device = torch.device(device)
+        if max:
+            alloc = torch.cuda.max_memory_allocated(device=device)
+        else:
+            alloc = torch.cuda.memory_allocated(device=device)
+        alloc /=  1024 ** 2
+        return alloc
+
+def print_memory_objects(device=None, max=False)->None:
+    numels = Counter()
+    for obj in gc.get_objects():
+        if torch.is_tensor(obj):
+            print(type(obj), obj.size())
+            numels[obj.device] += obj.numel()
+    print()
+    for device, numel in sorted(numels.items()):
+        print('%s: %s elements, %.3f MBs' % (str(device), numel, numel * 4 / 1024 ** 2))

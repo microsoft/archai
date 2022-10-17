@@ -20,7 +20,6 @@ from archai.datasets import data
 from archai.common.checkpoint import CheckPoint
 from archai.common.apex_utils import ApexUtils
 from archai.common.multi_optim import MultiOptim, OptimSched
-from archai.nas.nas_utils import get_model_stats
 
 
 class Trainer(EnforceOverrides):
@@ -51,9 +50,10 @@ class Trainer(EnforceOverrides):
         self.model = model
 
         self._lossfn = ml_utils.get_lossfn(conf_lossfn)
-        
-        self.init_tester(conf_validation, model)
-
+        # using separate apex for Tester is not possible because we must use
+        # same distributed model as Trainer and hence they must share apex
+        self._tester = Tester(conf_validation, model, self._apex) \
+                        if conf_validation else None
         self._metrics:Optional[Metrics] = None
 
         self._droppath_module = self._get_droppath_module()
@@ -64,25 +64,12 @@ class Trainer(EnforceOverrides):
 
         logger.popd()
 
-    def init_tester(self, conf_validation, model):
-        # using separate apex for Tester is not possible because we must use
-        # same distributed model as Trainer and hence they must share apex
-        self._tester = Tester(conf_validation, model, self._apex) \
-                        if conf_validation else None
-
-    def init_metrics(self):
-        return Metrics(self._title, self._apex, logger_freq=self._logger_freq)
-
     def fit(self, data_loaders:data.DataLoaders)->Metrics:
         logger.pushd(self._title)
 
         assert data_loaders.train_dl is not None
 
-        self._metrics = self.init_metrics()
-
-        # NOTE: critical that pre_fit is called before creating optimizers
-        # as otherwise FreezeTrainer does not work correctly
-        self.pre_fit(data_loaders)
+        self._metrics = Metrics(self._title, self._apex, logger_freq=self._logger_freq)
 
         # create optimizers and schedulers
         self._multi_optim = self.create_multi_optim(len(data_loaders.train_dl))
@@ -91,6 +78,8 @@ class Trainer(EnforceOverrides):
                                        batch_size=data_loaders.train_dl.batch_size)
 
         self._lossfn = self._lossfn.to(self.get_device())
+
+        self.pre_fit(data_loaders)
 
         # we need to restore checkpoint after all objects are created because
         # restoring checkpoint requires load_state_dict calls on these objects
@@ -117,7 +106,6 @@ class Trainer(EnforceOverrides):
 
         if self._start_epoch >= self._epochs:
             logger.warn(f'fit done because start_epoch {self._start_epoch}>={self._epochs}')
-            logger.popd()
             return self.get_metrics() # we already finished the run, we might be checkpointed
 
         logger.pushd('epochs')
@@ -128,8 +116,6 @@ class Trainer(EnforceOverrides):
             self._train_epoch(data_loaders.train_dl)
             self.post_epoch(data_loaders)
             logger.popd()
-            if self._should_terminate():
-                break
         logger.popd()
         self.post_fit(data_loaders)
 
@@ -146,7 +132,7 @@ class Trainer(EnforceOverrides):
 
         # optimizers, schedulers needs to be recreated for each fit call
         # as they have state specific to each run
-        optim = self.create_optimizer(self.conf_optim, filter(lambda p: p.requires_grad, self.model.parameters()))
+        optim = self.create_optimizer(self.conf_optim, self.model.parameters())
         # create scheduler for optim before applying amp
         sched, sched_on_epoch = self.create_scheduler(self.conf_sched, optim, train_len)
 
@@ -188,34 +174,9 @@ class Trainer(EnforceOverrides):
 
         assert self._metrics.epochs() == epoch
 
-    def _should_terminate(self):
-        return False
-
     #########################  hooks #########################
     def pre_fit(self, data_loaders:data.DataLoaders)->None:
         self._metrics.pre_run()
-
-        train_dl = data_loaders.train_dl
-        assert train_dl is not None
-
-        # compute model stats per minibatch of training data
-        data_iterator = iter(train_dl)
-        x, target = next(data_iterator)
-        x_shape = list(x.shape)
-        x_shape[0] = 1 # to prevent overflow errors with large batch size we will use a batch size of 1
-        model_stats = get_model_stats(self.model, input_tensor_shape=x_shape, clone_model=True)
-
-        # important to do to avoid overflow
-        mega_flops = float(model_stats.Flops)/1e6
-        mega_madd = float(model_stats.MAdd)/1e6
-
-        # log model stats
-        logger.info({'num_params': model_stats.parameters})
-        logger.info({'mega_flops_per_batch': mega_flops * float(train_dl.batch_size)})
-        logger.info({'mega_madd_per_batch': mega_madd * float(train_dl.batch_size)})
-        logger.info({'num_batches': len(train_dl)})
-        logger.info({'total_mega_flops_epoch': len(train_dl) * mega_flops * train_dl.batch_size})
-
 
     def post_fit(self, data_loaders:data.DataLoaders)->None:
         test_metrics = None
@@ -235,7 +196,7 @@ class Trainer(EnforceOverrides):
             if self._metrics.epochs() % self._validation_freq == 0 or \
                     self._metrics.epochs() >= self._epochs: # last epoch
 
-                # these asserts makes sure train and val are not overlapping
+                # these asserts makes sure train and val are not ovrlapiing
                 # assert train_dl.sampler.epoch == val_dl.sampler.epoch
                 # tidx = list(train_dl.sampler)
                 # vidx = list(val_dl.sampler)

@@ -82,7 +82,7 @@ def on_app_exit():
     if isinstance(logger, OrderedDictLogger):
         logger.close()
 
-def _pt_dirs()->Tuple[str, str]:
+def pt_dirs()->Tuple[str, str]:
     # dirs for pt infrastructure are supplied in env vars
 
     pt_data_dir = os.environ.get('PT_DATA_DIR', '')
@@ -102,7 +102,7 @@ def _pt_dirs()->Tuple[str, str]:
     return pt_data_dir, pt_output_dir
 
 def _pt_params(param_args: list)->list:
-    pt_data_dir, pt_output_dir = _pt_dirs()
+    pt_data_dir, pt_output_dir = pt_dirs()
 
     if pt_output_dir:
         # prepend so if supplied from outside it takes back seat
@@ -153,7 +153,8 @@ def common_init(config_filepath: Optional[str]=None,
                 param_args: list = [], use_args=True,
                 clean_expdir=False)->Config:
 
-    # WARNING: HACK for scenario when there is only one child process (eg. through subprocess)
+    # TODO: multiple child processes will create issues with shared state so we need to
+    # detect multiple child processes but allow if there is only one child process.
     # if not utils.is_main_process():
     #     raise RuntimeError('common_init should not be called from child process. Please use Common.init_from()')
 
@@ -301,7 +302,7 @@ def create_dirs(conf:Config, clean_expdir:bool)->Optional[str]:
         raise RuntimeError('The logdir setting must be specified for the output directory in yaml')
 
     # get cloud dirs if any
-    pt_data_dir, pt_output_dir = _pt_dirs()
+    pt_data_dir, pt_output_dir = pt_dirs()
 
     # validate dirs
     assert not pt_output_dir or not expdir.startswith(utils.full_path('~/logdir'))

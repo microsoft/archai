@@ -138,7 +138,7 @@ class ModelDescBuilder(EnforceOverrides):
 
         if self.template is None:
             node_count = self.get_node_count(cell_index)
-            in_shape = stem_shapes[0] # input shape to nodes is same as cell stem
+            in_shape = stem_shapes[0] # input shape to noded is same as cell stem
             out_shape = stem_shapes[0] # we ask nodes to keep the output shape same
             node_shapes, nodes = self.build_nodes(stem_shapes, conf_cell,
                                                   cell_index, cell_type, node_count, in_shape, out_shape)
@@ -275,7 +275,6 @@ class ModelDescBuilder(EnforceOverrides):
                     reduction_template = cell_desc
         return [normal_template, reduction_template]
 
-
     def build_model_pool(self, in_shapes:TensorShapesList, conf_model_desc:Config)\
             ->OpDesc:
 
@@ -284,34 +283,18 @@ class ModelDescBuilder(EnforceOverrides):
 
         in_shapes.append([copy.deepcopy(last_shape)])
 
-        params={'conv': ConvMacroParams(self.get_ch(last_shape),
-                                        self.get_ch(last_shape))}
-
-        # for dense 2D tasks there is no pool operator at the end  
-        if model_post_op == 'identity':
-            params['stride'] = 1
-
         return OpDesc(model_post_op,
-                        params,
-                        in_len=1, trainables=None)
-
+                         params={'conv': ConvMacroParams(self.get_ch(last_shape),
+                                                         self.get_ch(last_shape))},
+                         in_len=1, trainables=None)
 
     def build_logits_op(self, in_shapes:TensorShapesList, conf_model_desc:Config)->OpDesc:
         n_classes = self.get_conf_dataset()['n_classes']
 
-        logits_op_name = conf_model_desc.get('logits_op', None)
-        if logits_op_name and logits_op_name == 'proj_channels_no_bn':
-            last_shape = in_shapes[-1][0]
-            num_output_ch = 1 # we want only a 1-d matrix
-            conv_params=ConvMacroParams(self.get_ch(last_shape),
-                                        num_output_ch)
-            params = {'conv': conv_params, 'out_states': None}
-            return OpDesc(logits_op_name, params=params, in_len=1, trainables=None)
-        else:
-            return OpDesc('linear',
-                            params={'n_ch':in_shapes[-1][0][0],
-                                    'n_classes': n_classes},
-                            in_len=1, trainables=None)
+        return OpDesc('linear',
+                        params={'n_ch':in_shapes[-1][0][0],
+                                'n_classes': n_classes},
+                        in_len=1, trainables=None)
 
     def get_cell_template(self, cell_index:int)->Optional[CellDesc]:
         cell_type = self.get_cell_type(cell_index)

@@ -1,44 +1,63 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import setuptools, platform
+from setuptools import find_packages, setup
 
-with open("README.md", "r", encoding='utf_8') as fh:
-    long_description = fh.read()
+with open("README.md", "r", encoding="utf_8") as f:
+    long_description = f.read()
 
-install_requires=[
-    'pystopwatch2 @ git+https://github.com/ildoonet/pystopwatch2.git',
-    'hyperopt', #  @ git+https://github.com/hyperopt/hyperopt.git
-    'tensorwatch>=0.9.1', 'tensorboard',
-    'pretrainedmodels', 'tqdm', 'sklearn', 'matplotlib',
-    'requests', 'seaborn', 'h5py', 'rarfile',
-    'gorilla', 'pyyaml', 'overrides==3.1.0', 'runstats', 'psutil', 'statopt',
-    'pyunpack', 'patool', 'ray>=1.0.0', 'Send2Trash', 'plotly',
-    'transformers', 'pytorch-lightning==1.6', 'tokenizers', 'datasets', 'nats_bench',
-    'ftfy', # needed for text scoring, fixes text for you
-    # nvidia transformer-xl
-    'dllogger @ git+https://github.com/NVIDIA/dllogger.git',
-    'pytorch-transformers', 'sacremoses', 'pynvml', 'kaleido', 'albumentations', 'segmentation-models-pytorch @ git+https://github.com/qubvel/segmentation_models.pytorch',
-    'onnx', 'onnxruntime', 'azure-storage-blob', 'azure-data-tables', 'azure-identity', 'botorch==0.5', 'lmdb', 'msgpack', 'zstandard'
+install_requires = [
+    "coloredlogs>=15.0.1",
+    "datasets>=2.4.0",
+    "ftfy>=6.1.1",
+    "gorilla>=0.4.0",
+    "h5py>=3.7.0",
+    "hyperopt>=0.2.7",
+    "kaleido>=0.2.1",
+    "matplotlib>=3.5.3",
+    "nv-dllogger>=1.0.0",
+    "onnx==1.10.2",
+    "onnxruntime==1.10.0",
+    "overrides==3.1.0",
+    "plotly>=5.10.0",
+    "psutil>=5.9.1",
+    "pynvml>=11.4.1",
+    "pyunpack>=0.3",
+    "pyyaml==6.0",
+    "ray>=1.0.0",
+    "requests==2.25.1",
+    "runstats>=2.0.0",
+    "sacremoses>=0.0.53",
+    "scikit-learn>=1.0.2",
+    "seaborn>=0.11.2",
+    "send2trash>=1.8.0",
+    "statopt>=0.2",
+    "sympy>=1.10.1",
+    "tensorboard>=2.10.0",
+    "tensorwatch>=0.9.1",
+    "tokenizers>=0.12.1",
+    "tqdm>=4.64.0",
+    "transformers>=4.21.1",
 ]
 
-setuptools.setup(
+setup(
     name="archai",
-    version="0.6.0",
-    author="Shital Shah, Debadeepta Dey",
-    author_email="shitals@microsoft.com, dedey@microsoft.com",
-    description="Research platform for Neural Architecture Search",
+    version="0.6.7",
+    description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/microsoft/archai",
-    packages=setuptools.find_packages(),
-	license='MIT',
-    classifiers=[
-        'Programming Language :: Python :: 3',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Intended Audience :: Science/Research'
-    ],
+    license="MIT",
+    install_requires=install_requires,
+    packages=find_packages(),
     include_package_data=True,
-    install_requires=install_requires
+    classifiers=[
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Development Status :: 5 - Production/Stable",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
 )

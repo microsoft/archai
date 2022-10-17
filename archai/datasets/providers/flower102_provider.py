@@ -30,7 +30,7 @@ class Flower102Provider(DatasetProvider):
             trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
         if load_test:
             testpath = os.path.join(self._dataroot, 'flower102', 'test')
-            testset = torchvision.datasets.ImageFolder(testpath, transform=transform_test)
+            testset = torchvision.datasets.ImageFolder(testpath, transform=transform_train)
 
         return trainset, testset
 
@@ -41,9 +41,9 @@ class Flower102Provider(DatasetProvider):
         STD = [0.2972, 0.2488, 0.2847]
 
         # transformations match that in
-        img_size = 64
+        # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
         train_transf = [
-            transforms.Resize((img_size, img_size)),
+            transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(
                 brightness=0.4,
@@ -52,7 +52,7 @@ class Flower102Provider(DatasetProvider):
                 hue=0.2)
         ]
 
-        test_transf = [transforms.Resize((img_size, img_size))]
+        test_transf = [transforms.Resize(256), transforms.CenterCrop(224)]
 
         normalize = [
             transforms.ToTensor(),

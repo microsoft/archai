@@ -64,7 +64,7 @@ nas:
       dataset:
         max_batches: 2
     trainer:
-      epochs: 10
+      epochs: 1
       logger_freq: 1
       validation:
         logger_freq: 1
