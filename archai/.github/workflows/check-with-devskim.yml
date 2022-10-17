@@ -1,0 +1,32 @@
+name: DevSkim Checker
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check-devskim:
+    name: Checks and analyzes with DevSkim
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Pulls the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Runs DevSkim
+        uses: microsoft/devskim-action@v1
+        with:
+          should-scan-archives: false
+          output-filename: devskim-results.sarif
+      - name: Uploads scanning results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: devskim-results.sarif

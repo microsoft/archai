@@ -1,0 +1,26 @@
+__include__: 'darts.yaml' # defaults are loaded from this file
+
+nas:
+  eval:
+    checkpoint: null
+    resume: False
+    trainer:
+      apex: True
+      epochs: 10
+      drop_path_prob: 0.0
+      aux_weight: 0.0
+      optimizer:
+        type: "sgd"
+        lr: 0.016 # init learning rate
+        decay: 0.0
+        momentum: 0.9 # pytorch default is 0
+        nesterov: False
+        warmup: null
+      lr_schedule:
+        type: 'one_cycle'
+        max_lr: 0.5
+        decay: 0.064
+        momentum: 0.9
+    loader:
+      cutout: 0
+      batch: 512

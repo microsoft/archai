@@ -1,0 +1,4 @@
+azure-storage-blob
+azure-data-tables
+azure-identity
+

@@ -1,0 +1,8 @@
+__include__: './dataroot.yaml' # default dataset settings are for cifar
+
+dataset:
+  name: 'cifar10'
+  n_classes: 10
+  channels: 3 # number of channels in image
+  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+  storage_name: 'cifar-10-batches-py' # name of folder or tar file to copy from cloud storage

@@ -1,0 +1,20 @@
+__include__: "darts.yaml" # just use darts defaults
+
+nas:
+  eval:
+    loader:
+      train_batch: 68
+
+  search:
+    # options are mutual information based 'mi', 'mi_ranked' or 'random' or 'default'.
+    # NOTE: 'default' is not compatible with 'noalpha' trainer as 'default' uses
+    # the darts finalizer and needs alphas
+    # 'mi_ranked' is not compatible with 'noalpha' as it requires alphas.
+    finalizer: 'mi_ranked'
+    divnas:
+      sigma: 168
+      archtrainer: 'bilevel' # options are 'bilevel', 'noalpha'
+    trainer:
+      epochs: 50
+
+

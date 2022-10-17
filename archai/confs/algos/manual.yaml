@@ -1,0 +1,62 @@
+__include__: 'darts.yaml' # just use darts defaults
+
+
+nas:
+  eval:
+    model_factory_spec: 'resnet18'
+
+    #darts loader/trainer
+    loader:
+      train_batch: 128 #96
+      cutout: 0
+    trainer:
+      aux_weight: 0.0
+      grad_clip: 0.0
+      drop_path_prob: 0.0 # probability that given edge will be dropped
+      epochs: 200
+      optimizer:
+        type: 'sgd'
+        lr: 0.0333 #0.025 # init learning rate
+        decay: 3.0e-4 # pytorch default is 0.0
+        momentum: 0.9 # pytorch default is 0.0
+        nesterov: False # pytorch default is False
+        warmup: null
+      lr_schedule:
+        type: 'cosine'
+        min_lr: 0.001 # min learning rate to se bet in eta_min param of scheduler
+
+    # WRN schedule
+    # loader:
+    #   train_batch: 128
+    #   cutout: 0
+    # trainer:
+    #   aux_weight: 0.0
+    #   grad_clip: 0.0
+    #   drop_path_prob: 0.0 # probability that given edge will be dropped
+    #   epochs: 200
+    #   optimizer:
+    #     type: 'sgd'
+    #     lr: 0.1 # init learning rate
+    #     decay: 5.0e-4 # pytorch default is 0.0
+    #     momentum: 0.9 # pytorch default is 0.0
+    #   lr_schedule:
+    #     type: 'multi_step'
+    #     milestones: [60, 120, 160]
+    #     gamma: 0.2
+
+
+
+
+    # Multi-step LR notes:
+    # rule of thumb is decay by 10 at 50% and 75% of epochs as in densenet
+    # but every one seem to be using their own schedule
+    # if epochs <= 100:
+    #     return lr_scheduler.MultiStepLR(optimizer, [30, 60, 80])
+    # elif epochs <= 200: # wide resnet
+    #     return lr_scheduler.MultiStepLR(optimizer, [60, 120, 160]) # gamma=0.2. wd=5e-4
+    # elif epochs <= 270:   # autoaugment
+    #     return lr_scheduler.MultiStepLR(optimizer, [90, 180, 240])
+    # elif epochs <= 300:   # densenet
+    #     return lr_scheduler.MultiStepLR(optimizer, [150, 225])
+    # else: # extrapolating for autoaug sched
+    #     return lr_scheduler.MultiStepLR(optimizer, [i*90 for i in range(epochs//90)])
