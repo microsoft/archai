@@ -31,8 +31,6 @@ class Metrics:
 
     The post_step will simply update the running averages while post_epoch updates
     best we have seen for each epoch.
-
-    Note: this class is very much tied to image classification common metrics.    
     """
 
     def __init__(self, title:str, apex:Optional[ApexUtils], logger_freq:int=50) -> None:
@@ -225,22 +223,18 @@ class Metrics:
         if not self._apex:
             return val
         return self._apex.reduce(val, op='min')
-
     def reduce_max(self, val):
         if not self._apex:
             return val
         return self._apex.reduce(val, op='max')
-
     def reduce_sum(self, val):
         if not self._apex:
             return val
         return self._apex.reduce(val, op='sum')
-
     def reduce_mean(self, val):
         if not self._apex:
             return val
         return self._apex.reduce(val, op='mean')
-
     def is_dist(self)->bool:
         if not self._apex:
             return False
@@ -248,17 +242,12 @@ class Metrics:
 
     def best_train_top1(self)->float:
         return self.run_metrics.best_epoch()[0].top1.avg
-
     def best_val_top1(self)->float:
         val_epoch_metrics = self.run_metrics.best_epoch()[1]
         return val_epoch_metrics.top1.avg if val_epoch_metrics is not None else math.nan
-
     def best_test_top1(self)->float:
         test_epoch_metrics = self.run_metrics.best_epoch()[2]
         return test_epoch_metrics.top1.avg if test_epoch_metrics is not None else math.nan
-
-    def total_training_time(self)->float:
-        return self.run_metrics.total_train_time()
 
 class Accumulator:
     # TODO: replace this with Metrics class
@@ -318,7 +307,6 @@ class EpochMetrics:
     def pre_step(self):
         self._step_start_time = time.time()
         self.step += 1
-
     def post_step(self, top1:float, top5:float, loss:float, batch:int):
         self.step_time.update(time.time() - self._step_start_time)
         self.top1.update(top1, batch)
@@ -328,7 +316,6 @@ class EpochMetrics:
     def pre_epoch(self, lr:float):
         self.start_time = time.time()
         self.start_lr = lr
-
     def post_epoch(self, lr:float, val_metrics:Optional[Metrics]):
         self.end_time = time.time()
         self.end_lr = lr
@@ -351,7 +338,6 @@ class RunMetrics:
 
     def pre_run(self):
         self.start_time = time.time()
-
     def post_run(self, test_metrics:Optional['Metrics']=None):
         self.end_time = time.time()
         self.test_metrics = test_metrics
@@ -373,7 +359,6 @@ class RunMetrics:
 
         best_val = max(self.epochs_metrics,
             key=lambda e:e.val_metrics.top1.avg if e.val_metrics else -1)
-            
         best_val = best_val.val_metrics if best_val.val_metrics else None
 
         best_test = self.test_metrics.run_metrics.epochs_metrics[-1] \
@@ -383,10 +368,6 @@ class RunMetrics:
 
     def epoch_time_avg(self):
         return statistics.mean((e.duration() for e in self.epochs_metrics))
-
-    def total_train_time(self):
-        return sum([e.duration() for e in self.epochs_metrics])
-
     def step_time_avg(self):
         return statistics.mean((e.step_time.avg for e in self.epochs_metrics))
 

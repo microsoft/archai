@@ -309,26 +309,6 @@ class ModelDesc:
 
         return filename
 
-
-    def __eq__(self, other:'ModelDesc')->bool:
-        flags = []
-        flat_rep_self = self.get_flat_rep()
-        flat_rep_other = other.get_flat_rep()
-        return flat_rep_self == flat_rep_other
-
-
-    def get_flat_rep(self):
-        # TODO: this can be made more robust
-        flat_rep = ''
-        for i, cell in enumerate(self._cell_descs):
-            for j, node in enumerate(cell._nodes):
-                for k, edge in enumerate(node.edges):
-                    flat_rep += edge.op_desc.name
-                    for l, input_id in enumerate(edge.input_ids): 
-                        flat_rep += str(input_id)
-        return flat_rep
-
-
     @staticmethod
     def _pt_filepath(desc_filepath:str)->str:
         # change file extension
@@ -355,5 +335,3 @@ class ModelDesc:
             # else no need to restore weights
 
         return model_desc
-
-    

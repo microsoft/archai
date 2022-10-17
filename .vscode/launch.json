@@ -62,14 +62,6 @@
             "args": ["--full", "--algos", "darts", "--datasets", "imagenet", "--no-search", "--nas.eval.final_desc_filename", "models/darts/final_model_desc1.yaml"]
         },
         {
-            "name": "Darts-Eval-Particular-Arch",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "darts", "--datasets", "cifar10", "--no-search", "--nas.eval.final_desc_filename", "models/darts_random_samples/final_model_desc_000001.yaml"]
-        },
-        {
             "name": "DiDarts-E2E-Toy",
             "type": "python",
             "request": "launch",
@@ -215,280 +207,6 @@
             "args": ["--algos", "random"]
         },
         {
-            "name": "Darts Space Constant Random Archs",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "darts_space_constant_random_archs", "--datasets", "cifar100"]
-        },
-        {
-            "name": "Darts Space Constant Random Archs Darcyflow",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "darts_space_constant_random_archs_darcyflow", "--datasets", "darcyflow"]
-        },
-        {
-            "name": "Proxynas-Darts-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_darts_space", "--datasets", "cifar10"]
-        },
-        {
-            "name": "Proxynas-Darts-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_darts_space"]
-        },
-        {
-            "name": "Proxynas-Natsbench-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_space", "--datasets", "cifar10"],
-            "justMyCode": true
-        },
-        {
-            "name": "Proxynas-Natsbench-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_natsbench_space"]
-        },
-        {
-            "name": "Proxynas-Natsbench-SSS-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_natsbench_sss_space", "--datasets", "cifar10"],
-            "justMyCode": true
-        },
-        {
-            "name": "Proxynas-Phased-FT-Natsbench-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "phased_freezetrain_natsbench_space"]
-        },
-        {
-            "name": "Proxynas-Phased-FT-Natsbench-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "phased_freezetrain_natsbench_space"]
-        },
-        {
-            "name": "Proxynas-Nasbench101-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "proxynas_nasbench101_space"]
-        },
-        {
-            "name": "Proxynas-Nasbench101-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_nasbench101_space"]
-        },
-        {
-            "name": "Freezeaddon-Nasbench101-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "freezeaddon_nasbench101_space"]
-        },
-        {
-            "name": "Freezeaddon-Nasbench101-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "freezeaddon_nasbench101_space"]
-        },
-        {
-            "name": "Naswot-Conditional-Natsbench-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "naswot_conditional_natsbench_space"]
-        },
-        {
-            "name": "Naswot-Conditional-Natsbench-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "naswot_conditional_natsbench_space"]
-        },
-        {
-            "name": "ZeroCost-Conditional-Natsbench-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_conditional_natsbench_space", "--datasets", "synthetic_cifar10"]
-        },
-        {
-            "name": "ZeroCost-Conditional-Natsbench-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "zerocost_conditional_natsbench_space"]
-        },
-        {
-            "name": "ZeroCost-Natsbench-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_natsbench_space", "--datasets", "sphericalcifar100"]
-        },
-        {
-            "name": "ZeroCost-Natsbench-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "zerocost_natsbench_space"]
-        },
-        {
-            "name": "ZeroCost-Natsbench-Epochs-Space-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_natsbench_epochs_space", "--datasets", "sphericalcifar100"]
-        },
-        {
-            "name": "ZeroCost-Natsbench-Epochs-Space-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "zerocost_natsbench_epochs_space"]
-        },
-        {
-            "name": "ZeroCost-Darts-Space-Constant-Random-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_darts_space_constant_random", "--datasets", "synthetic_cifar10"]
-        },
-        {
-            "name": "ZeroCost-Darts-Space-Constant-Random-Darcyflow-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "zerocost_darts_space_constant_random_darcyflow", "--datasets", "darcyflow"]
-        },
-        {
-            "name": "Natsbench-Regular-Eval-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "natsbench_regular_eval", "--datasets", "ninapro"]
-        },
-        {
-            "name": "Natsbench-Regular-Eval-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "natsbench_regular_eval"]
-        },
-        {
-            "name": "Natsbench-Regular-SSS-Eval-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "natsbench_sss_regular_eval", "--datasets", "cifar10"]
-        },
-        {
-            "name": "Nb101-Regular-Eval-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "nb101_regular_eval"]
-        },
-        {
-            "name": "Nb101-Regular-Eval-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "nb101_regular_eval"]
-        },    
-        {
-            "name": "Proxynas-Manual-Toy",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_manual"]
-        },
-        {
-            "name": "Proxynas-Manual-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_manual", "--full"]
-        },
-        {
-            "name": "Main Proxynas Natsbench Wrapper",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main_proxynas_nb_wrapper.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_natsbench_space", "--arch-list-index", "0", "--num-archs", "50", "--top1-acc-threshold", "0.6"]
-        },
-        {
-            "name": "Main Proxynas Natsbench SSS Wrapper",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main_proxynas_nb_sss_wrapper.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "natsbench_sss_regular_eval", "--arch-list-index", "0", "--num-archs", "50", "--top1-acc-threshold", "0.6"]
-        },
-        {
-            "name": "Main Proxynas Nb101 Wrapper",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main_proxynas_nb101_wrapper.py",
-            "console": "integratedTerminal",
-            "args": ["--algos", "proxynas_nasbench101_space", "--arch-list-index", "0", "--num-archs", "50", "--top1-acc-threshold", "0.6"]
-        },
-        {
-            "name": "Main Zero Cost Darts Space Constant Random",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main_darts_space_constant_random_archs_zerocost.py",
-            "console": "integratedTerminal",
-            "args": ["--arch-list-index", "0", "--num-archs", "50", "--datasets", "cifar100"]
-        },
-        {
             "name": "Resnet-Toy",
             "type": "python",
             "request": "launch",
@@ -529,7 +247,7 @@
             "args": ["--aml_secrets_filepath", "/home/dedey/aml_secrets/aml_secrets_msrlabspvc1.yaml", "--algo", "darts", "--full"]
         },
         {
-            "name": "Manual-Toy",
+            "name": "Manual-E2E-Toy",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/scripts/main.py",
@@ -557,98 +275,78 @@
             ]
         },
         {
-            "name": "Train Visual Features FF Net",
+            "name": "Exprep",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/misc/train_visual_features_ffnet.py",
+            "program": "${cwd}/scripts/reports/exprep.py",
             "console": "integratedTerminal",
-            "args": []
+            "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\bilevel_default_20200521",
+            "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports", "--collate"]
         },
         {
-            "name": "Random Natsbench Tss Far Search",
+            "name": "Train Transformer XL",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/archai/nlp/nvidia_transformer_xl/train.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "random_natsbench_tss_far", "--datasets", "ImageNet16-120", "--no-eval"]
+            "args": ["--config", "dgx1_1gpu_fp32", "--config_file", "wt103_base.yaml", "--attn_type", "2", "--n_layer", "16", "--n_head", "8", "--d_model", "256", "--d_head", "32", "--d_inner", "768", "--log_interval", "10"]
         },
         {
-            "name": "Random Natsbench Tss Far Search Post",
+            "name": "Train TransformerXL Distributed",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "module": "torch.distributed.launch",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "random_natsbench_tss_far_post", "--datasets", "cifar10", "--no-eval"]
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--nproc_per_node=4",
+                "archai/nlp/nvidia_transformer_xl/train.py",
+                "--config",
+                "dgx1_4gpu_fp32",
+                "--config_file",
+                "wt103_base.yaml"
+            ],
+            "env": {
+                "NCCL_P2P_DISABLE": "1"
+            }
         },
         {
-            "name": "Random Natsbench Tss Reg Search",
+            "name": "Search Autoregressive Memformer",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/archai/nlp/search.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "random_natsbench_tss_reg", "--datasets", "cifar100", "--no-eval"]
+            "args": ["--population_size", "10", 
+                    "--parent_size", "2", 
+                    "--mutation_size", "4", 
+                    "--crossover_size", "4",
+                    "--n_iter", "2",
+                    "--use_quantization",
+                    "--model_type", "mem_transformer",
+                    ]
         },
         {
-            "name": "Random Darts Space Reg Search",
+            "name": "Search Autoregressive HF GPT2/Flex",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/archai/nlp/search.py",
             "console": "integratedTerminal",
-            "args": ["--full", "--algos", "random_dartsspace_reg", "--no-eval"]
+            "args": ["--population_size", "10", 
+                    "--parent_size", "2", 
+                    "--mutation_size", "4", 
+                    "--crossover_size", "4",
+                    "--n_iter", "2",
+                    "--use_quantization",
+                    "--model_type", "hf_gpt2_flex",
+                    "--latency_constraint_upper", "10.0",
+                    "--param_constraint_upper", "15000000",
+                    ]
         },
         {
-            "name": "Random Darts Space Far Search",
+            "name": "Train GPT2 Flex Distributed WT103",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "random_dartsspace_far", "--no-eval"]
-        },
-        {
-            "name": "Local Natsbench Tss Far Search (DEPRECATED)",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "local_natsbench_tss_far", "--datasets", "cifar10", "--no-eval"]
-        },
-        {
-            "name": "Local Search Natsbench Tss Fear",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "local_search_natsbench_tss_fear", "--datasets", "cifar10", "--no-eval"]
-        },
-        {
-            "name": "Local Search Natsbench Tss Reg",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "local_search_natsbench_tss_reg", "--datasets", "cifar10", "--no-eval"]
-        },
-        {
-            "name": "Evolution Pareto Search Natsbench Tss",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "evolution_pareto_search_natsbench_tss", "--datasets", "cifar10", "--no-eval"]
-        },
-        {
-            "name": "Evolution Pareto Search Segmentation",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
-            "console": "integratedTerminal",
-            "args": ["--full", "--algos", "evolution_pareto_search_segmentation", "--datasets", "face_synthetics", "--no-eval"]
-        },
-        {
-            "name": "Local Search DARTS Reg",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "module": "torch.distributed.launch",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "local_search_darts_reg", "--datasets", "cifar10"]
         },
@@ -1043,22 +741,22 @@
                 "--out-dir", "F:\\archai_experiment_reports", "--scorer", "train_accuracy"]
         },
         {
-            "name": "Analysis TransNasBench",
+            "name": "Analysis Arch Population",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/fear_analysis/analysis_transnasbench.py",
+            "program": "${cwd}/scripts/lts_analysis/analyze_arch_population.py",
             "console": "integratedTerminal",
-            "args": ["--transnasbench-results-json", "/home/dedey/transnasbench.json",
-                    "--out-dir", "/home/dedey/archai_experiment_reports"]
+            "args": ["--root_folder", "/home/dedey/archaiphilly/amlt/gpt2_flex_random_l5_u12_finedm", 
+                    "--out_dir", "/home/dedey/archai_experiment_reports",
+                    ]
         },
         {
-            "name": "Analysis Create Average Heatmaps",
+            "name": "Analysis Characterize Search Space",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/fear_analysis/analysis_create_average_heatmaps.py",
+            "program": "${cwd}/archai/nlp/nas/characterize_search_space.py",
             "console": "integratedTerminal",
-            "args": ["--list-of-npys", "/home/dedey/archai_experiment_reports/allavg_heatmaps/list.txt",
-                    "--out-dir", "/home/dedey/archai_experiment_reports/allavg_heatmaps"]
+            "args": []
         },
         {
             "name": "CurrentFile",

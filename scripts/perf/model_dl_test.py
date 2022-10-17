@@ -19,7 +19,7 @@ batch_size = 512
 half = True
 
 datadir = utils.full_path('~/dataroot')
-data_loaders = cifar10_dataloaders(datadir,
+train_dl, test_dl = cifar10_dataloaders(datadir,
     train_batch_size=batch_size, test_batch_size=1024,
     cutout=0)
 
@@ -62,7 +62,7 @@ print_all_timings()
 clear_timings()
 
 for _ in range(5):
-    i,d = iter_dl(data_loaders.train_dl)
+    i,d = iter_dl(train_dl)
 
 print_all_timings()
 print(i, d)
