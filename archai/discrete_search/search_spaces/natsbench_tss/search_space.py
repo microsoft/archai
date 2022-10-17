@@ -13,7 +13,14 @@ import nats_bench
 from archai.discrete_search import (
     NasModel, EvolutionarySearchSpace, BayesOptSearchSpace
 )
-from archai.discrete_search.search_spaces.natsbench_tss.lib.models import get_cell_based_tiny_net
+
+try:
+    from xautodl.models import get_cell_based_tiny_net
+except ImportError:
+    raise ImportError(
+        'xautodl installation not found. '
+        'Please install it using `pip install git+https://github.com/D-X-Y/AutoDL-Projects/`'
+    )
 
 
 class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
