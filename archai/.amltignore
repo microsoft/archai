@@ -1,0 +1,10 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+# Folders to be ignored when using AMLT
+devices/
+dockers/
+docs/
+scripts/
+tests/
+tools/

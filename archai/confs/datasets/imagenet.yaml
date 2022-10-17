@@ -1,0 +1,84 @@
+__include__: './size_224x224_base.yaml' # default dataset settings are for cifar
+
+common:
+  seed: 0.0
+  toy_mode: # this section will be used by toy.yaml to setup the toy mode
+    max_batches: 25
+    train_batch: 64
+    test_batch: 64
+
+# we use imagenet only for eval, so search dataset is still cifar10 but eval dataset is imagenet
+dataset_eval:
+  name: 'imagenet'
+  n_classes: 1000
+  channels: 3 # number of channels in image
+  storage_name: 'ImageNet' # name of folder or tar file to copy from cloud storage
+  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+
+nas:
+  eval:
+    model_desc:
+      n_cells: 14 # number of cells
+      aux_tower_stride: 2 # stride that aux tower should use, 3 is good for 32x32 images, 2 for imagenet
+      dataset:
+        _copy: '/dataset_eval'
+      model_post_op: 'pool_avg2d7x7'
+      model_stems:
+        ops: ['stem_conv3x3_s4', 'stem_conv3x3_s4s2']
+        init_node_ch: 48 # num of input/output channels for nodes in 1st cell
+        stem_multiplier: 1 # output channels multiplier for the stem
+
+
+    # darts setup
+    # loader:
+    #   batch: 128
+    #   dataset:
+    #     _copy: '/dataset_eval'
+    # trainer:
+    #   apex: # this is overriden in search and eval individually
+    #     enabled: False # global switch to disable everything apex
+    #     distributed_enabled: False # enable/disable distributed mode
+    #   aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
+    #   drop_path_prob: 0.0 # probability that given edge will be dropped
+    #   epochs: 250
+    #   lossfn: # TODO: this is perhaps reversed for test/train?
+    #     type: 'CrossEntropyLabelSmooth'
+    #     smoothing: 0.1 # label smoothing
+    #   optimizer:
+    #     lr: 0.1 # init learning rate
+    #     decay: 3.0e-5
+    #   lr_schedule:
+    #     type: 'step'
+    #     decay_period: 1 # epochs between two learning rate decays
+    #     gamma: 0.97 # learning rate decay
+
+    # NVidia benchmark setup DGX1_RN50_AMP_90E.sh
+    # Enable amp and distributed 8 GPUs in apex section
+    loader:
+      batch: 256
+      train_workers: 5
+      test_workers: 5
+      dataset:
+        _copy: '/dataset_eval'
+    trainer:
+      apex:
+        enabled: True # global switch to disable everything apex
+        distributed_enabled: True # enable/disable distributed mode
+        loss_scale: "128.0" # loss scaling mode for mixed prec, must be string reprenting float ot "dynamic"
+      aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
+      drop_path_prob: 0.0 # probability that given edge will be dropped
+      epochs: 250
+      lossfn: # TODO: this is perhaps reversed for test/train?
+        type: 'CrossEntropyLabelSmooth'
+        smoothing: 0.1 # label smoothing
+      optimizer:
+        lr: 2.048 # init learning rate
+        decay: 3.05e-5
+        decay_bn: .NaN # if .NaN then same as decay otherwise apply different decay to BN layers
+        momentum: 0.875 # pytorch default is 0.0
+      lr_schedule:
+        type: 'cosine'
+        min_lr: 0.0 # min learning rate to se bet in eta_min param of scheduler
+        warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
+          multiplier: 1.0
+          epochs: 8

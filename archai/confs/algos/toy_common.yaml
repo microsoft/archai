@@ -1,0 +1,71 @@
+# use this as overriding config for quick compile testing
+
+common:
+  detect_anomaly: False # if True, PyTorch code will run 6X slower
+  resume: False
+
+nas:
+  search:
+    data_parallel: False
+    resume: False # ignore checkpoint file if it exist
+    search_iters: 1
+    pareto:
+      max_reductions: 2
+      max_cells: 5
+      max_nodes: 2
+      enabled: False
+    seed_train:
+      trainer:
+        epochs: 1 # number of epochs model will be trained before search
+      loader:
+        train_batch: 32
+        test_batch: 32
+        val_ratio: 0.5 #for toy mode batch is small so  use higher val ratio otherwise batch size will be lower than num classes
+        dataset:
+          max_batches: 2
+    post_train:
+      trainer:
+        epochs: 1
+      loader:
+        train_batch: 32
+        test_batch: 32
+        val_ratio: 0.5 #for toy mode batch is small so  use higher val ratio otherwise batch size will be lower than num classes
+        dataset:
+          max_batches: 2
+    model_desc:
+      n_reductions: 1 # number of reductions to be applied
+      n_cells: 3 # number of cells
+      cell:
+        n_nodes: 2 # number of nodes in a cell
+    loader:
+      train_batch: 32
+      test_batch: 32
+      val_ratio: 0.5 #for toy mode batch is small so  use higher val ratio otherwise batch size will be lower than num classes
+      dataset:
+        max_batches: 2
+    trainer:
+      epochs: 1
+      logger_freq: 1
+      validation:
+        logger_freq: 1
+
+  eval:
+    data_parallel: False
+    checkpoint: null
+    model_desc:
+      n_cells: 5 # number of cells
+      n_reductions: 2 # number of reductions to be applied
+      cell:
+        n_nodes: 4 # number of nodes in a cell
+    loader:
+      train_batch: 32
+      test_batch: 32
+      val_ratio: 0.5 #for toy mode batch is small so  use higher val ratio otherwise batch size will be lower than num classes
+      dataset:
+        max_batches: 2
+    trainer:
+      epochs: 1
+      logger_freq: 1
+      validation:
+        logger_freq: 1
+

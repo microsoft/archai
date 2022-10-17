@@ -1,0 +1,28 @@
+changelog:
+  categories:
+    - title: Computer Vision
+      labels:
+        - cv
+    - title: Datasets
+      labels:
+        - datasets
+    - title: Natural Language Processing
+      labels:
+        - nlp
+    - title: Neural Architecture Search
+      labels:
+        - algorithms
+        - nas
+    - title: Cleanups and Refactors
+      labels:
+        - cleanup
+        - refactor
+    - title: Dependencies, Documentation, Examples and Tests
+      labels:
+        - dependencies
+        - documentation
+        - examples
+        - tests
+    - title: Bug Fixes
+      labels:
+        - bug

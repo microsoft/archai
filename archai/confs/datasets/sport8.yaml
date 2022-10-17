@@ -1,0 +1,8 @@
+__include__: './size_224x224_base.yaml' # inherit settings for 224x224 dataset
+
+dataset_eval: # search dataset default is cifar10, we override eval dataset to sport8
+  name: 'sport8'
+  n_classes: 8
+  channels: 3 # number of channels in image
+  max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
+  storage_name: 'sport8' # name of folder or tar file to copy from cloud storage

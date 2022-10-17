@@ -1,0 +1,21 @@
+common:
+    checkpoint:
+        freq: 10
+
+dataset: 
+    max_batches: -1
+
+autoaug:
+    loader:
+        epochs: 600
+        batch: 2048
+
+    optimizer:
+        type: "cocob"
+        alpha: 100
+    lr_schedule:
+        type: null
+        min_lr: null
+    model:
+        type: 'resnet50'
+

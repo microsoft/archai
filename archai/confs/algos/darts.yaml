@@ -1,0 +1,279 @@
+__include__: "../datasets/cifar10.yaml" # default dataset settings are for cifar
+
+common:
+  experiment_name: 'throwaway' # you should supply from command line
+  experiment_desc: 'throwaway'
+  logdir: '~/logdir'
+  log_prefix: 'log' # prefix for log files that will becreated (log.log and log.yaml), no log files if ''
+  log_level: 20 # logging.INFO
+  backup_existing_log_file: False # should we overwrite existing log file without making a copy?
+  yaml_log: True # if True, structured logs as yaml are also generated
+  seed: 2.0
+  tb_enable: False # if True then TensorBoard logging is enabled (may impact perf)
+  tb_dir: '$expdir/tb' # path where tensorboard logs would be stored
+  checkpoint:
+    filename: '$expdir/checkpoint.pth'
+    freq: 10
+
+  # reddis address of Ray cluster. Use None for single node run
+  # otherwise it should something like host:6379. Make sure to run on head node:
+  # "ray start --head --redis-port=6379"
+  redis: null
+  apex: # this is overriden in search and eval individually
+    enabled: False # global switch to disable everything apex
+    distributed_enabled: True # enable/disable distributed mode
+    mixed_prec_enabled: True # switch to disable amp mixed precision
+    gpus: '' # use GPU IDs specified here (comma separated), if '' then use all GPUs
+    opt_level: 'O2' # optimization level for mixed precision
+    bn_fp32: True # keep BN in fp32
+    loss_scale: "dynamic" # loss scaling mode for mixed prec, must be string reprenting floar ot "dynamic"
+    sync_bn: False # should be replace BNs with sync BNs for distributed model
+    scale_lr: True # enable/disable distributed mode
+    min_world_size: 0 # allows to confirm we are indeed in distributed setting
+    detect_anomaly: False # if True, PyTorch code will run 6X slower
+    seed: '_copy: /common/seed'
+    ray:
+      enabled: False # initialize ray. Note: ray cannot be used if apex distributed is enabled
+      local_mode: False # if True then ray runs in serial mode
+
+  smoke_test: False
+  only_eval: False
+  resume: True
+
+dataset: {} # default dataset settings comes from __include__ on the top
+
+nas:
+  eval:
+    full_desc_filename: '$expdir/full_model_desc.yaml' # model desc used for building model for evaluation
+    final_desc_filename: '$expdir/final_model_desc.yaml' # model desc used as template to construct cells
+
+    # If below is specified then final_desc_filename is ignored and model is created through factory function instead.
+    # This is useful for running eval for manually designed models such as resnet-50.
+    # The value is string of form 'some.namespace.module.function'. The function returns nn.Module and no required args.
+    model_factory_spec: ''
+
+    metric_filename: '$expdir/eval_train_metrics.yaml'
+    model_filename: '$expdir/model.pt' # file to which trained model will be saved
+    data_parallel: False
+    checkpoint:
+      _copy: '/common/checkpoint'
+    resume: '_copy: /common/resume'
+    model_desc:
+      n_reductions: 2 # number of reductions to be applied
+      n_cells: 20 # number of cells
+      dataset:
+        _copy: '/dataset'
+      max_final_edges: 2 # max edge that can be in final arch per node
+      model_post_op: 'pool_adaptive_avg2d'
+      params: {} # additional custom params for model desc
+      aux_weight: 0.4 # weight for loss from auxiliary towers in test time arch
+      aux_tower_stride: 3 # stride that aux tower should use, 3 is good for 32x32 images, 2 for imagenet
+      model_stems:
+        ops: ['stem_conv3x3', 'stem_conv3x3']
+        init_node_ch: 36 # num of input/output channels for nodes in 1st cell
+        stem_multiplier: 3 # output channels multiplier for the stem
+      cell:
+        n_nodes: 4 # number of nodes in a cell
+        cell_post_op: 'concate_channels'
+    loader:
+      apex:
+        _copy: '../../trainer/apex'
+      aug: '' # additional augmentations to use, for ex, fa_reduced_cifar10, arsaug, autoaug_cifar10, autoaug_extend
+      cutout: 16 # cutout length, use cutout augmentation when > 0
+      load_train: True # load train split of dataset
+      train_batch: 96 # 96 is too aggressive for 1080Ti, better set it to 68
+      train_workers: 4
+      test_workers: '_copy: ../train_workers' # if null then 4
+      load_test: True # load test split of dataset
+      test_batch: 1024
+      val_ratio: 0.0 #split portion for test set, 0 to 1
+      val_fold: 0 #Fold number to use (0 to 4)
+      cv_num: 5 # total number of folds available
+      dataset:
+        _copy: '/dataset'
+    trainer:
+      apex:
+        _copy: '/common/apex'
+      aux_weight: '_copy: /nas/eval/model_desc/aux_weight'
+      drop_path_prob: 0.2 # probability that given edge will be dropped
+      grad_clip: 5.0 # grads above this value is clipped
+      l1_alphas: 0.0   # weight to be applied to sum(abs(alphas)) to loss term
+      logger_freq: 1000 # after every N updates dump loss and other metrics in logger
+      title: 'eval_train'
+      epochs: 600
+      batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
+      lossfn:
+        type: 'CrossEntropyLoss'
+      optimizer:
+        type: 'sgd'
+        lr: 0.025 # init learning rate
+        decay: 3.0e-4 # pytorch default is 0.0
+        momentum: 0.9 # pytorch default is 0.0
+        nesterov: False # pytorch default is False
+        decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
+      lr_schedule:
+        type: 'cosine'
+        min_lr: 0.001 # min learning rate to se bet in eta_min param of scheduler
+        warmup:  # increases LR for 0 to current in specified epochs and then hands over to main scheduler
+          multiplier: 1
+          epochs: 0 # 0 disables warmup
+      validation:
+        title: 'eval_test'
+        batch_chunks: '_copy: ../../batch_chunks' # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
+        logger_freq: 0
+        freq: 1 # perform validation only every N epochs
+        lossfn:
+          type: 'CrossEntropyLoss'
+
+  search:
+    finalizer: 'default' # options are 'random' or 'default'
+    data_parallel: False
+    checkpoint:
+      _copy: '/common/checkpoint'
+    resume: '_copy: /common/resume'
+    search_iters: 1
+    full_desc_filename: '$expdir/full_model_desc.yaml' # arch before it was finalized
+    final_desc_filename: '$expdir/final_model_desc.yaml' # final arch is saved in this file
+    metrics_dir: '$expdir/models/{reductions}/{cells}/{nodes}/{search_iter}' # where metrics and model stats would be saved from each pareto iteration
+    seed_train:
+      trainer:
+        _copy: '/nas/eval/trainer'
+        title: 'seed_train'
+        epochs: 0 # number of epochs model will be trained before search
+        aux_weight: 0.0
+        drop_path_prob: 0.0
+      loader:
+        _copy: '/nas/eval/loader'
+        train_batch: 128
+        val_ratio: 0.1 #split portion for test set, 0 to 1
+    post_train:
+      trainer:
+        _copy: '/nas/eval/trainer'
+        title: 'post_train'
+        epochs: 0 # number of epochs model will be trained after search
+        aux_weight: 0.0
+        drop_path_prob: 0.0
+      loader:
+        _copy: '/nas/eval/loader'
+        train_batch: 128
+        val_ratio: 0.1 #split portion for test set, 0 to 1
+    pareto:
+      # default parameters are set so there is exactly one search iteration
+      max_cells: 8
+      max_reductions: 2
+      max_nodes: 4
+      enabled: False
+      summary_filename: '$expdir/perito.tsv' # for each iteration of macro, we fave model and perf summary
+    model_desc:
+      n_reductions: 2 # number of reductions to be applied
+      n_cells: 8 # number of cells
+      # we avoid copying from eval node because dataset settings
+      # may override eval.model_desc with different stems, pool etc
+      dataset:
+        _copy: '/dataset'
+      max_final_edges: 2 # max edge that can be in final arch per node
+      model_post_op: 'pool_adaptive_avg2d'
+      params: {}
+      aux_weight: 0.0 # weight for loss from auxiliary towers in test time arch
+      aux_tower_stride: 3 # stride that aux tower should use, 3 is good for 32x32 images, 2 for imagenet
+      model_stems:
+        ops: ['stem_conv3x3', 'stem_conv3x3']
+        stem_multiplier: 3 # output channels multiplier for the stem
+        init_node_ch: 16 # num of input/output channels for nodes in 1st cell
+      cell:
+        n_nodes: 4 # number of nodes in a cell
+        cell_post_op: 'concate_channels'
+    loader:
+      apex:
+        _copy: '../../trainer/apex'
+      aug: '' # additional augmentations to use
+      cutout: 0 # cutout length, use cutout augmentation when > 0
+      load_train: True # load train split of dataset
+      train_batch: 64
+      train_workers: 4 # if null then gpu_count*4
+      test_workers: '_copy: ../train_workers' # if null then 4
+      load_test: False # load test split of dataset
+      test_batch: 1024
+      val_ratio: 0.5 #split portion for test set, 0 to 1
+      val_fold: 0 #Fold number to use (0 to 4)
+      cv_num: 5 # total number of folds available
+      dataset:
+        _copy: '/dataset'
+    trainer:
+      apex:
+        _copy: '/common/apex'
+      aux_weight: '_copy: /nas/search/model_desc/aux_weight'
+      drop_path_prob: 0.0 # probability that given edge will be dropped
+      grad_clip: 5.0 # grads above this value is clipped
+      logger_freq: 1000 # after every N updates dump loss and other metrics in logger
+      title: 'arch_train'
+      epochs: 50
+      batch_chunks: 1 # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
+      # additional vals for the derived class
+      plotsdir: '' #empty string means no plots, other wise plots are generated for each epoch in this dir
+      l1_alphas: 0.0   # weight to be applied to sum(abs(alphas)) to loss term
+      lossfn:
+        type: 'CrossEntropyLoss'
+      optimizer:
+        type: 'sgd'
+        lr: 0.025 # init learning rate
+        decay: 3.0e-4
+        momentum: 0.9 # pytorch default is 0
+        nesterov: False
+        decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
+      alpha_optimizer:
+        type: 'adam'
+        lr: 3.0e-4
+        decay: 1.0e-3
+        betas: [0.5, 0.999]
+        decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
+      alpha_lr_schedule:
+        type: ''
+      lr_schedule:
+        type: 'cosine'
+        min_lr: 0.001 # min learning rate, this will be used in eta_min param of scheduler
+        warmup: null
+      validation:
+        title: 'search_val'
+        logger_freq: 0
+        batch_chunks: '_copy: ../../batch_chunks' # split batch into these many chunks and accumulate gradients so we can support GPUs with lower RAM
+        freq: 1 # perform validation only every N epochs
+        lossfn:
+          type: 'CrossEntropyLoss'
+
+
+autoaug:
+  num_op: 2
+  num_policy: 5
+  num_search: 200
+  num_result_per_cv: 10 # after conducting N trials, we will chose the results of top num_result_per_cv
+  loader:
+    apex:
+      _copy: '/common/apex'
+    aug: '' # additional augmentations to use
+    cutout: 16 # cutout length, use cutout augmentation when > 0
+    epochs: 50
+    load_train: True # load train split of dataset
+    train_batch: 64
+    train_workers: 4 # if null then gpu_count*4
+    test_workers: '_copy: ../train_workers' # if null then 4
+    load_test: True # load test split of dataset
+    test_batch: 1024
+    val_ratio: 0.4 #split portion for test set, 0 to 1
+    val_fold: 0 #Fold number to use (0 to 4)
+    cv_num: 5 # total number of folds available
+    dataset:
+      _copy: '/dataset'
+  optimizer:
+    type: 'sgd'
+    lr: 0.025 # init learning rate
+    decay: 3.0e-4 # pytorch default is 0.0
+    momentum: 0.9 # pytorch default is 0.0
+    nesterov: False # pytorch default is False
+    clip: 5.0 # grads above this value is clipped # TODO: Why is this also in trainer?
+    decay_bn: .NaN # if NaN then same as decay otherwise apply different decay to BN layers
+    #betas: [0.9, 0.999] # PyTorch default betas for Adam
+  lr_schedule:
+    type: 'cosine'
+    min_lr: 0.0 # min learning rate, this will be used in eta_min param of scheduler
+    warmup: null

@@ -1,0 +1,48 @@
+/* Overrides brand and link colors supplied by theme */
+:root {
+    --archai-primary: #623EB2;
+    --archai-primary-dark: #462C80;
+    --archai-primary-light: #7E50E6;
+    --color-brand: var(--archai-primary-dark);
+    --color-link: var(--archai-primary);
+}
+
+/* Overrides navigation header colors */
+.bg-gray-dark {
+    background-color: var(--archai-primary);
+}
+.hover\:bg-gray-700:hover, .hover\:bg-gray-700:focus {
+    color: rgb(243, 244, 246);
+    background-color: var(--archai-primary-dark);
+}
+.focus\:bg-gray-700:hover, .focus\:bg-gray-700:focus {
+    color: rgb(243, 244, 246);
+    background-color: var(--archai-primary-dark);
+}
+
+/* Overrides search bar colors */
+.focus-within\:text-gray-800:focus-within {
+    color: rgb(243, 244, 246);
+}
+.focus-within\:bg-gray-50:focus-within {
+    background-color: var(--archai-primary);
+}
+input[type="search"].focus\:outline-none:focus {
+    outline: none;
+}
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+}
+
+/* Overrides back-to-top button colors */
+.bg-gray-700 {
+    background-color: var(--archai-primary-light);
+}
+.bg-gray-700:hover {
+    color: var(--archai-primary-light);
+}
+
+/*  */
+.tooltipped-s:after, .tooltipped-se:after, .tooltipped-sw:after {
+    right: 0%;
+}
