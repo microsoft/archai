@@ -243,7 +243,9 @@ def plot(args, methods):
     plt.grid(axis="y")
     # plt.title('ranking based on zero-cost methods')
     plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-    plt.savefig(f"spearman_cost_zero-cost.png", bbox_inches="tight")
+    path_to_plot = os.path.join(args.exp_name,'plots')
+    os.makedirs(path_to_plot, exist_ok=True)
+    plt.savefig(os.path.join(path_to_plot, f"spearman_cost_zero-cost.png", bbox_inches="tight")
 
 
 def cost_fn(method, model, tr_iter, device):
