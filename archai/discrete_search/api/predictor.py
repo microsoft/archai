@@ -17,7 +17,13 @@ class Predictor(EnforceOverrides):
     
     @abstractmethod
     def fit(self, encoded_archs: np.ndarray, y: np.ndarray) -> None:
-        pass
+        """Fits a the predictor model using a an array of encoded architecture (N, #features)
+        and a possibly multidimensional array of targets y (N, #targets).
+
+        Args:
+            encoded_archs (np.ndarray): (N, #features) numpy array
+            y (np.ndarray): (N, #targets) numpy array
+        """        
 
     @abstractmethod
     def predict(self, encoded_archs: np.ndarray) -> MeanVar:
@@ -28,5 +34,5 @@ class Predictor(EnforceOverrides):
             encoded_archs (np.ndarray): Array of encoded architectyres
 
         Returns:
-            MeanVar: Named tuple with `mean` and `var` (possibly multidimensional) arrays.
-        """        
+            MeanVar: Named tuple with `mean` (N, #targets) and `var` (N, #targets) arrays.
+        """

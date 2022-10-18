@@ -6,12 +6,14 @@ from typing import Optional, Dict, Any
 
 class NasModel():
     def __init__(self, arch: Any, archid: str, metadata: Optional[Dict] = None):
-        """Neural Architecture Search model.
+        """Used to wrap a NAS model.
 
         Args:
-            arch (Any): Callable model object
-            archid (str): Architecture identifier.
-            metadata (Optional[Dict], optional): Extra model metadata. Defaults to None.
+            arch (Any): Model object (e.g torch.nn.Module)
+            archid (str): **Architecture** string identifier of `arch` object. Will be used to deduplicate
+                models of the same architecture, so architecture hashes are prefered. `archid` should only 
+                identify neural network architectures and not model weight information.
+            metadata (Optional[Dict], optional): Optional model metadata dictionary. Defaults to None.
         """
         assert isinstance(archid, str)
         assert isinstance(metadata, dict)
