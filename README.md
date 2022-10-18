@@ -1,6 +1,6 @@
 # LiteTransformerSearch: Training-free On-device Search for Efficient Autoregressive Language Models
 
-*This repository holds all the necessary code to run the very-same experiments described in the paper "LiteTransformerSearch: Training-free On-device Search for Efficient Autoregressive Language Models".*
+*This repository holds all the necessary code to run the very-same experiments described in the paper "LiteTransformerSearch: Training-free Neural Architecture Search for Efficient Language Models", presented at NeurIPS 2022.*
 
 ---
 
@@ -63,12 +63,32 @@ The Causal Language Modeling (CLM) task aims to predict a `t+1` token based on t
 
 ## Usage
 
+### Tabular Benchmarks and Reproducibility
+
+ 
+We provide tabular information for several trained models in ``./archai/nlp/nas/saved_logs``. This directory is organized as follows:
+
+ - **random_{backbone}_{dataset}:** contains several directories each holding a unqiue model configuration file ``model_config.yaml``. The task-specific metrics and parameter count for all models are  summarized in ``ppl_summary.yaml`` and  ``params_summary.yaml``.
+ - **pareto_{backbone}\_{dataset}\_{device name}:** contains several directories of form ``M{i}`` each holding a unqiue model configuration file ``model_config.yaml`` which corresponds to the models in Tables 4,5,6,7 of the paper. The task-specific metrics and parameter count for all models are  summarized in ``ppl_summary.yaml`` and  ``params_summary.yaml``. We further list the latency and memory footprint of each model on the target device in ``latency_summary.yaml`` and ``memory_summary.yaml`` files.
+
+To measure the correlation between perplexity and parameter count proxies, run
+```
+python archai/nlp/analyze_results.py --results_dir {path to tabular results} --exp_name {name of experiment}
+```
+For example, ``python archai/nlp/analyze_results.py --exp_name random_TransXL_wt103``
+
+To compute the low-cost proxies introduced in Section 3.1, run 
+```
+python archai/nlp/nas/zero_cost_utils/pred.py --exp_name {}path to experiment --get_cost
+``` 
+you can optionally pass the argument ``--plot`` to generate a plot similar to Figure 5 of the paper.
+
 ### LiteTransformer Search
 
 One can use the provided shell script to conduct every step needed to accomplish the search experimentation used throughout this paper, as follows:
 
-```Bash
-./archai/nlp/run_search.sh
+```
+bash ./archai/nlp/run_search.sh
 ```
 
 *LTS comprises four steps: profiling the baseline scales, actual search, Pareto frontier selection, and baseline x Pareto frontier comparison.*

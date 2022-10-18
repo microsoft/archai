@@ -1,3 +1,4 @@
+from builtins import isinstance
 import os
 from pickle import TRUE
 import numpy as np
@@ -45,11 +46,14 @@ def get_metrics(topk, sorted_ground_truth, sorted_target, ground_truth, target, 
                           
 
 def get_config_name(job):
+  try:
     idx =  re.search('(config_[0-9]+)', job).span()[0]
     job = job[idx:]
     config_name = job.split('/')[0]
-    suffix = job.split('/')[1]
-    return config_name + '_' + suffix if '.' not in suffix else config_name
+    return config_name + '_' + job.split('/')[1]
+  except: 
+    config_name =  re.search('(M[0-9]+)', job).group(1)
+    return config_name
 
 
 def recurse_dir(path_to_dir, filename='model_config.yaml'):
@@ -83,9 +87,9 @@ def get_parser():
 def main(args):
   '''
   Generates 3 plots: 
-    1) gound-truth versus proxy ranking
-    2) ppl versus parameter size pareto curve
-    3) common_ratio and spearman correlation for ranking based on parameter size 
+    1) gound-truth versus proxy ranking (Fig. 3)
+    2) ppl versus parameter size pareto curve (Fig. 6a)
+    3) common_ratio and spearman correlation for ranking based on parameter size (Fig. 6b)
   '''
   path_to_results = os.path.join(args.results_dir, args.exp_name)
   args.output_dir = os.path.join(path_to_results, 'plots')
@@ -106,7 +110,10 @@ def main(args):
   n_params_total = []
   div_vals = []
   for k in common_configs:
-    val_ppls.append(logs_val_ppls[k]['valid_ppl'])
+    if isinstance(logs_val_ppls[k], dict):
+      val_ppls.append(logs_val_ppls[k]['valid_ppl'])
+    else:
+      val_ppls.append(logs_val_ppls[k])
     n_params_nonemb.append(-(logs_n_params[k]['nonembedding']))
     n_params_total.append(-logs_n_params[k]['total'])
     div_vals.append(model_configs[k]['div_val'])

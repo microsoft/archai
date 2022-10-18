@@ -1,0 +1,46 @@
+adaptive: true
+attn_type: 0
+clamp_len: -1
+cutoffs:
+- 59997
+- 99997
+- 639997
+- 267735
+d_embed: -1
+d_head: -1
+d_inner:
+- 3840
+- 3904
+- 3520
+- 3072
+d_model: 960
+div_val: 4
+dropatt: 0.0
+dropout: 0.0
+dtype: null
+ext_len: 0
+mem_len: 32
+n_head:
+- 2
+- 2
+- 2
+- 2
+n_layer: 4
+n_token: 267735
+pre_lnorm: false
+primer_conv: false
+primer_square: false
+proj_init_std: 0.01
+same_length: false
+sample_softmax: -1
+tgt_len: 32
+tie_projs:
+- false
+- false
+- false
+- false
+tie_weight: true
+use_cache: false
+weight_init_range: 0.1
+weight_init_std: 0.02
+weight_init_type: normal

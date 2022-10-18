@@ -1,0 +1,1400 @@
+config_0_j0:
+  test_ppl: 45.11893898899607
+  test_ppl_nomem: 45.11893898899607
+  test_word_ppl: 69.08910680587093
+  test_word_ppl_nomem: 69.08910680587093
+  train_elapsed: 3073.7392461299896
+  valid_ppl: 45.022968707221274
+config_0_j1:
+  test_ppl: 27.62283690499588
+  test_ppl_nomem: 27.62283690499588
+  test_word_ppl: 40.03901076185
+  test_word_ppl_nomem: 40.03901076185
+  train_elapsed: 10419.01858663559
+  valid_ppl: 27.007669521891287
+config_0_j2:
+  test_ppl: 27.862693057494052
+  test_ppl_nomem: 27.862693057494052
+  test_word_ppl: 40.425759400528904
+  test_word_ppl_nomem: 40.425759400528904
+  train_elapsed: 10157.417116641998
+  valid_ppl: 27.47451606091973
+config_0_j3:
+  test_ppl: 36.36642829589784
+  test_ppl_nomem: 36.36642829589784
+  test_word_ppl: 54.35946221979665
+  test_word_ppl_nomem: 54.35946221979665
+  train_elapsed: 3555.7564635276794
+  valid_ppl: 36.04766053538849
+config_0_j4:
+  test_ppl: 43.21558774965131
+  test_ppl_nomem: 43.21558774965131
+  test_word_ppl: 65.85629035193817
+  test_word_ppl_nomem: 65.85629035193817
+  train_elapsed: 3174.760722875595
+  valid_ppl: 43.128118104943994
+config_0_j5:
+  test_ppl: 43.405224537559
+  test_ppl_nomem: 43.405224537559
+  test_word_ppl: 66.17767350191518
+  test_word_ppl_nomem: 66.17767350191518
+  train_elapsed: 3658.013498544693
+  valid_ppl: 43.12841629976938
+config_0_j6:
+  test_ppl: 26.919995280278
+  test_ppl_nomem: 26.919995280278
+  test_word_ppl: 38.90794118476395
+  test_word_ppl_nomem: 38.90794118476395
+  train_elapsed: 8897.345573425293
+  valid_ppl: 26.370491677396878
+config_0_j7:
+  test_ppl: 29.45505166266936
+  test_ppl_nomem: 29.45505166266936
+  test_word_ppl: 43.00262017259545
+  test_word_ppl_nomem: 43.00262017259545
+  train_elapsed: 6620.7743146419525
+  valid_ppl: 28.897007989899812
+config_0_j8:
+  test_ppl: 38.76608649376194
+  test_ppl_nomem: 38.76608649376194
+  test_word_ppl: 58.36203642641067
+  test_word_ppl_nomem: 58.36203642641067
+  train_elapsed: 3522.721517801285
+  valid_ppl: 38.30167034533105
+config_0_j9:
+  test_ppl: 53.590158560678255
+  test_ppl_nomem: 53.590158560678255
+  test_word_ppl: 83.65542679417617
+  test_word_ppl_nomem: 83.65542679417617
+  train_elapsed: 5341.024301528931
+  valid_ppl: 53.903812801030035
+config_10_j0:
+  test_ppl: 36.6584528612272
+  test_ppl_nomem: 36.6584528612272
+  test_word_ppl: 54.84498943413976
+  test_word_ppl_nomem: 54.84498943413976
+  train_elapsed: 6598.671521902084
+  valid_ppl: 36.38258489891871
+config_10_j1:
+  test_ppl: 40.2665314750615
+  test_ppl_nomem: 40.2665314750615
+  test_word_ppl: 60.87899015411801
+  test_word_ppl_nomem: 60.87899015411801
+  train_elapsed: 4931.27379155159
+  valid_ppl: 40.178995321413744
+config_10_j2:
+  test_ppl: 36.40754937551562
+  test_ppl_nomem: 36.40754937551562
+  test_word_ppl: 54.42779697571264
+  test_word_ppl_nomem: 54.42779697571264
+  train_elapsed: 3595.3687109947205
+  valid_ppl: 35.955731587149806
+config_10_j3:
+  test_ppl: 39.72811206650994
+  test_ppl_nomem: 39.72811206650994
+  test_word_ppl: 59.97462485961183
+  test_word_ppl_nomem: 59.97462485961183
+  train_elapsed: 4233.3457663059235
+  valid_ppl: 39.28166107052575
+config_10_j4:
+  test_ppl: 28.713448682418054
+  test_ppl_nomem: 28.713448682418054
+  test_word_ppl: 41.800494706826086
+  test_word_ppl_nomem: 41.800494706826086
+  train_elapsed: 7391.697843074799
+  valid_ppl: 28.26598304366473
+config_10_j5:
+  test_ppl: 27.665242442692758
+  test_ppl_nomem: 27.665242442692758
+  test_word_ppl: 40.10735797202286
+  test_word_ppl_nomem: 40.10735797202286
+  train_elapsed: 10680.9022397995
+  valid_ppl: 27.106885138846103
+config_10_j6:
+  test_ppl: 47.15893500453358
+  test_ppl_nomem: 47.15893500453358
+  test_word_ppl: 72.57099167744799
+  test_word_ppl_nomem: 72.57099167744799
+  train_elapsed: 2409.374351501465
+  valid_ppl: 47.457911952193456
+config_10_j7:
+  test_ppl: 26.45275590389398
+  test_ppl_nomem: 26.45275590389398
+  test_word_ppl: 38.157793955136384
+  test_word_ppl_nomem: 38.157793955136384
+  train_elapsed: 9002.018144130707
+  valid_ppl: 25.927028041748226
+config_10_j8:
+  test_ppl: 61.499998556238175
+  test_ppl_nomem: 61.499998556238175
+  test_word_ppl: 97.4926875729162
+  test_word_ppl_nomem: 97.4926875729162
+  train_elapsed: 3383.5833830833435
+  valid_ppl: 61.96145681551296
+config_10_j9:
+  test_ppl: 43.09693214524104
+  test_ppl_nomem: 43.09693214524104
+  test_word_ppl: 65.65529179384784
+  test_word_ppl_nomem: 65.65529179384784
+  train_elapsed: 2694.9572744369507
+  valid_ppl: 42.94530257343213
+config_11_j0:
+  test_ppl: 26.947839102409365
+  test_ppl_nomem: 26.947839102409365
+  test_word_ppl: 38.95267588993899
+  test_word_ppl_nomem: 38.95267588993899
+  train_elapsed: 8751.502572536469
+  valid_ppl: 26.319338275030553
+config_11_j1:
+  test_ppl: 56.30523236037879
+  test_ppl_nomem: 56.30523236037879
+  test_word_ppl: 88.38099414288935
+  test_word_ppl_nomem: 88.38099414288935
+  train_elapsed: 4203.315364599228
+  valid_ppl: 56.24544582906866
+config_11_j2:
+  test_ppl: 42.08955034353559
+  test_ppl_nomem: 42.08955034353559
+  test_word_ppl: 63.95118275995299
+  test_word_ppl_nomem: 63.95118275995299
+  train_elapsed: 2543.0093591213226
+  valid_ppl: 42.09720769219274
+config_11_j3:
+  test_ppl: 54.080349060257205
+  test_ppl_nomem: 54.080349060257205
+  test_word_ppl: 84.50668324306463
+  test_word_ppl_nomem: 84.50668324306463
+  train_elapsed: 5044.205526828766
+  valid_ppl: 54.21304655385706
+config_11_j4:
+  test_ppl: 40.481535509323585
+  test_ppl_nomem: 40.481535509323585
+  test_word_ppl: 61.240514050936504
+  test_word_ppl_nomem: 61.240514050936504
+  train_elapsed: 5251.191536903381
+  valid_ppl: 40.026608254141486
+config_11_j5:
+  test_ppl: 73.5349968324669
+  test_ppl_nomem: 73.5349968324669
+  test_word_ppl: 118.92500557832926
+  test_word_ppl_nomem: 118.92500557832926
+  train_elapsed: 1885.6890285015106
+  valid_ppl: 74.37871180832926
+config_11_j6:
+  test_ppl: 31.077129956871328
+  test_ppl_nomem: 31.077129956871328
+  test_word_ppl: 45.64361152287683
+  test_word_ppl_nomem: 45.64361152287683
+  train_elapsed: 6428.750368118286
+  valid_ppl: 30.51894374262344
+config_11_j7:
+  test_ppl: 52.928461126581496
+  test_ppl_nomem: 52.928461126581496
+  test_word_ppl: 82.5078152523283
+  test_word_ppl_nomem: 82.5078152523283
+  train_elapsed: 4730.615128278732
+  valid_ppl: 53.20142025663575
+config_11_j8:
+  test_ppl: 57.82635105823646
+  test_ppl_nomem: 57.82635105823646
+  test_word_ppl: 91.03968215077079
+  test_word_ppl_nomem: 91.03968215077079
+  train_elapsed: 3640.0463054180145
+  valid_ppl: 57.94694635926259
+config_11_j9:
+  test_ppl: 26.625823970938814
+  test_ppl_nomem: 26.625823970938814
+  test_word_ppl: 38.4354837813236
+  test_word_ppl_nomem: 38.4354837813236
+  train_elapsed: 10156.265248060226
+  valid_ppl: 26.113336610955447
+config_12_j0:
+  test_ppl: 48.9076149489053
+  test_ppl_nomem: 48.9076149489053
+  test_word_ppl: 75.56909217929626
+  test_word_ppl_nomem: 75.56909217929626
+  train_elapsed: 2719.417196750641
+  valid_ppl: 48.99532203625733
+config_12_j1:
+  test_ppl: 29.929353228018925
+  test_ppl_nomem: 29.929353228018925
+  test_word_ppl: 43.77321024399649
+  test_word_ppl_nomem: 43.77321024399649
+  train_elapsed: 5475.14806842804
+  valid_ppl: 29.34049711044901
+config_12_j2:
+  test_ppl: 53.67132766341586
+  test_ppl_nomem: 53.67132766341586
+  test_word_ppl: 83.79631701199831
+  test_word_ppl_nomem: 83.79631701199831
+  train_elapsed: 5078.799345970154
+  valid_ppl: 53.91733445400484
+config_12_j3:
+  test_ppl: 67.71887421507871
+  test_ppl_nomem: 67.71887421507871
+  test_word_ppl: 108.5141839815828
+  test_word_ppl_nomem: 108.5141839815828
+  train_elapsed: 2143.888401031494
+  valid_ppl: 68.10731307762948
+config_12_j4:
+  test_ppl: 36.813022329871266
+  test_ppl_nomem: 36.813022329871266
+  test_word_ppl: 55.10219346758884
+  test_word_ppl_nomem: 55.10219346758884
+  train_elapsed: 3419.8905832767487
+  valid_ppl: 36.30951680524487
+config_12_j5:
+  test_ppl: 24.999703482073716
+  test_ppl_nomem: 24.999703482073716
+  test_word_ppl: 35.83462942472555
+  test_word_ppl_nomem: 35.83462942472555
+  train_elapsed: 11543.455045223236
+  valid_ppl: 24.350794746532646
+config_12_j6:
+  test_ppl: 33.82662120789024
+  test_ppl_nomem: 33.82662120789024
+  test_word_ppl: 50.15520963919613
+  test_word_ppl_nomem: 50.15520963919613
+  train_elapsed: 4756.229612588882
+  valid_ppl: 33.488875284235796
+config_12_j7:
+  test_ppl: 42.93277191728147
+  test_ppl_nomem: 42.93277191728147
+  test_word_ppl: 65.37726819329541
+  test_word_ppl_nomem: 65.37726819329541
+  train_elapsed: 3148.7343723773956
+  valid_ppl: 43.044920127425975
+config_12_j8:
+  test_ppl: 36.25176091189518
+  test_ppl_nomem: 36.25176091189518
+  test_word_ppl: 54.16891322868418
+  test_word_ppl_nomem: 54.16891322868418
+  train_elapsed: 3446.232746362686
+  valid_ppl: 35.734856159697046
+config_12_j9:
+  test_ppl: 34.20746044088721
+  test_ppl_nomem: 34.20746044088721
+  test_word_ppl: 50.783427440976084
+  test_word_ppl_nomem: 50.783427440976084
+  train_elapsed: 4336.055862665176
+  valid_ppl: 33.94976186696252
+config_13_j0:
+  test_ppl: 36.23226733634777
+  test_ppl_nomem: 36.23226733634777
+  test_word_ppl: 54.13650820556989
+  test_word_ppl_nomem: 54.13650820556989
+  train_elapsed: 5745.835981369019
+  valid_ppl: 35.78050911296585
+config_13_j1:
+  test_ppl: 30.805444987268114
+  test_ppl_nomem: 30.805444987268114
+  test_word_ppl: 45.20016701572587
+  test_word_ppl_nomem: 45.20016701572587
+  train_elapsed: 7051.490056276321
+  valid_ppl: 30.189431789086402
+config_13_j2:
+  test_ppl: 40.155963422618875
+  test_ppl_nomem: 40.155963422618875
+  test_word_ppl: 60.69316679782515
+  test_word_ppl_nomem: 60.69316679782515
+  train_elapsed: 4273.127927064896
+  valid_ppl: 39.76122074351297
+config_13_j3:
+  test_ppl: 42.20747514689182
+  test_ppl_nomem: 42.20747514689182
+  test_word_ppl: 64.15044484378123
+  test_word_ppl_nomem: 64.15044484378123
+  train_elapsed: 3651.048385620117
+  valid_ppl: 41.928097714019586
+config_13_j4:
+  test_ppl: 29.18451186804204
+  test_ppl_nomem: 29.18451186804204
+  test_word_ppl: 42.563676015673764
+  test_word_ppl_nomem: 42.563676015673764
+  train_elapsed: 7157.309233903885
+  valid_ppl: 28.378020234673667
+config_13_j5:
+  test_ppl: 41.67479649202411
+  test_ppl_nomem: 41.67479649202411
+  test_word_ppl: 63.2509091288481
+  test_word_ppl_nomem: 63.2509091288481
+  train_elapsed: 4603.19749546051
+  valid_ppl: 41.35658365250346
+config_13_j6:
+  test_ppl: 54.167426180772026
+  test_ppl_nomem: 54.167426180772026
+  test_word_ppl: 84.65797134321211
+  test_word_ppl_nomem: 84.65797134321211
+  train_elapsed: 5093.035268306732
+  valid_ppl: 54.20906567758388
+config_13_j7:
+  test_ppl: 46.75663447603149
+  test_ppl_nomem: 46.75663447603149
+  test_word_ppl: 71.8829494784086
+  test_word_ppl_nomem: 71.8829494784086
+  train_elapsed: 2590.3818683624268
+  valid_ppl: 46.69933724598519
+config_13_j8:
+  test_ppl: 51.384988386012274
+  test_ppl_nomem: 51.384988386012274
+  test_word_ppl: 79.83703777753031
+  test_word_ppl_nomem: 79.83703777753031
+  train_elapsed: 6450.027998924255
+  valid_ppl: 51.59074050783491
+config_13_j9:
+  test_ppl: 29.18539556391188
+  test_ppl_nomem: 29.18539556391188
+  test_word_ppl: 42.56511521987291
+  test_word_ppl_nomem: 42.56511521987291
+  train_elapsed: 7092.667821884155
+  valid_ppl: 28.604458390608503
+config_14_j0:
+  test_ppl: 57.54520540346234
+  test_ppl_nomem: 57.54520540346234
+  test_word_ppl: 90.5477768458453
+  test_word_ppl_nomem: 90.5477768458453
+  train_elapsed: 3764.6660385131836
+  valid_ppl: 57.90852402425892
+config_14_j1:
+  test_ppl: 38.485605578841
+  test_ppl_nomem: 38.485605578841
+  test_word_ppl: 57.89274392178145
+  test_word_ppl_nomem: 57.89274392178145
+  train_elapsed: 3498.9427032470703
+  valid_ppl: 38.20989599953404
+config_14_j2:
+  test_ppl: 69.66327825215348
+  test_ppl_nomem: 69.66327825215348
+  test_word_ppl: 111.98397460093292
+  test_word_ppl_nomem: 111.98397460093292
+  train_elapsed: 2783.221335172653
+  valid_ppl: 70.23597320456545
+config_14_j3:
+  test_ppl: 26.38834712345384
+  test_ppl_nomem: 26.38834712345384
+  test_word_ppl: 38.054527397544256
+  test_word_ppl_nomem: 38.054527397544256
+  train_elapsed: 10292.1004281044
+  valid_ppl: 25.879980226366776
+config_14_j4:
+  test_ppl: 30.596060467618766
+  test_ppl_nomem: 30.596060467618766
+  test_word_ppl: 44.85871542015884
+  test_word_ppl_nomem: 44.85871542015884
+  train_elapsed: 5472.38001036644
+  valid_ppl: 30.20371544638461
+config_14_j5:
+  test_ppl: 38.703352630772734
+  test_ppl_nomem: 38.703352630772734
+  test_word_ppl: 58.25705335199309
+  test_word_ppl_nomem: 58.25705335199309
+  train_elapsed: 4554.527192831039
+  valid_ppl: 38.48170611096264
+config_14_j6:
+  test_ppl: 28.891207542755886
+  test_ppl_nomem: 28.891207542755886
+  test_word_ppl: 42.08830848996045
+  test_word_ppl_nomem: 42.08830848996045
+  train_elapsed: 7239.1113929748535
+  valid_ppl: 28.291239121925802
+config_14_j7:
+  test_ppl: 26.533537026969185
+  test_ppl_nomem: 26.533537026969185
+  test_word_ppl: 38.28738421318487
+  test_word_ppl_nomem: 38.28738421318487
+  train_elapsed: 10540.881862401962
+  valid_ppl: 26.015654771909848
+config_14_j8:
+  test_ppl: 37.000472440639484
+  test_ppl_nomem: 37.000472440639484
+  test_word_ppl: 55.414246546202946
+  test_word_ppl_nomem: 55.414246546202946
+  train_elapsed: 5910.487355709076
+  valid_ppl: 36.43355596698241
+config_14_j9:
+  test_ppl: 26.30141037878916
+  test_ppl_nomem: 26.30141037878916
+  test_word_ppl: 37.91512990047698
+  test_word_ppl_nomem: 37.91512990047698
+  train_elapsed: 9080.774965763092
+  valid_ppl: 25.73914589388689
+config_15_j0:
+  test_ppl: 30.594594274228783
+  test_ppl_nomem: 30.594594274228783
+  test_word_ppl: 44.85631685442255
+  test_word_ppl_nomem: 44.85631685442255
+  train_elapsed: 7303.653802394867
+  valid_ppl: 30.072121512775375
+config_15_j1:
+  test_ppl: 56.36981298671229
+  test_ppl_nomem: 56.36981298671229
+  test_word_ppl: 88.49374388507712
+  test_word_ppl_nomem: 88.49374388507712
+  train_elapsed: 1852.2984693050385
+  valid_ppl: 56.885605367087095
+config_15_j2:
+  test_ppl: 32.88679856006697
+  test_ppl_nomem: 32.88679856006697
+  test_word_ppl: 48.60827401625142
+  test_word_ppl_nomem: 48.60827401625142
+  train_elapsed: 4542.7309403419495
+  valid_ppl: 32.44716472625173
+config_15_j3:
+  test_ppl: 30.156376369074714
+  test_ppl_nomem: 30.156376369074714
+  test_word_ppl: 44.14251844300934
+  test_word_ppl_nomem: 44.14251844300934
+  train_elapsed: 5824.961114883423
+  valid_ppl: 29.68111651196202
+config_15_j4:
+  test_ppl: 31.76364907299493
+  test_ppl_nomem: 31.76364907299493
+  test_word_ppl: 46.766060084902584
+  test_word_ppl_nomem: 46.766060084902584
+  train_elapsed: 5411.083491325378
+  valid_ppl: 30.97007901773444
+config_15_j5:
+  test_ppl: 61.52780540003503
+  test_ppl_nomem: 61.52780540003503
+  test_word_ppl: 97.54176353162345
+  test_word_ppl_nomem: 97.54176353162345
+  train_elapsed: 2481.3104832172394
+  valid_ppl: 61.940542114430436
+config_15_j6:
+  test_ppl: 32.596883644082105
+  test_ppl_nomem: 32.596883644082105
+  test_word_ppl: 48.13207775800186
+  test_word_ppl_nomem: 48.13207775800186
+  train_elapsed: 5195.711906909943
+  valid_ppl: 32.20033948374199
+config_15_j7:
+  test_ppl: 68.17086595764705
+  test_ppl_nomem: 68.17086595764705
+  test_word_ppl: 109.31970178977474
+  test_word_ppl_nomem: 109.31970178977474
+  train_elapsed: 2871.4805846214294
+  valid_ppl: 69.06567274186432
+config_15_j8:
+  test_ppl: 30.367580731538784
+  test_ppl_nomem: 30.367580731538784
+  test_word_ppl: 44.48640028694276
+  test_word_ppl_nomem: 44.48640028694276
+  train_elapsed: 5110.440851449966
+  valid_ppl: 29.685391043624676
+config_15_j9:
+  test_ppl: 41.90521212027726
+  test_ppl_nomem: 41.90521212027726
+  test_word_ppl: 63.6398282693725
+  test_word_ppl_nomem: 63.6398282693725
+  train_elapsed: 4294.161275625229
+  valid_ppl: 41.564929668724886
+config_16_j0:
+  test_ppl: 30.5097551804499
+  test_ppl_nomem: 30.5097551804499
+  test_word_ppl: 44.718028747993586
+  test_word_ppl_nomem: 44.718028747993586
+  train_elapsed: 5959.575459480286
+  valid_ppl: 29.953903011090098
+config_16_j1:
+  test_ppl: 26.58196308672962
+  test_ppl_nomem: 26.58196308672962
+  test_word_ppl: 38.365088070183944
+  test_word_ppl_nomem: 38.365088070183944
+  train_elapsed: 8140.261818170548
+  valid_ppl: 26.03690119822323
+config_16_j2:
+  test_ppl: 37.31184572032755
+  test_ppl_nomem: 37.31184572032755
+  test_word_ppl: 55.93296943963162
+  test_word_ppl_nomem: 55.93296943963162
+  train_elapsed: 5452.222882986069
+  valid_ppl: 36.85360277422781
+config_16_j3:
+  test_ppl: 37.44329030804217
+  test_ppl_nomem: 37.44329030804217
+  test_word_ppl: 56.152076178430356
+  test_word_ppl_nomem: 56.152076178430356
+  train_elapsed: 5838.702527761459
+  valid_ppl: 36.92212266592319
+config_16_j4:
+  test_ppl: 30.731192674593828
+  test_ppl_nomem: 30.731192674593828
+  test_word_ppl: 45.07905866701628
+  test_word_ppl_nomem: 45.07905866701628
+  train_elapsed: 5687.831567525864
+  valid_ppl: 30.181954282710155
+config_16_j5:
+  test_ppl: 56.31444212396817
+  test_ppl_nomem: 56.31444212396817
+  test_word_ppl: 88.3970262497866
+  test_word_ppl_nomem: 88.3970262497866
+  train_elapsed: 4286.6595957279205
+  valid_ppl: 56.57292801531824
+config_16_j6:
+  test_ppl: 32.20920782359884
+  test_ppl_nomem: 32.20920782359884
+  test_word_ppl: 47.496019247872695
+  test_word_ppl_nomem: 47.496019247872695
+  train_elapsed: 4934.900274991989
+  valid_ppl: 31.67130156195356
+config_16_j7:
+  test_ppl: 25.345209090912448
+  test_ppl_nomem: 25.345209090912448
+  test_word_ppl: 36.38568360141177
+  test_word_ppl_nomem: 36.38568360141177
+  train_elapsed: 11216.40667963028
+  valid_ppl: 24.737425017955548
+config_16_j8:
+  test_ppl: 60.0623773148707
+  test_ppl_nomem: 60.0623773148707
+  test_word_ppl: 94.96212679230409
+  test_word_ppl_nomem: 94.96212679230409
+  train_elapsed: 3720.107169151306
+  valid_ppl: 60.66134200244094
+config_16_j9:
+  test_ppl: 58.33059979062674
+  test_ppl_nomem: 58.33059979062674
+  test_word_ppl: 91.92284403488502
+  test_word_ppl_nomem: 91.92284403488502
+  train_elapsed: 4031.3835289478307
+  valid_ppl: 59.0382229929839
+config_17_j0:
+  test_ppl: 51.3586796832824
+  test_ppl_nomem: 51.3586796832824
+  test_word_ppl: 79.79155714884538
+  test_word_ppl_nomem: 79.79155714884538
+  train_elapsed: 5717.600237369537
+  valid_ppl: 51.30705681092543
+config_17_j1:
+  test_ppl: 38.46661660037428
+  test_ppl_nomem: 38.46661660037428
+  test_word_ppl: 57.86097753136016
+  test_word_ppl_nomem: 57.86097753136016
+  train_elapsed: 4255.653980255127
+  valid_ppl: 38.12528551028318
+config_17_j2:
+  test_ppl: 44.002866932499956
+  test_ppl_nomem: 44.002866932499956
+  test_word_ppl: 67.1916001203073
+  test_word_ppl_nomem: 67.1916001203073
+  train_elapsed: 3607.1979377269745
+  valid_ppl: 43.751851659200625
+config_17_j3:
+  test_ppl: 39.29893480848882
+  test_ppl_nomem: 39.29893480848882
+  test_word_ppl: 59.25466433252752
+  test_word_ppl_nomem: 59.25466433252752
+  train_elapsed: 6010.633905649185
+  valid_ppl: 38.90134640579217
+config_17_j4:
+  test_ppl: 39.74279625565044
+  test_ppl_nomem: 39.74279625565044
+  test_word_ppl: 59.999216049643856
+  test_word_ppl_nomem: 59.999216049643856
+  train_elapsed: 4004.412791967392
+  valid_ppl: 39.340426529282446
+config_17_j5:
+  test_ppl: 53.0666692869119
+  test_ppl_nomem: 53.0666692869119
+  test_word_ppl: 82.74739204337872
+  test_word_ppl_nomem: 82.74739204337872
+  train_elapsed: 5050.227007865906
+  valid_ppl: 53.274734705692126
+config_17_j6:
+  test_ppl: 27.958256454040484
+  test_ppl_nomem: 27.958256454040484
+  test_word_ppl: 40.57994988934379
+  test_word_ppl_nomem: 40.57994988934379
+  train_elapsed: 9700.6858689785
+  valid_ppl: 27.48505773280971
+config_17_j7:
+  test_ppl: 32.5237330911658
+  test_ppl_nomem: 32.5237330911658
+  test_word_ppl: 48.01197237808295
+  test_word_ppl_nomem: 48.01197237808295
+  train_elapsed: 4797.569096326828
+  valid_ppl: 32.03879638688036
+config_17_j8:
+  test_ppl: 28.659103293808272
+  test_ppl_nomem: 28.659103293808272
+  test_word_ppl: 41.712552716077376
+  test_word_ppl_nomem: 41.712552716077376
+  train_elapsed: 10057.40796494484
+  valid_ppl: 28.03955681861363
+config_17_j9:
+  test_ppl: 59.61128183151408
+  test_ppl_nomem: 59.61128183151408
+  test_word_ppl: 94.16954862814748
+  test_word_ppl_nomem: 94.16954862814748
+  train_elapsed: 4065.6536931991573
+  valid_ppl: 59.79872528843121
+config_18_j0:
+  test_ppl: 60.853799298979226
+  test_ppl_nomem: 60.853799298979226
+  test_word_ppl: 96.35451480869169
+  test_word_ppl_nomem: 96.35451480869169
+  train_elapsed: 3136.776538848877
+  valid_ppl: 61.21438843290866
+config_18_j1:
+  test_ppl: 58.58001294133728
+  test_ppl_nomem: 58.58001294133728
+  test_word_ppl: 92.35988550669241
+  test_word_ppl_nomem: 92.35988550669241
+  train_elapsed: 3835.0064601898193
+  valid_ppl: 58.73295057320496
+config_18_j2:
+  test_ppl: 36.347774311759004
+  test_ppl_nomem: 36.347774311759004
+  test_word_ppl: 54.32845263761051
+  test_word_ppl_nomem: 54.32845263761051
+  train_elapsed: 3326.3561697006226
+  valid_ppl: 35.97401283378852
+config_18_j3:
+  test_ppl: 38.75037733358871
+  test_ppl_nomem: 38.75037733358871
+  test_word_ppl: 58.33574617654084
+  test_word_ppl_nomem: 58.33574617654084
+  train_elapsed: 3156.6448214054108
+  valid_ppl: 38.60912455677351
+config_18_j4:
+  test_ppl: 37.81195571658787
+  test_ppl_nomem: 37.81195571658787
+  test_word_ppl: 56.767164142422956
+  test_word_ppl_nomem: 56.767164142422956
+  train_elapsed: 3634.6438677310944
+  valid_ppl: 37.60096283432599
+config_18_j5:
+  test_ppl: 25.12964879883956
+  test_ppl_nomem: 25.12964879883956
+  test_word_ppl: 36.04179901194845
+  test_word_ppl_nomem: 36.04179901194845
+  train_elapsed: 10883.0382335186
+  valid_ppl: 24.594310243569943
+config_18_j6:
+  test_ppl: 69.86120623396276
+  test_ppl_nomem: 69.86120623396276
+  test_word_ppl: 112.33775782700114
+  test_word_ppl_nomem: 112.33775782700114
+  train_elapsed: 2971.8276274204254
+  valid_ppl: 70.83215286042562
+config_18_j7:
+  test_ppl: 54.86863865030768
+  test_ppl_nomem: 54.86863865030768
+  test_word_ppl: 85.8773920646631
+  test_word_ppl_nomem: 85.8773920646631
+  train_elapsed: 5314.875392913818
+  valid_ppl: 54.88734867470678
+config_18_j8:
+  test_ppl: 42.45868901238013
+  test_ppl_nomem: 42.45868901238013
+  test_word_ppl: 64.57511763716153
+  test_word_ppl_nomem: 64.57511763716153
+  train_elapsed: 3356.4569618701935
+  valid_ppl: 42.304806288120766
+config_18_j9:
+  test_ppl: 71.14071958982498
+  test_ppl_nomem: 71.14071958982498
+  test_word_ppl: 114.62763880136298
+  test_word_ppl_nomem: 114.62763880136298
+  train_elapsed: 2795.1346518993378
+  valid_ppl: 71.81690212371461
+config_19_j0:
+  test_ppl: 41.50814540388874
+  test_ppl_nomem: 41.50814540388874
+  test_word_ppl: 62.96974609114347
+  test_word_ppl_nomem: 62.96974609114347
+  train_elapsed: 3984.4441542625427
+  valid_ppl: 41.133528925993666
+config_19_j1:
+  test_ppl: 28.739364952680006
+  test_ppl_nomem: 28.739364952680006
+  test_word_ppl: 41.84244586535045
+  test_word_ppl_nomem: 41.84244586535045
+  train_elapsed: 8327.339725494385
+  valid_ppl: 28.164801236531687
+config_19_j2:
+  test_ppl: 26.666927815066853
+  test_ppl_nomem: 26.666927815066853
+  test_word_ppl: 38.501477228228
+  test_word_ppl_nomem: 38.501477228228
+  train_elapsed: 10098.430926322937
+  valid_ppl: 26.059892177961252
+config_19_j3:
+  test_ppl: 28.249025728123254
+  test_ppl_nomem: 28.249025728123254
+  test_word_ppl: 41.049469617189715
+  test_word_ppl_nomem: 41.049469617189715
+  train_elapsed: 8054.0700771808615
+  valid_ppl: 27.596012812738863
+config_19_j4:
+  test_ppl: 33.03354453431116
+  test_ppl_nomem: 33.03354453431116
+  test_word_ppl: 48.849493173684614
+  test_word_ppl_nomem: 48.849493173684614
+  train_elapsed: 5066.359354019165
+  valid_ppl: 32.61105453744529
+config_19_j5:
+  test_ppl: 39.86277473980775
+  test_ppl_nomem: 39.86277473980775
+  test_word_ppl: 60.20066383398764
+  test_word_ppl_nomem: 60.20066383398764
+  train_elapsed: 5754.704609632492
+  valid_ppl: 39.54175478718316
+config_19_j6:
+  test_ppl: 55.40431603047842
+  test_ppl_nomem: 55.40431603047842
+  test_word_ppl: 86.81008039203721
+  test_word_ppl_nomem: 86.81008039203721
+  train_elapsed: 3920.3622303009033
+  valid_ppl: 55.454349466189406
+config_19_j7:
+  test_ppl: 44.04277218221393
+  test_ppl_nomem: 44.04277218221393
+  test_word_ppl: 67.25931597335595
+  test_word_ppl_nomem: 67.25931597335595
+  train_elapsed: 3791.010766029358
+  valid_ppl: 43.71736909689048
+config_19_j8:
+  test_ppl: 61.48328530146043
+  test_ppl_nomem: 61.48328530146043
+  test_word_ppl: 97.46330494290511
+  test_word_ppl_nomem: 97.46330494290511
+  train_elapsed: 2942.903708219528
+  valid_ppl: 62.14031717096648
+config_19_j9:
+  test_ppl: 28.882398877237296
+  test_ppl_nomem: 28.882398877237296
+  test_word_ppl: 42.07406880199074
+  test_word_ppl_nomem: 42.07406880199074
+  train_elapsed: 10416.358324050903
+  valid_ppl: 28.22147916882405
+config_1_j0:
+  test_ppl: 60.256238442164666
+  test_ppl_nomem: 60.256238442164666
+  test_word_ppl: 95.30304258290604
+  test_word_ppl_nomem: 95.30304258290604
+  train_elapsed: 3241.614206790924
+  valid_ppl: 60.65723470886222
+config_1_j1:
+  test_ppl: 29.95623125240976
+  test_ppl_nomem: 29.95623125240976
+  test_word_ppl: 43.81691152940994
+  test_word_ppl_nomem: 43.81691152940994
+  train_elapsed: 5542.818926334381
+  valid_ppl: 29.35240556045348
+config_1_j2:
+  test_ppl: 31.96319440002689
+  test_ppl_nomem: 31.96319440002689
+  test_word_ppl: 47.09285291655157
+  test_word_ppl_nomem: 47.09285291655157
+  train_elapsed: 4443.684039354324
+  valid_ppl: 31.57884608447116
+config_1_j3:
+  test_ppl: 28.805583464963703
+  test_ppl_nomem: 28.805583464963703
+  test_word_ppl: 41.949668611005514
+  test_word_ppl_nomem: 41.949668611005514
+  train_elapsed: 10088.354762554169
+  valid_ppl: 28.26192637521488
+config_1_j4:
+  test_ppl: 52.12965189115008
+  test_ppl_nomem: 52.12965189115008
+  test_word_ppl: 81.124455423224
+  test_word_ppl_nomem: 81.124455423224
+  train_elapsed: 5437.591462850571
+  valid_ppl: 52.104402935034344
+config_1_j5:
+  test_ppl: 36.369064202798
+  test_ppl_nomem: 36.369064202798
+  test_word_ppl: 54.36382235775406
+  test_word_ppl_nomem: 54.36382235775406
+  train_elapsed: 6201.700346469879
+  valid_ppl: 35.864695482942174
+config_1_j6:
+  test_ppl: 42.67088819640605
+  test_ppl_nomem: 42.67088819640605
+  test_word_ppl: 64.93400915433135
+  test_word_ppl_nomem: 64.93400915433135
+  train_elapsed: 2443.5907945632935
+  valid_ppl: 42.47214453167912
+config_1_j7:
+  test_ppl: 61.43208892981825
+  test_ppl_nomem: 61.43208892981825
+  test_word_ppl: 97.37311729713474
+  test_word_ppl_nomem: 97.37311729713474
+  train_elapsed: 2954.82501411438
+  valid_ppl: 61.54749484690421
+config_1_j8:
+  test_ppl: 29.626670156044224
+  test_ppl_nomem: 29.626670156044224
+  test_word_ppl: 43.2812710445951
+  test_word_ppl_nomem: 43.2812710445951
+  train_elapsed: 7531.015887737274
+  valid_ppl: 29.105976942353276
+config_1_j9:
+  test_ppl: 60.58190655871209
+  test_ppl_nomem: 60.58190655871209
+  test_word_ppl: 95.8759008821093
+  test_word_ppl_nomem: 95.8759008821093
+  train_elapsed: 3749.0925245285034
+  valid_ppl: 61.15064303687273
+config_2_j0:
+  test_ppl: 44.78015018730116
+  test_ppl_nomem: 44.78015018730116
+  test_word_ppl: 68.51252534842068
+  test_word_ppl_nomem: 68.51252534842068
+  train_elapsed: 2675.8753690719604
+  valid_ppl: 44.82178621594396
+config_2_j1:
+  test_ppl: 30.439357839979355
+  test_ppl_nomem: 30.439357839979355
+  test_word_ppl: 44.60332092536124
+  test_word_ppl_nomem: 44.60332092536124
+  train_elapsed: 6237.672930955887
+  valid_ppl: 29.740533835670213
+config_2_j2:
+  test_ppl: 42.459762057611584
+  test_ppl_nomem: 42.459762057611584
+  test_word_ppl: 64.57691180612841
+  test_word_ppl_nomem: 64.57691180612841
+  train_elapsed: 2525.9708523750305
+  valid_ppl: 42.37899512819931
+config_2_j3:
+  test_ppl: 29.695138428214385
+  test_ppl_nomem: 29.695138428214385
+  test_word_ppl: 43.392499292394994
+  test_word_ppl_nomem: 43.392499292394994
+  train_elapsed: 8569.328375577927
+  valid_ppl: 29.18751097609712
+config_2_j4:
+  test_ppl: 42.9872925769568
+  test_ppl_nomem: 42.9872925769568
+  test_word_ppl: 65.46957714195045
+  test_word_ppl_nomem: 65.46957714195045
+  train_elapsed: 2388.13019824028
+  valid_ppl: 42.59396432193383
+config_2_j5:
+  test_ppl: 27.603389308268195
+  test_ppl_nomem: 27.603389308268195
+  test_word_ppl: 40.007675393937866
+  test_word_ppl_nomem: 40.007675393937866
+  train_elapsed: 8045.08594584465
+  valid_ppl: 26.94183894611534
+config_2_j6:
+  test_ppl: 45.42473263290729
+  test_ppl_nomem: 45.42473263290729
+  test_word_ppl: 69.60990244965797
+  test_word_ppl_nomem: 69.60990244965797
+  train_elapsed: 2779.585448026657
+  valid_ppl: 45.15904886641531
+config_2_j7:
+  test_ppl: 43.83060540422923
+  test_ppl_nomem: 43.83060540422923
+  test_word_ppl: 66.89919717230815
+  test_word_ppl_nomem: 66.89919717230815
+  train_elapsed: 3102.384407043457
+  valid_ppl: 43.69075677377611
+config_2_j8:
+  test_ppl: 39.104809342343216
+  test_ppl_nomem: 39.104809342343216
+  test_word_ppl: 58.929325072045145
+  test_word_ppl_nomem: 58.929325072045145
+  train_elapsed: 4626.670772314072
+  valid_ppl: 38.96509793885542
+config_2_j9:
+  test_ppl: 26.42677822766621
+  test_ppl_nomem: 26.42677822766621
+  test_word_ppl: 38.116130047738814
+  test_word_ppl_nomem: 38.116130047738814
+  train_elapsed: 10230.478185892105
+  valid_ppl: 25.79442925733498
+config_3_j0:
+  test_ppl: 61.6682045395754
+  test_ppl_nomem: 61.6682045395754
+  test_word_ppl: 97.78920580905093
+  test_word_ppl_nomem: 97.78920580905093
+  train_elapsed: 3286.804696083069
+  valid_ppl: 62.093370076784815
+config_3_j1:
+  test_ppl: 33.4753604734831
+  test_ppl_nomem: 33.4753604734831
+  test_word_ppl: 49.57648422170442
+  test_word_ppl_nomem: 49.57648422170442
+  train_elapsed: 4826.842359304428
+  valid_ppl: 33.12867929252066
+config_3_j2:
+  test_ppl: 33.319954260032006
+  test_ppl_nomem: 33.319954260032006
+  test_word_ppl: 49.32064677529339
+  test_word_ppl_nomem: 49.32064677529339
+  train_elapsed: 5129.547272443771
+  valid_ppl: 33.0276618275472
+config_3_j3:
+  test_ppl: 37.561368385409494
+  test_ppl_nomem: 37.561368385409494
+  test_word_ppl: 56.34899574343619
+  test_word_ppl_nomem: 56.34899574343619
+  train_elapsed: 5334.416182518005
+  valid_ppl: 37.041100555136424
+config_3_j4:
+  test_ppl: 26.29372983795241
+  test_ppl_nomem: 26.29372983795241
+  test_word_ppl: 37.90283859309195
+  test_word_ppl_nomem: 37.90283859309195
+  train_elapsed: 9199.675937891006
+  valid_ppl: 25.786921357495586
+config_3_j5:
+  test_ppl: 60.247217139707324
+  test_ppl_nomem: 60.247217139707324
+  test_word_ppl: 95.28715660628713
+  test_word_ppl_nomem: 95.28715660628713
+  train_elapsed: 3503.2127389907837
+  valid_ppl: 60.617911332960844
+config_3_j6:
+  test_ppl: 61.42541046544501
+  test_ppl_nomem: 61.42541046544501
+  test_word_ppl: 97.36122448103102
+  test_word_ppl_nomem: 97.36122448103102
+  train_elapsed: 3967.412088871002
+  valid_ppl: 61.91098408159151
+config_3_j7:
+  test_ppl: 42.54762094292189
+  test_ppl_nomem: 42.54762094292189
+  test_word_ppl: 64.72550974228405
+  test_word_ppl_nomem: 64.72550974228405
+  train_elapsed: 3943.1907565593715
+  valid_ppl: 42.359781791381195
+config_3_j8:
+  test_ppl: 52.403876117683126
+  test_ppl_nomem: 52.403876117683126
+  test_word_ppl: 81.5990611000031
+  test_word_ppl_nomem: 81.5990611000031
+  train_elapsed: 5333.324430942535
+  valid_ppl: 52.70274590610225
+config_3_j9:
+  test_ppl: 41.495024966863326
+  test_ppl_nomem: 41.495024966863326
+  test_word_ppl: 62.947616640498595
+  test_word_ppl_nomem: 62.947616640498595
+  train_elapsed: 3923.4866058826447
+  valid_ppl: 41.141041772103485
+config_4_j0:
+  test_ppl: 47.3792033219957
+  test_ppl_nomem: 47.3792033219957
+  test_word_ppl: 72.94791197777597
+  test_word_ppl_nomem: 72.94791197777597
+  train_elapsed: 2954.9735877513885
+  valid_ppl: 47.24976919495854
+config_4_j1:
+  test_ppl: 28.94849833032504
+  test_ppl_nomem: 28.94849833032504
+  test_word_ppl: 42.18112220757535
+  test_word_ppl_nomem: 42.18112220757535
+  train_elapsed: 5702.632232904434
+  valid_ppl: 28.350577703984673
+config_4_j2:
+  test_ppl: 36.443737893214795
+  test_ppl_nomem: 36.443737893214795
+  test_word_ppl: 54.48793349174472
+  test_word_ppl_nomem: 54.48793349174472
+  train_elapsed: 6050.966289520264
+  valid_ppl: 35.964862474212815
+config_4_j3:
+  test_ppl: 30.630832015464467
+  test_ppl_nomem: 30.630832015464467
+  test_word_ppl: 44.91537765339784
+  test_word_ppl_nomem: 44.91537765339784
+  train_elapsed: 6003.401003360748
+  valid_ppl: 30.059928236462838
+config_4_j4:
+  test_ppl: 55.06153961351415
+  test_ppl_nomem: 55.06153961351415
+  test_word_ppl: 86.21312244088065
+  test_word_ppl_nomem: 86.21312244088065
+  train_elapsed: 4743.230487346649
+  valid_ppl: 55.52023087883778
+config_4_j5:
+  test_ppl: 53.28897519923913
+  test_ppl_nomem: 53.28897519923913
+  test_word_ppl: 83.13292100526414
+  test_word_ppl_nomem: 83.13292100526414
+  train_elapsed: 2909.3778069019318
+  valid_ppl: 53.179595214262
+config_4_j6:
+  test_ppl: 31.41010719809533
+  test_ppl_nomem: 31.41010719809533
+  test_word_ppl: 46.187684513454755
+  test_word_ppl_nomem: 46.187684513454755
+  train_elapsed: 4534.280363321304
+  valid_ppl: 30.798115958002075
+config_4_j7:
+  test_ppl: 40.62578337674999
+  test_ppl_nomem: 40.62578337674999
+  test_word_ppl: 61.48321611014224
+  test_word_ppl_nomem: 61.48321611014224
+  train_elapsed: 4019.6823499202724
+  valid_ppl: 40.450469444113395
+config_4_j8:
+  test_ppl: 29.631198236694292
+  test_ppl_nomem: 29.631198236694292
+  test_word_ppl: 43.288645612779895
+  test_word_ppl_nomem: 43.288645612779895
+  train_elapsed: 5472.625416278839
+  valid_ppl: 28.928200178351396
+config_4_j9:
+  test_ppl: 25.060161217456997
+  test_ppl_nomem: 25.060161217456997
+  test_word_ppl: 35.93099608440457
+  test_word_ppl_nomem: 35.93099608440457
+  train_elapsed: 11538.884747982025
+  valid_ppl: 24.327380084613125
+config_5_j0:
+  test_ppl: 31.27910331037996
+  test_ppl_nomem: 31.27910331037996
+  test_word_ppl: 45.97356140506275
+  test_word_ppl_nomem: 45.97356140506275
+  train_elapsed: 6755.069917201996
+  valid_ppl: 30.755417580129674
+config_5_j1:
+  test_ppl: 33.67742803600729
+  test_ppl_nomem: 33.67742803600729
+  test_word_ppl: 49.90933502077456
+  test_word_ppl_nomem: 49.90933502077456
+  train_elapsed: 3901.7057120800023
+  valid_ppl: 33.27187159612461
+config_5_j2:
+  test_ppl: 38.89169253316875
+  test_ppl_nomem: 38.89169253316875
+  test_word_ppl: 58.57232483527933
+  test_word_ppl_nomem: 58.57232483527933
+  train_elapsed: 3507.12122130394
+  valid_ppl: 38.37180300583319
+config_5_j3:
+  test_ppl: 31.03667154429503
+  test_ppl_nomem: 31.03667154429503
+  test_word_ppl: 45.57755980892934
+  test_word_ppl_nomem: 45.57755980892934
+  train_elapsed: 4586.009392261505
+  valid_ppl: 30.501907444137885
+config_5_j4:
+  test_ppl: 35.43091531608072
+  test_ppl_nomem: 35.43091531608072
+  test_word_ppl: 52.80690703231749
+  test_word_ppl_nomem: 52.80690703231749
+  train_elapsed: 3807.437917947769
+  valid_ppl: 35.07486809019064
+config_5_j5:
+  test_ppl: 40.65893249965541
+  test_ppl_nomem: 40.65893249965541
+  test_word_ppl: 61.539000907364404
+  test_word_ppl_nomem: 61.539000907364404
+  train_elapsed: 3714.1599123477936
+  valid_ppl: 40.29303699313424
+config_5_j6:
+  test_ppl: 41.78407704763648
+  test_ppl_nomem: 41.78407704763648
+  test_word_ppl: 63.435318127032524
+  test_word_ppl_nomem: 63.435318127032524
+  train_elapsed: 2629.8696925640106
+  valid_ppl: 41.63993556009874
+config_5_j7:
+  test_ppl: 39.267718349072155
+  test_ppl_nomem: 39.267718349072155
+  test_word_ppl: 59.20233132686815
+  test_word_ppl_nomem: 59.20233132686815
+  train_elapsed: 4548.935822963715
+  valid_ppl: 38.957694509657806
+config_5_j8:
+  test_ppl: 33.04993816298854
+  test_ppl_nomem: 33.04993816298854
+  test_word_ppl: 48.87644025868052
+  test_word_ppl_nomem: 48.87644025868052
+  train_elapsed: 4077.9081430435185
+  valid_ppl: 32.50327602946878
+config_5_j9:
+  test_ppl: 31.14175485630957
+  test_ppl_nomem: 31.14175485630957
+  test_word_ppl: 45.74918164987604
+  test_word_ppl_nomem: 45.74918164987604
+  train_elapsed: 5389.255845308304
+  valid_ppl: 30.661812219739843
+config_6_j0:
+  test_ppl: 63.715752239756725
+  test_ppl_nomem: 63.715752239756725
+  test_word_ppl: 101.40595928716094
+  test_word_ppl_nomem: 101.40595928716094
+  train_elapsed: 3048.113029241562
+  valid_ppl: 64.1015521626014
+config_6_j1:
+  test_ppl: 55.86929932792814
+  test_ppl_nomem: 55.86929932792814
+  test_word_ppl: 87.62055819702124
+  test_word_ppl_nomem: 87.62055819702124
+  train_elapsed: 4417.70387840271
+  valid_ppl: 56.01491958009391
+config_6_j2:
+  test_ppl: 27.864911902390222
+  test_ppl_nomem: 27.864911902390222
+  test_word_ppl: 40.42935162457889
+  test_word_ppl_nomem: 40.42935162457889
+  train_elapsed: 7305.906014680862
+  valid_ppl: 27.33067299699775
+config_6_j3:
+  test_ppl: 35.79586773698936
+  test_ppl_nomem: 35.79586773698936
+  test_word_ppl: 53.41204329380913
+  test_word_ppl_nomem: 53.41204329380913
+  train_elapsed: 3676.331216573715
+  valid_ppl: 35.349980546305595
+config_6_j4:
+  test_ppl: 29.922061416854973
+  test_ppl_nomem: 29.922061416854973
+  test_word_ppl: 43.761336817270816
+  test_word_ppl_nomem: 43.761336817270816
+  train_elapsed: 7176.576784849167
+  valid_ppl: 29.25467836541388
+config_6_j5:
+  test_ppl: 40.9678506315006
+  test_ppl_nomem: 40.9678506315006
+  test_word_ppl: 62.059074874073076
+  test_word_ppl_nomem: 62.059074874073076
+  train_elapsed: 2695.50728392601
+  valid_ppl: 40.76297371098175
+config_6_j6:
+  test_ppl: 27.423398225331223
+  test_ppl_nomem: 27.423398225331223
+  test_word_ppl: 39.7177210293592
+  test_word_ppl_nomem: 39.7177210293592
+  train_elapsed: 7237.379700183868
+  valid_ppl: 26.738352476030627
+config_6_j7:
+  test_ppl: 47.13581265907932
+  test_ppl_nomem: 47.13581265907932
+  test_word_ppl: 72.53138029392535
+  test_word_ppl_nomem: 72.53138029392535
+  train_elapsed: 2515.7362294197083
+  valid_ppl: 47.11015193231661
+config_6_j8:
+  test_ppl: 35.30956568059407
+  test_ppl_nomem: 35.30956568059407
+  test_word_ppl: 52.60587203750527
+  test_word_ppl_nomem: 52.60587203750527
+  train_elapsed: 4098.610435009003
+  valid_ppl: 34.88207561136738
+config_6_j9:
+  test_ppl: 35.283520168539006
+  test_ppl_nomem: 35.283520168539006
+  test_word_ppl: 52.562717612580734
+  test_word_ppl_nomem: 52.562717612580734
+  train_elapsed: 3315.6958293914795
+  valid_ppl: 34.893645829886964
+config_7_j0:
+  test_ppl: 32.15489976135845
+  test_ppl_nomem: 32.15489976135845
+  test_word_ppl: 47.40699100636645
+  test_word_ppl_nomem: 47.40699100636645
+  train_elapsed: 5645.910244464874
+  valid_ppl: 31.598653520760664
+config_7_j1:
+  test_ppl: 55.62129500363169
+  test_ppl_nomem: 55.62129500363169
+  test_word_ppl: 87.18816147057159
+  test_word_ppl_nomem: 87.18816147057159
+  train_elapsed: 5256.771168231964
+  valid_ppl: 55.65249397547788
+config_7_j2:
+  test_ppl: 33.51817476323278
+  test_ppl_nomem: 33.51817476323278
+  test_word_ppl: 49.646977864075524
+  test_word_ppl_nomem: 49.646977864075524
+  train_elapsed: 3925.290573120117
+  valid_ppl: 33.07578586478172
+config_7_j3:
+  test_ppl: 28.937981806635037
+  test_ppl_nomem: 28.937981806635037
+  test_word_ppl: 42.16409915510671
+  test_word_ppl_nomem: 42.16409915510671
+  train_elapsed: 6917.603516817093
+  valid_ppl: 28.424607462367433
+config_7_j4:
+  test_ppl: 27.02058950641612
+  test_ppl_nomem: 27.02058950641612
+  test_word_ppl: 39.069601786486714
+  test_word_ppl_nomem: 39.069601786486714
+  train_elapsed: 8644.415900945663
+  valid_ppl: 26.4769284014617
+config_7_j5:
+  test_ppl: 49.67977582253299
+  test_ppl_nomem: 49.67977582253299
+  test_word_ppl: 76.89675155335797
+  test_word_ppl_nomem: 76.89675155335797
+  train_elapsed: 2915.8436663150787
+  valid_ppl: 49.5955375900068
+config_7_j6:
+  test_ppl: 37.748317839308086
+  test_ppl_nomem: 37.748317839308086
+  test_word_ppl: 56.66095080356889
+  test_word_ppl_nomem: 56.66095080356889
+  train_elapsed: 5356.450675487518
+  valid_ppl: 37.51960605837918
+config_7_j7:
+  test_ppl: 57.30159158332304
+  test_ppl_nomem: 57.30159158332304
+  test_word_ppl: 90.12162508291217
+  test_word_ppl_nomem: 90.12162508291217
+  train_elapsed: 4551.860724925995
+  valid_ppl: 57.63376648800659
+config_7_j8:
+  test_ppl: 30.556031646407934
+  test_ppl_nomem: 30.556031646407934
+  test_word_ppl: 44.793470797795536
+  test_word_ppl_nomem: 44.793470797795536
+  train_elapsed: 6426.596061944962
+  valid_ppl: 29.861711854674404
+config_7_j9:
+  test_ppl: 53.36704152749706
+  test_ppl_nomem: 53.36704152749706
+  test_word_ppl: 83.26830407965767
+  test_word_ppl_nomem: 83.26830407965767
+  train_elapsed: 5451.383802652359
+  valid_ppl: 53.41717096469369
+config_8_j0:
+  test_ppl: 38.46262735435273
+  test_ppl_nomem: 38.46262735435273
+  test_word_ppl: 57.85433519010812
+  test_word_ppl_nomem: 57.85433519010812
+  train_elapsed: 2826.4310677051544
+  valid_ppl: 38.137858743833704
+config_8_j1:
+  test_ppl: 35.917818213635464
+  test_ppl_nomem: 35.917818213635464
+  test_word_ppl: 53.6143883961257
+  test_word_ppl_nomem: 53.6143883961257
+  train_elapsed: 3322.063345193863
+  valid_ppl: 35.420805234774775
+config_8_j2:
+  test_ppl: 31.1454451870993
+  test_ppl_nomem: 31.1454451870993
+  test_word_ppl: 45.755201724236194
+  test_word_ppl_nomem: 45.755201724236194
+  train_elapsed: 6696.875839233398
+  valid_ppl: 30.558253690520562
+config_8_j3:
+  test_ppl: 31.43189204326553
+  test_ppl_nomem: 31.43189204326553
+  test_word_ppl: 46.22331506582867
+  test_word_ppl_nomem: 46.22331506582867
+  train_elapsed: 5378.714547634125
+  valid_ppl: 30.977448969058802
+config_8_j4:
+  test_ppl: 54.60528393208526
+  test_ppl_nomem: 54.60528393208526
+  test_word_ppl: 85.41915588553309
+  test_word_ppl_nomem: 85.41915588553309
+  train_elapsed: 4449.4213783741
+  valid_ppl: 54.68358369076166
+config_8_j5:
+  test_ppl: 38.97267002717955
+  test_ppl_nomem: 38.97267002717955
+  test_word_ppl: 58.70795195177339
+  test_word_ppl_nomem: 58.70795195177339
+  train_elapsed: 4996.768072128296
+  valid_ppl: 38.697161407531766
+config_8_j6:
+  test_ppl: 54.25880883926381
+  test_ppl_nomem: 54.25880883926381
+  test_word_ppl: 84.81677743354085
+  test_word_ppl_nomem: 84.81677743354085
+  train_elapsed: 4831.892664909363
+  valid_ppl: 54.105820232638315
+config_8_j7:
+  test_ppl: 32.18366901072371
+  test_ppl_nomem: 32.18366901072371
+  test_word_ppl: 47.45415840380488
+  test_word_ppl_nomem: 47.45415840380488
+  train_elapsed: 4494.21982049942
+  valid_ppl: 31.683838747090856
+config_8_j8:
+  test_ppl: 37.50262264350615
+  test_ppl_nomem: 37.50262264350615
+  test_word_ppl: 56.25103954877714
+  test_word_ppl_nomem: 56.25103954877714
+  train_elapsed: 5793.315874814987
+  valid_ppl: 37.13208605683345
+config_8_j9:
+  test_ppl: 48.06212568524573
+  test_ppl_nomem: 48.06212568524573
+  test_word_ppl: 74.11798273454082
+  test_word_ppl_nomem: 74.11798273454082
+  train_elapsed: 3256.0706493854523
+  valid_ppl: 47.99981821260532
+config_9_j0:
+  test_ppl: 35.773079611485386
+  test_ppl_nomem: 35.773079611485386
+  test_word_ppl: 53.37422891303953
+  test_word_ppl_nomem: 53.37422891303953
+  train_elapsed: 5813.955780744553
+  valid_ppl: 35.352753497370706
+config_9_j1:
+  test_ppl: 57.36291104296957
+  test_ppl_nomem: 57.36291104296957
+  test_word_ppl: 90.22883784792086
+  test_word_ppl_nomem: 90.22883784792086
+  train_elapsed: 3745.307346343994
+  valid_ppl: 57.58805470831401
+config_9_j2:
+  test_ppl: 30.060824105484514
+  test_ppl_nomem: 30.060824105484514
+  test_word_ppl: 43.98705705958758
+  test_word_ppl_nomem: 43.98705705958758
+  train_elapsed: 5382.381185054779
+  valid_ppl: 29.629135437070595
+config_9_j3:
+  test_ppl: 73.50053678214702
+  test_ppl_nomem: 73.50053678214702
+  test_word_ppl: 118.86317715578156
+  test_word_ppl_nomem: 118.86317715578156
+  train_elapsed: 1899.67173910141
+  valid_ppl: 74.26647406538146
+config_9_j4:
+  test_ppl: 25.81147618082549
+  test_ppl_nomem: 25.81147618082549
+  test_word_ppl: 37.130684121941904
+  test_word_ppl_nomem: 37.130684121941904
+  train_elapsed: 9814.404870986938
+  valid_ppl: 25.266425317930054
+config_9_j5:
+  test_ppl: 39.53344061609677
+  test_ppl_nomem: 39.53344061609677
+  test_word_ppl: 59.64791225910351
+  test_word_ppl_nomem: 59.64791225910351
+  train_elapsed: 4552.018305540085
+  valid_ppl: 39.2039016498516
+config_9_j6:
+  test_ppl: 39.76576183359765
+  test_ppl_nomem: 39.76576183359765
+  test_word_ppl: 60.03778979821446
+  test_word_ppl_nomem: 60.03778979821446
+  train_elapsed: 2913.469037771225
+  valid_ppl: 39.64279550410511
+config_9_j7:
+  test_ppl: 51.55790944860751
+  test_ppl_nomem: 51.55790944860751
+  test_word_ppl: 80.13577290792846
+  test_word_ppl_nomem: 80.13577290792846
+  train_elapsed: 5354.545848846436
+  valid_ppl: 51.680265082655
+config_9_j8:
+  test_ppl: 53.910200459689
+  test_ppl_nomem: 53.910200459689
+  test_word_ppl: 84.21114191432963
+  test_word_ppl_nomem: 84.21114191432963
+  train_elapsed: 5280.667044401169
+  valid_ppl: 53.86039165280827
+config_9_j9:
+  test_ppl: 65.1554486403147
+  test_ppl_nomem: 65.1554486403147
+  test_word_ppl: 103.95673434402283
+  test_word_ppl_nomem: 103.95673434402283
+  train_elapsed: 2603.1870646476746
+  valid_ppl: 65.54940333097652

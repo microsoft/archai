@@ -1,0 +1,270 @@
+M1:
+  AdaEmb: 26013696.0
+  Attn: 2101248.0
+  FFN: 3937024.0
+  nonembedding: 6043392.0
+  total: 32369496.0
+M10:
+  AdaEmb: 49205760.0
+  Attn: 7380480.0
+  FFN: 11312768.0
+  nonembedding: 18702848.0
+  total: 68880472.0
+M11:
+  AdaEmb: 22733312.0
+  Attn: 4827648.0
+  FFN: 14871360.0
+  nonembedding: 19710656.0
+  total: 42694936.0
+M12:
+  AdaEmb: 49205760.0
+  Attn: 11070720.0
+  FFN: 13403776.0
+  nonembedding: 24487936.0
+  total: 74665560.0
+M13:
+  AdaEmb: 35904000.0
+  Attn: 7941120.0
+  FFN: 18308544.0
+  nonembedding: 26262336.0
+  total: 62712216.0
+M14:
+  AdaEmb: 35904000.0
+  Attn: 9926400.0
+  FFN: 21735936.0
+  nonembedding: 31677824.0
+  total: 68127704.0
+M15:
+  AdaEmb: 49205760.0
+  Attn: 11070720.0
+  FFN: 20903360.0
+  nonembedding: 31987520.0
+  total: 82165144.0
+M16:
+  AdaEmb: 49205760.0
+  Attn: 14760960.0
+  FFN: 17707776.0
+  nonembedding: 32486016.0
+  total: 82663640.0
+M17:
+  AdaEmb: 35904000.0
+  Attn: 13896960.0
+  FFN: 22999808.0
+  nonembedding: 36917888.0
+  total: 73367768.0
+M18:
+  AdaEmb: 49205760.0
+  Attn: 14760960.0
+  FFN: 22256704.0
+  nonembedding: 37034944.0
+  total: 87212568.0
+M19:
+  AdaEmb: 42538496.0
+  Attn: 13861120.0
+  FFN: 28029440.0
+  nonembedding: 41908864.0
+  total: 85189848.0
+M2:
+  AdaEmb: 16197120.0
+  Attn: 1232640.0
+  FFN: 4841792.0
+  nonembedding: 6078912.0
+  total: 22428696.0
+M20:
+  AdaEmb: 49205760.0
+  Attn: 18451200.0
+  FFN: 23610048.0
+  nonembedding: 42082368.0
+  total: 92259992.0
+M21:
+  AdaEmb: 49205760.0
+  Attn: 18451200.0
+  FFN: 24962432.0
+  nonembedding: 43434752.0
+  total: 93612376.0
+M22:
+  AdaEmb: 49205760.0
+  Attn: 18451200.0
+  FFN: 28773696.0
+  nonembedding: 47246016.0
+  total: 97423640.0
+M23:
+  AdaEmb: 42538496.0
+  Attn: 16633344.0
+  FFN: 31013952.0
+  nonembedding: 47668928.0
+  total: 90949912.0
+M24:
+  AdaEmb: 49205760.0
+  Attn: 22141440.0
+  FFN: 28528768.0
+  nonembedding: 50695168.0
+  total: 100872792.0
+M25:
+  AdaEmb: 49205760.0
+  Attn: 18451200.0
+  FFN: 33937344.0
+  nonembedding: 52409664.0
+  total: 102587288.0
+M26:
+  AdaEmb: 49205760.0
+  Attn: 22141440.0
+  FFN: 35536576.0
+  nonembedding: 57702976.0
+  total: 107880600.0
+M27:
+  AdaEmb: 49205760.0
+  Attn: 22141440.0
+  FFN: 35659520.0
+  nonembedding: 57825920.0
+  total: 108003544.0
+M28:
+  AdaEmb: 49205760.0
+  Attn: 22141440.0
+  FFN: 39470784.0
+  nonembedding: 61637184.0
+  total: 111814808.0
+M29:
+  AdaEmb: 49205760.0
+  Attn: 25831680.0
+  FFN: 37012864.0
+  nonembedding: 62873344.0
+  total: 113050968.0
+M3:
+  AdaEmb: 29302272.0
+  Attn: 2658816.0
+  FFN: 5240384.0
+  nonembedding: 7904960.0
+  total: 37589272.0
+M30:
+  AdaEmb: 49205760.0
+  Attn: 25831680.0
+  FFN: 37750528.0
+  nonembedding: 63611008.0
+  total: 113788632.0
+M31:
+  AdaEmb: 49205760.0
+  Attn: 25831680.0
+  FFN: 42914176.0
+  nonembedding: 68774656.0
+  total: 118952280.0
+M32:
+  AdaEmb: 49205760.0
+  Attn: 25831680.0
+  FFN: 42914176.0
+  nonembedding: 68774656.0
+  total: 118952280.0
+M33:
+  AdaEmb: 49205760.0
+  Attn: 25831680.0
+  FFN: 43651840.0
+  nonembedding: 69512320.0
+  total: 119689944.0
+M34:
+  AdaEmb: 49205760.0
+  Attn: 29521920.0
+  FFN: 45128128.0
+  nonembedding: 74682688.0
+  total: 124860312.0
+M35:
+  AdaEmb: 49205760.0
+  Attn: 29521920.0
+  FFN: 45496960.0
+  nonembedding: 75051520.0
+  total: 125229144.0
+M36:
+  AdaEmb: 49205760.0
+  Attn: 29521920.0
+  FFN: 49800000.0
+  nonembedding: 79354560.0
+  total: 129532184.0
+M37:
+  AdaEmb: 49205760.0
+  Attn: 33212160.0
+  FFN: 46604416.0
+  nonembedding: 79853056.0
+  total: 130030680.0
+M38:
+  AdaEmb: 42538496.0
+  Attn: 30494464.0
+  FFN: 53289152.0
+  nonembedding: 83821888.0
+  total: 127102872.0
+M39:
+  AdaEmb: 49205760.0
+  Attn: 33212160.0
+  FFN: 51891008.0
+  nonembedding: 85139648.0
+  total: 135317272.0
+M4:
+  AdaEmb: 19461120.0
+  Attn: 1774080.0
+  FFN: 7334336.0
+  nonembedding: 9113792.0
+  total: 28772632.0
+M40:
+  AdaEmb: 49205760.0
+  Attn: 33212160.0
+  FFN: 54595776.0
+  nonembedding: 87844416.0
+  total: 138022040.0
+M41:
+  AdaEmb: 49205760.0
+  Attn: 36902400.0
+  FFN: 56072064.0
+  nonembedding: 93014784.0
+  total: 143192408.0
+M42:
+  AdaEmb: 49205760.0
+  Attn: 36902400.0
+  FFN: 61850432.0
+  nonembedding: 98793152.0
+  total: 148970776.0
+M43:
+  AdaEmb: 45868032.0
+  Attn: 38578176.0
+  FFN: 60255552.0
+  nonembedding: 98878528.0
+  total: 145599640.0
+M44:
+  AdaEmb: 49205760.0
+  Attn: 36902400.0
+  FFN: 62833984.0
+  nonembedding: 99776704.0
+  total: 149954328.0
+M45:
+  AdaEmb: 49205760.0
+  Attn: 36902400.0
+  FFN: 62956928.0
+  nonembedding: 99899648.0
+  total: 150077272.0
+M5:
+  AdaEmb: 19461120.0
+  Attn: 2956800.0
+  FFN: 7335104.0
+  nonembedding: 10300352.0
+  total: 29959192.0
+M6:
+  AdaEmb: 39217152.0
+  Attn: 4724736.0
+  FFN: 5903616.0
+  nonembedding: 10636032.0
+  total: 50493272.0
+M7:
+  AdaEmb: 16197120.0
+  Attn: 2054400.0
+  FFN: 8985856.0
+  nonembedding: 11047296.0
+  total: 27397080.0
+M8:
+  AdaEmb: 39217152.0
+  Attn: 7087104.0
+  FFN: 8560320.0
+  nonembedding: 15658176.0
+  total: 55515416.0
+M9:
+  AdaEmb: 35904000.0
+  Attn: 5955840.0
+  FFN: 10101824.0
+  nonembedding: 16067520.0
+  total: 52517400.0

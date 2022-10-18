@@ -1,0 +1,1116 @@
+config_0_j0:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 1094497.0
+  nonembedding: 1240545.0
+  total: 8838371.0
+config_0_j1:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 4421031.0
+  nonembedding: 6396327.0
+  total: 34537772.0
+config_0_j2:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 3018233.0
+  nonembedding: 4664313.0
+  total: 32805758.0
+config_0_j3:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 679376.0
+  nonembedding: 783696.0
+  total: 8381522.0
+config_0_j4:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 1955896.0
+  nonembedding: 2369336.0
+  total: 16793275.0
+config_0_j5:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5299286.0
+  nonembedding: 7933014.0
+  total: 36074459.0
+config_0_j6:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 4899659.0
+  nonembedding: 7533387.0
+  total: 35674832.0
+config_0_j7:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 10402209.0
+  nonembedding: 19598753.0
+  total: 75436330.0
+config_0_j8:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5959004.0
+  nonembedding: 8592732.0
+  total: 36734177.0
+config_0_j9:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 9544797.0
+  nonembedding: 17427549.0
+  total: 73265126.0
+config_10_j0:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 11020284.0
+  nonembedding: 20216828.0
+  total: 76054405.0
+config_10_j1:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 4840151.0
+  nonembedding: 7473879.0
+  total: 35615324.0
+config_10_j2:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 720398.0
+  nonembedding: 824718.0
+  total: 8422544.0
+config_10_j3:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 1902954.0
+  nonembedding: 2316394.0
+  total: 16740333.0
+config_10_j4:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 3578685.0
+  nonembedding: 5553981.0
+  total: 33695426.0
+config_10_j5:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2254143.0
+  nonembedding: 2915647.0
+  total: 17339586.0
+config_10_j6:
+  AdaEmb: 27260164.0
+  Attn: 2297344.0
+  FFN: 4103227.0
+  nonembedding: 6407739.0
+  total: 34549184.0
+config_10_j7:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2283056.0
+  nonembedding: 2861872.0
+  total: 17285811.0
+config_10_j8:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 3642554.0
+  nonembedding: 5288634.0
+  total: 33430079.0
+config_10_j9:
+  AdaEmb: 6798721.0
+  Attn: 164864.0
+  FFN: 1198664.0
+  nonembedding: 1365576.0
+  total: 8963402.0
+config_11_j0:
+  AdaEmb: 27260164.0
+  Attn: 2297344.0
+  FFN: 5574511.0
+  nonembedding: 7879023.0
+  total: 36020468.0
+config_11_j1:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2804894.0
+  nonembedding: 3466398.0
+  total: 17890337.0
+config_11_j2:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 826436.0
+  nonembedding: 930756.0
+  total: 8528582.0
+config_11_j3:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 9168622.0
+  nonembedding: 17051374.0
+  total: 72888951.0
+config_11_j4:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 923830.0
+  nonembedding: 1069878.0
+  total: 8667704.0
+config_11_j5:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 8320435.0
+  nonembedding: 14889395.0
+  total: 70726972.0
+config_11_j6:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 14315146.0
+  nonembedding: 24825482.0
+  total: 80663059.0
+config_11_j7:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 3030283.0
+  nonembedding: 3691787.0
+  total: 18115726.0
+config_11_j8:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 2664776.0
+  nonembedding: 4310856.0
+  total: 32452301.0
+config_11_j9:
+  AdaEmb: 27260164.0
+  Attn: 2297344.0
+  FFN: 3947788.0
+  nonembedding: 6252300.0
+  total: 34393745.0
+config_13_j0:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2822370.0
+  nonembedding: 3483874.0
+  total: 17907813.0
+config_13_j1:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2482873.0
+  nonembedding: 3144377.0
+  total: 17568316.0
+config_13_j2:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 10603622.0
+  nonembedding: 18486374.0
+  total: 74323951.0
+config_13_j3:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2611117.0
+  nonembedding: 3107245.0
+  total: 17531184.0
+config_13_j4:
+  AdaEmb: 27260164.0
+  Attn: 2297344.0
+  FFN: 5112298.0
+  nonembedding: 7416810.0
+  total: 35558255.0
+config_13_j5:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 1004907.0
+  nonembedding: 1130091.0
+  total: 8727917.0
+config_13_j6:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2103799.0
+  nonembedding: 2599927.0
+  total: 17023866.0
+config_13_j7:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 2053299.0
+  nonembedding: 2466739.0
+  total: 16890678.0
+config_13_j8:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2319293.0
+  nonembedding: 2898109.0
+  total: 17322048.0
+config_13_j9:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5552708.0
+  nonembedding: 8186436.0
+  total: 36327881.0
+config_14_j0:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2073473.0
+  nonembedding: 2569601.0
+  total: 16993540.0
+config_14_j1:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 1278193.0
+  nonembedding: 1424241.0
+  total: 9022067.0
+config_14_j2:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2032738.0
+  nonembedding: 2611554.0
+  total: 17035493.0
+config_14_j3:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 7557835.0
+  nonembedding: 14126795.0
+  total: 69964372.0
+config_14_j4:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 8620247.0
+  nonembedding: 16502999.0
+  total: 72340576.0
+config_14_j5:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2701581.0
+  nonembedding: 3197709.0
+  total: 17621648.0
+config_14_j6:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2467454.0
+  nonembedding: 2963582.0
+  total: 17387521.0
+config_14_j7:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 11284734.0
+  nonembedding: 20481278.0
+  total: 76318855.0
+config_14_j8:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5591696.0
+  nonembedding: 8225424.0
+  total: 36366869.0
+config_14_j9:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 11604534.0
+  nonembedding: 20801078.0
+  total: 76638655.0
+config_15_j0:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5616320.0
+  nonembedding: 8250048.0
+  total: 36391493.0
+config_15_j1:
+  AdaEmb: 27260164.0
+  Attn: 2297344.0
+  FFN: 4121695.0
+  nonembedding: 6426207.0
+  total: 34567652.0
+config_15_j2:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 1229818.0
+  nonembedding: 1375866.0
+  total: 8973692.0
+config_15_j3:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1876354.0
+  nonembedding: 2372482.0
+  total: 16796421.0
+config_15_j4:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 10638984.0
+  nonembedding: 19835528.0
+  total: 75673105.0
+config_15_j5:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 11272946.0
+  nonembedding: 21783282.0
+  total: 77620859.0
+config_15_j6:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 775739.0
+  nonembedding: 880059.0
+  total: 8477885.0
+config_15_j7:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 3756696.0
+  nonembedding: 5731992.0
+  total: 33873437.0
+config_15_j8:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 10980309.0
+  nonembedding: 20176853.0
+  total: 76014430.0
+config_15_j9:
+  AdaEmb: 6798721.0
+  Attn: 164864.0
+  FFN: 1317860.0
+  nonembedding: 1484772.0
+  total: 9082598.0
+config_16_j0:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 12812496.0
+  nonembedding: 23322832.0
+  total: 79160409.0
+config_16_j1:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 1957437.0
+  nonembedding: 2536253.0
+  total: 16960192.0
+config_16_j2:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 7213435.0
+  nonembedding: 13782395.0
+  total: 69619972.0
+config_16_j3:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 1024837.0
+  nonembedding: 1170885.0
+  total: 8768711.0
+config_16_j4:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 1480446.0
+  nonembedding: 1893886.0
+  total: 16317825.0
+config_16_j5:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 8736072.0
+  nonembedding: 16618824.0
+  total: 72456401.0
+config_16_j6:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 8849847.0
+  nonembedding: 16732599.0
+  total: 72570176.0
+config_16_j7:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2019246.0
+  nonembedding: 2515374.0
+  total: 16939313.0
+config_16_j8:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2479918.0
+  nonembedding: 3058734.0
+  total: 17482673.0
+config_16_j9:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 3364508.0
+  nonembedding: 5010588.0
+  total: 33152033.0
+config_17_j0:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 7410235.0
+  nonembedding: 13979195.0
+  total: 69816772.0
+config_17_j1:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 8020110.0
+  nonembedding: 14589070.0
+  total: 70426647.0
+config_17_j2:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 791735.0
+  nonembedding: 896055.0
+  total: 8493881.0
+config_17_j3:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5179757.0
+  nonembedding: 7813485.0
+  total: 35954930.0
+config_17_j4:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 13183546.0
+  nonembedding: 23693882.0
+  total: 79531459.0
+config_17_j5:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 4691895.0
+  nonembedding: 6667191.0
+  total: 34808636.0
+config_17_j6:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 1050637.0
+  nonembedding: 1196685.0
+  total: 8794511.0
+config_17_j7:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 12256946.0
+  nonembedding: 22767282.0
+  total: 78604859.0
+config_17_j8:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 12331771.0
+  nonembedding: 22842107.0
+  total: 78679684.0
+config_17_j9:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 8283535.0
+  nonembedding: 14852495.0
+  total: 70690072.0
+config_18_j0:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2523608.0
+  nonembedding: 3102424.0
+  total: 17526363.0
+config_18_j1:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 8940047.0
+  nonembedding: 16822799.0
+  total: 72660376.0
+config_18_j2:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2146846.0
+  nonembedding: 2725662.0
+  total: 17149601.0
+config_18_j3:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2874798.0
+  nonembedding: 3536302.0
+  total: 17960241.0
+config_18_j4:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 3724634.0
+  nonembedding: 5370714.0
+  total: 33512159.0
+config_18_j5:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2087479.0
+  nonembedding: 2666295.0
+  total: 17090234.0
+config_18_j6:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 8023185.0
+  nonembedding: 14592145.0
+  total: 70429722.0
+config_18_j7:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 10163384.0
+  nonembedding: 19359928.0
+  total: 75197505.0
+config_18_j8:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 1006326.0
+  nonembedding: 1131510.0
+  total: 8729336.0
+config_18_j9:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 1006262.0
+  nonembedding: 1110582.0
+  total: 8708408.0
+config_19_j0:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 11427209.0
+  nonembedding: 20623753.0
+  total: 76461330.0
+config_19_j1:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 10781459.0
+  nonembedding: 19978003.0
+  total: 75815580.0
+config_19_j2:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 774126.0
+  nonembedding: 899310.0
+  total: 8497136.0
+config_19_j3:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1892802.0
+  nonembedding: 2388930.0
+  total: 16812869.0
+config_19_j4:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 9242935.0
+  nonembedding: 15811895.0
+  total: 71649472.0
+config_19_j5:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 13604821.0
+  nonembedding: 24115157.0
+  total: 79952734.0
+config_19_j6:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1895886.0
+  nonembedding: 2392014.0
+  total: 16815953.0
+config_19_j7:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 3029006.0
+  nonembedding: 4675086.0
+  total: 32816531.0
+config_19_j8:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 993232.0
+  nonembedding: 1139280.0
+  total: 8737106.0
+config_19_j9:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2690658.0
+  nonembedding: 3269474.0
+  total: 17693413.0
+config_1_j0:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 6402749.0
+  nonembedding: 9036477.0
+  total: 37177922.0
+config_1_j1:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2633732.0
+  nonembedding: 3295236.0
+  total: 17719175.0
+config_1_j2:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 3762083.0
+  nonembedding: 5408163.0
+  total: 33549608.0
+config_1_j3:
+  AdaEmb: 6798721.0
+  Attn: 164864.0
+  FFN: 1335017.0
+  nonembedding: 1501929.0
+  total: 9099755.0
+config_1_j4:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 3808253.0
+  nonembedding: 5454333.0
+  total: 33595778.0
+config_1_j5:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 1058958.0
+  nonembedding: 1184142.0
+  total: 8781968.0
+config_1_j6:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 4126569.0
+  nonembedding: 6101865.0
+  total: 34243310.0
+config_1_j7:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5296208.0
+  nonembedding: 7929936.0
+  total: 36071381.0
+config_1_j8:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 1167769.0
+  nonembedding: 1313817.0
+  total: 8911643.0
+config_1_j9:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 8049835.0
+  nonembedding: 14618795.0
+  total: 70456372.0
+config_2_j0:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1713673.0
+  nonembedding: 2209801.0
+  total: 16633740.0
+config_2_j1:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 12667459.0
+  nonembedding: 21864003.0
+  total: 77701580.0
+config_2_j2:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 8603335.0
+  nonembedding: 15172295.0
+  total: 71009872.0
+config_2_j3:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 805796.0
+  nonembedding: 910116.0
+  total: 8507942.0
+config_2_j4:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 8708397.0
+  nonembedding: 16591149.0
+  total: 72428726.0
+config_2_j5:
+  AdaEmb: 6798721.0
+  Attn: 164864.0
+  FFN: 1275677.0
+  nonembedding: 1442589.0
+  total: 9040415.0
+config_2_j6:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 7750535.0
+  nonembedding: 14319495.0
+  total: 70157072.0
+config_2_j7:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1665614.0
+  nonembedding: 2161742.0
+  total: 16585681.0
+config_2_j8:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 8544910.0
+  nonembedding: 15113870.0
+  total: 70951447.0
+config_2_j9:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 11179159.0
+  nonembedding: 20375703.0
+  total: 76213280.0
+config_3_j0:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 1861704.0
+  nonembedding: 2523208.0
+  total: 16947147.0
+config_3_j1:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 10643597.0
+  nonembedding: 18526349.0
+  total: 74363926.0
+config_3_j2:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1281142.0
+  nonembedding: 1777270.0
+  total: 16201209.0
+config_3_j3:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 7954510.0
+  nonembedding: 14523470.0
+  total: 70361047.0
+config_3_j4:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 12475271.0
+  nonembedding: 22985607.0
+  total: 78823184.0
+config_3_j5:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 11970971.0
+  nonembedding: 22481307.0
+  total: 78318884.0
+config_3_j6:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2093005.0
+  nonembedding: 2589133.0
+  total: 17013072.0
+config_3_j7:
+  AdaEmb: 6798721.0
+  Attn: 164864.0
+  FFN: 1264325.0
+  nonembedding: 1431237.0
+  total: 9029063.0
+config_3_j8:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 1005939.0
+  nonembedding: 1131123.0
+  total: 8728949.0
+config_3_j9:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1751452.0
+  nonembedding: 2247580.0
+  total: 16671519.0
+config_4_j0:
+  AdaEmb: 6798721.0
+  Attn: 164864.0
+  FFN: 1380425.0
+  nonembedding: 1547337.0
+  total: 9145163.0
+config_4_j1:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 687503.0
+  nonembedding: 791823.0
+  total: 8389649.0
+config_4_j2:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 11481534.0
+  nonembedding: 20678078.0
+  total: 76515655.0
+config_4_j3:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2380716.0
+  nonembedding: 2959532.0
+  total: 17383471.0
+config_4_j4:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 1336012.0
+  nonembedding: 1749452.0
+  total: 16173391.0
+config_4_j5:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 1046316.0
+  nonembedding: 1171500.0
+  total: 8769326.0
+config_4_j6:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 3948045.0
+  nonembedding: 5923341.0
+  total: 34064786.0
+config_4_j7:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2099173.0
+  nonembedding: 2595301.0
+  total: 17019240.0
+config_4_j8:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 1542640.0
+  nonembedding: 1956080.0
+  total: 16380019.0
+config_4_j9:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 947244.0
+  nonembedding: 1072428.0
+  total: 8670254.0
+config_5_j0:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 828371.0
+  nonembedding: 932691.0
+  total: 8530517.0
+config_5_j1:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 4056288.0
+  nonembedding: 6031584.0
+  total: 34173029.0
+config_5_j2:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 10266909.0
+  nonembedding: 19463453.0
+  total: 75301030.0
+config_5_j3:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 9872797.0
+  nonembedding: 17755549.0
+  total: 73593126.0
+config_5_j4:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 936924.0
+  nonembedding: 1062108.0
+  total: 8659934.0
+config_5_j5:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2387013.0
+  nonembedding: 2883141.0
+  total: 17307080.0
+config_5_j6:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2831108.0
+  nonembedding: 3492612.0
+  total: 17916551.0
+config_5_j7:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 855461.0
+  nonembedding: 959781.0
+  total: 8557607.0
+config_5_j8:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 1699152.0
+  nonembedding: 2277968.0
+  total: 16701907.0
+config_5_j9:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 777157.0
+  nonembedding: 923205.0
+  total: 8521031.0
+config_6_j0:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2769685.0
+  nonembedding: 3431189.0
+  total: 17855128.0
+config_6_j1:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 2808416.0
+  nonembedding: 4454496.0
+  total: 32595941.0
+config_6_j2:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5329040.0
+  nonembedding: 7962768.0
+  total: 36104213.0
+config_6_j3:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 1291480.0
+  nonembedding: 1437528.0
+  total: 9035354.0
+config_6_j4:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 6379664.0
+  nonembedding: 9013392.0
+  total: 37154837.0
+config_6_j5:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 10112134.0
+  nonembedding: 19308678.0
+  total: 75146255.0
+config_7_j0:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 1748497.0
+  nonembedding: 2161937.0
+  total: 16585876.0
+config_7_j1:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 879197.0
+  nonembedding: 983517.0
+  total: 8581343.0
+config_7_j2:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 2180128.0
+  nonembedding: 2676256.0
+  total: 17100195.0
+config_7_j3:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 11843359.0
+  nonembedding: 21039903.0
+  total: 76877480.0
+config_7_j4:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 13186621.0
+  nonembedding: 23696957.0
+  total: 79534534.0
+config_7_j5:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 8764772.0
+  nonembedding: 16647524.0
+  total: 72485101.0
+config_7_j6:
+  AdaEmb: 54694408.0
+  Attn: 6558720.0
+  FFN: 7225735.0
+  nonembedding: 13794695.0
+  total: 69632272.0
+config_7_j7:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 647255.0
+  nonembedding: 751575.0
+  total: 8349401.0
+config_7_j8:
+  AdaEmb: 27260164.0
+  Attn: 1640960.0
+  FFN: 3082871.0
+  nonembedding: 4728951.0
+  total: 32870396.0
+config_7_j9:
+  AdaEmb: 6798721.0
+  Attn: 103040.0
+  FFN: 802055.0
+  nonembedding: 906375.0
+  total: 8504201.0
+config_8_j0:
+  AdaEmb: 27260164.0
+  Attn: 2625536.0
+  FFN: 5953874.0
+  nonembedding: 8587602.0
+  total: 36729047.0
+config_8_j1:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 930732.0
+  nonembedding: 1055916.0
+  total: 8653742.0
+config_8_j2:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 1419794.0
+  nonembedding: 1833234.0
+  total: 16257173.0
+config_8_j3:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1676151.0
+  nonembedding: 2172279.0
+  total: 16596218.0
+config_8_j4:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1640171.0
+  nonembedding: 2136299.0
+  total: 16560238.0
+config_8_j5:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 4086042.0
+  nonembedding: 6061338.0
+  total: 34202783.0
+config_8_j6:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2395365.0
+  nonembedding: 2974181.0
+  total: 17398120.0
+config_8_j7:
+  AdaEmb: 6798721.0
+  Attn: 144256.0
+  FFN: 1087660.0
+  nonembedding: 1233708.0
+  total: 8831534.0
+config_8_j8:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 4287651.0
+  nonembedding: 6262947.0
+  total: 34404392.0
+config_8_j9:
+  AdaEmb: 54694408.0
+  Attn: 7870464.0
+  FFN: 8480847.0
+  nonembedding: 16363599.0
+  total: 72201176.0
+config_9_j0:
+  AdaEmb: 13608322.0
+  Attn: 575232.0
+  FFN: 2183854.0
+  nonembedding: 2762670.0
+  total: 17186609.0
+config_9_j1:
+  AdaEmb: 54694408.0
+  Attn: 10493952.0
+  FFN: 13218396.0
+  nonembedding: 23728732.0
+  total: 79566309.0
+config_9_j2:
+  AdaEmb: 27260164.0
+  Attn: 2297344.0
+  FFN: 4049875.0
+  nonembedding: 6354387.0
+  total: 34495832.0
+config_9_j3:
+  AdaEmb: 27260164.0
+  Attn: 2297344.0
+  FFN: 3616903.0
+  nonembedding: 5921415.0
+  total: 34062860.0
+config_9_j4:
+  AdaEmb: 27260164.0
+  Attn: 1969152.0
+  FFN: 4596990.0
+  nonembedding: 6572286.0
+  total: 34713731.0
+config_9_j5:
+  AdaEmb: 13608322.0
+  Attn: 657408.0
+  FFN: 2779194.0
+  nonembedding: 3440698.0
+  total: 17864637.0
+config_9_j6:
+  AdaEmb: 6798721.0
+  Attn: 123648.0
+  FFN: 1102302.0
+  nonembedding: 1227486.0
+  total: 8825312.0
+config_9_j7:
+  AdaEmb: 54694408.0
+  Attn: 9182208.0
+  FFN: 12694109.0
+  nonembedding: 21890653.0
+  total: 77728230.0
+config_9_j8:
+  AdaEmb: 13608322.0
+  Attn: 410880.0
+  FFN: 1642099.0
+  nonembedding: 2055539.0
+  total: 16479478.0
+config_9_j9:
+  AdaEmb: 13608322.0
+  Attn: 493056.0
+  FFN: 1811333.0
+  nonembedding: 2307461.0
+  total: 16731400.0

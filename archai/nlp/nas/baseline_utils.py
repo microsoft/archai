@@ -77,11 +77,18 @@ def plot_paper(x_pareto, y_pareto, x_baseline, y_baseline, x_label, y_label, pat
 
 
 def get_config_name(job):
-  idx =  re.search('(config_[0-9]+)', job).span()[0]
-  job = job[idx:]
-  config_name = job.split('/')[0]
-  return config_name + '_' + job.split('/')[1]
-  
+  # idx =  re.search('(config_[0-9]+)', job).span()[0]
+  # job = job[idx:]
+  # config_name = job.split('/')[0]
+  # return config_name + '_' + job.split('/')[1]
+  try:
+    idx =  re.search('(config_[0-9]+)', job).span()[0]
+    job = job[idx:]
+    config_name = job.split('/')[0]
+    return config_name + '_' + job.split('/')[1]
+  except: 
+    config_name =  re.search('(M[0-9]+)', job).group(1)
+    return config_name
 
 def get_info_from_json(json_file, metric=['valid_perplexity', 'valid_ppl']):
   '''
@@ -138,21 +145,21 @@ def recurse_dir(path_to_dir, fname='config.yaml'):
           else:
             raise NotImplementedError
 
-        if config is None and '.yaml' in fname:
-          try:
-            json_file = os.path.join(path_to_dir, 'train_log.json')
-            with open(json_file, 'r', encoding='utf-8') as f:
-              lines = f.readlines()
-              try:
-                job_desc = re.search('DLLL \{(.+?)\}', lines[0])
-              except:
-                return None
-              job_desc = '{'+job_desc.group(1)+'}}'
-              config = json.loads(job_desc)['data']
-          except:
-            continue
+          if config is None and '.yaml' in fname:
+            try:
+              json_file = os.path.join(path_to_dir, 'train_log.json')
+              with open(json_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+                try:
+                  job_desc = re.search('DLLL \{(.+?)\}', lines[0])
+                except:
+                  return None
+                job_desc = '{'+job_desc.group(1)+'}}'
+                config = json.loads(job_desc)['data']
+            except:
+              print(f'##### no logfile found for {j_path}')
 
-        if config:   
+        if config is not None:   
           config_name = get_config_name(j_path)
           results[config_name] = config
   
@@ -394,18 +401,13 @@ def plot_baseline_and_pareto(path_to_amlt_logs, path_to_baseline_logs, dataset, 
     orig_config = config_to_key(pareto_logs['model_configs'][idx])
     for k, v in this_config.items():
       assert v == orig_config[k], print(f'config_{config_idx}_j{job_idx}', k, v, orig_config[k])
+
     l, m = pareto_logs['latencies'][idx], pareto_logs['memories'][idx]
 
     all_val_ppls.append(pareto_train_logs[f'config_{config_idx}_j{job_idx}']['valid_ppl'])
     all_configs.append(config_to_key(pareto_configs[f'config_{config_idx}_j{job_idx}'], name=f'config_{config_idx}_j{job_idx}'))
     all_latencies.append(l)
     all_memories.append(m)
-    
-    # job_idx += 1
-    # idx += 1
-    
-    # config_idx += 1
-    # job_idx = 0
 
   all_val_ppls = np.asarray(all_val_ppls)
   all_configs = np.asarray(all_configs)
@@ -498,6 +500,13 @@ def get_latex_tables(path_to_baseline_logs, dataset, device_name):
     fname = 'logs.pkl'
     with open(os.path.join(path_to_baseline_logs, device_name, fname), 'rb') as f:       # load pareto memories and latencies
       pareto_logs = pickle.load(f)['pareto'][0]
+    # pareto_logs = {}
+    # model_configs = recurse_dir(f'archai/nlp/nas/saved_logs/pareto_TransXL_lm1b_{device_name}', fname='model_config.yaml')
+    # keys = list(model_configs.keys())
+    # pareto_logs['model_configs'] = [model_configs[k] for k in keys]
+    # with open(os.path.join(f'archai/nlp/nas/saved_logs/pareto_TransXL_lm1b_{device_name}', 'params_summary.yaml'), 'r') as f:
+    #   params_dict = yaml.safe_load(f)
+    # pareto_logs['proxies'] = [params_dict[k]['nonembedding'] for k in keys]
 
     filename = 'table_{}.tex'.format(device_name)
     with open(filename, 'w') as f:

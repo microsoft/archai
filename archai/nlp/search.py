@@ -24,13 +24,8 @@ from archai.nlp.nas.baseline_utils import plot_baseline_and_pareto, profile_base
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Language models Pareto-frontier extraction.')
-
-    try:
-        save_path = os.environ['AMLT_OUTPUT_DIR']
-    except:
-        save_path = './logdir' 
     
-    baseline = parser.add_argument_group('NAS baseline profiling configuration')
+    baseline = parser.add_argument_group('NAS baseline profiling and plotting')
     baseline.add_argument('--profile_baseline',
                         action='store_true',
                         help='Measure proxy and hardware metrics for NAS baseline.')
@@ -55,7 +50,7 @@ def parse_args():
     search = parser.add_argument_group('Search configuration')
     search.add_argument('--default_path',
                         type=str,
-                        default=save_path,
+                        default='logdir',
                         help='Path to the default folder used to save outputs.')
 
     search.add_argument('--model_type',
@@ -347,7 +342,7 @@ if __name__ == '__main__':
                                vocab_size=None if args['vocab_type']=='word' else args['vocab_size'], 
                                n_jobs=10,
                                output_path=job_path)   
-        
+
         elif args['plot_pareto_baseline']:
             shutil.rmtree(args['results_path'])
             model = 'transxl' if args['model_type']=='mem_transformer' else 'gpt2_flex'
