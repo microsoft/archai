@@ -16,7 +16,7 @@ from torch.profiler import ProfilerActivity, profile
 
 from archai.nlp import train
 from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
-from archai.nlp.metrics.text_predict.predictor import run_score
+from archai.nlp.eval_utils.text_predict.predictor import run_score
 
 
 def measure_torch_inference_latency(model: torch.nn.Module,

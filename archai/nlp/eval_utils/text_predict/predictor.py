@@ -24,9 +24,9 @@ from scipy.interpolate import interp1d
 from tqdm import tqdm
 
 from archai.common import utils
-from archai.nlp.metrics.text_predict.text_predict_model import (TextPredictONNXModel,
+from archai.nlp.eval_utils.text_predict.text_predict_model import (TextPredictONNXModel,
                                                                 TextPredictTorchModel)
-from archai.nlp.metrics.text_predict.text_predict_tokenizer import (TOKENIZER_WORD_TOKEN_SEPARATOR_SET,
+from archai.nlp.eval_utils.text_predict.text_predict_tokenizer import (TOKENIZER_WORD_TOKEN_SEPARATOR_SET,
                                                                     TextPredictTokenizer)
 
 
