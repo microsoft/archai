@@ -85,7 +85,7 @@ class AsyncObjective(EnforceOverrides):
     to evaluate architectures in given criteria (task performance, speed, size, etc.).
     Objectives are optimized by search algorithms.
 
-    Unlike `archai.discrete_search.AsyncObjective`, `AsyncObjective` defines an objective function 
+    Unlike `archai.discrete_search.Objective`, `AsyncObjective` defines an objective function 
     with async. / parallel execution. 
     
     Subclasses of `AsyncObjective` are expected to implement
