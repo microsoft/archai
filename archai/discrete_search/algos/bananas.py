@@ -9,20 +9,20 @@ import numpy as np
 
 from archai.common.utils import create_logger
 from archai.discrete_search import (
-    NasModel,  Metric, AsyncMetric,
+    ArchaiModel,  Objective, AsyncObjective,
     SearchResults, get_non_dominated_sorting, evaluate_models
 )
 from archai.discrete_search import BayesOptSearchSpace, EvolutionarySearchSpace
 from archai.discrete_search.api.predictor import Predictor, MeanVar
 from archai.discrete_search.predictors import PredictiveDNNEnsemble
 from archai.discrete_search.api.dataset import DatasetProvider
-from archai.discrete_search.api.search import Searcher
+from archai.discrete_search.api.searcher import Searcher
 
 
 class MoBananasSearch(Searcher):
     def __init__(self, output_dir: str,
                  search_space: BayesOptSearchSpace, 
-                 objectives: Dict[str, Union[Metric, AsyncMetric]], 
+                 objectives: Dict[str, Union[Objective, AsyncObjective]], 
                  dataset_provider: DatasetProvider,
                  surrogate_model: Optional[Predictor] = None,
                  cheap_objectives: Optional[List[str]] = None,
@@ -66,7 +66,7 @@ class MoBananasSearch(Searcher):
         self.search_state = SearchResults(search_space, objectives)
 
         
-    def calc_cheap_objectives(self, archs: List[NasModel]) -> Dict[str, np.ndarray]:
+    def calc_cheap_objectives(self, archs: List[ArchaiModel]) -> Dict[str, np.ndarray]:
         cheap_objectives = {
             obj_name: obj 
             for obj_name, obj in self.objectives.items()
@@ -75,7 +75,7 @@ class MoBananasSearch(Searcher):
 
         return evaluate_models(archs, cheap_objectives, self.dataset_provider)
 
-    def get_surrogate_iter_dataset(self, all_pop: List[NasModel]):
+    def get_surrogate_iter_dataset(self, all_pop: List[ArchaiModel]):
         encoded_archs = np.vstack([self.search_space.encode(m) for m in all_pop])
         target = np.array([
             self.search_state.all_evaluation_results[obj] 
@@ -84,8 +84,8 @@ class MoBananasSearch(Searcher):
 
         return encoded_archs, target
     
-    def mutate_parents(self, parents: List[NasModel],
-                       mutations_per_parent: int = 1) -> List[NasModel]:
+    def mutate_parents(self, parents: List[ArchaiModel],
+                       mutations_per_parent: int = 1) -> List[ArchaiModel]:
         mutated_models = [
             self.search_space.mutate(p)
             for p in parents
@@ -106,7 +106,7 @@ class MoBananasSearch(Searcher):
 
         return mutated_models
 
-    def predict_expensive_objectives(self, archs: List[NasModel]) -> Dict[str, MeanVar]:
+    def predict_expensive_objectives(self, archs: List[ArchaiModel]) -> Dict[str, MeanVar]:
         ''' Predicts expensive objectives for `archs` using surrogate model ''' 
         encoded_archs = np.vstack([self.search_space.encode(m) for m in archs])
         pred_results = self.surrogate_model.predict(encoded_archs)
@@ -116,7 +116,7 @@ class MoBananasSearch(Searcher):
             for i, obj_name  in enumerate(self.expensive_objectives)
         }
 
-    def thompson_sampling(self, archs: List[NasModel], sample_size: int,
+    def thompson_sampling(self, archs: List[ArchaiModel], sample_size: int,
                           pred_expensive_objs: Dict[str, MeanVar],
                           cheap_objs: Dict[str, np.ndarray]) -> List[int]:
         ''' Returns the selected architecture list indices from Thompson Sampling  '''                           

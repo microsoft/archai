@@ -4,12 +4,12 @@ import re
 
 import nats_bench
 
-from archai.discrete_search import Metric, NasModel
+from archai.discrete_search import Objective, ArchaiModel
 from archai.discrete_search.search_spaces.natsbench_tss.search_space import NatsbenchTssSearchSpace
 from archai.datasets.dataset_provider import DatasetProvider
 
 
-class NatsBenchMetric(Metric):
+class NatsbenchMetric(Objective):
     def __init__(self, search_space: NatsbenchTssSearchSpace,
                  metric_name: str, higher_is_better: bool,
                  epochs: Optional[int] = None,
@@ -17,7 +17,7 @@ class NatsBenchMetric(Metric):
                  more_info_kwargs: Optional[Dict[str, Any]] = None,
                  cost_info_kwargs: Optional[Dict[str, Any]] = None):
         assert isinstance(search_space, NatsbenchTssSearchSpace), \
-            'This metric only works with architectures from NatsbenchTssSearchSpace'
+            'This objective function only works with architectures from NatsbenchTssSearchSpace'
 
         self.search_space = search_space
         self.metric_name = metric_name
@@ -36,7 +36,7 @@ class NatsBenchMetric(Metric):
         self.total_time_spent = 0
 
     @overrides
-    def compute(self, model: NasModel, dataset: DatasetProvider,
+    def evaluate(self, model: ArchaiModel, dataset: DatasetProvider,
                 budget: Optional[float] = None) -> Optional[float]:
         natsbench_id = self.archid_pattern.match(model.archid)
         budget = int(budget) if budget else budget

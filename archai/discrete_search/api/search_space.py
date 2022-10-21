@@ -7,7 +7,7 @@ from overrides.enforce import EnforceOverrides
 
 import torch
 import numpy as np
-from archai.discrete_search.api.model import NasModel
+from archai.discrete_search.api.archai_model import ArchaiModel
 
 
 class DiscreteSearchSpace(EnforceOverrides):
@@ -19,50 +19,50 @@ class DiscreteSearchSpace(EnforceOverrides):
     """    
 
     @abstractmethod
-    def random_sample(self) -> NasModel:
+    def random_sample(self) -> ArchaiModel:
         """Randomly samples an architecture from the search spaces.
 
         Returns:
-            NasModel: Sampled architecture
+            ArchaiModel: Sampled architecture
         """        
 
     @abstractmethod
-    def save_arch(self, model: NasModel, path: str) -> None:
+    def save_arch(self, model: ArchaiModel, path: str) -> None:
         """Saves an the architecture of `model` into a file without saving
         model weights.
 
         Args:
-            model (NasModel): Sampled model from the search space
+            model (ArchaiModel): Sampled model from the search space
             path (str): Filepath
         """
 
     @abstractmethod
-    def load_arch(self, path: str) -> NasModel:
+    def load_arch(self, path: str) -> ArchaiModel:
         """Loads an architecture saved using `DiscreteSearchSpace.save_arch` from a file.
 
         Args:
             path (str): Architecture file path
 
         Returns:
-            NasModel: Loaded model
+            ArchaiModel: Loaded model
         """        
 
     @abstractmethod
-    def save_model_weights(self, model: NasModel, path: str) -> None:
+    def save_model_weights(self, model: ArchaiModel, path: str) -> None:
         """Saves weights of a model from the search space.
 
         Args:
-            model (NasModel): Model
+            model (ArchaiModel): Model
             path (str): Model weights file path
         """        
 
     @abstractmethod
-    def load_model_weights(self, model: NasModel, path: str) -> None:
+    def load_model_weights(self, model: ArchaiModel, path: str) -> None:
         """Loads a weight file (create using `DiscreteSearchSpace.save_model_weights`)
         into a model of the same architecture.
         
         Args:
-            model (NasModel): Target model
+            model (ArchaiModel): Target model
             path (str): Model weights file path.
         """
 
@@ -73,26 +73,26 @@ class EvolutionarySearchSpace(DiscreteSearchSpace, EnforceOverrides):
     """    
 
     @abstractmethod
-    def mutate(self, arch: NasModel) -> NasModel:
+    def mutate(self, arch: ArchaiModel) -> ArchaiModel:
         """Mutates an architecture from the search space. This method should not alter
           the base model architecture directly, only generate a new one.
 
         Args:
-            arch (NasModel): Base model
+            arch (ArchaiModel): Base model
 
         Returns:
-            NasModel: Mutated model
+            ArchaiModel: Mutated model
         """        
 
     @abstractmethod
-    def crossover(self, arch_list: List[NasModel]) -> NasModel:
+    def crossover(self, arch_list: List[ArchaiModel]) -> ArchaiModel:
         """Combines a list of architectures into a new one.
 
         Args:
-            arch_list (List[NasModel]): List of architectures
+            arch_list (List[ArchaiModel]): List of architectures
 
         Returns:
-            NasModel: Resulting model
+            ArchaiModel: Resulting model
         """        
 
 
@@ -102,11 +102,11 @@ class BayesOptSearchSpace(DiscreteSearchSpace, EnforceOverrides):
     """    
     
     @abstractmethod
-    def encode(self, arch: NasModel) -> np.ndarray:
+    def encode(self, arch: ArchaiModel) -> np.ndarray:
         """Encodes an architecture into a fixed-length vector representation.
 
         Args:
-            arch (NasModel): Model from the search space
+            arch (ArchaiModel): Model from the search space
 
         Returns:
             np.ndarray: Fixed-length vector representation of `arch`
@@ -117,8 +117,8 @@ class RLSearchSpace(DiscreteSearchSpace, EnforceOverrides):
     ''' Base class for Discrete Search Spaces compatible with Reinforcement Learning search algorithms. '''
     
     @abstractmethod
-    def get(self, idx_vector: float) -> NasModel:
-        ''' Gets a NasModel from the search space using `idx_vector`. '''
+    def get(self, idx_vector: float) -> ArchaiModel:
+        ''' Gets a ArchaiModel from the search space using `idx_vector`. '''
 
     @abstractmethod
     def step(self):

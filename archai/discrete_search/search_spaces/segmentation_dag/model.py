@@ -37,7 +37,7 @@ class SegmentationDagModel(torch.nn.Module):
             nb_classes (int): Number of classes for segmentation
 
         Returns:
-            SegmentationNasModel: A SegmentationNasModel instance
+            SegmentationArchaiModel: A SegmentationArchaiModel instance
         """
 
         super().__init__()
@@ -183,7 +183,7 @@ class SegmentationDagModel(torch.nn.Module):
     @classmethod
     def from_file(cls, config_file: Union[str, Path], img_size: Tuple[int, int] = 256,
                   nb_classes: int = 19) -> 'SegmentationDagModel':
-        """Creates a SegmentationNasModel from a YAML config file
+        """Creates a SegmentationArchaiModel from a YAML config file
 
         Args:
             config_file (str): Path to the YAML config file, following the format:
@@ -209,7 +209,7 @@ class SegmentationDagModel(torch.nn.Module):
             img_size (int or Tuple[int, int]): The size of the input image.
             nb_classes (int): The number of classes in the dataset.
         Returns:
-            SegmentationNasModel: A SegmentationNasModel instance
+            SegmentationArchaiModel: A SegmentationArchaiModel instance
         """
         config_file = Path(config_file)
         assert config_file.is_file()

@@ -8,13 +8,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from archai.discrete_search import AsyncMetric, Metric, NasModel, DiscreteSearchSpace
+from archai.discrete_search import AsyncObjective, Objective, ArchaiModel, DiscreteSearchSpace
 from archai.discrete_search.algos.utils.multi_objective import _find_pareto_frontier_points, get_pareto_frontier
 
 
 class SearchResults():
     def __init__(self, search_space: DiscreteSearchSpace,
-                 objectives: Dict[str, Union[Metric, AsyncMetric]]):
+                 objectives: Dict[str, Union[Objective, AsyncObjective]]):
         self.search_space = search_space
         self.objectives = objectives
         self.iteration_num = 0
@@ -33,13 +33,13 @@ class SearchResults():
             ], dtype=np.float32) for obj_name in self.objectives
         }
 
-    def add_iteration_results(self, models: List[NasModel],
+    def add_iteration_results(self, models: List[ArchaiModel],
                               evaluation_results: Dict[str, np.ndarray],
                               extra_model_data: Optional[Dict[str, List]] = None):
         """Stores results of the current search iteration.
 
         Args:
-            models (List[NasModel]): Models evaluated in the search iteration
+            models (List[ArchaiModel]): Models evaluated in the search iteration
             evaluation_results (Dict[str, np.ndarray]): Evaluation results from `archai.metrics.evaluate_models()`
             extra_model_data (Dict[str, List], optional): Additional model information to be
                 stored in the search state file. Must be a list of the same size as `models` and

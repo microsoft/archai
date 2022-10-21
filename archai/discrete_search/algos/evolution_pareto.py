@@ -9,18 +9,18 @@ from tqdm import tqdm
 
 from archai.common.utils import create_logger
 from archai.discrete_search import (
-    NasModel, Metric, AsyncMetric, Searcher, 
+    ArchaiModel, Objective, AsyncObjective, Searcher, 
     DatasetProvider
 )
 
 from archai.discrete_search.api.search_space import EvolutionarySearchSpace
 from archai.discrete_search.algos.utils import SearchResults
-from archai.discrete_search.metrics.utils import evaluate_models
+from archai.discrete_search.objectives.utils import evaluate_models
 
 
 class EvolutionParetoSearch(Searcher):
     def __init__(self, search_space: EvolutionarySearchSpace, 
-                 objectives: Dict[str, Union[Metric, AsyncMetric]], 
+                 objectives: Dict[str, Union[Objective, AsyncObjective]], 
                  dataset_provider: DatasetProvider,
                  output_dir: str, num_iters: int = 10,
                  init_num_models: int = 10, init_pop_from_paths: Optional[List[str]] = None, 
@@ -63,7 +63,7 @@ class EvolutionParetoSearch(Searcher):
         assert self.num_random_mix > 0
         assert self.max_unseen_population > 0
 
-    def filter_population(self, population: List[NasModel]):
+    def filter_population(self, population: List[ArchaiModel]):
         ''' Filter the population based on the objectives constraints '''
         if not self.obj_valid_ranges:
             return population
@@ -76,9 +76,9 @@ class EvolutionParetoSearch(Searcher):
             )
         ]
 
-    def mutate_parents(self, parents:List[NasModel],
+    def mutate_parents(self, parents:List[ArchaiModel],
                        mutations_per_parent: int = 1,
-                       patience: int = 20) -> List[NasModel]:
+                       patience: int = 20) -> List[ArchaiModel]:
         mutations = {}
         oversample_factor = 1
 
@@ -132,7 +132,7 @@ class EvolutionParetoSearch(Searcher):
         # and updates the meta data
         pass
 
-    def crossover_parents(self, parents: List[NasModel], num_crossovers: int = 1) -> List[NasModel]:
+    def crossover_parents(self, parents: List[ArchaiModel], num_crossovers: int = 1) -> List[ArchaiModel]:
         # Randomly samples k distinct pairs from `parents`
         children, children_hashes = [], set()
 
@@ -149,16 +149,16 @@ class EvolutionParetoSearch(Searcher):
                         children_hashes.add(child.archid)
 
 
-    def sample_random_models(self, num_models: int) -> List[NasModel]:
+    def sample_random_models(self, num_models: int) -> List[ArchaiModel]:
         return [self.search_space.random_sample() for _ in range(num_models)]
 
-    def on_calc_task_accuracy_end(self, current_pop: List[NasModel]) -> None:
+    def on_calc_task_accuracy_end(self, current_pop: List[ArchaiModel]) -> None:
         ''' Callback function called right after calc_task_accuracy()'''
 
-    def on_search_iteration_start(self, current_pop: List[NasModel]) -> None:
+    def on_search_iteration_start(self, current_pop: List[ArchaiModel]) -> None:
         ''' Callback function called right before each search iteration'''
 
-    def select_next_population(self, current_pop: List[NasModel]) -> List[NasModel]:
+    def select_next_population(self, current_pop: List[ArchaiModel]) -> List[ArchaiModel]:
         random.shuffle(current_pop)
         return current_pop[:self.max_unseen_population]
 

@@ -12,7 +12,7 @@ from archai.common.common import logger
 from archai.nas.arch_meta import ArchWithMetaData
 from archai.nas.discrete_search_space import DiscreteSearchSpace
 
-from archai.algos.evolution_pareto_image_seg.model import OPS, SegmentationNasModel
+from archai.algos.evolution_pareto_image_seg.model import OPS, SegmentationArchaiModel
 
 
 def random_neighbor(param_values: List[int], current_value: int):
@@ -147,7 +147,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             # randomly pick number of layers    
             num_layers = random.randint(self.min_layers, self.max_layers)
 
-            model = SegmentationNasModel.sample_model(
+            model = SegmentationArchaiModel.sample_model(
                 base_channels_list=self.base_channels_list,
                 delta_channels_list=self.delta_channels_list,
                 post_upsample_layer_list=self.post_upsample_layers_list,
@@ -237,7 +237,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 ]
 
             # compile the model
-            nbr_model = SegmentationNasModel(graph, channels_per_scale, post_upsample_layers)
+            nbr_model = SegmentationArchaiModel(graph, channels_per_scale, post_upsample_layers)
             
             try:
                 out_shape = nbr_model.validate_forward(
@@ -269,7 +269,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
 
     def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
                         post_upsample_layers: int = 1) -> ArchWithMetaData:
-        model = SegmentationNasModel(
+        model = SegmentationArchaiModel(
             graph, channels_per_scale, post_upsample_layers,
             img_size=self.img_size, nb_classes=self.nb_classes
         )
@@ -281,7 +281,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         })
 
     def load_from_file(self, config_file: str) -> ArchWithMetaData:
-        model = SegmentationNasModel.from_file(
+        model = SegmentationArchaiModel.from_file(
             config_file, img_size=self.img_size, nb_classes=self.nb_classes
         )
         

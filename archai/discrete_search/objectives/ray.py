@@ -3,47 +3,47 @@ from typing import List, Optional, Union
 import ray
 from overrides import overrides
 
-from archai.discrete_search.api.model import NasModel
+from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.dataset import DatasetProvider
-from archai.discrete_search.api.metric import Metric, AsyncMetric
+from archai.discrete_search.api.objective import Objective, AsyncObjective
 
 
 def wrap_metric_calculate(class_method):
-    def calculate(arch: NasModel, dataset: DatasetProvider, budget: Optional[float] = None):
+    def calculate(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None):
         return class_method(arch, dataset, budget)
     return calculate
 
 
-class RayParallelMetric(AsyncMetric):
-    def __init__(self, metric: Metric, timeout: Optional[float] = None, force_stop: bool = False, 
+class RayParallelObjective(AsyncObjective):
+    def __init__(self, obj: Objective, timeout: Optional[float] = None, force_stop: bool = False, 
                  **ray_kwargs):
-        """Wraps a synchronous `Metric` as an asynchronous metric to be computed in parallel using Ray.
-        `RayParallelMetric` expects a stateless metric, meaning that any `metric.compute` call cannot alter 
-        the state of `metric` or `arch` in any way. 
+        """Wraps a synchronous `Objective` object into an `AsyncObjective` with parallel execution using Ray.
+        `RayParallelObjective` expects a stateless objective function as input, meaning that 
+        any `Objective.eval(arch, ...)` call cannot alter the state of `obj` or `arch` in any way. 
 
         Args:
-            metric (Metric): A metric object
+            obj (Objective): A `Objective` object
             timeout (Optional[float], optional): Timeout for `receive_all`. Jobs not finished after the time limit
                 are canceled and returned as None. Defaults to None.
             force_stop (bool, optional): If incomplete tasks (within `timeout` seconds) should be force-killed. If 
                 set to `False`, Ray will just send a `KeyboardInterrupt` signal to the process.
             **ray_kwargs: Key-value arguments for ray.remote(), e.g: num_gpus, num_cpus, max_task_retries.
         """        
-        assert isinstance(metric, Metric)
+        assert isinstance(obj, Objective)
 
         # Wraps metric.calculate as a standalone function. This only works with stateless metrics
         if ray_kwargs:
-            self.compute_fn = ray.remote(**ray_kwargs)(wrap_metric_calculate(metric.compute))
+            self.compute_fn = ray.remote(**ray_kwargs)(wrap_metric_calculate(obj.evaluate))
         else:
-            self.compute_fn = ray.remote(wrap_metric_calculate(metric.compute))
+            self.compute_fn = ray.remote(wrap_metric_calculate(obj.evaluate))
         
-        self.higher_is_better = metric.higher_is_better
+        self.higher_is_better = obj.higher_is_better
         self.timeout = timeout
         self.force_stop = force_stop
         self.object_refs = []
 
     @overrides
-    def send(self, nas_model: NasModel, dataset: DatasetProvider,
+    def send(self, nas_model: ArchaiModel, dataset: DatasetProvider,
              budget: Optional[float] = None) -> None:
         self.object_refs.append(self.compute_fn.remote(nas_model, dataset, budget))
 

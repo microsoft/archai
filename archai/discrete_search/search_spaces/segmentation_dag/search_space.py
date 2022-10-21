@@ -10,7 +10,7 @@ import numpy as np
 import tensorwatch as tw
 
 from archai.common.common import logger
-from archai.discrete_search import NasModel, EvolutionarySearchSpace
+from archai.discrete_search import ArchaiModel, EvolutionarySearchSpace
 from archai.discrete_search.search_spaces.segmentation_dag.model import SegmentationDagModel, OPS
 
 
@@ -100,14 +100,14 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
         return is_valid, model_stats.MAdd
 
     def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
-                        post_upsample_layers: int = 1) -> NasModel:
+                        post_upsample_layers: int = 1) -> ArchaiModel:
         ''' Utility method to create a SegmentationDagModel from a DAG ''' 
         model = SegmentationDagModel(
             graph, channels_per_scale, post_upsample_layers,
             img_size=self.img_size, nb_classes=self.nb_classes
         )
         
-        return NasModel(
+        return ArchaiModel(
             arch=model, archid=model.to_hash(),
             metadata={'parent': None}
         )
@@ -166,27 +166,27 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
         return node_list
 
     @overrides
-    def save_arch(self, model: NasModel, path: str) -> None:
+    def save_arch(self, model: ArchaiModel, path: str) -> None:
         model.arch.to_file(path)
 
     @overrides
-    def save_model_weights(self, model: NasModel, path: str) -> None:
+    def save_model_weights(self, model: ArchaiModel, path: str) -> None:
         torch.save(model.arch.to('cpu').state_dict(), path)
 
     @overrides
-    def load_arch(self, path: str) -> NasModel:
+    def load_arch(self, path: str) -> ArchaiModel:
         model = SegmentationDagModel.from_file(
             path, img_size=self.img_size, nb_classes=self.nb_classes
         )
         
-        return NasModel(model, model.to_hash(), metadata={'parent': None})
+        return ArchaiModel(model, model.to_hash(), metadata={'parent': None})
     
     @overrides
-    def load_model_weights(self, model: NasModel, path: str) -> None:
+    def load_model_weights(self, model: ArchaiModel, path: str) -> None:
         model.arch.load_state_dict(torch.load(path))
 
     @overrides
-    def random_sample(self) -> NasModel:
+    def random_sample(self) -> ArchaiModel:
         nas_model = None
 
         while not nas_model:
@@ -263,14 +263,14 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
             found_valid, macs = self.is_valid_model(model)
             
             if found_valid:
-                nas_model = NasModel(
+                nas_model = ArchaiModel(
                     model, model.to_hash(), {'parent': None, 'macs': macs}
                 )
     
         return nas_model
 
     @overrides
-    def mutate(self, base_model: NasModel, patience: int = 5) -> NasModel:
+    def mutate(self, base_model: ArchaiModel, patience: int = 5) -> ArchaiModel:
         parent_id = base_model.archid
         nb_tries = 0
 
@@ -336,11 +336,11 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
                 logger.info(f'Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed')
                 continue
 
-            return NasModel(nbr_model, nbr_model.to_hash(), metadata={'parent': parent_id})
+            return ArchaiModel(nbr_model, nbr_model.to_hash(), metadata={'parent': parent_id})
 
 
     @overrides
-    def crossover(self, model_list: List[NasModel], patience: int = 30) -> Optional[NasModel]:
+    def crossover(self, model_list: List[ArchaiModel], patience: int = 30) -> Optional[ArchaiModel]:
         if len(model_list) < 2:
             return
 

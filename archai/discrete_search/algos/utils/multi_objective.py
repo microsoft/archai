@@ -3,12 +3,12 @@ from typing import Dict, List, Union
 import numpy as np
 from tqdm import tqdm
 
-from archai.discrete_search import NasModel, AsyncMetric, Metric
+from archai.discrete_search import ArchaiModel, AsyncObjective, Objective
 
 
-def get_pareto_frontier(models: List[NasModel], 
+def get_pareto_frontier(models: List[ArchaiModel], 
                         evaluation_results: Dict[str, np.ndarray],
-                        objectives: Dict[str, Union[Metric, AsyncMetric]]) -> Dict:
+                        objectives: Dict[str, Union[Objective, AsyncObjective]]) -> Dict:
     assert len(objectives) == len(evaluation_results)
     assert all(len(r) == len(models) for r in evaluation_results.values())
 
@@ -35,9 +35,9 @@ def get_pareto_frontier(models: List[NasModel],
     }
 
 
-def get_non_dominated_sorting(models: List[NasModel],
+def get_non_dominated_sorting(models: List[ArchaiModel],
                               evaluation_results: Dict[str, np.ndarray],
-                              objectives: Dict[str, Union[Metric, AsyncMetric]]) -> List[Dict]:
+                              objectives: Dict[str, Union[Objective, AsyncObjective]]) -> List[Dict]:
     assert len(objectives) == len(evaluation_results)
     assert all(len(r) == len(models) for r in evaluation_results.values())
 

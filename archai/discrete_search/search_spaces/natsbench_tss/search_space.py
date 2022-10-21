@@ -11,7 +11,7 @@ import torch
 import nats_bench
 
 from archai.discrete_search import (
-    NasModel, EvolutionarySearchSpace, BayesOptSearchSpace
+    ArchaiModel, EvolutionarySearchSpace, BayesOptSearchSpace
 )
 
 try:
@@ -71,11 +71,11 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         return get_cell_based_tiny_net(config)
     
     @overrides
-    def save_arch(self, model: NasModel, path: str) -> None:
+    def save_arch(self, model: ArchaiModel, path: str) -> None:
         yaml.safe_dump(model.metadata, open(path, 'w', encoding='utf-8'))
 
     @overrides
-    def load_arch(self, path: str) -> NasModel:
+    def load_arch(self, path: str) -> ArchaiModel:
         metadata = yaml.safe_load(open(path, encoding='utf-8'))
         natsbenchid = self.archid_pattern.match(metadata.archid)
 
@@ -92,32 +92,32 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
 
         idx = int(natsbenchid.group(1))
 
-        return NasModel(
+        return ArchaiModel(
             arch=self.model_from_natsbench_tss(idx),
             archid=f'natsbench-tss-{idx}',
             metadata={'dataset': self.base_dataset}
         )
 
     @overrides
-    def load_model_weights(self, model: NasModel, path: str) -> None:
+    def load_model_weights(self, model: ArchaiModel, path: str) -> None:
         model.arch.load_state_dict(torch.load(path))
 
     @overrides
-    def save_model_weights(self, model: NasModel, path: str) -> None:
+    def save_model_weights(self, model: ArchaiModel, path: str) -> None:
         torch.save(model.arch.state_dict(), path)
 
     @overrides
-    def random_sample(self) -> NasModel:
+    def random_sample(self) -> ArchaiModel:
         idx = self.rng.randint(0, len(self.api))
         
-        return NasModel(
+        return ArchaiModel(
             arch=self.model_from_natsbench_tss(idx),
             archid=f'natsbench-tss-{idx}',
             metadata={'dataset': self.base_dataset}
         )
 
     @overrides
-    def mutate(self, model: NasModel) -> NasModel:
+    def mutate(self, model: ArchaiModel) -> ArchaiModel:
         ''' Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py '''
         # First get the string representation of the current architecture
         natsbenchid = self.archid_pattern.match(model.archid)
@@ -146,18 +146,18 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         mutation_str = random.choice(nbhd_strs)
         mutation_natsbenchid = self.api.archstr2index[mutation_str]
         
-        return NasModel(
+        return ArchaiModel(
             arch=self.model_from_natsbench_tss(mutation_natsbenchid),
             archid=f'natsbench-tss-{mutation_natsbenchid}',
             metadata={'dataset': self.base_dataset}
         )
 
     @overrides
-    def crossover(self, arch_list: List[NasModel]) -> NasModel:
+    def crossover(self, arch_list: List[ArchaiModel]) -> ArchaiModel:
         raise NotImplementedError
 
     @overrides
-    def encode(self, arch: NasModel) -> np.ndarray:
+    def encode(self, arch: ArchaiModel) -> np.ndarray:
         ''' Stacks one-hot encoding representations of each op '''
         enc_dict = {
             'none': [0, 0, 0, 0],

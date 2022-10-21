@@ -12,9 +12,7 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob import BlobServiceClient
 from azure.data.tables import TableServiceClient, UpdateMode
 
-from archai.discrete_search.api.search import AsyncMetric
-from archai.datasets.dataset_provider import DatasetProvider
-from archai.discrete_search.api.model import NasModel
+from archai.discrete_search import AsyncObjective, DatasetProvider, ArchaiModel
 
 
 def get_utc_date():
@@ -23,7 +21,7 @@ def get_utc_date():
     return current_date.isoformat()
 
 
-class RemoteAzureBenchmarkMetric(AsyncMetric):
+class RemoteAzureBenchmarkObjective(AsyncObjective):
     def __init__(self, 
                  input_shape: Union[Tuple, List[Tuple]],
                  connection_string: str,
@@ -118,7 +116,7 @@ class RemoteAzureBenchmarkMetric(AsyncMetric):
         return self.table_client.upsert_entity(entity, mode=UpdateMode.REPLACE)
 
     @overrides
-    def send(self, nas_model: NasModel, dataset_provider: DatasetProvider,
+    def send(self, nas_model: ArchaiModel, dataset_provider: DatasetProvider,
              budget: Optional[float] = None) -> None:
         archid = str(nas_model.archid)
 

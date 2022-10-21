@@ -4,9 +4,9 @@
 
 from typing import Optional, Dict, Any
 
-class NasModel():
+class ArchaiModel():
     def __init__(self, arch: Any, archid: str, metadata: Optional[Dict] = None):
-        """Used to wrap a NAS model.
+        """Wraps a model object with an architecture id and optionally a metadata dictionary.
 
         Args:
             arch (Any): Model object (e.g torch.nn.Module)
@@ -27,7 +27,7 @@ class NasModel():
 # from overrides import EnforceOverrides
 
 
-# class NasModel(EnforceOverrides):
+# class ArchaiModel(EnforceOverrides):
   
 #     @property
 #     @abstractmethod
