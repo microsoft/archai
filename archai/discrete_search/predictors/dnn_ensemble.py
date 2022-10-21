@@ -11,6 +11,16 @@ from archai.discrete_search.api.predictor import Predictor, MeanVar
 class PredictiveDNNEnsemble(Predictor):
     def __init__(self, num_ensemble_members: int = 5, num_layers: int = 5,
                  width: int = 64, lr: float = 1e-4, num_tr_steps: int = 2_000):
+        """Deep Neural Network Ensemble predictor. Predicts the outcome of a set
+        of expensive objectives using an ensemble of MLP models.
+
+        Args:
+            num_ensemble_members (int, optional): Number of ensemble members. Defaults to 5.
+            num_layers (int, optional): Number of layers of each member. Defaults to 5.
+            width (int, optional): Number of neurons in each hidden layer. Defaults to 64.
+            lr (float, optional): Learning rate of each ensemble mmember. Defaults to 1e-4.
+            num_tr_steps (int, optional): Number of training steps of each member. Defaults to 2_000.
+        """
         self.num_ensemble_members = num_ensemble_members
         self.num_layers = num_layers
         self.width = width
