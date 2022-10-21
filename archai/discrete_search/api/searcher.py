@@ -9,5 +9,5 @@ from typing import Any
 class Searcher(EnforceOverrides):
 
     @abstractmethod
-    def search(self, *args, **kwargs) -> Any:
+    def search(self) -> 'SearchResults':
         pass
