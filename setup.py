@@ -35,9 +35,10 @@ install_requires = [
     "sympy>=1.10.1",
     "tensorboard>=2.10.0",
     "tensorwatch>=0.9.1",
-    "tokenizers>=0.12.1",
+    "tokenizers>=0.10.3, <=0.12.1",
     "tqdm>=4.64.0",
-    "transformers>=4.21.1",
+    "transformers>=4.16.2, <=4.20.1",
+    "dllogger @ git+https://github.com/NVIDIA/dllogger.git",
 ]
 
 setuptools.setup(

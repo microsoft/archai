@@ -42,6 +42,11 @@ from archai.nlp.models.model_utils import lamb_optimizer
 from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from torch.nn.parallel import DistributedDataParallel
 
+from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
+from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_torch_for_export
+from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
+from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
+
 
 def parse_args():
     parent_parser = argparse.ArgumentParser(
@@ -128,7 +133,7 @@ def parse_args():
     general.add_argument('--cache_dir', default='cache', type=str,
                          help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100', 'olx_TeamsData20210221'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -280,6 +285,8 @@ def parse_args():
                       help='Dynamic quantization')
     post.add_argument('--post_qat', action='store_true',
                       help='Perform QAT after training the model')
+    post.add_argument('--export_onnx', action='store_true',
+                      help='Export the best model as a onnx file.')
 
     parser.set_defaults(**config)
     args, _ = parser.parse_known_args()
@@ -1299,6 +1306,37 @@ def main():
         training_time, best_val_loss, meters = train_main(args, device, train_itr, valid_itr, model, para_model,
                                                           model_config, optimizer, optimizer_sparse, scheduler,
                                                           scheduler_sparse, scaler, vocab, file_stats[1])
+        
+        
+    if args.export_onnx:
+        
+        torch_model_path = os.path.join(args.work_dir, 'checkpoint_best.pt' if not args.qat else 'qat_checkpoint_best.pt')
+        onnx_model_path = os.path.join(args.work_dir, 'checkpoint.onnx')
+        opset_version = 11
+        num_heads = model_config['n_head'][0] if isinstance(model_config['n_head'], list) else model_config['n_head']
+        # Loads the PyTorch model
+        model, model_config = load_from_torch_for_export(args.model_type, torch_model_path)
+
+        # Exports to ONNX
+        export_onnx_from_torch(model,
+                                model_config,
+                                args.model_type,
+                                onnx_model_path,
+                                share_weights=True,
+                                opset_version=opset_version)
+
+        # Whether optimization should be applied
+
+        ort_model_path = optimize_onnx(args.model_type,
+                                    onnx_model_path,
+                                    num_heads=num_heads,
+                                    opt_level=0)
+
+        # Caveat to enable quantization after optimization
+        onnx_model_path = ort_model_path
+
+        # Whether dynamic quantization should be applied
+        dynamic_quantization_onnx(onnx_model_path)
 
 
 if __name__ == "__main__":
