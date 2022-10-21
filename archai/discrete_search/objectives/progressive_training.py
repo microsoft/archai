@@ -5,8 +5,8 @@ import ray
 from overrides import overrides
 
 from archai.discrete_search import (
-    NasModel, DiscreteSearchSpace,
-    DatasetProvider, Metric, AsyncMetric
+    ArchaiModel, DiscreteSearchSpace,
+    DatasetProvider, Objective, AsyncObjective
 )
 
 
@@ -18,7 +18,7 @@ def ray_wrap_training_fn(training_fn):
     return stateful_training_fn
 
 
-class ProgressiveTrainingMetric(Metric):
+class ProgressiveTraining(Objective):
     def __init__(self, search_space: DiscreteSearchSpace, 
                  training_fn: Callable, higher_is_better: bool = False):
         self.search_space = search_space
@@ -29,7 +29,7 @@ class ProgressiveTrainingMetric(Metric):
         self.training_states = {}
 
     @overrides
-    def compute(self, nas_model: NasModel, dataset: DatasetProvider,
+    def evaluate(self, nas_model: ArchaiModel, dataset: DatasetProvider,
                 budget: Optional[float] = None) -> float:
         # Tries to retrieve previous training state
         tr_state = self.training_states.get(nas_model.archid, None)
@@ -41,7 +41,7 @@ class ProgressiveTrainingMetric(Metric):
         return metric_result
 
 
-class RayProgressiveTrainingMetric(AsyncMetric):
+class RayProgressiveTraining(AsyncObjective):
     def __init__(self, search_space: DiscreteSearchSpace, 
                  training_fn: Callable, higher_is_better: bool = False,
                  timeout: Optional[float] = None, force_stop: bool = False, 
@@ -69,7 +69,7 @@ class RayProgressiveTrainingMetric(AsyncMetric):
         self.training_states = {}
 
     @overrides
-    def send(self, nas_model: NasModel, dataset: DatasetProvider,
+    def send(self, nas_model: ArchaiModel, dataset: DatasetProvider,
              budget: Optional[float] = None) -> None:
         # Stores original model reference
         self.models.append(nas_model)

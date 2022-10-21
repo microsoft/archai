@@ -4,31 +4,31 @@ import numpy as np
 from tqdm import tqdm
 
 from archai.discrete_search import (
-    AsyncMetric, Metric, DatasetProvider,
-    NasModel
+    AsyncObjective, Objective, DatasetProvider,
+    ArchaiModel
 )
 
 
-def evaluate_models(models: List[NasModel],
-                    objectives: Dict[str, Union[Metric, AsyncMetric]],  
+def evaluate_models(models: List[ArchaiModel],
+                    objectives: Dict[str, Union[Objective, AsyncObjective]],  
                     dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                     budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None) -> Dict[str, np.ndarray]:
     """Evaluates all objective functions on a list of models and dataset(s).
     
-    Metrics are evaluated in the following order:
-        (1) Asynchronous metrics are dispatched by calling `.send`
-        (2) Synchronous metrics are computed using `.compute`
-        (3) Asynchronous metrics results are gathered by calling `.fetch_all`
+    Objectives are evaluated in the following order:
+        (1) Asynchronous objectives are dispatched by calling `.send`
+        (2) Synchronous objectives are computed using `.evaluate`
+        (3) Asynchronous objectives results are gathered by calling `.fetch_all`
 
     Args:
-        models (List[NasModel]): List of architectures from a search space.
+        models (List[ArchaiModel]): List of architectures from a search space.
         
-        objectives (Mapping[str, Union[Metric, AsyncMetric]]): Dictionary mapping
-            an objective identifier to a metric (either `Metric` or `AsyncMetric`), e.g:
+        objectives (Mapping[str, Union[Objective, AsyncObjective]]): Dictionary mapping
+            an objective identifier to an objective object (either `Objective` or `AsyncObjective`), e.g:
                 ```
                    {
-                        'Latency (ms)': MyMetricX(),
-                        'Validation Accuracy': MyMetricY(),
+                        'Latency (ms)': MyObjectiveX(),
+                        'Validation Accuracy': MyObjectiveY(),
                         ...
                    } 
                 ```.
@@ -67,8 +67,8 @@ def evaluate_models(models: List[NasModel],
             in `objectives`.
     """
 
-    assert all(isinstance(obj, (Metric, AsyncMetric)) for obj in objectives.values()),\
-        'All objectives must subclass `Metric` or `AsyncMetric`.'
+    assert all(isinstance(obj, (Objective, AsyncObjective)) for obj in objectives.values()),\
+        'All objectives must subclass `Objective` or `AsyncObjective`.'
     assert isinstance(models, list)
 
     if isinstance(dataset_providers, list):
@@ -84,8 +84,8 @@ def evaluate_models(models: List[NasModel],
     objective_results = dict()
     inputs = list(enumerate(zip(models, dataset_providers)))
 
-    sync_objectives = [t for t in objectives.items() if isinstance(t[1], Metric)]
-    async_objectives = [t for t in objectives.items() if isinstance(t[1], AsyncMetric)]
+    sync_objectives = [t for t in objectives.items() if isinstance(t[1], Objective)]
+    async_objectives = [t for t in objectives.items() if isinstance(t[1], AsyncObjective)]
 
     # Dispatches jobs for all async objectives first
     for obj_name, obj in async_objectives:
@@ -103,12 +103,12 @@ def evaluate_models(models: List[NasModel],
 
         if budgets:
             objective_results[obj_name] = np.array([
-                obj.compute(arch, dataset, budget=budgets[obj_name][arch_idx]) 
+                obj.evaluate(arch, dataset, budget=budgets[obj_name][arch_idx]) 
                 for arch_idx, (arch, dataset) in pbar
             ], dtype=np.float64)
         else:
             objective_results[obj_name] = np.array([
-                obj.compute(arch, dataset) 
+                obj.evaluate(arch, dataset) 
                 for _, (arch, dataset) in pbar
             ], dtype=np.float64)
 

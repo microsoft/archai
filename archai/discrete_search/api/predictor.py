@@ -9,6 +9,8 @@ import numpy as np
 
 
 class MeanVar(NamedTuple):
+    """Predictive mean and variance estimates from
+    a surrogate model (`Predictor`)."""    
     mean: np.ndarray
     var: np.ndarray
 

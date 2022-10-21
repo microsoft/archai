@@ -8,18 +8,18 @@ from pathlib import Path
 
 from archai.common.utils import create_logger
 from archai.discrete_search import (
-    Metric, AsyncMetric,
+    Objective, AsyncObjective,
     DiscreteSearchSpace, DatasetProvider, Searcher
 )
 
 from archai.discrete_search.algos.utils import get_non_dominated_sorting
-from archai.discrete_search.metrics.utils import evaluate_models
+from archai.discrete_search.objectives.utils import evaluate_models
 from archai.discrete_search.algos.utils import SearchResults
 
 
 class SucessiveHalvingSearch(Searcher):
     def __init__(self, search_space: DiscreteSearchSpace, 
-                 objectives: Dict[str, Union[Metric, AsyncMetric]], 
+                 objectives: Dict[str, Union[Objective, AsyncObjective]], 
                  dataset_provider: DatasetProvider,
                  output_dir: str, num_iters: int = 10,
                  init_num_models: int = 10,

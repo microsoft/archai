@@ -5,16 +5,19 @@ import torch
 from overrides import overrides
 import onnxruntime as rt
 
-from archai.discrete_search.api.model import NasModel
+from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.datasets.dataset_provider import DatasetProvider
-from archai.discrete_search.api.metric import Metric
+from archai.discrete_search.api.objective import Objective
 from archai.common.timing import MeasureBlockTime
 
 
-class AvgOnnxLatencyMetric(Metric):
+class AvgOnnxLatency(Objective):
+    higher_is_better: bool = False
+
     def __init__(self, input_shape: Union[Tuple, List[Tuple]], num_trials: int = 1,
                  export_kwargs: Optional[Dict] = None, inf_session_kwargs: Optional[Dict] = None):
-        """Average ONNX Latency Metric (in seconds).
+        """Uses the average ONNX Latency (in seconds) of an architecture as an objective function for
+        minimization.
 
         Args:
             input_shape (Union[Tuple, List[Tuple]]): Model Input shape or list of model input shapes.
@@ -32,7 +35,7 @@ class AvgOnnxLatencyMetric(Metric):
         self.inf_session_kwargs = inf_session_kwargs or dict()
 
     @overrides
-    def compute(self, model: NasModel, dataset_provider: DatasetProvider,
+    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider,
                 budget: Optional[float] = None) -> float:
         model.arch.to('cpu')
 
