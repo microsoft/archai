@@ -12,7 +12,7 @@ from archai_nlp.core.tokenizer import (
     ArchaiPreTrainedTokenizer,
     ArchaiPreTrainedTokenizerFast,
 )
-from archai.nlp.eval_utils.text_predict.text_predict_utils import LRUCache
+from archai.nlp.eval.text_predict.text_predict_utils import LRUCache
 from archai_nlp.utils.general_utils import cached_property, xor
 
 SEPARATOR_TOKENS = "Ġ \nĊ\t\.;:,'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~"

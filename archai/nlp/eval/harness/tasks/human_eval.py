@@ -7,8 +7,8 @@ https://arxiv.org/abs/2107.03374
 
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from archai.nlp.eval_utils.harness.harness_task import HarnessTask
-from archai.nlp.eval_utils.harness.harness_utils import HarnessCall, call_factory
+from archai.nlp.eval.harness.harness_task import HarnessTask
+from archai.nlp.eval.harness.harness_utils import HarnessCall, call_factory
 
 
 class HumanEvalHarnessTask(HarnessTask):
