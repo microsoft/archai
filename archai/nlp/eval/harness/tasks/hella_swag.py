@@ -1,24 +1,24 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Think you have Solved Question Answering? Try ARC, the AI2 Reasoning Challenge
-https://arxiv.org/pdf/1803.05457.pdf
+"""HellaSwag: Can a Machine Really Finish Your Sentence?
+https://arxiv.org/pdf/1905.07830.pdf
 """
 
+import re
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-from archai.nlp.eval_utils.harness.harness_task import HarnessTask
-from archai.nlp.eval_utils.harness.harness_utils import HarnessCall, call_factory
+from archai.nlp.eval.harness.harness_task import HarnessTask
+from archai.nlp.eval.harness.harness_utils import HarnessCall, call_factory
 
 
-class ARCEasyHarnessTask(HarnessTask):
-    """Defines the ARC-Easy task."""
+class HellaSwagHarnessTask(HarnessTask):
+    """Defines the HellaSwag task."""
 
     def __init__(
         self,
-        dataset_config_name: Optional[str] = "ARC-Easy",
         dataset_split: Optional[Union[str, List[str]]] = None,
         dataset_cache: Optional[str] = None,
         dataset_samples: Optional[int] = -1,
@@ -26,8 +26,8 @@ class ARCEasyHarnessTask(HarnessTask):
         num_proc: Optional[int] = None,
     ) -> None:
         super().__init__(
-            "ai2_arc",
-            dataset_config_name=dataset_config_name,
+            "hellaswag",
+            dataset_config_name="default",
             dataset_split=dataset_split,
             dataset_cache=dataset_cache,
             dataset_samples=dataset_samples,
@@ -37,21 +37,31 @@ class ARCEasyHarnessTask(HarnessTask):
             metric_config_name=None,
         )
 
+    @property
+    def has_test_set(self) -> bool:
+        return False
+
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         return sample["query"]
 
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return f" {sample['choices'][sample['label']]}"
 
+    def _get_preprocessed_text(self, text: str) -> str:
+        text = text.strip()
+        text = text.replace(" [title]", ". ")
+        text = re.sub("\\[.*?\\]", "", text)
+        text = text.replace("  ", " ")
+
+        return text
+
     def _pre_process_sample(self, sample: Dict[str, Any]) -> Dict[str, Any]:
-        answer_key_map = {"1": "A", "2": "B", "3": "C", "4": "D", "5": "E"}
-        sample["answerKey"] = answer_key_map.get(sample["answerKey"], sample["answerKey"])
+        context = f"{sample['ctx_a']} {sample['ctx_b'].capitalize()}"
 
         return {
-            "id": sample["id"],
-            "query": f"Question: {sample['question']}\nAnswer:",
-            "choices": sample["choices"]["text"],
-            "label": ["A", "B", "C", "D", "E"].index(sample["answerKey"]),
+            "query": self._get_preprocessed_text(sample["activity_label"] + ": " + context),
+            "choices": [self._get_preprocessed_text(ending) for ending in sample["endings"]],
+            "label": int(sample["label"]),
         }
 
     def create_sampling_calls(
@@ -66,24 +76,3 @@ class ARCEasyHarnessTask(HarnessTask):
         reference = sample["label"]
 
         self.metric.add(predictions=prediction, reference=reference)
-
-
-class ARCChallengeHarnessTask(ARCEasyHarnessTask):
-    """Defines the ARC-Challenge task."""
-
-    def __init__(
-        self,
-        dataset_split: Optional[Union[str, List[str]]] = None,
-        dataset_cache: Optional[str] = None,
-        dataset_samples: Optional[int] = -1,
-        random_seed: Optional[int] = 42,
-        num_proc: Optional[int] = None,
-    ) -> None:
-        super().__init__(
-            dataset_config_name="ARC-Challenge",
-            dataset_split=dataset_split,
-            dataset_cache=dataset_cache,
-            dataset_samples=dataset_samples,
-            random_seed=random_seed,
-            num_proc=num_proc,
-        )

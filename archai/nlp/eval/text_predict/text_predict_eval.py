@@ -8,10 +8,10 @@ from typing import Optional
 
 import numpy as np
 
-from archai.nlp.eval_utils.text_predict.text_predict_model import TextPredictModel
-from archai.nlp.eval_utils.text_predict.text_predict_prediction import TextPredictionSequence
-from archai.nlp.eval_utils.text_predict.text_predict_predictor import Predictor
-from archai.nlp.eval_utils.text_predict.text_predict_tokenizer import TextPredictTokenizer
+from archai.nlp.eval.text_predict.text_predict_model import TextPredictModel
+from archai.nlp.eval.text_predict.text_predict_prediction import TextPredictionSequence
+from archai.nlp.eval.text_predict.text_predict_predictor import Predictor
+from archai.nlp.eval.text_predict.text_predict_tokenizer import TextPredictTokenizer
 
 
 def evaluate(

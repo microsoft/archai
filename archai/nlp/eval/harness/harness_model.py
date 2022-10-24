@@ -16,7 +16,7 @@ from archai_nlp.core.tokenizer import (
     ArchaiPreTrainedTokenizer,
     ArchaiPreTrainedTokenizerFast,
 )
-from archai.nlp.eval_utils.harness.harness_utils import MultipleTokenStoppingCriteria
+from archai.nlp.eval.harness.harness_utils import MultipleTokenStoppingCriteria
 from archai_nlp.utils.general_utils import xor
 
 

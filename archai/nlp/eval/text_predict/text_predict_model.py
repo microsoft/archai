@@ -14,7 +14,7 @@ import torch
 from transformers import AutoConfig
 
 from archai_nlp.core.model import ArchaiModel
-from archai.nlp.eval_utils.text_predict.text_predict_utils import LRUCache
+from archai.nlp.eval.text_predict.text_predict_utils import LRUCache
 
 
 class TextPredictModel:

@@ -13,12 +13,12 @@ from typing import List, Optional, Tuple, Union
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
-from archai.nlp.eval_utils.text_predict.text_predict_model import TextPredictModel
-from archai.nlp.eval_utils.text_predict.text_predict_prediction import (
+from archai.nlp.eval.text_predict.text_predict_model import TextPredictModel
+from archai.nlp.eval.text_predict.text_predict_prediction import (
     TextPredictionSequence,
     TextPredictPrediction,
 )
-from archai.nlp.eval_utils.text_predict.text_predict_tokenizer import (
+from archai.nlp.eval.text_predict.text_predict_tokenizer import (
     SEPARATOR_TOKENS_SET,
     TextPredictTokenizer,
 )
