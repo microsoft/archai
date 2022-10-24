@@ -9,11 +9,12 @@ from __future__ import annotations
 from typing import Optional
 from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 
-from archai.nlp.datasets.tokenizers.token_config import TokenConfig
+from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import TokenConfig
 
 
 class ArchaiPreTrainedTokenizerFast(PreTrainedTokenizerFast):
-    """Serves as an abstraction to load/use a fast pre-trained tokenizer."""
+    """
+    """
 
     def __init__(
         self,
@@ -22,12 +23,7 @@ class ArchaiPreTrainedTokenizerFast(PreTrainedTokenizerFast):
         token_config_file: Optional[str] = None,
         **kwargs,
     ) -> None:
-        """Overrides with custom arguments and keyword arguments.
-
-        Args:
-            tokenizer_file: Path to the tokenizer's file.
-            token_config_file: Path to the token's configuration file.
-
+        """
         """
 
         if tokenizer_file is None:
