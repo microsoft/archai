@@ -24,7 +24,8 @@ SPECIAL_TOKENS = {
 
 
 class TokenConfig:
-    """Serves as the base foundation of a token's configuration."""
+    """
+    """
 
     def __init__(
         self,
@@ -37,17 +38,7 @@ class TokenConfig:
         mask_token: Optional[str] = None,
         **kwargs,
     ) -> None:
-        """Initializes a token's configuration class by setting attributes.
-
-        Args:
-            bos_token: Begin-of-sentence token.
-            eos_token: End-of-sentence token.
-            unk_token: Unknown token.
-            sep_token: Separator token (used for separating two sequences).
-            pad_token: Padding token.
-            cls_token: Input class token.
-            mask_token: Masked token.
-
+        """
         """
 
         self.bos_token = bos_token
@@ -60,14 +51,7 @@ class TokenConfig:
 
     @classmethod
     def from_file(cls: TokenConfig, token_config_path: str) -> TokenConfig:
-        """Creates a class instance from an input file.
-
-        Args:
-            token_config_path: Path to the token's configuration file.
-
-        Returns:
-            (TokenConfig): Instance of the TokenConfig class.
-
+        """
         """
 
         try:
@@ -78,11 +62,7 @@ class TokenConfig:
 
     @property
     def special_tokens(self) -> List[str]:
-        """Gathers the available special tokens.
-
-        Returns:
-            (List[str]): List of available special tokens.
-
+        """
         """
 
         return list(
@@ -101,11 +81,7 @@ class TokenConfig:
         )
 
     def save(self, token_config_path: str) -> None:
-        """Saves the token's configuration to an output JSON file.
-
-        Args:
-            token_config_path: Path to where token's configuration should be saved.
-
+        """
         """
 
         with open(token_config_path, "w") as f:
