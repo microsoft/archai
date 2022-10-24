@@ -73,8 +73,8 @@ class TokenConfig:
         try:
             with open(token_config_path, "r") as f:
                 return cls(**json.load(f))
-        except FileNotFoundError as error:
-            raise error(f"{token_config_path} could not be found.")
+        except FileNotFoundError:
+            return cls()
 
     @property
     def special_tokens(self) -> List[str]:
