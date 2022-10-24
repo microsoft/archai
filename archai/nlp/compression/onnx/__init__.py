@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-based classes, methods and scripts.
+"""Integrates ONNX utilities into high-level abstract
+classes and methods.
 """
