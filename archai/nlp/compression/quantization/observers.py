@@ -11,7 +11,7 @@ class OnnxDynamicObserver:
     """Provides a DynamicObserver that is compliant with ONNX-based graphs.
 
     Note that usually `qint8` is used for symmetric quantization, while
-    `quint8` is used for assymetric quantization.
+        `quint8` is used for assymetric quantization.
 
     """
 
@@ -42,25 +42,22 @@ class OnnxDynamicObserver:
         """
 
         x = x.detach().float()
-
         self.min_val, self.max_val = x.min().view(-1), x.max().view(-1)
 
     def calculate_qparams(self) -> None:
-        """Calculates the quantization parameters.
-
-        """
+        """Calculates the quantization parameters."""
 
         if self.dtype == torch.qint8:
             scale = torch.max(self.max_val.clamp(min=0), -self.min_val.clamp(max=0)) / 127
-            zero_point = torch.zeros_like(scale).to(torch.int64)
+            zero_pointer = torch.zeros_like(scale).to(torch.int64)
 
-            return scale.clamp(min=self.eps), zero_point
+            return scale.clamp(min=self.eps), zero_pointer
 
         else:
             scale = (self.max_val - self.min_val) / float(self.qmax - self.qmin)
             scale = scale.clamp(min=self.eps)
 
-            zero_point = self.qmin - torch.round(self.min_val / scale)
-            zero_point = zero_point.clamp(min=self.qmin, max=self.qmax).to(torch.int64)
+            zero_pointer = self.qmin - torch.round(self.min_val / scale)
+            zero_pointer = zero_pointer.clamp(min=self.qmin, max=self.qmax).to(torch.int64)
 
-            return scale, zero_point
+            return scale, zero_pointer
