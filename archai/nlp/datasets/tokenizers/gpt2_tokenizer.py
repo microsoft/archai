@@ -4,6 +4,7 @@
 """GPT-2-based tokenizer.
 """
 
+import os
 from typing import Optional
 
 from tokenizers import Tokenizer
@@ -12,6 +13,8 @@ from tokenizers.models import BPE
 from tokenizers.pre_tokenizers import ByteLevel
 from tokenizers.processors import ByteLevel as ByteLevelProcessor
 from tokenizers.trainers import BpeTrainer
+
+from archai.nlp.datasets.tokenizers.token_config import SPECIAL_TOKENS, TokenConfig
 
 
 class GPT2Tokenizer(Tokenizer):
@@ -30,7 +33,13 @@ class GPT2Tokenizer(Tokenizer):
 
         super().__init__(BPE(continuing_subword_prefix="", end_of_word_suffix=""))
 
-        # Pre-, post-processing and decoder templates
+        self.token_config = TokenConfig(
+            bos_token=SPECIAL_TOKENS["bos_token"],
+            eos_token=SPECIAL_TOKENS["gpt2_eos_token"],
+            unk_token=SPECIAL_TOKENS["unk_token"],
+            pad_token=SPECIAL_TOKENS["pad_token"],
+        )
+
         self.pre_tokenizer = ByteLevel(add_prefix_space=False)
         self.post_processor = ByteLevelProcessor(trim_offsets=False)
         self.decoder = ByteLevelDecoder()
@@ -38,39 +47,28 @@ class GPT2Tokenizer(Tokenizer):
         self.trainer = BpeTrainer(
             vocab_size=vocab_size,
             min_frequency=min_frequency,
-            # special_tokens=token_config.special_tokens,
+            special_tokens=self.token_config.special_tokens,
         )
 
-        
-        # token_config = ArchaiTokenConfig(
-        #     bos_token=SPECIAL_TOKENS["bos_token"],
-        #     eos_token=SPECIAL_TOKENS["gpt2_eos_token"],
-        #     unk_token=SPECIAL_TOKENS["unk_token"],
-        #     pad_token=SPECIAL_TOKENS["pad_token"],
-        # )
-
-    def train_from_iterator(self, iterator):
+    def train_from_iterator(self, iterator) -> None:
         """
         """
-
-        def _batch_iterator(
-            dataset,
-            batch_size=10000,
-            column_name="text",
-        ):
-            """Iterates over dataset to provide batches.
-
-            Args:
-                dataset: Dataset that should be iterated over.
-                batch_size: Size of each batch.
-                column_name: Name of column that should be retrieved.
-
-            Yields:
-                (Dataset): Batch of data based on size and `column_name`.
-
-            """
-
-            for i in range(0, len(dataset), batch_size):
-                yield dataset[i : i + batch_size][column_name]
                 
         return super().train_from_iterator(iterator, self.trainer, len(iterator))
+
+    def save(self, path: str, pretty: Optional[bool] = True) -> None:
+        """Saves the pre-trained tokenizer and token's configuration to disk.
+
+        Args:
+            path: Path to where tokenizer should be saved.
+
+        """
+
+        folder_path = os.path.dirname(path)
+        if folder_path and not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+            
+        token_config_path = os.path.join(folder_path, "token_config.json")
+        self.token_config.save(token_config_path)
+
+        return super().save(path, pretty=pretty)
