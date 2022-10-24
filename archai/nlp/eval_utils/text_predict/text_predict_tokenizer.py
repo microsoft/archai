@@ -1,143 +1,266 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Tokenizer-based class that works with the Text Predictor.
+"""Implements a Text Predict-based tokenizer.
 """
 
 import functools
 import re
 from typing import List, Optional, Set, Tuple
 
-import numpy as np
-from transformers import PreTrainedTokenizerFast
+from archai_nlp.core.tokenizer import (
+    ArchaiPreTrainedTokenizer,
+    ArchaiPreTrainedTokenizerFast,
+)
+from archai.nlp.eval_utils.text_predict.text_predict_utils import LRUCache
+from archai_nlp.utils.general_utils import cached_property, xor
 
-from archai.common.lru_cache import LRUCache
-
-# Token-related constants
-TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE = 65536
-TOKENIZER_WORD_TOKEN_SEPARATOR = 'Ġ \nĊ\t\.;:,\'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~'
-TOKENIZER_WORD_TOKEN_SEPARATOR_SET = set(TOKENIZER_WORD_TOKEN_SEPARATOR)
-
-# Regex
-REGEX_SPLIT = re.compile('^(.*)([' + TOKENIZER_WORD_TOKEN_SEPARATOR + '].*)$', re.MULTILINE | re.DOTALL)
-REGEX_WHITESPACE = re.compile("[\xa0 \t\u2002-\u2006\u200B]+", re.MULTILINE | re.DOTALL)
-REGEX_NEW_LINE = re.compile("\s*[\r\n]+\s*", re.MULTILINE | re.DOTALL)
+SEPARATOR_TOKENS = "Ġ \nĊ\t\.;:,'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~"
+SEPARATOR_TOKENS_SET = set(SEPARATOR_TOKENS)
 
 
 class TextPredictTokenizer:
-    """Loads an pre-trained tokenizer (.json) and complies with Text Predict.
+    """Prepares an Archai-NLP tokenizer used for Text Predict."""
 
-    """
-
-    # Set of tokens that should not be shown to the user
+    BOS_TEXT = "\n "
+    FILTER_TOKENS_CACHE_SIZE = 65536
     INVALID_TOKENS = {50256}
 
-    # Text to insert at the beginning of each sequence
-    BOS_TEXT = '\n '
+    REGEX_SPLIT = re.compile("^(.*)([" + SEPARATOR_TOKENS + "].*)$", re.MULTILINE | re.DOTALL)
+    REGEX_WHITESPACE = re.compile("[\xa0 \t\u2002-\u2006\u200B]+", re.MULTILINE | re.DOTALL)
+    REGEX_NEW_LINE = re.compile("\s*[\r\n]+\s*", re.MULTILINE | re.DOTALL)
 
-    def __init__(self, vocab_path: str) -> None:
-        self.tokenizer = PreTrainedTokenizerFast(tokenizer_file=vocab_path)
+    def __init__(
+        self,
+        token_config_path: Optional[str] = None,
+        tokenizer_path: Optional[str] = None,
+        hub_tokenizer_path: Optional[str] = None,
+    ) -> None:
+        """Overrides initialization method.
 
-        self.bos_token = self.tokenizer.bos_token_id
-        self.filter_token_ids_cache = LRUCache(TOKENIZER_FILTER_TOKEN_IDS_CACHE_SIZE)
-        self.TOKENIZER_WORD_TOKEN_SEPARATOR = set([idx for idx in range(len(self)) if self[idx][0] in TOKENIZER_WORD_TOKEN_SEPARATOR_SET])
+        Args:
+            token_config_path: Path to the token's configuration file.
+            tokenizer_path: Path to the tokenizer's file.
+            hub_tokenizer_path: Path to the Hub's tokenizer identifier.
+
+        """
+
+        assert xor(
+            tokenizer_path, hub_tokenizer_path
+        ), "`tokenizer_path` and `hub_tokenizer_path` are mutually exclusive."
+        if tokenizer_path:
+            self.tokenizer = ArchaiPreTrainedTokenizerFast(
+                token_config_file=token_config_path, tokenizer_file=tokenizer_path
+            )
+        if hub_tokenizer_path:
+            self.tokenizer = ArchaiPreTrainedTokenizer.from_pretrained(hub_tokenizer_path)
+
+        self.filter_tokens_cache = LRUCache(self.FILTER_TOKENS_CACHE_SIZE)
 
     def __iter__(self) -> int:
+        """Provides an iterator over the tokenizer's vocabulary.
+
+        Returns:
+            (int): Token identifier from vocabulary.
+
+        """
+
         yield from self.tokenizer.vocab
 
     def __len__(self) -> int:
+        """Provides the length of vocabulary.
+
+        Args:
+            (int): Length of vocabulary.
+
+        """
+
         return len(self.tokenizer.vocab)
 
     def __getitem__(self, idx: int) -> str:
+        """Retrieves a string-based token based on identifier.
+
+        Args:
+            idx: Token identifier.
+
+        Returns:
+            (str): String-based token.
+
+        """
+
         return self.tokenizer.decode(idx)
 
     @property
+    def bos_token_id(self) -> int:
+        """Begin-of-sentence token identifier.
+
+        Returns:
+            (int): Begin-of-sentence token identifier.
+
+        """
+
+        return self.tokenizer.bos_token_id
+
+    @cached_property
+    def separator_tokens(self) -> Set:
+        """Computes the available tokens separators.
+
+        Returns:
+            (Set): Available token separators.
+
+        """
+
+        return set([i for i in range(len(self)) if self[i][0] in SEPARATOR_TOKENS_SET])
+
+    @cached_property
     def upper_tokens(self) -> Set:
-        if not hasattr(self, '_upper_tokens'):
-            self._upper_tokens = {idx for idx in range(len(self)) if any([c.isupper() and c not in TOKENIZER_WORD_TOKEN_SEPARATOR_SET for c in self[idx]])} # pylint: disable=attribute-defined-outside-init
+        """Computes the available upper-cased tokens.
 
-        return self._upper_tokens
+        Returns:
+            (Set): Available upper-cased tokens.
 
-    def _filter_token_ids(self,
-                          filter_prefix: str,
-                          filter_token_ids_cache: LRUCache) -> Tuple[int, ...]:
-        if len(filter_prefix) > 0 and filter_prefix[0] == ' ':
-            filter_prefix = 'Ġ' + filter_prefix[1:]
+        """
 
-        idx_token_result = None
-        filter_prefix_len = len(filter_prefix)
-
-        cached_filter_prefix = next((filter_prefix[:i] for i in reversed(range(1, len(filter_prefix) - 1)) \
-            if filter_prefix[:i] in filter_token_ids_cache), None)
-
-        if len(filter_prefix) > 0 and cached_filter_prefix is not None:
-            prefilter_full_result = filter_token_ids_cache[cached_filter_prefix]
-            idx_token_result = [(idx, token) for idx, token in prefilter_full_result \
-                if token[:min(len(token), filter_prefix_len)] == filter_prefix[:min(len(token), filter_prefix_len)]]
-
-        else:
-            idx_token_result = [(idx, token) for token, idx in self.tokenizer.vocab.items() \
-                if token[:min(len(token), filter_prefix_len)] == filter_prefix[:min(len(token), filter_prefix_len)]]
-
-        filter_token_ids_cache[filter_prefix] = idx_token_result
-        result = tuple(idx for idx, _ in idx_token_result)
-
-        return result
+        return set(
+            [
+                i
+                for i in range(len(self))
+                if any([c.isupper() and c not in SEPARATOR_TOKENS_SET for c in self[i]])
+            ]
+        )
 
     @functools.lru_cache(maxsize=128)
     def encode(self, text: str) -> List[int]:
+        """Encodes text with the tokenizer.
+
+        Args:
+            text: Text to be encoded.
+
+        Returns:
+            (List[int]): Encoded tokens.
+
+        """
+
         return self.tokenizer.encode(text)
 
-    def decode(self, input_ids: List[int]) -> str:
-        return self.tokenizer.decode(input_ids)
+    def decode(self, tokens: List[int]) -> str:
+        """Decodes text with the tokenizer.
+
+        Args:
+            tokens: Tokens to be decoded.
+
+        Returns:
+            (str): Decoded tokens.
+
+        """
+
+        return self.tokenizer.decode(tokens)
+
+    def _filter_tokens(self, filter_prefix: str) -> Tuple[int, ...]:
+        """Core computation to filter tokens according to the supplied prefix.
+
+        Args:
+            filter_prefix: Prefix to filter tokens.
+
+        Returns:
+            (Tuple[int, ...]): Filtered tokens.
+
+        """
+
+        if len(filter_prefix) > 0 and filter_prefix[0] == " ":
+            filter_prefix = "Ġ" + filter_prefix[1:]
+
+        filtered_tokens = None
+        filter_prefix_len = len(filter_prefix)
+
+        cached_filter_prefix = next(
+            (
+                filter_prefix[:i]
+                for i in reversed(range(1, len(filter_prefix) - 1))
+                if filter_prefix[:i] in self.filter_tokens_cache
+            ),
+            None,
+        )
+
+        if len(filter_prefix) > 0 and cached_filter_prefix is not None:
+            pre_filtered_tokens = self.filter_tokens_cache[cached_filter_prefix]
+            filtered_tokens = [
+                (idx, token)
+                for idx, token in pre_filtered_tokens
+                if token[: min(len(token), filter_prefix_len)]
+                == filter_prefix[: min(len(token), filter_prefix_len)]
+            ]
+        else:
+            filtered_tokens = [
+                (idx, token)
+                for token, idx in self.tokenizer.vocab.items()
+                if token[: min(len(token), filter_prefix_len)]
+                == filter_prefix[: min(len(token), filter_prefix_len)]
+            ]
+
+        self.filter_tokens_cache[filter_prefix] = filtered_tokens
+        filtered_tokens = tuple(idx for idx, _ in filtered_tokens)
+
+        return filtered_tokens
 
     @functools.lru_cache(maxsize=32768)
-    def filter_token_mask_ids(self, filter_prefix: str) -> np.ndarray:
-        if len(filter_prefix) == 0:
-            return np.ones((len(self),), dtype=np.float32, order='C')
+    def filter_tokens(self, filter_prefix: str) -> Tuple[int, ...]:
+        """Filters tokens according to the supplied prefix.
 
-        filter_token_ids = list(self._filter_token_ids(filter_prefix, self.filter_token_ids_cache))
+        Args:
+            filter_prefix: Prefix to filter tokens.
 
-        mask = np.zeros((len(self),), dtype=np.float32, order='C')
-        mask[filter_token_ids] = 1.0
+        Returns:
+            (Tuple[int, ...]): Filtered tokens.
 
-        return mask
+        """
 
-    @functools.lru_cache(maxsize=32768)
-    def filter_token_ids(self, filter_prefix: str) -> Tuple[int, ...]:
-        result = self._filter_token_ids(filter_prefix, self.filter_token_ids_cache)
+        filtered_tokens = self._filter_tokens(filter_prefix)
 
-        return result
+        return filtered_tokens
 
-    @functools.lru_cache(maxsize=32768)
-    def filter_token_tuple_ids(self, filter_prefix: str) -> Tuple[int, ...]:
-        result = self._filter_token_ids(filter_prefix, self.filter_token_ids_cache)
-        result = tuple((idx,) for idx in result)
+    def clean_text(self, text: str, add_bos_text: Optional[bool] = True) -> str:
+        """Performs pre-processing to clean text.
 
-        return result
+        Args:
+            text: Input text.
+            add_bos_text: Whether `BOS_TEXT` should be added or not.
 
-    def clean(self, text: str, add_bos_text: Optional[bool] = True) -> str:
+        Returns:
+            (str): Cleaned text.
+
+        """
+
         text = re.sub(r"[\u2010\u2011\u2012]", "-", text)
         text = re.sub(r"\s*[\u2013\u2014\u2015]\s*", " - ", text)
         text = re.sub(r"[\u2018\u2019\u201a\u201b\xb4]", "'", text)
         text = re.sub(r"[\u201c\u201d\u201e\u201f]", '"', text)
-        text = REGEX_WHITESPACE.sub(" ", text)
-        text = REGEX_NEW_LINE.sub("\n ", text)
+        text = self.REGEX_WHITESPACE.sub(" ", text)
+        text = self.REGEX_NEW_LINE.sub("\n ", text)
 
         if add_bos_text:
             text = self.BOS_TEXT + text.lstrip()
 
         return text
 
-    def find_context_prefix(self, text: str) -> Tuple[str, str]:
-        m = REGEX_SPLIT.match(text)
+    def find_context_and_prefix(self, text: str) -> Tuple[str, str]:
+        """Finds context and prefix from input text.
 
-        if m is None:
-            context = ''
+        Args:
+            text: Input text.
+
+        Returns:
+            (Tuple[str, str]): Context and prefix from text.
+
+        """
+
+        match_text = self.REGEX_SPLIT.match(text)
+
+        if match_text is None:
+            context = ""
             prefix = text
-
         else:
-            context = m.group(1)
-            prefix = m.group(2)
+            context = match_text.group(1)
+            prefix = match_text.group(2)
 
         return (context, prefix)
