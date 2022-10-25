@@ -6,10 +6,8 @@
 
 from typing import Any, Dict
 
-import torch
-
-from archai.nlp.models.config_base import BATCH_SIZE, SEQ_LEN, OnnxConfig
-from archai.nlp.models.mem_transformer.onnx_mem_transformer import MemTransformerLMOnnxModel as HfTransfoXLOnnxModel
+from archai.nlp.legacy_models.config_base import OnnxConfig
+from archai.nlp.legacy_models.mem_transformer.onnx_mem_transformer import MemTransformerLMOnnxModel as HfTransfoXLOnnxModel
 
 
 class HfTransfoXLOnnxConfig(OnnxConfig):

@@ -9,8 +9,8 @@ from typing import Dict, Optional, Tuple
 import torch
 from transformers import TransfoXLLMHeadModel
 
-from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import HfTransfoXLConfig
-from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.legacy_models.hf_transfo_xl.config_hf_transfo_xl import HfTransfoXLConfig
+from archai.nlp.legacy_models.model_base import ArchaiModel
 
 
 class HfTransfoXL(ArchaiModel):

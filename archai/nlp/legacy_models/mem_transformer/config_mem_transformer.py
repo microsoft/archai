@@ -112,7 +112,7 @@ class MemTransformerLMConfig(Config):
 =======
 from typing import List, Optional
 
-from archai.nlp.models.config_base import Config, SearchConfig, SearchConfigParameter
+from archai.nlp.legacy_models.config_base import Config, SearchConfig, SearchConfigParameter
 
 
 class MemTransformerLMConfig(Config):

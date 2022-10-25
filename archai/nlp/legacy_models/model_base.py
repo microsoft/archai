@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
@@ -12,17 +11,6 @@ import torch
 
 def _get_layers_from_module(module: torch.nn.Module,
                             layer_type: Optional[str] = None) -> List[torch.nn.Module]:
-    """Gathers layers (including children ones) based on an input module.
-
-    Args:
-        module: Module to be iterated from.
-        layer_type: Type of layer to be retrieved.
-
-    Returns:
-        (List[torch.nn.Module]): Input module and its children layers.       
-
-    """
-
     sub_module = list(module.children())
     layers = []
 
@@ -60,16 +48,6 @@ class ArchaiModel(torch.nn.Module):
         super().__init__()
 
     def get_params_from_layer(self, layer_type: str) -> int:
-        """Returns the number of parameters based on a layer type.
-
-        Args:
-            layer_type: Type of layer to be searched.
-
-        Returns:
-            (int): Number of parameters from supplied layer.
-
-        """
-
         layers = _get_layers_from_module(self, layer_type)
         n_params = {}
 
@@ -80,13 +58,6 @@ class ArchaiModel(torch.nn.Module):
         return sum(list(n_params.values()))
 
     def get_params(self) -> Dict[str, int]:
-        """Returns a dictionary of total parameters per implemented layer.
-
-        Returns:
-            (Dict[str, int]): Number of total parameters.
-
-        """
-
         params = {}
 
         params['total'] = 0
@@ -96,5 +67,3 @@ class ArchaiModel(torch.nn.Module):
 
     def reset_length(self, tgt_len: int, ext_len: int, mem_len: int) -> None:
         return
-=======
->>>>>>> b50914af (chore(nlp): Temporarily renames old models to legacy_models.)

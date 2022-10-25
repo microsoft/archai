@@ -10,9 +10,9 @@ import torch
 
 from onnxruntime.transformers.onnx_model import OnnxModel
 
-from archai.nlp.models.config_base import Config, OnnxConfig, SearchConfig
-from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.model_dict import (MODELS, MODELS_CONFIGS,
+from archai.nlp.legacy_models.config_base import Config, OnnxConfig, SearchConfig
+from archai.nlp.legacy_models.model_base import ArchaiModel
+from archai.nlp.legacy_models.model_dict import (MODELS, MODELS_CONFIGS,
                                           MODELS_SEARCH_CONFIGS, MODELS_PARAMS_FORMULAE,
                                           ONNX_MODELS, ONNX_MODELS_CONFIGS)
 

@@ -11,9 +11,9 @@ import torch
 import torch.nn.functional as F
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 
-from archai.nlp.models.hf_gpt2.config_hf_gpt2 import HfGPT2Config, HfGPT2FlexConfig
-from archai.nlp.models.hf_gpt2.hf_gpt2_utils.gpt2_lm_head_model_flex import GPT2LMHeadModelFlex
-from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.legacy_models.hf_gpt2.config_hf_gpt2 import HfGPT2Config, HfGPT2FlexConfig
+from archai.nlp.legacy_models.hf_gpt2.hf_gpt2_utils.gpt2_lm_head_model_flex import GPT2LMHeadModelFlex
+from archai.nlp.legacy_models.model_base import ArchaiModel
 
 
 class HfGPT2(ArchaiModel):

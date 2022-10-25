@@ -8,7 +8,7 @@ from typing import Any, Dict
 
 from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel as HfGPT2OnnxModel
 
-from archai.nlp.models.config_base import OnnxConfigWithPast
+from archai.nlp.legacy_models.config_base import OnnxConfigWithPast
 
 
 class HfGPT2OnnxConfig(OnnxConfigWithPast):

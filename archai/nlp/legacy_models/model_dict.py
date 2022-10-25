@@ -5,35 +5,35 @@
 """
 
 # Huggingface's CodeGen
-from archai.nlp.models.hf_codegen.config_hf_codegen import HfCodeGenConfig, HfCodeGenSearchConfig
-from archai.nlp.models.hf_codegen.model_hf_codegen import HfCodeGen
+from archai.nlp.legacy_models.hf_codegen.config_hf_codegen import HfCodeGenConfig, HfCodeGenSearchConfig
+from archai.nlp.legacy_models.hf_codegen.model_hf_codegen import HfCodeGen
 
 # Huggingface's Open AI GPT-2
-from archai.nlp.models.hf_gpt2.config_hf_gpt2 import (HfGPT2Config, HfGPT2SearchConfig,
+from archai.nlp.legacy_models.hf_gpt2.config_hf_gpt2 import (HfGPT2Config, HfGPT2SearchConfig,
                                                       HfGPT2FlexConfig, HfGPT2FlexSearchConfig)
-from archai.nlp.models.hf_gpt2.model_hf_gpt2 import HfGPT2, HfGPT2Flex
-from archai.nlp.models.hf_gpt2.onnx_hf_gpt2 import HfGPT2OnnxConfig, HfGPT2OnnxModel
+from archai.nlp.legacy_models.hf_gpt2.model_hf_gpt2 import HfGPT2, HfGPT2Flex
+from archai.nlp.legacy_models.hf_gpt2.onnx_hf_gpt2 import HfGPT2OnnxConfig, HfGPT2OnnxModel
 
 # Huggingface's Open Pre-Trained Transformer
-from archai.nlp.models.hf_opt.config_hf_opt import HfOPTConfig, HfOPTSearchConfig
-from archai.nlp.models.hf_opt.model_hf_opt import HfOPT
+from archai.nlp.legacy_models.hf_opt.config_hf_opt import HfOPTConfig, HfOPTSearchConfig
+from archai.nlp.legacy_models.hf_opt.model_hf_opt import HfOPT
 
 # Huggingface's Transformer-XL
-from archai.nlp.models.hf_transfo_xl.config_hf_transfo_xl import (HfTransfoXLConfig,
+from archai.nlp.legacy_models.hf_transfo_xl.config_hf_transfo_xl import (HfTransfoXLConfig,
                                                                   HfTransfoXLSearchConfig)
-from archai.nlp.models.hf_transfo_xl.model_hf_transfo_xl import HfTransfoXL
-from archai.nlp.models.hf_transfo_xl.onnx_hf_transfo_xl import (HfTransfoXLOnnxConfig,
+from archai.nlp.legacy_models.hf_transfo_xl.model_hf_transfo_xl import HfTransfoXL
+from archai.nlp.legacy_models.hf_transfo_xl.onnx_hf_transfo_xl import (HfTransfoXLOnnxConfig,
                                                                 HfTransfoXLOnnxModel)
 
 # NVIDIA's Memory Transformer
-from archai.nlp.models.mem_transformer.config_mem_transformer import (MemTransformerLMConfig,
+from archai.nlp.legacy_models.mem_transformer.config_mem_transformer import (MemTransformerLMConfig,
                                                                       MemTransformerLMSearchConfig)
-from archai.nlp.models.mem_transformer.model_mem_transformer import MemTransformerLM
-from archai.nlp.models.mem_transformer.onnx_mem_transformer import (MemTransformerLMOnnxConfig,
+from archai.nlp.legacy_models.mem_transformer.model_mem_transformer import MemTransformerLM
+from archai.nlp.legacy_models.mem_transformer.onnx_mem_transformer import (MemTransformerLMOnnxConfig,
                                                                     MemTransformerLMOnnxModel)
 
 # Analytical parameters formulae
-from archai.nlp.models.model_utils.analytical_params_formulae import (get_params_hf_codegen_formula,
+from archai.nlp.legacy_models.model_utils.analytical_params_formulae import (get_params_hf_codegen_formula,
                                                                       get_params_hf_gpt2_formula,
                                                                       get_params_hf_gpt2_flex_formula,
                                                                       get_params_hf_opt_formula,
