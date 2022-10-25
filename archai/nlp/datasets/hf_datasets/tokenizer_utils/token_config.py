@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import json
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 SPECIAL_TOKENS = {
@@ -49,17 +49,6 @@ class TokenConfig:
         self.cls_token = cls_token
         self.mask_token = mask_token
 
-    @classmethod
-    def from_file(cls: TokenConfig, token_config_path: str) -> TokenConfig:
-        """
-        """
-
-        try:
-            with open(token_config_path, "r") as f:
-                return cls(**json.load(f))
-        except FileNotFoundError:
-            return cls()
-
     @property
     def special_tokens(self) -> List[str]:
         """
@@ -80,9 +69,29 @@ class TokenConfig:
             )
         )
 
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        """
+
+        return self.__dict__
+
     def save(self, token_config_path: str) -> None:
         """
         """
 
         with open(token_config_path, "w") as f:
-            json.dump(self.__dict__, f)
+            json.dump(self.to_dict(), f)
+
+    @classmethod
+    def from_file(cls: TokenConfig, token_config_path: str) -> TokenConfig:
+        """
+        """
+
+        if not token_config_path:
+            return cls()
+
+        try:
+            with open(token_config_path, "r") as f:
+                return cls(**json.load(f))
+        except FileNotFoundError:
+            return cls()
