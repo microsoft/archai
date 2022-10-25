@@ -12,7 +12,7 @@ from typing import Optional
 import torch
 from onnx import helper, load_model, numpy_helper, save
 
-from archai.nlp.models.model_loader import load_onnx_config
+from archai.nlp.legacy_models.model_loader import load_onnx_config
 from archai.nlp.compression.onnx.onnx_utils.operators import (tril_onnx,
                                                               triu_onnx)
 

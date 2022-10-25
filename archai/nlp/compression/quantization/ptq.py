@@ -18,7 +18,7 @@ from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
 from archai.common.utils import create_file_name_identifier, rgetattr, rsetattr
-from archai.nlp.models.model_loader import load_model_from_checkpoint
+from archai.nlp.legacy_models.model_loader import load_model_from_checkpoint
 
 
 class GemmQuant(QuantOperatorBase):
