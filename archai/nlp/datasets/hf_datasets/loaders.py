@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""Utilities for loading and encoding datasets.
 """
 
 import os
@@ -21,11 +21,18 @@ from archai.nlp.datasets.hf_datasets.processors import (
     shuffle_dataset,
     tokenize_dataset,
 )
-from archai.common.common import map_to_list
+from archai.common.utils import map_to_list
 
 
 def _should_refresh_cache(refresh: bool) -> DownloadMode:
-    """
+    """Refreshes the cached dataset by re-downloading/re-creating it.
+
+    Args:
+        refresh: Whether the dataset cache should be refreshed or not.
+
+    Returns:
+        (DownloadMode): Enumerator that defines whether cache should refresh or not.
+
     """
 
     if refresh:
@@ -49,11 +56,30 @@ def load_dataset(
     random_seed: Optional[int] = 42,
     n_samples: Optional[Union[int, List[int]]] = -1,
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """
+    """Loads a dataset from Huggingface's Hub or local files.
+
+    Args:
+        dataset_name: Name of dataset to be downloaded.
+        dataset_config_name: Name of configuration of dataset to be downloaded.
+        dataset_dir: Path to manually downloaded files.
+        dataset_files: Files that should be loaded from `dataset_name` (in case it's a folder).
+        dataset_split: Split to be retrieved. `None` defaults to all splits.
+        dataset_cache: Folder where cache should be stored/loaded.
+        dataset_keep_in_memory: Whether dataset should be directly loaded in memory or not.
+        dataset_revision: Version of the dataset to be loaded.
+        dataset_disk: Folder where dataset should be stored/loaded (if supplied).
+        dataset_stream: Whether dataset should be streamed or not.
+        dataset_refresh_cache: Whether cache should be refreshed or not.
+        random_seed: Fixes the order of samples.
+        n_samples: Subsamples into a fixed amount of samples.
+
+    Returns:
+        (Union[DatasetDict, IterableDatasetDict]): Loaded dataset.
+
     """
 
     if os.path.exists(dataset_disk):
-        dataset = hf_load_from_disk(dataset_disk)
+        dataset = hf_load_from_disk(dataset_disk, keep_in_memory=dataset_keep_in_memory)
     else:
         dataset = hf_load_dataset(
             dataset_name,
@@ -79,11 +105,9 @@ def load_dataset(
     return dataset
 
 
-def prepare_dataset(
+def encode_dataset(
     tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
     dataset: Union[DatasetDict, IterableDatasetDict],
-    encoded_dataset_path: Optional[str] = "",
-    encoded_dataset_keep_in_memory: Optional[bool] = None,
     mapping_column_name: Optional[Union[str, List[str]]] = "text",
     next_sentence_prediction: Optional[bool] = False,
     truncate: Optional[bool] = True,
@@ -94,13 +118,25 @@ def prepare_dataset(
     num_proc: Optional[int] = None,
     format_column_name: Optional[Union[str, List[str]]] = None,
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """
-    """
+    """Encodes a dataset.
 
-    if os.path.exists(encoded_dataset_path):
-        return hf_load_from_disk(
-            encoded_dataset_path, keep_in_memory=encoded_dataset_keep_in_memory
-        )
+    Args:
+        tokenizer: Tokenizer to transform text into tokens.
+        dataset: Dataset to be encoded.
+        mapping_column_name: Column to be tokenized.
+        next_sentence_prediction: Whether next sentence prediction labels should exist or not.
+        truncate: Whether samples should be truncated or not.
+        padding: Strategy used to pad samples that do not have the proper size.
+        batched: Whether mapping should be batched or not.
+        batch_size: Number of examples per batch.
+        writer_batch_size: Number of examples per write operation to cache.
+        num_proc: Number of processes for multi-processing.
+        format_column_name: Columns that should be available on dataset.
+
+    Returns:
+        (Union[DatasetDict, IterableDatasetDict]): Encoded dataset.
+
+    """
 
     dataset = tokenize_dataset(
         dataset,
@@ -119,8 +155,5 @@ def prepare_dataset(
         dataset.set_format(type="torch", columns=format_column_name)
     elif isinstance(dataset, IterableDatasetDict):
         dataset = dataset.with_format(type="torch")
-
-    if encoded_dataset_path:
-        dataset.save_to_disk(encoded_dataset_path)
 
     return dataset

@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""Utilities for processing datasets, such as tokenization, shuffling, among others.
 """
 
 import random
@@ -23,7 +23,15 @@ def map_dataset_to_dict(
     dataset: Union[Dataset, IterableDataset, List[Dataset], List[IterableDataset]],
     splits: Optional[Union[str, List[str]]] = None,
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """
+    """Maps either an instance of dataset or list of datasets to a dictionary.
+
+    Args:
+        dataset: Input dataset.
+        splits: Splits used to create the keys of dictionary.
+
+    Returns:
+        (Union[DatasetDict, IterableDatasetDict]): Dataset mapped as dictionary.
+
     """
 
     dataset = dataset if isinstance(dataset, list) else [dataset]
@@ -55,7 +63,14 @@ def map_dataset_to_dict(
 def merge_datasets(
     datasets: Union[List[DatasetDict], List[IterableDatasetDict]]
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """
+    """Merges a list of datasets.
+
+    Args:
+        datasets: Input datasets.
+
+    Returns:
+        (Union[DatasetDict, IterableDatasetDict]): Merged dataset.
+
     """
 
     available_splits = [list(dataset) for dataset in datasets]
@@ -88,7 +103,15 @@ def merge_datasets(
 
 
 def resize_dataset(dataset: Dataset, n_samples: int) -> Dataset:
-    """
+    """Resizes a dataset according to a supplied size.
+
+    Args:
+        dataset: Input dataset.
+        n_samples: Amount of samples.
+
+    Returns:
+        (Dataset): Resized dataset.
+
     """
 
     if n_samples > -1:
@@ -100,7 +123,15 @@ def resize_dataset(dataset: Dataset, n_samples: int) -> Dataset:
 def shuffle_dataset(
     dataset: Union[Dataset, IterableDataset], seed: int
 ) -> Union[Dataset, IterableDataset]:
-    """
+    """Shuffles a dataset according to a supplied seed.
+
+    Args:
+        dataset: Input dataset.
+        seed: Random seed.
+
+    Returns:
+        (Union[Dataset, IterableDataset]): Shuffled dataset.
+
     """
 
     if seed > -1:
@@ -121,7 +152,23 @@ def tokenize_dataset(
     writer_batch_size: Optional[int] = 1000,
     num_proc: Optional[int] = None,
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """
+    """Tokenizes a dataset according to supplied tokenizer and constraints.
+
+    Args:
+        dataset: Input dataset.
+        tokenizer: Input tokenizer.
+        mapping_column_name: Defines column to be tokenized.
+        next_sentence_prediction: Whether next sentence prediction labels should be created or not.
+        truncate: Whether samples should be truncated or not.
+        padding: Strategy used to pad samples that do not have the proper size.
+        batched: Whether mapping should be batched or not.
+        batch_size: Number of examples per batch.
+        writer_batch_size: Number of examples per write operation to cache.
+        num_proc: Number of processes for multiprocessing.
+
+    Returns:
+        (Union[DatasetDict, IterableDatasetDict]): Tokenized dataset.
+
     """
 
     if isinstance(mapping_column_name, str):
