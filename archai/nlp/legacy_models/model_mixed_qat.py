@@ -10,7 +10,7 @@ from typing import Dict, Optional, Tuple
 import torch
 
 from archai.nlp.compression.quantization.qat import prepare_with_qat
-from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.legacy_models.model_base import ArchaiModel
 
 
 class MixedQATModel(ArchaiModel):

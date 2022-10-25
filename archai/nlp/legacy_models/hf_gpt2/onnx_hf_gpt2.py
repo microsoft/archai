@@ -1,17 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Huggingface's Transformer-XL for ONNX.
+"""Huggingface's Open AI GPT-2 for ONNX.
 """
 
 from typing import Any, Dict
 
-from archai.nlp.models.config_base import OnnxConfig
-from archai.nlp.models.mem_transformer.onnx_mem_transformer import MemTransformerLMOnnxModel as HfTransfoXLOnnxModel
+from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel as HfGPT2OnnxModel
+
+from archai.nlp.legacy_models.config_base import OnnxConfigWithPast
 
 
-class HfTransfoXLOnnxConfig(OnnxConfig):
-    """Huggingface's Transformer-XL ONNX-based configuration.
+class HfGPT2OnnxConfig(OnnxConfigWithPast):
+    """Huggingface's Open AI GPT-2 ONNX-based configuration.
 
     """
 
@@ -24,4 +25,4 @@ class HfTransfoXLOnnxConfig(OnnxConfig):
 
         """
 
-        super().__init__(model_config, model_type='transfo-xl')
+        super().__init__(model_config, model_type='gpt2', past_key_values=2)

@@ -10,8 +10,8 @@ import torch
 import torch.nn.functional as F
 from transformers.models.opt.modeling_opt import OPTForCausalLM
 
-from archai.nlp.models.hf_opt.config_hf_opt import HfOPTConfig
-from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.legacy_models.hf_opt.config_hf_opt import HfOPTConfig
+from archai.nlp.legacy_models.model_base import ArchaiModel
 
 
 class HfOPT(ArchaiModel):

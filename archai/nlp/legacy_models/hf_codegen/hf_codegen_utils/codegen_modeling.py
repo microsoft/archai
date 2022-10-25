@@ -25,7 +25,7 @@ from transformers.activations import ACT2FN
 from transformers.modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import add_code_sample_docstrings, add_start_docstrings, add_start_docstrings_to_model_forward, logging
-from archai.nlp.models.hf_codegen.hf_codegen_utils.codegen_configuration import CodeGenConfig
+from archai.nlp.legacy_models.hf_codegen.hf_codegen_utils.codegen_configuration import CodeGenConfig
 
 
 logger = logging.get_logger(__name__)

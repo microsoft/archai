@@ -9,9 +9,9 @@ from typing import Dict, Optional, Tuple
 import torch
 import torch.nn.functional as F
 
-from archai.nlp.models.hf_codegen.config_hf_codegen import HfCodeGenConfig
-from archai.nlp.models.hf_codegen.hf_codegen_utils.codegen_modeling import CodeGenForCausalLM
-from archai.nlp.models.model_base import ArchaiModel
+from archai.nlp.legacy_models.hf_codegen.config_hf_codegen import HfCodeGenConfig
+from archai.nlp.legacy_models.hf_codegen.hf_codegen_utils.codegen_modeling import CodeGenForCausalLM
+from archai.nlp.legacy_models.model_base import ArchaiModel
 
 
 class HfCodeGen(ArchaiModel):

@@ -19,7 +19,7 @@ from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
 
 from archai.nlp.compression.onnx.onnx_utils.fusion_options import FusionOptions
-from archai.nlp.models.config_base import OnnxConfigWithPast
+from archai.nlp.legacy_models.config_base import OnnxConfigWithPast
 
 
 class MemTransformerLMOnnxConfig(OnnxConfigWithPast):

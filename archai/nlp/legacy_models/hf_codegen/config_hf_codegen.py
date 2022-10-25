@@ -6,8 +6,8 @@
 
 from typing import Optional
 
-from archai.nlp.models.config_base import Config, SearchConfigParameter, SearchConfig
-from archai.nlp.models.hf_codegen.hf_codegen_utils.codegen_configuration import CodeGenConfig
+from archai.nlp.legacy_models.config_base import Config, SearchConfigParameter, SearchConfig
+from archai.nlp.legacy_models.hf_codegen.hf_codegen_utils.codegen_configuration import CodeGenConfig
 
 
 class HfCodeGenConfig(Config):
