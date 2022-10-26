@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Implements a Text Predict-based model.
+"""Text Predict-based model.
 """
 
 import functools
@@ -13,29 +13,25 @@ import onnxruntime as ort
 import torch
 from transformers import AutoConfig
 
-from archai_nlp.core.model import ArchaiModel
 from archai.nlp.eval.text_predict.text_predict_utils import LRUCache
 
 
 class TextPredictModel:
-    """Prepares an Archai-NLP model used for Text Predict."""
+    """Wraps a model for Text Predict."""
 
     def __init__(
         self,
-        pre_trained_model_path: str,
         space_token_id: int,
         max_seq_length: Optional[int] = 30,
     ) -> None:
         """Overrides initialization method.
 
         Args:
-            pre_trained_model_path: Path to the pre-trained model.
             space_token_id: Space token identifier.
             max_seq_length: Maximum sequence length.
 
         """
 
-        self.pre_trained_model_path = pre_trained_model_path
         self.space_token_id = space_token_id
         self.max_seq_length = max_seq_length
 
@@ -130,11 +126,11 @@ class TextPredictModel:
 
 
 class TextPredictTorchModel(TextPredictModel):
-    """Prepares an Archai-NLP (PyTorch) model used for Text Predict."""
+    """Wraps a PyTorch model for Text Predict."""
 
     def __init__(
         self,
-        pre_trained_model_path: str,
+        model: torch.nn.Module,
         space_token_id: int,
         max_seq_length: Optional[int] = 30,
         device: Optional[str] = None,
@@ -142,16 +138,16 @@ class TextPredictTorchModel(TextPredictModel):
         """Overrides initialization method.
 
         Args:
-            pre_trained_model_path: Path to the pre-trained model.
+            model: PyTorch model.
             space_token_id: Space token identifier.
             max_seq_length: Maximum sequence length.
             device: Device where model should be placed.
 
         """
 
-        super().__init__(pre_trained_model_path, space_token_id, max_seq_length=max_seq_length)
+        super().__init__(space_token_id, max_seq_length=max_seq_length)
 
-        self.model = ArchaiModel.from_pretrained(pre_trained_model_path)
+        self.model = model
         self.device = next(self.model.parameters()).device if device is None else device
 
         self.model = self.model.to(self.device)
@@ -159,26 +155,26 @@ class TextPredictTorchModel(TextPredictModel):
 
 
 class TextPredictONNXModel(TextPredictModel):
-    """Prepares an Archai-NLP (ONNX) model used for Text Predict."""
+    """Wraps an ONNX model for Text Predict."""
 
     def __init__(
         self,
-        pre_trained_model_path: str,
+        onnx_model_path: str,
         space_token_id: int,
         max_seq_length: Optional[int] = 30,
     ) -> None:
         """Overrides initialization method.
 
         Args:
-            pre_trained_model_path: Path to the pre-trained model.
+            onnx_model_path: Path to the ONNX model file.
             space_token_id: Space token identifier.
             max_seq_length: Maximum sequence length.
 
         """
 
-        super().__init__(pre_trained_model_path, space_token_id, max_seq_length=max_seq_length)
+        super().__init__(space_token_id, max_seq_length=max_seq_length)
 
-        config_path = os.path.join(os.path.dirname(pre_trained_model_path), "config.json")
+        config_path = os.path.join(os.path.dirname(onnx_model_path), "config.json")
         self.config = AutoConfig.from_pretrained(config_path, local_files_only=True)
 
         self.sess_options = ort.SessionOptions()
@@ -192,7 +188,7 @@ class TextPredictONNXModel(TextPredictModel):
         self.sess_options.enable_profiling = False
         self.sess_options.log_severity_level = 4
         self.session = ort.InferenceSession(
-            pre_trained_model_path, self.sess_options, providers=["CPUExecutionProvider"]
+            onnx_model_path, self.sess_options, providers=["CPUExecutionProvider"]
         )
 
         self.input_names = [i.name for i in self.session.get_inputs()]

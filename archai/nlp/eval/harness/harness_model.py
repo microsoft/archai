@@ -1,23 +1,20 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Implements a harness-based model used to evaluate Archai-NLP models.
+"""Harness-based model.
 """
 
-from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn.functional as F
+from transformers.models.auto.tokenization_auto import AutoTokenizer
+from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
+    ArchaiPreTrainedTokenizerFast
+)
 from transformers.generation_stopping_criteria import StoppingCriteriaList
 
-from archai_nlp.core.model import ArchaiModel
-from archai_nlp.core.tokenizer import (
-    ArchaiPreTrainedTokenizer,
-    ArchaiPreTrainedTokenizerFast,
-)
 from archai.nlp.eval.harness.harness_utils import MultipleTokenStoppingCriteria
-from archai_nlp.utils.general_utils import xor
 
 
 class HarnessModel:
@@ -25,42 +22,21 @@ class HarnessModel:
 
     def __init__(
         self,
-        pre_trained_model_path: str,
-        token_config_path: Optional[str] = None,
-        tokenizer_path: Optional[str] = None,
-        hub_tokenizer_path: Optional[str] = None,
+        model: torch.nn.Module,
+        tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
     ) -> None:
         """Initializes with custom arguments and keyword arguments.
 
         Args:
-            pre_trained_model_path: Path to the pre-trained model (or identifier from Hub).
-            token_config_path: Path to the token's configuration file.
-            tokenizer_path: Path to the tokenizer's file.
-            hub_tokenizer_path: Path to the Hub's tokenizer identifier.
+            model: Pre-trained model.
+            tokenizer: Pre-trained tokenizer.
 
         """
 
-        self.model = ArchaiModel.from_pretrained(pre_trained_model_path).to(self.device)
-        self.model.config.use_cache = True
+        self.model = model
         self.model.eval()
 
-        if hasattr(self.model.config, "model_name"):
-            p = Path(pre_trained_model_path)
-            self.model.config.model_name += "-" + p.name
-        else:
-            self.model.config.model_name = pre_trained_model_path.replace("/", "-")
-
-        assert xor(
-            tokenizer_path, hub_tokenizer_path
-        ), "`tokenizer_path` and `hub_tokenizer_path` are mutually exclusive."
-        if tokenizer_path:
-            self.tokenizer = ArchaiPreTrainedTokenizerFast(
-                token_config_file=token_config_path,
-                tokenizer_file=tokenizer_path,
-                model_max_length=self.max_length,
-            )
-        if hub_tokenizer_path:
-            self.tokenizer = ArchaiPreTrainedTokenizer.from_pretrained(hub_tokenizer_path)
+        self.tokenizer = tokenizer
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
     def __call__(self, **kwargs) -> Tuple[torch.FloatTensor, ...]:

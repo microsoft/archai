@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Implements Text Predict-based utilities, such as caching mechanism.
+"""Text Predict-based utilities, such as caching mechanism.
 """
 
 from collections import OrderedDict
@@ -10,7 +10,7 @@ from typing import Any, Optional
 
 class LRUCache(OrderedDict):
     """Implements functools.lru_cache() with an OrderedDict to avoid
-    unhashable results.
+        unhashable results.
 
     """
 

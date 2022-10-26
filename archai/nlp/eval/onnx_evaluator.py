@@ -7,14 +7,13 @@
 import copy
 import math
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 import torch
-from datasets.arrow_dataset import Dataset
 from onnxruntime.capi.onnxruntime_inference_collection import InferenceSession
 from torch.utils.data.dataloader import DataLoader
+from torch.utils.data.dataset import Dataset
 from tqdm import tqdm
-from transformers.data.data_collator import DataCollator
 
 from archai.nlp.eval.eval_utils import lm_accuracy
 
@@ -50,7 +49,7 @@ def generate(
 def manual_evaluate(
     onnx_session: InferenceSession,
     eval_dataset: Dataset,
-    data_collator: Optional[DataCollator] = None,
+    data_collator: Optional[Callable] = None,
     batch_size: Optional[int] = 1,
     n_seed_tokens: Optional[int] = 1,
     n_accuracy_type: Optional[int] = 1,

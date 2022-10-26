@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Implements Text Predict-based predictions and sequences.
+"""Text Predict-based predictions and sequences.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from tqdm import tqdm
 
 from archai.nlp.eval.text_predict.text_predict_model import TextPredictModel
 from archai.nlp.eval.text_predict.text_predict_tokenizer import TextPredictTokenizer
-from archai_nlp.utils.general_utils import cached_property
+from archai.common.utils import cached_property
 
 
 class TextPredictPrediction:

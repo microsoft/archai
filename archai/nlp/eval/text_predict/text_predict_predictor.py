@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Implements a Text Predict-based predictor used to evaluate Archai-NLP models.
+"""Text Predict-based predictor.
 """
 
 import copy
@@ -25,7 +25,7 @@ from archai.nlp.eval.text_predict.text_predict_tokenizer import (
 
 
 class Predictor:
-    """Implements the Text Predict pipeline."""
+    """Implements the Text Predict predictor pipeline."""
 
     # Maximum number of forward passes
     MAX_FORWARD_PASS = 6

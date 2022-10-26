@@ -1,26 +1,26 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Implements a Text Predict-based tokenizer.
+"""Text Predict-based tokenizer.
 """
 
 import functools
 import re
-from typing import List, Optional, Set, Tuple
+from typing import List, Optional, Set, Tuple, Union
 
-from archai_nlp.core.tokenizer import (
-    ArchaiPreTrainedTokenizer,
-    ArchaiPreTrainedTokenizerFast,
+from transformers.models.auto.tokenization_auto import AutoTokenizer
+from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
+    ArchaiPreTrainedTokenizerFast
 )
 from archai.nlp.eval.text_predict.text_predict_utils import LRUCache
-from archai_nlp.utils.general_utils import cached_property, xor
+from archai.common.utils import cached_property
 
 SEPARATOR_TOKENS = "Ġ \nĊ\t\.;:,'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~"
 SEPARATOR_TOKENS_SET = set(SEPARATOR_TOKENS)
 
 
 class TextPredictTokenizer:
-    """Prepares an Archai-NLP tokenizer used for Text Predict."""
+    """Wraps a tokenizer for Text Predict."""
 
     BOS_TEXT = "\n "
     FILTER_TOKENS_CACHE_SIZE = 65536
@@ -32,29 +32,16 @@ class TextPredictTokenizer:
 
     def __init__(
         self,
-        token_config_path: Optional[str] = None,
-        tokenizer_path: Optional[str] = None,
-        hub_tokenizer_path: Optional[str] = None,
+        tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]
     ) -> None:
         """Overrides initialization method.
 
         Args:
-            token_config_path: Path to the token's configuration file.
-            tokenizer_path: Path to the tokenizer's file.
-            hub_tokenizer_path: Path to the Hub's tokenizer identifier.
+            tokenizer: Pre-trained tokenizer.
 
         """
 
-        assert xor(
-            tokenizer_path, hub_tokenizer_path
-        ), "`tokenizer_path` and `hub_tokenizer_path` are mutually exclusive."
-        if tokenizer_path:
-            self.tokenizer = ArchaiPreTrainedTokenizerFast(
-                token_config_file=token_config_path, tokenizer_file=tokenizer_path
-            )
-        if hub_tokenizer_path:
-            self.tokenizer = ArchaiPreTrainedTokenizer.from_pretrained(hub_tokenizer_path)
-
+        self.tokenizer = tokenizer
         self.filter_tokens_cache = LRUCache(self.FILTER_TOKENS_CACHE_SIZE)
 
     def __iter__(self) -> int:
