@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""Utilities for defining tokens' configuration.
 """
 
 from __future__ import annotations
@@ -24,8 +24,7 @@ SPECIAL_TOKENS = {
 
 
 class TokenConfig:
-    """
-    """
+    """Implements a base class for tokens' configuration."""
 
     def __init__(
         self,
@@ -38,7 +37,17 @@ class TokenConfig:
         mask_token: Optional[str] = None,
         **kwargs,
     ) -> None:
-        """
+        """Initializes class by setting attributes.
+
+        Args:
+            bos_token: Begin-of-sentence token.
+            eos_token: End-of-sentence token.
+            unk_token: Unknown token.
+            sep_token: Separator token (used for separating two sequences).
+            pad_token: Padding token.
+            cls_token: Input class token.
+            mask_token: Masked token.
+
         """
 
         self.bos_token = bos_token
@@ -51,7 +60,11 @@ class TokenConfig:
 
     @property
     def special_tokens(self) -> List[str]:
-        """
+        """Gathers available special tokens.
+
+        Returns:
+            (List[str]): List of available special tokens.
+
         """
 
         return list(
@@ -70,13 +83,21 @@ class TokenConfig:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """
+        """Converts class to a dictionary representation.
+
+        Returns:
+            (Dict[str, Any]): Class attributes encoded as a dictionary.
+
         """
 
         return self.__dict__
 
     def save(self, token_config_path: str) -> None:
-        """
+        """Saves the tokens' configuration to a JSON file.
+
+        Args:
+            token_config_path: Path to tokens' configuration file.
+
         """
 
         with open(token_config_path, "w") as f:
@@ -84,7 +105,14 @@ class TokenConfig:
 
     @classmethod
     def from_file(cls: TokenConfig, token_config_path: str) -> TokenConfig:
-        """
+        """Creates a class instance from an input JSON file.
+
+        Args:
+            token_config_path: Path to the tokens' configuration file.
+
+        Returns:
+            (TokenConfig): Instance of the TokenConfig class.
+
         """
 
         if not token_config_path:
