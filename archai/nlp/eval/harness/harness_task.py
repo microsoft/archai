@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Implements a harness-based task used to evaluate Archai-NLP models.
+"""Harness-based task.
 """
 
 from __future__ import annotations
@@ -14,13 +14,11 @@ import datasets
 from datasets.arrow_dataset import Dataset
 from evaluate import load as hf_load_metric
 
-from archai_nlp.data.loaders import load_dataset
+from archai.nlp.datasets.hf_datasets.loaders import load_dataset
 from archai.nlp.eval.harness.harness_utils import HarnessCall
-from archai_nlp.utils import logging_utils
-from archai_nlp.utils.general_utils import cached_property
+from archai.common.utils import cached_property
 
 datasets.disable_progress_bar()
-logger = logging_utils.get_logger(__name__)
 
 AVAILABLE_HARNESS_TASKS = {
     "arc_challenge": "ARCChallengeHarnessTask",
@@ -72,17 +70,11 @@ def load_harness_task(task_name: str, **kwargs) -> HarnessTask:
     task_module = importlib.import_module("archai.nlp.eval_utils.harness.tasks")
     task_cls = getattr(task_module, task_cls_name)
 
-    logger.info(f"Loading harness task: {task_name}")
-
-    task = task_cls(**kwargs)
-
-    logger.info("Harness task loaded.")
-
-    return task
+    return task_cls(**kwargs)
 
 
 class HarnessTask:
-    """Defines a harness-based task used for evaluation."""
+    """Implements a harness-based task."""
 
     def __init__(
         self,

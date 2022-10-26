@@ -16,7 +16,7 @@ from archai.nlp.eval.harness.harness_utils import (
     call_factory,
     clean_sample_text,
 )
-from archai_nlp.utils.general_utils import cached_property
+from archai.common.utils import cached_property
 
 
 class CoLAHarnessTask(HarnessTask):

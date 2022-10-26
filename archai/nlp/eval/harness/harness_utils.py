@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Implements harness-based call and factory to abstract sampling procedures.
+"""Harness-based call and factory to abstract sampling procedures.
 """
 
 import re
@@ -12,7 +12,7 @@ from transformers.generation_stopping_criteria import StoppingCriteria
 
 
 class HarnessCall:
-    """Defines an abstract capable of handling any call, such as forward passes."""
+    """Implements an abstraction capable of handling any call, such as forward passes."""
 
     AVAILABLE_CALLS = ["cosine_similarity", "generate", "log_likelihood"]
 

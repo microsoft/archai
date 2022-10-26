@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Text Predict evaluation entry points.
+"""Text Predict-based evaluation.
 """
 
 from typing import Optional

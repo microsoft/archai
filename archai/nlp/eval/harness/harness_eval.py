@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Harness-based evaluation entry points.
+"""Harness-based evaluation.
 """
 
 from typing import Any, Dict, Optional
@@ -18,7 +18,7 @@ def evaluate(
     n_few_shot: Optional[int] = 0,
     description: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Performs the few-shot evaluation.
+    """Performs the harness-based evaluation.
 
     Args:
         harness_model: Harness-based model.
