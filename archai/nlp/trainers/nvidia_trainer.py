@@ -23,7 +23,31 @@ class NvidiaTrainer:
         """"""
         pass
 
-    def get_dataloader(self):
+    def load_dataset(self):
+        """"""
+        
+        self.dataset = get_lm_corpus(
+            self.args.data,
+            self.args.cache_dir,
+            self.args.dataset,
+            self.args.vocab,
+            vocab_size=self.args.vocab_size,
+            refresh_cache=self.args.refresh_cache
+        )
+
+    def get_dataloader(self, split: str):
+        """"""
+
+        return self.dataset.get_iterator(
+            split,
+            self.args.batch_size,
+            self.args.tgt_len,
+            self.args.device,
+            self.args.ext_len,
+            mem_len=self.args.mem_len
+        )
+
+    def create_or_load_model(self):
         """"""
         pass
 
