@@ -17,14 +17,8 @@ from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
-<<<<<<< HEAD
-from archai.nlp.common.file_naming_utils import create_file_name_identifier
-from archai.nlp.common.recursive_attribute import rgetattr, rsetattr
-from archai.nlp.models.model_loader import load_model_from_checkpoint
-=======
 from archai.common.utils import create_file_name_identifier, rgetattr, rsetattr
 from archai.nlp.legacy_models.model_loader import load_model_from_checkpoint
->>>>>>> 3f9b6adc (chore(nlp): Adds onnx.optimization_utils module.)
 
 
 class GemmQuant(QuantOperatorBase):
