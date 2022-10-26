@@ -72,16 +72,16 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     
     @overrides
     def save_arch(self, model: ArchaiModel, path: str) -> None:
-        yaml.safe_dump(model.metadata, open(path, 'w', encoding='utf-8'))
+        yaml.safe_dump({'archid': model.archid, **model.metadata}, open(path, 'w', encoding='utf-8'))
 
     @overrides
     def load_arch(self, path: str) -> ArchaiModel:
         metadata = yaml.safe_load(open(path, encoding='utf-8'))
-        natsbenchid = self.archid_pattern.match(metadata.archid)
+        natsbenchid = self.archid_pattern.match(metadata['archid'])
 
         if not natsbenchid:
             raise ValueError(
-                f'Architecture {metadata.archid} does not belong to the `NatsbenchTssSearchSpace`. '
+                f'Architecture {metadata["archid"]} does not belong to `NatsbenchTssSearchSpace`. '
             )
 
         if metadata['dataset'] != self.base_dataset:

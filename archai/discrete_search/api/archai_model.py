@@ -20,8 +20,16 @@ class ArchaiModel():
 
         self.arch = arch
         self.archid = archid
-        self.metadata = metadata
+        self.metadata = metadata or dict()
 
+    def __repr__(self):
+        return (
+            f'ArchaiModel(\n\tarchid={self.archid}, \n\t'
+            f'metadata={self.metadata}, \n\tarch={self.arch}\n)'
+        )
+
+    def __str__(self):
+        return repr(self)
 
 # from abc import abstractmethod
 # from overrides import EnforceOverrides
