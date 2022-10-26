@@ -1,13 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""Utilities for tokenization pipelines with huggingface/tokenizers.
 """
 
 from __future__ import annotations
 
 import os
-from typing import Optional
+from typing import Iterator, List, Optional
 
 from tokenizers import Tokenizer
 from tokenizers.trainers import Trainer
@@ -16,33 +16,51 @@ from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import TokenCo
 
 
 class TokenizerBase:
-    """
-    """
+    """Implements a base class for a customizable tokenization pipeline."""
 
     def __init__(
         self, tokenizer: Tokenizer, token_config: TokenConfig, trainer: Trainer
     ) -> None:
-        """
+        """Attaches attributes to class.
+
+        Args:
+            token_config: TokenConfig class with tokens' configuration.
+            tokenizer: Tokenizer class with model from huggingface/tokenizers.
+            trainer: Trainer class from huggingface/tokenizers.
+
         """
 
         self.tokenizer = tokenizer
         self.token_config = token_config
         self.trainer = trainer
 
-    def train(self, files) -> None:
-        """
+    def train(self, files: List[str]) -> None:
+        """Trains tokenizer from a list of files.
+
+        Args:
+            files: List of paths to input files.
+
         """
 
         return self.tokenizer.train(files, trainer=self.trainer)
 
-    def train_from_iterator(self, iterator) -> None:
-        """
+    def train_from_iterator(self, iterator: Iterator) -> None:
+        """Trains tokenizer from in-memory data.
+
+        Args:
+            iterator: Raw data to be tokenized.
+
         """
                 
         return self.tokenizer.train_from_iterator(iterator, trainer=self.trainer, length=len(iterator))
 
     def save(self, path: str, pretty: Optional[bool] = True) -> None:
-        """
+        """Saves the pre-trained tokenizer.
+
+        Args:
+            path: Path to tokenizer file.
+            pretty: Whether the JSON file should be pretty formatted.
+
         """
 
         folder_path = os.path.dirname(path)

@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""GPT-2-based tokenizer.
 """
 
 from typing import Optional
@@ -18,13 +18,17 @@ from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import SPECIAL
 
 
 class GPT2Tokenizer(TokenizerBase):
-    """
-    """
+    """Implements a GPT-2-based tokenizer."""
 
     def __init__(
         self, vocab_size: Optional[int] = 50257, min_frequency: Optional[int] = 0
     ) -> None:
-        """
+        """Defines the tokenization pipeline.
+
+        Args:
+            vocab_size: Maximum size of vocabulary.
+            min_frequency: Minimum frequency of tokens.
+
         """
 
         tokenizer = Tokenizer(BPE(continuing_subword_prefix="", end_of_word_suffix=""))
