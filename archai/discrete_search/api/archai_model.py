@@ -20,6 +20,7 @@ class ArchaiModel():
 
         self.arch = arch
         self.archid = archid
+        self.metadata = metadata or dict()
 
     def __repr__(self):
         return (
