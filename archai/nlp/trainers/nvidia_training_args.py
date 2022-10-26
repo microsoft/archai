@@ -4,7 +4,14 @@
 """
 """
 
+import os
+import torch
+import numpy as np
+
 from dataclasses import dataclass, field
+
+from archai.nlp.datasets.nvidia_datasets import exp_utils
+from archai.nlp.datasets.nvidia_datasets.distributed_utils import backend
 
 
 @dataclass
@@ -25,6 +32,8 @@ class NvidiaTrainingArguments:
     fp16: bool = field(default=False, metadata={"help": ""})
     
     log_all_ranks: bool = field(default=False, metadata={"help": ""})
+
+    disable_multiple_dlogger: bool = field(default=False, metadata={"help": ""})
     
     txtlog_file: str = field(default='train_log.log', metadata={"help": ""})
     
@@ -68,7 +77,7 @@ class NvidiaTrainingArguments:
     
     ext_len: int = field(default=0, metadata={"help": ""})
 
-    type: str = field(default='jitlamb', metadata={"help": ""})
+    optimizer_type: str = field(default='jitlamb', metadata={"help": ""})
     
     lr: float = field(default=0.01, metadata={"help": ""})
     
@@ -82,9 +91,9 @@ class NvidiaTrainingArguments:
     
     sample_softmax: int = field(default=-1, metadata={"help": ""})
 
-    type: str = field(default='cosine', metadata={"help": ""})
+    scheduler_type: str = field(default='cosine', metadata={"help": ""})
     
-    type_qat: str = field(default='cosine', metadata={"help": ""})
+    qat_scheduler_type: str = field(default='cosine', metadata={"help": ""})
     
     max_step_scheduler: int = field(default=None, metadata={"help": ""})
     
@@ -133,70 +142,45 @@ class NvidiaTrainingArguments:
         
         exp_utils.script_init()
 
-        # Initializes distributed backend
         torch.cuda.set_device(self.local_rank)
-        l2_promote()
+        exp_utils.l2_promote()
 
         self.device = torch.device('cuda' if self.use_cuda else 'cpu')
-        nv_distributed.init_distributed(self.use_cuda)
+        backend.init_distributed(self.use_cuda)
 
         self.data, self.work_dir, self.pretrained_path, self.cache_dir, self.dataroot = \
             exp_utils.get_create_dirs(self.data, self.dataset, self.experiment_name,
                                     self.work_dir, self.pretrained_path, self.cache_dir)
 
-        with nv_distributed.sync_workers() as rank:
+        with backend.sync_workers() as rank:
             if rank == 0:
-                create_exp_dir(
+                exp_utils.create_exp_dir(
                     self.work_dir,
                     scripts_to_save=[], #['train.py', 'mem_transformer.py'],
                     debug=self.debug
                 )
 
-        # Setup logging
         if self.log_all_ranks:
-            log_file = f'train_log_rank_{nv_distributed.get_rank()}.log'
+            log_file = f'train_log_rank_{backend.get_rank()}.log'
         else:
             log_file = self.txtlog_file
         dllog_file = self.dllog_file
         log_file = os.path.join(self.work_dir, log_file)
         dllog_file = os.path.join(self.work_dir, dllog_file)
 
-        # if self.debug:
-        #     log_file = os.devnull
-        #     dllog_file = os.devnull
-
         exp_utils.setup_logging(log_all_ranks=self.log_all_ranks, filename=log_file)
-        exp_utils.setup_dllogger(enabled=True, filename=dllog_file, disable_multiple=disable_multiple_dlogger)
-
-        if self.config == 'toy':
-            logging.warning('Running in toy mode which means wt2 dataset, only one step training, a lot of batch chunking for laptop GPU')
+        exp_utils.setup_dllogger(enabled=True, filename=dllog_file, disable_multiple=self.disable_multiple_dlogger)
 
         if self.local_batch_size is not None: # default is None
-            world_size = nv_distributed.get_world_size()
+            world_size = backend.get_world_size()
             self.batch_size = world_size * self.local_batch_size
-            logging.info(f'--local_batch_size was set, adjusting global batch size'
-                        f' to {self.batch_size} (local_batch_size * world_size)')
 
-        logging.info(self)
-        dllogger.log(step='PARAMETER', data=vars(self))
-
-        logging.info(f'world size: {nv_distributed.get_world_size()}')
-
-        if not self.debug and not self.no_env:
-            log_env_info()
-
-        #register_ignoring_timeout_handler()
-
-        # Set the random seed manually for reproducibility.
+        #
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
 
-        logging.info('=' * 100)
-        for k, v in self.__dict__.items():
-            logging.info('    - {} : {}'.format(k, v))
-        logging.info('=' * 100)
-
-        if self.mem_len == 0: # default is 192
+        #
+        if self.mem_len == 0:
             self.eval_mem_len = 0
         else:
             self.eval_mem_len = self.mem_len + self.tgt_len - self.eval_tgt_len
