@@ -23,7 +23,7 @@ class EvolutionParetoSearch(Searcher):
                  objectives: Dict[str, Union[Objective, AsyncObjective]], 
                  dataset_provider: DatasetProvider,
                  output_dir: str, num_iters: int = 10,
-                 init_num_models: int = 10, init_pop_from_paths: Optional[List[str]] = None, 
+                 init_num_models: int = 10, initial_population_paths: Optional[List[str]] = None, 
                  num_random_mix: int = 5, max_unseen_population: int = 100,
                  mutations_per_parent: int = 1, num_crossovers: int = 5, 
                  obj_valid_ranges: Optional[List[Tuple[float, float]]] = None,
@@ -42,7 +42,7 @@ class EvolutionParetoSearch(Searcher):
         # Algorithm settings
         self.num_iters = num_iters
         self.init_num_models = init_num_models
-        self.init_pop_from_paths = init_pop_from_paths
+        self.initial_population_paths = initial_population_paths
         self.num_random_mix = num_random_mix
         self.max_unseen_population = max_unseen_population
         self.mutations_per_parent = mutations_per_parent
@@ -166,7 +166,21 @@ class EvolutionParetoSearch(Searcher):
     def search(self) -> SearchResults:
         # sample the initial population
         self.iter_num = 0
-        unseen_pop:List[ArchWithMetaData] = self._sample_init_population()
+        
+        if self.initial_population_paths:
+            self.logger.info(
+                f'Loading initial population from {len(self.initial_population_paths)} architectures'
+            )
+            unseen_pop = [
+                self.search_space.load_arch(path) for path in self.initial_population_paths
+            ]
+        else:
+            self.logger.info(
+                f'Using {self.init_num_models} random architectures as the initial population'
+            )
+            unseen_pop = self.sample_random_models(self.init_num_models)
+
+        self.all_pop = unseen_pop
 
         self.all_pop = unseen_pop
         for i in range(self.num_iters):
