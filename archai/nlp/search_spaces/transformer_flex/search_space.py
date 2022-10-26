@@ -164,3 +164,16 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         )
 
     @overrides
+    def encode(self, model: ArchaiModel) -> List[float]:
+        config = model.metadata['config']
+        n_layer = config['n_layer']
+        gene = [n_layer]
+
+        for param, opts in self.options.items():
+            if opts['share']:
+                gene.append(config[param])
+            else:
+                gene += config[param][:n_layer]
+                gene += [0] * (self.max_layers - n_layer)
+
+        return gene
