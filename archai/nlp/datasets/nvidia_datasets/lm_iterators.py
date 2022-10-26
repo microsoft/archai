@@ -35,8 +35,8 @@ class LMOrderedIterator(object):
             self.input_ids = torch.cat((warmup_ids, self.input_ids), dim=-1)
 
         # Partition input_ids for DistributedDataParallel
-        world_size = distributed_utils.distributed.get_world_size()
-        rank = distributed_utils.distributed.get_rank()
+        world_size = distributed_utils.backend.get_world_size()
+        rank = distributed_utils.backend.get_rank()
         self.input_ids = self.input_ids.chunk(world_size, dim=0)[rank]
 
         # Number of mini-batches
@@ -189,8 +189,8 @@ class LMMultiFileIterator(LMShuffledIterator):
 
         # DDP prep: partition self.paths into world size chunks 
         # and pick chunk for this rank
-        world_size = distributed_utils.distributed.get_world_size()
-        rank = distributed_utils.distributed.get_rank()
+        world_size = distributed_utils.backend.get_world_size()
+        rank = distributed_utils.backend.get_rank()
         chunk_len = len(paths) // world_size + 1 # NOTE: this causes a slight imbalance!
         paths_chunks = [paths[i:i+chunk_len] for i in range(0, len(paths), chunk_len)]
         self.paths = paths_chunks[rank]

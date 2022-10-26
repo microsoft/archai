@@ -14,13 +14,11 @@
 
 from typing import Optional
 import logging
-import os
 import re
 
 import sacremoses
-import torch
 
-from archai.nlp.datasets import distributed_utils
+from archai.nlp.datasets.nvidia_datasets import distributed_utils
 from archai.nlp.datasets.nvidia_datasets.corpus import Corpus
 
 def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,
@@ -29,7 +27,7 @@ def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,
                     vocab_size=vocab_size, refresh_cache=refresh_cache)
     if not corpus.load(): # if cached version doesn't exist
         corpus.train_and_encode()
-        with distributed_utils.distributed.sync_workers() as rank:
+        with distributed_utils.backend.sync_workers() as rank:
             if rank == 0 and not dataset == 'lm1b':
                 corpus.save()
 

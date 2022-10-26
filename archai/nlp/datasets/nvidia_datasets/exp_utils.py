@@ -25,7 +25,7 @@ from typing import Optional, Tuple
 import dllogger
 import torch.utils.collect_env
 
-from archai.nlp.datasets.nvidia_datasets.distributed_utils import distributed as nv_distributed
+from archai.nlp.datasets.nvidia_datasets.distributed_utils import backend
 
 from archai.common import utils, common
 
@@ -153,7 +153,7 @@ def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
             else:
                 return (self.rank == 0)
 
-    rank = nv_distributed.get_rank()
+    rank = backend.get_rank()
     rank_filter = RankFilter(rank, log_all_ranks)
 
     if log_all_ranks:
@@ -184,7 +184,7 @@ def setup_logging(log_all_ranks=True, filename=os.devnull, filemode='w'):
 
 
 def setup_dllogger(enabled=True, filename=os.devnull, disable_multiple=False):
-    rank = nv_distributed.get_rank()
+    rank = backend.get_rank()
 
     if disable_multiple:
         return
@@ -219,7 +219,7 @@ def build_work_dir_name(work_dir, dataset, append_dataset, append_time):
 
     if append_time:
         now = int(time.time())
-        now_max = nv_distributed.all_reduce_item(now, op='max')
+        now_max = backend.all_reduce_item(now, op='max')
         now_str = datetime.datetime.fromtimestamp(now_max).strftime('%Y%m%d-%H%M%S')
 
         work_dir = os.path.join(work_dir, now_str)
