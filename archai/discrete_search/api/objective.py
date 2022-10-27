@@ -22,40 +22,46 @@ class Objective(EnforceOverrides):
     Synchronous objectives are computed by search algorithms sequentially. For parallel / async. execution, 
     please refer to `archai.discrete_search.AsyncObjective`.
 
-    Examples:
-        Task accuracy
-        ```python
+    **Examples**
 
-            class MyValTaskAccuracy(Objective):
-                higher_is_better: bool = True
+    .. highlight:: python
+    .. code-block:: python
+       :caption: Task Accuracy
 
-                def __init__(self, batch_size: int = 32):
-                    self.batch_size = batch_size
+        class MyValTaskAccuracy(Objective):
+            higher_is_better: bool = True
+
+            def __init__(self, batch_size: int = 32):
+                self.batch_size = batch_size
+            
+            @overrides
+            def evaluate(self, model: ArchaiModel, dataset: DatasetProvider,
+                         budget: Optional[float] = None):
+                _, val_data = dataset.get_train_val_datasets()
+                val_dl = torch.utils.data.DataLoader(val_data, batch_size=self.batch_size)
                 
-                @overrides
-                def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None):
-                    _, val_data = dataset.get_train_val_datasets()
-                    val_dl = torch.utils.data.DataLoader(val_data, batch_size=self.batch_size)
-                    
-                    with torch.no_grad():
-                        labels = np.concatenate([y for _, y in val_dl], axis=0)
-                        preds = np.concatenate([model.arch(x).cpu().numpy() for x, _ in val_dl], axis=0)
-                    
-                    return np.sum(labels == preds)
-        ```
-
-        Number of modules
-        ```python
-
-            class NumberOfModules(Objective):
-                ''' Class that measures the size of a model by the number of torch modules '''
+                with torch.no_grad():
+                    labels = np.concatenate([y for _, y in val_dl], axis=0)
+                    preds = np.concatenate([
+                        model.arch(x).cpu().numpy() for x, _ in val_dl
+                    ], axis=0)
                 
-                higher_is_better: bool = False 
+                return np.mean(labels == preds)
+    
+    .. highlight:: python
+    .. code-block:: python
+       :caption: Number of modules
 
-                @overrides
-                def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None):
-                    return len(list(model.arch.modules()))
-        ```
+        class NumberOfModules(Objective):
+            ''' Class that measures the size of a model by
+            the number of torch modules '''
+            
+            higher_is_better: bool = False 
+
+            @overrides
+            def evaluate(self, model: ArchaiModel, dataset: DatasetProvider,
+                         budget: Optional[float] = None):
+                return len(list(model.arch.modules()))
 
     For a list of bultin metrics, please check `archai.discrete_search.objectives`.
     """
@@ -69,6 +75,7 @@ class Objective(EnforceOverrides):
         Args:
             arch (ArchaiModel): Model to be evaluated
             dataset (DatasetProvider): A dataset provider object
+            
             budget (Optional[float], optional): A budget multiplier value, used by search algorithms like 
                 `SucessiveHalving` to specify how much compute should be spent in this evaluation.
                 In order to use this type of search algorithm, the implementation of `eval` must
@@ -97,7 +104,9 @@ class AsyncObjective(EnforceOverrides):
     triplet. `AsyncObjective.fetch_all` is a blocking call that waits and gathers the results from previously
     sent evaluation jobs and cleans the job queue.
 
-        ```python
+    .. highlight:: python
+    .. code-block:: python
+
         my_obj = MyAsyncObj()  # My AsyncObjective subclass
         
         # Non blocking calls
@@ -127,9 +136,11 @@ class AsyncObjective(EnforceOverrides):
         Args:
             arch (ArchaiModel): Evaluated model
             dataset (DatasetProvider): Dataset
+            
             budget (Optional[float], optional): A budget multiplier value, used by search algorithms like 
-                `SucessiveHalving` to specifying how much compute should be spent in this evaluation.
+                `SucessiveHalving` to specify how much compute should be spent in this evaluation.
                 Defaults to None.
+            
         """
 
 
