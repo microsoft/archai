@@ -4,7 +4,7 @@
 """
 """
 
-class AccelerateTrainer:
+class HfAccelerateTrainer:
     """
     """
 
