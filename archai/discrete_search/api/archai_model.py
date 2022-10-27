@@ -18,9 +18,6 @@ class ArchaiModel():
         """
 
     def __init__(self, arch: Any, archid: str, metadata: Optional[Dict] = None):
-        assert isinstance(archid, str)
-        assert isinstance(metadata, dict)
-
         self.arch = arch
         self.archid = archid
         self.metadata = metadata or dict()
