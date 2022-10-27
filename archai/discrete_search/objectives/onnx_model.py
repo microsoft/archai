@@ -15,6 +15,7 @@ class AvgOnnxLatency(Objective):
     higher_is_better: bool = False
 
     def __init__(self, input_shape: Union[Tuple, List[Tuple]], num_trials: int = 1,
+                 input_dtype: str = 'torch.FloatTensor', rand_range: Tuple[float, float] = (0.0, 1.0),
                  export_kwargs: Optional[Dict] = None, inf_session_kwargs: Optional[Dict] = None):
         """Uses the average ONNX Latency (in seconds) of an architecture as an objective function for
         minimization.
@@ -29,7 +30,14 @@ class AvgOnnxLatency(Objective):
         """
         input_shapes = [input_shape] if isinstance(input_shape, tuple) else input_shape            
         
-        self.sample_input = tuple([torch.rand(*input_shape) for input_shape in input_shapes])
+        rand_max, rand_min = rand_range
+        self.sample_input = tuple([
+            ((rand_max - rand_min) * torch.rand(*input_shape) + rand_min).type(input_dtype)
+            for input_shape in input_shapes
+        ])
+
+        self.input_dtype = input_dtype
+        self.rand_range = rand_range
         self.num_trials = num_trials
         self.export_kwargs = export_kwargs or dict()
         self.inf_session_kwargs = inf_session_kwargs or dict()
