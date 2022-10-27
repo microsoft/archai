@@ -38,6 +38,8 @@ exclude_patterns = [
     'tools/**',
 ]
 
+autodoc_member_order = 'bysource'
+
 # Options for HTML output
 html_title = project
 html_theme = 'sphinxawesome_theme'
