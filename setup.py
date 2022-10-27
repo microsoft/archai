@@ -9,6 +9,7 @@ with open("README.md", "r", encoding="utf_8") as f:
 install_requires = [
     "coloredlogs>=15.0.1",
     "datasets>=2.4.0",
+    "evaluate>=0.3.0",
     "ftfy>=6.1.1",
     "gorilla>=0.4.0",
     "h5py>=3.7.0",
