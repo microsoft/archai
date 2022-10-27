@@ -30,6 +30,8 @@ class NvidiaTrainingArguments:
     multi_gpu: str = field(default=None, metadata={"help": ""})
     
     fp16: bool = field(default=False, metadata={"help": ""})
+
+    local_rank: int = field(default=os.getenv('LOCAL_RANK', 0), metadata={"help": ""})
     
     log_all_ranks: bool = field(default=False, metadata={"help": ""})
 
@@ -116,14 +118,8 @@ class NvidiaTrainingArguments:
     batch_size: int = field(default=256, metadata={"help": ""})
     
     local_batch_size: int = field(default=None, metadata={"help": ""})
-    
-    tgt_len: int = field('_copy: bool = field(/train/loader/tgt_len', metadata={"help": ""})
-    
-    mem_len: int = field('_copy: bool = field(/train/loader/mem_len', metadata={"help": ""})
-    
-    ext_len: int = field('_copy: bool = field(/train/loader/ext_len', metadata={"help": ""})
 
-    name: str = field(default='olx_OutlookData20210917x2', metadata={"help": ""})
+    dataset: str = field(default='olx_OutlookData20210917x2', metadata={"help": ""})
     
     max_batches: int = field(default=-1, metadata={"help": ""})
     
@@ -141,21 +137,21 @@ class NvidiaTrainingArguments:
         """
         
         exp_utils.script_init()
-
-        torch.cuda.set_device(self.local_rank)
-        exp_utils.l2_promote()
-
         self.device = torch.device('cuda' if self.use_cuda else 'cpu')
-        backend.init_distributed(self.use_cuda)
 
-        self.data, self.work_dir, self.pretrained_path, self.cache_dir, self.dataroot = \
-            exp_utils.get_create_dirs(self.data, self.dataset, self.experiment_name,
-                                    self.work_dir, self.pretrained_path, self.cache_dir)
+        if self.use_cuda:
+            torch.cuda.set_device(self.local_rank)
+            exp_utils.l2_promote()
+            backend.init_distributed(self.use_cuda)
+
+        self.data, self.log_dir, self.pretrained_path, self.cache_dir, self.dataroot = \
+            exp_utils.get_create_dirs(self.data_dir, self.dataset, self.experiment_name,
+                                    self.log_dir, self.pretrained_path, self.cache_dir)
 
         with backend.sync_workers() as rank:
             if rank == 0:
                 exp_utils.create_exp_dir(
-                    self.work_dir,
+                    self.log_dir,
                     scripts_to_save=[], #['train.py', 'mem_transformer.py'],
                     debug=self.debug
                 )
@@ -165,8 +161,8 @@ class NvidiaTrainingArguments:
         else:
             log_file = self.txtlog_file
         dllog_file = self.dllog_file
-        log_file = os.path.join(self.work_dir, log_file)
-        dllog_file = os.path.join(self.work_dir, dllog_file)
+        log_file = os.path.join(self.log_dir, log_file)
+        dllog_file = os.path.join(self.log_dir, dllog_file)
 
         exp_utils.setup_logging(log_all_ranks=self.log_all_ranks, filename=log_file)
         exp_utils.setup_dllogger(enabled=True, filename=dllog_file, disable_multiple=self.disable_multiple_dlogger)
