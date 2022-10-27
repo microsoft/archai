@@ -75,7 +75,7 @@ class Objective(EnforceOverrides):
         Args:
             arch (ArchaiModel): Model to be evaluated
             dataset (DatasetProvider): A dataset provider object
-            
+
             budget (Optional[float], optional): A budget multiplier value, used by search algorithms like 
                 `SucessiveHalving` to specify how much compute should be spent in this evaluation.
                 In order to use this type of search algorithm, the implementation of `eval` must
@@ -106,6 +106,7 @@ class AsyncObjective(EnforceOverrides):
 
     .. highlight:: python
     .. code-block:: python
+        :caption: Task Accuracy
 
         my_obj = MyAsyncObj()  # My AsyncObjective subclass
         
@@ -121,7 +122,6 @@ class AsyncObjective(EnforceOverrides):
         # Job queue is reset after `fetch_call` method
         my_obj.send(model_4, dataset_provider, budget=None)
         assert len(my_obj.fetch_all()) == 1
-        ```
 
     For a list of bultin objectives, please check `archai.discrete_search.objectives`.
     """
