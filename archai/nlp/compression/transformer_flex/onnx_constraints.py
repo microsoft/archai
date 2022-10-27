@@ -10,12 +10,13 @@ from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
-from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
-from archai.nlp.compression.onnx.onnx_utils.onnx_loader import (load_from_config_for_export,
-                                                                load_from_onnx)
-from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
-from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
-from archai.nlp.models.model_loader import load_model_formula
+
+from archai.nlp.compression.transformer_flex.onnx.export import export_onnx_from_torch
+from archai.nlp.compression.transformer_flex.onnx.onnx_loader import (
+    load_from_config_for_export, load_from_onnx
+)
+from archai.nlp.compression.transformer_flex.onnx.optimization import optimize_onnx
+from archai.nlp.compression.transformer_flex.quantization.ptq import dynamic_quantization_onnx
 
 
 def _prepare_onnx_model(model_type: str,
@@ -104,24 +105,6 @@ def measure_onnx_inference_latency(model_type: str,
     runner = [r / n_trials for r in runner]
     
     return np.median(runner) if use_median else np.mean(runner)
-
-
-def measure_onnx_parameters(model_type: str,
-                            model_config: Dict[str, Any],
-                            key: Optional[str] = 'non_embedding') -> int:
-    """Measures an ONNX-based model's number of parameters according to input options.
-
-    Args:
-        model_type: Type of model.
-        model_config: Model's configuration.
-        key: Key that should be used in measurement.
-
-    Returns:
-        (int): Number of parameters.
-
-    """
-
-    return load_model_formula(model_type)(model_config)[key]
 
 
 def measure_onnx_disk_memory(model_type: str,

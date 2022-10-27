@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Tuple, Union
 
 import torch
 
-from archai.nlp.nas.nas_utils.constraints.onnx_constraints import (measure_onnx_disk_memory,
+from archai.nlp.compression.transformer_flex.onnx_constraints import (measure_onnx_disk_memory,
                                                                    measure_onnx_inference_latency,
                                                                    measure_onnx_parameters)
 from archai.nlp.nas.nas_utils.constraints.torch_constraints import (measure_torch_char_accept_rate,
