@@ -68,21 +68,27 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
 
     @overrides
     def random_sample(self) -> ArchaiModel:
-        config = {
-            'n_layer': self.rng.randint(self.min_layers, self.max_layers)
-        }
+        model = None
 
-        for param, param_opts in self.options.items():
-            if param_opts['share']:
-                config[param] = self.rng.choice(param_opts['values'])
-            else:
-                config[param] = [
-                    self.rng.choice(param_opts['values']) 
-                    for _ in range(self.max_layers)
-                ]
+        while model is None:
+            config = {
+                'n_layer': self.rng.randint(self.min_layers, self.max_layers)
+            }
 
+            for param, param_opts in self.options.items():
+                if param_opts['share']:
+                    config[param] = self.rng.choice(param_opts['values'])
+                else:
+                    config[param] = [
+                        self.rng.choice(param_opts['values']) 
+                        for _ in range(self.max_layers)
+                    ]
+
+            if config['d_model'] % config['n_head'] == 0:
+                model = load_model_from_config(self.arch_type, config)
+        
         return ArchaiModel(
-            arch=load_model_from_config(self.arch_type, config),
+            arch=model,
             archid=self.get_archid(config),
             metadata={'config': config}
         )
