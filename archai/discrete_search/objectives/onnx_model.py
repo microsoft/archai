@@ -30,7 +30,7 @@ class AvgOnnxLatency(Objective):
         """
         input_shapes = [input_shape] if isinstance(input_shape, tuple) else input_shape            
         
-        rand_max, rand_min = rand_range
+        rand_min, rand_max = rand_range
         self.sample_input = tuple([
             ((rand_max - rand_min) * torch.rand(*input_shape) + rand_min).type(input_dtype)
             for input_shape in input_shapes
