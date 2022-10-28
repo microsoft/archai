@@ -7,7 +7,7 @@ from collections import abc
 from overrides import overrides, EnforceOverrides
 import torch
 
-from archai.nlp.datasets.nvidia_datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class VocabBase(EnforceOverrides, abc.Sized):
     @abstractmethod

@@ -13,11 +13,11 @@ from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.processors import TemplateProcessing
 from tokenizers.trainers import WordPieceTrainer
 
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import (
+from archai.nlp.datasets.hf.tokenizer_utils.token_config import (
     SPECIAL_TOKENS,
     TokenConfig,
 )
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.tokenizer_base import TokenizerBase
+from archai.nlp.datasets.hf.tokenizer_utils.tokenizer_base import TokenizerBase
 
 
 class BertTokenizer(TokenizerBase):

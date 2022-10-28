@@ -14,7 +14,7 @@ import datasets
 from datasets.arrow_dataset import Dataset
 from evaluate import load as hf_load_metric
 
-from archai.nlp.datasets.hf_datasets.loaders import load_dataset
+from archai.nlp.datasets.hf.loaders import load_dataset
 from archai.nlp.eval.harness.harness_utils import HarnessCall
 from archai.common.utils import cached_property
 

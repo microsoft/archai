@@ -13,11 +13,11 @@ from tokenizers.pre_tokenizers import ByteLevel
 from tokenizers.processors import ByteLevel as ByteLevelProcessor
 from tokenizers.trainers import BpeTrainer
 
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import (
+from archai.nlp.datasets.hf.tokenizer_utils.token_config import (
     SPECIAL_TOKENS,
     TokenConfig,
 )
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.tokenizer_base import TokenizerBase
+from archai.nlp.datasets.hf.tokenizer_utils.tokenizer_base import TokenizerBase
 
 
 class GPT2Tokenizer(TokenizerBase):

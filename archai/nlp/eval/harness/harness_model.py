@@ -9,7 +9,7 @@ from typing import List, Optional, Tuple, Union
 import torch
 import torch.nn.functional as F
 from transformers.models.auto.tokenization_auto import AutoTokenizer
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
     ArchaiPreTrainedTokenizerFast
 )
 from transformers.generation_stopping_criteria import StoppingCriteriaList

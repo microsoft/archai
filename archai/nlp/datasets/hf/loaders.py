@@ -14,13 +14,13 @@ from datasets.download.download_manager import DownloadMode
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from archai.common.utils import map_to_list
-from archai.nlp.datasets.hf_datasets.processors import (
+from archai.nlp.datasets.hf.processors import (
     map_dataset_to_dict,
     resize_dataset,
     shuffle_dataset,
     tokenize_dataset,
 )
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
     ArchaiPreTrainedTokenizerFast,
 )
 

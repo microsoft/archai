@@ -8,12 +8,13 @@ import numpy as np
 import torch
 
 from archai.common import utils
-from archai.nlp.datasets.nvidia_datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.datasets.nvidia_datasets.tokenizer_utils.word_vocab import WordVocab
-from archai.nlp.datasets.nvidia_datasets.tokenizer_utils.bbpe_vocab import BbpeVocab
-from archai.nlp.datasets.nvidia_datasets.tokenizer_utils.gpt2_vocab import Gpt2Vocab
+from archai.nlp.datasets.nvidia import distributed_utils
+from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab import WordVocab
+from archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab import BbpeVocab
+from archai.nlp.datasets.nvidia.tokenizer_utils.gpt2_vocab import Gpt2Vocab
 
-from archai.nlp.datasets.nvidia_datasets.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
+from archai.nlp.datasets.nvidia.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
 
 
 @dataclass
@@ -224,3 +225,16 @@ class Corpus:
             raise RuntimeError(f'split not supported: {split}')
 
         return data_iter
+
+
+def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,
+                  vocab_size:Optional[int]=None, refresh_cache=False):
+    corpus = Corpus(datadir, dataset, vocab_type, cachedir,
+                    vocab_size=vocab_size, refresh_cache=refresh_cache)
+    if not corpus.load(): # if cached version doesn't exist
+        corpus.train_and_encode()
+        with distributed_utils.sync_workers() as rank:
+            if rank == 0 and not dataset == 'lm1b':
+                corpus.save()
+
+    return corpus

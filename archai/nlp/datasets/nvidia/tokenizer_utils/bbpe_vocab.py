@@ -10,11 +10,11 @@ from overrides import overrides
 from tokenizers import ByteLevelBPETokenizer
 from transformers import PreTrainedTokenizerFast, PreTrainedTokenizer
 
-from archai.nlp.datasets.nvidia_datasets import distributed_utils
-from archai.nlp.datasets.nvidia_datasets.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.datasets.nvidia_datasets.tokenizer_utils.token_config import TokenConfig
+from archai.nlp.datasets.nvidia import distributed_utils
+from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import TokenConfig
 from archai.common import utils, common
-from archai.nlp.datasets.nvidia_datasets.tokenizer_utils.special_token_enum import SpecialTokenEnum
+from archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum import SpecialTokenEnum
 
 class BbpeVocab(VocabBase):
     def __init__(self, save_path:str, vocab_size:int, pad_vocab_size=False,
@@ -44,7 +44,7 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def train(self, filepaths: List[str]) -> None:
-        with distributed_utils.backend.sync_workers() as rank:
+        with distributed_utils.sync_workers() as rank:
             if rank == 0:
                 logging.info(f'Training BBPE Vocab for size {self.vocab_size} at "{self._tokenizer_filepath}" ...')
                 self._train_tokenizer(filepaths)
