@@ -18,7 +18,6 @@ from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
 from archai.common.utils import create_file_name_identifier, rgetattr, rsetattr
-from archai.nlp.legacy_models.model_loader import load_model_from_checkpoint
 
 
 class GemmQuant(QuantOperatorBase):
@@ -134,12 +133,13 @@ def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
     return qnt_model_path
 
 
-def _dynamic_quantization_torch(model: torch.nn.Module,
-                                embedding_layers: List[str]) -> None:
-    """Wraps the inner core of dynamic quantization with a PyTorch model.
+def dynamic_quantization_torch_from_model(model: torch.nn.Module,
+                                          embedding_layers: Optional[List[str]] = ['word_emb', 'model.transformer.wpe', 'model.transformer.wte']
+                                          ) -> None:
+    """Performs the dynamic quantization over a PyTorch model.
 
     Args:
-        torch_model: PyTorch model to be quantized.
+        model: PyTorch model to be quantized.
         embedding_layers: List with string-based identifiers of embedding layers.
 
     """
@@ -162,45 +162,3 @@ def _dynamic_quantization_torch(model: torch.nn.Module,
     # Prepares the model for quantization and quantizes it
     torch.quantization.prepare(model, inplace=True)
     torch.quantization.convert(model, inplace=True)
-
-
-def dynamic_quantization_torch_from_model(model: torch.nn.Module,
-                                          embedding_layers: Optional[List[str]] = ['word_emb', 'model.transformer.wpe', 'model.transformer.wte']
-                                          ) -> None:
-    """Performs the dynamic quantization over a PyTorch model.
-
-    Args:
-        model: PyTorch model to be quantized.
-        embedding_layers: List with string-based identifiers of embedding layers.
-
-    """
-
-    # Performs the dynamic quantization
-    _dynamic_quantization_torch(model, embedding_layers)
-
-
-def dynamic_quantization_torch_from_path(model_type: str,
-                                         torch_model_path: Optional[str] = None,
-                                         embedding_layers: Optional[List[str]] = ['word_emb', 'model.transformer.wpe', 'model.transformer.wte']
-                                         ) -> torch.nn.Module:
-    """Performs the dynamic quantization over a PyTorch model path.
-
-    Args:
-        model_type: Type of model to be loaded.
-        torch_model_path: Path to the PyTorch model to be quantized.
-        embedding_layers: List with string-based identifiers of embedding layers.
-        
-    Returns:
-        (torch.nn.Module): Dynamic quantized model.
-
-    """
-
-    # Loads the pre-trained model
-    model, _, _ = load_model_from_checkpoint(model_type,
-                                             torch_model_path,
-                                             on_cpu=True)
-
-    # Performs the dynamic quantization
-    _dynamic_quantization_torch(model, embedding_layers)
-    
-    return model
