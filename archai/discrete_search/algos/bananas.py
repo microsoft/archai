@@ -39,6 +39,8 @@ class MoBananasSearch(Searcher):
             surrogate_model = PredictiveDNNEnsemble()
 
         self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(exist_ok=True)
+
         self.search_space = search_space
         self.dataset_provider = dataset_provider
         self.surrogate_model = surrogate_model
