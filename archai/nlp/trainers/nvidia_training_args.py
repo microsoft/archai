@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""Customizable training arguments using NVIDIA-based pipeline.
 """
 
 import os
@@ -130,7 +130,6 @@ class NvidiaTrainingArguments:
     vocab_size: int = field(default=10000, metadata={"help": ""})
     
     data_dir: str = field(default='textpred/olx_OutlookData20210917x2', metadata={"help": ""})
-
 
     def __post_init__(self) -> None:
         """

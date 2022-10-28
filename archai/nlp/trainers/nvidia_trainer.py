@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""
+"""Customizable trainer using NVIDIA-based pipeline.
 """
 
 class NvidiaTrainer:
