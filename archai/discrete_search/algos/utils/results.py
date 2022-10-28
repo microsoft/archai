@@ -123,7 +123,7 @@ class SearchResults():
         state_df['is_pareto'] = False
         state_df.loc[pareto_frontier['indices'], 'is_pareto'] = True
 
-        return state_df
+        return state_df.drop(['models'], axis=1)
 
     def save_search_state(self, file: Union[str, Path]) -> None:
         state_df = self.get_search_state_df()
