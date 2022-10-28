@@ -27,7 +27,7 @@ class NvidiaTrainingArguments:
 
     use_cuda: bool = field(default=True, metadata={"help": ""})
     
-    multi_gpu: str = field(default=None, metadata={"help": ""})
+    multi_gpu: str = field(default="ddp", metadata={"help": ""})
     
     fp16: bool = field(default=False, metadata={"help": ""})
 
@@ -134,7 +134,9 @@ class NvidiaTrainingArguments:
     def __post_init__(self) -> None:
         """
         """
-        
+
+        self.local_rank = int(self.local_rank)
+
         exp_utils.script_init()
         self.device = torch.device("cuda" if self.use_cuda else "cpu")
 
