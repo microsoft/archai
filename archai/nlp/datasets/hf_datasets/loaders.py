@@ -12,16 +12,17 @@ from datasets import load_from_disk as hf_load_from_disk
 from datasets.dataset_dict import DatasetDict, IterableDatasetDict
 from datasets.download.download_manager import DownloadMode
 from transformers.models.auto.tokenization_auto import AutoTokenizer
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
-    ArchaiPreTrainedTokenizerFast
-)
+
+from archai.common.utils import map_to_list
 from archai.nlp.datasets.hf_datasets.processors import (
     map_dataset_to_dict,
     resize_dataset,
     shuffle_dataset,
     tokenize_dataset,
 )
-from archai.common.utils import map_to_list
+from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
+    ArchaiPreTrainedTokenizerFast,
+)
 
 
 def _should_refresh_cache(refresh: bool) -> DownloadMode:

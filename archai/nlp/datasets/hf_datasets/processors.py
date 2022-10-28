@@ -13,11 +13,12 @@ from datasets import interleave_datasets as hf_interleave_datasets
 from datasets.arrow_dataset import Dataset
 from datasets.dataset_dict import DatasetDict, IterableDatasetDict
 from datasets.iterable_dataset import IterableDataset
-
 from transformers.models.auto.tokenization_auto import AutoTokenizer
+
 from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
-    ArchaiPreTrainedTokenizerFast
+    ArchaiPreTrainedTokenizerFast,
 )
+
 
 def map_dataset_to_dict(
     dataset: Union[Dataset, IterableDataset, List[Dataset], List[IterableDataset]],
@@ -85,18 +86,12 @@ def merge_datasets(
 
     if isinstance(datasets[0], DatasetDict):
         dataset = DatasetDict(
-            {
-                split: hf_concatenate_datasets([dataset[split] for dataset in datasets])
-                for split in available_splits[0]
-            }
+            {split: hf_concatenate_datasets([dataset[split] for dataset in datasets]) for split in available_splits[0]}
         )
 
     if isinstance(datasets[0], IterableDatasetDict):
         dataset = IterableDatasetDict(
-            {
-                split: hf_interleave_datasets([dataset[split] for dataset in datasets])
-                for split in available_splits[0]
-            }
+            {split: hf_interleave_datasets([dataset[split] for dataset in datasets]) for split in available_splits[0]}
         )
 
     return dataset
@@ -120,9 +115,7 @@ def resize_dataset(dataset: Dataset, n_samples: int) -> Dataset:
     return dataset
 
 
-def shuffle_dataset(
-    dataset: Union[Dataset, IterableDataset], seed: int
-) -> Union[Dataset, IterableDataset]:
+def shuffle_dataset(dataset: Union[Dataset, IterableDataset], seed: int) -> Union[Dataset, IterableDataset]:
     """Shuffles a dataset according to a supplied seed.
 
     Args:
