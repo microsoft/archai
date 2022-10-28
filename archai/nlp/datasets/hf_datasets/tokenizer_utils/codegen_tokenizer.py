@@ -13,16 +13,17 @@ from tokenizers.pre_tokenizers import ByteLevel
 from tokenizers.processors import ByteLevel as ByteLevelProcessor
 from tokenizers.trainers import BpeTrainer
 
+from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import (
+    SPECIAL_TOKENS,
+    TokenConfig,
+)
 from archai.nlp.datasets.hf_datasets.tokenizer_utils.tokenizer_base import TokenizerBase
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import SPECIAL_TOKENS, TokenConfig
 
 
 class CodeGenTokenizer(TokenizerBase):
     """Implements a CodeGen-based tokenizer."""
 
-    def __init__(
-        self, vocab_size: Optional[int] = 50257, min_frequency: Optional[int] = 0
-    ) -> None:
+    def __init__(self, vocab_size: Optional[int] = 50257, min_frequency: Optional[int] = 0) -> None:
         """Defines the tokenization pipeline.
 
         Args:
@@ -31,22 +32,19 @@ class CodeGenTokenizer(TokenizerBase):
 
         """
 
-        tokenizer = Tokenizer(BPE(continuing_subword_prefix="", end_of_word_suffix=""))
-        tokenizer.add_special_tokens(token_config.special_tokens)
-        tokenizer.add_tokens(
-            [AddedToken(" " * i) for i in range(2, 32)]
-            + [AddedToken("\t" * i) for i in range(2, 10)]
-        )
-        tokenizer.pre_tokenizer = ByteLevel(add_prefix_space=False)
-        tokenizer.post_processor = ByteLevelProcessor(trim_offsets=False)
-        tokenizer.decoder = ByteLevelDecoder()
-
         token_config = TokenConfig(
             bos_token=SPECIAL_TOKENS["gpt2_eos_token"],
             eos_token=SPECIAL_TOKENS["gpt2_eos_token"],
             unk_token=SPECIAL_TOKENS["gpt2_eos_token"],
             pad_token=SPECIAL_TOKENS["pad_token"],
         )
+
+        tokenizer = Tokenizer(BPE(continuing_subword_prefix="", end_of_word_suffix=""))
+        tokenizer.add_special_tokens(token_config.special_tokens)
+        tokenizer.add_tokens([AddedToken(" " * i) for i in range(2, 32)] + [AddedToken("\t" * i) for i in range(2, 10)])
+        tokenizer.pre_tokenizer = ByteLevel(add_prefix_space=False)
+        tokenizer.post_processor = ByteLevelProcessor(trim_offsets=False)
+        tokenizer.decoder = ByteLevelDecoder()
 
         trainer = BpeTrainer(
             vocab_size=vocab_size,
@@ -56,4 +54,4 @@ class CodeGenTokenizer(TokenizerBase):
             special_tokens=token_config.special_tokens,
         )
 
-        super().__init__(tokenizer, token_config, trainer)
+        super().__init__(token_config, tokenizer, trainer)

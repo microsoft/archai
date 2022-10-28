@@ -18,9 +18,7 @@ from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import TokenCo
 class TokenizerBase:
     """Implements a base class for a customizable tokenization pipeline."""
 
-    def __init__(
-        self, tokenizer: Tokenizer, token_config: TokenConfig, trainer: Trainer
-    ) -> None:
+    def __init__(self, token_config: TokenConfig, tokenizer: Tokenizer, trainer: Trainer) -> None:
         """Attaches attributes to class.
 
         Args:
@@ -30,8 +28,8 @@ class TokenizerBase:
 
         """
 
-        self.tokenizer = tokenizer
         self.token_config = token_config
+        self.tokenizer = tokenizer
         self.trainer = trainer
 
     def train(self, files: List[str]) -> None:
@@ -51,7 +49,7 @@ class TokenizerBase:
             iterator: Raw data to be tokenized.
 
         """
-                
+
         return self.tokenizer.train_from_iterator(iterator, trainer=self.trainer, length=len(iterator))
 
     def save(self, path: str, pretty: Optional[bool] = True) -> None:
@@ -67,6 +65,6 @@ class TokenizerBase:
         token_config_path = os.path.join(folder_path, "token_config.json")
         if folder_path and not os.path.exists(folder_path):
             os.makedirs(folder_path)
-            
+
         self.tokenizer.save(path, pretty=pretty)
         self.token_config.save(token_config_path)
