@@ -31,15 +31,15 @@ class NvidiaTrainingArguments:
     
     fp16: bool = field(default=False, metadata={"help": ""})
 
-    local_rank: int = field(default=os.getenv('LOCAL_RANK', 0), metadata={"help": ""})
+    local_rank: int = field(default=os.getenv("LOCAL_RANK", 0), metadata={"help": ""})
     
     log_all_ranks: bool = field(default=False, metadata={"help": ""})
 
     disable_multiple_dlogger: bool = field(default=False, metadata={"help": ""})
     
-    txtlog_file: str = field(default='train_log.log', metadata={"help": ""})
+    txtlog_file: str = field(default="train_log.log", metadata={"help": ""})
     
-    dllog_file: str = field(default='train_log.json', metadata={"help": ""})
+    dllog_file: str = field(default="train_log.json", metadata={"help": ""})
     
     debug: bool = field(default=False, metadata={"help": ""})
     
@@ -79,7 +79,7 @@ class NvidiaTrainingArguments:
     
     ext_len: int = field(default=0, metadata={"help": ""})
 
-    optimizer_type: str = field(default='jitlamb', metadata={"help": ""})
+    optimizer_type: str = field(default="jitlamb", metadata={"help": ""})
     
     lr: float = field(default=0.01, metadata={"help": ""})
     
@@ -93,9 +93,9 @@ class NvidiaTrainingArguments:
     
     sample_softmax: int = field(default=-1, metadata={"help": ""})
 
-    scheduler_type: str = field(default='cosine', metadata={"help": ""})
+    scheduler_type: str = field(default="cosine", metadata={"help": ""})
     
-    qat_scheduler_type: str = field(default='cosine', metadata={"help": ""})
+    qat_scheduler_type: str = field(default="cosine", metadata={"help": ""})
     
     max_step_scheduler: int = field(default=None, metadata={"help": ""})
     
@@ -119,24 +119,24 @@ class NvidiaTrainingArguments:
     
     local_batch_size: int = field(default=None, metadata={"help": ""})
 
-    dataset: str = field(default='olx_OutlookData20210917x2', metadata={"help": ""})
+    dataset: str = field(default="wt103", metadata={"help": ""})
     
     max_batches: int = field(default=-1, metadata={"help": ""})
     
-    cache_dir: str = field(default='cache_prefix', metadata={"help": ""})
+    cache_dir: str = field(default="cache_prefix", metadata={"help": ""})
     
     vocab: str = field(default="gpt2", metadata={"help": ""})
     
     vocab_size: int = field(default=10000, metadata={"help": ""})
     
-    data_dir: str = field(default='textpred/olx_OutlookData20210917x2', metadata={"help": ""})
+    data_dir: str = field(default="", metadata={"help": ""})
 
     def __post_init__(self) -> None:
         """
         """
         
         exp_utils.script_init()
-        self.device = torch.device('cuda' if self.use_cuda else 'cpu')
+        self.device = torch.device("cuda" if self.use_cuda else "cpu")
 
         if self.use_cuda:
             torch.cuda.set_device(self.local_rank)
@@ -151,12 +151,12 @@ class NvidiaTrainingArguments:
             if rank == 0:
                 exp_utils.create_exp_dir(
                     self.log_dir,
-                    scripts_to_save=[], #['train.py', 'mem_transformer.py'],
+                    scripts_to_save=[], #["train.py", "mem_transformer.py"],
                     debug=self.debug
                 )
 
         if self.log_all_ranks:
-            log_file = f'train_log_rank_{backend.get_rank()}.log'
+            log_file = f"train_log_rank_{backend.get_rank()}.log"
         else:
             log_file = self.txtlog_file
         dllog_file = self.dllog_file

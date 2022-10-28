@@ -44,7 +44,7 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def train(self, filepaths: List[str]) -> None:
-        with distributed_utils.distributed.sync_workers() as rank:
+        with distributed_utils.backend.sync_workers() as rank:
             if rank == 0:
                 logging.info(f'Training BBPE Vocab for size {self.vocab_size} at "{self._tokenizer_filepath}" ...')
                 self._train_tokenizer(filepaths)
