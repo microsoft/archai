@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional
 
-
 SPECIAL_TOKENS = {
     "bos_token": "[BOS]",
     "eos_token": "[EOS]",
