@@ -9,7 +9,7 @@ import re
 from typing import List, Optional, Set, Tuple, Union
 
 from transformers.models.auto.tokenization_auto import AutoTokenizer
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
     ArchaiPreTrainedTokenizerFast
 )
 from archai.nlp.eval.text_predict.text_predict_utils import LRUCache

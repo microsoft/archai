@@ -10,8 +10,7 @@ import numpy as np
 
 from dataclasses import dataclass, field
 
-from archai.nlp.datasets.nvidia_datasets import exp_utils
-from archai.nlp.datasets.nvidia_datasets.distributed_utils import backend
+from archai.nlp.datasets.nvidia import distributed_utils, exp_utils
 
 
 @dataclass
@@ -143,13 +142,13 @@ class NvidiaTrainingArguments:
         if self.use_cuda:
             torch.cuda.set_device(self.local_rank)
             exp_utils.l2_promote()
-            backend.init_distributed(self.use_cuda)
+            distributed_utils.init_distributed(self.use_cuda)
 
         self.data, self.log_dir, self.pretrained_path, self.cache_dir, self.dataroot = \
             exp_utils.get_create_dirs(self.data_dir, self.dataset, self.experiment_name,
                                     self.log_dir, self.pretrained_path, self.cache_dir)
 
-        with backend.sync_workers() as rank:
+        with distributed_utils.sync_workers() as rank:
             if rank == 0:
                 exp_utils.create_exp_dir(
                     self.log_dir,
@@ -158,7 +157,7 @@ class NvidiaTrainingArguments:
                 )
 
         if self.log_all_ranks:
-            log_file = f"train_log_rank_{backend.get_rank()}.log"
+            log_file = f"train_log_rank_{distributed_utils.get_rank()}.log"
         else:
             log_file = self.txtlog_file
         dllog_file = self.dllog_file
@@ -169,7 +168,7 @@ class NvidiaTrainingArguments:
         exp_utils.setup_dllogger(enabled=True, filename=dllog_file, disable_multiple=self.disable_multiple_dlogger)
 
         if self.local_batch_size is not None: # default is None
-            world_size = backend.get_world_size()
+            world_size = distributed_utils.get_world_size()
             self.batch_size = world_size * self.local_batch_size
 
         #

@@ -8,7 +8,7 @@ from typing import Optional
 
 from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import TokenConfig
+from archai.nlp.datasets.hf.tokenizer_utils.token_config import TokenConfig
 
 
 class ArchaiPreTrainedTokenizerFast(PreTrainedTokenizerFast):

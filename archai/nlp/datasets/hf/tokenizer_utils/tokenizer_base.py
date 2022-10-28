@@ -12,7 +12,7 @@ from typing import Iterator, List, Optional
 from tokenizers import Tokenizer
 from tokenizers.trainers import Trainer
 
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import TokenConfig
+from archai.nlp.datasets.hf.tokenizer_utils.token_config import TokenConfig
 
 
 class TokenizerBase:

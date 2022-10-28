@@ -26,27 +26,27 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from archai.common import ml_perf_utils, utils
-from archai.nlp.models.model_mixed_qat import MixedQATModel
-from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
-from archai.nlp.models.model_loader import (load_model_from_config,
-                                           load_model_from_checkpoint)
-from archai.nlp.compression.quantization.qat import (prepare_with_qat,
-                                                     qat_to_float_modules)
-from archai.nlp.datasets import exp_utils
-from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
-from archai.nlp.datasets.distributed_utils.data_parallel import BalancedDataParallel
-from archai.nlp.datasets.distributed_utils.data_utils import get_lm_corpus
-from archai.nlp.datasets.exp_utils import (AverageMeter, create_exp_dir, l2_promote,
+# from archai.nlp.models.model_mixed_qat import MixedQATModel
+# from archai.nlp.compression.quantization.ptq import dynamic_quantization_torch_from_model
+# from archai.nlp.models.model_loader import (load_model_from_config,
+#                                            load_model_from_checkpoint)
+# from archai.nlp.compression.quantization.qat import (prepare_with_qat,
+#                                                      qat_to_float_modules)
+from archai.nlp.datasets.nvidia import distributed_utils
+from archai.nlp.datasets.nvidia import backend
+from archai.nlp.datasets.nvidia.data_parallel import BalancedDataParallel
+from archai.nlp.datasets.nvidia.distributed_utils.data_utils import get_lm_corpus
+from archai.nlp.datasets.nvidia.distributed_utils import (AverageMeter, create_exp_dir, l2_promote,
                                            log_env_info)
-from archai.nlp.models.model_base import ArchaiModel
-from archai.nlp.models.model_utils import lamb_optimizer
-from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
+# from archai.nlp.models.model_base import ArchaiModel
+# from archai.nlp.models.model_utils import lamb_optimizer
+# from archai.nlp.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from torch.nn.parallel import DistributedDataParallel
 
-from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
-from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_torch_for_export
-from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
-from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
+# from archai.nlp.compression.onnx.onnx_utils.export import export_onnx_from_torch
+# from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_torch_for_export
+# from archai.nlp.compression.onnx.onnx_utils.optimization import optimize_onnx
+# from archai.nlp.compression.quantization.ptq import dynamic_quantization_onnx
 
 
 def parse_args():
@@ -351,7 +351,7 @@ def save_checkpoint(args, model, model_config, optimizer, scheduler, scaler,
 
     last_chkpt_fname =  prefix + 'checkpoint_last.pt'
 
-    with nv_distributed.sync_workers() as rank:
+    with backend.sync_workers() as rank:
         last_chkpt_path = os.path.join(work_dir, last_chkpt_fname)
         if rank == 0:
             # always save last checkpoint
@@ -449,13 +449,13 @@ class EvalMetrics:
                  node_steps, node_elapsed, node_len_nowarmup, batches) -> None:
         node_avg_loss = node_loss / node_len
 
-        self.avg_loss = nv_distributed.all_reduce_item(node_avg_loss, 'mean')
-        self.total_loss = nv_distributed.all_reduce_item(node_loss, 'sum')
-        self.total_len = nv_distributed.all_reduce_item(node_len, 'sum')
-        self.total_len_nowarmup = nv_distributed.all_reduce_item(node_len_nowarmup, 'sum')
-        self.total_loss_nomem = nv_distributed.all_reduce_item(node_loss_nomem, 'sum')
-        self.total_steps = nv_distributed.all_reduce_item(node_steps, 'sum')
-        self.total_elapsed = nv_distributed.all_reduce_item(node_elapsed, 'sum')
+        self.avg_loss = backend.all_reduce_item(node_avg_loss, 'mean')
+        self.total_loss = backend.all_reduce_item(node_loss, 'sum')
+        self.total_len = backend.all_reduce_item(node_len, 'sum')
+        self.total_len_nowarmup = backend.all_reduce_item(node_len_nowarmup, 'sum')
+        self.total_loss_nomem = backend.all_reduce_item(node_loss_nomem, 'sum')
+        self.total_steps = backend.all_reduce_item(node_steps, 'sum')
+        self.total_elapsed = backend.all_reduce_item(node_elapsed, 'sum')
         self.eval_word_count = eval_word_count
 
         self.warmup_discount = 1.0 - float(self.total_len_nowarmup - self.total_len) / self.total_len_nowarmup
@@ -463,7 +463,7 @@ class EvalMetrics:
 
         if self.total_loss_nomem is not None:
             avg_loss_nomem = node_loss_nomem / node_len
-            self.avg_loss_nomem =  nv_distributed.all_reduce_item(avg_loss_nomem, 'mean')
+            self.avg_loss_nomem =  backend.all_reduce_item(avg_loss_nomem, 'mean')
 
             self.word_ppl_nomem = math.exp(self.total_loss_nomem /  (eval_word_count * self.warmup_discount))
             self.ppl_nomem = math.exp(self.avg_loss_nomem)
@@ -596,18 +596,18 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
 
         if train_step % args.log_interval == 0:
             cur_loss = train_loss / log_step
-            cur_loss = nv_distributed.all_reduce_item(cur_loss, op='mean')
+            cur_loss = backend.all_reduce_item(cur_loss, op='mean')
             train_loss = 0
 
             elapsed = time.time() - log_start_time
             avg_elapsed = elapsed / log_step
-            avg_elapsed = nv_distributed.all_reduce_item(avg_elapsed, op='max')
+            avg_elapsed = backend.all_reduce_item(avg_elapsed, op='max')
             log_start_time = time.time()
             log_step = 0
 
             lr = optimizer.param_groups[0]['lr']
             throughput = labels_tokens / elapsed
-            throughput = nv_distributed.all_reduce_item(throughput, op='sum')
+            throughput = backend.all_reduce_item(throughput, op='sum')
             meters['train_throughput'].update(throughput)
             labels_tokens = 0
 
@@ -719,7 +719,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
 
 
 def init(disable_multiple_dlogger=False):
-    exp_utils.script_init()
+    distributed_utils.script_init()
 
     args = parse_args()
 
@@ -737,13 +737,13 @@ def init(disable_multiple_dlogger=False):
     torch.cuda.set_device(args.local_rank)
     l2_promote()
     device = torch.device('cuda' if args.cuda else 'cpu')
-    nv_distributed.init_distributed(args.cuda)
+    backend.init_distributed(args.cuda)
 
     args.data, args.work_dir, args.pretrained_path, args.cache_dir, args.dataroot = \
-        exp_utils.get_create_dirs(args.data, args.dataset, args.experiment_name,
+        distributed_utils.get_create_dirs(args.data, args.dataset, args.experiment_name,
                                   args.work_dir, args.pretrained_path, args.cache_dir)
 
-    with nv_distributed.sync_workers() as rank:
+    with backend.sync_workers() as rank:
         if rank == 0:
             create_exp_dir(args.work_dir,
                            scripts_to_save=[], #['train.py', 'mem_transformer.py'],
@@ -751,7 +751,7 @@ def init(disable_multiple_dlogger=False):
 
     # Setup logging
     if args.log_all_ranks:
-        log_file = f'train_log_rank_{nv_distributed.get_rank()}.log'
+        log_file = f'train_log_rank_{backend.get_rank()}.log'
     else:
         log_file = args.txtlog_file
     dllog_file = args.dllog_file
@@ -762,14 +762,14 @@ def init(disable_multiple_dlogger=False):
     #     log_file = os.devnull
     #     dllog_file = os.devnull
 
-    exp_utils.setup_logging(log_all_ranks=args.log_all_ranks, filename=log_file)
-    exp_utils.setup_dllogger(enabled=True, filename=dllog_file, disable_multiple=disable_multiple_dlogger)
+    distributed_utils.setup_logging(log_all_ranks=args.log_all_ranks, filename=log_file)
+    distributed_utils.setup_dllogger(enabled=True, filename=dllog_file, disable_multiple=disable_multiple_dlogger)
 
     if args.config == 'toy':
         logging.warning('Running in toy mode which means wt2 dataset, only one step training, a lot of batch chunking for laptop GPU')
 
     if args.local_batch_size is not None: # default is None
-        world_size = nv_distributed.get_world_size()
+        world_size = backend.get_world_size()
         args.batch_size = world_size * args.local_batch_size
         logging.info(f'--local_batch_size was set, adjusting global batch size'
                      f' to {args.batch_size} (local_batch_size * world_size)')
@@ -777,7 +777,7 @@ def init(disable_multiple_dlogger=False):
     logging.info(args)
     dllogger.log(step='PARAMETER', data=vars(args))
 
-    logging.info(f'world size: {nv_distributed.get_world_size()}')
+    logging.info(f'world size: {backend.get_world_size()}')
 
     if not args.debug and not args.no_env:
         log_env_info()
@@ -792,6 +792,9 @@ def init(disable_multiple_dlogger=False):
     for k, v in args.__dict__.items():
         logging.info('    - {} : {}'.format(k, v))
     logging.info('=' * 100)
+
+    print(args.multi_gpu)
+    print(torch.distributed.is_initialized())
 
     return args, device
 
@@ -827,7 +830,7 @@ def load_data(args, device, get_file_stats=True):
     return  corpus.vocab, train_itr, valid_itr, test_itr, file_stats
 
 
-def create_or_load_model(args, device, ntokens)->Tuple[ArchaiModel, dict]:
+def create_or_load_model(args, device, ntokens)->Tuple[None, dict]:
     # adaptive softmax / embedding
     cutoffs, tie_projs = [], [] # head cluster projection is never tied with embeddings
     if args.adaptive:
@@ -1265,7 +1268,7 @@ def main():
     utils.save_as_yaml(model_config, os.path.join(args.work_dir, 'model_config.yaml'))
 
     summary_csv_filepath = os.path.join(args.work_dir, 'summaries.tsv')
-    with nv_distributed.sync_workers() as rank:
+    with backend.sync_workers() as rank:
         if rank == 0:
             utils.append_csv_file(summary_csv_filepath, list(summary.items()))
 

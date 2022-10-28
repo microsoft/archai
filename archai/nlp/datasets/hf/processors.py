@@ -15,7 +15,7 @@ from datasets.dataset_dict import DatasetDict, IterableDatasetDict
 from datasets.iterable_dataset import IterableDataset
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import (
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
     ArchaiPreTrainedTokenizerFast,
 )
 

@@ -26,15 +26,13 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from archai.common import ml_perf_utils, utils
-from archai.nlp.datasets.nvidia_datasets import exp_utils
-from archai.nlp.datasets.nvidia_datasets.distributed_utils import backend
-from archai.nlp.datasets.nvidia_datasets.distributed_utils.data_parallel import BalancedDataParallel
-from archai.nlp.datasets.nvidia_datasets.distributed_utils.data_utils import get_lm_corpus
-from archai.nlp.datasets.nvidia_datasets.exp_utils import (AverageMeter, create_exp_dir, l2_promote,
+from archai.nlp.datasets.nvidia import distributed_utils, exp_utils
+from archai.nlp.datasets.nvidia.corpus import get_lm_corpus
+from archai.nlp.datasets.nvidia.exp_utils import (AverageMeter, create_exp_dir, l2_promote,
                                            log_env_info)
 from torch.nn.parallel import DistributedDataParallel
 
-from archai.nlp.trainers.nvidia_training_args import NvidiaTrainingArguments
+from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
 
 from archai.nlp.search_spaces.transformer_flex.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.nlp.search_spaces.transformer_flex.models.model_utils import lamb_optimizer
@@ -89,13 +87,9 @@ class NvidiaTrainer:
                                                 device_ids=[self.args.local_rank],
                                                 output_device=self.args.local_rank,
                                                 broadcast_buffers=False,
-                                                find_unused_parameters=utils.is_debugging(),
+                                                find_unused_parameters=exp_utils.is_debugging(),
                                                 )
         elif self.args.multi_gpu == 'dp':
-            if self.args.gpu0_bsz >= 0:
-                self.para_model = BalancedDataParallel(self.args.gpu0_bsz // self.args.batch_chunk,
-                                                self.model, dim=1).to(self.args.device)
-            else:
                 self.para_model = nn.DataParallel(self.model, dim=1).to(self.args.device)
         else:
             self.para_model = self.model
@@ -339,18 +333,18 @@ class NvidiaTrainer:
 
             if train_step % self.args.log_interval == 0:
                 cur_loss = train_loss / log_step
-                cur_loss = backend.all_reduce_item(cur_loss, op='mean')
+                cur_loss = distributed_utils.all_reduce_item(cur_loss, op='mean')
                 train_loss = 0
 
                 elapsed = time.time() - log_start_time
                 avg_elapsed = elapsed / log_step
-                avg_elapsed = backend.all_reduce_item(avg_elapsed, op='max')
+                avg_elapsed = distributed_utils.all_reduce_item(avg_elapsed, op='max')
                 log_start_time = time.time()
                 log_step = 0
 
                 lr = self.optimizer.param_groups[0]['lr']
                 throughput = labels_tokens / elapsed
-                throughput = backend.all_reduce_item(throughput, op='sum')
+                throughput = distributed_utils.all_reduce_item(throughput, op='sum')
                 # meters['train_throughput'].update(throughput)
                 labels_tokens = 0
 
