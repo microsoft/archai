@@ -1,17 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT-2-based tokenizer.
+"""TransformerXL-based tokenizer.
 """
 
 from typing import Optional
 
 from tokenizers import Tokenizer
-from tokenizers.decoders import ByteLevel as ByteLevelDecoder
-from tokenizers.models import BPE
-from tokenizers.pre_tokenizers import ByteLevel
-from tokenizers.processors import ByteLevel as ByteLevelProcessor
-from tokenizers.trainers import BpeTrainer
+from tokenizers.models import WordLevel
+from tokenizers.pre_tokenizers import Punctuation, Sequence, Whitespace
+from tokenizers.trainers import WordLevelTrainer
 
 from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import (
     SPECIAL_TOKENS,
@@ -20,10 +18,10 @@ from archai.nlp.datasets.hf_datasets.tokenizer_utils.token_config import (
 from archai.nlp.datasets.hf_datasets.tokenizer_utils.tokenizer_base import TokenizerBase
 
 
-class GPT2Tokenizer(TokenizerBase):
-    """Implements a GPT-2-based tokenizer."""
+class TransfoXLTokenizer(TokenizerBase):
+    """Implements a Transformer-XL-based tokenizer."""
 
-    def __init__(self, vocab_size: Optional[int] = 50257, min_frequency: Optional[int] = 0) -> None:
+    def __init__(self, vocab_size: Optional[int] = 267735, min_frequency: Optional[int] = 0) -> None:
         """Defines the tokenization pipeline.
 
         Args:
@@ -33,18 +31,16 @@ class GPT2Tokenizer(TokenizerBase):
         """
 
         token_config = TokenConfig(
-            bos_token=SPECIAL_TOKENS["bos_token"],
-            eos_token=SPECIAL_TOKENS["gpt2_eos_token"],
+            eos_token=SPECIAL_TOKENS["eos_token"],
             unk_token=SPECIAL_TOKENS["unk_token"],
+            sep_token=SPECIAL_TOKENS["transfo_xl_sep_token"],
             pad_token=SPECIAL_TOKENS["pad_token"],
         )
 
-        tokenizer = Tokenizer(BPE(continuing_subword_prefix="", end_of_word_suffix=""))
-        tokenizer.pre_tokenizer = ByteLevel(add_prefix_space=False)
-        tokenizer.post_processor = ByteLevelProcessor(trim_offsets=False)
-        tokenizer.decoder = ByteLevelDecoder()
+        tokenizer = Tokenizer(WordLevel(unk_token=token_config.unk_token))
+        tokenizer.pre_tokenizer = Sequence([Punctuation(), Whitespace()])
 
-        trainer = BpeTrainer(
+        trainer = WordLevelTrainer(
             vocab_size=vocab_size,
             min_frequency=min_frequency,
             special_tokens=token_config.special_tokens,
