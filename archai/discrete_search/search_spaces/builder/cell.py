@@ -12,9 +12,6 @@ class Cell(nn.Module):
     _cells: Dict[str, Union['Cell', List['Cell']]]
     _used_params: OrderedDict
     _lock: bool
-
-    def __init__(self):
-        super().__init__()
         
     def __getattribute__(self, attr_name):
         attr = super().__getattribute__(attr_name)
@@ -31,7 +28,7 @@ class Cell(nn.Module):
             return self._config[attr_name]
         
         # If the user is trying to acess a Cell,
-        # builds the module using `_config`
+        # gets the prebuilt cell from `self._cells``
         if attr_name != '__class__' and isinstance(attr, type(Cell)):
             cell = self._cells[attr_name]  
             
@@ -53,7 +50,16 @@ class Cell(nn.Module):
         return attr
     
     @classmethod
-    def get_search_params(cls, blank: bool = False):
+    def get_search_params(cls, blank: bool = False) -> OrderedDict:
+        """Gets all architecture search parameters.
+
+        Args:
+            blank (bool, optional): If True, replaces DiscreteChoice
+                objects with `False`. Defaults to False.
+
+        Returns:
+            OrderedDict: Search parameter tree
+        """        
         valid_operations = (type(Cell), RepeatCell, DiscreteChoice)
         
         return OrderedDict([
@@ -63,6 +69,11 @@ class Cell(nn.Module):
         ])
     
     def build(self, *args, **kwargs):
+        """Builds a prebuilt object created using `Cell._prebuild`
+
+        Returns:
+            Cell: Cell instance
+        """
         self.__init__(*args, **kwargs)
         self._lock = True
         return self
@@ -73,7 +84,8 @@ class Cell(nn.Module):
         obj = cls.__new__(cls)
         obj._lock = False
         
-        # Initializes empty access dict
+        # Initializes empty access dict to track
+        # which params were used by the user __init__
         obj._used_params = cls.get_search_params(blank=True)
 
         # Sets config and choices atributes
@@ -83,7 +95,7 @@ class Cell(nn.Module):
             if isinstance(v, DiscreteChoice)
         }
         
-        # Prebuilds cells
+        # Prebuilds child cells
         obj._cells = {
             k: v._prebuild(config[k]) 
             for k, v in cls.__dict__.items() 
@@ -93,16 +105,38 @@ class Cell(nn.Module):
         return obj
     
     @classmethod
-    def from_config(cls, config: Dict, *args, **kwargs):
+    def from_config(cls, config: Dict, *args, **kwargs) -> 'Cell':
+        """Initializes the Cell using the architecture parameters
+        from `config` and the positional args and kwargs for the
+        class `__init__` method.
+
+        Args:
+            config (Dict): Architecture parameters
+
+        Returns:
+            Cell: Initialized Cell object
+        """        
         return cls._prebuild(config).build(*args, **kwargs)
 
 
 class RepeatCell():
     def __init__(self, cell_cls: Type[Cell], repeat_times: List[int], share_arch: bool = False):
+        """Repeats a cell a variable number of times.
+
+        Args:
+            cell_cls (Type[Cell]): Cell class
+            
+            repeat_times (List[int]): List of possible values for the number of times
+                the cell should be repeated. For instance [1, 2, 5], means
+                the Cell will be repeated 1, 2 or 5 times.
+            
+            share_arch (bool, optional): If repetions of the same Cell should all
+                share the same architecture (not model weights). Defaults to False.
+        """
         self.cell_cls = cell_cls
         self.repeat_times = repeat_times
         self.share_arch = share_arch
-        
+
     def _prebuild(self, config) -> List[Cell]:
         if self.share_arch:
             return [
@@ -135,32 +169,6 @@ class RepeatCell():
                 for _ in range(max(self.repeat_times))
             ])
         ])
-    
-    def from_config(self, config: Union[List[Dict], Dict],
-                    cell_args: Optional[Dict] = None,
-                    *args, **kwargs):
-        
-        cell_args = cell_args or dict()
-        assert 'repeat' in config
-        
-        if self.share_arch:
-            assert 'cell' in config and isinstance(config['cell'], dict)
-            
-            cell_list = [
-                self.cell_cls.from_config(config['cell'], **cell_args)
-                for _ in range(config['repeat'])
-            ]
-        
-        else:
-            assert 'cells' in config and isinstance(config['cells'], list)
-            assert len(config['cells']) == max(self.repeat_times)
-            
-            cell_list = [
-                self.cell_cls.from_config(config['cells'][i], **cell_args)
-                for i in range(config['repeat'])
-            ]
-
-        return cell_list
 
     def _get_used_params(self, config: Dict, cell_list: List[Cell]):
         used_params = self.get_search_params(blank=True)
