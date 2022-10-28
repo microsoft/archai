@@ -5,10 +5,10 @@ import torch
 
 from archai.nlp.datasets.hf_datasets.loaders import load_dataset, encode_dataset
 from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
-from archai.nlp.trainers.hf_trainer import HfTrainer
+from archai.nlp.trainers.hf_trainer import HfDistillerTrainer
+from archai.nlp.trainers.hf_training_args import DistillerTrainingArguments
 
 from transformers.data.data_collator import DataCollatorForLanguageModeling
-from transformers.training_args import TrainingArguments
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 
@@ -24,27 +24,32 @@ if __name__ == "__main__":
     dataset = load_dataset("wikitext", "wikitext-103-v1")
     dataset = encode_dataset(tokenizer, dataset)
 
-    config = GPT2Config(
+    student_config = GPT2Config(
         vocab_size=50257+1,
         n_positions=1024,
         n_embd=512,
         n_layer=4,
         n_head=8,
     )
-    model = GPT2LMHeadModel(config=config)
-    
-    print(f"Total parameters: {sum(p.numel() for p in model.parameters())}")
+    student_model = GPT2LMHeadModel(config=student_config)
+    teacher_model = GPT2LMHeadModel.from_pretrained("gpt2-large")
 
-    training_args = TrainingArguments(
-        "gpt2",
+    print(f"Total student parameters: {sum(p.numel() for p in student_model.parameters())}")
+    print(f"Total teacher parameters: {sum(p.numel() for p in teacher_model.parameters())}")
+
+    training_args = DistillerTrainingArguments(
+        "distill_gpt2",
         evaluation_strategy="steps",
         per_device_train_batch_size=4,
         learning_rate=5e-5,
         weight_decay=0.01,
         max_steps=10,
+        alpha=0.5,
+        temperature=1.0
     )
-    trainer = HfTrainer(
-        model=model,
+    trainer = HfDistillerTrainer(
+        teacher_model=teacher_model.to(device),
+        model=student_model,
         args=training_args,
         data_collator=collator,
         train_dataset=dataset["train"],
