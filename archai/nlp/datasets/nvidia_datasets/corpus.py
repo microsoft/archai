@@ -50,7 +50,7 @@ class Corpus:
         self._clear()
 
     def train_and_encode(self):
-        logging.info(f'Producing corpus cache for dataset {self.dataset}, vocab_type{self.vocab_type}, vocab_size {self.vocab_size}...')
+        logging.info(f'Producing corpus cache for dataset {self.dataset}, vocab_type {self.vocab_type}, vocab_size {self.vocab_size}...')
 
         self.vocab = self._create_train_vocab()
 

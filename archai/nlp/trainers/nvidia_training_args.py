@@ -32,6 +32,10 @@ class NvidiaTrainingArguments:
     fp16: bool = field(default=False, metadata={"help": ""})
 
     local_rank: int = field(default=os.getenv("LOCAL_RANK", 0), metadata={"help": ""})
+
+    log_interval: int = field(default=10, metadata={"help": ""})
+
+    eval_interval: int = field(default=5000, metadata={"help": ""})
     
     log_all_ranks: bool = field(default=False, metadata={"help": ""})
 
@@ -65,7 +69,7 @@ class NvidiaTrainingArguments:
     
     pretrained_path: str = field(default="", metadata={"help": ""})
 
-    batch_size: int = field(default=256, metadata={"help": ""})
+    batch_size: int = field(default=4, metadata={"help": ""})
     
     local_batch_size: int = field(default=None, metadata={"help": ""})
     
@@ -79,23 +83,23 @@ class NvidiaTrainingArguments:
     
     ext_len: int = field(default=0, metadata={"help": ""})
 
-    optimizer_type: str = field(default="jitlamb", metadata={"help": ""})
+    optimizer: str = field(default="jitlamb", metadata={"help": ""})
     
-    lr: float = field(default=0.01, metadata={"help": ""})
+    optimizer_lr: float = field(default=0.01, metadata={"help": ""})
     
-    weight_decay: float = field(default=0.0, metadata={"help": ""})
+    optimizer_weight_decay: float = field(default=0.0, metadata={"help": ""})
     
-    momentum: float = field(default=0.0, metadata={"help": ""})
+    optimizer_momentum: float = field(default=0.0, metadata={"help": ""})
     
-    clip: float = field(default=0.25, metadata={"help": ""})
+    optimizer_clip: float = field(default=0.25, metadata={"help": ""})
     
-    clip_nonemb: bool = field(default=False, metadata={"help": ""})
+    optimizer_clip_nonemb: bool = field(default=False, metadata={"help": ""})
     
-    sample_softmax: int = field(default=-1, metadata={"help": ""})
+    optimizer_sample_softmax: int = field(default=-1, metadata={"help": ""})
 
-    scheduler_type: str = field(default="cosine", metadata={"help": ""})
+    scheduler: str = field(default="cosine", metadata={"help": ""})
     
-    qat_scheduler_type: str = field(default="cosine", metadata={"help": ""})
+    qat_scheduler: str = field(default="cosine", metadata={"help": ""})
     
     max_step_scheduler: int = field(default=None, metadata={"help": ""})
     
@@ -114,10 +118,6 @@ class NvidiaTrainingArguments:
     no_eval: bool = field(default=False, metadata={"help": ""})
     
     max_steps: int = field(default=-1, metadata={"help": ""})
-
-    batch_size: int = field(default=256, metadata={"help": ""})
-    
-    local_batch_size: int = field(default=None, metadata={"help": ""})
 
     dataset: str = field(default="wt103", metadata={"help": ""})
     
