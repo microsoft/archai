@@ -22,7 +22,7 @@ if __name__ == "__main__":
     )
     model = GPT2LMHeadModel(config=config)
 
-    training_args = NvidiaTrainingArguments("gpt2", use_cuda=False)
+    training_args = NvidiaTrainingArguments("gpt2", use_cuda=True)
     trainer = NvidiaTrainer(
         model=model,
         args=training_args

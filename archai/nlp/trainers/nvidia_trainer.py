@@ -17,7 +17,7 @@ import sys
 import time
 from datetime import datetime
 from packaging import version
-from typing import Tuple
+from typing import Tuple, Optional
 
 import dllogger
 import numpy as np
@@ -41,26 +41,20 @@ from archai.nlp.search_spaces.transformer_flex.models.model_utils import lamb_op
 
 
 class NvidiaTrainer:
-    """
-    """
+    """Implements an NVIDIA-based trainer."""
 
     def __init__(
         self,
-        model=None,
-        args=None,
-        data_collator=None,
-        tokenizer=None,
-        train_dataset=None,
-        eval_dataset=None,
-        compute_metrics=None,
-        callbacks=None,
-        optimizers=None,
+        model: torch.nn.Module,
+        args: Optional[NvidiaTrainingArguments] = None,
     ) -> None:
         """"""
 
         assert isinstance(model, torch.nn.Module), "`model` should be an instance of `torch.nn.Module`."
         self.model = model
 
+        if args is None:
+            args = NvidiaTrainingArguments("tmp_trainer")
         assert isinstance(args, NvidiaTrainingArguments), "`args` should be an instance of `NvidiaTrainingArguments`."
         self.args = args
         
@@ -72,6 +66,8 @@ class NvidiaTrainer:
             vocab_size=self.args.vocab_size,
             refresh_cache=self.args.refresh_cache
         )
+
+        self.model.to(self.args.device)
 
     def _get_dataloader(self, split: str):
         """"""
@@ -85,8 +81,9 @@ class NvidiaTrainer:
             mem_len=self.args.mem_len
         )
 
-    def wrap_distributed_model(self):
+    def wrap_distributed_model(self) -> None:
         """"""
+
         if self.args.multi_gpu == 'ddp' and torch.distributed.is_initialized():
             self.para_model = DistributedDataParallel(self.model,
                                                 device_ids=[self.args.local_rank],
@@ -103,7 +100,7 @@ class NvidiaTrainer:
         else:
             self.para_model = self.model
 
-    def create_optimizer(self):
+    def create_optimizer(self) -> None:
         """"""
 
         optimizer_type = self.args.optimizer.lower()
@@ -156,14 +153,14 @@ class NvidiaTrainer:
         else:
             raise NotImplementedError(f"Optimizer: {self.args.optimizer} is not implemented yet.")
 
-    def create_scaler(self):
+    def create_scaler(self) -> None:
         """"""
 
         self.scaler = None
         if self.args.fp16:
             self.scaler = torch.cuda.amp.GradScaler()
 
-    def create_scheduler(self):
+    def create_scheduler(self) -> None:
         """"""
 
         scheduler_name = self.args.scheduler_qat if self.args.qat else self.args.scheduler
