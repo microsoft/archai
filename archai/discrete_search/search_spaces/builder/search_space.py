@@ -130,5 +130,5 @@ class SearchSpaceBuilder(EvolutionarySearchSpace, BayesOptSearchSpace):
 
     @overrides
     def encode(self, arch: ArchaiModel) -> np.ndarray:
-        return super().encode(arch)
-    
+        flt_conf = flatten_ordered_dict(arch.metadata['config'])
+        return np.array([v for v in flt_conf.values()])
