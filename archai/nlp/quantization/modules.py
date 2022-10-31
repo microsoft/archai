@@ -12,7 +12,7 @@ import torch
 import transformers
 from torch.nn import functional as F
 
-from archai.nlp.compression.quantization.quantizers import FakeDynamicQuant
+from archai.nlp.quantization.quantizers import FakeDynamicQuant
 
 
 class FakeQuantEmbedding(torch.nn.Embedding):

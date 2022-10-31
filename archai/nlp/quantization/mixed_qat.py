@@ -9,7 +9,7 @@ from typing import Optional, Tuple
 
 import torch
 
-from archai.nlp.compression.quantization.qat import prepare_with_qat
+from archai.nlp.quantization.qat import prepare_with_qat
 
 
 class MixedQAT(torch.nn.Module):
