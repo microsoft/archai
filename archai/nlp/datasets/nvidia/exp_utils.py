@@ -29,10 +29,10 @@ from archai.nlp.datasets.nvidia import distributed_utils
 
 from archai.common import utils, common
 
-try:
-    from apex import amp
-except ModuleNotFoundError:
-    logging.warn('APEX AMP is unavailable')
+# try:
+#     from apex import amp
+# except ModuleNotFoundError:
+#     logging.warn('APEX AMP is unavailable')
 
 
 class AverageMeter:
