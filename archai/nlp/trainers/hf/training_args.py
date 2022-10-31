@@ -13,10 +13,6 @@ from transformers.training_args import TrainingArguments
 class DistillerTrainingArguments(TrainingArguments):
     """Inherits from TrainingArguments and customizes distillation arguments."""
 
-    alpha: float = field(
-        default=0.5, metadata={"help": "Weight ratio between student and KD losses."}
-    )
+    alpha: float = field(default=0.5, metadata={"help": "Weight ratio between student and KD losses."})
 
-    temperature: float = field(
-        default=1.0, metadata={"help": "Annealing ratio for the softmax activations."}
-    )
+    temperature: float = field(default=1.0, metadata={"help": "Annealing ratio for the softmax activations."})

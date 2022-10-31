@@ -4,9 +4,9 @@
 """Customizable trainer with huggingface/accelerate.
 """
 
+
 class HfAccelerateTrainer:
-    """
-    """
+    """ """
 
     def __init__(
         self,
