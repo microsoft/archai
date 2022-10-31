@@ -12,9 +12,6 @@ import numpy as np
 import torch
 
 from archai.nlp.datasets.nvidia import distributed_utils, exp_utils
-from archai.nlp.utils import logging_utils
-
-logger = logging_utils.get_logger(__name__)
 
 
 @dataclass

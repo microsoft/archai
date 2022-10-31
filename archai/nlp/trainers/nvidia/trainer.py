@@ -24,9 +24,9 @@ from archai.nlp.datasets.nvidia.lm_iterators import (
     LMShuffledIterator,
 )
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
-from archai.nlp.utils import logging_utils
-from archai.nlp.utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
-from archai.nlp.utils.optimizers import JITLamb, Lamb
+from archai.nlp import logging_utils
+from archai.nlp.trainers.nvidia.utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
+from archai.nlp.trainers.nvidia.utils.optimizers import JITLamb, Lamb
 
 logger = logging_utils.get_logger(__name__)
 
