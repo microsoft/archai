@@ -16,6 +16,7 @@ class TensorwatchStat(Objective):
         Args:
             stat_name (str): Name of the statistic. Available options ['Madd', 'Flops', 'parameters', 
                 'mwrite', 'mread', 'duration', 'inference_memory'].
+            
             input_shape (Tuple): _description_
         """
         self.stat_name = stat_name

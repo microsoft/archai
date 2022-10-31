@@ -8,7 +8,7 @@ from archai.discrete_search.api.dataset import DatasetProvider
 from archai.discrete_search.api.objective import Objective, AsyncObjective
 
 
-def wrap_metric_calculate(class_method):
+def _wrap_metric_calculate(class_method):
     def calculate(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None):
         return class_method(arch, dataset, budget)
     return calculate
@@ -33,9 +33,9 @@ class RayParallelObjective(AsyncObjective):
 
         # Wraps metric.calculate as a standalone function. This only works with stateless metrics
         if ray_kwargs:
-            self.compute_fn = ray.remote(**ray_kwargs)(wrap_metric_calculate(obj.evaluate))
+            self.compute_fn = ray.remote(**ray_kwargs)(_wrap_metric_calculate(obj.evaluate))
         else:
-            self.compute_fn = ray.remote(wrap_metric_calculate(obj.evaluate))
+            self.compute_fn = ray.remote(_wrap_metric_calculate(obj.evaluate))
         
         self.higher_is_better = obj.higher_is_better
         self.timeout = timeout

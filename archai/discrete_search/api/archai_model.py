@@ -5,19 +5,19 @@
 from typing import Optional, Dict, Any
 
 class ArchaiModel():
-    def __init__(self, arch: Any, archid: str, metadata: Optional[Dict] = None):
-        """Wraps a model object with an architecture id and optionally a metadata dictionary.
+    """Wraps a model object with an architecture id and optionally a metadata dictionary.
 
         Args:
             arch (Any): Model object (e.g torch.nn.Module)
+            
             archid (str): **Architecture** string identifier of `arch` object. Will be used to deduplicate
                 models of the same architecture, so architecture hashes are prefered. `archid` should only 
                 identify neural network architectures and not model weight information.
+            
             metadata (Optional[Dict], optional): Optional model metadata dictionary. Defaults to None.
         """
-        assert isinstance(archid, str)
-        assert isinstance(metadata, dict)
 
+    def __init__(self, arch: Any, archid: str, metadata: Optional[Dict] = None):
         self.arch = arch
         self.archid = archid
         self.metadata = metadata or dict()
