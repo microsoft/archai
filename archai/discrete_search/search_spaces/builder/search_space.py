@@ -111,7 +111,7 @@ class SearchSpaceBuilder(EvolutionarySearchSpace, BayesOptSearchSpace):
         )
 
     @overrides
-    def crossover(self, model_list: ArchaiModel) -> ArchaiModel:
+    def crossover(self, model_list: List[ArchaiModel]) -> ArchaiModel:
         model_1, model_2 = self.rng.choices(model_list, k=2)
 
         cross_config = replace_param_tree_pair(
