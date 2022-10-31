@@ -18,9 +18,7 @@ from archai.nlp.trainers.hf.training_args import DistillerTrainingArguments
 class HfTrainer(Trainer):
     """Inherits from Trainer and allows to be customized."""
 
-    def _rotate_checkpoints(
-        self, use_mtime: Optional[bool] = False, output_dir: Optional[str] = None
-    ) -> None:
+    def _rotate_checkpoints(self, use_mtime: Optional[bool] = False, output_dir: Optional[str] = None) -> None:
         """Overrides the rotation of checkpoints to allow caching to Azure Storage.
 
         Args:
@@ -37,9 +35,7 @@ class HfTrainer(Trainer):
         use_mtime = False
 
         # Check if we should delete older checkpoint(s)
-        checkpoints_sorted = self._sorted_checkpoints(
-            use_mtime=use_mtime, output_dir=output_dir
-        )
+        checkpoints_sorted = self._sorted_checkpoints(use_mtime=use_mtime, output_dir=output_dir)
         if len(checkpoints_sorted) <= self.args.save_total_limit:
             return
 
@@ -77,12 +73,14 @@ class HfDistillerTrainer(HfTrainer):
         self.teacher_model = teacher_model
 
         if "args" in kwargs:
-            assert isinstance(kwargs["args"], DistillerTrainingArguments), "`args` should be an instance of `DistillerTrainingArguments`."
+            assert isinstance(
+                kwargs["args"], DistillerTrainingArguments
+            ), "`args` should be an instance of `DistillerTrainingArguments`."
         else:
             kwargs["args"] = DistillerTrainingArguments("tmp")
 
         super().__init__(**kwargs)
-        
+
     def compute_loss(
         self,
         model: torch.nn.Module,

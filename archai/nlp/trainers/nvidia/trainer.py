@@ -8,25 +8,27 @@ import itertools
 import os
 import sys
 import time
-from packaging import version
-from typing import Tuple, Optional, Union
+from typing import Optional, Union
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from packaging import version
+from torch.nn.parallel import DistributedDataParallel
+
 from archai.nlp.datasets.nvidia import distributed_utils
 from archai.nlp.datasets.nvidia.corpus import get_lm_corpus
-from torch.nn.parallel import DistributedDataParallel
-from archai.nlp.datasets.nvidia.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
-
+from archai.nlp.datasets.nvidia.lm_iterators import (
+    LMMultiFileIterator,
+    LMOrderedIterator,
+    LMShuffledIterator,
+)
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
-
-from archai.nlp.utils import logging_utils 
+from archai.nlp.utils import logging_utils
+from archai.nlp.utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
+from archai.nlp.utils.optimizers import JITLamb, Lamb
 
 logger = logging_utils.get_logger(__name__)
-
-from archai.nlp.search_spaces.transformer_flex.models.model_utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
-from archai.nlp.search_spaces.transformer_flex.models.model_utils import lamb_optimizer
 
 
 class NvidiaTrainer:
@@ -38,11 +40,11 @@ class NvidiaTrainer:
         args: Optional[NvidiaTrainingArguments] = None,
     ) -> None:
         """Initializes by verifying model, training arguments and loading dataset.
-        
+
         Args:
             model: Model to be trained or evaluated.
             args: NVIDIA-based training arguments.
-            
+
         """
 
         assert isinstance(model, torch.nn.Module), "`model` should be an instance of `torch.nn.Module`."
@@ -52,24 +54,24 @@ class NvidiaTrainer:
             args = NvidiaTrainingArguments("tmp_trainer")
         assert isinstance(args, NvidiaTrainingArguments), "`args` should be an instance of `NvidiaTrainingArguments`."
         self.args = args
-        
+
         self.dataset = get_lm_corpus(
-            self.args.data,
+            self.args.dataset_dir,
             self.args.dataset_cache_dir,
             self.args.dataset,
             self.args.vocab,
             vocab_size=self.args.vocab_size,
-            refresh_cache=self.args.dataset_refresh_cache
+            refresh_cache=self.args.dataset_refresh_cache,
         )
 
         self.model.to(self.args.device)
 
     def _get_dataloader(self, split: str) -> Union[LMOrderedIterator, LMShuffledIterator, LMMultiFileIterator]:
         """Gets a data loader from the pre-loaded dataset.
-        
+
         Args:
             split: Split of dataset to be retrieved as data loader.
-            
+
         Returns:
             (Union[LMOrderedIterator, LMShuffledIterator, LMMultiFileIterator]): An instance of
                 data loader/iterator based on the loaded dataset.
@@ -95,59 +97,33 @@ class NvidiaTrainer:
                 output_device=self.args.local_rank,
                 broadcast_buffers=False,
                 find_unused_parameters=self.args.find_unused_parameters,
-        )
+            )
 
         elif self.args.multi_gpu == "dp":
             self.dist_model = nn.DataParallel(self.model, dim=1)
-            
 
     def create_optimizer(self) -> None:
         """Creates an optimizer and attaches model's parameters."""
 
-        self.optimizer_sparse = None
-        self.optimizer = None
-
-        optimizer_type = self.args.optimizer.lower()
-        if optimizer_type == "sgd":
-            if self.args.optimizer_sample_softmax > 0:
-                dense_params, sparse_params = [], []
-                for param in self.model.parameters():
-                    if param.size() == self.model.word_emb.weight.size():
-                        sparse_params.append(param)
-                    else:
-                        dense_params.append(param)
-                self.optimizer_sparse = optim.SGD(sparse_params, lr=self.args.optimizer_lr * 2)
-                self.optimizer = optim.SGD(dense_params, lr=self.args.optimizer_lr, momentum=self.optimizer_momentum)
-            else:
-                self.optimizer = optim.SGD(self.model.parameters(), lr=self.args.optimizer_lr,
-                                    momentum=self.optimizer_momentum)
-
-        elif optimizer_type == "adam":
-            if self.args.optimizer_sample_softmax > 0:
-                dense_params, sparse_params = [], []
-                for param in self.model.parameters():
-                    if param.size() == self.model.word_emb.weight.size():
-                        sparse_params.append(param)
-                    else:
-                        dense_params.append(param)
-                self.optimizer_sparse = optim.SparseAdam(sparse_params, lr=self.args.optimizer_lr)
-                self.optimizer = optim.Adam(dense_params, lr=self.args.optimizer_lr,
-                                    weight_decay=self.args.optimizer_weight_decay)
-            else:
-                self.optimizer = optim.Adam(self.model.parameters(), lr=self.args.optimizer_lr,
-                                    weight_decay=self.args.optimizer_weight_decay)
-
-        elif optimizer_type == "adagrad":
+        optimizer_name = self.args.optimizer.lower()
+        if optimizer_name == "sgd":
+            self.optimizer = optim.SGD(
+                self.model.parameters(), lr=self.args.optimizer_lr, momentum=self.optimizer_momentum
+            )
+        elif optimizer_name == "adam":
+            self.optimizer = optim.Adam(
+                self.model.parameters(), lr=self.args.optimizer_lr, weight_decay=self.args.optimizer_weight_decay
+            )
+        elif optimizer_name == "adagrad":
             self.optimizer = optim.Adagrad(self.model.parameters(), lr=self.args.optimizer_lr)
-
-        elif optimizer_type == "lamb":
-            self.optimizer = lamb_optimizer.Lamb(self.model.parameters(), lr=self.args.optimizer_lr,
-                                weight_decay=self.args.optimizer_weight_decay)
-
-        elif optimizer_type == "jitlamb":
-            self.optimizer = lamb_optimizer.JITLamb(self.model.parameters(), lr=self.args.optimizer_lr,
-                                    weight_decay=self.args.optimizer_weight_decay)
-
+        elif optimizer_name == "lamb":
+            self.optimizer = Lamb(
+                self.model.parameters(), lr=self.args.optimizer_lr, weight_decay=self.args.optimizer_weight_decay
+            )
+        elif optimizer_name == "jitlamb":
+            self.optimizer = JITLamb(
+                self.model.parameters(), lr=self.args.optimizer_lr, weight_decay=self.args.optimizer_weight_decay
+            )
         else:
             raise NotImplementedError(f"Optimizer: {self.args.optimizer} is not implemented yet.")
 
@@ -162,86 +138,76 @@ class NvidiaTrainer:
         """Creates a learning rate scheduler."""
 
         scheduler_name = self.args.scheduler_qat if self.args.qat else self.args.scheduler
-
         if scheduler_name == "cosine":
             if self.args.scheduler_max_steps:
-                max_step = self.args.scheduler_max_steps
+                max_steps = self.args.scheduler_max_steps
             else:
-                max_step = self.args.max_steps
-
+                max_steps = self.args.max_steps
             self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
-                self.optimizer, max_step - self.args.scheduler_warmup_steps, eta_min=self.args.scheduler_lr_min)
-            if self.args.optimizer_sample_softmax > 0 and self.optimizer_sparse is not None:
-                self.scheduler_sparse = optim.lr_scheduler.CosineAnnealingLR(
-                    self.optimizer_sparse, max_step - self.args.scheduler_warmup_steps,
-                    eta_min=self.args.scheduler_lr_min)
-            else:
-                scheduler_sparse = None
+                self.optimizer, max_steps - self.args.scheduler_warmup_steps, eta_min=self.args.scheduler_lr_min
+            )
         elif scheduler_name == "inv_sqrt":
-            # originally used for Transformer (in Attention is all you need)
-            def lr_lambda(step):
-                # return a multiplier instead of a learning rate
+            def lr_lambda(step: int) -> float:
                 if step == 0 and self.args.scheduler_warmup_steps == 0:
-                    return 1.
+                    return 1.0
                 else:
-                    return 1. / (step ** 0.5) if step > self.args.scheduler_warmup_steps \
-                        else step / (self.args.scheduler_warmup_steps ** 1.5)
-            self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=lr_lambda)
-            if self.args.optimizer_sample_softmax > 0 and self.optimizer_sparse is not None:
-                scheduler_sparse = optim.lr_scheduler.LambdaLR(
-                    self.optimizer_sparse,
-                    lr_lambda=lr_lambda
+                    return (
+                        1.0 / (step**0.5)
+                        if step > self.args.scheduler_warmup_steps
+                        else step / (self.args.scheduler_warmup_steps**1.5)
                     )
-            else:
-                self.scheduler_sparse = None
+            self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=lr_lambda)
         elif scheduler_name == "dev_perf":
             self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-                self.optimizer, factor=self.args.decay_rate, patience=self.args.patience,
+                self.optimizer,
+                factor=self.args.decay_rate,
+                patience=self.args.patience,
                 min_lr=self.args.optimizer_lr_min,
-                )
-            if self.args.optimizer_sample_softmax > 0 and self.optimizer_sparse is not None:
-                self.scheduler_sparse = optim.lr_scheduler.ReduceLROnPlateau(
-                    self.optimizer_sparse, factor=self.args.decay_rate, patience=self.args.patience,
-                    min_lr=self.args.optimizer_lr_min,
-                    )
-            else:
-                self.scheduler_sparse = None
+            )
         elif scheduler_name == "cyclic_cosine":
-            init_decay_epochs = int((self.args.max_step-self.args.scheduler_warmup_steps) / 2)
-            restart_interval = int((self.args.max_step-self.args.scheduler_warmup_steps) / 4)
-
-            self.scheduler = CyclicCosineDecayLR(self.optimizer, init_decay_epochs, self.args.scheduler_lr_min, restart_interval, 
-                                            warmup_epochs=self.args.scheduler_warmup_steps, warmup_start_lr=self.args.optimizer_lr*0.01)
-            if self.args.optimizer_sample_softmax > 0 and self.optimizer_sparse is not None:
-                self.scheduler_sparse = CyclicCosineDecayLR(self.optimizer_sparse, init_decay_epochs, self.args.scheduler_lr_min, restart_interval, 
-                                            warmup_epochs=self.args.scheduler_warmup_steps, warmup_start_lr=self.args.optimizer_lr*0.01)
-            else:
-                self.scheduler_sparse = None
+            init_decay_steps = int((self.args.max_step - self.args.scheduler_warmup_steps) / 2)
+            restart_interval = int((self.args.max_step - self.args.scheduler_warmup_steps) / 4)
+            self.scheduler = CyclicCosineDecayLR(
+                self.optimizer,
+                init_decay_steps,
+                self.args.scheduler_lr_min,
+                restart_interval,
+                warmup_epochs=self.args.scheduler_warmup_steps,
+                warmup_start_lr=self.args.optimizer_lr * 0.01,
+            )
         elif scheduler_name == "constant":
             pass
 
-    def train_iteration(self, model, i, mems, input_ids_chunks, labels_chunks, scaler,
-                    optimizer, device, delay_unscale, autocast):
-        # trains a given chunk
-        cpu = torch.device("cpu")
-        input_ids_i = input_ids_chunks[i].contiguous()
-        labels_i = labels_chunks[i].contiguous()
+    def training_step_chunk(
+        self, input_ids: torch.LongTensor, labels: torch.LongTensor, autocast: torch.autocast
+    ) -> float:
+        """Performs the training of a single chunk.
+        
+        Args:
+            input_ids: Chunk of input data.
+            labels: Chunk of input labels.
+            autocast: An autocast instance that automatically performs
+                fp16 or bf16 precision.
+
+        Returns:
+            (float): Chunk training loss.
+            
+        """
 
         with autocast:
-            output = model(input_ids_i, labels=labels_i)
-            loss = output.loss
+            loss = self.dist_model(input_ids, labels=labels).loss
             loss = loss.float().mean().type_as(loss) / self.args.gradient_accumulation_steps
 
         if self.args.fp16:
-            scaler.scale(loss).backward()
+            self.scaler.scale(loss).backward()
         else:
             loss.backward()
 
-        train_loss = loss.float().item()
-        return train_loss
+        return loss.float().item()
 
-    def training_step(self, train_itr, val_itr, last_iter, last_batch, train_step):
+    def training_step(self, train_itr, val_itr, last_iter, epoch, last_batch, train_step):
         """"""
+
         self.model.train()
 
         train_loss = 0
@@ -249,7 +215,6 @@ class NvidiaTrainer:
         log_step = 0
         log_start_time = time.time()
 
-        mems = [None for _ in range(self.args.gradient_accumulation_steps)]
         # Changes to make train_iter for lm1b to be properly caught
         if self.args.dataset != "lm1b":
             train_iter = train_itr.get_fixlen_iter(start=last_iter)
@@ -257,13 +222,12 @@ class NvidiaTrainer:
             train_iter = train_itr
 
         # Supports different autocast signatures and usage of bfloat16
-        autocast = torch.cuda.amp.autocast(enabled=self.args.fp16)
+        autocast = torch.autocast(self.args.device.type, enabled=self.args.fp16)
         if version.parse(torch.__version__) >= version.parse("1.10"):
-            fp16_type = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
-            autocast = torch.cuda.amp.autocast(enabled=self.args.fp16, dtype=fp16_type)
+            dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+            autocast = torch.cuda.amp.autocast(enabled=self.args.fp16, dtype=dtype)
 
-        for batch, (input_ids, labels, seq_len, _) in enumerate(train_iter, start=last_batch+1):
-            # print(log_step)
+        for batch, (input_ids, labels, _, _) in enumerate(train_iter, start=last_batch + 1):
             log_step += 1
             labels_tokens += labels.numel()
 
@@ -275,22 +239,16 @@ class NvidiaTrainer:
             labels_chunks = torch.chunk(labels, self.args.gradient_accumulation_steps, 0)
 
             for i in range(self.args.gradient_accumulation_steps):
-                # if this is last chunk and distribued mode then use delay_unscale=True for amp
-                if i < self.args.gradient_accumulation_steps - 1 and isinstance(self.dist_model, DistributedDataParallel):
-                    with self.dist_model.no_sync():
-                        train_loss_chunk = self.train_iteration(
-                            self.dist_model, i, mems, input_ids_chunks, labels_chunks, self.scaler,
-                            self.optimizer, self.args.device, True, autocast
-                        )
-                else:
-                    train_loss_chunk = self.train_iteration(
-                        self.dist_model, i, mems, input_ids_chunks, labels_chunks, self.scaler,
-                        self.optimizer, self.args.device, False, autocast
-                    )
+                input_ids_chunk = input_ids_chunks[i].contiguous()
+                labels_chunk = labels_chunks[i].contiguous()
+
+                train_loss_chunk = self.training_step_chunk(
+                    input_ids_chunk,
+                    labels_chunk,
+                    autocast,
+                )
 
                 train_loss += train_loss_chunk
-
-                # print(train_loss)
 
             if self.args.fp16:
                 self.scaler.unscale_(self.optimizer)
@@ -303,8 +261,6 @@ class NvidiaTrainer:
                 self.scaler.update()
             else:
                 self.optimizer.step()
-                if self.optimizer_sparse:
-                    self.optimizer_sparse.step()
 
             # step-wise learning rate annealing
             train_step += 1
@@ -313,21 +269,16 @@ class NvidiaTrainer:
                 if train_step < self.args.scheduler_warmup_steps:
                     curr_lr = self.args.optimizer_lr * train_step / self.args.scheduler_warmup_steps
                     self.optimizer.param_groups[0]["lr"] = curr_lr
-                    if self.optimizer_sparse:
-                        self.optimizer_sparse.param_groups[0]["lr"] = curr_lr * 2
+                    
                 else:
                     if self.args.scheduler == "cosine":
                         self.scheduler.step(train_step - self.args.scheduler_warmup_steps)
-                        if self.scheduler_sparse:
-                            self.scheduler_sparse.step(train_step - self.args.scheduler_warmup_steps)
             elif self.args.scheduler in ["inv_sqrt", "cyclic_cosine"]:
                 self.scheduler.step(train_step)
-                if self.scheduler_sparse:
-                    self.scheduler_sparse.step(train_step)
 
             if train_step % self.args.log_interval == 0:
-                cur_loss = train_loss / log_step
-                cur_loss = distributed_utils.all_reduce_item(cur_loss, op="mean")
+                loss = train_loss / log_step
+                loss = distributed_utils.all_reduce_item(loss, op="mean")
                 train_loss = 0
 
                 elapsed = time.time() - log_start_time
@@ -339,18 +290,24 @@ class NvidiaTrainer:
                 lr = self.optimizer.param_groups[0]["lr"]
                 throughput = labels_tokens / elapsed
                 throughput = distributed_utils.all_reduce_item(throughput, op="sum")
-                # meters["train_throughput"].update(throughput)
                 labels_tokens = 0
 
-                logger.info(f"loss: {cur_loss}")
+                logger.info(
+                    f"Epoch: {epoch} | Step: {train_step} | "
+                    f"Batch: {batch} / {train_itr.n_batch} | LR: {lr:.3e} | "
+                    f"ms/batch: {avg_elapsed*1000:.1f} | tok/s: {throughput:.0f} | "
+                    f"Loss: {loss:.3f}"
+                )
 
             do_periodic_eval = train_step % self.args.eval_interval == 0
             is_final_step = train_step == self.args.max_steps
-            interrupted = False #timeout_handler.interrupted
+            interrupted = False  # timeout_handler.interrupted
 
-            if (do_periodic_eval or is_final_step or interrupted) and not self.args.no_eval:
+            if (do_periodic_eval or is_final_step or interrupted) and not self.args.disable_eval:
                 eval_start_time = time.time()
-                node_metrix = self.evaluate(val_itr, eval_nomem=False)
+                eval_loss = self.evaluation_step(val_itr)
+                logger.info(f"Eval loss: {eval_loss}")
+
                 # val_metrix = EvalMetrics(valid_file_stats.word_count, *node_metrix)
 
                 # log_str = "| Eval {:3d} at step {:>8d} | time: {:5.2f}s " \
@@ -360,31 +317,7 @@ class NvidiaTrainer:
                 #             (time.time() - eval_start_time),
                 #             val_metrix.avg_loss, val_metrix.word_ppl
                 #             )
-
-                # dllogger_data = {
-                #     "valid_elapsed": (time.time() - eval_start_time),
-                #     "valid_loss": val_metrix.avg_loss,
-                #     "valid_ppl": val_metrix.ppl,
-                #     "valid_word_ppl": val_metrix.word_ppl
-                #     }
-
-                # if self.args.dataset in ["enwik8", "text8"]:
-                #     log_str += " | bpc {:9.5f}".format(val_metrix.bpc)
-                #     dllogger_data["valid_bits_per_character"] = val_metrix.bpc
-                # else:
-                #     log_str += " | ppl {:9.3f}".format(val_metrix.ppl)
-                #     dllogger_data["valid_perplexity"] = val_metrix.ppl
-
                 last_iter = train_itr.last_iter
-
-                # Check if the validation loss is the best we"ve seen so far.
-                is_best = False
-                # if not best_val_loss or val_metrix.avg_loss < best_val_loss:
-                #     best_val_loss = val_metrix.avg_loss
-                #     is_best = True
-
-                model_to_save = self.model
-                prefix = ""
 
                 # if self.args.qat:
                 #     # Convert the model to a regular FP32 model for saving
@@ -447,130 +380,65 @@ class NvidiaTrainer:
 
                 # self.model.apply(functools.partial(update_dropout, args=args))
                 # self.model.apply(functools.partial(update_dropatt, args=args))
-                
+
                 self.wrap_model_distributed()
             except FileNotFoundError:
                 pass
 
+        logger.info("Starting training ...")
+        logger.debug(f"Training arguments: {self.args.to_dict()}")
+
+        start_time = time.time()
         try:
-            logger.info("Starting training...")
             for epoch in itertools.count(start=start_epoch):
-                if self.args.roll: # enable random shifts in datasets
+                if self.args.roll:
                     train_itr.roll(seed=self.args.seed + epoch)
-                self.training_step(train_itr, val_itr, last_iter, last_batch, train_step)
+                self.training_step(train_itr, val_itr, last_iter, epoch, last_batch, train_step)
         except KeyboardInterrupt:
-            pass
+            logger.info('Exiting from training ...')
 
-        
-        # best_val_loss = None
+        end_time = time.time()
+        logger.info(f'Training time: {((end_time - start_time) / 60):.2f} minutes')
 
-
-
-        # meters = {}
-        # warmup = self.args.mem_len // self.args.tgt_len + 2
-        # meters["train_throughput"] = AverageMeter(warmup=warmup)
-        # ###########################################################################
-        # # Train
-        # ###########################################################################
-        # # Loop over epochs.
-        # # At any point you can hit Ctrl + C to break out of training early.
-        # start_time = time.time()
-        # try:
-        #     for epoch in itertools.count(start=start_epoch):
-        #         if self.args.roll: # enable random shifts in datasets
-        #             train_itr.roll(seed=self.args.seed + epoch)
-        #         train_step, best_val_loss = train(
-        #             train_itr, valid_itr, self.model, para_self.model, model_config,
-        #             optimizer, optimizer_sparse, scheduler,
-        #             scheduler_sparse, scaler, vocab, epoch, last_batch,
-        #             last_iter, train_step, best_val_loss, meters,
-        #             device, args, valid_file_stats
-        #             )
-
-        #         last_batch = 0
-        #         last_iter = 0
-
-        #         if train_step == self.args.max_steps:
-        #             break
-
-        #     if self.args.dynamic_quantization:
-        #         dynamic_quantization_torch_from_model(model.cpu())
-
-        #         save_checkpoint(args, self.model, model_config, optimizer, scheduler,
-        #                         scaler, vocab, epoch, last_batch, last_iter,
-        #                         train_step, best_val_loss, False,
-        #                         self.args.work_dir, prefix="qnt-")
-
-        # except KeyboardInterrupt:
-        #     pass
-
-        # elapsed = time.time() - start_time
-
-    def evaluation_step(self, eval_iter, eval_nomem):
+    def evaluation_step(self, eval_iter):
         """"""
         self.model.eval()
 
-        # If the model does not use memory at all, make the ext_len longer.
-        # Otherwise, make the mem_len longer and keep the ext_len the same.
-        # default mem_len==192, eval_tgt_len==192, tgt_len==192
-        if self.args.mem_len == 0:
-            self.model.reset_length(tgt_len=self.args.eval_tgt_len,
-                            ext_len=self.args.ext_len + self.args.tgt_len - self.args.eval_tgt_len,
-                            mem_len=self.args.mem_len
-                            )
-        else:
-            self.model.reset_length(tgt_len=self.args.eval_tgt_len,
-                            ext_len=self.args.ext_len,
-                            mem_len=self.args.mem_len + self.args.tgt_len - self.args.eval_tgt_len,
-                            )
-
         # Evaluation
-        total_len, total_loss, total_loss_nomem, steps, total_len_nowarmup, batches = 0, 0., 0., 0, 0, -1
+        total_len, total_loss, total_loss_nomem, steps, total_len_nowarmup, batches = 0, 0.0, 0.0, 0, 0, -1
         start_time = time.time()
         with torch.no_grad():
             mems = None
-            for batches, (input_ids, labels, seq_len, warm) in enumerate(eval_iter):
-                steps += 1
-                if self.args.eval_max_steps > 0 and i >= self.args.eval_max_steps:
-                    break
-
-                # first with mem
-                loss, _, mems, _ = self.model(input_ids, labels, mems)
-                loss = loss.float().mean()
-                numel = input_ids.numel()
-
+            for batches, (input_ids, labels, _, _) in enumerate(eval_iter):
                 # now without mem
-                loss_nomem = None
-                if eval_nomem:
-                    loss_nomem, _, _, _ = self.model(input_ids, labels, None)
-                    loss_nomem = loss_nomem.float().mean()
+                # loss_nomem = None
+                # if eval_nomem:
+                numel = input_ids.numel()
+                loss = self.dist_model(input_ids, labels=labels).loss
+                loss = loss.float().mean()
 
-                total_len_nowarmup += numel
-                if warm:
-                    # assert (mems is None) or mems.size(1) == model.mem_len
-                    total_loss += numel * loss.item()
-                    total_len += numel
+                total_loss += loss.item()
+            total_loss /= batches
 
-                    if eval_nomem:
-                        total_loss_nomem += numel * loss_nomem.item()
+                # total_len_nowarmup += numel
+                # if warm:
+                #     # assert (mems is None) or mems.size(1) == model.mem_len
+                #     total_loss += numel * loss.item()
+                #     total_len += numel
+
+                #     if eval_nomem:
+                #         total_loss_nomem += numel * loss.item()
 
         elapsed = time.time() - start_time
 
-        # Switch back to the training mode
-        self.model.reset_length(tgt_len=self.args.tgt_len,
-                        ext_len=self.args.ext_len,
-                        mem_len=self.args.mem_len
-                        )
         self.model.train()
 
+        return total_loss
 
     def evaluate(self):
         """"""
         n_params = self.model.get_params()
-        summary = {
-            "n_all_param": n_params["total"],
-            "n_nonemb_param": n_params["non_embedding"]
-        }
+        summary = {"n_all_param": n_params["total"], "n_nonemb_param": n_params["non_embedding"]}
 
         if not self.args.no_eval and os.path.exists(checkpoint_path):
             # Load the best saved model
@@ -583,21 +451,23 @@ class NvidiaTrainer:
 
             test_elapsed = time.time() - test_start_time
 
-            summary.update({
-                "test_word_count": test_metrix.eval_word_count,
-                "test_total_elapsed": test_metrix.total_elapsed,
-                "test_elapsed": test_elapsed,
-                "test_total_loss": test_metrix.total_loss,
-                "test_total_loss_nomem": test_metrix.total_loss_nomem,
-                "test_avg_loss": test_metrix.avg_loss,
-                "test_avg_loss_nomem": test_metrix.avg_loss_nomem,
-                "test_steps": test_metrix.total_steps,
-                "test_len": test_metrix.total_len,
-                "total_len_nowarmup": test_metrix.total_len_nowarmup,
-                "warmup_discount": test_metrix.warmup_discount,
-                "test_word_ppl": test_metrix.word_ppl,
-                "test_word_ppl_nomem": test_metrix.word_ppl_nomem
-                })
+            summary.update(
+                {
+                    "test_word_count": test_metrix.eval_word_count,
+                    "test_total_elapsed": test_metrix.total_elapsed,
+                    "test_elapsed": test_elapsed,
+                    "test_total_loss": test_metrix.total_loss,
+                    "test_total_loss_nomem": test_metrix.total_loss_nomem,
+                    "test_avg_loss": test_metrix.avg_loss,
+                    "test_avg_loss_nomem": test_metrix.avg_loss_nomem,
+                    "test_steps": test_metrix.total_steps,
+                    "test_len": test_metrix.total_len,
+                    "total_len_nowarmup": test_metrix.total_len_nowarmup,
+                    "warmup_discount": test_metrix.warmup_discount,
+                    "test_word_ppl": test_metrix.word_ppl,
+                    "test_word_ppl_nomem": test_metrix.word_ppl_nomem,
+                }
+            )
 
             if self.args.dataset in ["enwik8", "text8"]:
                 summary["test_bits_per_character"] = test_metrix.bpc

@@ -19,9 +19,7 @@ class BPCTrainerCallback(TrainerCallback):
 
         super().__init__(*args, **kwargs)
 
-    def on_log(
-        self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs
-    ) -> None:
+    def on_log(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs) -> None:
         """Provides a customizable flow when a log event is called.
 
         Args:
@@ -88,9 +86,7 @@ class PerplexityTrainerCallback(TrainerCallback):
 
         super().__init__(*args, **kwargs)
 
-    def on_log(
-        self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs
-    ) -> None:
+    def on_log(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs) -> None:
         """Provides a customizable flow when a log event is called.
 
         Args:
