@@ -32,7 +32,7 @@ class NvidiaTrainingArguments:
 
     disable_eval: bool = field(default=False, metadata={"help": ""})
 
-    eval_interval: int = field(default=10, metadata={"help": ""})
+    eval_interval: int = field(default=100, metadata={"help": ""})
 
     dataset: str = field(default="wt103", metadata={"help": ""})
 
@@ -102,6 +102,8 @@ class NvidiaTrainingArguments:
 
     def __post_init__(self) -> None:
         """Overrides post-initialization with custom instructions."""
+
+        assert not(self.qat and self.mixed_qat), "`qat` and `mixed_qat` should not be used together."
 
         #
         np.random.seed(self.seed)
