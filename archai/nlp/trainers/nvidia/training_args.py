@@ -30,6 +30,8 @@ class NvidiaTrainingArguments:
     
     fp16: bool = field(default=False, metadata={"help": ""})
 
+    find_unused_parameters: bool = field(default=False, metadata={"help": ""})
+
     local_rank: int = field(default=os.getenv("LOCAL_RANK", 0), metadata={"help": ""})
 
     log_interval: int = field(default=10, metadata={"help": ""})
@@ -58,8 +60,6 @@ class NvidiaTrainingArguments:
     
     batch_chunk: int = field(default=1, metadata={"help": ""})
     
-    gpu0_bsz: int = field(default=-1, metadata={"help": ""})
-    
     swap_mem: bool = field(default=False, metadata={"help": ""})
     
     mixed_qat: bool = field(default=False, metadata={"help": ""})
@@ -68,7 +68,7 @@ class NvidiaTrainingArguments:
     
     pretrained_path: str = field(default="", metadata={"help": ""})
 
-    batch_size: int = field(default=4, metadata={"help": ""})
+    batch_size: int = field(default=256, metadata={"help": ""})
     
     local_batch_size: int = field(default=None, metadata={"help": ""})
     
