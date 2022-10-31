@@ -87,7 +87,7 @@ class NvidiaTrainer:
                                                 device_ids=[self.args.local_rank],
                                                 output_device=self.args.local_rank,
                                                 broadcast_buffers=False,
-                                                find_unused_parameters=exp_utils.is_debugging(),
+                                                find_unused_parameters=self.args.find_unused_parameters,
                                                 )
         elif self.args.multi_gpu == 'dp':
                 self.para_model = nn.DataParallel(self.model, dim=1).to(self.args.device)
