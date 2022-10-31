@@ -4,6 +4,7 @@
 """Customizable trainer using NVIDIA-based pipeline.
 """
 
+import copy
 import itertools
 import math
 import os
@@ -20,6 +21,7 @@ from torch.nn.parallel import DistributedDataParallel
 
 from archai.nlp.datasets.nvidia import distributed_utils
 from archai.nlp.datasets.nvidia.corpus import get_lm_corpus
+from archai.nlp.quantization.qat import prepare_with_qat, qat_to_float_modules
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
 from archai.nlp import logging_utils
 from archai.nlp.quantization.mixed_qat import MixedQAT
@@ -29,13 +31,37 @@ from archai.nlp.trainers.nvidia.utils.optimizers import JITLamb, Lamb
 logger = logging_utils.get_logger(__name__)
 
 
-def save_checkpoint(output_dir, model, optimizer, scheduler, scaler, fp16, epoch, batch, last_iter, train_step, prefix, save_all):
-    """
-    """
+def save_checkpoint(
+    output_dir: str,
+    model,
+    optimizer,
+    scheduler,
+    scaler,
+    fp16,
+    iterator: int,
+    epoch: int,
+    batch: int,
+    step: int,
+    prefix: Optional[str] = None,
+    save_all: Optional[bool] = False,
+) -> None:
+    """Saves a checkpoint that holds enough information to resume the training.
 
-    # FP32 model is saved instead of MixedQAT wrapper
-    if isinstance(model, MixedQAT):
-        model = model.model
+    Args:
+        output_dir:
+        model:
+        optimizer:
+        scheduler:
+        scaler:
+        fp16:
+        iterator:
+        epoch:
+        batch:
+        step:
+        prefix:
+        save_all:
+
+    """
 
     state = {
         "model_config": model.config,
@@ -43,11 +69,11 @@ def save_checkpoint(output_dir, model, optimizer, scheduler, scaler, fp16, epoch
         "optimizer_state": optimizer.state_dict(),
         "scheduler_state": scheduler.state_dict() if scheduler else None,
         "scaler_state": scaler.state_dict() if fp16 else None,
+        "iterator": iterator,
         "epoch": epoch,
         "batch": batch,
-        "last_iter": last_iter,
-        "train_step": train_step,
-        }
+        "step": step,
+    }
 
     checkpoint_name =  prefix + "checkpoint_last.pt"
 
@@ -59,7 +85,7 @@ def save_checkpoint(output_dir, model, optimizer, scheduler, scaler, fp16, epoch
             torch.save(state, checkpoint_path)
 
             if save_all:
-                checkpoint_step_name = prefix + f"checkpoint_{train_step}.pt"
+                checkpoint_step_name = prefix + f"checkpoint_{step}.pt"
                 checkpoint_step_path = os.path.join(output_dir, checkpoint_step_name)
 
                 logger.info(f"Saving checkpoint: {checkpoint_step_path}")
@@ -74,7 +100,7 @@ class NvidiaTrainer:
         model: torch.nn.Module,
         args: Optional[NvidiaTrainingArguments] = None,
     ) -> None:
-        """Initializes by verifying model, training arguments and loading dataset.
+        """Initializes by verifying model and training arguments, and loading dataset.
 
         Args:
             model: Model to be trained or evaluated.
@@ -100,6 +126,13 @@ class NvidiaTrainer:
         )
 
         self.model.to(self.args.device)
+
+        if self.args.qat:
+            self.model = prepare_with_qat(self.model, onnx_compatible=True)
+
+        if self.args.mixed_qat:
+            self.model = MixedQAT(self.model)
+
 
     def get_dataloader(self, split: str) -> Iterator:
         """Gets a data loader from the pre-loaded dataset.
@@ -137,7 +170,7 @@ class NvidiaTrainer:
             self.dist_model = nn.DataParallel(self.model, dim=1)
 
     def create_optimizer(self) -> None:
-        """Creates an optimizer and attaches model"s parameters."""
+        """Creates an optimizer and attaches model's parameters."""
 
         optimizer_name = self.args.optimizer.lower()
         if optimizer_name == "sgd":
@@ -214,7 +247,7 @@ class NvidiaTrainer:
             input_ids: Chunk of input data.
             labels: Chunk of input labels.
             autocast: An autocast instance that automatically performs
-            fp16 or bf16 precision.
+                fp16 or bf16 precision.
 
         Returns:
             (float): Chunk training loss.
@@ -232,19 +265,35 @@ class NvidiaTrainer:
 
         return loss.float().item()
 
-    def training_step(self, train_dataloader: Iterator, eval_dataloader: Iterator, last_iter: int, epoch: int, last_batch: int, train_step: int) -> None:
-        """"""
+    def training_step(
+        self,
+        train_dataloader: Iterator,
+        eval_dataloader: Iterator,
+        iterator: int,
+        epoch: int,
+        start_batch: int,
+        step: int
+    ) -> None:
+        """Performs the training over the supplied data loaders.
+
+        Args:
+            train_dataloader:
+            eval_dataloader:
+            iterator:
+            epoch:
+            start_batch:
+            step:
+
+        """
 
         self.model.train()
 
-        train_loss = 0
-        labels_tokens = 0
-        log_step = 0
-        log_start_time = time.time()
+        train_loss, log_step, n_labels_tokens = 0.0, 0, 0
+        start_time = time.time()
 
         # Changes to make train_dataloader for lm1b to be properly caught
         if self.args.dataset != "lm1b":
-            train_iterator = train_dataloader.get_fixlen_iter(start=last_iter)
+            train_iterator = train_dataloader.get_fixlen_iter(start=iterator)
         else:
             train_iterator = train_dataloader
 
@@ -254,9 +303,9 @@ class NvidiaTrainer:
             dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
             autocast = torch.cuda.amp.autocast(enabled=self.args.fp16, dtype=dtype)
 
-        for batch, (input_ids, labels, _, _) in enumerate(train_iterator, start=last_batch + 1):
+        for batch, (input_ids, labels, _, _) in enumerate(train_iterator, start=start_batch + 1):
             log_step += 1
-            labels_tokens += labels.numel()
+            n_labels_tokens += labels.numel()
 
             for param in self.model.parameters():
                 param.grad = None
@@ -290,89 +339,85 @@ class NvidiaTrainer:
                 self.optimizer.step()
 
             # step-wise learning rate annealing
-            train_step += 1
+            step += 1
             if self.args.scheduler in ["cosine", "constant"]:
                 # linear warmup stage
-                if train_step < self.args.scheduler_warmup_steps:
-                    curr_lr = self.args.optimizer_lr * train_step / self.args.scheduler_warmup_steps
+                if step < self.args.scheduler_warmup_steps:
+                    curr_lr = self.args.optimizer_lr * step / self.args.scheduler_warmup_steps
                     self.optimizer.param_groups[0]["lr"] = curr_lr
                     
                 else:
                     if self.args.scheduler == "cosine":
-                        self.scheduler.step(train_step - self.args.scheduler_warmup_steps)
+                        self.scheduler.step(step - self.args.scheduler_warmup_steps)
             elif self.args.scheduler in ["inv_sqrt", "cyclic_cosine"]:
-                self.scheduler.step(train_step)
+                self.scheduler.step(step)
 
-            if train_step % self.args.log_interval == 0:
-                loss = train_loss / log_step
-                loss = distributed_utils.all_reduce_item(loss, op="mean")
-                train_loss = 0
-
-                elapsed = time.time() - log_start_time
-                avg_elapsed = elapsed / log_step
-                avg_elapsed = distributed_utils.all_reduce_item(avg_elapsed, op="max")
-                log_start_time = time.time()
-                log_step = 0
+            if step % self.args.log_interval == 0:
+                elapsed_time = time.time() - start_time
 
                 lr = self.optimizer.param_groups[0]["lr"]
-                throughput = labels_tokens / elapsed
+
+                loss = train_loss / log_step
+                loss = distributed_utils.all_reduce_item(loss, op="mean")
+
+                batch_time = elapsed_time / log_step
+                batch_time = distributed_utils.all_reduce_item(batch_time, op="max")
+
+                throughput = n_labels_tokens / elapsed_time
                 throughput = distributed_utils.all_reduce_item(throughput, op="sum")
-                labels_tokens = 0
+                
+                train_loss, log_step, n_labels_tokens = 0.0, 0, 0
 
                 logger.info(
-                    f"Epoch: {epoch} | Step: {train_step} | "
+                    f"Epoch: {epoch} | Step: {step} | "
                     f"Batch: {batch} / {train_dataloader.n_batch} | LR: {lr:.3e} | "
-                    f"ms/batch: {avg_elapsed*1000:.1f} | tok/s: {throughput:.0f} | "
+                    f"ms/batch: {batch_time*1000:.1f} | tok/s: {throughput:.0f} | "
                     f"Loss: {loss:.3f}"
                 )
 
-            do_periodic_eval = train_step % self.args.eval_interval == 0
-            is_final_step = train_step == self.args.max_steps
-            interrupted = False  # timeout_handler.interrupted
+                start_time = time.time()
 
-            if (do_periodic_eval or is_final_step or interrupted) and not self.args.disable_eval:
+            do_periodic_eval = step % self.args.eval_interval == 0
+            is_final_step = step == self.args.max_steps
+
+            if (do_periodic_eval or is_final_step) and not self.args.disable_eval:
                 eval_loss, eval_time = self.evaluation_step(eval_dataloader)
+
                 logger.info(
-                    f"Eval: {train_step // self.args.eval_interval} | "
-                    f"Step: {train_step} | Time: {eval_time:.2f}s | "
+                    f"Eval: {step // self.args.eval_interval} | "
+                    f"Step: {step} | Time: {eval_time:.2f}s | "
                     f"Loss: {eval_loss:.3f} | PPL: {math.exp(eval_loss):.3f}"
                 )
 
-                # val_metrix = EvalMetrics(valid_file_stats.word_count, *node_metrix)
+                iterator = train_dataloader.last_iter
+                save_model = copy.deepcopy(self.model)
+                prefix = ""
 
-                # log_str = "| Eval {:3d} at step {:>8d} | time: {:5.2f}s " \
-                #         "| loss {:5.2f} | word ppl {:5.2f}".format(
-                #             train_step // self.args.eval_interval,
-                #             train_step,
-                #             (time.time() - eval_start_time),
-                #             val_metrix.avg_loss, val_metrix.word_ppl
-                #             )
-                last_iter = train_dataloader.last_iter
+                #
+                if self.args.qat:
+                    save_model = qat_to_float_modules(save_model)
+                    prefix = "qat-"
 
-                # if self.args.qat:
-                #     # Convert the model to a regular FP32 model for saving
-                #     model_float = copy.deepcopy(self.model)
-                #     model_float = qat_to_float_modules(model_float)
-                #     model_to_save = model_float
-                #     prefix = "qat_"
+                #
+                if self.args.mixed_qat:
+                    save_model = save_model.model
+                    prefix = "mixed-qat-"
 
+                #
                 save_checkpoint(
                     self.args.output_dir,
-                    self.model,
+                    save_model,
                     self.optimizer,
                     self.scheduler,
                     self.scaler,
                     self.args.fp16,
+                    iterator,
                     epoch,
                     batch,
-                    last_iter,
-                    train_step,
-                    "",
-                    None
+                    step,
+                    prefix=prefix,
+                    save_all=False
                 )
-
-            if interrupted:
-                sys.exit(0)
 
             if is_final_step:
                 break
@@ -396,14 +441,11 @@ class NvidiaTrainer:
         train_dataloader = self.get_dataloader("train")
         eval_dataloader = self.get_dataloader("valid")
 
-        last_iter = 0
-        last_batch = 0
-        train_step = 0
-        start_epoch = 1
+        iterator, start_epoch, start_batch, step = 0, 0, 0, 0
 
         if resume_from_checkpoint:
             try:
-                checkpoint = torch.load(resume_from_checkpoint, map_location=self.device)
+                checkpoint = torch.load(resume_from_checkpoint, map_location=self.args.device)
 
                 self.model.load_state_dict(checkpoint["model_state"])
                 self.optimizer.load_state_dict(checkpoint["optimizer_state"])
@@ -411,12 +453,12 @@ class NvidiaTrainer:
                 if self.args.fp16:
                     self.scaler.load_state_dict(checkpoint["amp_state"])
 
-                train_step = checkpoint["train_step"]
+                iterator = checkpoint["iterator"]
                 start_epoch = checkpoint["epoch"]
-                last_batch = checkpoint["batch"]
-                last_iter = checkpoint["last_iter"]
+                start_batch = checkpoint["batch"]
+                step = checkpoint["step"]
 
-                if train_step >= self.args.max_steps:
+                if step >= self.args.max_steps:
                     sys.exit(1)
 
             except FileNotFoundError:
@@ -432,24 +474,27 @@ class NvidiaTrainer:
             for epoch in itertools.count(start=start_epoch):
                 if self.args.roll:
                     train_dataloader.roll(seed=self.args.seed + epoch)
-                self.training_step(train_dataloader, eval_dataloader, last_iter, epoch, last_batch, train_step)
+
+                self.training_step(
+                    train_dataloader,
+                    eval_dataloader,
+                    iterator,
+                    epoch,
+                    start_batch,
+                    step
+                )
         except KeyboardInterrupt:
             logger.info("Exiting from training ...")
         end_time = time.time()
 
-        logger.info(f"Training time: {((end_time - start_time) / 60):.2f} minutes")
-
-        train_metrics = {
-
-        }
-
-        return train_metrics
+        train_time = end_time - start_time
+        logger.info(f"Training time: {train_time:.3f} seconds")
 
     def evaluation_step(self, eval_dataloader: Iterator) -> Tuple[float, float]:
-        """Performs an evaluation over the supplied dataloader.
+        """Performs the evaluation over the supplied data loader.
         
         Args:
-            eval_dataloader: Evaluation-related dataloader.
+            eval_dataloader: Evaluation-related data loader.
 
         Returns:
             (Tuple[float, float]): Evaluation loss and time.
@@ -471,11 +516,11 @@ class NvidiaTrainer:
 
         return eval_loss, end_time - start_time
 
-    def evaluate(self, eval_dataloader=None) -> Dict[str, Any]:
+    def evaluate(self, eval_dataloader: Optional[Iterator] = None) -> Dict[str, Any]:
         """Evaluates a model.
 
         Args:
-            eval_dataloader: Evaluation-based dataloader. If not supplied, it will
+            eval_dataloader: Evaluation-based data loader. If not supplied, it will
                 default to the one available in pre-loaded dataset.
         
         Returns:
@@ -491,7 +536,8 @@ class NvidiaTrainer:
         eval_metrics = {
             "eval_time": eval_time,
             "eval_loss": eval_loss,
-            "eval_ppl": math.exp(eval_loss)
+            "eval_ppl": math.exp(eval_loss),
+            "eval_bpc": eval_loss / math.log(2)
         }
 
         return eval_metrics
