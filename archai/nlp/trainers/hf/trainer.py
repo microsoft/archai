@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from transformers.trainer import Trainer
 
-from archai.nlp.trainers.hf_training_args import DistillerTrainingArguments
+from archai.nlp.trainers.hf.training_args import DistillerTrainingArguments
 
 
 class HfTrainer(Trainer):
