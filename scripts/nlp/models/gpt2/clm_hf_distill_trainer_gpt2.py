@@ -3,10 +3,10 @@
 
 import torch
 
-from archai.nlp.datasets.hf_datasets.loaders import load_dataset, encode_dataset
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
-from archai.nlp.trainers.hf_trainer import HfDistillerTrainer
-from archai.nlp.trainers.hf_training_args import DistillerTrainingArguments
+from archai.nlp.datasets.hf.loaders import load_dataset, encode_dataset
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
+from archai.nlp.trainers.hf.trainer import HfDistillerTrainer
+from archai.nlp.trainers.hf.training_args import DistillerTrainingArguments
 
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
@@ -26,9 +26,9 @@ if __name__ == "__main__":
 
     student_config = GPT2Config(
         vocab_size=50257+1,
-        n_positions=1024,
+        n_positions=192,
         n_embd=512,
-        n_layer=4,
+        n_layer=16,
         n_head=8,
     )
     student_model = GPT2LMHeadModel(config=student_config)

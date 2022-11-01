@@ -3,9 +3,9 @@
 
 import torch
 
-from archai.nlp.datasets.hf_datasets.loaders import load_dataset, encode_dataset
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
-from archai.nlp.trainers.hf_trainer import HfTrainer
+from archai.nlp.datasets.hf.loaders import load_dataset, encode_dataset
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
+from archai.nlp.trainers.hf.trainer import HfTrainer
 
 from transformers.data.data_collator import DataCollatorForLanguageModeling
 from transformers.training_args import TrainingArguments
