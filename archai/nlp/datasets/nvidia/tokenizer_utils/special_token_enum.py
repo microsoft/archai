@@ -1,3 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Special tokens enumerator.
+"""
+
 from enum import Enum
 
 

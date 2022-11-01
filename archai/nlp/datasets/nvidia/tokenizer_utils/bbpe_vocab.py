@@ -1,3 +1,8 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""BBPE-based tokenizer.
+"""
 
 from collections import OrderedDict
 from typing import Counter, List, Optional
@@ -8,13 +13,14 @@ import json
 from overrides import overrides
 
 from tokenizers import ByteLevelBPETokenizer
-from transformers import PreTrainedTokenizerFast, PreTrainedTokenizer
+from transformers import PreTrainedTokenizerFast
 
 from archai.nlp.datasets.nvidia import distributed_utils
 from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
 from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import TokenConfig
-from archai.common import utils, common
+from archai.common import utils
 from archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum import SpecialTokenEnum
+
 
 class BbpeVocab(VocabBase):
     def __init__(self, save_path:str, vocab_size:int, pad_vocab_size=False,
