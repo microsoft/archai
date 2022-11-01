@@ -127,11 +127,11 @@ class NvidiaTrainer:
 
         self.model.to(self.args.device)
 
-    def load_checkpoint(self, checkpoint_path: str) -> Tuple[int, int, int, int]:
+    def load_checkpoint(self, checkpoint_file_path: str) -> Tuple[int, int, int, int]:
         """Loads states from checkpoint.
         
         Args:
-            checkpoint_path: Path to the checkpoint.
+            checkpoint_file_path: Path to the checkpoint.
             
         Returns:
             (Tuple[int, int, int, int]): Current iterator, epoch, batch and step values.
@@ -139,7 +139,7 @@ class NvidiaTrainer:
         """
 
         try:
-            checkpoint = torch.load(checkpoint_path, map_location=self.args.device)
+            checkpoint = torch.load(checkpoint_file_path, map_location=self.args.device)
 
             self.model.load_state_dict(checkpoint["model_state"])
             self.optimizer.load_state_dict(checkpoint["optimizer_state"])
@@ -455,11 +455,13 @@ class NvidiaTrainer:
             if is_final_step:
                 break
 
-    def train(self, checkpoint_path: Optional[str] = None) -> Dict[str, Any]:
+        return step
+
+    def train(self, checkpoint_file_path: Optional[str] = "") -> Dict[str, Any]:
         """Trains a model.
         
         Args:
-            checkpoint_path: Path to the checkpoint that will be used
+            checkpoint_file_path: Path to the checkpoint that will be used
                 to resume the training.
 
         Returns:
@@ -471,10 +473,10 @@ class NvidiaTrainer:
         self.create_scaler()
         self.create_scheduler()
 
-        if checkpoint_path:
-            iterator, start_epoch, start_batch, step = self.load_checkpoint(checkpoint_path)
+        if checkpoint_file_path:
+            iterator, start_epoch, start_batch, step = self.load_checkpoint(checkpoint_file_path)
         else:
-            iterator, start_epoch, start_batch, step = 0, 0, 0, 0
+            iterator, start_epoch, start_batch, step = 0, 1, 0, 0
 
         self.setup_qat()
         self.setup_distributed_training()
@@ -491,7 +493,7 @@ class NvidiaTrainer:
                 if self.args.iterator_shuffle:
                     train_dataloader.roll(seed=self.args.seed + epoch)
 
-                self.training_step(
+                step = self.training_step(
                     train_dataloader,
                     eval_dataloader,
                     iterator,
@@ -499,6 +501,13 @@ class NvidiaTrainer:
                     start_batch,
                     step
                 )
+
+                iterator, start_batch = 0, 0
+
+                if step == self.args.max_steps:
+                    logger.info('End of training ...')
+                    break
+
         except KeyboardInterrupt:
             logger.info("Exiting from training ...")
         end_time = time.time()
