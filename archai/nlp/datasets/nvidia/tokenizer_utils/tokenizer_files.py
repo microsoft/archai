@@ -1,4 +1,11 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Utilities for defining tokenizer-related files.
+"""
+
 import os
+
 
 class TokenizerFiles:
     def __init__(self, vocab_file:str, merges_file:str) -> None:

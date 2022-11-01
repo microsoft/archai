@@ -1,3 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Utilities for defining tokens' configuration.
+"""
+
 from typing import List, Optional
 from archai.common import utils
 

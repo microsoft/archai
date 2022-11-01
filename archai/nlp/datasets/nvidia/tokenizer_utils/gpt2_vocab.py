@@ -1,19 +1,13 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
-from typing import List, Optional
-import logging
-import os
+"""GPT2-based tokenizer.
+"""
 
-from overrides import overrides
+from typing import Optional
 
-from transformers import PreTrainedTokenizerFast, PreTrainedTokenizerBase, GPT2TokenizerFast, GPT2Tokenizer, PreTrainedTokenizer
-from tokenizers import ByteLevelBPETokenizer
-
-from archai.nlp.datasets.nvidia import distributed_utils
 from archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab import BbpeVocab
-from archai.nlp.datasets.nvidia.tokenizer_utils.tokenizer_files import TokenizerFiles
-from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import TokenConfig
-from archai.common import utils, common
-from archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum import SpecialTokenEnum
+
 
 class Gpt2Vocab(BbpeVocab):
     def __init__(self, save_path:str, vocab_size:int=50257, pad_vocab_size=True,

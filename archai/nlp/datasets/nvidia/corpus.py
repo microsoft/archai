@@ -1,3 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Corpus-related class for loading and encoding datasets.
+"""
+
 import os
 import glob
 from typing import Optional, Tuple, Union

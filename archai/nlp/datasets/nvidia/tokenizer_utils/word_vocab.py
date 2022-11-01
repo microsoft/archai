@@ -1,9 +1,14 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Word-based tokenizer.
+"""
+
 import os
 import logging
 from collections import Counter
 from collections import OrderedDict
 from typing import List, Optional
-import pathlib
 
 import torch
 
@@ -14,6 +19,7 @@ from archai.common import utils
 from archai.nlp.datasets.nvidia import distributed_utils
 from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum import SpecialTokenEnum
+
 
 class WordVocab(VocabBase): # Word vocab is the default
     def __init__(self, save_path:str, min_freq=0, vocab_size=None,

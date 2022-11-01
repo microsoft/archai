@@ -1,3 +1,8 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Language Modeling-based iterators.
+"""
 
 import numpy as np
 import torch
