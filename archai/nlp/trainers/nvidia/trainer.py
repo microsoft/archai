@@ -33,33 +33,33 @@ logger = logging_utils.get_logger(__name__)
 
 def save_checkpoint(
     output_dir: str,
-    model,
-    optimizer,
-    scheduler,
-    scaler,
-    fp16,
+    model: torch.nn.Module,
+    optimizer: torch.optim.Optimizer,
+    scheduler: torch.optim.lr_scheduler._LRScheduler,
+    scaler: torch.cuda.amp.GradScaler,
+    fp16: bool,
     iterator: int,
     epoch: int,
     batch: int,
     step: int,
     prefix: Optional[str] = None,
-    save_all: Optional[bool] = False,
+    save_all_checkpoints: Optional[bool] = False,
 ) -> None:
     """Saves a checkpoint that holds enough information to resume the training.
 
     Args:
-        output_dir:
-        model:
-        optimizer:
-        scheduler:
-        scaler:
-        fp16:
-        iterator:
-        epoch:
-        batch:
-        step:
-        prefix:
-        save_all:
+        output_dir: Folder where checkpoint should be saved.
+        model: Instance of model.
+        optimizer: Instance of optimizer.
+        scheduler: Instance of scheduler.
+        scaler: Instance of scaler.
+        fp16: Whether fp16 precision is used or not.
+        iterator: Current iterator.
+        epoch: Current epoch.
+        batch: Current batch.
+        step: Current step.
+        prefix: Prefix which should be added to the checkpoint's file name.
+        save_all_checkpoints: Whether all `eval_interval` steps should be saved or not.
 
     """
 
@@ -79,12 +79,12 @@ def save_checkpoint(
 
     with distributed_utils.sync_workers() as rank:
         checkpoint_path = os.path.join(output_dir, checkpoint_name)
-
+        
         if rank == 0:
             logger.info(f"Saving checkpoint: {checkpoint_path}")
             torch.save(state, checkpoint_path)
 
-            if save_all:
+            if save_all_checkpoints:
                 checkpoint_step_name = prefix + f"checkpoint_{step}.pt"
                 checkpoint_step_path = os.path.join(output_dir, checkpoint_step_name)
 
@@ -127,12 +127,38 @@ class NvidiaTrainer:
 
         self.model.to(self.args.device)
 
-        if self.args.qat:
-            self.model = prepare_with_qat(self.model, onnx_compatible=True)
+    def load_checkpoint(self, checkpoint_path: str) -> Tuple[int, int, int, int]:
+        """Loads states from checkpoint.
+        
+        Args:
+            checkpoint_path: Path to the checkpoint.
+            
+        Returns:
+            (Tuple[int, int, int, int]): Current iterator, epoch, batch and step values.
+        
+        """
 
-        if self.args.mixed_qat:
-            self.model = MixedQAT(self.model)
+        try:
+            checkpoint = torch.load(checkpoint_path, map_location=self.args.device)
 
+            self.model.load_state_dict(checkpoint["model_state"])
+            self.optimizer.load_state_dict(checkpoint["optimizer_state"])
+            self.scheduler.load_state_dict(checkpoint["scheduler_state"])
+            if self.args.fp16:
+                self.scaler.load_state_dict(checkpoint["amp_state"])
+
+            iterator = checkpoint["iterator"]
+            start_epoch = checkpoint["epoch"]
+            start_batch = checkpoint["batch"]
+            step = checkpoint["step"]
+
+            if step >= self.args.max_steps:
+                sys.exit(1)
+
+            return iterator, start_epoch, start_batch, step
+
+        except FileNotFoundError:
+            return 0, 0, 0, 0
 
     def get_dataloader(self, split: str) -> Iterator:
         """Gets a data loader from the pre-loaded dataset.
@@ -151,23 +177,6 @@ class NvidiaTrainer:
             self.args.seq_len,
             self.args.device,
         )
-
-    def setup_distributed_training(self) -> None:
-        """Wraps a model to support distributed training."""
-
-        self.dist_model = self.model
-
-        if self.args.multi_gpu == "ddp" and torch.distributed.is_initialized():
-            self.dist_model = DistributedDataParallel(
-                self.model,
-                device_ids=[self.args.local_rank],
-                output_device=self.args.local_rank,
-                broadcast_buffers=False,
-                find_unused_parameters=self.args.find_unused_parameters,
-            )
-
-        elif self.args.multi_gpu == "dp":
-            self.dist_model = nn.DataParallel(self.model, dim=1)
 
     def create_optimizer(self) -> None:
         """Creates an optimizer and attaches model's parameters."""
@@ -238,6 +247,32 @@ class NvidiaTrainer:
         elif scheduler_name == "constant":
             pass
 
+    def setup_qat(self) -> None:
+        """Setups whether Quantization Aware Training (QAT) should be used or not."""
+
+        if self.args.qat:
+            self.model = prepare_with_qat(self.model, onnx_compatible=True)
+
+        if self.args.mixed_qat:
+            self.model = MixedQAT(self.model)
+
+    def setup_distributed_training(self) -> None:
+        """Setups distributed training."""
+
+        self.dist_model = self.model
+
+        if self.args.strategy == "ddp" and torch.distributed.is_initialized():
+            self.dist_model = DistributedDataParallel(
+                self.model,
+                device_ids=[self.args.local_rank],
+                output_device=self.args.local_rank,
+                broadcast_buffers=False,
+                find_unused_parameters=self.args.find_unused_parameters,
+            )
+
+        elif self.args.strategy == "dp":
+            self.dist_model = nn.DataParallel(self.model, dim=1)
+
     def training_step_chunk(
         self, input_ids: torch.LongTensor, labels: torch.LongTensor, autocast: torch.autocast
     ) -> float:
@@ -277,12 +312,12 @@ class NvidiaTrainer:
         """Performs the training over the supplied data loaders.
 
         Args:
-            train_dataloader:
-            eval_dataloader:
-            iterator:
-            epoch:
-            start_batch:
-            step:
+            train_dataloader: Training data iterator.
+            eval_dataloader: Validation data iterator.
+            iterator: Current iterator.
+            epoch: Current epoch.
+            start_batch: At which batch training should start.
+            step: Current step.
 
         """
 
@@ -291,13 +326,13 @@ class NvidiaTrainer:
         train_loss, log_step, n_labels_tokens = 0.0, 0, 0
         start_time = time.time()
 
-        # Changes to make train_dataloader for lm1b to be properly caught
+        # `lm1b` uses a different style of data loader
         if self.args.dataset != "lm1b":
             train_iterator = train_dataloader.get_fixlen_iter(start=iterator)
         else:
             train_iterator = train_dataloader
 
-        # Supports different autocast signatures and usage of bfloat16
+        # Supports `bf16` based on PyTorch version and CUDA availability
         autocast = torch.autocast(self.args.device.type, enabled=self.args.fp16)
         if version.parse(torch.__version__) >= version.parse("1.10"):
             dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
@@ -310,7 +345,7 @@ class NvidiaTrainer:
             for param in self.model.parameters():
                 param.grad = None
 
-            # Splits a tensor into a specific number of chunks. Each chunk is a view of the input tensor.
+            # Splits into chunks for gradient accumulation
             input_ids_chunks = torch.chunk(input_ids, self.args.gradient_accumulation_steps, 0)
             labels_chunks = torch.chunk(labels, self.args.gradient_accumulation_steps, 0)
 
@@ -323,7 +358,6 @@ class NvidiaTrainer:
                     labels_chunk,
                     autocast,
                 )
-
                 train_loss += train_loss_chunk
 
             if self.args.fp16:
@@ -338,10 +372,9 @@ class NvidiaTrainer:
             else:
                 self.optimizer.step()
 
-            # step-wise learning rate annealing
+            # Learning rate annealing
             step += 1
             if self.args.scheduler in ["cosine", "constant"]:
-                # linear warmup stage
                 if step < self.args.scheduler_warmup_steps:
                     curr_lr = self.args.optimizer_lr * step / self.args.scheduler_warmup_steps
                     self.optimizer.param_groups[0]["lr"] = curr_lr
@@ -352,6 +385,7 @@ class NvidiaTrainer:
             elif self.args.scheduler in ["inv_sqrt", "cyclic_cosine"]:
                 self.scheduler.step(step)
 
+            # Evaluation and checkpoint
             if step % self.args.log_interval == 0:
                 elapsed_time = time.time() - start_time
 
@@ -393,17 +427,16 @@ class NvidiaTrainer:
                 save_model = copy.deepcopy(self.model)
                 prefix = ""
 
-                #
+                # Model needs to be converted back to FP32 when using QAT
                 if self.args.qat:
                     save_model = qat_to_float_modules(save_model)
                     prefix = "qat-"
 
-                #
+                # Saves original FP32 model when using MixedQAT
                 if self.args.mixed_qat:
                     save_model = save_model.model
                     prefix = "mixed-qat-"
 
-                #
                 save_checkpoint(
                     self.args.output_dir,
                     save_model,
@@ -416,17 +449,17 @@ class NvidiaTrainer:
                     batch,
                     step,
                     prefix=prefix,
-                    save_all=False
+                    save_all_checkpoints=self.args.save_all_checkpoints
                 )
 
             if is_final_step:
                 break
 
-    def train(self, resume_from_checkpoint: Optional[str] = None) -> Dict[str, Any]:
+    def train(self, checkpoint_path: Optional[str] = None) -> Dict[str, Any]:
         """Trains a model.
         
         Args:
-            resume_from_checkpoint: Path to the checkpoint that will be used
+            checkpoint_path: Path to the checkpoint that will be used
                 to resume the training.
 
         Returns:
@@ -438,33 +471,16 @@ class NvidiaTrainer:
         self.create_scaler()
         self.create_scheduler()
 
+        if checkpoint_path:
+            iterator, start_epoch, start_batch, step = self.load_checkpoint(checkpoint_path)
+        else:
+            iterator, start_epoch, start_batch, step = 0, 0, 0, 0
+
+        self.setup_qat()
+        self.setup_distributed_training()
+
         train_dataloader = self.get_dataloader("train")
         eval_dataloader = self.get_dataloader("valid")
-
-        iterator, start_epoch, start_batch, step = 0, 0, 0, 0
-
-        if resume_from_checkpoint:
-            try:
-                checkpoint = torch.load(resume_from_checkpoint, map_location=self.args.device)
-
-                self.model.load_state_dict(checkpoint["model_state"])
-                self.optimizer.load_state_dict(checkpoint["optimizer_state"])
-                self.scheduler.load_state_dict(checkpoint["scheduler_state"])
-                if self.args.fp16:
-                    self.scaler.load_state_dict(checkpoint["amp_state"])
-
-                iterator = checkpoint["iterator"]
-                start_epoch = checkpoint["epoch"]
-                start_batch = checkpoint["batch"]
-                step = checkpoint["step"]
-
-                if step >= self.args.max_steps:
-                    sys.exit(1)
-
-            except FileNotFoundError:
-                pass
-
-        self.setup_distributed_training()
         
         logger.info("Starting training ...")
         logger.debug(f"Training arguments: {self.args.to_dict()}")
@@ -472,7 +488,7 @@ class NvidiaTrainer:
         start_time = time.time()
         try:
             for epoch in itertools.count(start=start_epoch):
-                if self.args.roll:
+                if self.args.iterator_shuffle:
                     train_dataloader.roll(seed=self.args.seed + epoch)
 
                 self.training_step(
@@ -541,38 +557,3 @@ class NvidiaTrainer:
         }
 
         return eval_metrics
-
-    # def post_train_with_qat(self):
-    #     """"""
-    #     # Creates a dictionary of replacement configs
-    #     replace_model_config = {
-    #         "dropout": 0.0,
-    #         "dropatt": 0.0
-    #     }
-
-    #     # Loads the model from the best pre-trained checkpoint
-    #     self.model, model_config, _ = load_model_from_checkpoint(self.args.model_type, checkpoint_path, replace_model_config=replace_model_config, on_cpu=False)
-
-    #     # Prepares the model with QAT (also allows for distributed training)
-    #     model = prepare_with_qat(self.model, onnx_compatible=True)
-    #     model = model.to(self.args.device)
-    #     para_self.model, model = distributed_model()
-
-    #     # QAT-based arguments
-    #     self.args.restart = None
-    #     self.args.qat = True
-    #     self.args.max_steps = 10000
-    #     self.args.optimizer_lr = self.args.optimizer_lr / 100
-    #     self.args.scheduler_lr_min = self.args.scheduler_lr_min / 100
-    #     self.args.eval_interval = 1000
-    #     self.args.scheduler_warmup_steps = 1000
-    #     self.args.optimizer = "adam"
-
-    #     # re-create optimizer
-    #     optimizer, optimizer_sparse = create_optimizer()
-
-    #     # re-create scheduler
-    #     scheduler, scheduler_sparse = create_scheduler()
-
-    #     # Performs a QAT fine-tuning
-    #     training_time, best_val_loss, meters = train_main()
