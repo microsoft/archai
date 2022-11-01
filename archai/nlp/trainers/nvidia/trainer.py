@@ -255,7 +255,7 @@ class NvidiaTrainer:
         """
 
         with autocast:
-            loss = self.dist_model(input_ids, labels=labels).loss
+            loss = self.dist_model(input_ids, labels=labels)[0]
             loss = loss.float().mean().type_as(loss) / self.args.gradient_accumulation_steps
 
         if self.args.fp16:
@@ -507,7 +507,7 @@ class NvidiaTrainer:
         start_time = time.time()
         with torch.no_grad():
             for batches, (input_ids, labels, _, _) in enumerate(eval_dataloader):
-                loss = self.model(input_ids, labels=labels).loss
+                loss = self.model(input_ids, labels=labels)[0]
                 eval_loss += loss.float().mean().item()
             eval_loss /= batches
         end_time = time.time()
