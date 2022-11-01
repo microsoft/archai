@@ -16,7 +16,7 @@ from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    tokenizer = ArchaiPreTrainedTokenizerFast.from_pretrained("gpt2-large")
+    tokenizer = ArchaiPreTrainedTokenizerFast.from_pretrained("gpt2-large", model_max_length=192)
     tokenizer.add_special_tokens({'pad_token': '[PAD]'})
 
     collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
