@@ -26,9 +26,9 @@ if __name__ == "__main__":
 
     config = GPT2Config(
         vocab_size=50257+1,
-        n_positions=1024,
+        n_positions=192,
         n_embd=512,
-        n_layer=4,
+        n_layer=16,
         n_head=8,
     )
     model = GPT2LMHeadModel(config=config)
@@ -38,10 +38,10 @@ if __name__ == "__main__":
     training_args = TrainingArguments(
         "gpt2",
         evaluation_strategy="steps",
-        per_device_train_batch_size=4,
-        learning_rate=5e-5,
-        weight_decay=0.01,
-        max_steps=10,
+        per_device_train_batch_size=64,
+        learning_rate=0.01,
+        weight_decay=0.0,
+        max_steps=250,
     )
     trainer = HfTrainer(
         model=model,

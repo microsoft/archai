@@ -19,12 +19,12 @@ import torch.optim as optim
 from packaging import version
 from torch.nn.parallel import DistributedDataParallel
 
+from archai.nlp import logging_utils
 from archai.nlp.datasets.nvidia import distributed_utils
 from archai.nlp.datasets.nvidia.corpus import get_lm_corpus
+from archai.nlp.quantization.mixed_qat import MixedQAT
 from archai.nlp.quantization.qat import prepare_with_qat, qat_to_float_modules
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
-from archai.nlp import logging_utils
-from archai.nlp.quantization.mixed_qat import MixedQAT
 from archai.nlp.trainers.nvidia.utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.nlp.trainers.nvidia.utils.optimizers import JITLamb, Lamb
 
@@ -75,11 +75,11 @@ def save_checkpoint(
         "step": step,
     }
 
-    checkpoint_name =  prefix + "checkpoint_last.pt"
+    checkpoint_name = prefix + "checkpoint_last.pt"
 
     with distributed_utils.sync_workers() as rank:
         checkpoint_path = os.path.join(output_dir, checkpoint_name)
-        
+
         if rank == 0:
             logger.info(f"Saving checkpoint: {checkpoint_path}")
             torch.save(state, checkpoint_path)
@@ -129,13 +129,13 @@ class NvidiaTrainer:
 
     def load_checkpoint(self, checkpoint_file_path: str) -> Tuple[int, int, int, int]:
         """Loads states from checkpoint.
-        
+
         Args:
             checkpoint_file_path: Path to the checkpoint.
-            
+
         Returns:
             (Tuple[int, int, int, int]): Current iterator, epoch, batch and step values.
-        
+
         """
 
         try:
@@ -223,6 +223,7 @@ class NvidiaTrainer:
                 self.optimizer, max_steps - self.args.scheduler_warmup_steps, eta_min=self.args.scheduler_lr_min
             )
         elif scheduler_name == "inv_sqrt":
+
             def lr_lambda(step: int) -> float:
                 if step == 0 and self.args.scheduler_warmup_steps == 0:
                     return 1.0
@@ -232,6 +233,7 @@ class NvidiaTrainer:
                         if step > self.args.scheduler_warmup_steps
                         else step / (self.args.scheduler_warmup_steps**1.5)
                     )
+
             self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=lr_lambda)
         elif scheduler_name == "cyclic_cosine":
             init_decay_steps = int((self.args.max_step - self.args.scheduler_warmup_steps) / 2)
@@ -277,7 +279,7 @@ class NvidiaTrainer:
         self, input_ids: torch.LongTensor, labels: torch.LongTensor, autocast: torch.autocast
     ) -> float:
         """Performs the training of a single chunk.
-        
+
         Args:
             input_ids: Chunk of input data.
             labels: Chunk of input labels.
@@ -286,7 +288,7 @@ class NvidiaTrainer:
 
         Returns:
             (float): Chunk training loss.
-            
+
         """
 
         with autocast:
@@ -307,7 +309,7 @@ class NvidiaTrainer:
         iterator: int,
         epoch: int,
         start_batch: int,
-        step: int
+        step: int,
     ) -> None:
         """Performs the training over the supplied data loaders.
 
@@ -378,7 +380,7 @@ class NvidiaTrainer:
                 if step < self.args.scheduler_warmup_steps:
                     curr_lr = self.args.optimizer_lr * step / self.args.scheduler_warmup_steps
                     self.optimizer.param_groups[0]["lr"] = curr_lr
-                    
+
                 else:
                     if self.args.scheduler == "cosine":
                         self.scheduler.step(step - self.args.scheduler_warmup_steps)
@@ -399,7 +401,7 @@ class NvidiaTrainer:
 
                 throughput = n_labels_tokens / elapsed_time
                 throughput = distributed_utils.all_reduce_item(throughput, op="sum")
-                
+
                 train_loss, log_step, n_labels_tokens = 0.0, 0, 0
 
                 logger.info(
@@ -449,7 +451,7 @@ class NvidiaTrainer:
                     batch,
                     step,
                     prefix=prefix,
-                    save_all_checkpoints=self.args.save_all_checkpoints
+                    save_all_checkpoints=self.args.save_all_checkpoints,
                 )
 
             if is_final_step:
@@ -459,14 +461,14 @@ class NvidiaTrainer:
 
     def train(self, checkpoint_file_path: Optional[str] = "") -> Dict[str, Any]:
         """Trains a model.
-        
+
         Args:
             checkpoint_file_path: Path to the checkpoint that will be used
                 to resume the training.
 
         Returns:
             (Dict[str, Any]): Training-related metrics.
-            
+
         """
 
         self.create_optimizer()
@@ -476,14 +478,14 @@ class NvidiaTrainer:
         if checkpoint_file_path:
             iterator, start_epoch, start_batch, step = self.load_checkpoint(checkpoint_file_path)
         else:
-            iterator, start_epoch, start_batch, step = 0, 1, 0, 0
+            iterator, start_epoch, start_batch, step = 0, 0, 0, 0
 
         self.setup_qat()
         self.setup_distributed_training()
 
         train_dataloader = self.get_dataloader("train")
         eval_dataloader = self.get_dataloader("valid")
-        
+
         logger.info("Starting training ...")
         logger.debug(f"Training arguments: {self.args.to_dict()}")
 
@@ -493,19 +495,12 @@ class NvidiaTrainer:
                 if self.args.iterator_shuffle:
                     train_dataloader.roll(seed=self.args.seed + epoch)
 
-                step = self.training_step(
-                    train_dataloader,
-                    eval_dataloader,
-                    iterator,
-                    epoch,
-                    start_batch,
-                    step
-                )
+                step = self.training_step(train_dataloader, eval_dataloader, iterator, epoch, start_batch, step)
 
                 iterator, start_batch = 0, 0
 
                 if step == self.args.max_steps:
-                    logger.info('End of training ...')
+                    logger.info("End of training ...")
                     break
 
         except KeyboardInterrupt:
@@ -517,13 +512,13 @@ class NvidiaTrainer:
 
     def evaluation_step(self, eval_dataloader: Iterator) -> Tuple[float, float]:
         """Performs the evaluation over the supplied data loader.
-        
+
         Args:
             eval_dataloader: Evaluation-related data loader.
 
         Returns:
             (Tuple[float, float]): Evaluation loss and time.
-            
+
         """
 
         self.model.eval()
@@ -547,10 +542,10 @@ class NvidiaTrainer:
         Args:
             eval_dataloader: Evaluation-based data loader. If not supplied, it will
                 default to the one available in pre-loaded dataset.
-        
+
         Returns:
             (Dict[str, Any]): Evaluation-related metrics.
-            
+
         """
 
         if not eval_dataloader:
@@ -562,7 +557,7 @@ class NvidiaTrainer:
             "eval_time": eval_time,
             "eval_loss": eval_loss,
             "eval_ppl": math.exp(eval_loss),
-            "eval_bpc": eval_loss / math.log(2)
+            "eval_bpc": eval_loss / math.log(2),
         }
 
         return eval_metrics

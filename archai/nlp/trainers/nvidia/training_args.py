@@ -34,7 +34,9 @@ class NvidiaTrainingArguments:
 
     eval_interval: int = field(default=100, metadata={"help": "Number of steps between evaluations."})
 
-    save_all_checkpoints: bool = field(default=False, metadata={"help": "Whether to save all checkpoints from `eval_interval` steps."})
+    save_all_checkpoints: bool = field(
+        default=False, metadata={"help": "Whether to save all checkpoints from `eval_interval` steps."}
+    )
 
     dataset: str = field(default="wt103", metadata={"help": "Name of the dataset."})
 
@@ -99,10 +101,10 @@ class NvidiaTrainingArguments:
     @property
     def device(self) -> torch.device:
         """PyTorch device.
-        
+
         Returns:
             (torch.device): Instance of PyTorch device class.
-        
+
         """
 
         return torch.device("cuda" if self.use_cuda else "cpu")
@@ -110,7 +112,7 @@ class NvidiaTrainingArguments:
     def __post_init__(self) -> None:
         """Overrides post-initialization with custom instructions."""
 
-        assert not(self.qat and self.mixed_qat), "`qat` and `mixed_qat` should not be used together."
+        assert not (self.qat and self.mixed_qat), "`qat` and `mixed_qat` should not be used together."
 
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
@@ -145,10 +147,10 @@ class NvidiaTrainingArguments:
 
     def to_dict(self) -> Dict[str, Any]:
         """Converts attributes into a dictionary representation.
-        
+
         Returns:
             (Dict[str, Any]): Attributes encoded as a dictionary.
-        
+
         """
 
         return self.__dict__
