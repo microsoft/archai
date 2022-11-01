@@ -34,6 +34,8 @@ class NvidiaTrainingArguments:
 
     eval_interval: int = field(default=100, metadata={"help": ""})
 
+    save_all_checkpoints: bool = field(default=True, metadata={"help": ""})
+
     dataset: str = field(default="wt103", metadata={"help": ""})
 
     dataset_dir: str = field(default="", metadata={"help": ""})
@@ -46,7 +48,7 @@ class NvidiaTrainingArguments:
 
     vocab_size: int = field(default=10000, metadata={"help": ""})
 
-    roll: bool = field(default=False, metadata={"help": ""})
+    iterator_shuffle: bool = field(default=False, metadata={"help": ""})
 
     batch_size: int = field(default=256, metadata={"help": ""})
 
@@ -54,7 +56,7 @@ class NvidiaTrainingArguments:
 
     seq_len: int = field(default=192, metadata={"help": ""})
 
-    multi_gpu: str = field(default="ddp", metadata={"help": ""})
+    strategy: str = field(default="ddp", metadata={"help": ""})
 
     local_rank: int = field(default=os.getenv("LOCAL_RANK", 0), metadata={"help": ""})
 
@@ -96,7 +98,12 @@ class NvidiaTrainingArguments:
 
     @property
     def device(self) -> torch.device:
-        """"""
+        """PyTorch device.
+        
+        Returns:
+            (torch.device): Instance of PyTorch device class.
+        
+        """
 
         return torch.device("cuda" if self.use_cuda else "cpu")
 
@@ -105,17 +112,12 @@ class NvidiaTrainingArguments:
 
         assert not(self.qat and self.mixed_qat), "`qat` and `mixed_qat` should not be used together."
 
-        #
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
-
-        # #
-        # exp_utils.script_init()
 
         self.local_rank = int(self.local_rank)
         if self.use_cuda:
             torch.cuda.set_device(self.local_rank)
-            # exp_utils.l2_promote()
             distributed_utils.init_distributed(self.use_cuda)
 
         (
@@ -142,6 +144,11 @@ class NvidiaTrainingArguments:
             self.batch_size = world_size * self.local_batch_size
 
     def to_dict(self) -> Dict[str, Any]:
-        """"""
+        """Converts attributes into a dictionary representation.
+        
+        Returns:
+            (Dict[str, Any]): Attributes encoded as a dictionary.
+        
+        """
 
         return self.__dict__
