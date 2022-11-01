@@ -1,8 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.gpt2_tokenizer import GPT2Tokenizer
-from archai.nlp.datasets.hf_datasets.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
+from archai.nlp.datasets.hf.tokenizer_utils.gpt2_tokenizer import GPT2Tokenizer
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
 from datasets import load_dataset
 
 
