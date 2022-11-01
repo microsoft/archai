@@ -20,81 +20,81 @@ class NvidiaTrainingArguments:
 
     experiment_name: str = field(metadata={"help": "Name of the experiment."})
 
-    checkpoint_path: str = field(default="", metadata={"help": ""})
+    checkpoint_file_path: str = field(default="", metadata={"help": "Path to the checkpoint file."})
 
-    output_dir: str = field(default="~/logdir", metadata={"help": ""})
+    output_dir: str = field(default="~/logdir", metadata={"help": "Output folder."})
 
-    seed: int = field(default=42, metadata={"help": ""})
+    seed: int = field(default=42, metadata={"help": "Random seed."})
 
-    use_cuda: bool = field(default=True, metadata={"help": ""})
+    use_cuda: bool = field(default=True, metadata={"help": "Whether CUDA should be used."})
 
-    log_interval: int = field(default=10, metadata={"help": ""})
+    log_interval: int = field(default=10, metadata={"help": "Number of steps between logs."})
 
-    disable_eval: bool = field(default=False, metadata={"help": ""})
+    disable_eval: bool = field(default=False, metadata={"help": "Whether to disable evaluation."})
 
-    eval_interval: int = field(default=100, metadata={"help": ""})
+    eval_interval: int = field(default=100, metadata={"help": "Number of steps between evaluations."})
 
-    save_all_checkpoints: bool = field(default=True, metadata={"help": ""})
+    save_all_checkpoints: bool = field(default=False, metadata={"help": "Whether to save all checkpoints from `eval_interval` steps."})
 
-    dataset: str = field(default="wt103", metadata={"help": ""})
+    dataset: str = field(default="wt103", metadata={"help": "Name of the dataset."})
 
-    dataset_dir: str = field(default="", metadata={"help": ""})
+    dataset_dir: str = field(default="", metadata={"help": "Dataset folder."})
 
-    dataset_cache_dir: str = field(default="cache", metadata={"help": ""})
+    dataset_cache_dir: str = field(default="cache", metadata={"help": "Dataset cache folder."})
 
-    dataset_refresh_cache: bool = field(default=False, metadata={"help": ""})
+    dataset_refresh_cache: bool = field(default=False, metadata={"help": "Whether cache should be refreshed."})
 
-    vocab: str = field(default="gpt2", metadata={"help": ""})
+    vocab: str = field(default="gpt2", metadata={"help": "Name of the tokenizer."})
 
-    vocab_size: int = field(default=10000, metadata={"help": ""})
+    vocab_size: int = field(default=10000, metadata={"help": "Size of the vocabulary"})
 
-    iterator_shuffle: bool = field(default=False, metadata={"help": ""})
+    iterator_shuffle: bool = field(default=False, metadata={"help": "Whether iterator should be shuffled."})
 
-    batch_size: int = field(default=256, metadata={"help": ""})
+    batch_size: int = field(default=256, metadata={"help": "Global batch size."})
 
-    local_batch_size: int = field(default=None, metadata={"help": ""})
+    local_batch_size: int = field(default=None, metadata={"help": "Individual GPU batch size."})
 
-    seq_len: int = field(default=192, metadata={"help": ""})
+    seq_len: int = field(default=192, metadata={"help": "Sequence length."})
 
-    strategy: str = field(default="ddp", metadata={"help": ""})
+    strategy: str = field(default="ddp", metadata={"help": "Multi-GPU strategy."})
 
-    local_rank: int = field(default=os.getenv("LOCAL_RANK", 0), metadata={"help": ""})
+    local_rank: int = field(default=os.getenv("LOCAL_RANK", 0), metadata={"help": "Local rank of process."})
 
-    find_unused_parameters: bool = field(default=False, metadata={"help": ""})
+    find_unused_parameters: bool = field(default=False, metadata={"help": "Whether unused parameters should be found."})
 
-    max_steps: int = field(default=40000, metadata={"help": ""})
+    max_steps: int = field(default=40000, metadata={"help": "Maximum number of training steps."})
 
-    gradient_accumulation_steps: int = field(default=1, metadata={"help": ""})
+    gradient_accumulation_steps: int = field(default=1, metadata={"help": "Number of gradient accumulation steps."})
 
-    fp16: bool = field(default=False, metadata={"help": ""})
+    fp16: bool = field(default=False, metadata={"help": "Whether FP16 precision should be used."})
 
-    optimizer: str = field(default="jitlamb", metadata={"help": ""})
+    optimizer: str = field(default="jitlamb", metadata={"help": "Name of the optimizer."})
 
-    optimizer_lr: float = field(default=0.01, metadata={"help": ""})
+    optimizer_lr: float = field(default=0.01, metadata={"help": "Optimizer learning rate."})
 
-    optimizer_weight_decay: float = field(default=0.0, metadata={"help": ""})
+    optimizer_weight_decay: float = field(default=0.0, metadata={"help": "Optimizer weight decay."})
 
-    optimizer_momentum: float = field(default=0.0, metadata={"help": ""})
+    optimizer_momentum: float = field(default=0.0, metadata={"help": "Optimizer momentum."})
 
-    optimizer_clip: float = field(default=0.25, metadata={"help": ""})
+    optimizer_clip: float = field(default=0.25, metadata={"help": "Optimizer gradients clipping value."})
 
-    scheduler: str = field(default="cosine", metadata={"help": ""})
+    scheduler: str = field(default="cosine", metadata={"help": "Name of the scheduler."})
 
-    scheduler_qat: str = field(default="cosine", metadata={"help": ""})
+    scheduler_qat: str = field(default="cosine", metadata={"help": "Name of the QAT-based scheduler."})
 
-    scheduler_max_steps: int = field(default=None, metadata={"help": ""})
+    scheduler_max_steps: int = field(default=None, metadata={"help": "Maximum number of scheduler steps."})
 
-    scheduler_warmup_steps: int = field(default=1000, metadata={"help": ""})
+    scheduler_warmup_steps: int = field(default=1000, metadata={"help": "Number of scheduler warmup steps."})
 
-    scheduler_patience: float = field(default=0, metadata={"help": ""})
+    scheduler_patience: float = field(default=0, metadata={"help": "Scheduler patience."})
 
-    scheduler_lr_min: float = field(default=0.001, metadata={"help": ""})
+    scheduler_lr_min: float = field(default=0.001, metadata={"help": "Scheduler minimum learning rate."})
 
-    scheduler_decay_rate: float = field(default=0.5, metadata={"help": ""})
+    scheduler_decay_rate: float = field(default=0.5, metadata={"help": "Scheduler decay rate."})
 
-    qat: bool = field(default=False, metadata={"help": ""})
+    qat: bool = field(default=False, metadata={"help": "Whether QAT should be used during training."})
 
-    mixed_qat: bool = field(default=False, metadata={"help": ""})
+    mixed_qat: bool = field(default=False, metadata={"help": "Whether MixedQAT should be used during training."})
 
     @property
     def device(self) -> torch.device:
@@ -123,7 +123,7 @@ class NvidiaTrainingArguments:
         (
             self.dataset_dir,
             self.output_dir,
-            self.checkpoint_path,
+            self.checkpoint_file_path,
             self.dataset_cache_dir,
             _,
         ) = exp_utils.get_create_dirs(
@@ -131,7 +131,7 @@ class NvidiaTrainingArguments:
             self.dataset,
             self.experiment_name,
             self.output_dir,
-            self.checkpoint_path,
+            self.checkpoint_file_path,
             self.dataset_cache_dir,
         )
 
