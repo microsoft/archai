@@ -105,18 +105,18 @@ class Cell(nn.Module):
         return obj
     
     @classmethod
-    def from_config(cls, config: Dict, *args, **kwargs) -> 'Cell':
+    def from_config(cls, arch_config: Dict, *args, **kwargs) -> 'Cell':
         """Initializes the Cell using the architecture parameters
         from `config` and the positional args and kwargs for the
         class `__init__` method.
 
         Args:
-            config (Dict): Architecture parameters
+            arch_config (Dict): Architecture parameters
 
         Returns:
             Cell: Initialized Cell object
         """        
-        return cls._prebuild(config).build(*args, **kwargs)
+        return cls._prebuild(arch_config).build(*args, **kwargs)
 
 
 class RepeatCell():
