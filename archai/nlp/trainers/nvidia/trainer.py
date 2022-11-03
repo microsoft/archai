@@ -24,9 +24,9 @@ from archai.nlp.datasets.nvidia import distributed_utils
 from archai.nlp.datasets.nvidia.corpus import get_lm_corpus
 from archai.nlp.quantization.mixed_qat import MixedQAT
 from archai.nlp.quantization.qat import prepare_with_qat, qat_to_float_modules
+from archai.nlp.trainers.nvidia.cyclic_cosine_scheduler import CyclicCosineDecayLR
+from archai.nlp.trainers.nvidia.optimizers import JITLamb, Lamb
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
-from archai.nlp.trainers.nvidia.utils.cyclic_cosine_scheduler import CyclicCosineDecayLR
-from archai.nlp.trainers.nvidia.utils.optimizers import JITLamb, Lamb
 
 logger = logging_utils.get_logger(__name__)
 

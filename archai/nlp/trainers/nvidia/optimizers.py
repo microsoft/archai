@@ -1,38 +1,8 @@
-# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2019-2020, NVIDIA CORPORATION.
+# Licensed under the Apache License, Version 2.0.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# MIT License
-#
-# Copyright (c) 2019 cybertronai
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Copyright (c) 2019 cybertronai.
+# Licensed under the MIT license.
 
 """Custom optimizers that are used for training models.
 """
@@ -72,7 +42,6 @@ class Lamb(Optimizer):
 
         """
 
-        # Checks for invalid parameters
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= eps:
@@ -137,7 +106,7 @@ class Lamb(Optimizer):
                 # Paper v3 does not use debiasing.
                 # bias_correction1 = 1 - beta1 ** state['step']
                 # bias_correction2 = 1 - beta2 ** state['step']
-                # Apply bias to lr to avoid broadcast.
+                # Apply bias to lr to avoid broadcast
                 # * math.sqrt(bias_correction2) / bias_correction1
                 step_size = group["lr"]
 
@@ -220,7 +189,6 @@ class JITLamb(Optimizer):
 
         """
 
-        # Checks for invalid parameters
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= eps:
@@ -234,7 +202,6 @@ class JITLamb(Optimizer):
 
         self.adam = adam
 
-        # Overrides parent class
         super().__init__(params, defaults)
 
     def step(self, closure: Optional[callable] = None) -> torch.FloatTensor:
