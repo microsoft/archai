@@ -1,3 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+"""Transformer-Flex Search Space.
+"""
+
 from typing import List, Optional, Dict, Any
 from random import Random
 from copy import deepcopy
@@ -7,14 +13,41 @@ import json
 import torch
 from overrides import overrides
 
+from transformers.models.auto.modeling_auto import AutoModelForCausalLM
+from transformers.models.auto.configuration_auto import AutoConfig
+
 from archai.discrete_search import ArchaiModel
 from archai.discrete_search import EvolutionarySearchSpace, BayesOptSearchSpace
-from archai.nlp.search_spaces.transformer_flex.models.model_loader import (
-    MODELS, load_model_from_config
-)
 
 
 class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
+    _DEFAULT_MODELS = {
+        "codegen": {
+            "d_model": "n_ctx",
+            "d_inner": "n_inner",
+            "n_head": "n_head",
+            "n_layer": "n_layer"
+        },
+        "gpt2": {
+            "d_model": "n_embd",
+            "d_inner": "n_inner",
+            "n_head": "n_head",
+            "n_layer": "n_layer"
+        },
+        "opt": {
+            "d_model": "hidden_size",
+            "d_inner": "ffn_dim",
+            "n_head": "num_attention_heads",
+            "n_layer": "num_hidden_layers"
+        },
+        "transfo_xl": {
+            "d_model": "d_model",
+            "d_inner": "d_inner",
+            "n_head": "n_head",
+            "n_layer": "n_layer"
+        }
+    }
+
     _DEFAULT_D_MODEL = list(range(128, 1024, 64))
     _DEFAULT_D_INNER = list(range(128, 1024, 64))
     _DEFAULT_N_HEAD = [2, 4, 8]
@@ -29,8 +62,8 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                  mutation_prob: float = 0.3,
                  random_seed: int = 1) -> None:
 
-        assert arch_type in MODELS, \
-            f'The value of `arch_type` must be one of {str(MODELS.keys())}'
+        assert arch_type in self._DEFAULT_MODELS, \
+            f'The value of `arch_type` must be one of {list(self._DEFAULT_MODELS.keys())}'
         
         self.arch_type = arch_type
         
@@ -54,6 +87,15 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
 
         self.mutation_prob = mutation_prob
         self.rng = Random(random_seed)
+
+    def _load_model_from_config(self, model_config: Dict[str, Any]) -> torch.nn.Module:
+        model_config = {
+            new_k: model_config[k] 
+            for k, new_k in self._DEFAULT_MODELS[self.arch_type].items()
+        }
+
+        config = AutoConfig.for_model(self.arch_type, **model_config)
+        return AutoModelForCausalLM.from_config(config)
 
     def get_archid(self, config: Dict[str, Any]) -> str:
         pruned_config = deepcopy(config)
@@ -85,7 +127,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                     ]
 
             if config['d_model'] % config['n_head'] == 0:
-                model = load_model_from_config(self.arch_type, config)
+                model = self._load_model_from_config(config)
         
         return ArchaiModel(
             arch=model,
@@ -109,7 +151,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         arch_type = arch_config.pop('arch_type')
         
         return ArchaiModel(
-            arch=load_model_from_config(arch_type, arch_config),
+            arch=self._load_model_from_config(arch_type, arch_config),
             archid=self.get_archid(arch_config),
             metadata={'config': arch_config}
         )
@@ -140,7 +182,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                 ]
             
         return ArchaiModel(
-            arch=load_model_from_config(self.arch_type, config),
+            arch=self._load_model_from_config(config),
             archid=self.get_archid(config),
             metadata={'config': config}
         )
@@ -164,7 +206,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                     ])
         
         return ArchaiModel(
-            arch=load_model_from_config(self.arch_type, c0),
+            arch=self._load_model_from_config(self.arch_type, c0),
             archid=self.get_archid(c0),
             metadata={'config': c0}
         )
