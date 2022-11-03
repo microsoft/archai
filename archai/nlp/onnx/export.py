@@ -1,57 +1,31 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Handles every ONNX-related export methods.
+"""ONNX-related export and validation.
 """
 
 import importlib
-import types
 from pathlib import Path
 from typing import List, Optional, Union
 
 import numpy as np
 import torch
 from onnxruntime import InferenceSession, SessionOptions
-from onnxruntime.transformers import quantize_helper
 from transformers.configuration_utils import PretrainedConfig
 from transformers.file_utils import TensorType
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 from transformers.onnx.config import OnnxConfig
 from transformers.onnx.convert import export
 
-from archai.nlp.onnx.onnx_forward import gpt2_onnx_forward
 from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
     ArchaiPreTrainedTokenizerFast,
 )
+from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
 from archai.nlp import logging_utils
 
 logger = logging_utils.get_logger(__name__)
 
 AVAILABLE_ONNX_CONFIGS = {"gpt2": "GPT2OnnxConfig"}
-
-
-def prepare_model_for_onnx(model: torch.nn.Module, model_type: str) -> torch.nn.Module:
-    """Prepares model for ONNX export by replacing forward function and
-        performing any additional pre-processing.
-
-    Args:
-        model: Instance of model.
-        model_type: Type of model.
-
-    Returns:
-        (torch.nn.Module): PyTorch model prepared for ONNX export.
-
-    """
-
-    # For GPT-2 architectures, we replace their forward function
-    # and converts Conv1D to Linear layers
-    if model_type in ["gpt2"]:
-        model.forward = types.MethodType(gpt2_onnx_forward, model)
-
-        for layer in model.transformer.h:
-            quantize_helper.conv1d_to_linear(layer.mlp)
-
-    return model
 
 
 def validate_onnx_outputs(
@@ -156,16 +130,20 @@ def export_to_onnx(
     tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
     output_model_path: Path,
     task: Optional[str] = "causal-lm",
+    use_past: Optional[bool] = True,
+    share_weights: Optional[bool] = True,
     opset: Optional[int] = 14,
     atol: Optional[float] = 1e-4,
 ) -> PretrainedConfig:
     """Exports a pre-trained model to ONNX.
 
     Args:
-        model: .
-        tokenizer: .
+        model: Instance of model to be exported.
+        tokenizer: Instance of tokenizer to generate dummy inputs.
         output_model_path: Path to save the exported model.
-        task: .
+        task: Task identifier to use proper inputs/outputs.
+        use_past: Whether past key/values (`use_cache`) should be used.
+        share_weights: Whether embedding/softmax weights should be shared.
         opset: Set of operations to use with ONNX.
         atol: Tolerance between input and exported model.
 
@@ -176,6 +154,9 @@ def export_to_onnx(
 
     logger.info(f"Exporting to ONNX model: {output_model_path}")
 
+    if use_past:
+        model.config.use_cache = True
+
     model_type = model.config.model_type.replace("-", "_")
     available_configs = list(AVAILABLE_ONNX_CONFIGS.keys())
     assert model_type in available_configs, f"`model_type` should be in {available_configs}."
@@ -183,10 +164,13 @@ def export_to_onnx(
 
     config_module = importlib.import_module("archai_nlp.onnx.onnx_configs")
     model_onnx_config = getattr(config_module, config_cls_name)
-    onnx_config = model_onnx_config(model.config, task=task)
+    onnx_config = model_onnx_config(model.config, task=task, use_past=use_past)
 
     model = prepare_model_for_onnx(model, model_type)
     _, onnx_outputs = export(tokenizer, model, onnx_config, opset, output_model_path)
     validate_onnx_outputs(onnx_config, tokenizer, model, output_model_path, onnx_outputs, atol)
+
+    if share_weights:
+        weight_sharing(output_model_path, model_type)
 
     return model.config
