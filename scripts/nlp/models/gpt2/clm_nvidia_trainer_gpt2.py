@@ -31,9 +31,12 @@ if __name__ == "__main__":
         n_embd=512,
         n_layer=16,
         n_head=8,
+        embd_pdrop=0.0,
+        attn_pdrop=0.0,
+        use_cache=False
     )
     model = GPT2LMHeadModel(config=config)
-    
+
     trainer = NvidiaTrainer(
         model=model,
         args=training_args

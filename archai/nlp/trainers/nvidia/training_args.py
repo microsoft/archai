@@ -50,7 +50,7 @@ class NvidiaTrainingArguments:
 
     vocab_size: int = field(default=10000, metadata={"help": "Size of the vocabulary"})
 
-    iterator_shuffle: bool = field(default=False, metadata={"help": "Whether iterator should be shuffled."})
+    iterator_shuffle: bool = field(default=True, metadata={"help": "Whether iterator should be shuffled."})
 
     batch_size: int = field(default=256, metadata={"help": "Global batch size."})
 

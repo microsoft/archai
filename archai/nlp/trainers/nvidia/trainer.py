@@ -292,7 +292,7 @@ class NvidiaTrainer:
         """
 
         with autocast:
-            loss = self.dist_model(input_ids, labels=labels)[0]
+            loss = self.dist_model(input_ids, labels=input_ids)[0]
             loss = loss.float().mean().type_as(loss) / self.args.gradient_accumulation_steps
 
         if self.args.fp16:
@@ -418,6 +418,7 @@ class NvidiaTrainer:
 
             if (do_periodic_eval or is_final_step) and not self.args.disable_eval:
                 eval_loss, eval_time = self.evaluation_step(eval_dataloader)
+                eval_loss = distributed_utils.all_reduce_item(eval_loss, op="mean")
 
                 logger.info(
                     f"Eval: {step // self.args.eval_interval} | "
@@ -523,13 +524,16 @@ class NvidiaTrainer:
 
         self.model.eval()
 
-        eval_loss = 0.0
+        eval_loss, n_tokens = 0.0, 0
         start_time = time.time()
         with torch.no_grad():
-            for batches, (input_ids, labels, _, _) in enumerate(eval_dataloader):
-                loss = self.model(input_ids, labels=labels)[0]
-                eval_loss += loss.float().mean().item()
-            eval_loss /= batches
+            for _, (input_ids, _, _, warm) in enumerate(eval_dataloader):
+                loss = self.model(input_ids, labels=input_ids)[0]
+                tokens = input_ids.numel()
+                if warm:
+                    eval_loss += tokens * loss.float().mean().item()
+                    n_tokens += tokens
+            eval_loss /= n_tokens
         end_time = time.time()
 
         self.model.train()
