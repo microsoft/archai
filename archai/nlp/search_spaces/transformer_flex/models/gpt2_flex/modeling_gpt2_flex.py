@@ -22,7 +22,7 @@ from transformers.models.gpt2.modeling_gpt2 import (
 )
 from transformers.pytorch_utils import Conv1D
 
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.config_gpt2_flex import GPT2FlexConfig
+from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import GPT2FlexConfig
 
 
 class GPT2FlexAttention(nn.Module):

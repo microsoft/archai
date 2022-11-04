@@ -17,7 +17,7 @@ from transformers.models.transfo_xl.modeling_transfo_xl import (
     TransfoXLPreTrainedModel,
 )
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.config_mem_transformer import MemTransformerConfig
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import MemTransformerConfig
 from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.adaptive_embedding import AdaptiveEmbedding
 from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.positional_embedding import PositionalEmbedding
 from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.projected_adaptive_log_softmax import ProjectedAdaptiveLogSoftmax
