@@ -26,7 +26,7 @@ def prepare_model_for_onnx(model: torch.nn.Module, model_type: str) -> torch.nn.
 
     # For GPT-2 architectures, we replace their forward function
     # and converts Conv1D to Linear layers
-    if model_type in ["gpt2"]:
+    if model_type in ["gpt2", "gpt2-flex"]:
         model.forward = types.MethodType(gpt2_onnx_forward, model)
 
         for layer in model.transformer.h:
@@ -62,17 +62,17 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
     weights = {w.name:w for w in model.graph.initializer}
     nodes = {n.name:n for n in model.graph.node}
 
-    if model_type in ['gpt2']:
+    if model_type in ["gpt2", "gpt2-flex"]:
         n_emb_weight = 1
         n_cutoffs = 0
     else:
-        raise ValueError(f'model_type: {model_type} not supported for weight sharing.')
+        raise ValueError(f"model_type: {model_type} not supported for weight sharing.")
 
     for i in range(n_emb_weight):
         # Grabs the embedding weights pointer and removes from the graph
-        emb_weight_name = f'word_emb.emb_layers.{i}.weight'
-        if model_type in ['gpt2']:
-            emb_weight_name = 'transformer.wte.weight'
+        emb_weight_name = f"word_emb.emb_layers.{i}.weight"
+        if model_type in ["gpt2", "gpt2-flex"]:
+            emb_weight_name = "transformer.wte.weight"
 
         emb_weight = numpy_helper.to_array(weights[emb_weight_name])
         model.graph.initializer.remove(weights[emb_weight_name])
@@ -83,7 +83,7 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
             softmax_shape = (emb_weight.shape[1], emb_weight.shape[0] + n_cutoffs)
         softmax_weight = _find_weights_by_shape(weights, softmax_shape)[0]
         emb_gather_name = _find_nodes_by_input(nodes, emb_weight_name)[0]
-        nodes[emb_gather_name].attribute.append(helper.make_attribute('axis', 1))
+        nodes[emb_gather_name].attribute.append(helper.make_attribute("axis", 1))
         nodes[emb_gather_name].input[0] = softmax_weight
 
         # Adds a "Transpose" node to invert the new embedding weights
@@ -91,8 +91,8 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
         if n_cutoffs != 0:
             permute_dim = [1, 0, 2]
         emb_gather_output = nodes[emb_gather_name].output[0]
-        transpose_node_output = f'transposed_out_{i}'
-        transpose_node = helper.make_node('Transpose', [emb_gather_output], [transpose_node_output], perm=permute_dim)
+        transpose_node_output = f"transposed_out_{i}"
+        transpose_node = helper.make_node("Transpose", [emb_gather_output], [transpose_node_output], perm=permute_dim)
         model.graph.node.append(transpose_node)
 
         # Links the previous embedding output with the "Transpose" node

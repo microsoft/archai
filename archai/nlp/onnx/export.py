@@ -20,12 +20,16 @@ from transformers.onnx.convert import export
 from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
     ArchaiPreTrainedTokenizerFast,
 )
+from archai.nlp.onnx.config_utils.gpt2_onnx_config import GPT2OnnxConfig
 from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
 from archai.nlp import logging_utils
 
 logger = logging_utils.get_logger(__name__)
 
-AVAILABLE_ONNX_CONFIGS = {"gpt2": "GPT2OnnxConfig"}
+AVAILABLE_ONNX_CONFIGS = {
+    "gpt2": GPT2OnnxConfig,
+    "gpt2-flex": GPT2OnnxConfig
+}
 
 
 def validate_onnx_outputs(
@@ -57,6 +61,8 @@ def validate_onnx_outputs(
     ref_outputs = reference_model(**ref_inputs)
     ref_outputs_dict = {}
 
+    # print(type(ref_outputs))
+
     # Flattens the reference outputs
     for name, value in ref_outputs.items():
         # Overwriting the output name as 'present' since it is the name used for the ONNX ouputs
@@ -79,13 +85,13 @@ def validate_onnx_outputs(
     # Transforms the inputs into an ONNX compatible format
     onnx_inputs = {}
     for name, value in ref_inputs.items():
-        if isinstance(value, (list, tuple)):
-            value = config.flatten_output_collection_property(name, value)
-            onnx_inputs.update(
-                {tensor_name: pt_tensor.numpy() for tensor_name, pt_tensor in value.items()}
-            )
-        else:
-            onnx_inputs[name] = value.numpy()
+        # if isinstance(value, (list, tuple)):
+        #     value = config.flatten_output_collection_property(name, value)
+        #     onnx_inputs.update(
+        #         {tensor_name: pt_tensor.numpy() for tensor_name, pt_tensor in value.items()}
+        #     )
+        # else:
+        onnx_inputs[name] = value.numpy()
 
     # Performs the ONNX inference session
     onnx_outputs = session.run(onnx_named_outputs, onnx_inputs)
@@ -154,21 +160,21 @@ def export_to_onnx(
 
     logger.info(f"Exporting to ONNX model: {output_model_path}")
 
-    if use_past:
-        model.config.use_cache = True
+    model.config.use_cache = use_past
+    model.config.past_key_values = 2
 
     model_type = model.config.model_type.replace("-", "_")
     available_configs = list(AVAILABLE_ONNX_CONFIGS.keys())
     assert model_type in available_configs, f"`model_type` should be in {available_configs}."
-    config_cls_name = AVAILABLE_ONNX_CONFIGS[model_type]
+    onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](model.config, task=task, use_past=use_past)
 
-    config_module = importlib.import_module("archai_nlp.onnx.onnx_configs")
-    model_onnx_config = getattr(config_module, config_cls_name)
-    onnx_config = model_onnx_config(model.config, task=task, use_past=use_past)
+    # config_module = importlib.import_module("archai.nlp.onnx.onnx_configs")
+    # model_onnx_config = getattr(config_module, config_cls_name)
+    # onnx_config = model_onnx_config
 
     model = prepare_model_for_onnx(model, model_type)
     _, onnx_outputs = export(tokenizer, model, onnx_config, opset, output_model_path)
-    validate_onnx_outputs(onnx_config, tokenizer, model, output_model_path, onnx_outputs, atol)
+    # validate_onnx_outputs(onnx_config, tokenizer, model, output_model_path, onnx_outputs, atol)
 
     if share_weights:
         weight_sharing(output_model_path, model_type)
