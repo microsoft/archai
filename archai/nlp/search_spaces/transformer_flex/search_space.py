@@ -18,11 +18,11 @@ from transformers.models.auto.configuration_auto import AutoConfig
 
 from archai.discrete_search import ArchaiModel
 from archai.discrete_search import EvolutionarySearchSpace, BayesOptSearchSpace
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.config_gpt2_flex import GPT2FlexConfig
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.model_gpt2_flex import GPT2FlexLMHeadModel
+from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import GPT2FlexConfig
+from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex import GPT2FlexLMHeadModel
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.config_mem_transformer import MemTransformerConfig
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.model_mem_transformer import MemTransformerLMHeadModel
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import MemTransformerConfig
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer import MemTransformerLMHeadModel
 
 # Register internal models to be compatible with auto classes
 AutoConfig.register("gpt2-flex", GPT2FlexConfig)
