@@ -1,4 +1,6 @@
-# Copyright (c) 2018 Google AI, Google Brain, Carnegie Mellon University Authors and the HuggingFace Inc. team.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+#
 # Copyright (c) 2018, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
 
@@ -11,8 +13,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.position_wise_ff import PositionWiseFF
-from archai.nlp.search_spaces.transformer_flex.models.primer_ez import DWiseConvPrimerEZ, PositionWiseFFPrimerEZ
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.position_wise_ff import PositionWiseFF, PositionWiseFFPrimerEZ
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.depth_wise_convolution import DepthWiseConvolution
 
 
 class RelPartialLearnableMultiHeadAttn(nn.Module):
@@ -47,7 +49,7 @@ class RelPartialLearnableMultiHeadAttn(nn.Module):
         self.dropatt = nn.Dropout(dropatt)
 
         if self.primer_conv:
-            self.d_conv = DWiseConvPrimerEZ(self.d_model)
+            self.d_conv = DepthWiseConvolution(self.d_model)
 
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_epsilon)
 

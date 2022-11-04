@@ -1,4 +1,6 @@
-# Copyright (c) 2018 Google AI, Google Brain, Carnegie Mellon University Authors and the HuggingFace Inc. team.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+#
 # Copyright (c) 2018, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
 
