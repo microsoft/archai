@@ -18,7 +18,7 @@ from onnxruntime.transformers.fusion_skiplayernorm import (
 from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
 
-from archai.nlp.compression.onnx.fusion_options import FusionOptions
+from archai.nlp.export.transformer_flex.onnx.fusion_options import FusionOptions
 from archai.nlp.search_spaces.transformer_flex.models.config_base import OnnxConfigWithPast
 
 

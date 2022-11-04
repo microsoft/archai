@@ -19,6 +19,13 @@ from transformers.models.auto.configuration_auto import AutoConfig
 from archai.discrete_search import ArchaiModel
 from archai.discrete_search import EvolutionarySearchSpace, BayesOptSearchSpace
 
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.config_mem_transformer import MemTransformerConfig
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.model_mem_transformer import MemTransformerLMHeadModel
+
+# Register internal MemTransformer to be compatible with auto classes
+AutoConfig.register("mem-transformer", MemTransformerConfig)
+AutoModelForCausalLM.register(MemTransformerConfig, MemTransformerLMHeadModel)
+
 
 class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     _DEFAULT_MODELS = {
@@ -34,13 +41,19 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
             "n_head": "n_head",
             "n_layer": "n_layer"
         },
+        "mem-transformer": {
+            "d_model": "d_model",
+            "d_inner": "d_inner",
+            "n_head": "n_head",
+            "n_layer": "n_layer"
+        },
         "opt": {
             "d_model": "hidden_size",
             "d_inner": "ffn_dim",
             "n_head": "num_attention_heads",
             "n_layer": "num_hidden_layers"
         },
-        "transfo_xl": {
+        "transfo-xl": {
             "d_model": "d_model",
             "d_inner": "d_inner",
             "n_head": "n_head",
