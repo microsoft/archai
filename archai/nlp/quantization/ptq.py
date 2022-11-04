@@ -21,13 +21,9 @@ from archai.common.utils import create_file_name_identifier, rgetattr, rsetattr
 
 
 class GemmQuant(QuantOperatorBase):
-    """Implements a quantized version of the Gemm operator.
+    """Implements a quantized version of the Gemm operator."""
 
-    """
-
-    def __init__(self,
-                 onnx_quantizer: ONNXQuantizer,
-                 onnx_node: NodeProto) -> None:
+    def __init__(self, onnx_quantizer: ONNXQuantizer, onnx_node: NodeProto) -> None:
         """Overrides initialization method with custom arguments.
 
         Args:
@@ -39,57 +35,47 @@ class GemmQuant(QuantOperatorBase):
         super().__init__(onnx_quantizer, onnx_node)
 
     def quantize(self) -> None:
-        """Quantizes a Gemm node into QGemm.
-
-        """
+        """Quantizes a Gemm node into QGemm."""
 
         node = self.node
-        assert (node.op_type == 'Gemm')
+        assert node.op_type == "Gemm"
 
         # Updates original attributes to current node
         kwargs = {}
         for attribute in node.attribute:
             kwargs.update(attribute_to_kwarg(attribute))
-        kwargs.pop('beta')
+        kwargs.pop("beta")
 
         # Adds proper domain and missing attributes
-        kwargs['domain'] = ms_domain
-        kwargs['transA'] = 0
+        kwargs["domain"] = ms_domain
+        kwargs["transA"] = 0
 
         # Creates proper inputs for the QGemm node
-        (q_names, zp_names, scale_names, nodes) = self.quantizer.quantize_inputs(node,
-                                                  [0, 1],
-                                                  reduce_range=True,
-                                                  op_level_per_channel=True)
+        (q_names, zp_names, scale_names, nodes) = self.quantizer.quantize_inputs(
+            node, [0, 1], reduce_range=True, op_level_per_channel=True
+        )
 
         qgemm_inputs = []
         for (q_name, scale_name, zp_name) in zip(q_names, scale_names, zp_names):
             qgemm_inputs += [q_name, scale_name, zp_name]
 
         # Adds a "QGemm" node to replace original Gemm with its quantized version
-        qgemm_output = node.output[0] + '_output_quantized'
-        qgemm_name = node.name + '_quant' if node.name != '' else ''
-        qgemm_node = onnx.helper.make_node('QGemm',
-                                            qgemm_inputs,
-                                            [qgemm_output],
-                                            qgemm_name,
-                                            **kwargs)
+        qgemm_output = node.output[0] + "_output_quantized"
+        qgemm_name = node.name + "_quant" if node.name != "" else ""
+        qgemm_node = onnx.helper.make_node("QGemm", qgemm_inputs, [qgemm_output], qgemm_name, **kwargs)
         nodes.append(qgemm_node)
 
         # Adds a "Cast" node to cast QGemm output to float
-        cast_op_output = qgemm_output + '_cast_output'
-        cast_node = onnx.helper.make_node('Cast',
-                                          [qgemm_output],
-                                          [cast_op_output],
-                                          qgemm_output + '_cast',
-                                          to=onnx_proto.TensorProto.FLOAT)
+        cast_op_output = qgemm_output + "_cast_output"
+        cast_node = onnx.helper.make_node(
+            "Cast", [qgemm_output], [cast_op_output], qgemm_output + "_cast", to=onnx_proto.TensorProto.FLOAT
+        )
         nodes.append(cast_node)
 
         # Adds a "Add" node to sum the remaining bias to the Gemm output
-        bias_node = onnx.helper.make_node('Add',
-                                         [cast_node.output[0], 'crit.out_layers_biases.0'],
-                                         [node.output[0]],
-                                         qgemm_name + '_output_add')
+        bias_node = onnx.helper.make_node(
+            "Add", [cast_node.output[0], "crit.out_layers_biases.0"], [node.output[0]], qgemm_name + "_output_add"
+        )
         nodes.append(bias_node)
 
         # Adds new nodes to the original quantizer list
@@ -104,7 +90,7 @@ def add_new_quant_operators() -> None:
 
     # Changes the internal `IntegerOpsRegistry`
     # and adds support for new quantization operators
-    IntegerOpsRegistry['Gemm'] = GemmQuant
+    IntegerOpsRegistry["Gemm"] = GemmQuant
 
 
 def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
@@ -123,19 +109,14 @@ def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
     # add_new_quant_operators()
 
     # Performs the dynamic quantization
-    qnt_model_path = create_file_name_identifier(Path(onnx_model_path), '_int8')
-    quantize_dynamic(onnx_model_path,
-                     qnt_model_path,
-                     per_channel=False,
-                     reduce_range=False,
-                     optimize_model=False)
+    qnt_model_path = create_file_name_identifier(Path(onnx_model_path), "_int8")
+    quantize_dynamic(onnx_model_path, qnt_model_path, per_channel=False, reduce_range=False, optimize_model=False)
 
     return qnt_model_path
 
 
 def dynamic_quantization_torch(
-    model: torch.nn.Module,
-    embedding_layers: Optional[List[str]] = ['word_emb', 'transformer.wpe', 'transformer.wte']
+    model: torch.nn.Module, embedding_layers: Optional[List[str]] = ["word_emb", "transformer.wpe", "transformer.wte"]
 ) -> None:
     """Performs the dynamic quantization over a PyTorch model.
 
@@ -153,15 +134,15 @@ def dynamic_quantization_torch(
     model_qnt = torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, inplace=False)
 
     # Currently, code below works as a caveat to quantize the embedding layers
-    for l in embedding_layers:
+    for layer in embedding_layers:
         # Checks if supplied embedding layer really exists
-        if rgetattr(model_qnt, l, 0):
+        if rgetattr(model_qnt, layer, 0):
             # Sets the appropriate `qconfig` for embedding layers
-            attr = l + '.qconfig'
+            attr = layer + ".qconfig"
             rsetattr(model_qnt, attr, torch.quantization.float_qparams_weight_only_qconfig)
-    
+
     # Prepares the model for quantization and quantizes it
     model_qnt = torch.quantization.prepare(model_qnt, inplace=False)
     model_qnt = torch.quantization.convert(model_qnt, inplace=False)
-    
+
     return model_qnt

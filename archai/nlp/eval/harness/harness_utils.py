@@ -26,9 +26,7 @@ class HarnessCall:
 
         """
 
-        assert (
-            call_name in self.AVAILABLE_CALLS
-        ), f"`call` should be in {self.AVAILABLE_CALLS}."
+        assert call_name in self.AVAILABLE_CALLS, f"`call` should be in {self.AVAILABLE_CALLS}."
 
         self.call_name = call_name
         self.args = args
@@ -72,9 +70,7 @@ class MultipleTokenStoppingCriteria(StoppingCriteria):
         self.stop_tokens = stop_tokens
         self.max_stop_tokens = stop_tokens.shape[-1]
 
-    def __call__(
-        self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs
-    ) -> bool:
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
         """Validates the last generated token.
 
         Args:

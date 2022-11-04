@@ -14,7 +14,7 @@ from archai.nlp.quantization.qat import prepare_with_qat
 
 class MixedQAT(torch.nn.Module):
     """Implements a mixed QAT model, which can be fine-tuned using a linear combination of
-        regular and QAT losses.
+    regular and QAT losses.
 
     """
 

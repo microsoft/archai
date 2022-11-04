@@ -14,9 +14,9 @@ import datasets
 from datasets.arrow_dataset import Dataset
 from evaluate import load as hf_load_metric
 
+from archai.common.utils import cached_property
 from archai.nlp.datasets.hf.loaders import load_dataset
 from archai.nlp.eval.harness.harness_utils import HarnessCall
-from archai.common.utils import cached_property
 
 datasets.disable_progress_bar()
 
@@ -280,9 +280,7 @@ class HarnessTask:
 
         raise NotImplementedError
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         """Creates a tuple of HarnessCall that runs the sampling procedure.
 
         This function needs to be overidden by childs due to different
@@ -378,21 +376,12 @@ class HarnessTask:
         # be retrieved from validation or test set, with the caveat
         # that they need to be different from current sample
         if self.has_validation_set or self.has_test_set:
-            context_samples = self._get_few_shot_samples(
-                self.validation_set or self.test_set, n_few_shot + 1
-            )
-            context_samples = [c_sample for c_sample in context_samples if c_sample != sample][
-                :n_few_shot
-            ]
+            context_samples = self._get_few_shot_samples(self.validation_set or self.test_set, n_few_shot + 1)
+            context_samples = [c_sample for c_sample in context_samples if c_sample != sample][:n_few_shot]
 
         # Creates the context by joining inputs and labels from the few-shot samples
         context = (
-            "\n\n".join(
-                [
-                    self._create_inputs(c_sample) + self._create_label(c_sample)
-                    for c_sample in context_samples
-                ]
-            )
+            "\n\n".join([self._create_inputs(c_sample) + self._create_label(c_sample) for c_sample in context_samples])
             + "\n\n"
         )
 

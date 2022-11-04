@@ -8,12 +8,12 @@ from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn.functional as F
-from transformers.models.auto.tokenization_auto import AutoTokenizer
-from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
-    ArchaiPreTrainedTokenizerFast
-)
 from transformers.generation_stopping_criteria import StoppingCriteriaList
+from transformers.models.auto.tokenization_auto import AutoTokenizer
 
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
+    ArchaiPreTrainedTokenizerFast,
+)
 from archai.nlp.eval.harness.harness_utils import MultipleTokenStoppingCriteria
 
 
@@ -158,12 +158,8 @@ class HarnessModel:
 
         encoded_sample, encoded_target = self.encode([sample, target], padding="longest")
 
-        sample_states = self(
-            input_ids=encoded_sample.unsqueeze(0), output_hidden_states=True
-        ).hidden_states[-1]
-        target_states = self(
-            input_ids=encoded_target.unsqueeze(0), output_hidden_states=True
-        ).hidden_states[-1]
+        sample_states = self(input_ids=encoded_sample.unsqueeze(0), output_hidden_states=True).hidden_states[-1]
+        target_states = self(input_ids=encoded_target.unsqueeze(0), output_hidden_states=True).hidden_states[-1]
 
         similarity = F.cosine_similarity(sample_states, target_states, dim=2)
 
@@ -196,14 +192,10 @@ class HarnessModel:
             n_removal_tokens = encoded_stop_tokens.shape[-1]
 
             # Defines the stopping criteria
-            kwargs["stopping_criteria"] = StoppingCriteriaList(
-                [MultipleTokenStoppingCriteria(encoded_stop_tokens)]
-            )
+            kwargs["stopping_criteria"] = StoppingCriteriaList([MultipleTokenStoppingCriteria(encoded_stop_tokens)])
 
         # Generates the tokens and removes generated stop-tokens
-        generated_tokens = self.model.generate(
-            input_ids, pad_token_id=self.eos_token_id, **kwargs
-        ).squeeze(0)
+        generated_tokens = self.model.generate(input_ids, pad_token_id=self.eos_token_id, **kwargs).squeeze(0)
         generated_tokens = generated_tokens[:-n_removal_tokens]
 
         return self.decode(generated_tokens)
@@ -228,9 +220,7 @@ class HarnessModel:
 
         # Truncates the `input_ids` from the left to keep `max_length` constant
         # Removes the last token as it will be the predicted one
-        input_ids = torch.cat((encoded_context, encoded_target), dim=1)[
-            :, -(self.max_length + 1) :
-        ]
+        input_ids = torch.cat((encoded_context, encoded_target), dim=1)[:, -(self.max_length + 1) :]
         input_ids = input_ids[:, :-1]
 
         # Calculates the truncated inputs and original target lengths

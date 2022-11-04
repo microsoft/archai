@@ -15,7 +15,7 @@ from archai.nlp.quantization.observers import OnnxDynamicObserver
 
 class FakeDynamicQuant(torch.nn.Module):
     """Inserts a fake dynamic quantizer to allow for a proper scale/zero point calculating
-        when performing Quantization Aware Training.
+    when performing Quantization Aware Training.
 
     """
 

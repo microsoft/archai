@@ -18,9 +18,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from archai.common.utils import cached_property
 from archai.nlp.eval.text_predict.text_predict_model import TextPredictModel
 from archai.nlp.eval.text_predict.text_predict_tokenizer import TextPredictTokenizer
-from archai.common.utils import cached_property
 
 
 class TextPredictPrediction:
@@ -272,9 +272,7 @@ class TextPredictionPosition:
 
     body: str = field(metadata={"help": "Body (context) of information."})
 
-    body_continued: str = field(
-        metadata={"help": "Continued body (reference) of information."}
-    )
+    body_continued: str = field(metadata={"help": "Continued body (reference) of information."})
 
     prediction: TextPredictPrediction = field(default=None, metadata={"help": "Prediction."})
 
@@ -307,9 +305,7 @@ class TextPredictionPosition:
 
         unique_ids = d["UniqueId"].split("-")
         if len(unique_ids) > 2:
-            raise ValueError(
-                "Unable to split UniqueIds `{unique_ids}` into LineId and CharId."
-            )
+            raise ValueError("Unable to split UniqueIds `{unique_ids}` into LineId and CharId.")
 
         line_id = int(unique_ids[0])
         char_id = int(unique_ids[1])
@@ -319,9 +315,7 @@ class TextPredictionPosition:
             text = suggestion["Suggestion"]
 
             prob_keys = ["PMatch", "Prob", "Probability", "Normalized Probability Score"]
-            probability = next(
-                (float(suggestion[k]) for k in prob_keys if k in suggestion.keys()), None
-            )
+            probability = next((float(suggestion[k]) for k in prob_keys if k in suggestion.keys()), None)
             if probability is None:
                 probability = 0.5
 
@@ -614,9 +608,7 @@ class TextPredictionSequence(OrderedDict):
         predictions_df_columns = ["Line", "Char", "Text", "BodyContinued"]
         predictions_df_columns = (
             predictions_df_columns
-            + predictions_df.columns.drop(
-                predictions_df_columns + ["EndWithCompleteWord", "Tokens"]
-            ).tolist()
+            + predictions_df.columns.drop(predictions_df_columns + ["EndWithCompleteWord", "Tokens"]).tolist()
         )
         predictions_df = predictions_df[predictions_df_columns]
 
@@ -658,9 +650,7 @@ class TextPredictionSequence(OrderedDict):
 
             if predictions_df["Line"][i] < line_id:
                 msg = f"Incorrect order of lines in the file (current line = {line_id}, "
-                msg += (
-                    f'processed line = {predictions_df["Line"][i]}; current char = {char_id}, '
-                )
+                msg += f'processed line = {predictions_df["Line"][i]}; current char = {char_id}, '
                 msg += f'processed char = {predictions_df["Char"][i]}'
 
                 raise ValueError(msg)
@@ -681,9 +671,7 @@ class TextPredictionSequence(OrderedDict):
 
         return triggered_df
 
-    def calculate_perplexity(
-        self, model: TextPredictModel, tokenizer: TextPredictTokenizer
-    ) -> float:
+    def calculate_perplexity(self, model: TextPredictModel, tokenizer: TextPredictTokenizer) -> float:
         """Calculates the perplexity of sequence.
 
         Args:
@@ -741,55 +729,31 @@ class TextPredictionSequence(OrderedDict):
         summary["TotalWordCount"] = self.word_count
         summary["Perplexity"] = self.perplexity
         summary["SuggestionsShown"] = len(triggered_df.index)
-        summary["SuggestionsMatched"] = (
-            int(np.sum(triggered_df["Match"])) if len(triggered_df.columns) else 0
-        )
+        summary["SuggestionsMatched"] = int(np.sum(triggered_df["Match"])) if len(triggered_df.columns) else 0
         summary["SuggestionsAccepted"] = (
-            int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"]))
-            if len(triggered_df.columns)
-            else 0
+            int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"])) if len(triggered_df.columns) else 0
         )
-        summary["SuggestionRatePerWord"] = (
-            summary["SuggestionsShown"] / summary["TotalWordCount"]
-        )
-        summary["SuggestionRatePerChar"] = (
-            summary["SuggestionsShown"] / summary["TotalEvalPoints"]
-        )
-        summary["MatchRate"] = (
-            np.mean(triggered_df["Match"]) if len(triggered_df.columns) else 0
-        )
+        summary["SuggestionRatePerWord"] = summary["SuggestionsShown"] / summary["TotalWordCount"]
+        summary["SuggestionRatePerChar"] = summary["SuggestionsShown"] / summary["TotalEvalPoints"]
+        summary["MatchRate"] = np.mean(triggered_df["Match"]) if len(triggered_df.columns) else 0
         summary["AcceptRate"] = (
-            np.mean(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"])
-            if len(triggered_df.columns)
-            else 0
+            np.mean(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"]) if len(triggered_df.columns) else 0
         )
         summary["CharMatched"] = (
-            int(np.sum(triggered_df["Match"] * triggered_df["Length"]))
-            if len(triggered_df.columns)
-            else 0
+            int(np.sum(triggered_df["Match"] * triggered_df["Length"])) if len(triggered_df.columns) else 0
         )
         summary["CharAccepted"] = (
-            int(
-                np.sum(
-                    triggered_df["Match"]
-                    * triggered_df["PAcceptGivenMatch"]
-                    * triggered_df["Length"]
-                )
-            )
+            int(np.sum(triggered_df["Match"] * triggered_df["PAcceptGivenMatch"] * triggered_df["Length"]))
             if len(triggered_df.columns)
             else 0
         )
         summary["CharMatchRate"] = summary["CharMatched"] / summary["TotalEvalPoints"]
         summary["CharAcceptRate"] = summary["CharAccepted"] / summary["TotalEvalPoints"]
         summary["SuggestionsShownByType"] = (
-            triggered_df.groupby(["Type"]).size().to_dict()
-            if len(triggered_df.columns)
-            else None
+            triggered_df.groupby(["Type"]).size().to_dict() if len(triggered_df.columns) else None
         )
         summary["SuggestionsMatchedByType"] = (
-            triggered_df[triggered_df["Match"]].groupby(["Type"]).size().to_dict()
-            if len(triggered_df.columns)
-            else 0
+            triggered_df[triggered_df["Match"]].groupby(["Type"]).size().to_dict() if len(triggered_df.columns) else 0
         )
         summary["MatchRateByType"] = (
             triggered_df.groupby(["Type"]).agg({"Match": "mean"}).to_dict()["Match"]
@@ -797,9 +761,7 @@ class TextPredictionSequence(OrderedDict):
             else None
         )
         summary["SuggestionsShownByWordCount"] = (
-            triggered_df.groupby(["WordCount"]).size().to_dict()
-            if len(triggered_df.columns)
-            else None
+            triggered_df.groupby(["WordCount"]).size().to_dict() if len(triggered_df.columns) else None
         )
         summary["SuggestionsMatchedByWordCount"] = (
             triggered_df[triggered_df["Match"]].groupby(["WordCount"]).size().to_dict()
