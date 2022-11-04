@@ -9,11 +9,12 @@ import re
 from typing import List, Optional, Set, Tuple, Union
 
 from transformers.models.auto.tokenization_auto import AutoTokenizer
+
+from archai.common.utils import cached_property
 from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
-    ArchaiPreTrainedTokenizerFast
+    ArchaiPreTrainedTokenizerFast,
 )
 from archai.nlp.eval.text_predict.text_predict_utils import LRUCache
-from archai.common.utils import cached_property
 
 SEPARATOR_TOKENS = "Ġ \nĊ\t\.;:,'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~"
 SEPARATOR_TOKENS_SET = set(SEPARATOR_TOKENS)
@@ -30,10 +31,7 @@ class TextPredictTokenizer:
     REGEX_WHITESPACE = re.compile("[\xa0 \t\u2002-\u2006\u200B]+", re.MULTILINE | re.DOTALL)
     REGEX_NEW_LINE = re.compile("\s*[\r\n]+\s*", re.MULTILINE | re.DOTALL)
 
-    def __init__(
-        self,
-        tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]
-    ) -> None:
+    def __init__(self, tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]) -> None:
         """Overrides initialization method.
 
         Args:
@@ -109,11 +107,7 @@ class TextPredictTokenizer:
         """
 
         return set(
-            [
-                i
-                for i in range(len(self))
-                if any([c.isupper() and c not in SEPARATOR_TOKENS_SET for c in self[i]])
-            ]
+            [i for i in range(len(self)) if any([c.isupper() and c not in SEPARATOR_TOKENS_SET for c in self[i]])]
         )
 
     @functools.lru_cache(maxsize=128)
@@ -174,15 +168,13 @@ class TextPredictTokenizer:
             filtered_tokens = [
                 (idx, token)
                 for idx, token in pre_filtered_tokens
-                if token[: min(len(token), filter_prefix_len)]
-                == filter_prefix[: min(len(token), filter_prefix_len)]
+                if token[: min(len(token), filter_prefix_len)] == filter_prefix[: min(len(token), filter_prefix_len)]
             ]
         else:
             filtered_tokens = [
                 (idx, token)
                 for token, idx in self.tokenizer.vocab.items()
-                if token[: min(len(token), filter_prefix_len)]
-                == filter_prefix[: min(len(token), filter_prefix_len)]
+                if token[: min(len(token), filter_prefix_len)] == filter_prefix[: min(len(token), filter_prefix_len)]
             ]
 
         self.filter_tokens_cache[filter_prefix] = filtered_tokens

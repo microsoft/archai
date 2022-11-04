@@ -81,23 +81,16 @@ def float_to_qat_modules(
             if not hasattr(module, "qconfig"):
                 module.qconfig = qconfig
 
-            model._modules[name] = module_mapping[type(module)].from_float(
-                module, qconfig, **kwargs
-            )
+            model._modules[name] = module_mapping[type(module)].from_float(module, qconfig, **kwargs)
 
         else:
-            float_to_qat_modules(
-                module, module_mapping=module_mapping, qconfig=qconfig, **kwargs
-            )
+            float_to_qat_modules(module, module_mapping=module_mapping, qconfig=qconfig, **kwargs)
 
     return model
 
 
 def prepare_with_qat(
-    model: torch.nn.Module,
-    onnx_compatible: Optional[bool] = False,
-    backend: Optional[str] = "qnnpack",
-    **kwargs
+    model: torch.nn.Module, onnx_compatible: Optional[bool] = False, backend: Optional[str] = "qnnpack", **kwargs
 ) -> torch.nn.Module:
     """Prepares a float-based model and inserts QAT-based modules and configurations.
 

@@ -10,7 +10,7 @@ from typing import Any, Optional
 
 class LRUCache(OrderedDict):
     """Implements functools.lru_cache() with an OrderedDict to avoid
-        unhashable results.
+    unhashable results.
 
     """
 

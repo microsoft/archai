@@ -232,9 +232,7 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
 
         weight = self.weight_fake_quant(self.weight)
 
-        float_linear = torch.nn.Linear(
-            self.in_features, self.out_features, bias=self.bias is not None
-        )
+        float_linear = torch.nn.Linear(self.in_features, self.out_features, bias=self.bias is not None)
 
         float_linear.weight = torch.nn.Parameter(weight)
         float_linear.bias = self.bias

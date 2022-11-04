@@ -115,11 +115,7 @@ class Predictor:
 
         probs = self.model.get_probs(input_ids)
         probs_sum = sum(
-            [
-                prob
-                for idx, prob in enumerate(probs)
-                if idx in self.tokenizer.TOKENIZER_WORD_TOKEN_SEPARATOR
-            ]
+            [prob for idx, prob in enumerate(probs) if idx in self.tokenizer.TOKENIZER_WORD_TOKEN_SEPARATOR]
         )
 
         return probs_sum > Predictor.COMPLETE_WORD_PROB_THRESHOLD
@@ -136,9 +132,7 @@ class Predictor:
         """
 
         if prediction.input_ids is None or prediction.token_ids is None:
-            raise ValueError(
-                f"Unable to determine if `{prediction}` ends with a complete word."
-            )
+            raise ValueError(f"Unable to determine if `{prediction}` ends with a complete word.")
 
         prediction.end_with_complete_word = self._check_end_with_complete_word(
             tuple(prediction.input_ids + prediction.token_ids)
@@ -193,10 +187,7 @@ class Predictor:
 
         filter_prefix_length = len(filter_prefix)
         if filter_prefix_length == 0:
-            filtered_tokens = [
-                ((idx,), prob, len(self.tokenizer[idx]))
-                for idx, prob in enumerate(next_token_probs)
-            ]
+            filtered_tokens = [((idx,), prob, len(self.tokenizer[idx])) for idx, prob in enumerate(next_token_probs)]
         else:
             filtered_tokens = self.tokenizer.filter_tokens(filter_prefix)
             filtered_tokens = tuple((idx,) for idx in filtered_tokens)
@@ -239,8 +230,7 @@ class Predictor:
         if idxs is None:
             if global_prob != 1.0:
                 filtered_tokens = [
-                    (idx, prob * global_prob, extra_token_length)
-                    for idx, prob, extra_token_length in filtered_tokens
+                    (idx, prob * global_prob, extra_token_length) for idx, prob, extra_token_length in filtered_tokens
                 ]
             else:
                 filtered_tokens = copy.copy(filtered_tokens)
@@ -252,9 +242,7 @@ class Predictor:
 
         return filtered_tokens
 
-    def _find_initial_prediction(
-        self, input_ids: Tuple[int, ...], prefix: str
-    ) -> TextPredictPrediction:
+    def _find_initial_prediction(self, input_ids: Tuple[int, ...], prefix: str) -> TextPredictPrediction:
         """Predicts prefix from a supplied word.
 
         Args:
@@ -316,9 +304,7 @@ class Predictor:
             idxs, prob, filtered_length = filtered_tokens[0]
 
             text = self.tokenizer.decode(idxs)[len(prefix) :]
-            prediction = TextPredictPrediction(
-                text, prob / probs_sum, input_ids=input_ids, token_ids=idxs
-            )
+            prediction = TextPredictPrediction(text, prob / probs_sum, input_ids=input_ids, token_ids=idxs)
 
         return prediction
 
@@ -336,9 +322,7 @@ class Predictor:
         truncated_text = self._truncate_text(text)
         is_full_length = len(text) == len(truncated_text)
 
-        clean_truncated_text = self.tokenizer.clean_text(
-            truncated_text, add_bos_text=is_full_length
-        )
+        clean_truncated_text = self.tokenizer.clean_text(truncated_text, add_bos_text=is_full_length)
         context, prefix = self.tokenizer.find_context_and_prefix(clean_truncated_text)
 
         input_ids = tuple(self.tokenizer.encode(context))
@@ -359,14 +343,10 @@ class Predictor:
         while total_prob > self.MIN_PROB_CUTOFF and n_forward_pass < self.MAX_FORWARD_PASS:
             n_forward_pass += 1
 
-            next_token_id, next_prob = self.model.get_top_next_token_probs(
-                tuple(prediction.all_ids())
-            )
+            next_token_id, next_prob = self.model.get_top_next_token_probs(tuple(prediction.all_ids()))
             next_text = self.tokenizer.decode([next_token_id])
 
-            prediction = TextPredictPrediction.next_prediction(
-                prediction, next_text, next_prob, next_token_id
-            )
+            prediction = TextPredictPrediction.next_prediction(prediction, next_text, next_prob, next_token_id)
             self._update_end_with_complete_word(prediction)
 
             total_prob = prediction.probability
@@ -379,17 +359,12 @@ class Predictor:
             ):
                 best_prediction = prediction
 
-        if (
-            len(best_prediction) >= self.min_pred_length
-            and best_prediction._check_valid_prediction()
-        ):
+        if len(best_prediction) >= self.min_pred_length and best_prediction._check_valid_prediction():
             return best_prediction
 
         return TextPredictPrediction.empty()
 
-    def predict(
-        self, sequences: List[TextPredictionSequence], output_file: Optional[str] = None
-    ) -> None:
+    def predict(self, sequences: List[TextPredictionSequence], output_file: Optional[str] = None) -> None:
         """Predicts a set of sequences.
 
         Args:
@@ -413,17 +388,12 @@ class Predictor:
             end_time = time.time()
             pos.time = int(1000 * (end_time - start_time))
 
-            if (
-                len(prediction) >= sequences.min_pred_length
-                and prediction.score() >= sequences.min_score
-            ):
+            if len(prediction) >= sequences.min_pred_length and prediction.score() >= sequences.min_score:
                 pos.prediction = prediction
             else:
                 pos.prediction = None
 
-            if output_file is not None and (
-                (i + 1) % sequences.save_step == 0 or i == (len(sequences) - 1)
-            ):
+            if output_file is not None and ((i + 1) % sequences.save_step == 0 or i == (len(sequences) - 1)):
                 sequences.save(output_file)
 
     def score(
@@ -445,11 +415,7 @@ class Predictor:
             min_scores = [float(min_scores)]
         min_scores.sort()
 
-        if (
-            expected_match_rate is not None
-            and expected_match_rate >= 0
-            and expected_match_rate <= 1.0
-        ):
+        if expected_match_rate is not None and expected_match_rate >= 0 and expected_match_rate <= 1.0:
             min_scores.append(None)
 
         predictions = sequences.get_predictions()

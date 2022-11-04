@@ -42,9 +42,7 @@ def evaluate(
 
     for sample in tqdm(eval_set):
         # Creates the context based on the number of few-shot samples
-        context = harness_task.create_context(
-            sample, n_few_shot=n_few_shot, description=description
-        )
+        context = harness_task.create_context(sample, n_few_shot=n_few_shot, description=description)
 
         # Creates the sampling procedure calls and ensures they are encoded in a list
         calls = harness_task.create_sampling_calls(sample, context)
@@ -52,9 +50,7 @@ def evaluate(
             calls = [calls]
 
         # Performs the sampling and process the outputs
-        results = tuple(
-            getattr(harness_model, call.call_name)(*call.args, **call.kwargs) for call in calls
-        )
+        results = tuple(getattr(harness_model, call.call_name)(*call.args, **call.kwargs) for call in calls)
         harness_task.compute_results(sample, results)
 
     # Calculates the final metrics

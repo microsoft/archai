@@ -179,17 +179,11 @@ class TextPredictONNXModel(TextPredictModel):
 
         self.sess_options = ort.SessionOptions()
         self.sess_options.intra_op_num_threads = 6
-        self.sess_options.graph_optimization_level = (
-            ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
-        )
-        self.sess_options.graph_optimization_level = (
-            ort.GraphOptimizationLevel.ORT_ENABLE_EXTENDED
-        )
+        self.sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
+        self.sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_EXTENDED
         self.sess_options.enable_profiling = False
         self.sess_options.log_severity_level = 4
-        self.session = ort.InferenceSession(
-            onnx_model_path, self.sess_options, providers=["CPUExecutionProvider"]
-        )
+        self.session = ort.InferenceSession(onnx_model_path, self.sess_options, providers=["CPUExecutionProvider"])
 
         self.input_names = [i.name for i in self.session.get_inputs()]
         self.batch_size = 1
@@ -264,18 +258,12 @@ class TextPredictONNXModel(TextPredictModel):
             past_sequence_length = past_length
 
         ort_inputs = {}
-        ort_inputs["input_ids"] = np.ascontiguousarray(
-            np.array(input_ids).reshape(self.batch_size, len(input_ids))
-        )
+        ort_inputs["input_ids"] = np.ascontiguousarray(np.array(input_ids).reshape(self.batch_size, len(input_ids)))
 
         if past_ids is None:
-            past_key_values = (
-                self.config.past_key_values if hasattr(self.config, "past_key_values") else 2
-            )
+            past_key_values = self.config.past_key_values if hasattr(self.config, "past_key_values") else 2
             d_head = (
-                self.config.d_head
-                if hasattr(self.config, "d_head")
-                else int(self.config.d_model / self.config.n_head)
+                self.config.d_head if hasattr(self.config, "d_head") else int(self.config.d_model / self.config.n_head)
             )
             past_shape = [
                 past_key_values,
