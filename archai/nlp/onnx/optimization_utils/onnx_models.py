@@ -113,9 +113,7 @@ class TransfoXLOnnxModel(OnnxModel):
         remove_cast_count = 0
 
         for graph_input in graph.input:
-            new_node, removed_nodes = self.change_graph_input_type(
-                graph, graph_input, TensorProto.INT32
-            )
+            new_node, removed_nodes = self.change_graph_input_type(graph, graph_input, TensorProto.INT32)
             if new_node:
                 add_cast_count += 1
 
@@ -170,9 +168,9 @@ class TransfoXLOnnxModel(OnnxModel):
 
         """
 
-        graph_inputs = self.get_graph_inputs_from_fused_nodes(
-            casted=True
-        ) + self.get_graph_inputs_from_fused_nodes(casted=False)
+        graph_inputs = self.get_graph_inputs_from_fused_nodes(casted=True) + self.get_graph_inputs_from_fused_nodes(
+            casted=False
+        )
 
         for inp in self.model.graph.input:
             if inp.name in graph_inputs:
@@ -285,13 +283,9 @@ class TransfoXLOnnxModel(OnnxModel):
                             name=node.name + "_remove_mask",
                         )
                         attention_node.domain = "com.microsoft"
-                        attention_node.attribute.extend(
-                            [helper.make_attribute("num_heads", self.num_heads)]
-                        )
+                        attention_node.attribute.extend([helper.make_attribute("num_heads", self.num_heads)])
 
-                        self.add_node(
-                            attention_node, self.get_graph_by_node(attention_node).name
-                        )
+                        self.add_node(attention_node, self.get_graph_by_node(attention_node).name)
                         nodes_to_remove.append(node)
 
         self.remove_nodes(nodes_to_remove)
