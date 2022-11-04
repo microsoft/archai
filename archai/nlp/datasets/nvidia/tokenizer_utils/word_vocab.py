@@ -140,7 +140,7 @@ class WordVocab(VocabBase): # Word vocab is the default
                 break # don't add rare words
             self._add_symbol(sym)
 
-        with distributed_utils.distributed.sync_workers() as rank:
+        with distributed_utils.sync_workers() as rank:
             if rank == 0:
                 self._save(self.save_path)
 

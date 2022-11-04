@@ -343,6 +343,7 @@ class GPT2FlexBlock(nn.Module):
 class GPT2FlexModel(GPT2PreTrainedModel):
     """Implements a GPT-2 flexible model."""
 
+    config_class = GPT2FlexConfig
     _keys_to_ignore_on_load_missing = GPT2Model._keys_to_ignore_on_load_missing
 
     def __init__(self, config: GPT2FlexConfig) -> None:

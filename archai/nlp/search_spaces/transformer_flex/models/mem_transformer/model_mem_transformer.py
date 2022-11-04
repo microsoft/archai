@@ -46,6 +46,8 @@ class MemTransformerOutput(ModelOutput):
 
 
 class MemTransformerModel(TransfoXLModel):
+    config_class = MemTransformerConfig
+
     def __init__(self, config: MemTransformerConfig) -> None:
         super().__init__(config)
 
