@@ -55,7 +55,9 @@ class PositionWiseFFPrimerEZ(nn.Module):
                  d_model: int,
                  d_inner: int,
                  dropout: float,
-                 pre_lnorm: Optional[bool] = False) -> None:
+                 pre_lnorm: Optional[bool] = False,
+                 layer_norm_epsilon: Optional[float] = 1e-5,
+    ) -> None:
         super().__init__()
 
         # Squared ReLU: https://arxiv.org/abs/2109.08668
@@ -69,7 +71,7 @@ class PositionWiseFFPrimerEZ(nn.Module):
                                       nn.Linear(d_inner, d_model),
                                       nn.Dropout(dropout))
 
-        self.layer_norm = nn.LayerNorm(d_model)
+        self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_epsilon)
         
     def forward(self, inputs: torch.FloatTensor) -> torch.FloatTensor:
         if self.pre_lnorm:
