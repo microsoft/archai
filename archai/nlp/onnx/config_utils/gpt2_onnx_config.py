@@ -4,8 +4,6 @@
 """GPT-2 ONNX configuration.
 """
 
-from typing import Any, Dict
-
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfigWithPast
 
 
