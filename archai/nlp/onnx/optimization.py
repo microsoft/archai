@@ -4,7 +4,6 @@
 """ONNX optimization-related tools.
 """
 
-import importlib
 from pathlib import Path
 from typing import Optional
 
@@ -12,13 +11,15 @@ from onnx import load_model
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 from transformers.configuration_utils import PretrainedConfig
 
+from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
+
 from archai.nlp.onnx.optimization_utils.fusion_options import FusionOptions
 from archai.nlp import logging_utils
 from archai.nlp.file_utils import create_file_name_identifier
 
 logger = logging_utils.get_logger(__name__)
 
-AVAILABLE_ONNX_MODELS = {"gpt2": "Gpt2OnnxModel", "gpt2-flex": "Gpt2OnnxModel"}
+AVAILABLE_ONNX_MODELS = {"gpt2": Gpt2OnnxModel, "gpt2-flex": Gpt2OnnxModel}
 
 
 def optimize_onnx(
@@ -60,7 +61,8 @@ def optimize_onnx(
             if not only_ort:
                 disabled_optimizers = [
                     "MatMulScaleFusion",
-                    "MatMulAddFusion" "SimplifiedLayerNormFusion",
+                    "MatMulAddFusion",
+                    "SimplifiedLayerNormFusion",
                     "GemmActivationFusion",
                     "BiasSoftmaxFusion",
                 ]
@@ -68,7 +70,7 @@ def optimize_onnx(
         # Performs the standard ORT optimization
         ort_model_path = create_file_name_identifier(Path(onnx_model_path), "_ort")
         optimize_by_onnxruntime(
-            onnx_model_path,
+            onnx_model_path.as_posix(),
             use_gpu=use_gpu,
             optimized_model_path=str(ort_model_path),
             opt_level=opt_level,
@@ -83,19 +85,18 @@ def optimize_onnx(
         model_type = model_config.model_type.replace("-", "_")
         available_models = list(AVAILABLE_ONNX_MODELS.keys())
         assert model_type in available_models, f"`model_type` should be in {available_models}."
-        model_name = AVAILABLE_ONNX_MODELS[model_type]
+        onnx_opt_model = AVAILABLE_ONNX_MODELS[model_type]
 
-        model_module = importlib.import_module("archai.nlp.onnx.optimization_utils.onnx_models")
-        onnx_opt_model = getattr(model_module, model_name)
-
-        # Ensures that tuple of arguments is correct for initialize the optimizer
+        # Ensures that tuple of arguments is correct for the optimizer
         optimizer_args = (ort_model,)
         if model_type in ["gpt2", "gpt2-flex"]:
-            optimizer_args += (model_config.n_head, model_config.n_embd)
+            optimizer_args += (model_config.num_attention_heads, model_config.hidden_size)
         optimizer = onnx_opt_model(*optimizer_args)
 
         options = FusionOptions(model_type)
+
         optimizer.optimize(options)
+        optimizer.topological_sort()
 
         if float16:
             ort_model_path = create_file_name_identifier(Path(onnx_model_path), "_opt_fp16")
@@ -104,6 +105,6 @@ def optimize_onnx(
         if input_int32:
             optimizer.change_graph_inputs_to_int32()
 
-    optimizer.save_model_to_file(str(ort_model_path))
+    optimizer.save_model_to_file(ort_model_path.as_posix())
 
     return ort_model_path

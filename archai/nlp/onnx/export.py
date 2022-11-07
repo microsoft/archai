@@ -4,23 +4,16 @@
 """ONNX-related export and validation.
 """
 
-import importlib
 from itertools import chain
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional
 
 import numpy as np
 import torch
 from onnxruntime import InferenceSession, SessionOptions
 from transformers.configuration_utils import PretrainedConfig
-from transformers.file_utils import TensorType
-from transformers.models.auto.tokenization_auto import AutoTokenizer
-from transformers.onnx.config import OnnxConfig
-from transformers.onnx.convert import export
 
-from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
-    ArchaiPreTrainedTokenizerFast,
-)
+from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.nlp.onnx.config_utils.gpt2_onnx_config import GPT2OnnxConfig
 from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
 from archai.nlp import logging_utils
@@ -37,17 +30,14 @@ def validate_onnx_outputs(
     config: OnnxConfig,
     reference_model: torch.nn.Module,
     onnx_model: Path,
-    # onnx_named_outputs: List[str],
     atol: float,
 ) -> None:
     """Validates the ONNX outputs.
 
     Args:
         config: ONNX configuration.
-        tokenizer: Pre-trained tokenizer.
         reference_model: PyTorch reference model.
         onnx_model: Path to the ONNX model.
-        onnx_named_outputs: List of expected ONNX outputs.
         atol: Tolerance value.
 
     """
@@ -95,36 +85,36 @@ def validate_onnx_outputs(
     # Checks whether subset of ONNX outputs is valid
     ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(config.outputs)
     if not onnx_outputs_set.issubset(ref_outputs_set):
-        logger.info(
+        logger.error(
             f"Incorrect outputs: {onnx_outputs_set} (ONNX) and {ref_outputs_set} (reference)"
         )
         raise ValueError(f"Unmatched outputs: {onnx_outputs_set.difference(ref_outputs_set)}")
     else:
-        logger.info(f"Matched outputs: {onnx_outputs_set}")
+        logger.debug(f"Matched outputs: {onnx_outputs_set}")
 
     # Checks whether shapes and values are within expected tolerance
     for name, ort_value in zip(config.outputs, onnx_outputs):
-        logger.info(f"Validating ONNX output: {name}")
+        logger.debug(f"Validating ONNX output: {name}")
 
         ref_value = ref_outputs_dict[name].detach().numpy()
 
         if not ort_value.shape == ref_value.shape:
-            logger.info(
+            logger.error(
                 f"Incorrect shape: {ort_value.shape} (ONNX) and {ref_value.shape} (reference)"
             )
             raise ValueError(
                 f"Unmatched shape: {ort_value.shape} (ONNX) and {ref_value.shape} (reference)"
             )
         else:
-            logger.info(f"Matched shape: {ort_value.shape} and {ref_value.shape}")
+            logger.debug(f"Matched shape: {ort_value.shape} and {ref_value.shape}")
 
         if not np.allclose(ref_value, ort_value, atol=atol):
-            logger.info(f"Incorrect tolerance: {atol}")
+            logger.error(f"Incorrect tolerance: {atol}")
             raise ValueError(
                 f"Unmatched value difference: {np.amax(np.abs(ref_value - ort_value))}"
             )
         else:
-            logger.info(f"Matched tolerance: {atol}")
+            logger.debug(f"Matched tolerance: {atol}")
 
 
 def export_to_onnx(
@@ -133,7 +123,7 @@ def export_to_onnx(
     task: Optional[str] = "causal-lm",
     use_past: Optional[bool] = True,
     share_weights: Optional[bool] = True,
-    opset: Optional[int] = 14,
+    opset: Optional[int] = 11,
     atol: Optional[float] = 1e-4,
 ) -> PretrainedConfig:
     """Exports a pre-trained model to ONNX.
@@ -152,7 +142,7 @@ def export_to_onnx(
 
     """
 
-    logger.info(f"Exporting to ONNX model: {output_model_path}")
+    logger.info(f"Exporting model to ONNX: {output_model_path}")
 
     model_type = model.config.model_type.replace("-", "_")
     available_configs = list(AVAILABLE_ONNX_CONFIGS.keys())
@@ -164,12 +154,13 @@ def export_to_onnx(
 
     torch.onnx.export(model,
                       (onnx_config.generate_dummy_inputs(),),
-                      output_model_path,
+                      f=output_model_path,
+                      export_params=True,
                       input_names=list(onnx_config.inputs.keys()),
                       output_names=list(onnx_config.outputs.keys()),
                       dynamic_axes=dynamic_axes,
-                      do_constant_folding=True,
-                      opset_version=opset)
+                      opset_version=opset,
+                      do_constant_folding=True)
     validate_onnx_outputs(onnx_config, model, output_model_path, atol)
 
     if share_weights:

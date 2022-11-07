@@ -17,7 +17,6 @@ from onnxruntime.transformers.fusion_skiplayernorm import (
 )
 from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
-from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
 
 from archai.nlp.onnx.optimization_utils.fusion_options import FusionOptions
 

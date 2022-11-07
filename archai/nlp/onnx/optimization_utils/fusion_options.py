@@ -27,12 +27,14 @@ class FusionOptions:
 
         """
 
-        # GeLU
-        self.enable_gelu = False
-        self.enable_bias_gelu = False
-        self.enable_gelu_approximation = False
+        self.enable_shape_inference = True
+        self.enable_qordered_matmul = True
 
-        # Layer normalization
+        self.enable_gelu = True
+        self.enable_bias_gelu = True
+        self.enable_gelu_approximation = False
+        self.enable_gemm_fast_gelu = False
+
         self.enable_layer_norm = True
         self.enable_embed_layer_norm = True
         self.enable_skip_layer_norm = True
@@ -42,7 +44,6 @@ class FusionOptions:
             self.enable_embed_layer_norm = False
             self.enable_skip_layer_norm = False
 
-        # Attention
         self.enable_attention = True
         self.attention_mask_format = AttentionMaskFormat.AttentionMask
 
