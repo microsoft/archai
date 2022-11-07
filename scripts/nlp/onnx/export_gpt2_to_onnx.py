@@ -7,7 +7,6 @@ from pathlib import Path
 
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 
-from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
 from archai.nlp.onnx.export import export_to_onnx
 from archai.nlp.onnx.optimization import optimize_onnx
 from archai.nlp.quantization.ptq import dynamic_quantization_onnx
@@ -19,7 +18,7 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("output_model_path", type=Path, help="Path to the ONNX output model.")
 
-    parser.add_argument("-op", "--opset", type=int, default=14, help="ONNX opset version.")
+    parser.add_argument("-op", "--opset", type=int, default=11, help="ONNX opset version.")
 
     parser.add_argument(
         "-a",
@@ -30,7 +29,7 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-ol", "--opt_level", type=int, default=0, help="Level of the ORT optimization."
+        "-ol", "--opt_level", type=int, default=1, help="Level of the ORT optimization."
     )
 
     parser.add_argument(
@@ -53,12 +52,8 @@ if __name__ == "__main__":
     args = parse_args()
 
     model = GPT2LMHeadModel.from_pretrained("gpt2")
-    tokenizer = ArchaiPreTrainedTokenizerFast.from_pretrained("gpt2")
-    tokenizer.unk_token = 0
-
     model_config = export_to_onnx(
         model,
-        tokenizer,
         args.output_model_path,
         task="causal-lm",
         use_past=True,

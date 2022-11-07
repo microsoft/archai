@@ -4,8 +4,8 @@
 from archai.nlp.trainers.nvidia.trainer import NvidiaTrainer
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.config_mem_transformer import MemTransformerConfig
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.model_mem_transformer import MemTransformerLMHeadModel
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import MemTransformerConfig
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer import MemTransformerLMHeadModel
 
 if __name__ == "__main__":
     training_args = NvidiaTrainingArguments(

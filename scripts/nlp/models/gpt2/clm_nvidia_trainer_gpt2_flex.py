@@ -4,8 +4,8 @@
 from archai.nlp.trainers.nvidia.trainer import NvidiaTrainer
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
 
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.config_gpt2_flex import GPT2FlexConfig
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.model_gpt2_flex import GPT2FlexLMHeadModel
+from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import GPT2FlexConfig
+from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex import GPT2FlexLMHeadModel
 
 if __name__ == "__main__":
     training_args = NvidiaTrainingArguments(
