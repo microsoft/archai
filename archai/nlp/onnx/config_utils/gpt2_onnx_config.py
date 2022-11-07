@@ -9,15 +9,10 @@ from typing import Any, Dict
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfigWithPast
 
 
-class HfGPT2OnnxConfig(OnnxConfigWithPast):
-    """Huggingface's Open AI GPT-2 ONNX-based configuration.
-    """
+class GPT2OnnxConfig(OnnxConfigWithPast):
+    def __init__(self, config, task="causal-lm", use_past=False) -> None:
+        super().__init__(config, task=task, use_past=use_past, past_key_values=2)
 
-    def __init__(self, model_config: Dict[str, Any]) -> None:
-        """Initializes the class by setting missing keys on incoming
-            model's configuration.
-        Args:
-            model_config: Configuration of the model that will be exported.
-        """
-
-        super().__init__(model_config, model_type='gpt2', past_key_values=2)
+    @property
+    def num_layers(self) -> int:
+        return self.config.n_layer

@@ -28,11 +28,14 @@ def gpt2_onnx_forward(
 
     outputs = self.transformer(input_ids, past_key_values=past_key_values)
     hidden_states = outputs[0]
-
     preds = F.softmax(self.lm_head(hidden_states[:, -1, :]), dim=-1)
-    past_key_values = tuple([torch.stack(p) for p in outputs.past_key_values])
 
+    if outputs.past_key_values:
+        return {
+            "logits": preds,
+            "past_key_values": tuple([torch.stack(p) for p in outputs.past_key_values])
+        }
+    
     return {
-        "logits": preds,
-        "past_key_values": past_key_values
+        "logits": preds
     }

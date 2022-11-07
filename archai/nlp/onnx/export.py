@@ -5,6 +5,7 @@
 """
 
 import importlib
+from itertools import chain
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -34,10 +35,9 @@ AVAILABLE_ONNX_CONFIGS = {
 
 def validate_onnx_outputs(
     config: OnnxConfig,
-    tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
     reference_model: torch.nn.Module,
     onnx_model: Path,
-    onnx_named_outputs: List[str],
+    # onnx_named_outputs: List[str],
     atol: float,
 ) -> None:
     """Validates the ONNX outputs.
@@ -57,47 +57,43 @@ def validate_onnx_outputs(
     options = SessionOptions()
     session = InferenceSession(onnx_model.as_posix(), options)
 
-    ref_inputs = config.generate_dummy_inputs(tokenizer, framework=TensorType.PYTORCH)
+    ref_inputs = config.generate_dummy_inputs()
     ref_outputs = reference_model(**ref_inputs)
     ref_outputs_dict = {}
 
-    # print(type(ref_outputs))
-
     # Flattens the reference outputs
     for name, value in ref_outputs.items():
-        # Overwriting the output name as 'present' since it is the name used for the ONNX ouputs
-        # ('past_key_values' being taken for the ONNX inputs)
         if name == "past_key_values":
             name = "present"
-        # Overwriting the output name as 'logits' since it is the proper prediction scores key
-        elif name == "prediction_scores":
-            name = "logits"
-        # Overwriting the output name as 'loss' since it is the proper key (not 'losses')
-        elif name == "losses":
-            name = "loss"
+        elif name == "logits":
+            name = "probs"
 
         if isinstance(value, (list, tuple)):
-            value = config.flatten_output_collection_property(name, value)
-            ref_outputs_dict.update(value)
+            for i, v in enumerate(value):
+                name_with_idx = f"{name}_{i}"
+                ref_outputs_dict[name_with_idx] = v
         else:
             ref_outputs_dict[name] = value
 
     # Transforms the inputs into an ONNX compatible format
     onnx_inputs = {}
     for name, value in ref_inputs.items():
-        # if isinstance(value, (list, tuple)):
-        #     value = config.flatten_output_collection_property(name, value)
-        #     onnx_inputs.update(
-        #         {tensor_name: pt_tensor.numpy() for tensor_name, pt_tensor in value.items()}
-        #     )
-        # else:
-        onnx_inputs[name] = value.numpy()
+        if name == "past_key_values":
+            name = "past"
+
+        if isinstance(value, (list, tuple)):
+            for i, v in enumerate(value):
+                name_with_idx = f"{name}_{i}"
+                onnx_inputs[name_with_idx] = v.numpy()
+        else:
+            onnx_inputs[name] = value.numpy()
 
     # Performs the ONNX inference session
+    onnx_named_outputs = [output for output in config.outputs.keys()]
     onnx_outputs = session.run(onnx_named_outputs, onnx_inputs)
 
     # Checks whether subset of ONNX outputs is valid
-    ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(onnx_named_outputs)
+    ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(config.outputs)
     if not onnx_outputs_set.issubset(ref_outputs_set):
         logger.info(
             f"Incorrect outputs: {onnx_outputs_set} (ONNX) and {ref_outputs_set} (reference)"
@@ -107,7 +103,7 @@ def validate_onnx_outputs(
         logger.info(f"Matched outputs: {onnx_outputs_set}")
 
     # Checks whether shapes and values are within expected tolerance
-    for name, ort_value in zip(onnx_named_outputs, onnx_outputs):
+    for name, ort_value in zip(config.outputs, onnx_outputs):
         logger.info(f"Validating ONNX output: {name}")
 
         ref_value = ref_outputs_dict[name].detach().numpy()
@@ -133,7 +129,6 @@ def validate_onnx_outputs(
 
 def export_to_onnx(
     model: torch.nn.Module,
-    tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
     output_model_path: Path,
     task: Optional[str] = "causal-lm",
     use_past: Optional[bool] = True,
@@ -145,7 +140,6 @@ def export_to_onnx(
 
     Args:
         model: Instance of model to be exported.
-        tokenizer: Instance of tokenizer to generate dummy inputs.
         output_model_path: Path to save the exported model.
         task: Task identifier to use proper inputs/outputs.
         use_past: Whether past key/values (`use_cache`) should be used.
@@ -160,21 +154,23 @@ def export_to_onnx(
 
     logger.info(f"Exporting to ONNX model: {output_model_path}")
 
-    model.config.use_cache = use_past
-    model.config.past_key_values = 2
-
     model_type = model.config.model_type.replace("-", "_")
     available_configs = list(AVAILABLE_ONNX_CONFIGS.keys())
     assert model_type in available_configs, f"`model_type` should be in {available_configs}."
     onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](model.config, task=task, use_past=use_past)
 
-    # config_module = importlib.import_module("archai.nlp.onnx.onnx_configs")
-    # model_onnx_config = getattr(config_module, config_cls_name)
-    # onnx_config = model_onnx_config
-
     model = prepare_model_for_onnx(model, model_type)
-    _, onnx_outputs = export(tokenizer, model, onnx_config, opset, output_model_path)
-    # validate_onnx_outputs(onnx_config, tokenizer, model, output_model_path, onnx_outputs, atol)
+    dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}
+
+    torch.onnx.export(model,
+                      (onnx_config.generate_dummy_inputs(),),
+                      output_model_path,
+                      input_names=list(onnx_config.inputs.keys()),
+                      output_names=list(onnx_config.outputs.keys()),
+                      dynamic_axes=dynamic_axes,
+                      do_constant_folding=True,
+                      opset_version=opset)
+    validate_onnx_outputs(onnx_config, model, output_model_path, atol)
 
     if share_weights:
         weight_sharing(output_model_path, model_type)
