@@ -90,7 +90,7 @@ def optimize_onnx(
 
         # Ensures that tuple of arguments is correct for initialize the optimizer
         optimizer_args = (ort_model,)
-        if model_type == "gpt2":
+        if model_type in ["gpt2", "gpt2-flex"]:
             optimizer_args += (model_config.n_head, model_config.n_embd)
         optimizer = onnx_opt_model(*optimizer_args)
 
