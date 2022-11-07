@@ -134,7 +134,7 @@ def parse_args():
     general.add_argument('--cache_dir', default='cache', type=str,
                          help='Directory to store dataset cache, either absolute or relative')
     dataset.add_argument('--dataset', type=str, # set to 'wt103' through config name unless toy mode when its wt2
-                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100', 'olx_TeamsData20210221'],
+                         choices=['wt103', 'wt2', 'lm1b', 'enwik8', 'text8', 'olx_WordData20210110', 'olx_OutlookData20210917x2', 'olx_WordData20211003', 'olx_WordData20220118_S36', 'olx_RedditWA_S100', 'olx_TeamsData20210221', 'olx_WordSpanish_v2'],
                          help='Dataset name')
     dataset.add_argument('--vocab', type=str, default='word', choices=['word', 'bbpe', 'gpt2'],
                          help='Type of vocabulary')
@@ -1220,18 +1220,18 @@ def main():
     logging.info(f'Training time: {(training_time / 60):.2f} minutes')
     logging.info(f'Training throughput: {meters["train_throughput"].avg:.2f} tok/s')
 
-    input_ids, *_ = next(iter(valid_itr))
-    model.to('cpu')
-    input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
-    pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
-    _, process_mem = ml_perf_utils.model_memory(
-        lambda: load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=True))
+    # input_ids, *_ = next(iter(valid_itr))
+    # model.to('cpu')
+    # input_ids = input_ids[:1,:].to('cpu') # make it batch size of one
+    # pt_ops_mem, pt_ops_time, pt_ops_flops, pt_inf_time = ml_perf_utils.inference_stats(model, input_ids=input_ids, labels=None, mems=None)
+    # _, process_mem = ml_perf_utils.model_memory(
+    #     lambda: load_model_from_checkpoint(args.model_type, checkpoint_path, on_cpu=True))
 
     summary.update({
         'experiment_name': args.experiment_name,
         'run_date': str(datetime.now()),
-        'input_ids.shape(0)': input_ids.shape[0],
-        'input_ids.shape(1)': input_ids.shape[1],
+        # 'input_ids.shape(0)': input_ids.shape[0],
+        # 'input_ids.shape(1)': input_ids.shape[1],
         'dataset': args.dataset,
         'vocab_size': ntokens,
         'vocab_type': args.vocab,
@@ -1254,11 +1254,11 @@ def main():
         'cutoffs': model_config['cutoffs'],
         'primer_conv': model_config['primer_conv'],
         'primer_square': model_config['primer_square'],
-        'pt_ops_mem': pt_ops_mem,
-        'pt_ops_time_us': pt_ops_time,
-        'pt_ops_flops': pt_ops_flops,
-        'pt_inf_time_us': pt_inf_time,
-        'process_mem': process_mem
+        # 'pt_ops_mem': pt_ops_mem,
+        # 'pt_ops_time_us': pt_ops_time,
+        # 'pt_ops_flops': pt_ops_flops,
+        # 'pt_inf_time_us': pt_inf_time,
+        # 'process_mem': process_mem
         })
     summary.update((k, '') for k, v in summary.items() if v is None)
 
@@ -1312,35 +1312,37 @@ def main():
                                                           scheduler_sparse, scaler, vocab, file_stats[1])
         
         
-    if args.export_onnx:
+    with nv_distributed.sync_workers() as rank:
         
-        torch_model_path = os.path.join(args.work_dir, 'checkpoint_best.pt' if not args.qat else 'qat_checkpoint_best.pt')
-        onnx_model_path = os.path.join(args.work_dir, 'checkpoint.onnx')
-        opset_version = 11
-        num_heads = model_config['n_head'][0] if isinstance(model_config['n_head'], list) else model_config['n_head']
-        # Loads the PyTorch model
-        model, model_config = load_from_torch_for_export(args.model_type, torch_model_path)
+        if rank == 0 and args.export_onnx:
+            
+            torch_model_path = os.path.join(args.work_dir, 'checkpoint_best.pt' if not args.qat else 'qat_checkpoint_best.pt')
+            onnx_model_path = os.path.join(args.work_dir, 'checkpoint.onnx')
+            opset_version = 11
+            num_heads = model_config['n_head'][0] if isinstance(model_config['n_head'], list) else model_config['n_head']
+            # Loads the PyTorch model
+            model, model_config = load_from_torch_for_export(args.model_type, torch_model_path)
 
-        # Exports to ONNX
-        export_onnx_from_torch(model,
-                                model_config,
-                                args.model_type,
-                                onnx_model_path,
-                                share_weights=True,
-                                opset_version=opset_version)
-
-        # Whether optimization should be applied
-
-        ort_model_path = optimize_onnx(args.model_type,
+            # Exports to ONNX
+            export_onnx_from_torch(model,
+                                    model_config,
+                                    args.model_type,
                                     onnx_model_path,
-                                    num_heads=num_heads,
-                                    opt_level=0)
+                                    share_weights=True,
+                                    opset_version=opset_version)
 
-        # Caveat to enable quantization after optimization
-        onnx_model_path = ort_model_path
+            # Whether optimization should be applied
 
-        # Whether dynamic quantization should be applied
-        dynamic_quantization_onnx(onnx_model_path)
+            ort_model_path = optimize_onnx(args.model_type,
+                                        onnx_model_path,
+                                        num_heads=num_heads,
+                                        opt_level=0)
+
+            # Caveat to enable quantization after optimization
+            onnx_model_path = ort_model_path
+
+            # Whether dynamic quantization should be applied
+            dynamic_quantization_onnx(onnx_model_path)
 
 
 if __name__ == "__main__":
