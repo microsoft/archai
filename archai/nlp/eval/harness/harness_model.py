@@ -97,7 +97,7 @@ class HarnessModel:
         """
 
         try:
-            return self.model.config.n_ctx
+            return self.model.config.n_positions
         except AttributeError:
             return self.model.config.max_position_embeddings
 
