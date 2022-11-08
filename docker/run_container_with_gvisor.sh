@@ -3,8 +3,9 @@
 # Licensed under the MIT license.
 
 # Runs an interactive bash within the container
+# Enhanced security by gVisor / without GPUs
 docker run --rm \
-    --gpus all \
+    --runtime=runsc \
     --name nvidia22.10-archai0.6.8 \
     --shm-size=10g \
     --ipc=host \
