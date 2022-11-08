@@ -4,7 +4,7 @@
 """ONNX-compliant forward functions.
 """
 
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -14,7 +14,7 @@ def gpt2_onnx_forward(
     self,
     input_ids: torch.LongTensor,
     past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None,
-) -> Tuple[torch.FloatTensor, ...]:
+) -> Dict[str, torch.FloatTensor]:
     """Overrides the GPT-2 forward by returning probabilities and past key/values.
 
     Args:
@@ -22,7 +22,7 @@ def gpt2_onnx_forward(
         past_key_values: Past pre-computed key/values tensor.
 
     Returns:
-        (Tuple[torch.FloatTensor, ...]): Output probabilities and past key/values.
+        (Dict[str, torch.FloatTensor]): Output probabilities and past key/values.
 
     """
 

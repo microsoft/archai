@@ -26,7 +26,7 @@ def optimize_onnx(
     onnx_model_path: str,
     model_config: PretrainedConfig,
     use_gpu: Optional[bool] = False,
-    opt_level: Optional[int] = 0,
+    opt_level: Optional[int] = 1,
     only_ort: Optional[bool] = False,
     float16: Optional[bool] = False,
     input_int32: Optional[bool] = False,
@@ -91,8 +91,8 @@ def optimize_onnx(
         optimizer_args = (ort_model,)
         if model_type in ["gpt2", "gpt2-flex"]:
             optimizer_args += (model_config.num_attention_heads, model_config.hidden_size)
+        
         optimizer = onnx_opt_model(*optimizer_args)
-
         options = FusionOptions(model_type)
 
         optimizer.optimize(options)

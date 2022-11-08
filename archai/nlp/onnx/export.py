@@ -49,9 +49,9 @@ def validate_onnx_outputs(
 
     ref_inputs = config.generate_dummy_inputs()
     ref_outputs = reference_model(**ref_inputs)
-    ref_outputs_dict = {}
-
+    
     # Flattens the reference outputs
+    ref_outputs_dict = {}
     for name, value in ref_outputs.items():
         if name == "past_key_values":
             name = "present"

@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX optimization models.
+"""Transformer-XL ONNX optimization model.
 """
 
 from typing import List, Optional, Tuple
