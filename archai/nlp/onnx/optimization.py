@@ -5,7 +5,7 @@
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Sized
 
 from onnx import load_model
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
@@ -89,8 +89,15 @@ def optimize_onnx(
 
         # Ensures that tuple of arguments is correct for the optimizer
         optimizer_args = (ort_model,)
-        if model_type in ["gpt2", "gpt2-flex"]:
-            optimizer_args += (model_config.num_attention_heads, model_config.hidden_size)
+
+        if model_type in ["gpt2", "gpt2_flex"]:
+            n_heads, h_size = model_config.num_attention_heads, model_config.hidden_size
+
+            # Quick fix to unlist elements (TODO: remove this altogether from config)
+            n_heads = n_heads[0] if isinstance(n_heads, Sized) else n_heads
+            h_size = h_size[0] if isinstance(h_size, Sized) else h_size
+
+            optimizer_args += (n_heads, h_size)
         
         optimizer = onnx_opt_model(*optimizer_args)
         options = FusionOptions(model_type)
