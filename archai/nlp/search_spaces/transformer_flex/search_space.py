@@ -35,7 +35,7 @@ AutoModelForCausalLM.register(MemTransformerConfig, MemTransformerLMHeadModel)
 class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     _DEFAULT_MODELS = {
         "codegen": {
-            "d_model": "n_ctx",
+            "d_model": "n_embd",
             "d_inner": "n_inner",
             "n_head": "n_head",
             "n_layer": "n_layer"
