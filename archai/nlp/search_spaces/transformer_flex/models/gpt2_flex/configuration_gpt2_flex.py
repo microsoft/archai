@@ -4,6 +4,7 @@
 """GPT-2 Flexible Transformer configuration.
 """
 
+from typing import Optional
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
 
 from archai.common.utils import map_to_list
@@ -12,15 +13,15 @@ from archai.common.utils import map_to_list
 class GPT2FlexConfig(GPT2Config):
     model_type = "gpt2-flex"
 
-    def __init__(self, *args, **kwargs) -> None:
-        if "n_inner" in kwargs:
-            kwargs["n_inner"] = map_to_list(kwargs["n_inner"], kwargs["n_layer"])
-        if "n_head" in kwargs:
-            kwargs["n_head"] = map_to_list(kwargs["n_head"], kwargs["n_layer"])
-        if "primer_square" not in kwargs:
-            kwargs["primer_square"] = False
-            
-        if kwargs["primer_square"]:
-            kwargs["activation_function"] = "relu"
-
+    def __init__(self, *args, primer_square: Optional[bool] = False, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+        self.primer_square = primer_square
+        if primer_square:
+            self.activation_function = "relu"
+
+        self.n_inner = self.n_inner if self.n_inner is not None else 4 * self.n_embd
+        self.n_inner = map_to_list(self.n_inner, self.n_layer)
+        
+        self.n_head = map_to_list(self.n_head, self.n_layer)
+        self.d_head = [self.n_embd // n_h for n_h in self.n_head]

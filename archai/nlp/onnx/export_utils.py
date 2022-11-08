@@ -26,7 +26,7 @@ def prepare_model_for_onnx(model: torch.nn.Module, model_type: str) -> torch.nn.
 
     # For GPT-2 architectures, we replace their forward function
     # and converts Conv1D to Linear layers
-    if model_type in ["gpt2", "gpt2-flex"]:
+    if model_type in ["gpt2", "gpt2_flex"]:
         model.forward = types.MethodType(gpt2_onnx_forward, model)
 
         for layer in model.transformer.h:
@@ -62,7 +62,7 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
     weights = {w.name:w for w in model.graph.initializer}
     nodes = {n.name:n for n in model.graph.node}
 
-    if model_type in ["gpt2", "gpt2-flex"]:
+    if model_type in ["gpt2", "gpt2_flex"]:
         n_emb_weight = 1
         n_cutoffs = 0
     else:
@@ -71,7 +71,7 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
     for i in range(n_emb_weight):
         # Grabs the embedding weights pointer and removes from the graph
         emb_weight_name = f"word_emb.emb_layers.{i}.weight"
-        if model_type in ["gpt2", "gpt2-flex"]:
+        if model_type in ["gpt2", "gpt2_flex"]:
             emb_weight_name = "transformer.wte.weight"
 
         emb_weight = numpy_helper.to_array(weights[emb_weight_name])
