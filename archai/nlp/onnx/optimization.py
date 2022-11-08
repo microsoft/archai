@@ -19,7 +19,7 @@ from archai.nlp.file_utils import create_file_name_identifier
 
 logger = logging_utils.get_logger(__name__)
 
-AVAILABLE_ONNX_MODELS = {"gpt2": Gpt2OnnxModel, "gpt2-flex": Gpt2OnnxModel}
+AVAILABLE_ONNX_MODELS = {"gpt2": Gpt2OnnxModel, "gpt2_flex": Gpt2OnnxModel}
 
 
 def optimize_onnx(

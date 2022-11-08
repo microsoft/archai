@@ -14,7 +14,7 @@ from onnxruntime import InferenceSession, SessionOptions
 from transformers.configuration_utils import PretrainedConfig
 
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
-from archai.nlp.onnx.config_utils.gpt2_onnx_config import GPT2OnnxConfig
+from archai.nlp.onnx.config_utils.gpt2_onnx_config import GPT2OnnxConfig, GPT2FlexOnnxConfig
 from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
 from archai.nlp import logging_utils
 
@@ -22,7 +22,7 @@ logger = logging_utils.get_logger(__name__)
 
 AVAILABLE_ONNX_CONFIGS = {
     "gpt2": GPT2OnnxConfig,
-    "gpt2-flex": GPT2OnnxConfig
+    "gpt2_flex": GPT2FlexOnnxConfig
 }
 
 
