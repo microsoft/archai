@@ -51,7 +51,7 @@ class SearchSpaceBuilder(EvolutionarySearchSpace, BayesOptSearchSpace):
     @overrides
     def save_arch(self, model: ArchaiModel, path: str) -> None:
         with open(path, 'w', encoding='utf-8') as fp:
-            json.dump(model.metadata['config'], fp)
+            json.dump(model.metadata['config'], fp, indent=2)
     
     @overrides
     def load_arch(self, path: str) -> ArchaiModel:
