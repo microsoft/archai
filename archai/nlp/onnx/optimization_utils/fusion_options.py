@@ -40,7 +40,7 @@ class FusionOptions:
         self.enable_skip_layer_norm = True
         self.enable_bias_skip_layer_norm = True
 
-        if model_type in ["gpt2", "gpt2_flex"]:
+        if model_type in ["gpt2", "gpt2-flex"]:
             self.enable_embed_layer_norm = False
             self.enable_skip_layer_norm = False
 

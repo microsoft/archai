@@ -19,7 +19,7 @@ from archai.nlp.file_utils import create_file_name_identifier
 
 logger = logging_utils.get_logger(__name__)
 
-AVAILABLE_ONNX_MODELS = {"gpt2": Gpt2OnnxModel, "gpt2_flex": Gpt2OnnxModel}
+AVAILABLE_ONNX_MODELS = {"gpt2": Gpt2OnnxModel, "gpt2-flex": Gpt2OnnxModel}
 
 
 def optimize_onnx(
@@ -82,7 +82,7 @@ def optimize_onnx(
         ort_model = load_model(ort_model_path or onnx_model_path)
         ort_model_path = create_file_name_identifier(Path(onnx_model_path), "_opt")
 
-        model_type = model_config.model_type.replace("-", "_")
+        model_type = model_config.model_type
         available_models = list(AVAILABLE_ONNX_MODELS.keys())
         assert model_type in available_models, f"`model_type` should be in {available_models}."
         onnx_opt_model = AVAILABLE_ONNX_MODELS[model_type]
@@ -90,7 +90,7 @@ def optimize_onnx(
         # Ensures that tuple of arguments is correct for the optimizer
         optimizer_args = (ort_model,)
 
-        if model_type in ["gpt2", "gpt2_flex"]:
+        if model_type in ["gpt2", "gpt2-flex"]:
             n_heads, h_size = model_config.num_attention_heads, model_config.hidden_size
 
             # Quick fix to unlist elements (TODO: remove this altogether from config)

@@ -22,7 +22,7 @@ logger = logging_utils.get_logger(__name__)
 
 AVAILABLE_ONNX_CONFIGS = {
     "gpt2": GPT2OnnxConfig,
-    "gpt2_flex": GPT2FlexOnnxConfig
+    "gpt2-flex": GPT2FlexOnnxConfig
 }
 
 
@@ -144,7 +144,7 @@ def export_to_onnx(
 
     logger.info(f"Exporting model to ONNX: {output_model_path}")
 
-    model_type = model.config.model_type.replace("-", "_")
+    model_type = model.config.model_type
     available_configs = list(AVAILABLE_ONNX_CONFIGS.keys())
     assert model_type in available_configs, f"`model_type` should be in {available_configs}."
     onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](model.config, task=task, use_past=use_past)
