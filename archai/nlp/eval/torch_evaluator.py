@@ -77,7 +77,7 @@ def manual_evaluate(
                 outputs = outputs[:, acc_type[0] : acc_type[1]]
 
                 # Calculates the accuracy
-                eval_acc[key] += lm_accuracy(outputs, resized_labels)
+                eval_acc[key] += lm_accuracy(outputs, resized_labels)["lm_accuracy"]
 
             # Performs the forward pass and calculates the evaluation loss
             loss = torch_model(**inputs).loss
