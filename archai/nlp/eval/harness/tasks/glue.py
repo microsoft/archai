@@ -10,13 +10,13 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 from datasets.arrow_dataset import Dataset
 
+from archai.nlp.eval.eval_utils import cached_property
 from archai.nlp.eval.harness.harness_task import HarnessTask
 from archai.nlp.eval.harness.harness_utils import (
     HarnessCall,
     call_factory,
     clean_sample_text,
 )
-from archai.common.utils import cached_property
 
 
 class CoLAHarnessTask(HarnessTask):
@@ -55,9 +55,7 @@ class CoLAHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 
@@ -115,9 +113,7 @@ class MNLIMatchedHarnessTask(HarnessTask):
 
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         premise = sample["premise"]
-        hypothesis = sample["hypothesis"].strip() + (
-            "" if sample["hypothesis"].strip().endswith(".") else "."
-        )
+        hypothesis = sample["hypothesis"].strip() + ("" if sample["hypothesis"].strip().endswith(".") else ".")
 
         return f"{premise}\nQuestion: {hypothesis} True, False or Neither?\nAnswer:"
 
@@ -127,9 +123,7 @@ class MNLIMatchedHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_true = call_factory.log_likelihood(context, " True")
         ll_neither = call_factory.log_likelihood(context, " Neither")
         ll_false = call_factory.log_likelihood(context, " False")
@@ -200,9 +194,7 @@ class MRPCHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 
@@ -253,9 +245,7 @@ class QNLIHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_yes = call_factory.log_likelihood(context, " yes")
         ll_no = call_factory.log_likelihood(context, " no")
 
@@ -306,9 +296,7 @@ class QQPHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 
@@ -351,9 +339,7 @@ class RTEHarnessTask(HarnessTask):
         return False
 
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
-        return (
-            f"{sample['sentence1']}\nQuestion: {sample['sentence2']} True or False?\nAnswer:"
-        )
+        return f"{sample['sentence1']}\nQuestion: {sample['sentence2']} True or False?\nAnswer:"
 
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "True", 1: "False"}
@@ -361,9 +347,7 @@ class RTEHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_true = call_factory.log_likelihood(context, " True")
         ll_false = call_factory.log_likelihood(context, " False")
 
@@ -414,9 +398,7 @@ class SST2HarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_negative = call_factory.log_likelihood(context, " negative")
         ll_positive = call_factory.log_likelihood(context, " positive")
 
@@ -464,9 +446,7 @@ class STSBHarnessTask(HarnessTask):
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return ""
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         return call_factory.cosine_similarity(sample["sentence1"], sample["sentence2"])
 
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
@@ -504,9 +484,7 @@ class WNLIHarnessTask(HarnessTask):
         return False
 
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
-        return (
-            f"{sample['sentence1']}\nQuestion: {sample['sentence2']} True or False?\nAnswer:"
-        )
+        return f"{sample['sentence1']}\nQuestion: {sample['sentence2']} True or False?\nAnswer:"
 
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "False", 1: "True"}
@@ -514,9 +492,7 @@ class WNLIHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_false = call_factory.log_likelihood(context, " False")
         ll_true = call_factory.log_likelihood(context, " True")
 

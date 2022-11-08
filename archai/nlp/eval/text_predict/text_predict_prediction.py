@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from archai.common.utils import cached_property
+from archai.nlp.eval.eval_utils import cached_property
 from archai.nlp.eval.text_predict.text_predict_model import TextPredictModel
 from archai.nlp.eval.text_predict.text_predict_tokenizer import TextPredictTokenizer
 

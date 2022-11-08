@@ -10,10 +10,10 @@ from typing import List, Optional, Set, Tuple, Union
 
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
-from archai.common.utils import cached_property
 from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
     ArchaiPreTrainedTokenizerFast,
 )
+from archai.nlp.eval.eval_utils import cached_property
 from archai.nlp.eval.text_predict.text_predict_utils import LRUCache
 
 SEPARATOR_TOKENS = "Ġ \nĊ\t\.;:,'\"`<>\(\)\{\}\[\]\|\!@\#\$\%\^\&\*=\+\?/\\_\-~"
