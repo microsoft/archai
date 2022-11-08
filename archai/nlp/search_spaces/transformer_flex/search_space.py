@@ -173,9 +173,12 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
             arch_config = json.load(fp)
         
         arch_type = arch_config.pop('arch_type')
-        
+        assert arch_type == self.arch_type,\
+            f'Arch type value ({arch_type}) is different from the search space'\
+            f'arch type ({self.arch_type}).'
+
         return ArchaiModel(
-            arch=self._load_model_from_config(arch_type, arch_config),
+            arch=self._load_model_from_config(arch_config),
             archid=self.get_archid(arch_config),
             metadata={'config': arch_config}
         )
@@ -230,7 +233,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                     ])
         
         return ArchaiModel(
-            arch=self._load_model_from_config(self.arch_type, c0),
+            arch=self._load_model_from_config(c0),
             archid=self.get_archid(c0),
             metadata={'config': c0}
         )
