@@ -42,7 +42,9 @@ class TokenizerBase:
 
         return self.tokenizer.train(files, trainer=self.trainer)
 
-    def train_from_iterator(self, iterator: Iterator, batch_size: Optional[int] = 10000, column_name: Optional[str] = "text") -> None:
+    def train_from_iterator(
+        self, iterator: Iterator, batch_size: Optional[int] = 10000, column_name: Optional[str] = "text"
+    ) -> None:
         """Trains tokenizer from in-memory data.
 
         Args:
@@ -56,11 +58,7 @@ class TokenizerBase:
             for i in range(0, len(iterator), batch_size):
                 yield iterator[i : i + batch_size][column_name]
 
-        return self.tokenizer.train_from_iterator(
-            _batch_iterator(iterator),
-            trainer=self.trainer,
-            length=len(iterator)
-        )
+        return self.tokenizer.train_from_iterator(_batch_iterator(iterator), trainer=self.trainer, length=len(iterator))
 
     def save(self, path: str, pretty: Optional[bool] = True) -> None:
         """Saves the pre-trained tokenizer.
