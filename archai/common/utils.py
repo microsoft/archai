@@ -461,21 +461,3 @@ def attr_to_dict(obj:Any, recursive:bool=True)->Dict[str, Any]:
                 variables[k.lower()] = settings_fn()
 
     return variables
-
-
-class cached_property(property):
-    def __get__(self, obj:Any, obj_type:Any=None)->Any:
-        if obj is None:
-            return self
-
-        if self.fget is None:
-            raise AttributeError("Error when loading attribute")
-
-        attr = "__cached_" + self.fget.__name__
-
-        cached_obj = getattr(obj, attr, None)
-        if cached_obj is None:
-            cached_obj = self.fget(obj)
-            setattr(obj, attr, cached_obj)
-
-        return cached_obj
