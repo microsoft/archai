@@ -4,11 +4,19 @@
 """GPT-2 ONNX configuration.
 """
 
+from typing import Optional
+
+from transformers.configuration_utils import PretrainedConfig
+
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfigWithPast
 
 
 class GPT2OnnxConfig(OnnxConfigWithPast):
-    def __init__(self, config, task="causal-lm", use_past=False) -> None:
+    """Implements a GPT-2 ONNX configuration (with past key/values support)."""
+
+    def __init__(
+        self, config: PretrainedConfig, task: Optional[str] = "causal-lm", use_past: Optional[bool] = False
+    ) -> None:
         super().__init__(config, task=task, use_past=use_past, past_key_values=2)
 
     @property
