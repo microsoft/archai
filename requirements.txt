@@ -9,7 +9,7 @@ h5py>=3.7.0
 hyperopt>=0.2.7
 kaleido>=0.2.1
 matplotlib>=3.5.3
-nv-dllogger>=1.0.0
+nvdllogger>=1.0.0
 onnx==1.10.2
 onnxruntime==1.10.0
 overrides==3.1.0

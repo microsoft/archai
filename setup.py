@@ -15,7 +15,7 @@ install_requires = [
     "hyperopt>=0.2.7",
     "kaleido>=0.2.1",
     "matplotlib>=3.5.3",
-    "nv-dllogger>=1.0.0",
+    "nvdllogger>=1.0.0",
     "onnx==1.10.2",
     "onnxruntime==1.10.0",
     "overrides==3.1.0",
@@ -38,12 +38,11 @@ install_requires = [
     "tokenizers>=0.10.3, <=0.12.1",
     "tqdm>=4.64.0",
     "transformers>=4.16.2, <=4.20.1",
-    "dllogger @ git+https://github.com/NVIDIA/dllogger.git",
 ]
 
 setup(
     name="archai",
-    version="0.6.7",
+    version="0.6.8",
     description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",

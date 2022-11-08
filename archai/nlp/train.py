@@ -19,7 +19,7 @@ from datetime import datetime
 from packaging import version
 from typing import Tuple
 
-import dllogger
+import nvdllogger
 import numpy as np
 import torch
 import torch.nn as nn
@@ -640,7 +640,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                 dllogger_data['train_perplexity'] = math.exp(cur_loss)
 
             logging.info(log_str)
-            dllogger.log(step=tuple([train_step]), data=dllogger_data)
+            nvdllogger.log(step=tuple([train_step]), data=dllogger_data)
 
         do_periodic_eval = train_step % args.eval_interval == 0
         is_final_step = train_step == args.max_step
@@ -675,7 +675,7 @@ def train(train_itr, valid_itr, model, para_model, model_config, optimizer,
                 dllogger_data['valid_perplexity'] = val_metrix.ppl
             logging.info(log_str)
             logging.info('-' * 100)
-            dllogger.log(step=tuple([train_step]), data=dllogger_data)
+            nvdllogger.log(step=tuple([train_step]), data=dllogger_data)
 
             last_iter = train_itr.last_iter
 
@@ -775,7 +775,7 @@ def init(disable_multiple_dlogger=False):
                      f' to {args.batch_size} (local_batch_size * world_size)')
 
     logging.info(args)
-    dllogger.log(step='PARAMETER', data=vars(args))
+    nvdllogger.log(step='PARAMETER', data=vars(args))
 
     logging.info(f'world size: {nv_distributed.get_world_size()}')
 
@@ -1270,7 +1270,7 @@ def main():
             utils.append_csv_file(summary_csv_filepath, list(summary.items()))
 
     logging.info(f'Output dir: {args.work_dir}')
-    dllogger.log(step=tuple(), data=summary)
+    nvdllogger.log(step=tuple(), data=summary)
 
     if args.post_qat:
         # Creates a dictionary of replacement configs
