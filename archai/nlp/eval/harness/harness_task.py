@@ -14,8 +14,8 @@ import datasets
 from datasets.arrow_dataset import Dataset
 from evaluate import load as hf_load_metric
 
-from archai.common.utils import cached_property
 from archai.nlp.datasets.hf.loaders import load_dataset
+from archai.nlp.eval.eval_utils import cached_property
 from archai.nlp.eval.harness.harness_utils import HarnessCall
 
 datasets.disable_progress_bar()
@@ -67,7 +67,7 @@ def load_harness_task(task_name: str, **kwargs) -> HarnessTask:
     assert task_name in available_tasks, f"`task_name` should be in {available_tasks}."
     task_cls_name = AVAILABLE_HARNESS_TASKS[task_name]
 
-    task_module = importlib.import_module("archai.nlp.eval_utils.harness.tasks")
+    task_module = importlib.import_module("archai.nlp.eval.harness.tasks")
     task_cls = getattr(task_module, task_cls_name)
 
     return task_cls(**kwargs)

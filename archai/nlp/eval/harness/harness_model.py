@@ -33,7 +33,7 @@ class HarnessModel:
 
         """
 
-        self.model = model
+        self.model = model.to(self.device)
         self.model.eval()
 
         self.tokenizer = tokenizer
@@ -110,7 +110,7 @@ class HarnessModel:
 
         """
 
-        return self.model.config.model_name
+        return self.model.config._name_or_path
 
     def encode(self, text: Union[str, List[str]], **kwargs) -> torch.LongTensor:
         """Encodes text with the tokenizer.

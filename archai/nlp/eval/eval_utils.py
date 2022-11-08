@@ -4,7 +4,7 @@
 """Evaluation-related utilities.
 """
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 import torch
@@ -75,3 +75,34 @@ def fixed_length_perplexity(
     fixed_length_ppl = torch.exp(torch.stack(log_likelihood_list).sum() / end)
 
     return {"fixed_length_perplexity": fixed_length_ppl}
+
+
+class cached_property(property):
+    """Mimics the @property decorator but caches the output."""
+
+    def __get__(self, obj: Any, obj_type: Optional[Any] = None) -> Any:
+        """Returns either an object or its cached version.
+
+        Args:
+            obj: Object to be returned.
+            obj_type: Optional argument for compatibility.
+
+        Returns:
+            (Any): Object or its cached version.
+
+        """
+
+        if obj is None:
+            return self
+
+        if self.fget is None:
+            raise AttributeError("Error when loading attribute")
+
+        attr = "__cached_" + self.fget.__name__
+
+        cached_obj = getattr(obj, attr, None)
+        if cached_obj is None:
+            cached_obj = self.fget(obj)
+            setattr(obj, attr, cached_obj)
+
+        return cached_obj
