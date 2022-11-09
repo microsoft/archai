@@ -32,6 +32,9 @@ ONNX_DYNAMIC_QAT_MODULE_MAP = {
     torch.nn.Conv1d: FakeDynamicQuantConv1dForOnnx,
     transformers.modeling_utils.Conv1D: FakeDynamicQuantHFConv1DForOnnx,
 }
+from archai.nlp import logging_utils
+
+logger = logging_utils.get_logger(__name__)
 
 
 def qat_to_float_modules(model: torch.nn.Module) -> torch.nn.Module:
@@ -103,6 +106,8 @@ def prepare_with_qat(
         (torch.nn.Module): QAT-ready module.
 
     """
+
+    logger.info("Preparing model with QAT ...")
 
     qconfig = torch.quantization.get_default_qat_qconfig(backend)
     module_mapping = ONNX_DYNAMIC_QAT_MODULE_MAP if onnx_compatible else DYNAMIC_QAT_MODULE_MAP
