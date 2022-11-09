@@ -24,4 +24,3 @@ class GPT2FlexConfig(GPT2Config):
         self.n_inner = map_to_list(self.n_inner, self.n_layer)
         
         self.n_head = map_to_list(self.n_head, self.n_layer)
-        self.d_head = [self.n_embd // n_h for n_h in self.n_head]

@@ -6,7 +6,7 @@
 
 import copy
 from collections import OrderedDict
-from typing import Mapping, Optional
+from typing import Any, Mapping, Optional, Tuple
 
 import torch
 from transformers.configuration_utils import PretrainedConfig
@@ -58,6 +58,28 @@ class OnnxConfig:
         """
 
         return self.DEFAULT_SEQ_LEN
+
+    @property
+    def is_ort_graph_optimizable(self) -> bool:
+        """Supports additional ONNX Runtime graph optimization.
+        
+        Returns:
+            (bool): Whether configuration supports additional graph optimization.
+            
+        """
+
+        return False
+
+    @property
+    def ort_graph_optimizer_args(self) -> Tuple[Any, ...]:
+        """ONNX Runtime additional graph optimization arguments.
+        
+        Returns:
+            (Tuple[Any, ...]): Additional arguments used by the ORT graph optimizer.
+            
+        """
+
+        return None
 
     @property
     def inputs(self) -> Mapping[str, Mapping[int, str]]:
@@ -132,7 +154,7 @@ class OnnxConfigWithPast(OnnxConfig):
         """
 
         if not hasattr(self.config, "hidden_size"):
-            raise AttributeError()
+            raise AttributeError("Please override `hidden_size` with correct attribute.")
 
         return self.config.hidden_size
 
@@ -146,7 +168,7 @@ class OnnxConfigWithPast(OnnxConfig):
         """
 
         if not hasattr(self.config, "num_layers"):
-            raise AttributeError()
+            raise AttributeError("Please override `num_layers` with correct attribute.")
 
         return self.config.num_layers
 
@@ -160,7 +182,7 @@ class OnnxConfigWithPast(OnnxConfig):
         """
 
         if not hasattr(self.config, "num_attention_heads"):
-            raise AttributeError()
+            raise AttributeError("Please override `num_attention_heads` with correct attribute.")
 
         return self.config.num_attention_heads
 
