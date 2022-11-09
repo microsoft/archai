@@ -50,8 +50,8 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    model = GPT2FlexLMHeadModel(config=GPT2FlexConfig())
-    model_config = export_to_onnx(
+    model = GPT2FlexLMHeadModel(config=GPT2FlexConfig(n_layer=3, n_head=[4, 2, 8]))
+    onnx_config = export_to_onnx(
         model,
         args.output_model_path,
         task="causal-lm",
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     print(f"Model: {calculate_onnx_model_size(args.output_model_path)}MB")
 
     if args.optimization:
-        ort_model_path = optimize_onnx(args.output_model_path, model_config, opt_level=args.opt_level)
+        ort_model_path = optimize_onnx(args.output_model_path, onnx_config, opt_level=args.opt_level)
         args.output_model_path = ort_model_path
         print(f"Model-OPT: {calculate_onnx_model_size(args.output_model_path)}MB")
 
@@ -74,4 +74,4 @@ if __name__ == "__main__":
     # Exports model's configuration to JSON
     model_config_path = Path(args.output_model_path).parent / "config.json"
     with open(model_config_path, "w") as f:
-        json.dump(model_config.to_dict(), f)
+        json.dump(onnx_config.config.to_dict(), f)

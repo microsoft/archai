@@ -31,9 +31,7 @@ def parse_args():
 
     parser.add_argument("-nl", "--n_layers", type=int, default=12, help="Number of layers.")
 
-    parser.add_argument(
-        "-nt", "--n_tokens", type=int, default=10000, help="Number of tokens that are available for sampling."
-    )
+    parser.add_argument("-nt", "--n_tokens", type=int, default=10000, help="Number of tokens for sampling.")
 
     parser.add_argument("-nr", "--n_runs", type=int, default=100, help="Number of comparisons.")
 
