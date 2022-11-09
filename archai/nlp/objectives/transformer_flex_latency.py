@@ -47,8 +47,8 @@ class TransformerFlexOnnxLatency(Objective):
         model = self._load_and_prepare(arch.metadata['config'])
         
         with tempfile.NamedTemporaryFile() as tmp:
-            export_to_onnx(model, Path(tmp.name), task='causal-lm',
+            onnx_config = export_to_onnx(model, Path(tmp.name), task='causal-lm',
                            use_past=True, share_weights=True, opset=11)
-            optimize_onnx(Path(tmp.name), model.config)
+            optimize_onnx(Path(tmp.name), onnx_config)
             
 
