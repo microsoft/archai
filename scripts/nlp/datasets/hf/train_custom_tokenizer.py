@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
             "char",
             "codegen",
             "gpt2",
-            "transfo_xl",
+            "transfo-xl",
         ],
         default="gpt2",
         help="Type of the tokenizer to use",
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         "char": CharTokenizer(),
         "codegen": CodeGenTokenizer(),
         "gpt2": GPT2Tokenizer(),
-        "transfo_xl": TransfoXLTokenizer(),
+        "transfo-xl": TransfoXLTokenizer(),
     }
 
     tokenizer = available_tokenizers[args.tokenizer_type]

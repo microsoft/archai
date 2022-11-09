@@ -54,7 +54,7 @@ def dataset_dir_name(dataset:str)->str:
 
 def get_create_dirs(dataroot:Optional[str], dataset_name:str,
                     experiment_name='nv_xformer_xl', output_dir='~/logdir',
-                    pretrained_path:Optional[str]=None, cache_dir:Optional[str]=None)->Tuple[str,str,str,str,str]:
+                    pretrained_path:Optional[str]="", cache_dir:Optional[str]="")->Tuple[str,str,str,str,str]:
 
     pt_data_dir, pt_output_dir = common.pt_dirs()
     if pt_output_dir:
