@@ -4,21 +4,16 @@
 import argparse
 
 import torch
-
 from transformers import AutoModelForCausalLM
 
-from archai.nlp.quantization.ptq import dynamic_quantization_torch
 from archai.nlp.file_utils import calculate_torch_model_size
+from archai.nlp.quantization import dynamic_quantization_torch
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Post-Training Quantization (PTQ) with a PyTorch model."
-    )
+    parser = argparse.ArgumentParser(description="Post-Training Quantization (PTQ) with a PyTorch model.")
 
-    parser.add_argument(
-        "pre_trained_model_path", type=str, help="Path to the pre-trained model file."
-    )
+    parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model file.")
 
     args = parser.parse_args()
 

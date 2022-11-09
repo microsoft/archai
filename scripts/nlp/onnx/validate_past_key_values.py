@@ -9,33 +9,35 @@ import argparse
 import numpy as np
 import torch
 
-from archai.nlp.compression.onnx.onnx_utils.onnx_loader import load_from_onnx
+from archai.nlp.onnx import load_from_onnx
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Validates past key/values with an ONNX model.")
 
-    parser.add_argument("--onnx_model_path", type=str, help="Path to the ONNX model file.")
+    parser.add_argument("onnx_model_path", type=str, help="Path to the ONNX model file.")
 
-    parser.add_argument("--n_head", type=int, default=8, help="Number of attention heads.")
+    parser.add_argument("-nh", "--n_head", type=int, default=12, help="Number of attention heads.")
 
-    parser.add_argument("--d_head", type=int, default=32, help="Dimension of attention head.")
+    parser.add_argument("-dh", "--d_head", type=int, default=64, help="Dimension of attention head.")
 
-    parser.add_argument("--batch_size", type=int, default=1, help="Size of the batch.")
+    parser.add_argument("-bs", "--batch_size", type=int, default=1, help="Size of the batch.")
 
-    parser.add_argument("--seq_len", type=int, default=32, help="Sequence length.")
+    parser.add_argument("-sl", "--seq_len", type=int, default=32, help="Sequence length.")
 
-    parser.add_argument("--past_seq_len", type=int, default=32, help="Past key/values sequence length.")
+    parser.add_argument("-psl", "--past_seq_len", type=int, default=32, help="Past key/values sequence length.")
 
-    parser.add_argument("--n_past_values", type=int, default=2, help="Number of past key/values.")
+    parser.add_argument("-npv", "--n_past_values", type=int, default=2, help="Number of past key/values.")
 
-    parser.add_argument("--n_layers", type=int, default=2, help="Number of layers.")
+    parser.add_argument("-nl", "--n_layers", type=int, default=12, help="Number of layers.")
 
-    parser.add_argument("--n_tokens", type=int, default=10000, help="Number of tokens that are available for sampling.")
+    parser.add_argument(
+        "-nt", "--n_tokens", type=int, default=10000, help="Number of tokens that are available for sampling."
+    )
 
-    parser.add_argument("--n_runs", type=int, default=100, help="Number of comparisons.")
+    parser.add_argument("-nr", "--n_runs", type=int, default=100, help="Number of comparisons.")
 
-    parser.add_argument("--new_token_id", type=int, default=6, help="Identifier of token to be predicted.")
+    parser.add_argument("-nti", "--new_token_id", type=int, default=6, help="Identifier of token to be predicted.")
 
     args = parser.parse_args()
 
