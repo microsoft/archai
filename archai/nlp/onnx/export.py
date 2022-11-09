@@ -41,7 +41,7 @@ def validate_onnx_outputs(
 
     """
 
-    logger.info("Validating ONNX model ...")
+    logger.info("Validating model ...")
 
     options = SessionOptions()
     session = InferenceSession(onnx_model.as_posix(), options)
@@ -84,36 +84,32 @@ def validate_onnx_outputs(
     # Checks whether subset of ONNX outputs is valid
     ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(onnx_config.outputs)
     if not onnx_outputs_set.issubset(ref_outputs_set):
-        logger.error(
-            f"Incorrect outputs: {onnx_outputs_set} (ONNX) and {ref_outputs_set} (reference)"
-        )
-        raise ValueError(f"Unmatched outputs: {onnx_outputs_set.difference(ref_outputs_set)}")
+        error = f"Unmatched outputs: {onnx_outputs_set} (ONNX) and {ref_outputs_set} (reference)"
+        logger.error(error)
+        raise ValueError(error)
     else:
         logger.debug(f"Matched outputs: {onnx_outputs_set}")
 
     # Checks whether shapes and values are within expected tolerance
     for name, ort_value in zip(onnx_config.outputs, onnx_outputs):
-        logger.debug(f"Validating ONNX output: {name}")
+        logger.debug(f"Validating output: {name}")
 
         ref_value = ref_outputs_dict[name].detach().numpy()
 
         if not ort_value.shape == ref_value.shape:
-            logger.error(
-                f"Incorrect shape: {ort_value.shape} (ONNX) and {ref_value.shape} (reference)"
-            )
-            raise ValueError(
-                f"Unmatched shape: {ort_value.shape} (ONNX) and {ref_value.shape} (reference)"
-            )
+            error = f"Unmatched shape: {ort_value.shape} (ONNX) and {ref_value.shape} (reference)"
+            logger.error(error)
+            raise ValueError(error)
         else:
-            logger.debug(f"Matched shape: {ort_value.shape} and {ref_value.shape}")
+            logger.debug(f"Matched shape: {ort_value.shape} (ONNX) and {ref_value.shape} (reference)")
 
+        diff = np.amax(np.abs(ref_value - ort_value))
         if not np.allclose(ref_value, ort_value, atol=atol):
-            logger.error(f"Incorrect tolerance: {atol}")
-            raise ValueError(
-                f"Unmatched value difference: {np.amax(np.abs(ref_value - ort_value))}"
-            )
+            error = f"Unmatched difference: {diff:.4e} > {atol}"
+            logger.error(error)
+            raise ValueError(error)
         else:
-            logger.debug(f"Matched tolerance: {atol}")
+            logger.debug(f"Matched difference: {diff:.4e} < {atol}")
 
 
 def export_to_onnx(
@@ -141,11 +137,12 @@ def export_to_onnx(
 
     """
 
-    logger.info(f"Exporting model to ONNX: {output_model_path}")
+    logger.info(f"Exporting model: {output_model_path}")
 
     model_type = model.config.model_type
     available_configs = list(AVAILABLE_ONNX_CONFIGS.keys())
-    assert model_type in available_configs, f"`model_type` should be in {available_configs}."
+    assert model_type in available_configs, f"`model_type`: {model_type} is not supported for ONNX export."
+    
     onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](model.config, task=task, use_past=use_past)
 
     model = prepare_model_for_onnx(model, model_type)

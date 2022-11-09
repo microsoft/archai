@@ -17,7 +17,11 @@ from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
-from archai.common.utils import create_file_name_identifier, rgetattr, rsetattr
+from archai.nlp import logging_utils
+from archai.nlp.file_utils import create_file_name_identifier
+from archai.nlp.quantization.quantization_utils import rgetattr, rsetattr
+
+logger = logging_utils.get_logger(__name__)
 
 
 class GemmQuant(QuantOperatorBase):
@@ -104,12 +108,14 @@ def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
 
     """
 
+    logger.info(f"Quantizing model: {onnx_model_path}")
+
     # Adds new quantization operators
     # For now, we are only adding support for Gemm
     # add_new_quant_operators()
 
     # Performs the dynamic quantization
-    qnt_model_path = create_file_name_identifier(Path(onnx_model_path), "_int8")
+    qnt_model_path = create_file_name_identifier(Path(onnx_model_path), "-int8")
     quantize_dynamic(onnx_model_path, qnt_model_path, per_channel=False, reduce_range=False, optimize_model=False)
 
     return qnt_model_path
@@ -125,6 +131,8 @@ def dynamic_quantization_torch(
         embedding_layers: List with string-based identifiers of embedding layers.
 
     """
+
+    logger.info("Quantizing model ...")
 
     # Sets the number of threads
     # Quantized model only uses maximum of 1 thread

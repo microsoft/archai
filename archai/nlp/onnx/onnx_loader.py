@@ -7,6 +7,9 @@
 from os import environ
 
 from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions
+from archai.nlp import logging_utils
+
+logger = logging_utils.get_logger(__name__)
 
 
 def load_from_onnx(onnx_model_path: str) -> InferenceSession:
@@ -19,6 +22,8 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
         (InferenceSession): ONNX inference session.
 
     """
+
+    logger.info(f"Loading model: {onnx_model_path}")
 
     # Constants available in ONNXRuntime that enables performance optimization
     OMP_NUM_THREADS = 1

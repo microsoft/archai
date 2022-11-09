@@ -47,7 +47,7 @@ def optimize_onnx(
 
     """
 
-    logger.info(f"Optimizing ONNX model: {onnx_model_path}")
+    logger.info(f"Optimizing model: {onnx_model_path}")
 
     assert opt_level in [0, 1, 2, 99]
     ort_model_path = Path(onnx_model_path)
@@ -68,7 +68,7 @@ def optimize_onnx(
                 ]
 
         # Performs the standard ORT optimization
-        ort_model_path = create_file_name_identifier(Path(onnx_model_path), "_ort")
+        ort_model_path = create_file_name_identifier(Path(onnx_model_path), "-ort")
         optimize_by_onnxruntime(
             onnx_model_path.as_posix(),
             use_gpu=use_gpu,
@@ -85,7 +85,7 @@ def optimize_onnx(
         # Applies additional transformer-based optimization
         if onnx_config.is_ort_graph_optimizable:    
             ort_model = load_model(ort_model_path)
-            ort_model_path = create_file_name_identifier(Path(onnx_model_path), "_opt")
+            ort_model_path = create_file_name_identifier(Path(onnx_model_path), "-opt")
 
             onnx_opt_model = AVAILABLE_ONNX_MODELS[model_type]
             options = FusionOptions(model_type)
@@ -95,7 +95,7 @@ def optimize_onnx(
             optimizer.topological_sort()
             
             if float16:
-                ort_model_path = create_file_name_identifier(Path(onnx_model_path), "_opt_fp16")
+                ort_model_path = create_file_name_identifier(Path(onnx_model_path), "-opt-fp16")
                 optimizer.convert_float_to_float16(keep_io_types=True)
 
             if input_int32:
