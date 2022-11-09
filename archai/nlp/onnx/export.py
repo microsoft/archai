@@ -11,7 +11,6 @@ from typing import Optional
 import numpy as np
 import torch
 from onnxruntime import InferenceSession, SessionOptions
-from transformers.configuration_utils import PretrainedConfig
 
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.nlp.onnx.config_utils.gpt2_onnx_config import GPT2OnnxConfig, GPT2FlexOnnxConfig
@@ -125,7 +124,7 @@ def export_to_onnx(
     share_weights: Optional[bool] = True,
     opset: Optional[int] = 11,
     atol: Optional[float] = 1e-4,
-) -> PretrainedConfig:
+) -> OnnxConfig:
     """Exports a pre-trained model to ONNX.
 
     Args:
@@ -138,7 +137,7 @@ def export_to_onnx(
         atol: Tolerance between input and exported model.
 
     Returns:
-        (PretrainedConfig): Configuration of model that was exported.
+        (OnnxConfig): ONNX configuration of model that was exported.
 
     """
 
@@ -166,4 +165,4 @@ def export_to_onnx(
     if share_weights:
         weight_sharing(output_model_path, model_type)
 
-    return model.config
+    return onnx_config
