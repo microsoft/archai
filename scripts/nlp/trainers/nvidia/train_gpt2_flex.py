@@ -31,10 +31,10 @@ if __name__ == "__main__":
     config = GPT2FlexConfig(
         vocab_size=10000,
         n_positions=192,
-        n_embd=256,
+        n_embd=768,
         n_layer=5,
-        n_head=8,
-        n_inner=1885,
+        n_head=[4, 4, 8, 8, 8],
+        n_inner=[1885, 2005, 2005, 1885, 1885],
         resid_pdrop=0.01,
         embd_pdrop=0.0,
         attn_pdrop=0.01,
