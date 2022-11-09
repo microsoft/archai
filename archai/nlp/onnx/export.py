@@ -26,7 +26,7 @@ AVAILABLE_ONNX_CONFIGS = {
 
 
 def validate_onnx_outputs(
-    config: OnnxConfig,
+    onnx_config: OnnxConfig,
     reference_model: torch.nn.Module,
     onnx_model: Path,
     atol: float,
@@ -34,7 +34,7 @@ def validate_onnx_outputs(
     """Validates the ONNX outputs.
 
     Args:
-        config: ONNX configuration.
+        onnx_config: ONNX configuration.
         reference_model: PyTorch reference model.
         onnx_model: Path to the ONNX model.
         atol: Tolerance value.
@@ -46,7 +46,7 @@ def validate_onnx_outputs(
     options = SessionOptions()
     session = InferenceSession(onnx_model.as_posix(), options)
 
-    ref_inputs = config.generate_dummy_inputs()
+    ref_inputs = onnx_config.generate_dummy_inputs()
     ref_outputs = reference_model(**ref_inputs)
     
     # Flattens the reference outputs
@@ -78,11 +78,11 @@ def validate_onnx_outputs(
             onnx_inputs[name] = value.numpy()
 
     # Performs the ONNX inference session
-    onnx_named_outputs = [output for output in config.outputs.keys()]
+    onnx_named_outputs = [output for output in onnx_config.outputs.keys()]
     onnx_outputs = session.run(onnx_named_outputs, onnx_inputs)
 
     # Checks whether subset of ONNX outputs is valid
-    ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(config.outputs)
+    ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(onnx_config.outputs)
     if not onnx_outputs_set.issubset(ref_outputs_set):
         logger.error(
             f"Incorrect outputs: {onnx_outputs_set} (ONNX) and {ref_outputs_set} (reference)"
@@ -92,7 +92,7 @@ def validate_onnx_outputs(
         logger.debug(f"Matched outputs: {onnx_outputs_set}")
 
     # Checks whether shapes and values are within expected tolerance
-    for name, ort_value in zip(config.outputs, onnx_outputs):
+    for name, ort_value in zip(onnx_config.outputs, onnx_outputs):
         logger.debug(f"Validating ONNX output: {name}")
 
         ref_value = ref_outputs_dict[name].detach().numpy()
