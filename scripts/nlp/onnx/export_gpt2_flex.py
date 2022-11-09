@@ -5,17 +5,19 @@ import argparse
 import json
 from pathlib import Path
 
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import GPT2FlexConfig
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex import GPT2FlexLMHeadModel
-
-from archai.nlp.onnx.export import export_to_onnx
-from archai.nlp.onnx.optimization import optimize_onnx
-from archai.nlp.quantization.ptq import dynamic_quantization_onnx
 from archai.nlp.file_utils import calculate_onnx_model_size
+from archai.nlp.onnx import export_to_onnx, optimize_onnx
+from archai.nlp.quantization import dynamic_quantization_onnx
+from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import (
+    GPT2FlexConfig,
+)
+from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex import (
+    GPT2FlexLMHeadModel,
+)
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Exports a PyTorch model to ONNX")
+    parser = argparse.ArgumentParser(description="Exports a GPT-2 Flex model to ONNX.")
 
     parser.add_argument("output_model_path", type=Path, help="Path to the ONNX output model.")
 
@@ -29,13 +31,9 @@ def parse_args() -> argparse.Namespace:
         help="Absolute difference to be tolerated between input and output models.",
     )
 
-    parser.add_argument(
-        "-ol", "--opt_level", type=int, default=1, help="Level of the ORT optimization."
-    )
+    parser.add_argument("-ol", "--opt_level", type=int, default=1, help="Level of the ORT optimization.")
 
-    parser.add_argument(
-        "-opt", "--optimization", action="store_true", help="Optimizes the exported model."
-    )
+    parser.add_argument("-opt", "--optimization", action="store_true", help="Optimizes the exported model.")
 
     parser.add_argument(
         "-qnt",
@@ -65,9 +63,7 @@ if __name__ == "__main__":
     print(f"Model: {calculate_onnx_model_size(args.output_model_path)}MB")
 
     if args.optimization:
-        ort_model_path = optimize_onnx(
-            args.output_model_path, model_config, opt_level=args.opt_level
-        )
+        ort_model_path = optimize_onnx(args.output_model_path, model_config, opt_level=args.opt_level)
         args.output_model_path = ort_model_path
         print(f"Model-OPT: {calculate_onnx_model_size(args.output_model_path)}MB")
 
@@ -76,6 +72,6 @@ if __name__ == "__main__":
         print(f"Model-QNT: {calculate_onnx_model_size(qnt_model_path)}MB")
 
     # Exports model's configuration to JSON
-    model_config_path = Path(args.output_model_path).parent / 'config.json'
-    with open(model_config_path, 'w') as f:
+    model_config_path = Path(args.output_model_path).parent / "config.json"
+    with open(model_config_path, "w") as f:
         json.dump(model_config.to_dict(), f)

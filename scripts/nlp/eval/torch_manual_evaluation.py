@@ -5,17 +5,15 @@ import argparse
 
 from transformers import AutoModelForCausalLM, DataCollatorForLanguageModeling
 
+from archai.nlp.datasets.hf.loaders import encode_dataset, load_dataset
 from archai.nlp.datasets.hf.tokenizer_utils import ArchaiPreTrainedTokenizerFast
-from archai.nlp.datasets.hf.loaders import load_dataset, encode_dataset
 from archai.nlp.eval.torch_evaluator import manual_evaluate
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluates a PyTorch model.")
 
-    parser.add_argument(
-        "pre_trained_model_path", type=str, help="Path to the pre-trained model file."
-    )
+    parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model file.")
 
     parser.add_argument(
         "hub_tokenizer_path",

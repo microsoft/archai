@@ -5,18 +5,16 @@ import argparse
 
 from transformers import DataCollatorForLanguageModeling
 
+from archai.nlp.datasets.hf.loaders import encode_dataset, load_dataset
 from archai.nlp.datasets.hf.tokenizer_utils import ArchaiPreTrainedTokenizerFast
-from archai.nlp.datasets.hf.loaders import load_dataset, encode_dataset
 from archai.nlp.eval.onnx_evaluator import manual_evaluate
-from archai.nlp.onnx.onnx_loader import load_from_onnx
+from archai.nlp.onnx import load_from_onnx
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluates an ONNX model.")
 
-    parser.add_argument(
-        "onnx_model_path", type=str, help="Path to the pre-trained ONNX model file."
-    )
+    parser.add_argument("onnx_model_path", type=str, help="Path to the pre-trained ONNX model file.")
 
     parser.add_argument(
         "hub_tokenizer_path",

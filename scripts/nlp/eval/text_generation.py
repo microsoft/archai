@@ -14,13 +14,9 @@ STOP_TOKENS = ["\nclass", "\ndef", "\n#", "\nif", "\nprint"]
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Generates new tokens with a pre-trained model."
-    )
+    parser = argparse.ArgumentParser(description="Generates new tokens with a pre-trained model.")
 
-    parser.add_argument(
-        "pre_trained_model_path", type=str, help="Path to the pre-trained model file."
-    )
+    parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model file.")
 
     parser.add_argument(
         "hub_tokenizer_path",
@@ -28,9 +24,7 @@ def parse_args() -> argparse.Namespace:
         help="Name or path to the Hub's tokenizer.",
     )
 
-    parser.add_argument(
-        "prompt", type=str, help="Prompt to serve as the generation's context."
-    )
+    parser.add_argument("prompt", type=str, help="Prompt to serve as the generation's context.")
 
     args = parser.parse_args()
 
@@ -45,15 +39,13 @@ if __name__ == "__main__":
         device = "cuda"
 
     tokenizer = ArchaiPreTrainedTokenizerFast.from_pretrained(args.hub_tokenizer_path)
-    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+    tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
     model = AutoModelForCausalLM.from_pretrained(args.pre_trained_model_path).to(device)
     model.config.use_cache = True
 
     inputs = tokenizer(args.prompt, return_tensors="pt").to(device)
-    stop_tokens = tokenizer(STOP_TOKENS, return_tensors="pt", padding="longest").input_ids.to(
-        device
-    )
+    stop_tokens = tokenizer(STOP_TOKENS, return_tensors="pt", padding="longest").input_ids.to(device)
 
     output = model.generate(
         inputs["input_ids"],

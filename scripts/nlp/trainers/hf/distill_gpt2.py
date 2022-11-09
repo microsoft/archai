@@ -8,9 +8,7 @@ from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import ArchaiP
 from archai.nlp.trainers.hf.trainer import HfDistillerTrainer
 from archai.nlp.trainers.hf.training_args import DistillerTrainingArguments
 
-from transformers.data.data_collator import DataCollatorForLanguageModeling
-from transformers.models.gpt2.configuration_gpt2 import GPT2Config
-from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
+from transformers import DataCollatorForLanguageModeling, GPT2Config, GPT2LMHeadModel
 
 
 if __name__ == "__main__":
