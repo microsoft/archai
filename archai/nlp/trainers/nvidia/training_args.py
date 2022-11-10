@@ -11,7 +11,7 @@ from typing import Any, Dict
 import numpy as np
 import torch
 
-from archai.nlp.datasets.nvidia import distributed_utils, exp_utils
+from archai.nlp.datasets.nvidia import distributed_utils, corpus_utils
 
 
 @dataclass
@@ -128,7 +128,7 @@ class NvidiaTrainingArguments:
             self.checkpoint_file_path,
             self.dataset_cache_dir,
             _,
-        ) = exp_utils.get_create_dirs(
+        ) = corpus_utils.get_create_dirs(
             self.dataset_dir,
             self.dataset,
             self.experiment_name,
@@ -139,7 +139,7 @@ class NvidiaTrainingArguments:
 
         with distributed_utils.sync_workers() as rank:
             if rank == 0:
-                exp_utils.create_exp_dir(self.output_dir)
+                os.makedirs(self.output_dir, exist_ok=True)
 
         if self.local_batch_size is not None:
             world_size = distributed_utils.get_world_size()

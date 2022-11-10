@@ -1,113 +1,127 @@
-# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright (c) 2019-2020, NVIDIA CORPORATION.
+# Licensed under the Apache License, Version 2.0.
 
 """Utilities for initializing distributed training.
 """
 
 import os
 from contextlib import contextmanager
+from typing import Generator, Optional, Union
 
 import torch
 
 
-def init_distributed(cuda):
-    """
-    Initializes distributed backend.
+def init_distributed(use_cuda: bool) -> None:
+    """Initializes distributed backend.
 
-    :param cuda: (bool) if True initializes nccl backend, if False initializes
-        gloo backend
+    Args: 
+        use_cuda: Whether to initialize distributed mode using the CUDA/NCLL backend, e.g.,
+            `False` will use Gloo.
+
     """
-    world_size = int(os.environ.get('WORLD_SIZE', 1))
+
+    world_size = int(os.environ.get("WORLD_SIZE", 1))
+
     distributed = (world_size > 1)
     if distributed:
-        backend = 'nccl' if cuda else 'gloo'
+        backend = "nccl" if use_cuda else "gloo"
         torch.distributed.init_process_group(backend=backend,
-                                             init_method='env://')
+                                             init_method="env://")
+
         assert torch.distributed.is_initialized()
-    return distributed
 
 
-def barrier():
+def barrier() -> None:
+    """Calls torch.distributed.barrier() if using distributed mode.
+
     """
-    Call torch.distributed.barrier() if distritubed is in use
-    """
+
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         torch.distributed.barrier()
 
 
-def get_rank():
+def get_rank() -> int:
+    """Gets the distributed rank.
+
+    Returns:
+        (int): Distributed rank, where `0` indicates that distributed mode was
+            not initialized.
+
     """
-    Gets distributed rank or returns zero if distributed is not initialized.
-    """
+
     if torch.distributed.is_available() and torch.distributed.is_initialized():
-        rank = torch.distributed.get_rank()
-    else:
-        rank = 0
-    return rank
+        return torch.distributed.get_rank()
+
+    return 0
 
 
-def get_world_size():
+def get_world_size() -> int:
+    """Gets the total number of distributed workers.
+
+    Returns:
+        (int): Total number of distributed workers, where `1` indicates that distributed
+            mode was not initialized.
+
     """
-    Gets total number of distributed workers or returns one if distributed is
-    not initialized.
-    """
+
     if torch.distributed.is_available() and torch.distributed.is_initialized():
-        world_size = torch.distributed.get_world_size()
-    else:
-        world_size = 1
-    return world_size
+        return torch.distributed.get_world_size()
 
+    return 1
+    
 
-def all_reduce_item(value, op='sum'):
+def all_reduce(tensor: Union[int, float, torch.Tensor], op: Optional[str] = "sum") -> Union[int, float]:
+    """Reduces tensor into a scalar value when using distributed mode.
+
+    Args:
+        tensor: Input tensor/value.
+        op: Type of reduction operator.
+
+    Returns:
+        (Union[int, float]): Scalar value.
+
     """
-    All-reduces single scalar value if distributed is in use
-    """
+
     if torch.distributed.is_available() and torch.distributed.is_initialized():
-        if op == 'sum' or op == 'mean':
-            dop = torch.distributed.ReduceOp.SUM
-        elif op == 'min':
-            dop = torch.distributed.ReduceOp.MIN
-        elif op == 'max':
-            dop = torch.distributed.ReduceOp.MAX
-        elif op == 'product':
-            dop = torch.distributed.ReduceOp.PRODUCT
+        if op == "sum" or op == "mean":
+            torch_op = torch.distributed.ReduceOp.SUM
+        elif op == "min":
+            torch_op = torch.distributed.ReduceOp.MIN
+        elif op == "max":
+            torch_op = torch.distributed.ReduceOp.MAX
+        elif op == "product":
+            torch_op = torch.distributed.ReduceOp.PRODUCT
         else:
-            raise RuntimeError('Unsupported reduce op')
+            raise RuntimeError(f"Operator: {op} is not supported yet.")
 
         backend = torch.distributed.get_backend()
         if backend == torch.distributed.Backend.NCCL:
-            device = torch.device('cuda')
+            device = torch.device("cuda")
         elif backend == torch.distributed.Backend.GLOO:
-            device = torch.device('cpu')
+            device = torch.device("cpu")
         else:
-            raise RuntimeError('Unsupported distributed backend')
+            raise RuntimeError(f"Distributed backend: {backend} is not supported yet.")
 
-        tensor = torch.tensor(value, device=device)
-        torch.distributed.all_reduce(tensor, dop)
-        if op == 'mean':
+        tensor = torch.tensor(tensor, device=device)
+        torch.distributed.all_reduce(tensor, torch_op)
+        if op == "mean":
             tensor /= get_world_size()
-        ret = tensor.item()
-    else:
-        ret = value
-    return ret
+
+        return tensor.item()
+    
+    return tensor
 
 
 @contextmanager
-def sync_workers():
+def sync_workers() -> Generator[int, None, None]:
+    """Yields the distributed rank and synchronizes all workers on exit.
+    
     """
-    Yields distributed rank and synchronizes all workers on exit.
-    """
+
     rank = get_rank()
     yield rank
+
     barrier()

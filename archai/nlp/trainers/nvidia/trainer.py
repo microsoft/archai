@@ -394,13 +394,13 @@ class NvidiaTrainer:
                 lr = self.optimizer.param_groups[0]["lr"]
 
                 loss = train_loss / log_step
-                loss = distributed_utils.all_reduce_item(loss, op="mean")
+                loss = distributed_utils.all_reduce(loss, op="mean")
 
                 batch_time = elapsed_time / log_step
-                batch_time = distributed_utils.all_reduce_item(batch_time, op="max")
+                batch_time = distributed_utils.all_reduce(batch_time, op="max")
 
                 throughput = n_labels_tokens / elapsed_time
-                throughput = distributed_utils.all_reduce_item(throughput, op="sum")
+                throughput = distributed_utils.all_reduce(throughput, op="sum")
 
                 train_loss, log_step, n_labels_tokens = 0.0, 0, 0
 
@@ -418,7 +418,7 @@ class NvidiaTrainer:
 
             if (do_periodic_eval or is_final_step) and not self.args.disable_eval:
                 eval_loss, eval_time = self.evaluation_step(eval_dataloader)
-                eval_loss = distributed_utils.all_reduce_item(eval_loss, op="mean")
+                eval_loss = distributed_utils.all_reduce(eval_loss, op="mean")
 
                 logger.info(
                     f"Eval: {step // self.args.eval_interval} | "
