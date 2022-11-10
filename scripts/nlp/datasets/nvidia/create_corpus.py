@@ -3,8 +3,8 @@
 
 import argparse
 
-from archai.nlp.datasets.nvidia import exp_utils
 from archai.nlp.datasets.nvidia.corpus import get_lm_corpus
+from archai.nlp.datasets.nvidia.corpus_utils import get_create_dirs
 
 
 def parse_args() -> argparse.Namespace:
@@ -67,7 +67,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    args.dataset_dir, _, _, args.dataset_cache_dir, _ = exp_utils.get_create_dirs(
+    args.dataset_dir, _, _, args.dataset_cache_dir, _ = get_create_dirs(
         args.dataset_dir,
         args.dataset_name,
         cache_dir=args.dataset_cache_dir,
