@@ -34,7 +34,9 @@ class TransformerFlexOnnxLatency(Objective):
     higher_is_better: bool = False
 
     def __init__(self, search_space: TransformerFlexSearchSpace,
-                 batch_size: int = 1, seq_len: int = 192,
+                 batch_size: int = 1,
+                 seq_len: int = 192,
+                 past_seq_len: int = 0,
                  n_trials: int = 1, use_median: bool = False) -> None:
         assert search_space.arch_type in ['gpt2', 'gpt2-flex']
         self.search_space = search_space
@@ -42,6 +44,7 @@ class TransformerFlexOnnxLatency(Objective):
         # Benchmark settings
         self.batch_size = batch_size
         self.seq_len = seq_len
+        self.past_seq_len = past_seq_len
         self.n_trials = n_trials
         self.use_median = use_median
         
@@ -55,13 +58,11 @@ class TransformerFlexOnnxLatency(Objective):
         config['use_cache'] = True
 
         model = self.search_space._load_model_from_config(config)
-        
         return prepare_model_for_onnx(model, self.search_space.arch_type)
 
     def _benchmark_model(self, session: InferenceSession, model_path: str,
                          model_config: OnnxConfig) -> float:
-
-        inputs = model_config.generate_dummy_inputs()
+        inputs = model_config.generate_dummy_inputs(self.batch_size, self.seq_len, self.past_seq_len)
         past_inputs = inputs.pop('past_key_values')
 
         for i, past in enumerate(past_inputs):
