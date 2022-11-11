@@ -17,7 +17,7 @@ import torch
 def init_distributed(use_cuda: bool) -> None:
     """Initializes distributed backend.
 
-    Args: 
+    Args:
         use_cuda: Whether to initialize distributed mode using the CUDA/NCLL backend, e.g.,
             `False` will use Gloo.
 
@@ -25,19 +25,16 @@ def init_distributed(use_cuda: bool) -> None:
 
     world_size = int(os.environ.get("WORLD_SIZE", 1))
 
-    distributed = (world_size > 1)
+    distributed = world_size > 1
     if distributed:
         backend = "nccl" if use_cuda else "gloo"
-        torch.distributed.init_process_group(backend=backend,
-                                             init_method="env://")
+        torch.distributed.init_process_group(backend=backend, init_method="env://")
 
         assert torch.distributed.is_initialized()
 
 
 def barrier() -> None:
-    """Calls torch.distributed.barrier() if using distributed mode.
-
-    """
+    """Calls torch.distributed.barrier() if using distributed mode."""
 
     if torch.distributed.is_available() and torch.distributed.is_initialized():
         torch.distributed.barrier()
@@ -71,7 +68,7 @@ def get_world_size() -> int:
         return torch.distributed.get_world_size()
 
     return 1
-    
+
 
 def all_reduce(tensor: Union[int, float, torch.Tensor], op: Optional[str] = "sum") -> Union[int, float]:
     """Reduces tensor into a scalar value when using distributed mode.
@@ -111,14 +108,17 @@ def all_reduce(tensor: Union[int, float, torch.Tensor], op: Optional[str] = "sum
             tensor /= get_world_size()
 
         return tensor.item()
-    
+
     return tensor
 
 
 @contextmanager
 def sync_workers() -> Generator[int, None, None]:
     """Yields the distributed rank and synchronizes all workers on exit.
-    
+
+    Yields:
+        (Generator[int, None, None]): Rank.
+
     """
 
     rank = get_rank()
