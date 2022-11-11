@@ -11,7 +11,7 @@ from typing import Any, Dict
 import numpy as np
 import torch
 
-from archai.nlp.datasets.nvidia import distributed_utils, corpus_utils
+from archai.nlp.datasets.nvidia import corpus_utils, distributed_utils
 
 
 @dataclass
@@ -127,8 +127,7 @@ class NvidiaTrainingArguments:
             self.output_dir,
             self.checkpoint_file_path,
             self.dataset_cache_dir,
-            _,
-        ) = corpus_utils.get_create_dirs(
+        ) = corpus_utils.create_dirs(
             self.dataset_dir,
             self.dataset,
             self.experiment_name,
