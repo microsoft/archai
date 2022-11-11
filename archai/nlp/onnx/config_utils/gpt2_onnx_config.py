@@ -4,9 +4,9 @@
 """GPT-2 ONNX configuration.
 """
 
-import torch
 from typing import Any, Mapping, Optional, Tuple
 
+import torch
 from transformers.configuration_utils import PretrainedConfig
 
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig, OnnxConfigWithPast
@@ -72,4 +72,3 @@ class GPT2FlexOnnxConfig(OnnxConfigWithPast):
             )
 
         return dummy_inputs
-

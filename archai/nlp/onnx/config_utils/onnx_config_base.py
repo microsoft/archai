@@ -62,10 +62,10 @@ class OnnxConfig:
     @property
     def is_ort_graph_optimizable(self) -> bool:
         """Supports additional ONNX Runtime graph optimization.
-        
+
         Returns:
             (bool): Whether configuration supports additional graph optimization.
-            
+
         """
 
         return False
@@ -73,10 +73,10 @@ class OnnxConfig:
     @property
     def ort_graph_optimizer_args(self) -> Tuple[Any, ...]:
         """ONNX Runtime additional graph optimization arguments.
-        
+
         Returns:
             (Tuple[Any, ...]): Additional arguments used by the ORT graph optimizer.
-            
+
         """
 
         return None
