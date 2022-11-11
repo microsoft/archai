@@ -117,9 +117,11 @@ def export_to_onnx(
     output_model_path: Path,
     task: Optional[str] = "causal-lm",
     use_past: Optional[bool] = True,
+    batch_size: int = 2,
+    seq_len: int = 8,
     share_weights: Optional[bool] = True,
     opset: Optional[int] = 11,
-    atol: Optional[float] = 1e-4,
+    atol: Optional[float] = 1e-4
 ) -> OnnxConfig:
     """Exports a pre-trained model to ONNX.
 
@@ -128,6 +130,8 @@ def export_to_onnx(
         output_model_path: Path to save the exported model.
         task: Task identifier to use proper inputs/outputs.
         use_past: Whether past key/values (`use_cache`) should be used.
+        batch_size: expected inference batch size
+        seq_len: expected inference sequence length
         share_weights: Whether embedding/softmax weights should be shared.
         opset: Set of operations to use with ONNX.
         atol: Tolerance between input and exported model.
@@ -143,7 +147,10 @@ def export_to_onnx(
     available_configs = list(AVAILABLE_ONNX_CONFIGS.keys())
     assert model_type in available_configs, f"`model_type`: {model_type} is not supported for ONNX export."
     
-    onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](model.config, task=task, use_past=use_past)
+    onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](
+        model.config, task=task, use_past=use_past,
+        batch_size=batch_size, seq_len=seq_len
+    )
 
     model = prepare_model_for_onnx(model, model_type)
     dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}
