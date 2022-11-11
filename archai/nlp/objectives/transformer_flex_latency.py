@@ -3,7 +3,8 @@ import os
 from pathlib import Path
 import tempfile
 import timeit
-from typing import Optional
+from typing import Optional, Dict, Tuple, Any, Sized
+import types
 
 from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions
 from onnxruntime.transformers import quantize_helper
@@ -13,6 +14,7 @@ import numpy as np
 import torch
 
 from archai.discrete_search import ArchaiModel, DatasetProvider, Objective
+from archai.nlp.search_spaces.transformer_flex.search_space import TransformerFlexSearchSpace
 from archai.nlp.onnx.optimization import optimize_onnx
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.nlp.onnx.onnx_forward import gpt2_onnx_forward
@@ -31,16 +33,18 @@ os.environ['OMP_WAIT_POLICY'] = OMP_WAIT_POLICY
 class TransformerFlexOnnxLatency(Objective):
     higher_is_better: bool = False
 
-    def __init__(self, search_space, batch_size: int = 1, seq_len: int = 128,
+    def __init__(self, search_space: TransformerFlexSearchSpace,
+                 batch_size: int = 1, seq_len: int = 192,
                  n_trials: int = 1, use_median: bool = False) -> None:
         assert search_space.arch_type in ['gpt2', 'gpt2-flex']
         self.search_space = search_space
+        
+        # Benchmark settings
         self.batch_size = batch_size
         self.seq_len = seq_len
         self.n_trials = n_trials
         self.use_median = use_median
-
-
+        
         # Onnx runtime session options
         self.options = SessionOptions()
         self.options.intra_op_num_threads = OMP_NUM_THREADS
@@ -56,9 +60,6 @@ class TransformerFlexOnnxLatency(Objective):
 
     def _benchmark_model(self, session: InferenceSession, model_path: str,
                          model_config: OnnxConfig) -> float:
-        
-        model_config.DEFAULT_BATCH_SIZE = self.batch_size
-        model_config.DEFAULT_SEQ_LEN = self.seq_len
 
         inputs = model_config.generate_dummy_inputs()
         past_inputs = inputs.pop('past_key_values')
@@ -89,9 +90,13 @@ class TransformerFlexOnnxLatency(Objective):
         model = self._load_and_prepare(arch.metadata['config'])
         
         with tempfile.NamedTemporaryFile() as tmp:
-            onnx_config = export_to_onnx(model, Path(tmp.name), task='causal-lm',
-                           use_past=True, share_weights=True, opset=11)
-            optimize_onnx(tmp.name, onnx_config)
+
+            onnx_config = export_to_onnx(
+                model, Path(tmp.name), task='causal-lm',
+                batch_size=self.batch_size, seq_len=self.seq_len,
+                use_past=True, share_weights=True, opset=11
+            )
+            optimize_onnx(tmp.name, onnx_config, opt_level=0)
 
             session = InferenceSession(tmp.name, self.options)
             session.disable_fallback()

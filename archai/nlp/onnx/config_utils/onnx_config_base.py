@@ -14,15 +14,14 @@ from transformers.configuration_utils import PretrainedConfig
 
 class OnnxConfig:
     """Implements the base ONNX configuration."""
-
-    DEFAULT_BATCH_SIZE = 2
-    DEFAULT_SEQ_LEN = 8
     DEFAULT_TASK_OUTPUTS = {"causal-lm": OrderedDict({"probs": {0: "batch_size"}})}
 
     def __init__(
         self,
         config: PretrainedConfig,
         task: Optional[str] = "causal-lm",
+        batch_size: int = 2,
+        seq_len: int = 8,
     ) -> None:
         """Initializes by verifying whether `task` is supported.
 
@@ -36,28 +35,8 @@ class OnnxConfig:
 
         self.config = config
         self.task = task
-
-    @property
-    def batch_size(self) -> int:
-        """Batch size.
-
-        Returns:
-            (int): Default batch size.
-
-        """
-
-        return self.DEFAULT_BATCH_SIZE
-
-    @property
-    def seq_len(self) -> int:
-        """Sequence length.
-
-        Returns:
-            (int): Default sequence length.
-
-        """
-
-        return self.DEFAULT_SEQ_LEN
+        self.batch_size = batch_size
+        self.seq_len = seq_len
 
     @property
     def is_ort_graph_optimizable(self) -> bool:
@@ -123,6 +102,8 @@ class OnnxConfigWithPast(OnnxConfig):
         task: Optional[str] = "causal-lm",
         use_past: Optional[bool] = False,
         past_key_values: Optional[int] = 2,
+        batch_size: int = 2,
+        seq_len: int = 8
     ) -> None:
         """Overrides initialization and defines whether past key/values are used.
 
@@ -134,7 +115,7 @@ class OnnxConfigWithPast(OnnxConfig):
 
         """
 
-        super().__init__(config, task=task)
+        super().__init__(config, batch_size=batch_size, seq_len=seq_len, task=task)
 
         if use_past:
             self.config.use_cache = True
