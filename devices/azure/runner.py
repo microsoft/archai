@@ -254,6 +254,10 @@ def is_complete(entity, prop):
     return prop in entity
 
 
+def is_true(entity, prop):
+    return prop in entity and entity[prop]
+
+
 def get_total_inference_avg(entity):
     if 'total_inference_avg' in entity and entity['total_inference_avg']:
         try:
@@ -330,7 +334,7 @@ def benchmark(entity, model, name):
     return True
 
 
-def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only):
+def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only, no_quantization):
     log("===================================================================================================")
     log(f"Checking model: {name} on node {get_unique_node_id()}")
     log("===================================================================================================")
@@ -367,6 +371,14 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
     # do this first no matter what.
     converted = has_model(name, conn_string, 'model.dlc')
     is_quantized = has_model(name, conn_string, 'model.quant.dlc')
+    if not is_quantized:
+        # oh, the quant model disappeared so clear the flag so it gets
+        # quantized again by a machine that can do that.
+        if 'quantized' in entity:
+            del entity['quantized']
+            merge_status_entity(entity)
+        if no_quantization:
+            return
 
     if not converted and onnx_model_found:
         model = convert(name, entity, long_name, onnx_model)
@@ -387,8 +399,11 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only)
         model = quantize(name, entity, model)
         if model == 'error':
             return
+        entity['quantized'] = True
         if 'macs' in entity:
-            del entity['macs']  # need to redo it since we requantized.
+            del entity['macs']  # need to redo it since we re-quantized.
+    else:
+        entity['quantized'] = True
 
     quantized_model = os.path.join(snpe_model_dir, 'model.quant.dlc')
     if not os.path.isfile(quantized_model):
@@ -542,10 +557,11 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
         if 'error' in entity:
             log(f"# skipping {name} because something went wrong on previous step.")
             continue
-        if not is_complete(entity, 'macs'):
+        if not is_complete(entity, 'macs') or not is_true(entity, 'quantized'):
+            if not no_quantization:
+                continue
             if quantizing:
-                if not no_quantization:
-                    log(f"skip {name} for now until other quantization finishes on our node")
+                log(f"skip {name} for now until other quantization finishes on our node")
                 continue
             priority = 20
         elif use_device and (total_benchmark_runs < MAX_BENCHMARK_RUNS):
@@ -635,7 +651,7 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
                 gc.collect()
                 tracemalloc.start()
                 snapshot1 = tracemalloc.take_snapshot()
-                run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only_flag)
+                run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only_flag, no_quantization)
                 gc.collect()
                 snapshot2 = tracemalloc.take_snapshot()
                 logging.info(f"========= memory diff vms={rss} growth={growth}============")
@@ -694,7 +710,7 @@ if __name__ == '__main__':
 
     dataset = os.getenv("INPUT_DATASET")
     if not dataset:
-        log("please provide --input or set your INPUT_DATASET environment vairable")
+        log("please provide --input or set your INPUT_DATASET environment variable")
         sys.exit(1)
     if not os.path.isdir(dataset):
         log(f"Your INPUT_DATASET '{dataset} is not found.")

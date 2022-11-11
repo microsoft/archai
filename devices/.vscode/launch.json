@@ -7,7 +7,12 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args":[
+            "args": [
+                "--device",
+                "f85154f6",
+                "--no_quantization",
+                "--working",
+                "d:\\temp\\experiment1",
             ]
         }
     ]
