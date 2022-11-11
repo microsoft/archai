@@ -44,13 +44,21 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
             "d_model": "n_embd",
             "d_inner": "n_inner",
             "n_head": "n_head",
-            "n_layer": "n_layer"
+            "n_layer": "n_layer",
+            "vocab_size": "vocab_size",
+            "target_len": "n_positions",
+            "dropout": "resid_pdrop",
+            "dropatt": "attn_pdrop"
         },
         "gpt2-flex": {
             "d_model": "n_embd",
             "d_inner": "n_inner",
             "n_head": "n_head",
-            "n_layer": "n_layer"
+            "n_layer": "n_layer",
+            "vocab_size": "vocab_size",
+            "target_len": "n_positions",
+            "dropout": "resid_pdrop",
+            "dropatt": "attn_pdrop"
         },
         "mem-transformer": {
             "d_model": "d_model",
@@ -84,6 +92,9 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                  n_head_options: Optional[List[int]] = None,
                  share_d_inner: bool = True,
                  mutation_prob: float = 0.3,
+                 vocab_size: int = 10_000,
+                 target_len: int = 192,
+                 att_dropout_rate: float = 0.0,
                  random_seed: int = 1) -> None:
 
         assert arch_type in self._DEFAULT_MODELS, \
@@ -112,13 +123,18 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.mutation_prob = mutation_prob
         self.rng = Random(random_seed)
 
+        self.vocab_size = vocab_size
+        self.target_len = target_len
+        self.att_dropout_rate = att_dropout_rate
+
     def _load_model_from_config(self, model_config: Dict[str, Any]) -> torch.nn.Module:
-        model_config = {
-            new_k: model_config[k] 
-            for k, new_k in self._DEFAULT_MODELS[self.arch_type].items()
+        param_map = self._DEFAULT_MODELS[self.arch_type]
+        mapped_config = {
+            param_map.get(p_name, p_name): p_value
+            for p_name, p_value in model_config.items()
         }
 
-        config = AutoConfig.for_model(self.arch_type, **model_config)
+        config = AutoConfig.for_model(self.arch_type, **mapped_config)
         return AutoModelForCausalLM.from_config(config)
 
     def get_archid(self, config: Dict[str, Any]) -> str:
@@ -136,10 +152,15 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     def random_sample(self) -> ArchaiModel:
         model = None
 
+        # Fixed params
+        config = {
+            'vocab_size': self.vocab_size,
+            'dropatt': self.att_dropout_rate,
+            'target_len': self.target_len,
+        }
+
         while model is None:
-            config = {
-                'n_layer': self.rng.randint(self.min_layers, self.max_layers)
-            }
+            config['n_layer'] = self.rng.randint(self.min_layers, self.max_layers)
 
             for param, param_opts in self.options.items():
                 if param_opts['share']:
