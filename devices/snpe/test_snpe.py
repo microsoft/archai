@@ -153,9 +153,10 @@ def quantize_model(model, model_dir):
 
     basename = os.path.splitext(os.path.basename(model))[0]
     output_model = os.path.join(model_dir, f"{basename}.quant.dlc")
+    full_dlc = os.path.join(model_dir, f"{basename}.dlc")
 
     command = "snpe-dlc-quantize " + \
-        f"--input_dlc \"{model_dir}/{basename}.dlc\" " + \
+        f"--input_dlc \"{full_dlc}\" " + \
         f"--input_list \"{quant_set}\" " + \
         f"--output_dlc \"{output_model}\" " + \
         "--use_enhanced_quantizer"
@@ -467,10 +468,10 @@ def run_benchmark(model, name, shape, snpe_root, iterations, random_input_count)
 
     config = {
         "Name": "model",
-        "HostRootPath": f"{benchmark_dir}",
-        "HostResultsDir": f"{benchmark_dir}/results",
+        "HostRootPath": benchmark_dir,
+        "HostResultsDir": os.path.join(benchmark_dir, "results"),
         "HostName": "localhost",
-        "DevicePath": f"{DEVICE_WORKING_DIR}/snpebm",
+        "DevicePath": os.path.join(DEVICE_WORKING_DIR, "snpebm"),
         "Devices": [DEVICE],
         "Runs": iterations,
         "Model": {
