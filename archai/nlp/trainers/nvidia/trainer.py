@@ -37,11 +37,8 @@ def save_checkpoint(
     optimizer: torch.optim.Optimizer,
     scheduler: torch.optim.lr_scheduler._LRScheduler,
     scaler: torch.cuda.amp.GradScaler,
+    trainer_state: Dict[str, Any],
     fp16: bool,
-    iterator: int,
-    epoch: int,
-    batch: int,
-    step: int,
     prefix: Optional[str] = None,
     save_all_checkpoints: Optional[bool] = False,
 ) -> None:
@@ -53,11 +50,8 @@ def save_checkpoint(
         optimizer: Instance of optimizer.
         scheduler: Instance of scheduler.
         scaler: Instance of scaler.
+        trainer_state: Current trainer state.
         fp16: Whether fp16 precision is used or not.
-        iterator: Current iterator.
-        epoch: Current epoch.
-        batch: Current batch.
-        step: Current step.
         prefix: Prefix which should be added to the checkpoint's file name.
         save_all_checkpoints: Whether all `eval_interval` steps should be saved or not.
 
@@ -69,10 +63,7 @@ def save_checkpoint(
         "optimizer_state": optimizer.state_dict(),
         "scheduler_state": scheduler.state_dict() if scheduler else None,
         "scaler_state": scaler.state_dict() if fp16 else None,
-        "iterator": iterator,
-        "epoch": epoch,
-        "batch": batch,
-        "step": step,
+        "trainer_state": trainer_state,
     }
 
     checkpoint_name = prefix + "checkpoint_last.pt"
@@ -85,7 +76,7 @@ def save_checkpoint(
             torch.save(state, checkpoint_path)
 
             if save_all_checkpoints:
-                checkpoint_step_name = prefix + f"checkpoint_{step}.pt"
+                checkpoint_step_name = prefix + f"checkpoint_{trainer_state['step']}.pt"
                 checkpoint_step_path = os.path.join(output_dir, checkpoint_step_name)
 
                 logger.info(f"Saving checkpoint: {checkpoint_step_path}")
@@ -127,6 +118,14 @@ class NvidiaTrainer:
 
         self.model.to(self.args.device)
 
+        self.trainer_state = {
+            "iterator": 0,
+            "epoch": 0,
+            "batch": 0,
+            "step": 0,
+            "log_history": []
+        }
+
     def load_checkpoint(self, checkpoint_file_path: str) -> Tuple[int, int, int, int]:
         """Loads states from checkpoint.
 
@@ -147,13 +146,12 @@ class NvidiaTrainer:
             if self.args.fp16:
                 self.scaler.load_state_dict(checkpoint["amp_state"])
 
-            iterator = checkpoint["iterator"]
-            start_epoch = checkpoint["epoch"]
-            start_batch = checkpoint["batch"]
-            step = checkpoint["step"]
+            self.trainer_state = checkpoint["trainer_state"]
 
-            if step >= self.args.max_steps:
-                sys.exit(1)
+            iterator = self.trainer_state["iterator"]
+            start_epoch = self.trainer_state["epoch"]
+            start_batch = self.trainer_state["batch"]
+            step = self.trainer_state["step"]
 
             return iterator, start_epoch, start_batch, step
 
@@ -386,7 +384,7 @@ class NvidiaTrainer:
             elif self.args.scheduler in ["inv_sqrt", "cyclic_cosine"]:
                 self.scheduler.step(step)
 
-            # Evaluation and checkpoint
+            # Logging
             if step % self.args.log_interval == 0:
                 elapsed_time = time.time() - start_time
 
@@ -403,11 +401,19 @@ class NvidiaTrainer:
 
                 train_loss, log_step, n_labels_tokens = 0.0, 0, 0
 
+                self.trainer_state["log_history"].append({
+                    "epoch": epoch,
+                    "learning_rate": lr,
+                    "loss": loss,
+                    "ppl": math.exp(loss),
+                    "step": step,
+                })
+
                 logger.info(
                     f"Epoch: {epoch} | Step: {step} | "
                     f"Batch: {batch} / {train_dataloader.n_batch} | LR: {lr:.3e} | "
                     f"ms/batch: {batch_time*1000:.1f} | tok/s: {throughput:.0f} | "
-                    f"Loss: {loss:.3f}"
+                    f"Loss: {loss:.3f} | PPL: {math.exp(loss):.3f}"
                 )
 
                 start_time = time.time()
@@ -415,9 +421,19 @@ class NvidiaTrainer:
             do_periodic_eval = step % self.args.eval_interval == 0
             is_final_step = step == self.args.max_steps
 
+            # Evaluation and checkpoint
             if (do_periodic_eval or is_final_step) and not self.args.disable_eval:
                 eval_loss, eval_time = self.evaluation_step(eval_dataloader)
                 eval_loss = distributed_utils.all_reduce(eval_loss, op="mean")
+
+                self.trainer_state["log_history"].append({
+                    "epoch": epoch,
+                    "eval_idx": step // self.args.eval_interval,
+                    "eval_runtime": eval_time,
+                    "eval_loss": eval_loss,
+                    "eval_ppl": math.exp(eval_loss),
+                    "step": step,
+                })
 
                 logger.info(
                     f"Eval: {step // self.args.eval_interval} | "
@@ -428,6 +444,11 @@ class NvidiaTrainer:
                 iterator = train_dataloader.last_iter
                 save_model = copy.deepcopy(self.model)
                 prefix = ""
+
+                self.trainer_state["iterator"] = iterator
+                self.trainer_state["epoch"] = epoch
+                self.trainer_state["batch"] = batch
+                self.trainer_state["step"] = step
 
                 # Model needs to be converted back to FP32 when using QAT
                 if self.args.qat:
@@ -445,11 +466,8 @@ class NvidiaTrainer:
                     self.optimizer,
                     self.scheduler,
                     self.scaler,
+                    self.trainer_state,
                     self.args.fp16,
-                    iterator,
-                    epoch,
-                    batch,
-                    step,
                     prefix=prefix,
                     save_all_checkpoints=self.args.save_all_checkpoints,
                 )
@@ -479,6 +497,9 @@ class NvidiaTrainer:
             iterator, start_epoch, start_batch, step = self.load_checkpoint(checkpoint_file_path)
         else:
             iterator, start_epoch, start_batch, step = 0, 0, 0, 0
+
+        if step >= self.args.max_steps:
+            sys.exit(1)
 
         self.setup_qat()
         self.setup_distributed_training()
