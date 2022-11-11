@@ -22,7 +22,7 @@ import sys
 import time
 from typing import Optional, Tuple
 
-import dllogger
+import nvdllogger
 import torch.utils.collect_env
 
 from archai.nlp.datasets.distributed_utils import distributed as nv_distributed
@@ -191,14 +191,14 @@ def setup_dllogger(enabled=True, filename=os.devnull, disable_multiple=False):
         
     if enabled and rank == 0:
         backends = [
-            dllogger.JSONStreamBackend(
-                dllogger.Verbosity.VERBOSE,
+            nvdllogger.JSONStreamBackend(
+                nvdllogger.Verbosity.VERBOSE,
                 filename,
                 ),
             ]
-        dllogger.init(backends)
+        nvdllogger.init(backends)
     else:
-        dllogger.init([])
+        nvdllogger.init([])
 
 
 def create_exp_dir(dir_path, scripts_to_save=None, debug=False):

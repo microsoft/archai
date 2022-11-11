@@ -1,0 +1,30 @@
+name: CodeQL Checker
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check-codeql:
+    name: Checks and analyzes with CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Pulls the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Initializes CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python
+          queries: security-extended
+      - name: Runs CodeQL
+        uses: github/codeql-action/analyze@v2

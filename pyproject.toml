@@ -1,0 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+[tool.black]
+line-length = 120
