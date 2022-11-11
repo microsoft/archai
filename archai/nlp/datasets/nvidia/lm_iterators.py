@@ -1,5 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
+#
+# Copyright (c) 2019-2020, NVIDIA CORPORATION.
+# Licensed under the Apache License, Version 2.0.
 
 """Language Modeling-based iterators.
 """

@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Corpus-related utilities, such as datasets" folders and path creation.
+"""Corpus-related utilities, such as datasets' folders and path creation.
 """
 
 import os
@@ -11,13 +11,13 @@ from archai.common import common, utils
 
 
 def get_dataset_dir_name(dataset: str) -> str:
-    """Gets the name of the dataset"s directory.
+    """Gets the name of the datasets' directory.
 
     Args:
         dataset: Name of dataset.
 
     Returns:
-        (str): Name of the dataset"s directory.
+        (str): Name of the datasets directory.
 
     """
 
@@ -41,7 +41,7 @@ def create_dirs(
     pretrained_path: Optional[str] = "",
     cache_dir: Optional[str] = "",
 ) -> Tuple[str, str, str, str]:
-    """Creates dataset-related folders with proper pathing.
+    """Creates dataset-related folders with proper paths.
 
     Args:
         dataroot: Dataset folder.

@@ -3,7 +3,7 @@
 
 import argparse
 
-from archai.nlp.datasets.nvidia.corpus import get_lm_corpus
+from archai.nlp.datasets.nvidia.corpus import load_corpus
 from archai.nlp.datasets.nvidia.corpus_utils import create_dirs
 
 
@@ -73,14 +73,14 @@ if __name__ == "__main__":
         cache_dir=args.dataset_cache_dir,
     )
 
-    dataset = get_lm_corpus(
+    dataset = load_corpus(
+        args.dataset_name,
         args.dataset_dir,
         args.dataset_cache_dir,
-        args.dataset_name,
         args.vocab,
         vocab_size=args.vocab_size,
         refresh_cache=args.dataset_refresh_cache,
     )
-    
+
     print(dataset)
     print(dataset.vocab)

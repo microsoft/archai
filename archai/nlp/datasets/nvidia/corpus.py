@@ -4,81 +4,249 @@
 """Corpus-related class for loading and encoding datasets.
 """
 
-import os
 import glob
+import os
 from typing import Optional, Tuple, Union
-import logging
-from dataclasses import dataclass
 
 import numpy as np
 import torch
 
 from archai.common import utils
+from archai.nlp import logging_utils
 from archai.nlp.datasets.nvidia import distributed_utils
-from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
-from archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab import WordVocab
+from archai.nlp.datasets.nvidia.lm_iterators import (
+    LMMultiFileIterator,
+    LMOrderedIterator,
+)
 from archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.datasets.nvidia.tokenizer_utils.gpt2_vocab import Gpt2Vocab
+from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
+from archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab import WordVocab
 
-from archai.nlp.datasets.nvidia.lm_iterators import LMMultiFileIterator, LMOrderedIterator
+logger = logging_utils.get_logger(__name__)
 
-
-
-
-@dataclass
-class DataFileStats:
-    filepath:str
-    line_count:int=0
-    word_count:int=0
-    char_count:int=0
 
 class Corpus:
-    def __init__(self, datadir:str, dataset:str, vocab_type:str, cachedir:str,
-                 vocab_size:Optional[int]=None, refresh_cache=False):
-        self.datadir = datadir
+    """Implements a corpus-based class responsible for creating and training
+    the vocabulary/tokenizer, loading the dataset and encoding the data."""
+
+    def __init__(
+        self,
+        dataset: str,
+        dataset_dir: str,
+        cache_dir: str,
+        vocab_type: str,
+        vocab_size: Optional[int] = None,
+        refresh_cache: Optional[bool] = False,
+    ) -> None:
+        """Initializes by defining attributes and creating cache-related paths.
+
+        Args:
+            dataset: Name of the dataset.
+            dataset_dir: Dataset folder.
+            cache_dir: Cache folder.
+            vocab_type: Type of vocabulary/tokenizer.
+            vocab_size: Vocabulary size.
+            refresh_cache: Whether cache should be refreshed.
+
+        """
+
+        self.dataset_dir = dataset_dir
         self.dataset = dataset
         self.vocab_type = vocab_type
-        self.vocab_size =  vocab_size
+        self.vocab_size = vocab_size
 
-        # where we maintain the cache for the corpus based on dataset+vocab_type+vocab_size
-        self.corpus_cache_dir = cachedir
-        self.corpus_cache_dir = utils.full_path(os.path.join(self.corpus_cache_dir, f'{dataset}',f'{vocab_type}',f'{vocab_size}'), create=True)
+        # Corpus cache is created using dataset/vocab_type/vocab_size path
+        self.corpus_cache_dir = utils.full_path(
+            os.path.join(cache_dir, str(dataset), str(vocab_type), str(vocab_size)), create=True
+        )
 
-        # where dataset npy files are cached
-        self.train_cache_filepath = os.path.join(self.corpus_cache_dir, 'train.npy')
-        self.valid_cache_filepath = os.path.join(self.corpus_cache_dir, 'valid.npy')
-        self.test_cache_filepath = os.path.join(self.corpus_cache_dir, 'test.npy')
+        # Encoded dataset (.npy files) cache paths
+        self.train_cache_filepath = os.path.join(self.corpus_cache_dir, "train.npy")
+        self.valid_cache_filepath = os.path.join(self.corpus_cache_dir, "valid.npy")
+        self.test_cache_filepath = os.path.join(self.corpus_cache_dir, "test.npy")
 
-        # where tokenizer files will be cached
-        self._vocab_cache_dir = os.path.join(self.corpus_cache_dir, 'vocab')
+        # Tokenizer-related files cache paths
+        self.vocab_cache_dir = os.path.join(self.corpus_cache_dir, "vocab")
         self.refresh_cache = refresh_cache
 
         if refresh_cache:
-            logging.warn('refresh_cache=True, all cache will be refreshed')
+            logger.info("Refreshing cache ...")
 
-        self._clear()
+        self._clear_cache()
 
-    def train_and_encode(self):
-        logging.info(f'Producing corpus cache for dataset {self.dataset}, vocab_type {self.vocab_type}, vocab_size {self.vocab_size}...')
+    @staticmethod
+    def _create_vocab(
+        dataset: str, vocab_type: str, vocab_cache_dir: str, vocab_size: Optional[int] = None
+    ) -> VocabBase:
+        """Creates the vocabulary.
 
-        self.vocab = self._create_train_vocab()
+        Args:
+            dataset: Name of the dataset.
+            vocab_type: Type of vocabulary.
+            vocab_cache_dir: Vocabulary cache folder.
+            vocab_size: Vocabulary size.
 
-        self.train, self.valid, self.test = self._get_encoded_files()
-        train_size = f'{len(self.train)} files' if isinstance(self.train, list) else self.train.size(0)
+        Returns:
+            (VocabBase): Vocabulary.
 
-        logging.info(f'Sizes for train: {train_size}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
+        """
 
+        if vocab_type == "word":
+            bos_token, eos_token, lower_case = None, "<eos>", False
 
-    def load(self):
-        # ensure that we have tokenizer cache as well
-        self.vocab = Corpus._create_vocab(self.datadir, self.dataset,
-            self.vocab_type, self._vocab_cache_dir, vocab_size=self.vocab_size)
+            if dataset in ["wt103", "wt2"] or dataset.startswith("olx_"):
+                pass
+            elif dataset == "ptb":
+                lower_case = True
+            elif dataset == "lm1b":
+                bos_token, eos_token = "<S>", "<S>"  # `<S>` is added for double EOS
+            elif dataset in ["enwik8", "text8"]:
+                eos_token, lower_case = None, True
+            else:
+                raise RuntimeError(f"Dataset: {dataset} is not supported yet.")
 
-        cache_exists = os.path.exists(self.train_cache_filepath) and os.path.exists(self.valid_cache_filepath) and os.path.exists(self.test_cache_filepath)
+            vocab = WordVocab(
+                save_path=vocab_cache_dir,
+                vocab_size=vocab_size,
+                bos_token=bos_token,
+                eos_token=eos_token,
+                lower_case=lower_case,
+            )
 
-        # if files for all dataset npy exist then we have corpus cache
+        elif vocab_type == "bbpe":
+            vocab = BbpeVocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257)
+
+        elif vocab_type == "gpt2":
+            # Default vocab_size for GPT-2 is 50257
+            vocab = Gpt2Vocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257)
+
+        else:
+            raise RuntimeError(f"Vocabulary: {vocab_type} is not supported yet.")
+
+        return vocab
+
+    def _clear_cache(self) -> None:
+        """Clears the cache."""
+
+        self.train = self.valid = self.test = self.vocab = None
+
+    def _dataset_filepaths(self) -> Tuple[str, str, str]:
+        """Gets the dataset's file paths.
+
+        Returns:
+            (Tuple[str, str, str]): Training, validation and testing file paths.
+
+        """
+
+        train_file_name, valid_file_name, test_file_name = "train.txt", "valid.txt", "test.txt"
+        if self.dataset in ["wt2", "wt103"]:
+            train_file_name, valid_file_name, test_file_name = (
+                "wiki.train.tokens",
+                "wiki.valid.tokens",
+                "wiki.test.tokens",
+            )
+
+        if self.dataset == "lm1b":
+            train_path_pattern = os.path.join(
+                self.dataset_dir,
+                "1-billion-word-language-modeling-benchmark-r13output",
+                "training-monolingual.tokenized.shuffled",
+                "news.en-*",
+            )
+            train_file_name_path = glob.glob(train_path_pattern)
+        else:
+            train_file_name_path = os.path.join(self.dataset_dir, train_file_name)
+        valid_file_name_path = os.path.join(self.dataset_dir, valid_file_name)
+        test_file_name_path = os.path.join(self.dataset_dir, test_file_name)
+
+        return (
+            train_file_name_path,
+            valid_file_name_path,
+            test_file_name_path,
+        )
+
+    def _train_vocab(self) -> None:
+        """Trains vocabulary."""
+
+        # If vocabulary cache does not exist
+        if self.refresh_cache or not self.vocab.is_trained():
+            logger.info("Training vocabulary ...")
+
+            train_filepath, _, _ = self._dataset_filepaths()
+            if not isinstance(train_filepath, list):
+                train_filepath = [train_filepath]
+
+            self.vocab.train(train_filepath)
+            logger.info("Vocabulary trained.")
+
+        else:
+            self.vocab.load()
+            logger.debug(f"Loading vocabulary ({self.vocab_type}, {self.vocab_size}) from: {self.vocab_cache_dir}")
+
+    def _create_train_vocab(self) -> VocabBase:
+        """Creates and trains the vocabulary.
+
+        Returns:
+            (VocabBase): Pre-trained vocabulary.
+
+        """
+
+        self.vocab = Corpus._create_vocab(
+            self.dataset, self.vocab_type, self.vocab_cache_dir, vocab_size=self.vocab_size
+        )
+        self._train_vocab()
+
+        return self.vocab
+
+    def _encode_files(self) -> None:
+        """Encodes dataset (training, validation and testing sets)."""
+
+        train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
+
+        if self.dataset == "lm1b":
+            self.train = train_filepath
+        else:
+            self.train = self.vocab.encode_file(train_filepath)
+
+        self.valid = self.vocab.encode_file(valid_filepath)
+        self.test = self.vocab.encode_file(test_filepath)
+
+    def train_and_encode(self) -> None:
+        """Trains vocabulary/tokenizer and encodes the corpus."""
+
+        logger.info(
+            f"Training corpus: dataset = {self.dataset} | vocab_type = {self.vocab_type} | vocab_size = {self.vocab_size}"
+        )
+
+        self._create_train_vocab()
+        self._encode_files()
+
+        train_size = f"{len(self.train)} files" if isinstance(self.train, list) else self.train.size(0)
+        logger.debug(f"Size: train = {train_size} | valid = {self.valid.size(0)} | test = {self.test.size(0)}")
+
+    def load(self) -> bool:
+        """Loads a pre-trained corpus.
+
+        Returns:
+            (bool): Whether pre-trained corpus has been successfully loaded.
+
+        """
+
+        # Ensures tokenizer cache is loaded as well
+        self.vocab = Corpus._create_vocab(
+            self.dataset, self.vocab_type, self.vocab_cache_dir, vocab_size=self.vocab_size
+        )
+
+        cache_exists = (
+            os.path.exists(self.train_cache_filepath)
+            and os.path.exists(self.valid_cache_filepath)
+            and os.path.exists(self.test_cache_filepath)
+        )
+
+        # If .npy files exists, corpus cache is available
         if not self.refresh_cache and cache_exists and self.vocab is not None and self.vocab.is_trained():
-            logging.info(f'Found existing cache for for dataset {self.dataset}. Loading from {self.train_cache_filepath}.')
+            logger.info(f"Loading cache from: {self.train_cache_filepath} ...")
 
             self.vocab.load()
 
@@ -86,160 +254,119 @@ class Corpus:
             self.valid = torch.from_numpy(np.load(self.valid_cache_filepath))
             self.test = torch.from_numpy(np.load(self.test_cache_filepath))
 
-            logging.info(f'Sizes for train: {self.train.size(0)}, valid: {self.valid.size(0)}, test: {self.test.size(0)}')
+            logger.debug(
+                f"Size: train = {self.train.size(0)} | valid = {self.valid.size(0)} | test = {self.test.size(0)}"
+            )
 
             return True
-        else:
-            logging.info(f'Clearing all cache and rebuidling it')
-            self._clear()
-            utils.delete_file(self.train_cache_filepath)
-            utils.delete_file(self.valid_cache_filepath)
-            utils.delete_file(self.test_cache_filepath)
-            return False # no cache exists or refresh is needed
 
-    def _clear(self)->None:
-        self.train = self.valid  = self.test = self.vocab = None
+        logger.info("Clearing and rebuilding cache ...")
+        self._clear_cache()
 
-    def save(self):
+        utils.delete_file(self.train_cache_filepath)
+        utils.delete_file(self.valid_cache_filepath)
+        utils.delete_file(self.test_cache_filepath)
+
+        return False
+
+    def save_cache(self) -> None:
+        """Saves the cache."""
+
         assert self.vocab is not None and self.vocab.is_trained()
 
-        # save dataset cache
         np.save(self.train_cache_filepath, self.train.numpy())
         np.save(self.valid_cache_filepath, self.valid.numpy())
         np.save(self.test_cache_filepath, self.test.numpy())
 
-    def _create_train_vocab(self)->VocabBase:
-        self.vocab = Corpus._create_vocab(self.datadir, self.dataset, self.vocab_type,
-                                     self._vocab_cache_dir, vocab_size=self.vocab_size)
-        self._train_vocab()
+    def get_iterator(
+        self,
+        split: str,
+        batch_size: int,
+        seq_len: int,
+        device: str,
+        mem_len: Optional[int] = 0,
+        ext_len: Optional[int] = 0,
+    ) -> Union[LMOrderedIterator, LMMultiFileIterator]:
+        """Gets an iterator based on current corpus.
 
-        return self.vocab
+        Args:
+            split: Name of the split.
+            batch_size: Batch size.
+            seq_len: Sequence length.
+            device: Device where iterator should be loaded on.
+            mem_len: Length of memory (for Transformer-XL).
+            ext_len: Length of extended context (for Transformer-XL).
 
-    @staticmethod
-    def _get_file_stats(filepath:Union[str,list])->DataFileStats:
-        if not isinstance(filepath, list):
-            filepath = [filepath]
-        
-        stats = DataFileStats(filepath)
-        
-        for f_path in filepath:
-            with open(f_path, 'r', encoding="utf-8") as f:
-                for line in f:
-                    stats.line_count += 1
-                    stats.char_count += len(line)
-                    stats.word_count += len(line.split())
-        return stats
+        Returns:
+            (Union[LMOrderedIterator, LMMultiFileIterator]): Iterator.
 
-    def file_stats(self)->Tuple[DataFileStats, DataFileStats, DataFileStats]:
-        train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
-        return (Corpus._get_file_stats(train_filepath), \
-                Corpus._get_file_stats(valid_filepath), \
-                Corpus._get_file_stats(test_filepath))
+        """
 
-    def _get_encoded_files(self)->\
-        Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        if split == "train":
+            input_ids = self.train
 
-        train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
-
-        if self.dataset == 'lm1b':
-            train = train_filepath
-        else:
-            train = self.vocab.encode_file(train_filepath)
-
-        valid = self.vocab.encode_file(valid_filepath)
-        test = self.vocab.encode_file(test_filepath)
-
-        return (train, valid, test)
-
-    @staticmethod
-    def _create_vocab(datadir:str, dataset:str, vocab_type:str, vocab_cache_dir:str,
-                      vocab_size:Optional[int]=None)->VocabBase:
-        if vocab_type == 'word':
-            # '<S>' is added for double eos and <unk> is rare token in corpus with freq < 3
-            bos_token, eos_token, lower_case, vocab_file = None, '<eos>', False, None # vocab file is text file of symbols, one per line
-            if dataset in ['wt103', 'wt2'] or dataset.startswith('olx_'):
-                pass
-            elif dataset == 'ptb':
-                lower_case = True
-            elif dataset == 'lm1b':
-                bos_token, eos_token = '<S>', '<S>'
-            elif dataset in ['enwik8', 'text8']:
-                eos_token, lower_case = None, True
+            if self.dataset in ["wt2", "wt103"] or self.dataset.startswith("olx_"):
+                iterator = LMOrderedIterator(
+                    input_ids, batch_size, seq_len, device=device, mem_len=mem_len, ext_len=ext_len
+                )
+            elif self.dataset == "lm1b":
+                iterator = LMMultiFileIterator(
+                    input_ids,
+                    self.vocab,
+                    batch_size,
+                    seq_len,
+                    device=device,
+                    mem_len=mem_len,
+                    ext_len=ext_len,
+                )
             else:
-                raise RuntimeError(f'dataset {dataset} is not recognized to produce vocab')
+                raise RuntimeError(f"Dataset: {self.dataset} is not supported yet.")
 
-            vocab = WordVocab(save_path=vocab_cache_dir, vocab_size=vocab_size,
-                              bos_token=bos_token, eos_token=eos_token,
-                              lower_case=lower_case)
-        elif vocab_type == 'bbpe':
-            vocab = BbpeVocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
-        elif vocab_type == 'gpt2':
-            vocab = Gpt2Vocab(save_path=vocab_cache_dir, vocab_size=vocab_size or 50257) # default vocab size for GPT-2 is 50257
-        else:
-            raise RuntimeError(f'Unsupported vocab type: {vocab_type}')
+        elif split in ["valid", "test"]:
+            input_ids = self.valid if split == "valid" else self.test
 
-        return vocab
-
-    def _dataset_filepaths(self)->Tuple[str,str,str]:
-        train_filename, valid_filename, test_filename = 'train.txt', 'valid.txt', 'test.txt'
-        if self.dataset in ['wt2', 'wt103']:
-            train_filename, valid_filename, test_filename = 'wiki.train.tokens', 'wiki.valid.tokens', 'wiki.test.tokens'
-        if self.dataset == 'lm1b':
-            train_path_pattern = os.path.join(self.datadir, '1-billion-word-language-modeling-benchmark-r13output', 'training-monolingual.tokenized.shuffled', 'news.en-*')
-            train_filename = glob.glob(train_path_pattern)
-            return (train_filename, os.path.join(self.datadir, valid_filename), os.path.join(self.datadir, test_filename))
-
-        return (os.path.join(self.datadir, train_filename),
-                os.path.join(self.datadir, valid_filename),
-                os.path.join(self.datadir, test_filename))
-
-    def _train_vocab(self)->None:
-        if self.refresh_cache or not self.vocab.is_trained(): # if vocab cache does not exist
-            train_filepath, valid_filepath, test_filepath = \
-                self._dataset_filepaths()
-
-            logging.info('Training vocab...')
-            if not isinstance(train_filepath, list):
-                train_filepath = [train_filepath]
-            self.vocab.train(train_filepath)
-            logging.info('Finished training vocab.')
-        else:
-            self.vocab.load()
-            logging.info(f'Vocab cache found and loaded for type {self.vocab_type} and size {self.vocab_size} from {self._vocab_cache_dir}.')
-
-    def get_iterator(self, split, batch_size, tgt_len, device, ext_len=0, mem_len=0):
-        if split == 'train':
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
-                data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
-                                              device=device, ext_len=ext_len, mem_len=mem_len)
-            elif self.dataset == 'lm1b':
-                data_iter = LMMultiFileIterator(self.train, self.vocab, batch_size, tgt_len,
-                                                device=device, ext_len=ext_len, mem_len=mem_len)
+            if self.dataset in ["wt2", "wt103", "lm1b"] or self.dataset.startswith("olx_"):
+                iterator = LMOrderedIterator(
+                    input_ids, batch_size, seq_len, device=device, ext_len=ext_len, mem_len=mem_len
+                )
             else:
-                raise RuntimeError(f'Dataset not yet fully supported: {self.dataset}')
-
-        elif split in ['valid', 'test']:
-            data = self.valid if split == 'valid' else self.test
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'lm1b', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
-                data_iter = LMOrderedIterator(data, batch_size, tgt_len,
-                                              device=device, ext_len=ext_len, mem_len=mem_len)
-            else:
-                raise RuntimeError(f'Dataset not yet fully supported: {self.dataset}')
+                raise RuntimeError(f"Dataset: {self.dataset} is not supported yet.")
 
         else:
-            raise RuntimeError(f'split not supported: {split}')
+            raise RuntimeError(f"Split: {split} is not supported yet.")
 
-        return data_iter
+        return iterator
 
 
-def get_lm_corpus(datadir:str, cachedir:str, dataset:str, vocab_type:str,
-                  vocab_size:Optional[int]=None, refresh_cache=False):
-    corpus = Corpus(datadir, dataset, vocab_type, cachedir,
-                    vocab_size=vocab_size, refresh_cache=refresh_cache)
-    if not corpus.load(): # if cached version doesn't exist
+def load_corpus(
+    dataset: str,
+    dataset_dir: str,
+    cache_dir: str,
+    vocab_type: str,
+    vocab_size: Optional[int] = None,
+    refresh_cache=False,
+) -> Corpus:
+    """Loads a pre-trained corpus if available, or pre-trains a new one.
+
+    Args:
+        dataset: Name of the dataset.
+        dataset_dir: Dataset folder.
+        cache_dir: Cache folder.
+        vocab_type: Type of vocabulary/tokenizer.
+        vocab_size: Vocabulary size.
+        refresh_cache: Whether cache should be refreshed.
+
+    Returns:
+        (Corpus): Corpus with pre-trained vocabulary and encoded data.
+
+    """
+
+    corpus = Corpus(dataset, dataset_dir, cache_dir, vocab_type, vocab_size=vocab_size, refresh_cache=refresh_cache)
+    if not corpus.load():
         corpus.train_and_encode()
+
         with distributed_utils.sync_workers() as rank:
-            if rank == 0 and not dataset == 'lm1b':
-                corpus.save()
+            if rank == 0 and dataset != "lm1b":
+                corpus.save_cache()
 
     return corpus
