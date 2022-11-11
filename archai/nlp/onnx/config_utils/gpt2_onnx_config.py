@@ -66,8 +66,8 @@ class GPT2FlexOnnxConfig(OnnxConfigWithPast):
     def ort_graph_optimizer_args(self) -> Tuple[Any, ...]:
         return (self.num_attention_heads[0], self.hidden_size)
 
-    def generate_dummy_inputs(self) -> Mapping[str, torch.Tensor]:
-        dummy_inputs = OnnxConfig.generate_dummy_inputs(self)
+    def generate_dummy_inputs(self, batch_size: int = 2, seq_len: int = 8, past_seq_len: int = 8) -> Mapping[str, torch.Tensor]:
+        dummy_inputs = OnnxConfig.generate_dummy_inputs(self, batch_size, seq_len)
 
         if self.use_past:
             # [past_key_values, batch_size, n_head[i], past_seq_len, d_head[i]]
@@ -75,9 +75,9 @@ class GPT2FlexOnnxConfig(OnnxConfigWithPast):
                 [
                     torch.zeros(
                         self.config.past_key_values,
-                        self.batch_size,
+                        batch_size,
                         self.num_attention_heads[i],
-                        self.seq_len,
+                        past_seq_len,
                         self.hidden_size // self.num_attention_heads[i],
                     )
                     for i in range(self.num_layers)
