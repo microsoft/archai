@@ -46,7 +46,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
             "n_head": "n_head",
             "n_layer": "n_layer",
             "vocab_size": "vocab_size",
-            "target_len": "n_positions",
+            "max_sequence_length": "n_positions",
             "dropout": "resid_pdrop",
             "dropatt": "attn_pdrop"
         },
@@ -56,7 +56,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
             "n_head": "n_head",
             "n_layer": "n_layer",
             "vocab_size": "vocab_size",
-            "target_len": "n_positions",
+            "max_sequence_length": "n_positions",
             "dropout": "resid_pdrop",
             "dropatt": "attn_pdrop"
         },
@@ -93,7 +93,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                  share_d_inner: bool = True,
                  mutation_prob: float = 0.3,
                  vocab_size: int = 10_000,
-                 target_len: int = 192,
+                 max_sequence_length: int = 1024,
                  att_dropout_rate: float = 0.0,
                  random_seed: int = 1) -> None:
 
@@ -124,7 +124,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.rng = Random(random_seed)
 
         self.vocab_size = vocab_size
-        self.target_len = target_len
+        self.max_sequence_length = max_sequence_length
         self.att_dropout_rate = att_dropout_rate
 
     def _load_model_from_config(self, model_config: Dict[str, Any]) -> torch.nn.Module:
@@ -156,7 +156,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         config = {
             'vocab_size': self.vocab_size,
             'dropatt': self.att_dropout_rate,
-            'target_len': self.target_len,
+            'max_sequence_length': self.max_sequence_length
         }
 
         while model is None:
