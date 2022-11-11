@@ -75,15 +75,19 @@ def upload(model, name, priority=None, benchmark_only=False, use_pillow=False):
     e['status'] = 'uploading'
     e['node'] = get_node_id()  # lock the row until upload complete
     merge_status_entity(e)
-    upload_blob(name, model)
-    # remove any cached dlc files since they need to be redone now.
-    delete_blobs(name, 'model.dlc')
-    delete_blobs(name, 'model.quant.dlc')
+    try:
+        upload_blob(name, model)
+        # remove any cached dlc files since they need to be redone now.
+        delete_blobs(name, 'model.dlc')
+        delete_blobs(name, 'model.quant.dlc')
+    except Exception as e:
+        print(f"upload failed {e}")
 
     # record status of new record.
     reset_metrics(e, True, True, True)
     e['status'] = 'new'
     e['model_date'] = get_utc_date()
+    del e['node']
     if priority:
         e['priority'] = priority
     if benchmark_only:
