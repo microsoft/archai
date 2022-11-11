@@ -21,7 +21,7 @@ from torch.nn.parallel import DistributedDataParallel
 
 from archai.nlp import logging_utils
 from archai.nlp.datasets.nvidia import distributed_utils
-from archai.nlp.datasets.nvidia.corpus import get_lm_corpus
+from archai.nlp.datasets.nvidia.corpus import load_corpus
 from archai.nlp.quantization.mixed_qat import MixedQAT
 from archai.nlp.quantization.qat import prepare_with_qat, qat_to_float_modules
 from archai.nlp.trainers.nvidia.cyclic_cosine_scheduler import CyclicCosineDecayLR
@@ -116,10 +116,10 @@ class NvidiaTrainer:
         assert isinstance(args, NvidiaTrainingArguments), "`args` should be an instance of `NvidiaTrainingArguments`."
         self.args = args
 
-        self.dataset = get_lm_corpus(
+        self.dataset = load_corpus(
+            self.args.dataset,
             self.args.dataset_dir,
             self.args.dataset_cache_dir,
-            self.args.dataset,
             self.args.vocab,
             vocab_size=self.args.vocab_size,
             refresh_cache=self.args.dataset_refresh_cache,
@@ -223,7 +223,6 @@ class NvidiaTrainer:
                 self.optimizer, max_steps - self.args.scheduler_warmup_steps, eta_min=self.args.scheduler_lr_min
             )
         elif scheduler_name == "inv_sqrt":
-
             def lr_lambda(step: int) -> float:
                 if step == 0 and self.args.scheduler_warmup_steps == 0:
                     return 1.0
@@ -565,3 +564,30 @@ class NvidiaTrainer:
         }
 
         return eval_metrics
+
+    def fine_tune_qat(self, model: torch.nn.Module, checkpoint_file_path: str) -> None:
+        """Fine-tunes a model with QAT.
+        
+        Args:
+            model: Model to be fine-tuned.
+            checkpoint_file_path: Path to the checkpoint that will be used
+                to resume the training.
+            
+        """
+
+        assert isinstance(model, torch.nn.Module), "`model` should be an instance of `torch.nn.Module`."
+        self.model = model.to(self.args.device)
+
+        # QAT-based arguments
+        self.args.max_steps = 10000
+        self.args.eval_interval = 1000
+        self.args.optimizer = "adam"
+        self.args.optimizer_lr /= 100
+        self.args.scheduler_lr_min /= 100
+        self.args.scheduler_warmup_steps = 1000
+        self.args.qat = True
+        self.args.mixed_qat = False
+
+        # Re-loads the checkpoint and performs the fine-tuning
+        self.load_checkpoint(checkpoint_file_path)
+        self.train()
