@@ -20,7 +20,7 @@ from archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab import WordVocab
 from archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab import BbpeVocab
 from archai.nlp.datasets.nvidia.tokenizer_utils.gpt2_vocab import Gpt2Vocab
 
-from archai.nlp.datasets.nvidia.lm_iterators import LMMultiFileIterator, LMOrderedIterator, LMShuffledIterator
+from archai.nlp.datasets.nvidia.lm_iterators import LMMultiFileIterator, LMOrderedIterator
 
 
 
@@ -207,7 +207,7 @@ class Corpus:
             self.vocab.load()
             logging.info(f'Vocab cache found and loaded for type {self.vocab_type} and size {self.vocab_size} from {self._vocab_cache_dir}.')
 
-    def get_iterator(self, split, batch_size, tgt_len, device, ext_len=None, mem_len=None):
+    def get_iterator(self, split, batch_size, tgt_len, device, ext_len=0, mem_len=0):
         if split == 'train':
             if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
                 data_iter = LMOrderedIterator(self.train, batch_size, tgt_len,
@@ -220,12 +220,9 @@ class Corpus:
 
         elif split in ['valid', 'test']:
             data = self.valid if split == 'valid' else self.test
-            if self.dataset in ['ptb', 'wt2', 'wt103', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
+            if self.dataset in ['ptb', 'wt2', 'wt103', 'lm1b', 'enwik8', 'text8'] or self.dataset.startswith('olx_'):
                 data_iter = LMOrderedIterator(data, batch_size, tgt_len,
                                               device=device, ext_len=ext_len, mem_len=mem_len)
-            elif self.dataset == 'lm1b':
-                data_iter = LMShuffledIterator(data, batch_size, tgt_len,
-                                               device=device, ext_len=ext_len, mem_len=mem_len)
             else:
                 raise RuntimeError(f'Dataset not yet fully supported: {self.dataset}')
 
