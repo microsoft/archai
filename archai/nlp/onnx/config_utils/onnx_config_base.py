@@ -114,9 +114,8 @@ class OnnxConfigWithPast(OnnxConfig):
             past_key_values: Number of past-related information (2 for key and values).
 
         """
-
-        super().__init__(config, batch_size=batch_size, seq_len=seq_len, task=task)
-
+        super().__init__(config, task=task)
+        
         if use_past:
             self.config.use_cache = True
             self.config.past_key_values = past_key_values

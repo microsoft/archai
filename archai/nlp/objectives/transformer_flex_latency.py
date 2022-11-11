@@ -93,7 +93,6 @@ class TransformerFlexOnnxLatency(Objective):
 
             onnx_config = export_to_onnx(
                 model, Path(tmp.name), task='causal-lm',
-                batch_size=self.batch_size, seq_len=self.seq_len,
                 use_past=True, share_weights=True, opset=11
             )
             optimize_onnx(tmp.name, onnx_config, opt_level=0)
