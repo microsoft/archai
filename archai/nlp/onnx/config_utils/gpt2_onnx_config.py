@@ -47,16 +47,11 @@ class GPT2FlexOnnxConfig(OnnxConfigWithPast):
 
     def __init__(
         self, config: PretrainedConfig,
-        batch_size: int = 2,
-        seq_len: int = 8,
         task: Optional[str] = "causal-lm",
         use_past: Optional[bool] = False
     ) -> None:
         super().__init__(
-            config, task=task,
-            batch_size=batch_size,
-            seq_len=seq_len,
-            use_past=use_past, past_key_values=2
+            config, task=task, use_past=use_past, past_key_values=2
         )
 
     @property
