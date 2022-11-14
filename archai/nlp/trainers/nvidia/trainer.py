@@ -41,6 +41,7 @@ def save_checkpoint(
     fp16: bool,
     prefix: Optional[str] = None,
     save_all_checkpoints: Optional[bool] = False,
+    is_best_model: Optional[bool] = False,
 ) -> None:
     """Saves a checkpoint that holds enough information to resume the training.
 
@@ -53,7 +54,8 @@ def save_checkpoint(
         trainer_state: Current trainer state.
         fp16: Whether fp16 precision is used or not.
         prefix: Prefix which should be added to the checkpoint's file name.
-        save_all_checkpoints: Whether all `eval_interval` steps should be saved or not.
+        save_all_checkpoints: Whether all `eval_interval` steps should be saved.
+        is_best_model: Whether best model should be saved.
 
     """
 
@@ -66,7 +68,7 @@ def save_checkpoint(
         "trainer_state": trainer_state,
     }
 
-    checkpoint_name = prefix + "checkpoint_last.pt"
+    checkpoint_name = prefix + "checkpoint-last.pt"
 
     with distributed_utils.sync_workers() as rank:
         checkpoint_path = os.path.join(output_dir, checkpoint_name)
@@ -75,8 +77,15 @@ def save_checkpoint(
             logger.info(f"Saving checkpoint: {checkpoint_path}")
             torch.save(state, checkpoint_path)
 
+            if is_best_model:
+                checkpoint_step_name = prefix + "checkpoint-best.pt"
+                checkpoint_step_path = os.path.join(output_dir, checkpoint_step_name)
+
+                logger.info(f"Saving checkpoint: {checkpoint_step_path}")
+                shutil.copy(checkpoint_path, checkpoint_step_path)
+
             if save_all_checkpoints:
-                checkpoint_step_name = prefix + f"checkpoint_{trainer_state['step']}.pt"
+                checkpoint_step_name = prefix + f"checkpoint-{trainer_state['step']}.pt"
                 checkpoint_step_path = os.path.join(output_dir, checkpoint_step_name)
 
                 logger.info(f"Saving checkpoint: {checkpoint_step_path}")
@@ -123,6 +132,7 @@ class NvidiaTrainer:
             "epoch": 0,
             "batch": 0,
             "step": 0,
+            "best_eval_loss": None,
             "log_history": []
         }
 
@@ -323,6 +333,8 @@ class NvidiaTrainer:
         self.model.train()
 
         train_loss, log_step, n_labels_tokens = 0.0, 0, 0
+        best_eval_loss = 1e300
+
         start_time = time.time()
 
         # `lm1b` uses a different style of data loader
@@ -428,7 +440,7 @@ class NvidiaTrainer:
 
                 self.trainer_state["log_history"].append({
                     "epoch": epoch,
-                    "eval_idx": step // self.args.eval_interval,
+                    "eval_idx": (step // self.args.eval_interval) - 1,
                     "eval_runtime": eval_time,
                     "eval_loss": eval_loss,
                     "eval_ppl": math.exp(eval_loss),
@@ -436,7 +448,7 @@ class NvidiaTrainer:
                 })
 
                 logger.info(
-                    f"Eval: {step // self.args.eval_interval} | "
+                    f"Eval: {(step // self.args.eval_interval) - 1} | "
                     f"Step: {step} | Time: {eval_time:.2f}s | "
                     f"Loss: {eval_loss:.3f} | PPL: {math.exp(eval_loss):.3f}"
                 )
@@ -460,6 +472,12 @@ class NvidiaTrainer:
                     save_model = save_model.model
                     prefix = "mixed-qat-"
 
+                # Checks if current model is the best one
+                is_best_model = (eval_loss < best_eval_loss)
+                if is_best_model:
+                    best_eval_loss = eval_loss
+                    self.trainer_state["best_eval_loss"] = best_eval_loss
+
                 save_checkpoint(
                     self.args.output_dir,
                     save_model,
@@ -470,6 +488,7 @@ class NvidiaTrainer:
                     self.args.fp16,
                     prefix=prefix,
                     save_all_checkpoints=self.args.save_all_checkpoints,
+                    is_best_model=is_best_model,
                 )
 
             if is_final_step:
