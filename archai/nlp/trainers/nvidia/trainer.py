@@ -132,7 +132,7 @@ class NvidiaTrainer:
             "epoch": 0,
             "batch": 0,
             "step": 0,
-            "best_eval_loss": None,
+            "best_eval_loss": 1e300,
             "log_history": []
         }
 
@@ -333,7 +333,7 @@ class NvidiaTrainer:
         self.model.train()
 
         train_loss, log_step, n_labels_tokens = 0.0, 0, 0
-        best_eval_loss = 1e300
+        best_eval_loss = self.trainer_state["best_eval_loss"]
 
         start_time = time.time()
 
