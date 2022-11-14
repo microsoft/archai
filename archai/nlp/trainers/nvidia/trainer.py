@@ -586,18 +586,22 @@ class NvidiaTrainer:
 
         return eval_metrics
 
-    def fine_tune_qat(self, model: torch.nn.Module, checkpoint_file_path: str) -> None:
+    def fine_tune_qat(self, model: Optional[torch.nn.Module] = None, checkpoint_file_path: Optional[str] = "") -> None:
         """Fine-tunes a model with QAT.
+
+        Users are allowed to pass in a different model (e.g., without dropout) than the one
+        instantiated with NvidiaTrainer, as well as a pre-trained checkpoint file to load
+        the weights from a previous training.
         
         Args:
             model: Model to be fine-tuned.
-            checkpoint_file_path: Path to the checkpoint that will be used
-                to resume the training.
+            checkpoint_file_path: Path to the checkpoint used to resume training.
             
         """
 
-        assert isinstance(model, torch.nn.Module), "`model` should be an instance of `torch.nn.Module`."
-        self.model = model.to(self.args.device)
+        if model:
+            assert isinstance(model, torch.nn.Module), "`model` should be an instance of `torch.nn.Module`."
+            self.model = model.to(self.args.device)
 
         # QAT-based arguments
         self.args.max_steps = 10000
