@@ -81,13 +81,9 @@ if __name__ == "__main__":
     tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
     harness_model = HarnessModel(model, tokenizer)
-    
+
     # Profiles the model
-    inputs = {
-        "input_ids": torch.zeros((1, harness_model.max_length), dtype=torch.long).to(
-            harness_model.device
-        )
-    }
+    inputs = {"input_ids": torch.zeros((1, harness_model.max_length), dtype=torch.long).to(harness_model.device)}
     output["profiler"] = profile(harness_model.model, model_kwargs=inputs, n_warmups=1)
     output["model"] = harness_model.model.config.to_dict()
 
