@@ -70,22 +70,25 @@ class ProfilerModel:
                 module.__post_hook_handle__ = module.register_forward_hook(post_hook)
 
             def start_time_hook(module: torch.nn.Module, input: torch.Tensor):
-                torch.cuda.synchronize()
+                if torch.cuda.is_available():
+                    torch.cuda.synchronize()
                 module.__start_time__ = time.time()
 
             if not hasattr(module, "__start_time_hook_handle"):
                 module.__start_time_hook_handle__ = module.register_forward_pre_hook(start_time_hook)
 
             def end_time_hook(module: torch.nn.Module, input: torch.Tensor, output: torch.Tensor):
-                torch.cuda.synchronize()
+                if torch.cuda.is_available():
+                    torch.cuda.synchronize()
                 module.__latency__ += time.time() - module.__start_time__
 
             if not hasattr(module, "__end_time_hook_handle__"):
                 module.__end_time_hook_handle__ = module.register_forward_hook(end_time_hook)
 
             def peak_memory_hook(module: torch.nn.Module, input: torch.Tensor, output: torch.Tensor):
-                module.__peak_memory__ = torch.cuda.max_memory_allocated()
-                torch.cuda.reset_peak_memory_stats()
+                if torch.cuda.is_available():
+                    module.__peak_memory__ = torch.cuda.max_memory_allocated()
+                    torch.cuda.reset_peak_memory_stats()
 
             if not hasattr(module, "__peak_memory_hook_handle__"):
                 module.__peak_memory_hook_handle__ = module.register_forward_hook(peak_memory_hook)

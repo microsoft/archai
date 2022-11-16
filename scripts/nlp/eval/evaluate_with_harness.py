@@ -5,9 +5,6 @@ import argparse
 import json
 import os
 import random
-import time
-from contextlib import contextmanager
-from typing import List
 
 import numpy as np
 import torch
@@ -15,15 +12,7 @@ from transformers import AutoModelForCausalLM
 
 from archai.nlp.datasets.hf.tokenizer_utils import ArchaiPreTrainedTokenizerFast
 from archai.nlp.eval.harness import HarnessModel, evaluate, load_harness_task
-
-
-@contextmanager
-def track_inference_time(latency: List[int]) -> None:
-    start = time.time()
-    yield
-    end = time.time()
-
-    latency.append(end - start)
+from archai.nlp.eval.profiler import profile
 
 
 def parse_args() -> argparse.Namespace:
@@ -92,21 +81,14 @@ if __name__ == "__main__":
     tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
     harness_model = HarnessModel(model, tokenizer)
-
-    # Measures the latency
-    latency = []
-    for _ in range(100):
-        with track_inference_time(latency):
-            harness_model(
-                input_ids=torch.zeros((1, harness_model.max_length), dtype=torch.long).to(harness_model.device)
-            )
-
-    output["latency"] = {
-        "mean": np.mean(latency) * 1e3,
-        "p50": np.percentile(latency, 50) * 1e3,
-        "p90": np.percentile(latency, 90) * 1e3,
-        "p95": np.percentile(latency, 95) * 1e3,
+    
+    # Profiles the model
+    inputs = {
+        "input_ids": torch.zeros((1, harness_model.max_length), dtype=torch.long).to(
+            harness_model.device
+        )
     }
+    output["profiler"] = profile(harness_model.model, model_kwargs=inputs, n_warmups=1)
     output["model"] = harness_model.model.config.to_dict()
 
     for task in args.tasks:
