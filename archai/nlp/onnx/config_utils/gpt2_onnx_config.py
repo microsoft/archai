@@ -16,18 +16,12 @@ class GPT2OnnxConfig(OnnxConfigWithPast):
     """Implements a GPT-2 ONNX configuration (with past key/values support)."""
 
     def __init__(
-        self, config: PretrainedConfig,
-        batch_size: int = 2,
-        seq_len: int = 8,
+        self,
+        config: PretrainedConfig,
         task: Optional[str] = "causal-lm",
-        use_past: Optional[bool] = False
+        use_past: Optional[bool] = False,
     ) -> None:
-        super().__init__(
-            config, task=task,
-            batch_size=batch_size,
-            seq_len=seq_len,
-            use_past=use_past, past_key_values=2
-        )
+        super().__init__(config, task=task, use_past=use_past, past_key_values=2)
 
     @property
     def num_layers(self) -> int:
@@ -46,13 +40,9 @@ class GPT2FlexOnnxConfig(OnnxConfigWithPast):
     """Implements a GPT-2 Flex ONNX configuration (with past key/values support)."""
 
     def __init__(
-        self, config: PretrainedConfig,
-        task: Optional[str] = "causal-lm",
-        use_past: Optional[bool] = False
+        self, config: PretrainedConfig, task: Optional[str] = "causal-lm", use_past: Optional[bool] = False
     ) -> None:
-        super().__init__(
-            config, task=task, use_past=use_past, past_key_values=2
-        )
+        super().__init__(config, task=task, use_past=use_past, past_key_values=2)
 
     @property
     def num_layers(self) -> int:
@@ -66,7 +56,9 @@ class GPT2FlexOnnxConfig(OnnxConfigWithPast):
     def ort_graph_optimizer_args(self) -> Tuple[Any, ...]:
         return (self.num_attention_heads[0], self.hidden_size)
 
-    def generate_dummy_inputs(self, batch_size: int = 2, seq_len: int = 8, past_seq_len: int = 8) -> Mapping[str, torch.Tensor]:
+    def generate_dummy_inputs(
+        self, batch_size: int = 2, seq_len: int = 8, past_seq_len: int = 8
+    ) -> Mapping[str, torch.Tensor]:
         dummy_inputs = OnnxConfig.generate_dummy_inputs(self, batch_size, seq_len)
 
         if self.use_past:

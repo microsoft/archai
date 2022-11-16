@@ -14,6 +14,7 @@ from transformers.configuration_utils import PretrainedConfig
 
 class OnnxConfig:
     """Implements the base ONNX configuration."""
+
     DEFAULT_TASK_OUTPUTS = {"causal-lm": OrderedDict({"probs": {0: "batch_size"}})}
 
     def __init__(
@@ -78,17 +79,25 @@ class OnnxConfig:
 
         return copy.deepcopy(self.DEFAULT_TASK_OUTPUTS[self.task])
 
-    def generate_dummy_inputs(self, batch_size: int = 2, seq_len: int = 8) -> Mapping[str, torch.Tensor]:
+    def generate_dummy_inputs(
+        self, batch_size: Optional[int] = 2, seq_len: Optional[int] = 8
+    ) -> Mapping[str, torch.Tensor]:
         """Generates dummy inputs for the ONNX exporter.
+
+        Args:
+            batch_size: Batch size.
+            seq_len: Sequence length.
 
         Returns:
             (Mapping[str, Any]): Keyword arguments for the model's forward.
 
         """
-        assert seq_len <= self.config.max_position_embeddings, \
-            f'seq_len ({seq_len}) must be smaller than max_position_embeddings' \
-            f' ({self.config.max_position_embeddings})'
-        
+
+        assert seq_len <= self.config.max_position_embeddings, (
+            f"seq_len ({seq_len}) must be smaller than max_position_embeddings"
+            f" ({self.config.max_position_embeddings})"
+        )
+
         return {"input_ids": torch.zeros((batch_size, seq_len), dtype=torch.long)}
 
 
@@ -100,7 +109,7 @@ class OnnxConfigWithPast(OnnxConfig):
         config: PretrainedConfig,
         task: Optional[str] = "causal-lm",
         use_past: Optional[bool] = False,
-        past_key_values: Optional[int] = 2
+        past_key_values: Optional[int] = 2,
     ) -> None:
         """Overrides initialization and defines whether past key/values are used.
 
@@ -112,7 +121,7 @@ class OnnxConfigWithPast(OnnxConfig):
 
         """
         super().__init__(config, task=task)
-        
+
         if use_past:
             self.config.use_cache = True
             self.config.past_key_values = past_key_values
@@ -200,19 +209,26 @@ class OnnxConfigWithPast(OnnxConfig):
 
         return outputs
 
-    def generate_dummy_inputs(self,
-                              batch_size: int = 2, seq_len: int = 8,
-                              past_seq_len: int = 8) -> Mapping[str, torch.Tensor]:
+    def generate_dummy_inputs(
+        self, batch_size: Optional[int] = 2, seq_len: Optional[int] = 8, past_seq_len: Optional[int] = 8
+    ) -> Mapping[str, torch.Tensor]:
         """Generates dummy inputs for the ONNX exporter.
+
+        Args:
+            batch_size: Batch size.
+            seq_len: Sequence length.
+            past_seq_len: Past key/values sequence length.
 
         Returns:
             (Mapping[str, Any]): Keyword arguments for the model's forward.
 
         """
-        assert seq_len + past_seq_len <= self.config.max_position_embeddings, \
-            f'Dummy input generated size ({seq_len + past_seq_len}) must be smaller' \
-            f' than max_position_embeddings ({self.config.max_position_embeddings}).'
-        
+
+        assert seq_len + past_seq_len <= self.config.max_position_embeddings, (
+            f"Dummy input generated size ({seq_len + past_seq_len}) must be smaller"
+            f" than max_position_embeddings ({self.config.max_position_embeddings})."
+        )
+
         dummy_inputs = super().generate_dummy_inputs(batch_size, seq_len)
 
         if self.use_past:
