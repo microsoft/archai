@@ -248,7 +248,7 @@ def _upsample_hook(
 
 
 def _softmax_hook(
-    input: torch.Tensor, dim: Optional[int] = None, dtype: Optional[torch.dtype] = None
+    input: torch.Tensor, dim: Optional[int] = None, _stacklevel: Optional[int] = 3, dtype: Optional[torch.dtype] = None
 ) -> Tuple[int, int]:
     return torch.numel(input), 0
 
