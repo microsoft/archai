@@ -18,7 +18,7 @@ from archai.nlp.eval.harness.harness_utils import MultipleTokenStoppingCriteria
 
 
 class HarnessModel:
-    """Prepares an Archai-NLP model used for harness-based evaluation."""
+    """Prepares a model used for harness-based evaluation."""
 
     def __init__(
         self,
