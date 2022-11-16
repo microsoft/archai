@@ -133,7 +133,7 @@ class NvidiaTrainer:
             "batch": 0,
             "step": 0,
             "best_eval_loss": 1e300,
-            "log_history": []
+            "log_history": [],
         }
 
     def load_checkpoint(self, checkpoint_file_path: str) -> Tuple[int, int, int, int]:
@@ -231,6 +231,7 @@ class NvidiaTrainer:
                 self.optimizer, max_steps - self.args.scheduler_warmup_steps, eta_min=self.args.scheduler_lr_min
             )
         elif scheduler_name == "inv_sqrt":
+
             def lr_lambda(step: int) -> float:
                 if step == 0 and self.args.scheduler_warmup_steps == 0:
                     return 1.0
@@ -413,13 +414,15 @@ class NvidiaTrainer:
 
                 train_loss, log_step, n_labels_tokens = 0.0, 0, 0
 
-                self.trainer_state["log_history"].append({
-                    "epoch": epoch,
-                    "learning_rate": lr,
-                    "loss": loss,
-                    "ppl": math.exp(loss),
-                    "step": step,
-                })
+                self.trainer_state["log_history"].append(
+                    {
+                        "epoch": epoch,
+                        "learning_rate": lr,
+                        "loss": loss,
+                        "ppl": math.exp(loss),
+                        "step": step,
+                    }
+                )
 
                 logger.info(
                     f"Epoch: {epoch} | Step: {step} | "
@@ -438,14 +441,16 @@ class NvidiaTrainer:
                 eval_loss, eval_time = self.evaluation_step(eval_dataloader)
                 eval_loss = distributed_utils.all_reduce(eval_loss, op="mean")
 
-                self.trainer_state["log_history"].append({
-                    "epoch": epoch,
-                    "eval_idx": (step // self.args.eval_interval) - 1,
-                    "eval_runtime": eval_time,
-                    "eval_loss": eval_loss,
-                    "eval_ppl": math.exp(eval_loss),
-                    "step": step,
-                })
+                self.trainer_state["log_history"].append(
+                    {
+                        "epoch": epoch,
+                        "eval_idx": (step // self.args.eval_interval) - 1,
+                        "eval_runtime": eval_time,
+                        "eval_loss": eval_loss,
+                        "eval_ppl": math.exp(eval_loss),
+                        "step": step,
+                    }
+                )
 
                 logger.info(
                     f"Eval: {(step // self.args.eval_interval) - 1} | "
@@ -473,7 +478,7 @@ class NvidiaTrainer:
                     prefix = "mixed-qat-"
 
                 # Checks if current model is the best one
-                is_best_model = (eval_loss < best_eval_loss)
+                is_best_model = eval_loss < best_eval_loss
                 if is_best_model:
                     best_eval_loss = eval_loss
                     self.trainer_state["best_eval_loss"] = best_eval_loss
@@ -611,11 +616,11 @@ class NvidiaTrainer:
         Users are allowed to pass in a different model (e.g., without dropout) than the one
         instantiated with NvidiaTrainer, as well as a pre-trained checkpoint file to load
         the weights from a previous training.
-        
+
         Args:
             model: Model to be fine-tuned.
             checkpoint_file_path: Path to the checkpoint used to resume training.
-            
+
         """
 
         if model:
