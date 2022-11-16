@@ -11,7 +11,7 @@ import torch
 from archai.nlp.eval.profiler.profiler_model import ProfilerModel
 
 
-def evaluate(
+def profile(
     model: torch.nn.Module,
     model_args: Optional[Tuple[Any]] = None,
     model_kwargs: Optional[Dict[str, Any]] = None,
