@@ -6,6 +6,7 @@
 
 import random
 import re
+from itertools import chain
 from typing import Any, Dict, List, Optional, Union
 
 from datasets import concatenate_datasets as hf_concatenate_datasets
@@ -134,74 +135,105 @@ def shuffle_dataset(dataset: Union[Dataset, IterableDataset], seed: int) -> Unio
 
 
 def tokenize_dataset(
-    dataset: Union[DatasetDict, IterableDatasetDict],
-    tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
-    mapping_column_name: Optional[str] = "text",
-    next_sentence_prediction: Optional[bool] = False,
-    truncate: Optional[bool] = True,
-    padding: Optional[str] = "max_length",
-    batched: Optional[bool] = True,
-    batch_size: Optional[int] = 1000,
-    writer_batch_size: Optional[int] = 1000,
-    num_proc: Optional[int] = None,
-) -> Union[DatasetDict, IterableDatasetDict]:
-    """Tokenizes a dataset according to supplied tokenizer and constraints.
+    examples: List[str],
+    tokenizer: Optional[Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]] = None,
+    mapping_column_name: Optional[Union[str, List[str]]] = "text",
+    truncate: Optional[Union[bool, str]] = True,
+    padding: Optional[Union[bool, str]] = "max_length",
+    **kwargs,
+) -> Dict[str, Any]:
+    """Tokenizes a dataset.
 
     Args:
-        dataset: Input dataset.
-        tokenizer: Input tokenizer.
-        mapping_column_name: Defines column to be tokenized.
-        next_sentence_prediction: Whether next sentence prediction labels should be created or not.
-        truncate: Whether samples should be truncated or not.
-        padding: Strategy used to pad samples that do not have the proper size.
-        batched: Whether mapping should be batched or not.
-        batch_size: Number of examples per batch.
-        writer_batch_size: Number of examples per write operation to cache.
-        num_proc: Number of processes for multiprocessing.
+        examples: Examples to be tokenized.
+        tokenizer: Tokenizer to transform text into tokens.
+        mapping_column_name: Columns to be tokenized.
+        truncate: Whether truncation should be applied.
+        padding: Whether padding should be applied.
 
     Returns:
-        (Union[DatasetDict, IterableDatasetDict]): Tokenized dataset.
+        (Dict[str, Any): Tokenized examples.
 
     """
 
-    if isinstance(mapping_column_name, str):
-        mapping_column_name = (mapping_column_name,)
-    elif isinstance(mapping_column_name, list):
-        mapping_column_name = tuple(mapping_column_name)
+    examples_mapping = tuple(examples[column_name] for column_name in mapping_column_name)
 
-    def _tokenize(examples: List[str]) -> Dict[str, Any]:
-        examples_mapping = tuple(examples[column_name] for column_name in mapping_column_name)
-        return tokenizer(*examples_mapping, truncation=truncate, padding=padding)
+    return tokenizer(*examples_mapping, truncation=truncate, padding=padding)
 
-    def _tokenize_nsp(examples: List[str]) -> Dict[str, Any]:
-        assert (
-            len(mapping_column_name) == 1
-        ), "next_sentence_prediction requires a single value for mapping_column_name."
-        examples_mapping = examples[mapping_column_name[0]]
 
-        examples, next_sentence_labels = [], []
-        for i in range(len(examples_mapping)):
-            if random.random() < 0.5:
-                examples.append(examples_mapping[i])
-                next_sentence_labels.append(0)
-            else:
-                examples.append(random.choices(examples_mapping, k=2))
-                next_sentence_labels.append(1)
+def tokenize_contiguous_dataset(
+    examples: List[str],
+    tokenizer: Optional[Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]] = None,
+    mapping_column_name: Optional[Union[str, List[str]]] = "text",
+    model_max_length: Optional[int] = 1024,
+    **kwargs,
+) -> Dict[str, Any]:
+    """Tokenizes a dataset with contiguous-length batches (no truncation nor padding).
 
-        tokenized_examples = tokenizer(examples, truncation=truncate, padding=padding)
-        tokenized_examples["next_sentence_label"] = next_sentence_labels
-        return tokenized_examples
+    Args:
+        examples: Examples to be tokenized.
+        tokenizer: Tokenizer to transform text into tokens.
+        mapping_column_name: Columns to be tokenized.
+        model_max_length: Length of sequences.
 
-    map_kwargs = {"batched": batched}
-    if isinstance(dataset, DatasetDict):
-        map_kwargs["batch_size"] = batch_size
-        map_kwargs["writer_batch_size"] = writer_batch_size
-        map_kwargs["num_proc"] = num_proc
+    Returns:
+        (Dict[str, Any): Tokenized contiguous examples.
 
-    if next_sentence_prediction:
-        return dataset.map(
-            _tokenize_nsp,
-            **map_kwargs,
-        )
+    """
 
-    return dataset.map(_tokenize, **map_kwargs)
+    examples = tokenize_dataset(
+        examples, mapping_column_name=mapping_column_name, tokenizer=tokenizer, truncate=False, padding=False
+    )
+
+    concatenated_examples = {k: list(chain(*examples[k])) for k in examples.keys()}
+
+    total_length = len(concatenated_examples[list(examples.keys())[0]])
+    if total_length >= model_max_length:
+        total_length = (total_length // model_max_length) * model_max_length
+
+    result = {
+        k: [t[i : i + model_max_length] for i in range(0, total_length, model_max_length)]
+        for k, t in concatenated_examples.items()
+    }
+
+    return result
+
+
+def tokenize_nsp_dataset(
+    examples: List[str],
+    tokenizer: Optional[Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]] = None,
+    mapping_column_name: Optional[Union[str, List[str]]] = "text",
+    truncate: Optional[Union[bool, str]] = True,
+    padding: Optional[Union[bool, str]] = "max_length",
+    **kwargs,
+) -> Dict[str, Any]:
+    """Tokenizes a dataset with next-sentence prediction (NSP).
+
+    Args:
+        examples: Examples to be tokenized.
+        tokenizer: Tokenizer to transform text into tokens.
+        mapping_column_name: Columns to be tokenized.
+        truncate: Whether truncation should be applied.
+        padding: Whether padding should be applied.
+
+    Returns:
+        (Dict[str, Any): Tokenized examples (with NSP meta-data).
+
+    """
+
+    assert len(mapping_column_name) == 1, "`mapping_column_name` must have a single value."
+    examples_mapping = examples[mapping_column_name[0]]
+
+    examples, next_sentence_labels = [], []
+    for i in range(len(examples_mapping)):
+        if random.random() < 0.5:
+            examples.append(examples_mapping[i])
+            next_sentence_labels.append(0)
+        else:
+            examples.append(random.choices(examples_mapping, k=2))
+            next_sentence_labels.append(1)
+
+    tokenized_examples = tokenizer(examples, truncation=truncate, padding=padding)
+    tokenized_examples["next_sentence_label"] = next_sentence_labels
+
+    return tokenized_examples
