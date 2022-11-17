@@ -52,7 +52,7 @@ if __name__ == "__main__":
     collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
     eval_dataset = load_dataset(args.dataset_name, args.dataset_config_name, dataset_split="test")
-    eval_dataset = encode_dataset(tokenizer, eval_dataset, format_column_name=["input_ids"])
+    eval_dataset = encode_dataset(eval_dataset, tokenizer, format_column_name=["input_ids"])
 
     collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
     session = load_from_onnx(args.onnx_model_path)

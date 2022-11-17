@@ -5,7 +5,7 @@
 """
 
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from datasets import load_dataset as hf_load_dataset
 from datasets import load_from_disk as hf_load_from_disk
@@ -107,12 +107,11 @@ def load_dataset(
 
 
 def encode_dataset(
-    tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
     dataset: Union[DatasetDict, IterableDatasetDict],
+    tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
+    mapping_fn: Optional[Callable[[Any], Dict[str, Any]]] = None,
+    mapping_fn_kwargs: Optional[Dict[str, Any]] = None,
     mapping_column_name: Optional[Union[str, List[str]]] = "text",
-    next_sentence_prediction: Optional[bool] = False,
-    truncate: Optional[bool] = True,
-    padding: Optional[str] = "max_length",
     batched: Optional[bool] = True,
     batch_size: Optional[int] = 1000,
     writer_batch_size: Optional[int] = 1000,
@@ -122,12 +121,11 @@ def encode_dataset(
     """Encodes a dataset.
 
     Args:
-        tokenizer: Tokenizer to transform text into tokens.
         dataset: Dataset to be encoded.
-        mapping_column_name: Column to be tokenized.
-        next_sentence_prediction: Whether next sentence prediction labels should exist or not.
-        truncate: Whether samples should be truncated or not.
-        padding: Strategy used to pad samples that do not have the proper size.
+        tokenizer: Tokenizer to transform text into tokens.
+        mapping_fn: Function that maps the dataset.
+        mapping_fn_kwargs: Keyword arguments to `mapping_fn`.
+        mapping_column_name: Columns to be tokenized.
         batched: Whether mapping should be batched or not.
         batch_size: Number of examples per batch.
         writer_batch_size: Number of examples per write operation to cache.
@@ -139,18 +137,29 @@ def encode_dataset(
 
     """
 
-    dataset = tokenize_dataset(
-        dataset,
-        tokenizer,
-        mapping_column_name,
-        next_sentence_prediction,
-        truncate,
-        padding,
-        batched,
-        batch_size,
-        writer_batch_size,
-        num_proc,
-    )
+    if not mapping_fn:
+        mapping_fn = tokenize_dataset
+
+    if isinstance(mapping_column_name, str):
+        mapping_column_name = (mapping_column_name,)
+    elif isinstance(mapping_column_name, list):
+        mapping_column_name = tuple(mapping_column_name)
+
+    fn_kwargs = mapping_fn_kwargs or {}
+    fn_kwargs["tokenizer"] = tokenizer
+    fn_kwargs["mapping_column_name"] = mapping_column_name
+
+    remove_columns = [v.column_names for _, v in dataset.items()]
+    assert all([c[0] for c in remove_columns])
+
+    mapping_kwargs = {"batched": batched}
+    if isinstance(dataset, DatasetDict):
+        mapping_kwargs["remove_columns"] = remove_columns[0]
+        mapping_kwargs["batch_size"] = batch_size
+        mapping_kwargs["writer_batch_size"] = writer_batch_size
+        mapping_kwargs["num_proc"] = num_proc
+
+    dataset = dataset.map(mapping_fn, fn_kwargs=fn_kwargs, **mapping_kwargs)
 
     if isinstance(dataset, DatasetDict):
         dataset.set_format(type="torch", columns=format_column_name)
