@@ -1,5 +1,6 @@
 from typing import List, Any
 
+
 class DiscreteChoice():
     def __init__(self, choices: List[Any]):
         self.choices = choices
@@ -13,8 +14,5 @@ class DiscreteChoice():
     def __str__(self):
         return self.__repr__()
     
-    def get_search_params(self, blank: bool = False):
-        if blank:
-            return False
-        return self
-
+    def __len__(self) -> int:
+        return len(self.choices)
