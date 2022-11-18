@@ -1,8 +1,6 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT license.
-#
 # Copyright (c) 2019-2020, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
+# https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/LanguageModeling/Transformer-XL/pytorch/data_utils.py
 
 """Language Modeling-based iterators.
 """
