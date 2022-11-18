@@ -1,5 +1,6 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT license.
+# Copyright (c) DeepSpeed Team - Microsoft Corporation.
+# Licensed under the MIT License.
+# https://github.com/microsoft/DeepSpeed/blob/master/deepspeed/profiling/flops_profiler/profiler.py
 
 """Profiler-based utilities, such as flops and macs calculation hooks.
 """

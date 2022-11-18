@@ -1,5 +1,6 @@
 # Copyright (c) 2019 abhuse.
 # Licensed under the MIT license.
+# https://github.com/abhuse/cyclic-cosine-decay/blob/master/scheduler.py
 
 """Cyclic-cosine learning rate scheduler.
 """

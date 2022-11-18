@@ -1,8 +1,10 @@
 # Copyright (c) 2019-2020, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
+# https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/LanguageModeling/Transformer-XL/pytorch/lamb.py
 #
 # Copyright (c) 2019 cybertronai.
 # Licensed under the MIT license.
+
 
 """Custom optimizers that are used for training models.
 """
