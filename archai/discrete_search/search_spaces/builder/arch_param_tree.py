@@ -75,13 +75,10 @@ class ArchParamTree(object):
         used_params = config.get_used_params()
 
         for param_name, param in self.params.items():
-            config_value = config.pick(param_name, record_usage=False)
+            config_value = config.config_tree[param_name]
 
             if isinstance(param, ArchParamTree):
                 arch_vector += param.encode_config(config_value)
-            elif isinstance(param, list):
-                for p in param:
-                    arch_vector += p.encode_config(config_value)
             else:
                 arch_vector += [config_value if used_params[param_name] else float('NaN')]
         
