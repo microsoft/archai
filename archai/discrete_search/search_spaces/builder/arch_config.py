@@ -37,6 +37,38 @@ class ArchConfig():
         return param_value
 
 
+class ArchConfigList(ArchConfig):
+    def __init__(self, config_tree: Dict[str, Any]):
+        super().__init__(config_tree)
+        
+        assert 'configs' in config_tree
+        assert 'repeat_times' in config_tree
+
+        self.max_size = config_tree['repeat_times']
+
+    def to_dict(self):
+        return [
+            self.config_tree['configs'].config_tree[i].to_dict() 
+            for i in range(self.max_size)
+        ]
+
+    def __repr__(self) -> str:
+        return f'ArchConfigList({json.dumps(self, indent=4, cls=ArchConfigJsonEncoder)})'
+
+    def __len__(self) -> int:
+        return self.max_size
+    
+    def __getitem__(self, idx: int) -> ArchConfig:
+        if idx < len(self):
+            return self.config_tree['configs'][idx]
+        raise IndexError
+
+    def pick(self, param_name: str, record_usage: bool = True):
+        raise ValueError(
+            'Attempted to use .pick in an ArchConfigList. '
+            'Select a config first using indexing (e.g config_list[i]).'
+        )
+
 class ArchConfigJsonEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ArchConfig):
