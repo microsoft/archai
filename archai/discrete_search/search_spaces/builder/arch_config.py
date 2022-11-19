@@ -48,7 +48,7 @@ class ArchConfigList(ArchConfig):
 
     def to_dict(self):
         return [
-            self.config_tree['configs'].config_tree[i].to_dict() 
+            self.config_tree['_configs'].config_tree[i].to_dict() 
             for i in range(self.max_size)
         ]
 
@@ -59,7 +59,7 @@ class ArchConfigList(ArchConfig):
         return self.max_size
     
     def __getitem__(self, idx: int) -> ArchConfig:
-        if idx < len(self):
+        if 0 <= idx < len(self):
             return self.config_tree['_configs'][idx]
         raise IndexError
 
