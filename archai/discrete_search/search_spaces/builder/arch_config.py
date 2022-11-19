@@ -40,11 +40,11 @@ class ArchConfig():
 class ArchConfigList(ArchConfig):
     def __init__(self, config_tree: Dict[str, Any]):
         super().__init__(config_tree)
-        
-        assert 'configs' in config_tree
-        assert 'repeat_times' in config_tree
 
-        self.max_size = config_tree['repeat_times']
+        assert '_configs' in config_tree
+        assert '_repeat_times' in config_tree
+
+        self.max_size = config_tree['_repeat_times']
 
     def to_dict(self):
         return [
@@ -60,7 +60,7 @@ class ArchConfigList(ArchConfig):
     
     def __getitem__(self, idx: int) -> ArchConfig:
         if idx < len(self):
-            return self.config_tree['configs'][idx]
+            return self.config_tree['_configs'][idx]
         raise IndexError
 
     def pick(self, param_name: str, record_usage: bool = True):
