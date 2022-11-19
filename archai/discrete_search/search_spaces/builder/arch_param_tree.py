@@ -30,7 +30,7 @@ class ArchParamTree(object):
                 
             elif isinstance(param, dict):
                 param_tree[param_name] = ArchParamTree(param)
-                ref_map[id(param)] = param
+                ref_map[id(param)] = param_tree[param_name]
 
             else:
                 constants[param_name] = param
