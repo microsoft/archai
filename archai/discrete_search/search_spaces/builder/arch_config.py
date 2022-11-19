@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 from copy import deepcopy
 import json
 
@@ -7,9 +7,6 @@ class ArchConfig():
     def __init__(self, config_tree: Dict[str, Any]):
         self.config_tree = deepcopy(config_tree)
         self._used_params = set()
-        self.config_type = config_tree.get('_config_type')
-
-        assert self.config_type in [None, 'repeat_config']
     
     def to_dict(self):
         return {
@@ -32,9 +29,6 @@ class ArchConfig():
         return used_params
 
     def pick(self, param_name: str, record_usage: bool = True):
-        if self.config_type == 'repeat_config':
-            pass
-
         param_value = self.config_tree[param_name]
         
         if record_usage:
