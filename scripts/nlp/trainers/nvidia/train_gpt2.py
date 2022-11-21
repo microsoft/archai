@@ -1,11 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from transformers import GPT2Config, GPT2LMHeadModel
+
 from archai.nlp.trainers.nvidia.trainer import NvidiaTrainer
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
-
-from transformers.models.gpt2.configuration_gpt2 import GPT2Config
-from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
 
 if __name__ == "__main__":
     training_args = NvidiaTrainingArguments(
@@ -33,12 +32,9 @@ if __name__ == "__main__":
         n_head=8,
         embd_pdrop=0.0,
         attn_pdrop=0.0,
-        use_cache=False
+        use_cache=False,
     )
     model = GPT2LMHeadModel(config=config)
 
-    trainer = NvidiaTrainer(
-        model=model,
-        args=training_args
-    )
+    trainer = NvidiaTrainer(model=model, args=training_args)
     trainer.train()

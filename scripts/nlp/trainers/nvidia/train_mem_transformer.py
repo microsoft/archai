@@ -1,11 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import (
+    MemTransformerConfig,
+)
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer import (
+    MemTransformerLMHeadModel,
+)
 from archai.nlp.trainers.nvidia.trainer import NvidiaTrainer
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
-
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import MemTransformerConfig
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer import MemTransformerLMHeadModel
 
 if __name__ == "__main__":
     training_args = NvidiaTrainingArguments(
@@ -47,8 +50,5 @@ if __name__ == "__main__":
     )
     model = MemTransformerLMHeadModel(config=config)
 
-    trainer = NvidiaTrainer(
-        model=model,
-        args=training_args
-    )
+    trainer = NvidiaTrainer(model=model, args=training_args)
     trainer.train()

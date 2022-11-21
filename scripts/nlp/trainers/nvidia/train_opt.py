@@ -1,11 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from transformers import OPTConfig, OPTForCausalLM
+
 from archai.nlp.trainers.nvidia.trainer import NvidiaTrainer
 from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
-
-from transformers.models.opt.configuration_opt import OPTConfig
-from transformers.models.opt.modeling_opt import OPTForCausalLM
 
 if __name__ == "__main__":
     training_args = NvidiaTrainingArguments(
@@ -34,12 +33,9 @@ if __name__ == "__main__":
         dropout=0.1,
         attention_dropout=0.0,
         num_attention_heads=8,
-        use_cache=False
+        use_cache=False,
     )
     model = OPTForCausalLM(config=config)
 
-    trainer = NvidiaTrainer(
-        model=model,
-        args=training_args
-    )
+    trainer = NvidiaTrainer(model=model, args=training_args)
     trainer.train()
