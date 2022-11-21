@@ -60,7 +60,7 @@ class ArchConfigList(ArchConfig):
     
     def __getitem__(self, idx: int) -> ArchConfig:
         if 0 <= idx < len(self):
-            return self.config_tree['_configs'][idx]
+            return self.config_tree['_configs'].config_tree[idx]
         raise IndexError
 
     def pick(self, param_name: str, record_usage: bool = True):
