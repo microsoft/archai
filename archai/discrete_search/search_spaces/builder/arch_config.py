@@ -75,3 +75,9 @@ class ArchConfigJsonEncoder(json.JSONEncoder):
             return o.to_dict()
         
         return super().default(o)
+
+
+ARCH_CONFIGS = {
+    'default': ArchConfig,
+    'config_list': ArchConfigList
+}

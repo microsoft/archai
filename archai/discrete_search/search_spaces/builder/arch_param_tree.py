@@ -3,8 +3,9 @@ from collections import OrderedDict
 from copy import deepcopy
 from random import Random
 
+from archai.discrete_search.search_spaces.builder.repeat_config import RepeatConfig
 from archai.discrete_search.search_spaces.builder.discrete_choice import DiscreteChoice
-from archai.discrete_search.search_spaces.builder.arch_config import ArchConfig
+from archai.discrete_search.search_spaces.builder.arch_config import ARCH_CONFIGS, ArchConfig
 
 
 class ArchParamTree(object):
@@ -15,16 +16,20 @@ class ArchParamTree(object):
     def _get_params_and_constants(self, config_tree: Dict[str, Any]):
         param_tree, constants = {}, {}
 
-        # map from id(param) -> ArchParamTree | DiscreteChoice
+        # Map from id(param) to DiscreteChoice/ArchParamTree object.
+        # Used to share architecture parameters
         ref_map = {}
 
         for param_name, param in config_tree.items():
-            # Preserves references to an object already added to the tree.
-            # This makes sharing arch params possible
-            if isinstance(param, (DiscreteChoice, dict)) and id(param) in ref_map:
+            # Converts special config operations to config dict form
+            if isinstance(param, RepeatConfig):
+                param = param.to_config_dict()
+
+            # Re-uses references of objects already added to the tree
+            if id(param) in ref_map and isinstance(param, (DiscreteChoice, dict)):
                 param_tree[param_name] = ref_map[id(param)]
             
-            elif isinstance(param, (DiscreteChoice, ArchParamTree)):
+            elif isinstance(param, DiscreteChoice):
                 param_tree[param_name] = param
                 ref_map[id(param)] = param
                 
@@ -53,7 +58,8 @@ class ArchParamTree(object):
                 
                 sample[param_name] = ref_map[id(param)]
         
-        return ArchConfig(sample)
+        config_type = sample.get('_config_type', 'default')
+        return ARCH_CONFIGS[config_type](sample)
 
     def sample_config(self, rng: Optional[Random] = None):
         return self._sample_config(rng or Random(), {})
