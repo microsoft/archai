@@ -38,6 +38,8 @@ if __name__ == "__main__":
     training_args = DistillerTrainingArguments(
         "distill_gpt2",
         evaluation_strategy="steps",
+        eval_steps=250,
+        logging_steps=10,
         per_device_train_batch_size=4,
         learning_rate=5e-5,
         weight_decay=0.01,

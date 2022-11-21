@@ -2,10 +2,12 @@
 # Licensed under the MIT license.
 
 import torch
-from transformers.data.data_collator import DataCollatorForLanguageModeling
-from transformers.models.gpt2.configuration_gpt2 import GPT2Config
-from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
-from transformers.training_args import TrainingArguments
+from transformers import (
+    DataCollatorForLanguageModeling,
+    GPT2Config,
+    GPT2LMHeadModel,
+    TrainingArguments,
+)
 
 from archai.nlp.datasets.hf.loaders import encode_dataset, load_dataset
 from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
@@ -38,6 +40,8 @@ if __name__ == "__main__":
     training_args = TrainingArguments(
         "hf-gpt2",
         evaluation_strategy="steps",
+        eval_steps=250,
+        logging_steps=10,
         per_device_train_batch_size=64,
         learning_rate=0.01,
         weight_decay=0.0,
