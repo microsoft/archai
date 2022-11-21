@@ -31,5 +31,6 @@ class ArchaiPreTrainedTokenizerFast(PreTrainedTokenizerFast):
 
         token_config = TokenConfig.from_file(token_config_file)
         token_config_dict = token_config.to_dict()
+        token_config_dict.update(kwargs)
 
-        super().__init__(*args, tokenizer_file=tokenizer_file, **token_config_dict, **kwargs)
+        super().__init__(*args, tokenizer_file=tokenizer_file, **token_config_dict)
