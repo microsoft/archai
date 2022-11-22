@@ -15,30 +15,17 @@ class ArchParamTree(object):
         self.params, self.constants = self._init_tree(config_tree)
         self.free_params = self.to_dict(deduplicate_params=True)
 
-    def _init_tree(self, config_tree: Dict[str, Any]):
+    def _init_tree(self, config_tree: Dict[str, Any]) -> Tuple[OrderedDict, OrderedDict]:
         params, constants = OrderedDict(), OrderedDict()
-
-        # Map from id(param) to DiscreteChoice/ArchParamTree object.
-        # Used to share architecture parameters
-        ref_map = {}
 
         for param_name, param in config_tree.items():
             # Converts special config operations to config dict form
-            if isinstance(param, RepeatConfig):
-                param = param.to_config_dict()
-
-            # Re-uses references of objects already added to the tree
-            if id(param) in ref_map and isinstance(param, (DiscreteChoice, dict)):
-                params[param_name] = ref_map[id(param)]
+            param = param.to_config_dict() if isinstance(param, RepeatConfig) else param
             
-            elif isinstance(param, DiscreteChoice):
+            if isinstance(param, DiscreteChoice):
                 params[param_name] = param
-                ref_map[id(param)] = param
-                
             elif isinstance(param, dict):
                 params[param_name] = ArchParamTree(param)
-                ref_map[id(param)] = params[param_name]
-
             else:
                 constants[param_name] = param
         
