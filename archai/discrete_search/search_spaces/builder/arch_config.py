@@ -60,6 +60,7 @@ class ArchConfigList(ArchConfig):
     
     def __getitem__(self, idx: int) -> ArchConfig:
         if 0 <= idx < len(self):
+            self._used_params.add('_repeat_times')
             return self.config_tree['_configs'].config_tree[idx]
         raise IndexError
 
