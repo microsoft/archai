@@ -1,4 +1,4 @@
-from typing import Dict, Any, Callable, Optional, Union, List
+from typing import Dict, Any, Callable, Optional, Union, List, Tuple
 from collections import OrderedDict
 from copy import deepcopy
 from random import Random
@@ -86,6 +86,7 @@ class ArchParamTree(object):
         """        
         return self._to_dict('', flatten, set() if deduplicate_params else None, remove_constants)
 
+    def _sample_config(self, rng: Random, ref_map: Dict) -> ArchConfig:
         # Initializes empty dict with constants already set
         sample = deepcopy(self.constants)
 
@@ -104,22 +105,40 @@ class ArchParamTree(object):
         config_type = sample.get('_config_type', 'default')
         return ARCH_CONFIGS[config_type](sample)
 
-    def sample_config(self, rng: Optional[Random] = None):
+    def sample_config(self, rng: Optional[Random] = None) -> ArchConfig:
+        """Samples an architecture config from the search param tree.
+
+        Args:
+            rng (Optional[Random], optional): Random number generator used during sampling.
+                If set to `None`, `random.Random()` is used. Defaults to None.
+
+                
+        Returns:
+            ArchConfig: Sampled architecture config
+        """        
         return self._sample_config(rng or Random(), {})
     
-    def get_param_name_list(self, prefix: str = '') -> List[str]:
-        param_names = []
+    def get_param_name_list(self) -> List[str]:
+        param_dict = self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True)
+        return list(param_dict.keys())
 
-        for param_name, param in self.params.items():
-            if isinstance(param, ArchParamTree):
-                subtree_prefix =  prefix + f'.{param_name}' if prefix else param_name
-                param_names += param.get_param_name_list(subtree_prefix)
-            else:
-                param_names += [f'{prefix}.{param_name}' if prefix else param_name]
+    def encode_config(self, config: ArchConfig, track_unused_params: bool = True) -> List[float]:
+        """Encodes an `ArchConfig` object into a fixed-length vector of features.
+        This method should be used after the model object is created.
 
-        return param_names
+        Args:
+            config (ArchConfig): Architecture configuration
+            
+            track_unused_params (bool): If `track_unused_params=True`, parameters
+                not used during model creation (by calling `config.pick`) 
+                will be represented as `float("NaN")`.
 
-    def encode_config(self, config: ArchConfig, drop_duplicates: bool = True) -> List[float]:
+        Returns:
+            List[float]
+        """
+        if not track_unused_params:
+            raise NotImplementedError
+
         arch_vector = []
         used_params = config.get_used_params()
 
