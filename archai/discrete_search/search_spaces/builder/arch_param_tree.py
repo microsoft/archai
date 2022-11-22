@@ -3,18 +3,20 @@ from collections import OrderedDict
 from copy import deepcopy
 from random import Random
 
+from archai.discrete_search.search_spaces.builder import utils
 from archai.discrete_search.search_spaces.builder.repeat_config import RepeatConfig
 from archai.discrete_search.search_spaces.builder.discrete_choice import DiscreteChoice
 from archai.discrete_search.search_spaces.builder.arch_config import ARCH_CONFIGS, ArchConfig
 
 
 class ArchParamTree(object):
-    def __init__(self, param_tree: Dict[str, Any]):
-        self.config_tree = deepcopy(param_tree)
-        self.params, self.constants = self._get_params_and_constants(param_tree)
+    def __init__(self, config_tree: Dict[str, Any]):
+        self.config_tree = deepcopy(config_tree)
+        self.params, self.constants = self._init_tree(config_tree)
+        self.free_params = self.to_dict(deduplicate_params=True)
 
-    def _get_params_and_constants(self, config_tree: Dict[str, Any]):
-        param_tree, constants = {}, {}
+    def _init_tree(self, config_tree: Dict[str, Any]):
+        params, constants = OrderedDict(), OrderedDict()
 
         # Map from id(param) to DiscreteChoice/ArchParamTree object.
         # Used to share architecture parameters
@@ -27,22 +29,54 @@ class ArchParamTree(object):
 
             # Re-uses references of objects already added to the tree
             if id(param) in ref_map and isinstance(param, (DiscreteChoice, dict)):
-                param_tree[param_name] = ref_map[id(param)]
+                params[param_name] = ref_map[id(param)]
             
             elif isinstance(param, DiscreteChoice):
-                param_tree[param_name] = param
+                params[param_name] = param
                 ref_map[id(param)] = param
                 
             elif isinstance(param, dict):
-                param_tree[param_name] = ArchParamTree(param)
-                ref_map[id(param)] = param_tree[param_name]
+                params[param_name] = ArchParamTree(param)
+                ref_map[id(param)] = params[param_name]
 
             else:
                 constants[param_name] = param
         
-        return param_tree, constants
+        return params, constants
 
-    def _sample_config(self, rng: Random, ref_map: Dict[int, Any]):
+    def _to_dict(self, prefix: str, flatten: bool, dedup_param_ids: Optional[set] = None) -> OrderedDict:
+        prefix = f'{prefix}.' if prefix else prefix
+
+        # Initializes output dictionary with constants
+        output_dict = OrderedDict([
+            (prefix + c_name, c_value)
+            for c_name, c_value in deepcopy(self.constants).items()
+        ])
+
+        # Adds arch parameters to `output_dict`
+        for param_name, param in self.params.items():
+            param_name = prefix + str(param_name) if flatten else str(param_name)
+
+            if isinstance(param, ArchParamTree):
+                param_dict = param._to_dict(param_name, flatten, dedup_param_ids)
+
+                if flatten:
+                    output_dict.update(param_dict)
+                else:
+                    output_dict[param_name] = param_dict
+            
+            elif isinstance(param, DiscreteChoice):
+                if dedup_param_ids is None or id(param) not in dedup_param_ids:
+                    output_dict[param_name] = param
+                    
+                    if dedup_param_ids:
+                        dedup_param_ids.add(id(param))
+
+        return output_dict
+    
+    def to_dict(self, flatten: bool = False, deduplicate_params: bool = False) -> OrderedDict:
+        return self._to_dict('', flatten, set() if deduplicate_params else None)
+
         # Initializes empty dict with constants already set
         sample = deepcopy(self.constants)
 
