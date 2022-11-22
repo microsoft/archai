@@ -1,24 +1,25 @@
 from typing import Dict, Any, List, Optional
+from collections import OrderedDict
 from copy import deepcopy
 import json
 
 
 class ArchConfig():
-    def __init__(self, config_tree: Dict[str, Any]):
+    def __init__(self, config_tree: OrderedDict):
         self.config_tree = deepcopy(config_tree)
         self._used_params = set()
     
     def to_dict(self):
-        return {
-            k: v.to_dict() if isinstance(v, ArchConfig) else v
+        return OrderedDict(
+            (k, v.to_dict()) if isinstance(v, ArchConfig) else (k, v)
             for k, v in self.config_tree.items()
-        }
+        )
 
     def __repr__(self) -> str:
         return f'ArchConfig({json.dumps(self, indent=4, cls=ArchConfigJsonEncoder)})'
 
     def get_used_params(self) -> Dict[str, bool]:
-        used_params = {}
+        used_params = OrderedDict()
         
         for param_name, param in self.config_tree.items():
             used_params[param_name] = param_name in self._used_params
@@ -70,6 +71,7 @@ class ArchConfigList(ArchConfig):
             'Select a config first using indexing (e.g config_list[i]).'
         )
 
+    
 class ArchConfigJsonEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, ArchConfig):
