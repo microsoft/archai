@@ -31,21 +31,27 @@ class ArchParamTree(object):
         
         return params, constants
 
-    def _to_dict(self, prefix: str, flatten: bool, dedup_param_ids: Optional[set] = None) -> OrderedDict:
+    def _to_dict(self, prefix: str, flatten: bool, dedup_param_ids: Optional[set] = None,
+                 remove_constants: bool = True) -> OrderedDict:
         prefix = f'{prefix}.' if prefix else prefix
+        output_dict = OrderedDict()
 
-        # Initializes output dictionary with constants
-        output_dict = OrderedDict([
-            (prefix + c_name, c_value)
-            for c_name, c_value in deepcopy(self.constants).items()
-        ])
+        # if `remove_constants`, initializes the output dictionary with constants first
+        if not remove_constants:
+            output_dict = OrderedDict([
+                (prefix + c_name if flatten else c_name, c_value)
+                for c_name, c_value in deepcopy(self.constants).items()
+            ])
 
-        # Adds arch parameters to `output_dict`
+        # Adds architecture parameters to the output dictionary
         for param_name, param in self.params.items():
             param_name = prefix + str(param_name) if flatten else str(param_name)
 
             if isinstance(param, ArchParamTree):
-                param_dict = param._to_dict(param_name, flatten, dedup_param_ids)
+                param_dict = param._to_dict(
+                    param_name, flatten,
+                    dedup_param_ids, remove_constants
+                )
 
                 if flatten:
                     output_dict.update(param_dict)
@@ -53,16 +59,32 @@ class ArchParamTree(object):
                     output_dict[param_name] = param_dict
             
             elif isinstance(param, DiscreteChoice):
-                if dedup_param_ids is None or id(param) not in dedup_param_ids:
+                if dedup_param_ids is None:
                     output_dict[param_name] = param
-                    
-                    if dedup_param_ids:
-                        dedup_param_ids.add(id(param))
+                elif id(param) not in dedup_param_ids:
+                    output_dict[param_name] = param
+                    dedup_param_ids.add(id(param))
 
         return output_dict
     
-    def to_dict(self, flatten: bool = False, deduplicate_params: bool = False) -> OrderedDict:
-        return self._to_dict('', flatten, set() if deduplicate_params else None)
+    def to_dict(self, flatten: bool = False, deduplicate_params: bool = False,
+                remove_constants: bool = True) -> OrderedDict:
+        """Converts the ArchParamTree to an ordered dictionary.
+
+        Args:
+            flatten (bool, optional): If the output dictionary should
+                be flattened. Defaults to False.
+            
+            deduplicate_params (bool, optional): Removes duplicate architecture
+                parameters. Defaults to False.
+            
+            remove_constants (bool, optional): Removes attributes that are not
+                architecture params from the output dictionary. Defaults to True.
+
+        Returns:
+            OrderedDict
+        """        
+        return self._to_dict('', flatten, set() if deduplicate_params else None, remove_constants)
 
         # Initializes empty dict with constants already set
         sample = deepcopy(self.constants)
