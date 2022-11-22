@@ -9,16 +9,16 @@ class RepeatConfig():
         self.repeat_times = repeat_times
         self.share_arch = share_arch
 
-        # If arch params should be shared between blocks, re-uses the same reference to `config_dict`
-        # instead of creating a new copy
+        # If arch params should be shared between blocks, re-uses the same
+        # reference to `config_dict` instead of creating a new copy
         self.config_dict = {
             '_config_type': 'config_list',
+            '_share_arch': share_arch,
             '_repeat_times': DiscreteChoice(repeat_times),
             '_configs': {
-                i: config_dict if self.share_arch else deepcopy(config_dict)
+                i: (config_dict if self.share_arch else deepcopy(config_dict))
                 for i in range(max(repeat_times))
             },
-            '_share_arch': share_arch,
         }
 
     def to_config_dict(self) -> Dict:
