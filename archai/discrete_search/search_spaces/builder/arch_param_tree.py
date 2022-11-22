@@ -6,9 +6,8 @@ from copy import deepcopy
 from random import Random
 
 from archai.discrete_search.search_spaces.builder import utils
-from archai.discrete_search.search_spaces.builder.repeat_config import RepeatConfig
 from archai.discrete_search.search_spaces.builder.discrete_choice import DiscreteChoice
-from archai.discrete_search.search_spaces.builder.arch_config import ARCH_CONFIGS, ArchConfig
+from archai.discrete_search.search_spaces.builder.arch_config import ArchConfig, build_arch_config
 
 
 class ArchParamTree(object):
@@ -28,9 +27,6 @@ class ArchParamTree(object):
         params, constants = OrderedDict(), OrderedDict()
 
         for param_name, param in config_tree.items():
-            # Converts special config operations to config dict form
-            param = param.to_config_dict() if isinstance(param, RepeatConfig) else param
-            
             if isinstance(param, DiscreteChoice):
                 params[param_name] = param
             elif isinstance(param, dict):
@@ -77,7 +73,7 @@ class ArchParamTree(object):
         return output_dict
     
     def to_dict(self, flatten: bool = False, deduplicate_params: bool = False,
-                remove_constants: bool = True) -> OrderedDict:
+                remove_constants: bool = False) -> OrderedDict:
         """Converts the ArchParamTree to an ordered dictionary.
 
         Args:
@@ -88,32 +84,13 @@ class ArchParamTree(object):
                 parameters. Defaults to False.
             
             remove_constants (bool, optional): Removes attributes that are not
-                architecture params from the output dictionary. Defaults to True.
+                architecture params from the output dictionary. Defaults to False.
 
         Returns:
             OrderedDict
         """        
         return self._to_dict('', flatten, set() if deduplicate_params else None, remove_constants)
-
-    def _sample_config(self, rng: Random, ref_map: Dict) -> ArchConfig:
-        # Initializes empty dict with constants already set
-        sample = deepcopy(self.constants)
-
-        for param_name, param in self.params.items():
-            if isinstance(param, ArchParamTree):
-                sample[param_name] = param._sample_config(rng, ref_map)
-
-            elif isinstance(param, DiscreteChoice):
-                # Only samples params not sampled before
-                if id(param) not in ref_map:
-                    sampled_param = rng.choice(param.choices)
-                    ref_map[id(param)] = sampled_param
                 
-                sample[param_name] = ref_map[id(param)]
-        
-        config_type = sample.get('_config_type', 'default')
-        return ARCH_CONFIGS[config_type](sample)
-
     def sample_config(self, rng: Optional[Random] = None) -> ArchConfig:
         """Samples an architecture config from the search param tree.
 
@@ -124,8 +101,13 @@ class ArchParamTree(object):
                 
         Returns:
             ArchConfig: Sampled architecture config
-        """        
-        return self._sample_config(rng or Random(), {})
+        """
+        rng = rng or Random()
+        choices_dict = utils.replace_ptree_choices(
+            self.to_dict(), lambda x: rng.choice(x.choices)
+        )
+
+        return build_arch_config(choices_dict)
     
     def get_param_name_list(self) -> List[str]:
         param_dict = self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True)
@@ -145,18 +127,20 @@ class ArchParamTree(object):
         Returns:
             List[float]
         """
-        if not track_unused_params:
-            raise NotImplementedError
+        deduped_features = list(self.to_dict(
+            flatten=True, deduplicate_params=True, remove_constants=True
+        ).keys())
 
-        arch_vector = []
-        used_params = config.get_used_params()
-
-        for param_name, param in self.params.items():
-            config_value = config.config_tree[param_name]
-
-            if isinstance(param, ArchParamTree):
-                arch_vector += param.encode_config(config_value)
-            else:
-                arch_vector += [config_value if used_params[param_name] else float('NaN')]
+        flat_config = utils.flatten_dict(config._config_dict)
+        flat_used_params = utils.flatten_dict(config.get_used_params())
         
-        return arch_vector
+        # Build feature array
+        features = OrderedDict([(k, v) for k, v in flat_config.items() if k in deduped_features])
+            
+        # Replaces unused params with NaNs if necessary
+        if track_unused_params:
+            for feature_name, feature in features.items():
+                if not flat_used_params[feature_name]:
+                    features[feature_name] = float('NaN')
+        
+        return list(features.values())
