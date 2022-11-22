@@ -1,5 +1,7 @@
 from typing import Dict, Any, Callable, Optional, Union, List, Tuple
 from collections import OrderedDict
+from functools import reduce
+import operator
 from copy import deepcopy
 from random import Random
 
@@ -13,8 +15,15 @@ class ArchParamTree(object):
     def __init__(self, config_tree: Dict[str, Any]):
         self.config_tree = deepcopy(config_tree)
         self.params, self.constants = self._init_tree(config_tree)
-        self.free_params = self.to_dict(deduplicate_params=True)
 
+    @property
+    def num_archs(self):
+        """Total number of architectures"""
+        param_dict = self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True)
+        num_options = [float(len(p.choices)) for p in param_dict.values()]
+
+        return reduce(operator.mul, num_options, 1)
+        
     def _init_tree(self, config_tree: Dict[str, Any]) -> Tuple[OrderedDict, OrderedDict]:
         params, constants = OrderedDict(), OrderedDict()
 
