@@ -65,10 +65,13 @@ class ArchConfigList(ArchConfig):
             return self.config_tree['_configs'].config_tree[idx]
         raise IndexError
 
+    def __iter__(self):
+        yield from [self[i] for i in range(len(self))]
+
     def pick(self, param_name: str, record_usage: bool = True):
         raise ValueError(
-            'Attempted to use .pick in an ArchConfigList. '
-            'Select a config first using indexing (e.g config_list[i]).'
+            'Attempted to use .pick in an ArchConfigList instance. '
+            'Select a config first using indexing (e.g `config_list[i]`).'
         )
 
     
