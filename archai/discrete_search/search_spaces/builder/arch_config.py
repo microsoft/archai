@@ -69,8 +69,8 @@ class ArchConfig():
 
     @classmethod
     def from_json(cls, path: str) -> 'ArchConfig':
-        d = json.load(open(path, encoding='utf-8'), object_pairs_hook_=OrderedDict)
-        return cls(d)
+        d = json.load(open(path, encoding='utf-8'), object_pairs_hook=OrderedDict)
+        return build_arch_config(d)
 
 
 class ArchConfigList(ArchConfig):
