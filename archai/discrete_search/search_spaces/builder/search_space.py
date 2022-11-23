@@ -11,58 +11,46 @@ import torch
 from archai.discrete_search import (
     ArchaiModel, EvolutionarySearchSpace, BayesOptSearchSpace
 )
-from archai.discrete_search.search_spaces.builder import Cell, DiscreteChoice
-from archai.discrete_search.search_spaces.builder.utils import (
-    flatten_ordered_dict, 
-    replace_param_tree_nodes,
-    replace_param_tree_pair
-)
+from archai.discrete_search.search_spaces.builder.arch_config import ArchConfig, build_arch_config
+from archai.discrete_search.search_spaces.builder.arch_param_tree import ArchParamTree
+from archai.discrete_search.search_spaces.builder import utils
 
 
 class SearchSpaceBuilder(EvolutionarySearchSpace, BayesOptSearchSpace):
-    def __init__(self, model_cls: Type[Cell], seed: int = 1,
+    def __init__(self,
+                 model_cls: Type[torch.nn.Module],
+                 arch_param_tree: ArchParamTree,
+                 seed: int = 1,
                  mutation_prob: float = 0.3,
-                 detect_unused_params: bool = True,
+                 track_unused_params: bool = True,
                  unused_param_value: int = 0, **model_kwargs):
         self.model_cls = model_cls
+        self.arch_param_tree = arch_param_tree
         self.mutation_prob = mutation_prob
-        self.detect_unused_params = detect_unused_params
+        self.track_unused_params = track_unused_params
         self.unused_param_value = unused_param_value
         self.model_kwargs = model_kwargs
 
-        self.search_param_tree = model_cls.get_search_params()
         self.rng = Random(seed)
 
-    def get_archid(self, model: Cell):
-        arch_params = flatten_ordered_dict(model._config)
-        arch_tp = tuple(arch_params.values())
-
-        if self.detect_unused_params:
-            used_params = flatten_ordered_dict(model._used_params)
-            assert used_params.keys() == arch_params.keys()
-
-            arch_tp = tuple([
-                param if used else self.unused_param_value
-                for param, used in zip(arch_tp, used_params.values())
-            ])
-        
-        return str(arch_tp)
+    def get_archid(self, arch_config: ArchConfig) -> str:
+        e = self.arch_param_tree.encode_config(
+            arch_config, track_unused_params=self.track_unused_params
+        )
+        return str(tuple(e))
     
     @overrides
     def save_arch(self, model: ArchaiModel, path: str) -> None:
-        with open(path, 'w', encoding='utf-8') as fp:
-            json.dump(model.metadata['config'], fp)
+        model.metadata['config'].to_json(path)
     
     @overrides
     def load_arch(self, path: str) -> ArchaiModel:
-        with open(path, encoding='utf-8') as fp:
-            config = json.load(fp, object_pairs_hook_=OrderedDict)
-        
-        model = self.model_cls.from_config(config, **self.model_kwargs)
+        config = ArchConfig.from_json(path)
+        model = self.model_cls(config, **self.model_kwargs)
         
         return ArchaiModel(
             arch=model,
-            archid=self.get_archid(model),
+            archid=self.get_archid(config),
             metadata={'config': config}
         )
     
@@ -73,62 +61,79 @@ class SearchSpaceBuilder(EvolutionarySearchSpace, BayesOptSearchSpace):
     @overrides
     def load_model_weights(self, model: ArchaiModel, path: str) -> None:
         model.arch.load_state_dict(torch.load(path))
-
-    def _random_config(self, param_tree: OrderedDict) -> OrderedDict:
-        return replace_param_tree_nodes(
-            param_tree, lambda d: self.rng.choice(d.choices)
-        )
         
     @overrides
     def random_sample(self) -> ArchaiModel:
-        sampled_config = self._random_config(self.search_param_tree)
-        model = self.model_cls.from_config(sampled_config, **self.model_kwargs)
+        config = self.arch_param_tree.sample_config(self.rng)
+        model = self.model_cls(config, **self.model_kwargs)
 
         return ArchaiModel(
             arch=model,
-            archid=self.get_archid(model),
-            metadata={'config': sampled_config}
+            archid=self.get_archid(config),
+            metadata={'config': config}
         )
 
     @overrides
     def mutate(self, model: ArchaiModel) -> ArchaiModel:
-        mutated_config = replace_param_tree_pair(
-            self.search_param_tree, 
-            model.metadata['config'],
-            lambda d_choice, param: (
+        choices_dict = self.arch_param_tree.to_dict()
+
+        # Mutates parameter with probability `self.mutation_prob`
+        mutated_dict = utils.replace_ptree_pair_choices(
+            choices_dict, 
+            model.metadata['config'].to_dict(),
+            lambda d_choice, current_choice: (
                 self.rng.choice(d_choice.choices)
                 if self.rng.random() < self.mutation_prob
-                else param
+                else current_choice
             )
         )
 
-        model = self.model_cls.from_config(mutated_config, **self.model_kwargs)
+        mutated_config = build_arch_config(mutated_dict)
+        mutated_model = self.model_cls(mutated_config, **self.model_kwargs)
         
         return ArchaiModel(
-            arch=model,
-            archid=self.get_archid(model),
+            arch=mutated_model,
+            archid=self.get_archid(mutated_config),
             metadata={'config': mutated_config}
         )
 
     @overrides
     def crossover(self, model_list: List[ArchaiModel]) -> ArchaiModel:
+        # Selects two models from `model_list` to perform crossover
         model_1, model_2 = self.rng.choices(model_list, k=2)
 
-        cross_config = replace_param_tree_pair(
-            model_1.metadata['config'],
-            model_2.metadata['config'],
-            lambda par1, par2: self.rng.choice([par1, par2])
+        # Starting with arch param tree dict, randomly replaces DiscreteChoice objects
+        # with params from model_1 with probability 0.5
+        choices_dict = self.arch_param_tree.to_dict()
+        cross_dict = utils.replace_ptree_pair_choices(
+            choices_dict,
+            model_1.metadata['config'].to_dict(),
+            lambda d_choice, m1_value: (
+                m1_value
+                if self.rng.random() < 0.5
+                else d_choice
+            )
         )
 
-        model = self.model_cls.from_config(cross_config, **self.model_kwargs)
+        # Replaces all remaining DiscreteChoice objects with params from model_2
+        cross_dict = utils.replace_ptree_pair_choices(
+            cross_dict,
+            model_2.metadata['config'].to_dict(),
+            lambda d_choice, m2_value: m2_value
+        )
+
+        cross_config = build_arch_config(cross_dict)
+        cross_model = self.model_cls(cross_config, **self.model_kwargs)
         
         return ArchaiModel(
-            arch=model,
-            archid=self.get_archid(model),
+            arch=cross_model,
+            archid=self.get_archid(cross_config),
             metadata={'config': cross_config}
         )
 
     @overrides
-    def encode(self, arch: ArchaiModel) -> np.ndarray:
-        flt_conf = flatten_ordered_dict(arch.metadata['config'])
-        return np.array([v for v in flt_conf.values()])
+    def encode(self, model: ArchaiModel) -> np.ndarray:
+        return np.array(self.arch_param_tree.encode_config(
+            model.metadata['config'], 
+            track_unused_params=self.track_unused_params
+        ))
