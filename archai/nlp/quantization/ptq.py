@@ -4,7 +4,6 @@
 """Pipeline for performing Post-Training Quantization (PTQ).
 """
 
-from pathlib import Path
 from typing import List, Optional
 
 import onnx
@@ -97,14 +96,14 @@ def add_new_quant_operators() -> None:
     IntegerOpsRegistry["Gemm"] = GemmQuant
 
 
-def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
+def dynamic_quantization_onnx(onnx_model_path: str) -> str:
     """Performs the dynamic quantization over an ONNX model.
 
     Args:
         onnx_model_path: Path to the ONNX model to be quantized.
 
     Returns:
-        (Path): Path to the dynamic quantized ONNX model.
+        (str): Path to the dynamic quantized ONNX model.
 
     """
 
@@ -115,7 +114,7 @@ def dynamic_quantization_onnx(onnx_model_path: str) -> Path:
     # add_new_quant_operators()
 
     # Performs the dynamic quantization
-    qnt_model_path = create_file_name_identifier(Path(onnx_model_path), "-int8")
+    qnt_model_path = create_file_name_identifier(onnx_model_path, "-int8")
     quantize_dynamic(onnx_model_path, qnt_model_path, per_channel=False, reduce_range=False, optimize_model=False)
 
     return qnt_model_path
