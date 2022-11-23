@@ -5,6 +5,8 @@ import argparse
 
 from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
 from archai.nlp.objectives.decoder_param import NonEmbeddingParamsProxy
+from archai.nlp.objectives.transformer_flex_latency import TransformerFlexOnnxLatency
+from archai.nlp.objectives.transformer_flex_memory import TransformerFlexOnnxMemory
 from archai.nlp.search_spaces.transformer_flex.search_space import (
     TransformerFlexSearchSpace,
 )
@@ -28,7 +30,11 @@ if __name__ == "__main__":
     args = parse_args()
 
     space = TransformerFlexSearchSpace(args.model_type)
-    objectives = {"non_embedding_params": NonEmbeddingParamsProxy()}
+    objectives = {
+        "non_embedding_params": NonEmbeddingParamsProxy(),
+        "onnx_latency": TransformerFlexOnnxLatency(space),
+        "onnx_memory": TransformerFlexOnnxMemory(space),
+    }
 
     algo = EvolutionParetoSearch(space, objectives, None, args.output_dir)
     algo.search()
