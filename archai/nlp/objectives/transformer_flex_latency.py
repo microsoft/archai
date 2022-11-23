@@ -96,10 +96,10 @@ class TransformerFlexOnnxLatency(Objective):
                 model, Path(tmp.name), task='causal-lm',
                 use_past=True, share_weights=True, opset=11
             )
-            optimize_onnx(tmp.name, onnx_config, opt_level=0)
+            tmp_path = optimize_onnx(tmp.name, onnx_config, opt_level=0)
 
-            session = InferenceSession(tmp.name, self.options)
+            session = InferenceSession(tmp_path.as_posix(), self.options)
             session.disable_fallback()
 
-            return self._benchmark_model(session, tmp.name, onnx_config)
+            return self._benchmark_model(session, tmp_path, onnx_config)
 
