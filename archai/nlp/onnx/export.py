@@ -5,30 +5,29 @@
 """
 
 from itertools import chain
-from pathlib import Path
 from typing import Optional
 
 import numpy as np
 import torch
 from onnxruntime import InferenceSession, SessionOptions
 
-from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
-from archai.nlp.onnx.config_utils.gpt2_onnx_config import GPT2OnnxConfig, GPT2FlexOnnxConfig
-from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
 from archai.nlp import logging_utils
+from archai.nlp.onnx.config_utils.gpt2_onnx_config import (
+    GPT2FlexOnnxConfig,
+    GPT2OnnxConfig,
+)
+from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
+from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
 
 logger = logging_utils.get_logger(__name__)
 
-AVAILABLE_ONNX_CONFIGS = {
-    "gpt2": GPT2OnnxConfig,
-    "gpt2-flex": GPT2FlexOnnxConfig
-}
+AVAILABLE_ONNX_CONFIGS = {"gpt2": GPT2OnnxConfig, "gpt2-flex": GPT2FlexOnnxConfig}
 
 
 def validate_onnx_outputs(
     onnx_config: OnnxConfig,
     reference_model: torch.nn.Module,
-    onnx_model: Path,
+    onnx_model_path: str,
     atol: float,
 ) -> None:
     """Validates the ONNX outputs.
@@ -36,7 +35,7 @@ def validate_onnx_outputs(
     Args:
         onnx_config: ONNX configuration.
         reference_model: PyTorch reference model.
-        onnx_model: Path to the ONNX model.
+        onnx_model_path: Path to the ONNX model.
         atol: Tolerance value.
 
     """
@@ -44,11 +43,11 @@ def validate_onnx_outputs(
     logger.info("Validating model ...")
 
     options = SessionOptions()
-    session = InferenceSession(onnx_model.as_posix(), options)
+    session = InferenceSession(onnx_model_path, options)
 
     ref_inputs = onnx_config.generate_dummy_inputs()
     ref_outputs = reference_model(**ref_inputs)
-    
+
     # Flattens the reference outputs
     ref_outputs_dict = {}
     for name, value in ref_outputs.items():
@@ -114,12 +113,12 @@ def validate_onnx_outputs(
 
 def export_to_onnx(
     model: torch.nn.Module,
-    output_model_path: Path,
+    output_model_path: str,
     task: Optional[str] = "causal-lm",
     use_past: Optional[bool] = True,
     share_weights: Optional[bool] = True,
     opset: Optional[int] = 11,
-    atol: Optional[float] = 1e-4
+    atol: Optional[float] = 1e-4,
 ) -> OnnxConfig:
     """Exports a pre-trained model to ONNX.
 
@@ -142,23 +141,27 @@ def export_to_onnx(
     model_type = model.config.model_type
     available_configs = list(AVAILABLE_ONNX_CONFIGS.keys())
     assert model_type in available_configs, f"`model_type`: {model_type} is not supported for ONNX export."
-    
+
     onnx_config = AVAILABLE_ONNX_CONFIGS[model_type](
-        model.config, task=task, use_past=use_past,
+        model.config,
+        task=task,
+        use_past=use_past,
     )
 
     model = prepare_model_for_onnx(model, model_type)
     dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}
 
-    torch.onnx.export(model,
-                      (onnx_config.generate_dummy_inputs(),),
-                      f=output_model_path,
-                      export_params=True,
-                      input_names=list(onnx_config.inputs.keys()),
-                      output_names=list(onnx_config.outputs.keys()),
-                      dynamic_axes=dynamic_axes,
-                      opset_version=opset,
-                      do_constant_folding=True)
+    torch.onnx.export(
+        model,
+        (onnx_config.generate_dummy_inputs(),),
+        f=output_model_path,
+        export_params=True,
+        input_names=list(onnx_config.inputs.keys()),
+        output_names=list(onnx_config.outputs.keys()),
+        dynamic_axes=dynamic_axes,
+        opset_version=opset,
+        do_constant_folding=True,
+    )
     validate_onnx_outputs(onnx_config, model, output_model_path, atol)
 
     if share_weights:

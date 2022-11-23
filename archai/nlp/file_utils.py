@@ -15,7 +15,7 @@ CHECKPOINT_FOLDER_PREFIX = "checkpoint"
 CHECKPOINT_REGEX = re.compile(r"^" + CHECKPOINT_FOLDER_PREFIX + r"\-(\d+)$")
 
 
-def calculate_onnx_model_size(model_path: Path) -> float:
+def calculate_onnx_model_size(model_path: str) -> float:
     """Calculates an ONNX model size.
 
     Args:
@@ -69,8 +69,7 @@ def check_available_checkpoint(folder_name: str) -> bool:
     checkpoints = [
         path
         for path in folder_content
-        if CHECKPOINT_REGEX.search(path) is not None
-        and os.path.isdir(os.path.join(folder_name, path))
+        if CHECKPOINT_REGEX.search(path) is not None and os.path.isdir(os.path.join(folder_name, path))
     ]
 
     if len(checkpoints) == 0:
@@ -79,7 +78,7 @@ def check_available_checkpoint(folder_name: str) -> bool:
     return True
 
 
-def create_file_name_identifier(file_name: Path, identifier: str) -> Path:
+def create_file_name_identifier(file_name: str, identifier: str) -> str:
     """Adds an identifier (suffix) to the end of the file name.
 
     Args:
@@ -87,8 +86,11 @@ def create_file_name_identifier(file_name: Path, identifier: str) -> Path:
         identifier: Identifier to be added to file_name.
 
     Returns:
-        (Path): Path with `file_name` plus added identifier.
+        (str): Path with `file_name` plus added identifier.
 
     """
 
-    return file_name.parent.joinpath(file_name.stem + identifier).with_suffix(file_name.suffix)
+    file_name = Path(file_name)
+    file_name_identifier = file_name.parent.joinpath(file_name.stem + identifier).with_suffix(file_name.suffix)
+
+    return file_name_identifier.as_posix()

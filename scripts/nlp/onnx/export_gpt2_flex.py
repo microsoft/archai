@@ -3,7 +3,7 @@
 
 import argparse
 import json
-from pathlib import Path
+import os
 
 from archai.nlp.file_utils import calculate_onnx_model_size
 from archai.nlp.onnx import export_to_onnx, optimize_onnx
@@ -19,7 +19,7 @@ from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_fl
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Exports a GPT-2 Flex model to ONNX.")
 
-    parser.add_argument("output_model_path", type=Path, help="Path to the ONNX output model.")
+    parser.add_argument("output_model_path", type=str, help="Path to the ONNX output model.")
 
     parser.add_argument("-op", "--opset", type=int, default=11, help="ONNX opset version.")
 
@@ -72,6 +72,6 @@ if __name__ == "__main__":
         print(f"Model-QNT: {calculate_onnx_model_size(qnt_model_path)}MB")
 
     # Exports model's configuration to JSON
-    model_config_path = Path(args.output_model_path).parent / "config.json"
+    model_config_path = os.path.join(os.path.dirname(args.output_model_path), "config.json")
     with open(model_config_path, "w") as f:
         json.dump(onnx_config.config.to_dict(), f)

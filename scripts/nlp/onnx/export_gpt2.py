@@ -3,7 +3,7 @@
 
 import argparse
 import json
-from pathlib import Path
+import os
 
 from transformers import GPT2LMHeadModel
 
@@ -15,7 +15,7 @@ from archai.nlp.quantization import dynamic_quantization_onnx
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Exports a GPT-2 model to ONNX.")
 
-    parser.add_argument("output_model_path", type=Path, help="Path to the ONNX output model.")
+    parser.add_argument("output_model_path", type=str, help="Path to the ONNX output model.")
 
     parser.add_argument("-op", "--opset", type=int, default=11, help="ONNX opset version.")
 
@@ -68,6 +68,6 @@ if __name__ == "__main__":
         print(f"Model-QNT: {calculate_onnx_model_size(qnt_model_path)}MB")
 
     # Exports model's configuration to JSON
-    model_config_path = Path(args.output_model_path).parent / "config.json"
+    model_config_path = os.path.join(os.path.dirname(args.output_model_path), "config.json")
     with open(model_config_path, "w") as f:
         json.dump(onnx_config.config.to_dict(), f)
