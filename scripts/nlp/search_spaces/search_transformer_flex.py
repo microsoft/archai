@@ -4,7 +4,7 @@
 import argparse
 
 from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
-from archai.nlp.objectives.decoder_param import NonEmbeddingParamsProxy
+from archai.nlp.objectives.parameters import NonEmbeddingParamsProxy
 from archai.nlp.objectives.transformer_flex_latency import TransformerFlexOnnxLatency
 from archai.nlp.objectives.transformer_flex_memory import TransformerFlexOnnxMemory
 from archai.nlp.search_spaces.transformer_flex.search_space import (
