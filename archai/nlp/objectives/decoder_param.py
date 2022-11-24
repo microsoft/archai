@@ -1,8 +1,10 @@
-from overrides import overrides
-from typing import Optional, List, Type
-from archai.discrete_search import ArchaiModel, Objective, DatasetProvider
+from typing import List, Optional, Type
 
+from overrides import overrides
 from torch import nn
+
+from archai.discrete_search import ArchaiModel, DatasetProvider, Objective
+
 
 class NonEmbeddingParamsProxy(Objective):
     higher_is_better: bool = True
@@ -15,17 +17,14 @@ class NonEmbeddingParamsProxy(Objective):
                 parameter counting.
             trainable_only (bool, optional): Only counts parameters with `param.requires_grad`.
                 Defaults to True.
-        """        
+        """
         self.exclude_cls = [nn.Embedding] or exclude_cls
         self.trainable_only = trainable_only
-    
+
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset: DatasetProvider,
-                 budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
         total_params = sum(
-            param.numel() 
-            for param in model.arch.parameters()
-            if not self.trainable_only or param.requires_grad
+            param.numel() for param in model.arch.parameters() if not self.trainable_only or param.requires_grad
         )
 
         embed_params = sum(
