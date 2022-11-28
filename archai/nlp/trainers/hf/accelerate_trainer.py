@@ -5,18 +5,28 @@
 """
 
 import torch
+from accelerate import Accelerator
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
-from accelerate import Accelerator
+from transformers.data.data_collator import (
+    DataCollatorWithPadding,
+    default_data_collator,
+)
 from transformers.optimization import get_scheduler
-from transformers.data.data_collator import DataCollatorWithPadding, default_data_collator
-from transformers.trainer_utils import seed_worker, enable_full_determinism, set_seed
 from transformers.training_args import TrainingArguments
-from transformers.trainer_pt_utils import get_parameter_names
-from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
+
+from archai.nlp import logging_utils
+from archai.nlp.trainers.hf.accelerate_trainer_utils import (
+    ALL_LAYERNORM_LAYERS,
+    enable_full_determinism,
+    get_parameter_names,
+    set_seed,
+)
+
+logger = logging_utils.get_logger(__name__)
 
 
-class HfAccelerateTrainer:
+class AccelerateTrainer:
     """Implements an Accelerate-based trainer."""
 
     def __init__(
@@ -33,16 +43,17 @@ class HfAccelerateTrainer:
     ) -> None:
         """"""
 
-        self.accelerator = Accelerator()
-
         if args is None:
             args = TrainingArguments(output_dir="tmp_trainer")
         self.args = args
+        self.args.optim = "adamw"
+
+        self.accelerator = Accelerator(gradient_accumulation_steps=self.args.gradient_accumulation_steps)
 
         enable_full_determinism(self.args.seed) if self.args.full_determinism else set_seed(self.args.seed)
 
         assert isinstance(model, torch.nn.Module), ""
-        
+
         default_collator = default_data_collator if tokenizer is None else DataCollatorWithPadding(tokenizer)
         self.data_collator = data_collator if data_collator is not None else default_collator
         self.train_dataset = train_dataset
@@ -54,18 +65,22 @@ class HfAccelerateTrainer:
         self.compute_metrics = compute_metrics
         self.optimizer, self.lr_scheduler = optimizers
 
-    def get_dataloader(self, dataset, sampler):
+    def get_dataloader(self, dataset, sampler=None):
         """"""
-        
+
+        def _seed_worker():
+            worker_seed = torch.initial_seed() % 2**32
+            set_seed(worker_seed)
+
         return DataLoader(
             dataset,
-            batch_size=self._train_batch_size,
+            batch_size=self.args.train_batch_size,
             sampler=sampler,
             collate_fn=self.data_collator,
             drop_last=self.args.dataloader_drop_last,
             num_workers=self.args.dataloader_num_workers,
             pin_memory=self.args.dataloader_pin_memory,
-            worker_init_fn=seed_worker,
+            worker_init_fn=_seed_worker,
         )
 
     def get_optimizer_cls_and_kwargs(self):
@@ -85,7 +100,7 @@ class HfAccelerateTrainer:
 
     def create_optimizer(self):
         """"""
-        
+
         if self.optimizer is None:
             decay_parameters = get_parameter_names(self.model, ALL_LAYERNORM_LAYERS)
             decay_parameters = [name for name in decay_parameters if "bias" not in name]
@@ -102,31 +117,71 @@ class HfAccelerateTrainer:
 
             optimizer_cls, optimizer_kwargs = self.get_optimizer_cls_and_kwargs()
             self.optimizer = optimizer_cls(optimizer_grouped_parameters, **optimizer_kwargs)
-        
-    def create_scheduler(self, num_training_steps):
+
+    def create_scheduler(self):
         """"""
 
         if self.lr_scheduler is None:
             self.lr_scheduler = get_scheduler(
                 self.args.lr_scheduler_type,
                 optimizer=self.optimizer,
-                num_warmup_steps=self.args.get_warmup_steps(num_training_steps),
-                num_training_steps=num_training_steps,
+                num_warmup_steps=self.args.get_warmup_steps(self.args.max_steps),
+                num_training_steps=self.args.max_steps,
             )
 
     def create_optimizer_and_scheduler(self):
         """"""
-        
+
         self.create_optimizer()
         self.create_scheduler()
 
-    def training_step(self):
+    def training_step(self, batch):
         """"""
-        pass
+
+        outputs = self.model(**batch)
+
+        loss = outputs[0]
+        # if self.args.n_gpu > 1:
+        # loss = loss.mean()
+
+        # if self.args.gradient_accumulation_steps > 1:
+        #     loss /= self.args.gradient_accumulation_steps
+
+        self.accelerator.backward(loss)
+
+        return loss
 
     def train(self):
         """"""
-        pass
+
+        train_dataloder = self.get_dataloader(self.train_dataset)
+        self.create_optimizer_and_scheduler()
+
+        self.model, self.optimizer, train_dataloder, self.lr_scheduler = self.accelerator.prepare(
+            self.model, self.optimizer, train_dataloder, self.lr_scheduler
+        )
+
+        self.model.train()
+
+        logger.info("Start training ...")
+
+        total_loss = 0.0
+
+        for step, batch in enumerate(train_dataloder):
+            with self.accelerator.accumulate(self.model):
+                self.optimizer.zero_grad()
+
+                total_loss += self.training_step(batch)
+
+                self.optimizer.step()
+                self.lr_scheduler.step()
+
+            if step % self.args.logging_steps == 0:
+                total_loss /= self.args.logging_steps
+                logger.info(f"Step {step} | Loss: {total_loss}")
+                total_loss = 0.0
+
+        logger.info("End of training.")
 
     def prediction_step(self):
         """"""
