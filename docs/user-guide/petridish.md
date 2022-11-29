@@ -63,7 +63,7 @@ If a seed model or a trained search model finishes, we add it to the convex hull
 
 If a model in the search stage finishes it is sent to a ray child process (`self.train_model_desc_dist`) for further training where now the chosen candidate layer gets to affect the parent network's gradient flow.
 
-Now let's look at some key parameters in the configuration file [`petridish.yaml`](https://github.com/microsoft/archai/blob/master/confs/algos/petridish.yaml) which controls key aspects of the pareto-frontier search process.
+Now let's look at some key parameters in the configuration file [`petridish.yaml`](https://github.com/microsoft/archai/blob/master/benchmarks/confs/algos/petridish.yaml) which controls key aspects of the pareto-frontier search process.
 
 ```yaml
 petridish:
