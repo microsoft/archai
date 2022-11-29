@@ -7,7 +7,7 @@ from archai.common import utils
 import os
 
 def get_filepath(suffix):
-    conf = common_init(config_filepath='confs/algos/darts.yaml',
+    conf = common_init(config_filepath='benchmarks/confs/algos/darts.yaml',
         param_args=['--common.experiment_name', 'test_basename' + f'_{suffix}'
                     ])
     return utils.full_path(os.path.join('$expdir' ,'somefile.txt'))
