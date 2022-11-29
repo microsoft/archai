@@ -34,7 +34,7 @@ We will use [Visual Studio Code](https://code.visualstudio.com/) in this tutoria
 
 ## Config System
 
-Archai uses a sophisticated YAML based configuration system. As an example, you can [view configuration](https://github.com/microsoft/archai/blob/master/confs/algos/darts.yaml) for running DARTS algorithm. At first it may be a bit overwhelming, but this ensures that all config parameters are isolated from the code and can be freely changed. The config for search phase is located in `nas/search` section while for evaluation phase is located in `nas/eval` section. You will observe settings for data loading in `loader` section and training in `trainer` section. You can easily change the number of epochs, batch size etc.
+Archai uses a sophisticated YAML based configuration system. As an example, you can [view configuration](https://github.com/microsoft/archai/blob/master/benchmarks/confs/algos/darts.yaml) for running DARTS algorithm. At first it may be a bit overwhelming, but this ensures that all config parameters are isolated from the code and can be freely changed. The config for search phase is located in `nas/search` section while for evaluation phase is located in `nas/eval` section. You will observe settings for data loading in `loader` section and training in `trainer` section. You can easily change the number of epochs, batch size etc.
 
 One great thing about Archai config system is that you can override any setting specified in YAML through command line as well. For instance, if you want to run evaluation only for 200 epochs instead of default 600, specify the path of the value in YAML separated by `.` like this:
 
