@@ -3,7 +3,7 @@ from archai.datasets.providers.cifar10_provider import Cifar10Provider
 from archai.datasets.meta_dataset import MetaDataset
 
 def main():
-    conf = common_init(config_filepath='confs/algos/resnet.yaml')
+    conf = common_init(config_filepath='benchmarks/confs/algos/resnet.yaml')
 
     provider = Cifar10Provider(conf['dataset'])
     train_transform, test_transform = provider.get_transforms()
