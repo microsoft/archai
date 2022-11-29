@@ -67,7 +67,7 @@ The best way to familiarize yourself with Archai is to take a quick tour through
 
 We highly recommend [Visual Studio Code](https://code.visualstudio.com) to take advantage of predefined run configurations and interactive debugging. From the `archai` directory, launch Visual Studio Code, select **Run** (Ctrl+Shift+D), choose the configuration and click on **Play**.
 
-On the other hand, you can use [Archai on Azure](tools/azure/README.md) to run NAS experiments at scale.
+On the other hand, you can use [Archai on Azure](devops/azure/README.md) to run NAS experiments at scale.
 
 ## Documentation
 

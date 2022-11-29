@@ -27,9 +27,9 @@ extensions = [
 myst_enable_extensions = ["colon_fence", "deflist", "replacements", "substitution"]
 
 exclude_patterns = [
-    "azure/**",
     "benchmarks/**",
     "devices/**",
+    "devops/**",
     "docker/**",
     "scripts/**",
     "tests/**",
