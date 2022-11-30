@@ -22,9 +22,7 @@ class OptionalParameterList(nn.ParameterList):
             if p is not None:
                 size_str = "x".join(str(size) for size in p.size())
                 device_str = "" if not p.is_cuda else " (GPU {})".format(p.get_device())
-                parastr = "Parameter containing: [{} of size {}{}]".format(
-                    torch.typename(p), size_str, device_str
-                )
+                parastr = "Parameter containing: [{} of size {}{}]".format(torch.typename(p), size_str, device_str)
                 child_lines.append("  (" + str(k) + "): " + parastr)
 
         tmpstr = "\n".join(child_lines)
@@ -81,9 +79,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                     if tie_projs[i]:
                         self.out_projs.append(None)
                     else:
-                        self.out_projs.append(
-                            nn.Parameter(torch.FloatTensor(d_model, d_embed))
-                        )
+                        self.out_projs.append(nn.Parameter(torch.FloatTensor(d_model, d_embed)))
                 else:
                     self.out_projs.append(None)
 
@@ -106,9 +102,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
                     self.out_projs.append(nn.Parameter(torch.FloatTensor(d_model, d_embed_i)))
 
                 if not emb_weights:
-                    self.out_weights.append(
-                        nn.Parameter(torch.zeros(cutoff_end - cutoff_start, d_embed_i))
-                    )
+                    self.out_weights.append(nn.Parameter(torch.zeros(cutoff_end - cutoff_start, d_embed_i)))
 
                 self.out_biases.append(nn.Parameter(torch.zeros(cutoff_end - cutoff_start)))
 
@@ -140,9 +134,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
 
         return self.out_projs[idx]
 
-    def forward(
-        self, inputs: torch.FloatTensor, labels: Optional[torch.FloatTensor] = None
-    ) -> torch.FloatTensor:
+    def forward(self, inputs: torch.FloatTensor, labels: Optional[torch.FloatTensor] = None) -> torch.FloatTensor:
         if labels is not None:
             # Shift `n` tokens to predict `n+1`
             inputs = inputs[..., :-1, :].contiguous()
@@ -152,9 +144,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             labels = labels.view(-1)
 
             if inputs.size(0) != labels.size(0):
-                raise RuntimeError(
-                    "Inputs and labels should have the same size in the batch dimension."
-                )
+                raise RuntimeError("Inputs and labels should have the same size in the batch dimension.")
         else:
             inputs = inputs.view(-1, inputs.size(-1))
 
@@ -167,9 +157,7 @@ class ProjectedAdaptiveLogSoftmax(nn.Module):
             )
 
             if labels is not None:
-                output = (
-                    -F.log_softmax(logits, dim=-1).gather(1, labels.unsqueeze(1)).squeeze(1)
-                )
+                output = -F.log_softmax(logits, dim=-1).gather(1, labels.unsqueeze(1)).squeeze(1)
             else:
                 output = F.log_softmax(logits, dim=-1)
         else:

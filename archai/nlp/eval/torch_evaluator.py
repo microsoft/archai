@@ -56,9 +56,7 @@ def manual_evaluate(
         # Disables gradient for performing the forward pass
         with torch.no_grad():
             # Gathers a list of possible accuracies (acc@1, ..., acc@n)
-            acc_types = [
-                (n_seed_tokens, n_seed_tokens + i) for i in range(1, n_accuracy_type + 1)
-            ]
+            acc_types = [(n_seed_tokens, n_seed_tokens + i) for i in range(1, n_accuracy_type + 1)]
 
             for acc_type in acc_types:
                 # Defines the name of current key

@@ -63,9 +63,7 @@ class WinoGrandeHarnessTask(HarnessTask):
 
         return "\n\n".join([*context, partial_context]) if context else partial_context
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         label = self._get_partial_label_from_sample(sample["sentence"])
         options = [sample["option1"], sample["option2"]]
 

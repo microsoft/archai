@@ -51,12 +51,13 @@ class PositionWiseFF(nn.Module):
 
 
 class PositionWiseFFPrimerEZ(nn.Module):
-    def __init__(self,
-                 d_model: int,
-                 d_inner: int,
-                 dropout: float,
-                 pre_lnorm: Optional[bool] = False,
-                 layer_norm_epsilon: Optional[float] = 1e-5,
+    def __init__(
+        self,
+        d_model: int,
+        d_inner: int,
+        dropout: float,
+        pre_lnorm: Optional[bool] = False,
+        layer_norm_epsilon: Optional[float] = 1e-5,
     ) -> None:
         super().__init__()
 
@@ -67,12 +68,10 @@ class PositionWiseFFPrimerEZ(nn.Module):
         self.pre_lnorm = pre_lnorm
 
         self.ff1 = nn.Sequential(nn.Linear(d_model, d_inner), nn.ReLU(inplace=True))
-        self.ff2 = nn.Sequential(nn.Dropout(dropout),
-                                      nn.Linear(d_inner, d_model),
-                                      nn.Dropout(dropout))
+        self.ff2 = nn.Sequential(nn.Dropout(dropout), nn.Linear(d_inner, d_model), nn.Dropout(dropout))
 
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_epsilon)
-        
+
     def forward(self, inputs: torch.FloatTensor) -> torch.FloatTensor:
         if self.pre_lnorm:
             output = self.ff2(self.ff1(self.layer_norm(inputs)) ** 2)

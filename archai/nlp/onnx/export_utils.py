@@ -5,9 +5,11 @@
 """
 
 import types
+
 import torch
 from onnx import helper, load_model, numpy_helper, save
 from onnxruntime.transformers import quantize_helper
+
 from archai.nlp.onnx.onnx_forward import gpt2_onnx_forward
 
 
@@ -59,8 +61,8 @@ def weight_sharing(onnx_model_path: str, model_type: str) -> None:
     model = load_model(onnx_model_path)
 
     # Gathers weights and nodes from the loaded model
-    weights = {w.name:w for w in model.graph.initializer}
-    nodes = {n.name:n for n in model.graph.node}
+    weights = {w.name: w for w in model.graph.initializer}
+    nodes = {n.name: n for n in model.graph.node}
 
     if model_type in ["gpt2", "gpt2-flex"]:
         n_emb_weight = 1

@@ -22,9 +22,7 @@ class PositionalEmbedding(nn.Module):
         inv_freq = 1 / (1e4 ** (torch.arange(0, d_model, 2) / d_model))
         self.register_buffer("inv_freq", inv_freq)
 
-    def forward(
-        self, inputs: torch.FloatTensor, batch_size: Optional[int] = None
-    ) -> torch.FloatTensor:
+    def forward(self, inputs: torch.FloatTensor, batch_size: Optional[int] = None) -> torch.FloatTensor:
         # Generates a positional embedding through sinusoids
         inputs_sinusoid = torch.ger(inputs, self.inv_freq)
         embed_pos = torch.cat([inputs_sinusoid.sin(), inputs_sinusoid.cos()], dim=-1)

@@ -53,9 +53,7 @@ class StoryCloze2016HarnessTask(HarnessTask):
         labels = [sample["sentence_quiz1"], sample["sentence_quiz2"]]
         return " " + labels[sample["answer_right_ending"] - 1]
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         choices = [sample["sentence_quiz1"], sample["sentence_quiz2"]]
         lls = [call_factory.log_likelihood(context, f" {choice}") for choice in choices]
 

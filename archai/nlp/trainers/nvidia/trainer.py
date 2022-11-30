@@ -54,7 +54,7 @@ def save_checkpoint(
         trainer_state: Current trainer state.
         fp16: Whether fp16 precision is used or not.
         prefix: Prefix which should be added to the checkpoint's file name.
-        save_all_checkpoints: Whether all `eval_interval` steps should be saved.
+        save_all_checkpoints: Whether all `eval_steps` steps should be saved.
         is_best_model: Whether best model should be saved.
 
     """
@@ -181,7 +181,7 @@ class NvidiaTrainer:
 
         return self.dataset.get_iterator(
             split,
-            self.args.batch_size,
+            self.args.global_batch_size,
             self.args.seq_len,
             self.args.device,
         )
@@ -189,27 +189,25 @@ class NvidiaTrainer:
     def create_optimizer(self) -> None:
         """Creates an optimizer and attaches model's parameters."""
 
-        optimizer_name = self.args.optimizer.lower()
+        optimizer_name = self.args.optim.lower()
         if optimizer_name == "sgd":
-            self.optimizer = optim.SGD(
-                self.model.parameters(), lr=self.args.optimizer_lr, momentum=self.optimizer_momentum
-            )
+            self.optimizer = optim.SGD(self.model.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
         elif optimizer_name == "adam":
             self.optimizer = optim.Adam(
-                self.model.parameters(), lr=self.args.optimizer_lr, weight_decay=self.args.optimizer_weight_decay
+                self.model.parameters(), lr=self.args.learning_rate, weight_decay=self.args.weight_decay
             )
         elif optimizer_name == "adagrad":
-            self.optimizer = optim.Adagrad(self.model.parameters(), lr=self.args.optimizer_lr)
+            self.optimizer = optim.Adagrad(self.model.parameters(), lr=self.args.learning_rate)
         elif optimizer_name == "lamb":
             self.optimizer = Lamb(
-                self.model.parameters(), lr=self.args.optimizer_lr, weight_decay=self.args.optimizer_weight_decay
+                self.model.parameters(), lr=self.args.learning_rate, weight_decay=self.args.weight_decay
             )
         elif optimizer_name == "jitlamb":
             self.optimizer = JITLamb(
-                self.model.parameters(), lr=self.args.optimizer_lr, weight_decay=self.args.optimizer_weight_decay
+                self.model.parameters(), lr=self.args.learning_rate, weight_decay=self.args.weight_decay
             )
         else:
-            raise NotImplementedError(f"Optimizer: {self.args.optimizer} is not implemented yet.")
+            raise NotImplementedError(f"Optimizer: {self.args.optim} is not implemented yet.")
 
     def create_scaler(self) -> None:
         """Creates an automatic gradient scaler to support FP16 precision."""
@@ -221,38 +219,38 @@ class NvidiaTrainer:
     def create_scheduler(self) -> None:
         """Creates a learning rate scheduler."""
 
-        scheduler_name = self.args.scheduler_qat if self.args.qat else self.args.scheduler
+        scheduler_name = self.args.lr_qat_scheduler_type if self.args.qat else self.args.lr_scheduler_type
         if scheduler_name == "cosine":
-            if self.args.scheduler_max_steps:
-                max_steps = self.args.scheduler_max_steps
+            if self.args.lr_scheduler_max_steps:
+                max_steps = self.args.lr_scheduler_max_steps
             else:
                 max_steps = self.args.max_steps
             self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
-                self.optimizer, max_steps - self.args.scheduler_warmup_steps, eta_min=self.args.scheduler_lr_min
+                self.optimizer, max_steps - self.args.lr_scheduler_warmup_steps, eta_min=self.args.lr_scheduler_min_lr
             )
         elif scheduler_name == "inv_sqrt":
 
             def lr_lambda(step: int) -> float:
-                if step == 0 and self.args.scheduler_warmup_steps == 0:
+                if step == 0 and self.args.lr_scheduler_warmup_steps == 0:
                     return 1.0
                 else:
                     return (
                         1.0 / (step**0.5)
-                        if step > self.args.scheduler_warmup_steps
-                        else step / (self.args.scheduler_warmup_steps**1.5)
+                        if step > self.args.lr_scheduler_warmup_steps
+                        else step / (self.args.lr_scheduler_warmup_steps**1.5)
                     )
 
             self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=lr_lambda)
         elif scheduler_name == "cyclic_cosine":
-            init_decay_steps = int((self.args.max_step - self.args.scheduler_warmup_steps) / 2)
-            restart_interval = int((self.args.max_step - self.args.scheduler_warmup_steps) / 4)
+            init_decay_steps = int((self.args.max_step - self.args.lr_scheduler_warmup_steps) / 2)
+            restart_interval = int((self.args.max_step - self.args.lr_scheduler_warmup_steps) / 4)
             self.scheduler = CyclicCosineDecayLR(
                 self.optimizer,
                 init_decay_steps,
-                self.args.scheduler_lr_min,
+                self.args.lr_scheduler_min_lr,
                 restart_interval,
-                warmup_epochs=self.args.scheduler_warmup_steps,
-                warmup_start_lr=self.args.optimizer_lr * 0.01,
+                warmup_epochs=self.args.lr_scheduler_warmup_steps,
+                warmup_start_lr=self.args.learning_rate * 0.01,
             )
         elif scheduler_name == "constant":
             pass
@@ -374,9 +372,9 @@ class NvidiaTrainer:
 
             if self.args.fp16:
                 self.scaler.unscale_(self.optimizer)
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.args.optimizer_clip)
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.args.max_grad_norm)
             else:
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.args.optimizer_clip)
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.args.max_grad_norm)
 
             if self.args.fp16:
                 self.scaler.step(self.optimizer)
@@ -386,19 +384,19 @@ class NvidiaTrainer:
 
             # Learning rate annealing
             step += 1
-            if self.args.scheduler in ["cosine", "constant"]:
-                if step < self.args.scheduler_warmup_steps:
-                    curr_lr = self.args.optimizer_lr * step / self.args.scheduler_warmup_steps
+            if self.args.lr_scheduler_type in ["cosine", "constant"]:
+                if step < self.args.lr_scheduler_warmup_steps:
+                    curr_lr = self.args.learning_rate * step / self.args.lr_scheduler_warmup_steps
                     self.optimizer.param_groups[0]["lr"] = curr_lr
 
                 else:
-                    if self.args.scheduler == "cosine":
-                        self.scheduler.step(step - self.args.scheduler_warmup_steps)
-            elif self.args.scheduler in ["inv_sqrt", "cyclic_cosine"]:
+                    if self.args.lr_scheduler_type == "cosine":
+                        self.scheduler.step(step - self.args.lr_scheduler_warmup_steps)
+            elif self.args.lr_scheduler_type in ["inv_sqrt", "cyclic_cosine"]:
                 self.scheduler.step(step)
 
             # Logging
-            if step % self.args.log_interval == 0:
+            if step % self.args.logging_steps == 0:
                 elapsed_time = time.time() - start_time
 
                 lr = self.optimizer.param_groups[0]["lr"]
@@ -433,18 +431,18 @@ class NvidiaTrainer:
 
                 start_time = time.time()
 
-            do_periodic_eval = step % self.args.eval_interval == 0
+            do_periodic_eval = step % self.args.eval_steps == 0
             is_final_step = step == self.args.max_steps
 
             # Evaluation and checkpoint
-            if (do_periodic_eval or is_final_step) and not self.args.disable_eval:
+            if (do_periodic_eval or is_final_step) and self.args.do_eval:
                 eval_loss, eval_time = self.evaluation_step(eval_dataloader)
                 eval_loss = distributed_utils.all_reduce(eval_loss, op="mean")
 
                 self.trainer_state["log_history"].append(
                     {
                         "epoch": epoch,
-                        "eval_idx": (step // self.args.eval_interval) - 1,
+                        "eval_idx": (step // self.args.eval_steps) - 1,
                         "eval_runtime": eval_time,
                         "eval_loss": eval_loss,
                         "eval_ppl": math.exp(eval_loss),
@@ -453,7 +451,7 @@ class NvidiaTrainer:
                 )
 
                 logger.info(
-                    f"Eval: {(step // self.args.eval_interval) - 1} | "
+                    f"Eval: {(step // self.args.eval_steps) - 1} | "
                     f"Step: {step} | Time: {eval_time:.2f}s | "
                     f"Loss: {eval_loss:.3f} | PPL: {math.exp(eval_loss):.3f}"
                 )
@@ -537,7 +535,7 @@ class NvidiaTrainer:
         start_time = time.time()
         try:
             for epoch in itertools.count(start=start_epoch):
-                if self.args.iterator_shuffle:
+                if self.args.iterator_roll:
                     train_dataloader.roll(seed=self.args.seed + epoch)
 
                 step = self.training_step(train_dataloader, eval_dataloader, iterator, epoch, start_batch, step)
@@ -629,11 +627,11 @@ class NvidiaTrainer:
 
         # QAT-based arguments
         self.args.max_steps = 10000
-        self.args.eval_interval = 1000
-        self.args.optimizer = "adam"
-        self.args.optimizer_lr /= 100
-        self.args.scheduler_lr_min /= 100
-        self.args.scheduler_warmup_steps = 1000
+        self.args.eval_steps = 1000
+        self.args.optim = "adam"
+        self.args.learning_rate /= 100
+        self.args.lr_scheduler_min_lr /= 100
+        self.args.lr_scheduler_warmup_steps = 1000
         self.args.qat = True
         self.args.mixed_qat = False
 

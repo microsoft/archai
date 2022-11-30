@@ -47,9 +47,7 @@ class HumanEvalHarnessTask(HarnessTask):
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return f"\n{sample['canonical_solution']}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         return [
             call_factory.generate(
                 context,

@@ -10,18 +10,17 @@ if __name__ == "__main__":
     training_args = NvidiaTrainingArguments(
         "gpt2",
         seed=42,
-        use_cuda=True,
-        log_interval=10,
-        eval_interval=100,
+        logging_steps=10,
+        eval_steps=100,
         dataset="wt103",
         vocab="gpt2",
         vocab_size=10000,
-        batch_size=256,
+        global_batch_size=256,
         seq_len=192,
         strategy="ddp",
         max_steps=250,
         gradient_accumulation_steps=1,
-        optimizer="jitlamb",
+        optim="jitlamb",
         mixed_qat=True,
     )
 

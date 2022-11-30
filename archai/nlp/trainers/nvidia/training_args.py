@@ -26,16 +26,16 @@ class NvidiaTrainingArguments:
 
     seed: int = field(default=42, metadata={"help": "Random seed."})
 
-    use_cuda: bool = field(default=True, metadata={"help": "Whether CUDA should be used."})
+    no_cuda: bool = field(default=False, metadata={"help": "Whether CUDA should not be used."})
 
-    log_interval: int = field(default=10, metadata={"help": "Number of steps between logs."})
+    logging_steps: int = field(default=10, metadata={"help": "Number of steps between logs."})
 
-    disable_eval: bool = field(default=False, metadata={"help": "Whether to disable evaluation."})
+    do_eval: bool = field(default=True, metadata={"help": "Whether to enable evaluation."})
 
-    eval_interval: int = field(default=100, metadata={"help": "Number of steps between evaluations."})
+    eval_steps: int = field(default=100, metadata={"help": "Number of steps between evaluations."})
 
     save_all_checkpoints: bool = field(
-        default=False, metadata={"help": "Whether to save all checkpoints from `eval_interval` steps."}
+        default=False, metadata={"help": "Whether to save all checkpoints from `eval_steps` steps."}
     )
 
     dataset: str = field(default="wt103", metadata={"help": "Name of the dataset."})
@@ -50,11 +50,11 @@ class NvidiaTrainingArguments:
 
     vocab_size: int = field(default=10000, metadata={"help": "Size of the vocabulary"})
 
-    iterator_shuffle: bool = field(default=True, metadata={"help": "Whether iterator should be shuffled."})
+    iterator_roll: bool = field(default=True, metadata={"help": "Whether iterator should be rolled."})
 
-    batch_size: int = field(default=256, metadata={"help": "Global batch size."})
+    global_batch_size: int = field(default=256, metadata={"help": "Global batch size."})
 
-    local_batch_size: int = field(default=None, metadata={"help": "Individual GPU batch size."})
+    per_device_global_batch_size: int = field(default=None, metadata={"help": "Individual GPU batch size."})
 
     seq_len: int = field(default=192, metadata={"help": "Sequence length."})
 
@@ -70,29 +70,29 @@ class NvidiaTrainingArguments:
 
     fp16: bool = field(default=False, metadata={"help": "Whether FP16 precision should be used."})
 
-    optimizer: str = field(default="jitlamb", metadata={"help": "Name of the optimizer."})
+    optim: str = field(default="jitlamb", metadata={"help": "Name of the optimizer."})
 
-    optimizer_lr: float = field(default=0.01, metadata={"help": "Optimizer learning rate."})
+    learning_rate: float = field(default=0.01, metadata={"help": "Optimizer learning rate."})
 
-    optimizer_weight_decay: float = field(default=0.0, metadata={"help": "Optimizer weight decay."})
+    weight_decay: float = field(default=0.0, metadata={"help": "Optimizer weight decay."})
 
-    optimizer_momentum: float = field(default=0.0, metadata={"help": "Optimizer momentum."})
+    momentum: float = field(default=0.0, metadata={"help": "Optimizer momentum."})
 
-    optimizer_clip: float = field(default=0.25, metadata={"help": "Optimizer gradients clipping value."})
+    max_grad_norm: float = field(default=0.25, metadata={"help": "Optimizer gradients clipping value."})
 
-    scheduler: str = field(default="cosine", metadata={"help": "Name of the scheduler."})
+    lr_scheduler_type: str = field(default="cosine", metadata={"help": "Name of the scheduler."})
 
-    scheduler_qat: str = field(default="cosine", metadata={"help": "Name of the QAT-based scheduler."})
+    lr_qat_scheduler_type: str = field(default="cosine", metadata={"help": "Name of the QAT-based scheduler."})
 
-    scheduler_max_steps: int = field(default=None, metadata={"help": "Maximum number of scheduler steps."})
+    lr_scheduler_max_steps: int = field(default=None, metadata={"help": "Maximum number of scheduler steps."})
 
-    scheduler_warmup_steps: int = field(default=1000, metadata={"help": "Number of scheduler warmup steps."})
+    lr_scheduler_warmup_steps: int = field(default=1000, metadata={"help": "Number of scheduler warmup steps."})
 
-    scheduler_patience: float = field(default=0, metadata={"help": "Scheduler patience."})
+    lr_scheduler_patience: float = field(default=0, metadata={"help": "Scheduler patience."})
 
-    scheduler_lr_min: float = field(default=0.001, metadata={"help": "Scheduler minimum learning rate."})
+    lr_scheduler_min_lr: float = field(default=0.001, metadata={"help": "Scheduler minimum learning rate."})
 
-    scheduler_decay_rate: float = field(default=0.5, metadata={"help": "Scheduler decay rate."})
+    lr_scheduler_decay_rate: float = field(default=0.5, metadata={"help": "Scheduler decay rate."})
 
     qat: bool = field(default=False, metadata={"help": "Whether QAT should be used during training."})
 
@@ -107,7 +107,7 @@ class NvidiaTrainingArguments:
 
         """
 
-        return torch.device("cuda" if self.use_cuda else "cpu")
+        return torch.device("cuda" if not self.no_cuda else "cpu")
 
     def __post_init__(self) -> None:
         """Overrides post-initialization with custom instructions."""
@@ -118,9 +118,9 @@ class NvidiaTrainingArguments:
         torch.manual_seed(self.seed)
 
         self.local_rank = int(self.local_rank)
-        if self.use_cuda:
+        if not self.no_cuda:
             torch.cuda.set_device(self.local_rank)
-            distributed_utils.init_distributed(self.use_cuda)
+            distributed_utils.init_distributed(True)
 
         (
             self.dataset_dir,
@@ -140,9 +140,9 @@ class NvidiaTrainingArguments:
             if rank == 0:
                 os.makedirs(self.output_dir, exist_ok=True)
 
-        if self.local_batch_size is not None:
+        if self.per_device_global_batch_size is not None:
             world_size = distributed_utils.get_world_size()
-            self.batch_size = world_size * self.local_batch_size
+            self.global_batch_size = world_size * self.per_device_global_batch_size
 
     def to_dict(self) -> Dict[str, Any]:
         """Converts attributes into a dictionary representation.

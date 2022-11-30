@@ -13,8 +13,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.position_wise_ff import PositionWiseFF, PositionWiseFFPrimerEZ
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.depth_wise_convolution import DepthWiseConvolution
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.depth_wise_convolution import (
+    DepthWiseConvolution,
+)
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.position_wise_ff import (
+    PositionWiseFF,
+    PositionWiseFFPrimerEZ,
+)
 
 
 class RelPartialLearnableMultiHeadAttn(nn.Module):
@@ -163,17 +168,9 @@ class RelPartialLearnableMultiHeadAttn(nn.Module):
                 fill = -65000
 
             if attn_mask.dim() == 2:
-                attn_score = (
-                    attn_score.float()
-                    .masked_fill(attn_mask[None, :, :, None], fill)
-                    .type_as(attn_score)
-                )
+                attn_score = attn_score.float().masked_fill(attn_mask[None, :, :, None], fill).type_as(attn_score)
             elif attn_mask.dim() == 3:
-                attn_score = (
-                    attn_score.float()
-                    .masked_fill(attn_mask[:, :, :, None], fill)
-                    .type_as(attn_score)
-                )
+                attn_score = attn_score.float().masked_fill(attn_mask[:, :, :, None], fill).type_as(attn_score)
 
         # (q_length, k_length, batch_size, n_head)
         attn_prob = F.softmax(attn_score, dim=1)
@@ -187,9 +184,7 @@ class RelPartialLearnableMultiHeadAttn(nn.Module):
         attn_vec = torch.einsum("ijbn,jbnd->ibnd", (attn_prob, head_wv))
 
         # (q_length, batch_size, n_head, d_head)
-        attn_vec = attn_vec.contiguous().view(
-            attn_vec.size(0), attn_vec.size(1), self.n_head * self.d_head
-        )
+        attn_vec = attn_vec.contiguous().view(attn_vec.size(0), attn_vec.size(1), self.n_head * self.d_head)
 
         # linear projection
         attn_out = self.o(attn_vec)
