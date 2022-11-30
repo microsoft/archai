@@ -54,12 +54,8 @@ class ARCEasyHarnessTask(HarnessTask):
             "label": ["A", "B", "C", "D", "E"].index(sample["answerKey"]),
         }
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
-        return [
-            call_factory.log_likelihood(context, f" {choice}") for choice in sample["choices"]
-        ]
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
+        return [call_factory.log_likelihood(context, f" {choice}") for choice in sample["choices"]]
 
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         prediction = np.argmax(results)

@@ -41,9 +41,7 @@ class AXbHarnessTask(HarnessTask):
         )
 
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
-        return (
-            f"{sample['sentence1']}\nQuestion: {sample['sentence2']} True or False?\nAnswer:"
-        )
+        return f"{sample['sentence1']}\nQuestion: {sample['sentence2']} True or False?\nAnswer:"
 
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "True", 1: "False"}
@@ -51,9 +49,7 @@ class AXbHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_true = call_factory.log_likelihood(context, " True")
         ll_false = call_factory.log_likelihood(context, " False")
 
@@ -100,9 +96,7 @@ class AXgHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_true = call_factory.log_likelihood(context, " True")
         ll_false = call_factory.log_likelihood(context, " False")
 
@@ -153,9 +147,7 @@ class BoolQHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 
@@ -206,9 +198,7 @@ class CBHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_true = call_factory.log_likelihood(context, " True")
         ll_false = call_factory.log_likelihood(context, " False")
         ll_neither = call_factory.log_likelihood(context, " Neither")
@@ -265,9 +255,7 @@ class COPAHarnessTask(HarnessTask):
 
         return f" {self._get_text_from_choice(choice)}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         choice1 = f" {self._get_text_from_choice(sample['choice1'])}"
         choice2 = f" {self._get_text_from_choice(sample['choice2'])}"
 
@@ -321,9 +309,7 @@ class MultiRCHarnessTask(HarnessTask):
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return self._get_answer_from_sample(sample["answer"], sample["label"])
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         false = self._get_answer_from_sample(sample["answer"], False)
         true = self._get_answer_from_sample(sample["answer"], True)
 
@@ -391,13 +377,9 @@ class ReCoRDHarnessTask(HarnessTask):
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return self._get_answer_from_sample(sample["query"], sample["answers"][0])
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         return [
-            call_factory.log_likelihood(
-                context, self._get_answer_from_sample(sample["query"], entity)
-            )
+            call_factory.log_likelihood(context, self._get_answer_from_sample(sample["query"], entity))
             for entity in sample["entities"]
         ]
 
@@ -447,9 +429,7 @@ class WiCHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 
@@ -508,9 +488,7 @@ class WSCHarnessTask(HarnessTask):
 
         return f" {available_labels[label]}"
 
-    def create_sampling_calls(
-        self, sample: Dict[str, Any], context: str
-    ) -> Tuple[HarnessCall, ...]:
+    def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 

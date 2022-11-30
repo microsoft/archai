@@ -5,6 +5,7 @@
 """
 
 from typing import Optional
+
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
 
 from archai.common.utils import map_to_list
@@ -22,5 +23,5 @@ class GPT2FlexConfig(GPT2Config):
 
         self.n_inner = self.n_inner if self.n_inner is not None else 4 * self.n_embd
         self.n_inner = map_to_list(self.n_inner, self.n_layer)
-        
+
         self.n_head = map_to_list(self.n_head, self.n_layer)

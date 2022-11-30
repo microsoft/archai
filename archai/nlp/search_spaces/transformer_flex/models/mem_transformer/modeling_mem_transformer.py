@@ -17,11 +17,21 @@ from transformers.models.transfo_xl.modeling_transfo_xl import (
     TransfoXLPreTrainedModel,
 )
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import MemTransformerConfig
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.adaptive_embedding import AdaptiveEmbedding
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.positional_embedding import PositionalEmbedding
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.projected_adaptive_log_softmax import ProjectedAdaptiveLogSoftmax
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.rel_partial_learnable_decoder import RelPartialLearnableDecoderLayer
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import (
+    MemTransformerConfig,
+)
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.adaptive_embedding import (
+    AdaptiveEmbedding,
+)
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.positional_embedding import (
+    PositionalEmbedding,
+)
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.projected_adaptive_log_softmax import (
+    ProjectedAdaptiveLogSoftmax,
+)
+from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.rel_partial_learnable_decoder import (
+    RelPartialLearnableDecoderLayer,
+)
 
 
 class MemTransformerBaseOutput(ModelOutput):
@@ -94,15 +104,9 @@ class MemTransformerModel(TransfoXLModel):
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
     ) -> MemTransformerBaseOutput:
-        output_attentions = (
-            output_attentions
-            if output_attentions is not None
-            else self.config.output_attentions
-        )
+        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
         output_hidden_states = (
-            output_hidden_states
-            if output_hidden_states is not None
-            else self.config.output_hidden_states
+            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
         )
         use_cache = use_cache if use_cache is not None else self.config.use_cache
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
@@ -110,9 +114,7 @@ class MemTransformerModel(TransfoXLModel):
         # Original Transformer-XL uses [q_length, batch_size], where
         # we prefer to use [batch_size, q_length]
         if input_ids is not None and inputs_embeds is not None:
-            raise ValueError(
-                "You cannot specify both `input_ids` and `inputs_embeds` at the same time"
-            )
+            raise ValueError("You cannot specify both `input_ids` and `inputs_embeds` at the same time")
         elif input_ids is not None:
             input_ids = input_ids.transpose(0, 1).contiguous()
             q_length, batch_size = input_ids.size()
@@ -153,9 +155,7 @@ class MemTransformerModel(TransfoXLModel):
         k_length = mem_length + q_length
 
         if self.same_length:
-            all_ones = word_embeds.new_ones(
-                (q_length, k_length + past_length), dtype=torch.uint8
-            )
+            all_ones = word_embeds.new_ones((q_length, k_length + past_length), dtype=torch.uint8)
             mask_length = k_length - self.mem_len
 
             if mask_length > 0:
@@ -164,8 +164,7 @@ class MemTransformerModel(TransfoXLModel):
                 mask_shifted_length = q_length
 
             dec_attn_mask = (
-                torch.triu(all_ones, 1 + mem_length + past_length)
-                + torch.tril(all_ones, -mask_shifted_length)
+                torch.triu(all_ones, 1 + mem_length + past_length) + torch.tril(all_ones, -mask_shifted_length)
             )[:, :, None]
         else:
             dec_attn_mask = torch.triu(
@@ -235,11 +234,7 @@ class MemTransformerModel(TransfoXLModel):
         output = output.transpose(0, 1).contiguous()
 
         if not return_dict:
-            return tuple(
-                v
-                for v in [output, presents, new_mems, hidden_states, attentions]
-                if v is not None
-            )
+            return tuple(v for v in [output, presents, new_mems, hidden_states, attentions] if v is not None)
 
         return MemTransformerBaseOutput(
             last_hidden_state=output,
@@ -259,9 +254,7 @@ class MemTransformerLMHeadModel(TransfoXLPreTrainedModel):
         self.transformer = MemTransformerModel(config)
 
         if self.config.tie_word_embeddings:
-            emb_weights = [
-                emb_layer.weight for emb_layer in self.transformer.word_emb.emb_layers
-            ]
+            emb_weights = [emb_layer.weight for emb_layer in self.transformer.word_emb.emb_layers]
         else:
             emb_weights = None
         emb_projs = self.transformer.word_emb.emb_projs
@@ -354,4 +347,3 @@ class MemTransformerLMHeadModel(TransfoXLPreTrainedModel):
             hidden_states=transformer_outputs.hidden_states,
             attentions=transformer_outputs.attentions,
         )
-

@@ -17,12 +17,11 @@ class TotalParamsProxy(Objective):
 
     higher_is_better: bool = True
 
-    def __init__(self, trainable_only: Optional[bool] = True):
+    def __init__(self, trainable_only: Optional[bool] = True) -> None:
         """Calculates the number of total parameters of a torch model.
 
         Args:
-            trainable_only (bool, optional): Only counts parameters with `param.requires_grad`.
-                Defaults to True.
+            trainable_only: Only counts parameters with `param.requires_grad`. Defaults to `True`.
 
         """
 
@@ -42,14 +41,12 @@ class NonEmbeddingParamsProxy(Objective):
 
     higher_is_better: bool = True
 
-    def __init__(self, exclude_cls: Optional[List[nn.Module]] = None, trainable_only: Optional[bool] = True):
+    def __init__(self, exclude_cls: Optional[List[nn.Module]] = None, trainable_only: Optional[bool] = True) -> None:
         """Calculates the number of non-embedding parameters of a torch model.
 
         Args:
-            exclude_cls (List[nn.Module], optional): List of nn.Module classes to be ignored during
-                parameter counting.
-            trainable_only (bool, optional): Only counts parameters with `param.requires_grad`.
-                Defaults to True.
+            exclude_cls: List of `nn.Module` classes to be ignored during parameter counting.
+            trainable_only: Only counts parameters with `param.requires_grad`. Defaults to `True`.
 
         """
 

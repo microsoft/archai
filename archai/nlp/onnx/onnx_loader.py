@@ -7,6 +7,7 @@
 from os import environ
 
 from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions
+
 from archai.nlp import logging_utils
 
 logger = logging_utils.get_logger(__name__)

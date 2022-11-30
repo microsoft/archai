@@ -42,9 +42,7 @@ class AdaptiveEmbedding(nn.Module):
         self.emb_projs = nn.ParameterList()
 
         if div_val == 1:
-            self.emb_layers.append(
-                nn.Embedding(vocab_size, d_embed, sparse=sample_softmax > 0)
-            )
+            self.emb_layers.append(nn.Embedding(vocab_size, d_embed, sparse=sample_softmax > 0))
 
             if d_model != d_embed:
                 self.emb_projs.append(nn.Parameter(torch.zeros(d_model, d_embed)))

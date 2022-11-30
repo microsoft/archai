@@ -10,16 +10,18 @@ import torch
 import torch.nn as nn
 from transformers.activations import ACT2FN
 from transformers.models.gpt2.modeling_gpt2 import (
+    GPT2MLP,
     GPT2Attention,
     GPT2Block,
     GPT2LMHeadModel,
-    GPT2MLP,
     GPT2Model,
     GPT2PreTrainedModel,
 )
 from transformers.pytorch_utils import Conv1D
 
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import GPT2FlexConfig
+from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import (
+    GPT2FlexConfig,
+)
 
 
 class GPT2FlexAttention(GPT2Attention):
@@ -148,9 +150,7 @@ class GPT2FlexBlock(GPT2Block):
         self.ln_2 = nn.LayerNorm(hidden_size, eps=config.layer_norm_epsilon)
 
         if config.add_cross_attention:
-            self.crossattention = GPT2FlexAttention(
-                config, is_cross_attention=True, layer_idx=layer_idx
-            )
+            self.crossattention = GPT2FlexAttention(config, is_cross_attention=True, layer_idx=layer_idx)
             self.ln_cross_attn = nn.LayerNorm(hidden_size, eps=config.layer_norm_epsilon)
 
         self.mlp = GPT2FlexMLP(inner_dim, config)
@@ -177,9 +177,7 @@ class GPT2FlexModel(GPT2Model):
         self.wpe = nn.Embedding(config.max_position_embeddings, self.embed_dim)
 
         self.drop = nn.Dropout(config.embd_pdrop)
-        self.h = nn.ModuleList(
-            [GPT2FlexBlock(config, layer_idx=i) for i in range(config.num_hidden_layers)]
-        )
+        self.h = nn.ModuleList([GPT2FlexBlock(config, layer_idx=i) for i in range(config.num_hidden_layers)])
         self.ln_f = nn.LayerNorm(self.embed_dim, eps=config.layer_norm_epsilon)
 
         self.model_parallel = False

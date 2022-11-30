@@ -18,9 +18,7 @@ from tqdm import tqdm
 from archai.nlp.eval.eval_utils import lm_accuracy
 
 
-def generate(
-    onnx_session: InferenceSession, max_length: Optional[int] = 1, **inputs
-) -> torch.LongTensor:
+def generate(onnx_session: InferenceSession, max_length: Optional[int] = 1, **inputs) -> torch.LongTensor:
     """Manually generates a set of tokens through greedy search.
 
     Args:
@@ -92,9 +90,7 @@ def manual_evaluate(
             resized_labels = copy.deepcopy(inputs["labels"])[:, acc_type[0] : acc_type[1]]
 
             # Generates a set of tokens
-            outputs = generate(
-                onnx_session, **resized_inputs, max_length=acc_type[1] - acc_type[0]
-            )
+            outputs = generate(onnx_session, **resized_inputs, max_length=acc_type[1] - acc_type[0])
             outputs = outputs[:, acc_type[0] : acc_type[1]]
 
             # Calculates the accuracy
