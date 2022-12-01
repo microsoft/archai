@@ -29,9 +29,7 @@ jobs:
       - name: Installs the requirements
         shell: bash -l {0}
         run: |
-          python -m pip install --user -e .
-          cd docs
-          python -m pip install --user -r requirements.txt
+          python -m pip install --user -e .[docs]
       - name: Builds the documentation
         shell: bash -l {0}
         run: |
