@@ -41,15 +41,22 @@ install_requires = [
     "transformers>=4.25.1",
 ]
 
-setuptools.setup(
+extras_require = {
+    "docs": ["myst-parser>=0.17.2", "sphinx>=4.1.2", "sphinx-rtd-theme>=0.5.2", "sphinx-sitemap>=2.2.0", "sphinxcontrib-programoutput>=0.17"],
+    "tests": ["pytest>=6.2.4"],
+}
+
+setup(
     name="archai",
     version="0.6.8",
     description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    author="Microsoft",
     url="https://github.com/microsoft/archai",
     license="MIT",
     install_requires=install_requires,
+    extras_require=extras_require,
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
