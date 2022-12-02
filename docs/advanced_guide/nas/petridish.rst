@@ -1,12 +1,16 @@
-# Petridish Walkthrough
+==========
+Petridish
+==========
 
-## Background
+Background
+-----------
 
 Petridish is a NAS algorithm that grows networks starting from any network. Usually the starting network is very small and hand-specified although in practice any set of networks can be thrown in as seed networks. At each search iteration petridish evaluates a number of candidates and picks the most promising ones and adds them to the parent network. It then trains this modified network for a few more epochs before adding them back to the parent pool for further consideration for growth. Parents architectures are only selected for further growth if they lie close to the convex hull of the pareto-frontier (which serves as an upper bound of the error-vs-multiply-adds or error-vs-flops or error-vs-memory) curve. The intuition being only those models which are currently near the estimated pareto-frontier have realistic chance of lowering the curve by producing children models. Before we move ahead it will serve the reader well to familiarize themselves with the details via [paper at NeuRIPS 2019](https://www.microsoft.com/en-us/research/publication/efficient-forward-architecture-search/), [blog post](https://www.microsoft.com/en-us/research/blog/project-petridish-efficient-forward-neural-architecture-search/) or [online lecture](https://youtu.be/sZMZ6nJFaJY?t=2648).
 
 We will also assume that the reader has familiarized themselves with the core of Archai and followed through the [30-minute tutorial](tutorial.md) which will come in very handy!
 
-## Search
+Search
+-------
 
 All of Petridish functionality resides in the
 At the heart of Petridish is the [`SearcherPetridish`](https://github.com/microsoft/archai/blob/master/archai/algos/petridish/searcher_petridish.py) class which derives from the `SearchCombinations` class. Let's have a a look at the `search` function in that file.
@@ -91,7 +95,8 @@ The `pareto` section defines the maximum number of total cells, reduction cells 
 
 Petridish will produce a gallery of models picked to be those models on the lower convex hull as seen above.
 
-## Evaluation
+Evaluation
+-----------
 
 The gallery of models found by Petridish is then trained for longer (usually 600 or 1500 epochs and with/without other enhancements like [AutoAugment](https://arxiv.org/abs/1805.09501) preprocessing or [CutOut](https://arxiv.org/pdf/1708.04552.pdf) etc).
 
@@ -102,7 +107,8 @@ The code for model evaluation follows the usual pattern by overriding relevant p
 Above we see the Accuracy vs. multiply-additions gallery. For example the model at 328M multiply-additions achieves 97.23% top-1 accuracy on CIFAR10 with 3M parameters and using 600 epochs.
 
 
-## Putting It All Together
+Putting It All Together
+------------------------
 
 Just as detailed in the [30-minute tutorial](tutorial.md), we end up with our own `PetridishModelBuilder` and `EvaluaterPetridish` which we communicate to Archai via the `PetridishExperimentRunner` class and run the algorithm via `main.py`.
 

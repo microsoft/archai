@@ -2,7 +2,7 @@ API
 ====
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    api/archai.algos.rst
    api/archai.common.rst

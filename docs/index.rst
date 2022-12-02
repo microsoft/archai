@@ -2,7 +2,7 @@ Archai Documentation
 =========================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Getting Started
 
    Introduction <getting_started/introduction>
@@ -11,16 +11,15 @@ Archai Documentation
    Features <getting_started/features>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Basic Guide
 
-   Algorithms <basic_guide/algorithms>
    Scripts <basic_guide/scripts>
    Structure <basic_guide/structure>
    30-Minute Tutorial <basic_guide/tutorial>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Advanced Guide
 
    Computer Vision (CV) <advanced_guide/cv>
@@ -30,13 +29,13 @@ Archai Documentation
    DevOps <advanced_guide/devops>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Benchmarks
 
    Food101 <benchmarks/food101>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Support
 
    Frequently Asked Questions (FAQ) <support/faq>
@@ -44,7 +43,7 @@ Archai Documentation
    Copyright <support/copyright>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Reference
 
    API <reference/api>

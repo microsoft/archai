@@ -1,14 +1,18 @@
-# 30-Minute Tutorial
+===================
+30-Minute Tutorial
+===================
 
 If you would like to follow through this tutorial, please make sure you have [installed](../getting-started/install.md) Archai.
 
-## Network Architecture Search (NAS)
+Network Architecture Search (NAS)
+----------------------------------
 
 Network architecture search is the process of finding best performing neural network architectures for a given problem. Usually, we have a dataset such as [ImageNet](https://www.image-net.org/) and we want to figure out how to arrange operations such as convolutions and pooling to create a neural network that has the best classification accuracy. Many practical situations also require that the architecture must fit into device memory or should use only certain number of flops. NAS shines in such problems because finding optimal/near-optimal architecture requires a lot of guess work and human effort.
 
 So how do we automatically find a good neural architecture? There are a number of algorithms proposed by the NAS research community in the past few years. In this tutorial we will learn how to use existing algorithms in Archai. We will also get the overview of how Archai works and finally we will implement a popular NAS algorithm called DARTS to show how you can implement your own algorithm (often only with a few lines of code). If you are not familiar with DARTS, we recommend [reading the paper](https://arxiv.org/abs/1806.09055) or [basic overview](https://towardsdatascience.com/intuitive-explanation-of-differentiable-architecture-search-darts-692bdadcc69c) first and then coming back here.
 
-## Running Existing Algorithms
+Running Existing Algorithms
+----------------------------
 
 Running NAS algorithms built into Archai is easy. You can use either command line or Visual Studio Code. Using command line, run the main script specifying the `--algos` switch:
 
@@ -32,7 +36,8 @@ We will use [Visual Studio Code](https://code.visualstudio.com/) in this tutoria
 
 ![Run DARTS in VSCode](../assets/img/vscode_run_darts.png)
 
-## Config System
+Config System
+---------------
 
 Archai uses a sophisticated YAML based configuration system. As an example, you can [view configuration](https://github.com/microsoft/archai/blob/master/benchmarks/confs/algos/darts.yaml) for running DARTS algorithm. At first it may be a bit overwhelming, but this ensures that all config parameters are isolated from the code and can be freely changed. The config for search phase is located in `nas/search` section while for evaluation phase is located in `nas/eval` section. You will observe settings for data loading in `loader` section and training in `trainer` section. You can easily change the number of epochs, batch size etc.
 
@@ -44,7 +49,8 @@ python scripts/main.py --algos darts --nas.eval.trainer.epochs 200
 
 You can read in more detail about features available in Archai config system later.
 
-## Architecture Overview
+Architecture Overview
+----------------------
 
 Now that we are familiar with how to run NAS algorithms, use command line switches and configuration system, let's briefly review how Archai works.
 
@@ -56,7 +62,8 @@ Archai uses YAML based model description that can be "compiled" to PyTorch model
 
 We will now see how this workflow can be implemented in Archai.
 
-## Archai Core Classes
+Archai Core Classes
+--------------------
 
 At the heart of Archai are the following classes:
 
@@ -70,13 +77,14 @@ At the heart of Archai are the following classes:
 * **Finalizers**: This class takes a super network with learned architecture weights and uses strategy to select edges to produce the final model.
 * **Op**: This class is derived from `nn.Module` but has additional functionality to represent deep learning operations such as max pool or convolutions with *architecture weights*. It also can implement finalization strategy if NAS method is using super networks for searching.
 
-## Implementing DARTS
+Implementing DARTS
+-------------------
 
 We will now do quick walkthrough on how we can implement DARTS in Archai as an example. Note that this algorithm is already implemented so you can see the [final code](https://github.com/microsoft/archai/tree/master/archai/algos/darts).
 
 At high level, we will first create the the op that combines all ops along with their architecture weights. We will call this `MixedOp`. We will then use the `MixedOp` to create super network with all possible edges. To train this super network, we will override `ArchTrainer` and use bi-level optimizer. After the model is trained, we will use `Finalizers` class to generate the final model description. Finally, we will just use default `Evaluater` to evaluate the model.
 
-### Implementing MixedOp
+Implementing MixedOp
 
 The main idea is to simply create all 7 primitives DARTS needs and override the `forward` method as usual to sum the output of primitives weighted by architecture parameters.
 
@@ -106,7 +114,7 @@ class MixedOp(Op):
 
 [View full code](https://github.com/microsoft/archai/blob/master/archai/algos/darts/mixed_op.py)
 
-### Implementing the ModelDescBuilder
+Implementing the ModelDescBuilder
 
 The job of `ModelDescBuilder` is to build the super network that searcher can use. The `ModelDescBuilder` builds the model description in parts: first model stems, then each cell and finally pooling and logits layers. Within each cell we first build cell stems, then nodes and their edges and finally a layer we will call "post op" that produces the output. Each of these steps are implemented in their own methods so you can override any portion of model building and customize according to your needs.
 
@@ -165,7 +173,7 @@ Notice that the parameters of this method tell us the expected input and output 
 
 [View full code](https://github.com/microsoft/archai/blob/master/archai/algos/darts/darts_model_desc_builder.py)
 
-### Implementing the Trainer
+Implementing the Trainer
 
 To perform a search, DARTS uses bi-level optimization algorithm. To implement this, we need to separate regular weights from architecture weights. We then train the architecture weights using the bi-level optimizer. This can be done easily by taking advantage of *hooks* that the trainer provides. These include `pre_fit` and `post_fit` hooks that get executed before and after the code for the `fit` method. So, in `pre_fit` we can initialize our `BilevelOptimizer` class.
 
@@ -206,7 +214,7 @@ class BilevelArchTrainer(ArchTrainer):
 
 [View full code](https://github.com/microsoft/archai/blob/master/archai/algos/darts/bilevel_arch_trainer.py)
 
-### Putting It All Togather
+Putting It All Togather
 
 Now that we have our own `Trainer` and `ModelDescBuilder` for DARTS, we need to tell Archai about them. This is done through a class derived from `ExperimentRunner`. We override `model_desc_builder()` and `trainer_class()` to specify our custom classes.
 
