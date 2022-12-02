@@ -77,9 +77,12 @@ class PetridishOp(Op):
         'avg_pool_3x3',
         'skip_connect',  # identity
         'sep_conv_3x3',
-        'sep_conv_5x5',
+        #'sep_conv_5x5',
         'dil_conv_3x3',
-        'dil_conv_5x5',
+        #'dil_conv_5x5',
+        'mbconv_r3',
+        'mbconv_r2',
+        'mbconv_r1',
         'none'  # this must be at the end so top1 doesn't chose it
     ]
 
@@ -201,4 +204,3 @@ class PetridishOp(Op):
         # we store alphas in list so Pytorch don't register them
         self._alphas = list(self.arch_params().paramlist_by_kind('alphas'))
         assert len(self._alphas)==1
-

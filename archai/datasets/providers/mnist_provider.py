@@ -9,7 +9,7 @@ from torch.utils.data.dataset import Dataset
 import torchvision
 from torchvision.transforms import transforms
 
-from archai.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
+from archai.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 
@@ -34,7 +34,7 @@ class MnistProvider(DatasetProvider):
         return trainset, testset
 
     @overrides
-    def get_transforms(self)->tuple:
+    def get_transforms(self, img_size:ImgSize)->tuple:
         MEAN = [0.13066051707548254]
         STD = [0.30810780244715075]
         transf = [

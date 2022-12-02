@@ -35,7 +35,7 @@ from archai.common import common
 from archai.common import ml_utils, utils
 from archai.common.metrics import Metrics
 from archai.nas.evaluater import Evaluater, EvalResult
-from archai.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
+from archai.algos.petridish.petridish_utils import ConvexHullPoint, ExperimentStage, JobStage, \
     save_hull, plot_pool
 
 class EvaluaterPetridish(Evaluater):
@@ -48,12 +48,15 @@ class EvaluaterPetridish(Evaluater):
         logger.pushd('evaluate')
 
         final_desc_foldername:str = conf_eval['final_desc_foldername']
+        source_desc_foldername:str = conf_eval.get('source_desc_foldername', final_desc_foldername)
 
         # get list of model descs in the gallery folder
-        final_desc_folderpath = utils.full_path(final_desc_foldername)
-        files = [os.path.join(final_desc_folderpath, f) \
-                for f in glob.glob(os.path.join(final_desc_folderpath, 'model_desc_*.yaml')) \
-                    if os.path.isfile(os.path.join(final_desc_folderpath, f))]
+        source_desc_folderpath = utils.full_path(source_desc_foldername)
+        final_desc_folderpath = utils.full_path(final_desc_foldername, True)
+
+        files = [os.path.join(final_desc_folderpath, utils.filepath_name_ext(f)) \
+                for f in glob.glob(os.path.join(source_desc_folderpath, 'model_desc_*.yaml')) \
+                    if os.path.isfile(os.path.join(source_desc_folderpath, f))]
         logger.info({'model_desc_files':len(files)})
 
         # to avoid all workers download datasets individually, let's do it before hand
@@ -61,7 +64,7 @@ class EvaluaterPetridish(Evaluater):
 
         future_ids = []
         for model_desc_filename in files:
-            future_id = EvaluaterPetridish._train_dist.remote(self, conf_eval, model_desc_builder, model_desc_filename, common.get_state())
+            future_id = EvaluaterPetridish._train_dist.remote(self, conf_eval, model_desc_builder, model_desc_filename, common.get_state(), source_desc_folderpath)
             future_ids.append(future_id)
 
         # wait for all eval jobs to be finished
@@ -70,7 +73,7 @@ class EvaluaterPetridish(Evaluater):
         # plot pareto curve of gallery of models
         hull_points = [ray.get(ready_ref) for ready_ref in ready_refs]
         save_hull(hull_points, common.get_expdir())
-        plot_pool(hull_points, common.get_expdir())
+        plot_pool(hull_points, common.get_expdir(), ExperimentStage.EVAL)
 
         best_point = max(hull_points, key=lambda p:p.metrics.best_val_top1())
         logger.info({'best_val_top1':best_point.metrics.best_val_top1(),
@@ -83,7 +86,7 @@ class EvaluaterPetridish(Evaluater):
     @staticmethod
     @ray.remote(num_gpus=1)
     def _train_dist(evaluater:Evaluater, conf_eval:Config, model_desc_builder:ModelDescBuilder,
-                    model_desc_filename:str, common_state)->ConvexHullPoint:
+                    model_desc_filename:str, common_state, source_folder:Optional[str])->ConvexHullPoint:
         """Train given a model"""
 
         common.init_from(common_state)
@@ -120,7 +123,10 @@ class EvaluaterPetridish(Evaluater):
                     return convex_hull_point
 
         # template model is what we used during the search
-        template_model_desc = ModelDesc.load(model_desc_filename)
+        if source_folder:
+            template_model_desc = ModelDesc.load(os.path.join(source_folder, utils.filepath_name_ext(model_desc_filename)))
+        else:
+            template_model_desc = ModelDesc.load(model_desc_filename)
 
         # we first scale this model by number of cells, keeping reductions same as in search
         n_cells = math.ceil(len(template_model_desc.cell_descs())*cell_count_scale)
@@ -136,7 +142,7 @@ class EvaluaterPetridish(Evaluater):
         model_desc.save(full_desc_filename)
 
         model = evaluater.model_from_desc(model_desc)
-
+        
         train_metrics = evaluater.train_model(conf_eval, model, checkpoint)
         train_metrics.save(metrics_filename)
 
@@ -167,5 +173,4 @@ class EvaluaterPetridish(Evaluater):
     def _ensure_dataset_download(self, conf_search:Config)->None:
         conf_loader = conf_search['loader']
         self.get_data(conf_loader)
-
 

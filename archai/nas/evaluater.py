@@ -91,7 +91,7 @@ class Evaluater(EnforceOverrides):
     def _default_module_name(self, dataset_name:str, function_name:str)->str:
         """Select PyTorch pre-defined network to support manual mode"""
         module_name = ''
-        # TODO: below detection code is too week, need to improve, possibly encode image size in yaml and use that instead
+        # TODO: below detection code is too weak, need to improve, possibly encode image size in yaml and use that instead
         if dataset_name.startswith('cifar'):
             if function_name.startswith('res'): # support resnext as well
                 module_name = 'archai.cifar10_models.resnet'

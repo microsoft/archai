@@ -16,7 +16,7 @@ from PIL import Image
 from overrides import overrides, EnforceOverrides
 
 from archai.common.common import logger
-from archai.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
+from archai.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 from archai.datasets.transforms.lighting import Lighting
@@ -45,7 +45,7 @@ class ImagenetProvider(DatasetProvider):
         return trainset, testset
 
     @overrides
-    def get_transforms(self)->tuple:
+    def get_transforms(self, img_size:ImgSize)->tuple:
         MEAN = [0.485, 0.456, 0.406]
         STD = [0.229, 0.224, 0.225]
 
