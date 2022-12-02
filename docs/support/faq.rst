@@ -1,5 +1,7 @@
-# Frequently Asked Questions
+=================================
+Frequently Asked Questions (FAQ)
+=================================
 
-## What is Neural Network Search?
+**Q:** Which are the mandatory requirements?
 
-Neural Architecture Search (NAS) aims to automate the process of searching for neural architectures. Given a new dataset, it is often a tedious task of trying out many different architectures and hyperparameters manually. Even the most skilled machine learning researchers and engineers have to resort to the dark arts of finding good architectures and corresponding hyperparameters guided by some intuition and a lot of careful experimentation. The NAS community's dream is that this tedium be taken over by algorithms, freeing up precious human time for more noble pursuits.
+**A:** Archai provides a `setup.py <https://dev.azure.com/msresearch/archai/_git/archai_nlp?path=/setup.py>`_ file with specific version information about the requirements.

@@ -1,8 +1,11 @@
-# Food-101 Dataset Notes
+=========
+Food-101
+=========
 
-## Transforms
+Transforms
+-----------
 
-### Variation 1
+Variation 1
 
 ```
     train_transforms = transforms.Compose([transforms.RandomRotation(30),
@@ -19,7 +22,7 @@
                                                            [0.229, 0.224, 0.225])])
 ```
 
-### Variation 2
+Variation 2
 
 From: https://nbviewer.jupyter.org/github/shubhajitml/food-101/blob/master/food-101-pytorch.ipynb
 ```
@@ -35,7 +38,7 @@ From: https://nbviewer.jupyter.org/github/shubhajitml/food-101/blob/master/food-
             transforms.Normalize(self.imgenet_mean, self.imgenet_std)])
 ```
 
-### Variation 3
+Variation 3
 
 From: https://github.com/dashimaki360/food101/blob/master/src/train.py
 ```
@@ -55,7 +58,8 @@ From: https://github.com/dashimaki360/food101/blob/master/src/train.py
     }
 ```
 
-## SOTA
+SOTA
+-----
 
 | Method 	| Top - 1  	| Top - 5  	| Publication  	|
 |---	|---	|---	|---	|
@@ -79,7 +83,7 @@ From: https://github.com/dashimaki360/food101/blob/master/src/train.py
 |   WISeR 	|   90.27 	|   98.71	|   UNIUD2016 	|
 |   **DenseNet - 161**	|  **93.26** 	|   **99.01**	|  **Proposed** 	|
 
-### Model training and SoTA results
+Model training and SoTA results
 
 From: https://github.com/pyligent/food101-image-classification
 
