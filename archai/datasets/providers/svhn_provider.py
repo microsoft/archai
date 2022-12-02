@@ -10,7 +10,7 @@ import torchvision
 from torchvision.transforms import transforms
 from torch.utils.data import ConcatDataset
 
-from archai.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
+from archai.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 
@@ -38,7 +38,7 @@ class SvhnProvider(DatasetProvider):
         return trainset, testset
 
     @overrides
-    def get_transforms(self)->tuple:
+    def get_transforms(self, img_size:ImgSize)->tuple:
         MEAN = [0.4914, 0.4822, 0.4465]
         STD = [0.2023, 0.1994, 0.20100]
         transf = [

@@ -165,7 +165,9 @@ class OrderedDictLogger:
             return
 
         if len(self._stack)==1:
-            raise RuntimeError('There is no child logger, popd() call is invalid')
+            self.warn('There is no child logger, popd() call is invalid')
+            return
+            
         self._stack.pop()
         self._paths.pop()
 

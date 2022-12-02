@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from argparse import ArgumentError
-from typing import Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
+from typing import Any, Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
 from abc import ABC, abstractmethod
 import copy
 import math
@@ -42,6 +42,12 @@ _ops_factory:Dict[str, Callable] = {
                             DilConv(op_desc, 3, op_desc.params['stride'], 2, 2, affine),
     'dil_conv_5x5':     lambda op_desc, arch_params, affine:
                             DilConv(op_desc, 5, op_desc.params['stride'], 4, 2, affine),
+    'mbconv_r3':    lambda op_desc, arch_params, affine:
+                            MBConv(op_desc, stride=op_desc.params['stride'], expansion_ratio=3, affine=affine),
+    'mbconv_r2':    lambda op_desc, arch_params, affine:
+                            MBConv(op_desc, stride=op_desc.params['stride'], expansion_ratio=2, affine=affine),
+    'mbconv_r1':    lambda op_desc, arch_params, affine:
+                            MBConv(op_desc, stride=op_desc.params['stride'], expansion_ratio=1, affine=affine),
     'none':             lambda op_desc, arch_params, affine:
                             Zero(op_desc),
     'identity':         lambda op_desc, arch_params, affine:
@@ -56,12 +62,20 @@ _ops_factory:Dict[str, Callable] = {
                             ReLUConvBN(op_desc, 1, 1, 0, affine),
     'stem_conv3x3':       lambda op_desc, arch_params, affine:
                             StemConv3x3(op_desc, affine),
+    'stem_conv3x3_s2':   lambda op_desc, arch_params, affine:
+                            StemConv3x3S2(op_desc, affine),
     'stem_conv3x3Relu':       lambda op_desc, arch_params, affine:
                             StemConv3x3Relu(op_desc, affine),
     'stem_conv3x3_s4':   lambda op_desc, arch_params, affine:
                             StemConv3x3S4(op_desc, affine),
     'stem_conv3x3_s4s2':   lambda op_desc, arch_params, affine:
                             StemConv3x3S4S2(op_desc, affine),
+    'stem_mbconv_r3_s1':   lambda op_desc, arch_params, affine:
+                            StemMBConv3x3R3S1(op_desc, affine),
+    'stem_mbconv_r3_s2':   lambda op_desc, arch_params, affine:
+                            StemMBConv3x3R3S2(op_desc, affine),
+    'stem_mbconv_r3_s4':   lambda op_desc, arch_params, affine:
+                            StemMBConv3x3R3S4(op_desc, affine),
     'pool_adaptive_avg2d':       lambda op_desc, arch_params, affine:
                             PoolAdaptiveAvg2D(),
     'pool_avg2d7x7':    lambda op_desc, arch_params, affine:
@@ -122,17 +136,15 @@ class Op(ArchModule, ABC, EnforceOverrides):
         return desc, None # desc, rank (None means op is unranked and cannot be removed)
 
     def ops(self)->Iterator[Tuple['Op', float]]: # type: ignore
-        """Return contituent ops, if this op is primitive just return self"""
+        """Return constituent ops, if this op is primitive just return self"""
         yield self, math.nan
 
     # if op should not be dropped during drop path then return False
     def can_drop_path(self)->bool:
         return True
 
-
 class PoolBN(Op):
     """AvgPool or MaxPool - BN """
-
     def __init__(self, pool_type:str, op_desc:OpDesc, affine:bool):
         """
         Args:
@@ -159,8 +171,8 @@ class PoolBN(Op):
         # self.bn = nn.BatchNorm2d(ch_in, affine=affine)
 
     @overrides
-    def forward(self, x):
-        out = self.pool(x)
+    def forward(self, input):
+        out = self.pool(input)
         #out = self.bn(out)
         return out
 
@@ -173,8 +185,8 @@ class SkipConnect(Op):
                               else FactorizedReduce(op_desc, affine)
 
     @overrides
-    def forward(self, x:Tensor)->Tensor:
-        return self._op(x)
+    def forward(self, input:Tensor):
+        return self._op(input)
 
     @overrides
     def can_drop_path(self)->bool:
@@ -208,8 +220,8 @@ class FacConv(Op):
         )
 
     @overrides
-    def forward(self, x):
-        return self.net(x)
+    def forward(self, input):
+        return self.net(input)
 
 
 class ReLUConvBN(Op): # std DARTS op has BN at the end
@@ -229,8 +241,8 @@ class ReLUConvBN(Op): # std DARTS op has BN at the end
         )
 
     @overrides
-    def forward(self, x):
-        return self.op(x)
+    def forward(self, input):
+        return self.op(input)
 
 
 class ConvBNReLU(Op): # NAS bench op has BN in the middle
@@ -250,8 +262,8 @@ class ConvBNReLU(Op): # NAS bench op has BN in the middle
         )
 
     @overrides
-    def forward(self, x):
-        return self.op(x)
+    def forward(self, input):
+        return self.op(input)
 
 class DilConv(Op):
     """ (Dilated) depthwise separable conv
@@ -278,9 +290,57 @@ class DilConv(Op):
         )
 
     @overrides
-    def forward(self, x):
-        return self.op(x)
+    def forward(self, input):
+        return self.op(input)
 
+class MBConvModule(nn.Module):
+    """ Inverted residual block, informally known as MBConv
+    as utilized in MobileNetV2 paper by Sandler et al, 2018.
+    See Table 1 in the paper for details. 
+    
+    1x1 conv2d - Relu6 - 3x3 depthwise separable - Relu6 - 1x1 conv2d (no non-linearity)    
+    """
+
+    def __init__(self, kernel_size:int, ch_in:int, ch_out: int, stride:int, expansion_ratio:int, affine:bool):
+        super(MBConvModule, self).__init__()
+
+        ch_intermediate = ch_in * expansion_ratio
+
+        self.op = nn.Sequential(
+            nn.Conv2d(ch_in, ch_intermediate, kernel_size=1, padding=0, bias=affine),
+            nn.ReLU6(),
+            nn.Conv2d(ch_intermediate, ch_intermediate, kernel_size=3, 
+                    groups=ch_intermediate, padding=1, stride=stride, bias=affine),
+            nn.ReLU6(),
+            nn.Conv2d(ch_intermediate, ch_out, kernel_size=1, padding=0, bias=affine),
+            nn.BatchNorm2d(ch_out, affine=affine)
+        )
+
+    @overrides
+    def forward(self, input):
+        out = self.op(input)
+        return out 
+
+class MBConv(Op):
+    """ Inverted residual block, informally known as MBConv
+    as utilized in MobileNetV2 paper by Sandler et al, 2018.
+    See Table 1 in the paper for details. 
+    
+    1x1 conv2d - Relu6 - 3x3 depthwise separable - Relu6 - 1x1 conv2d (no non-linearity)    
+    """
+
+    def __init__(self, op_desc:OpDesc, stride:int, expansion_ratio:int, affine:bool):
+        super(MBConv, self).__init__()
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+
+        self.op = MBConvModule(3, ch_in, ch_out, stride=stride, expansion_ratio=expansion_ratio, affine=affine)
+
+    @overrides
+    def forward(self, input):
+        out = self.op(input)
+        return out 
 
 class SepConv(Op):
     """ Depthwise separable conv
@@ -300,8 +360,8 @@ class SepConv(Op):
                     padding, dilation=1, affine=affine))
 
     @overrides
-    def forward(self, x):
-        return self.op(x)
+    def forward(self, input):
+        return self.op(input)
 
 
 class Identity(Op):
@@ -312,8 +372,8 @@ class Identity(Op):
         assert conv_params.ch_in == conv_params.ch_out
 
     @overrides
-    def forward(self, x):
-        return x
+    def forward(self, input):
+        return input
 
     @overrides
     def can_drop_path(self)->bool:
@@ -331,10 +391,10 @@ class Zero(Op):
         self.stride = stride
 
     @overrides
-    def forward(self, x):
+    def forward(self, input):
         if self.stride == 1:
-            return x.mul(0.)
-        return x[:, :, ::self.stride, ::self.stride].mul(0.)
+            return input.mul(0.)
+        return input[:, :, ::self.stride, ::self.stride].mul(0.)
 
 class FactorizedReduce(Op):
     """
@@ -361,8 +421,8 @@ class FactorizedReduce(Op):
         self.bn = nn.BatchNorm2d(ch_out, affine=affine)
 
     @overrides
-    def forward(self, x):
-        x = self.relu(x)
+    def forward(self, input):
+        x = self.relu(input)
 
         # x: torch.Size([32, 32, 32, 32])
         # conv1: [b, c_out//2, d//2, d//2]
@@ -382,6 +442,63 @@ class StemBase(Op):
         super().__init__()
         self.reduction = reduction
 
+class StemMBConv3x3R3S1(StemBase):
+    def __init__(self, op_desc:OpDesc, affine:bool)->None:
+        super().__init__(1)
+
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+
+        self._op = MBConvModule(3, ch_in, ch_out, stride=1, expansion_ratio=3, affine=affine)
+
+    @overrides
+    def forward(self, input):
+        return self._op(input)
+
+    @overrides
+    def can_drop_path(self)->bool:
+        return False
+
+class StemMBConv3x3R3S2(StemBase):
+    def __init__(self, op_desc:OpDesc, affine:bool)->None:
+        super().__init__(2)
+
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+
+        self._op = MBConvModule(3, ch_in, ch_out, stride=2, expansion_ratio=3, affine=affine),
+
+    @overrides
+    def forward(self, input):
+        return self._op(input)
+
+    @overrides
+    def can_drop_path(self)->bool:
+        return False
+
+class StemMBConv3x3R3S4(StemBase):
+    def __init__(self, op_desc:OpDesc, affine:bool)->None:
+        super().__init__(4)
+
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+
+        self._op = nn.Sequential( # 3 => 48
+            MBConvModule(3, ch_in, ch_out//2, stride=2, expansion_ratio=3, affine=affine),
+            MBConvModule(3, ch_out//2, ch_out, stride=2, expansion_ratio=3, affine=affine)
+        )
+
+    @overrides
+    def forward(self, input):
+        return self._op(input)
+
+    @overrides
+    def can_drop_path(self)->bool:
+        return False
+
 class StemConv3x3(StemBase):
     def __init__(self, op_desc:OpDesc, affine:bool)->None:
         super().__init__(1)
@@ -398,8 +515,31 @@ class StemConv3x3(StemBase):
         )
 
     @overrides
-    def forward(self, x):
-        return self._op(x)
+    def forward(self, input):
+        return self._op(input)
+
+    @overrides
+    def can_drop_path(self)->bool:
+        return False
+
+class StemConv3x3S2(StemBase):
+    def __init__(self, op_desc:OpDesc, affine:bool)->None:
+        super().__init__(2)
+
+        conv_params:ConvMacroParams = op_desc.params['conv']
+        ch_in = conv_params.ch_in
+        ch_out = conv_params.ch_out
+
+        self._op = nn.Sequential( # 3 => 48
+            # batchnorm is added after each layer. Bias is turned off due to
+            # BN in conv layer.
+            nn.Conv2d(ch_in, ch_out, 3, padding=1, stride=2, bias=False),
+            nn.BatchNorm2d(ch_out, affine=affine)
+        )
+
+    @overrides
+    def forward(self, input):
+        return self._op(input)
 
     @overrides
     def can_drop_path(self)->bool:
@@ -422,8 +562,8 @@ class StemConv3x3Relu(StemBase): # used in NASbench-101
         )
 
     @overrides
-    def forward(self, x):
-        return self._op(x)
+    def forward(self, input):
+        return self._op(input)
 
     @overrides
     def can_drop_path(self)->bool:
@@ -447,8 +587,8 @@ class StemConv3x3S4(StemBase):
         )
 
     @overrides
-    def forward(self, x):
-        return self._op(x)
+    def forward(self, input):
+        return self._op(input)
 
     @overrides
     def can_drop_path(self)->bool:
@@ -477,8 +617,8 @@ class StemConv3x3S4S2(StemBase):
         )
 
     @overrides
-    def forward(self, x):
-        return self._op(x)
+    def forward(self, input):
+        return self._op(input)
 
     @overrides
     def can_drop_path(self)->bool:
@@ -490,8 +630,8 @@ class AvgPool2d7x7(Op):
         self._op = nn.AvgPool2d(7)
 
     @overrides
-    def forward(self, x):
-        return self._op(x)
+    def forward(self, input):
+        return self._op(input)
 
     @overrides
     def can_drop_path(self)->bool:
@@ -503,8 +643,8 @@ class PoolAdaptiveAvg2D(Op):
         self._op = nn.AdaptiveAvgPool2d(1)
 
     @overrides
-    def forward(self, x):
-        return self._op(x)
+    def forward(self, input):
+        return self._op(input)
 
     @overrides
     def can_drop_path(self)->bool:
@@ -515,8 +655,8 @@ class PoolMeanTensor(Op): # used in Nasbench-101
         super().__init__()
 
     @overrides
-    def forward(self, x):
-        return torch.mean(x, (2, 3))
+    def forward(self, input):
+        return torch.mean(input, (2, 3))
 
     @overrides
     def can_drop_path(self)->bool:
@@ -532,8 +672,8 @@ class LinearOp(Op):
         self._op = nn.Linear(n_ch, n_classes)
 
     @overrides
-    def forward(self, x:torch.Tensor):
-        flattened = x.view(x.size(0), -1)
+    def forward(self, input:torch.Tensor):
+        flattened = input.view(input.size(0), -1)
         return self._op(flattened)
 
     @overrides
@@ -647,4 +787,3 @@ class MultiOp(Op):
         if not isinstance(x, list):
             x = [x]
         return self._ch_adj([op(x[i]) for op, i in zip(self._ops, self._ins)])
-

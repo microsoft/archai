@@ -10,7 +10,7 @@ from torch.utils.data.dataset import Dataset
 import torchvision
 from torchvision.transforms import transforms
 
-from archai.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
+from archai.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 
@@ -30,12 +30,17 @@ class Flower102Provider(DatasetProvider):
             trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
         if load_test:
             testpath = os.path.join(self._dataroot, 'flower102', 'test')
-            testset = torchvision.datasets.ImageFolder(testpath, transform=transform_train)
+            testset = torchvision.datasets.ImageFolder(testpath, transform=transform_test)
 
         return trainset, testset
 
     @overrides
-    def get_transforms(self)->tuple:
+    def get_transforms(self, img_size:ImgSize)->tuple:
+
+        print(f'IMG SIZE: {img_size}')
+        if isinstance(img_size, int):
+            img_size = (img_size, img_size)
+            
         # MEAN, STD computed for flower102
         MEAN = [0.5190, 0.4101, 0.3274]
         STD = [0.2972, 0.2488, 0.2847]
@@ -43,7 +48,7 @@ class Flower102Provider(DatasetProvider):
         # transformations match that in
         # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
         train_transf = [
-            transforms.RandomResizedCrop(224),
+            transforms.RandomResizedCrop(img_size, scale=(0.75, 1)),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(
                 brightness=0.4,
@@ -52,7 +57,8 @@ class Flower102Provider(DatasetProvider):
                 hue=0.2)
         ]
 
-        test_transf = [transforms.Resize(256), transforms.CenterCrop(224)]
+        margin_size = (int(img_size[0] + img_size[0]*0.1), int(img_size[1] + img_size[1]*0.1))
+        test_transf = [transforms.Resize(margin_size), transforms.CenterCrop(img_size)]
 
         normalize = [
             transforms.ToTensor(),
