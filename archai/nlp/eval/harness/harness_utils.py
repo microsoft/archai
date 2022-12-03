@@ -8,7 +8,7 @@ import re
 from typing import Any, Dict
 
 import torch
-from transformers.generation_stopping_criteria import StoppingCriteria
+from transformers.generation.stopping_criteria import StoppingCriteria
 
 
 class HarnessCall:
