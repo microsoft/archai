@@ -32,4 +32,4 @@ tensorboard>=2.10.0
 tensorwatch>=0.9.1
 tokenizers>=0.12.1
 tqdm>=4.64.0
-transformers>=4.21.1
+transformers>=4.25.1
