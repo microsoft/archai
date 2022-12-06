@@ -8,7 +8,7 @@ from datetime import date
 import sphinx_rtd_theme
 
 # Adds path to local extension
-sys.path.insert(0, os.path.abspath("../archai"))
+sys.path.insert(0, os.path.abspath(".."))
 
 # Project information
 project = "Archai"
@@ -18,8 +18,9 @@ copyright = f"{date.today().year}, {author}"
 # General configuration
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "myst_parser",
     "sphinx_sitemap",
@@ -50,7 +51,7 @@ html_static_path = ["assets"]
 html_css_files = ["css/custom.css"]
 html_theme_options = {
     "collapse_navigation": False,
-    "display_version": True,
+    "display_version": False,
     "logo_only": True,
     "navigation_depth": 4,
 }
