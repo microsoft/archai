@@ -2,9 +2,13 @@
 Contact
 ========
 
-Join the Archai group on [Facebook](https://www.facebook.com/groups/1133660130366735/) to stay up to date or ask any questions.
+Archai has been created and maintained by `Shital Shah <https://shital.com>`_, `Debadeepta Dey <www.debadeepta.com>`_, `Gustavo de Rosa <https://www.microsoft.com/en-us/research/people/gderosa>`_, Caio Mendes, `Piero Kauffmann <https://www.microsoft.com/en-us/research/people/pkauffmann>`_, and `Ofer Dekel <https://www.microsoft.com/en-us/research/people/oferd>`_ at Microsoft Research.
 
-Team
------
+Contributions
+==============
 
-Archai has been created and maintained by [Shital Shah](https://shitalshah.com), [Debadeepta Dey](https://debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Cesar Teodoro Mendes in the [Reinforcement Learning Group](https://www.microsoft.com/en-us/research/group/reinforcement-learning-redmond) at Microsoft Research, Redmond, USA. Archai has benefited immensely from discussions with [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd), [John Langford](https://www.microsoft.com/en-us/research/people/jcl), [Rich Caruana](https://www.microsoft.com/en-us/research/people/rcaruana), [Eric Horvitz](https://www.microsoft.com/en-us/research/people/horvitz) and [Alekh Agarwal](https://www.microsoft.com/en-us/research/people/alekha).
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
+
+When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repositories using our CLA.
+
+This project has adopted the `Microsoft Open Source Code of Conduct <https://opensource.microsoft.com/codeofconduct/>`_. For more information see the `Code of Conduct FAQ <https://opensource.microsoft.com/codeofconduct/faq/>`_ or contact `opencode@microsoft.com <mailto:opencode@microsoft.com>`_ with any additional questions or comments.
