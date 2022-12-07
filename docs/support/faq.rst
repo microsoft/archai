@@ -1,6 +1,5 @@
-=================================
 Frequently Asked Questions (FAQ)
-=================================
+================================
 
 **Q:** What is Neural Architecture Search (NAS)?
 

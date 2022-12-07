@@ -1,6 +1,5 @@
-=========
 Features
-=========
+========
 
 Archai is designed to unify several latest algorithms for Network Architecture Search into a common codebase allowing for much more generality as well as reproducibility with fair comparison. While enabling next generation research in NAS, we also aim to provide high quality turn-key implementations to rapidly try out these algorithms on your custom datasets and scenarios. This page describes several high level features available in Archai.
 

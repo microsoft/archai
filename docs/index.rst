@@ -1,7 +1,8 @@
 Archai Documentation
-=========================
+====================
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Getting Started
 
@@ -11,6 +12,7 @@ Archai Documentation
    Features <getting_started/features>
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Basic Guide
 
@@ -19,6 +21,7 @@ Archai Documentation
    30-Minute Tutorial <basic_guide/tutorial>
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Advanced Guide
 
@@ -29,12 +32,14 @@ Archai Documentation
    DevOps <advanced_guide/devops>
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Benchmarks
 
-   Food101 <benchmarks/food101>
+   Food-101 <benchmark/food_101>
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Support
 
@@ -43,6 +48,7 @@ Archai Documentation
    Copyright <support/copyright>
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Reference
 
