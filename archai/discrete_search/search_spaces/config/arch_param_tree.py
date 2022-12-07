@@ -137,7 +137,7 @@ class ArchParamTree(object):
         
         # Build feature array
         features = OrderedDict([(k, v) for k, v in flat_config.items() if k in deduped_features])
-            
+        
         # Replaces unused params with NaNs if necessary
         if track_unused_params:
             for feature_name, _ in features.items():
