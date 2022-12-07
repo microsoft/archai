@@ -1,38 +1,29 @@
-archai.datasets.transforms package
-==================================
+Transforms
+==========
 
-Submodules
+Brightness
 ----------
-
-archai.datasets.transforms.brightness module
---------------------------------------------
 
 .. automodule:: archai.datasets.transforms.brightness
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.datasets.transforms.cutout\_custom module
-------------------------------------------------
+Custom Cut-Out
+-------------
 
 .. automodule:: archai.datasets.transforms.cutout_custom
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.datasets.transforms.lighting module
-------------------------------------------
+Lighting
+--------
 
 .. automodule:: archai.datasets.transforms.lighting
    :members:
    :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: archai.datasets.transforms
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
