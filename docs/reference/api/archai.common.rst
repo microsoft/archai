@@ -1,4 +1,4 @@
-``archai.common``
+Common Utilities
 =================
 
 .. automodule:: archai.common

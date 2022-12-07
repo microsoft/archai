@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "Archai"
 author = "Microsoft"
 copyright = f"{date.today().year}, {author}"
+version = "v0.6.9"
 
 # General configuration
 extensions = [
@@ -50,8 +51,8 @@ html_last_updated_fmt = ""
 html_static_path = ["assets"]
 html_css_files = ["css/custom.css"]
 html_theme_options = {
-    "collapse_navigation": False,
-    "display_version": False,
+    "collapse_navigation": True,
+    "display_version": True,
     "logo_only": True,
     "navigation_depth": 4,
 }
