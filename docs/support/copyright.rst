@@ -18,15 +18,15 @@ Credits
 
 Archai is built upon several open-source codebases:
 
-* `Fast AutoAugment <https://github.com/kakaobrain/fast-autoaugment>`_
-* `pt.darts <https://github.com/khanrc/pt.darts>`_
-* `DARTS-PyTorch <https://github.com/dragen1860/DARTS-PyTorch>`_
-* `DARTS <https://github.com/quark0/darts>`_
-* `petridishnn <https://github.com/microsoft/petridishnn>`_
-* `PyTorch CIFAR-10 Models <https://github.com/huyvnphan/PyTorch-CIFAR10>`_
-* `NVidia DeepLearning Examples <https://github.com/NVIDIA/DeepLearningExamples>`_
-* `PyTorch Warmup Scheduler <https://github.com/ildoonet/pytorch-gradual-warmup-lr>`_
-* `NAS Evaluation is Frustratingly Hard <https://github.com/antoyang/NAS-Benchmark>`_
-* `NASBench-PyTorch <https://github.com/romulus0914/NASBench-PyTorch>`_
+* `Fast AutoAugment <https://github.com/kakaobrain/fast-autoaugment>`_;
+* `pt.darts <https://github.com/khanrc/pt.darts>`_;
+* `DARTS-PyTorch <https://github.com/dragen1860/DARTS-PyTorch>`_;
+* `DARTS <https://github.com/quark0/darts>`_;
+* `petridishnn <https://github.com/microsoft/petridishnn>`_;
+* `PyTorch CIFAR-10 Models <https://github.com/huyvnphan/PyTorch-CIFAR10>`_;
+* `NVidia DeepLearning Examples <https://github.com/NVIDIA/DeepLearningExamples>`_;
+* `PyTorch Warmup Scheduler <https://github.com/ildoonet/pytorch-gradual-warmup-lr>`_;
+* `NAS Evaluation is Frustratingly Hard <https://github.com/antoyang/NAS-Benchmark>`_;
+* `NASBench-PyTorch <https://github.com/romulus0914/NASBench-PyTorch>`_.
 
-Please see ``install_requires`` section in `setup.py <https://github.com/microsoft/archai/blob/master/setup.py>`_ for up-to-date dependencies list. If you feel credit to any material is missing, please let us know by filing an `issue <https://github.com/microsoft/archai/issues>`_.
+Please see ``install_requires`` in `setup.py <https://github.com/microsoft/archai/blob/master/setup.py>`_ for up-to-date dependencies list. If you feel credit to any material is missing, please let us know by filing an `issue <https://github.com/microsoft/archai/issues>`_.
