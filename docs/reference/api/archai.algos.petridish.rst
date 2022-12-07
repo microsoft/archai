@@ -1,62 +1,56 @@
-archai.algos.petridish package
-==============================
+Petridish
+=========
 
-Submodules
-----------
-
-archai.algos.petridish.evaluater\_petridish module
---------------------------------------------------
+Evaluater
+---------
 
 .. automodule:: archai.algos.petridish.evaluater_petridish
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.petridish.petridish\_exp\_runner module
-----------------------------------------------------
+Experiment Runner
+-----------------
 
 .. automodule:: archai.algos.petridish.petridish_exp_runner
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.petridish.petridish\_model\_desc\_builder module
--------------------------------------------------------------
+Model Description Builder
+-------------------------
 
 .. automodule:: archai.algos.petridish.petridish_model_desc_builder
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.petridish.petridish\_op module
--------------------------------------------
+Operations
+----------
 
 .. automodule:: archai.algos.petridish.petridish_op
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.petridish.petridish\_utils module
-----------------------------------------------
+Utilities
+---------
 
 .. automodule:: archai.algos.petridish.petridish_utils
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.petridish.searcher\_petridish module
--------------------------------------------------
+Searcher
+--------
 
 .. automodule:: archai.algos.petridish.searcher_petridish
    :members:
    :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: archai.algos.petridish
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:

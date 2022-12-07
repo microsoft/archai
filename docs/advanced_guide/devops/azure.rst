@@ -1,3 +1,2 @@
-# Deployment
-
-## Azure Machine Learning
+Azure
+=====

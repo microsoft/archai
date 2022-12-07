@@ -1,54 +1,47 @@
-archai.algos.gumbelsoftmax package
-==================================
+Gumbel-Softmax
+==============
 
-Submodules
-----------
-
-archai.algos.gumbelsoftmax.gs\_arch\_trainer module
----------------------------------------------------
+Architecture Trainer
+--------------------
 
 .. automodule:: archai.algos.gumbelsoftmax.gs_arch_trainer
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.gumbelsoftmax.gs\_exp\_runner module
--------------------------------------------------
+Experiment Runner
+-----------------
 
 .. automodule:: archai.algos.gumbelsoftmax.gs_exp_runner
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.gumbelsoftmax.gs\_finalizers module
-------------------------------------------------
+Finalizers
+----------
 
 .. automodule:: archai.algos.gumbelsoftmax.gs_finalizers
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.gumbelsoftmax.gs\_model\_desc\_builder module
-----------------------------------------------------------
+Model Description Builder
+-------------------------
 
 .. automodule:: archai.algos.gumbelsoftmax.gs_model_desc_builder
    :members:
    :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:
 
-archai.algos.gumbelsoftmax.gs\_op module
-----------------------------------------
+Operations
+----------
 
 .. automodule:: archai.algos.gumbelsoftmax.gs_op
    :members:
    :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: archai.algos.gumbelsoftmax
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :private-members:
+   :special-members:

@@ -1,6 +1,5 @@
-===================
 30-Minute Tutorial
-===================
+==================
 
 If you would like to follow through this tutorial, please make sure you have [installed](../getting-started/install.md) Archai.
 
