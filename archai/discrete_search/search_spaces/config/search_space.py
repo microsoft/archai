@@ -11,12 +11,12 @@ import torch
 from archai.discrete_search import (
     ArchaiModel, EvolutionarySearchSpace, BayesOptSearchSpace
 )
-from archai.discrete_search.search_spaces.builder.arch_config import ArchConfig, build_arch_config
-from archai.discrete_search.search_spaces.builder.arch_param_tree import ArchParamTree
-from archai.discrete_search.search_spaces.builder import utils
+from archai.discrete_search.search_spaces.config.arch_config import ArchConfig, build_arch_config
+from archai.discrete_search.search_spaces.config.arch_param_tree import ArchParamTree
+from archai.discrete_search.search_spaces.config import utils
 
 
-class SearchSpaceBuilder(EvolutionarySearchSpace, BayesOptSearchSpace):
+class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     def __init__(self,
                  model_cls: Type[torch.nn.Module],
                  arch_param_tree: ArchParamTree,

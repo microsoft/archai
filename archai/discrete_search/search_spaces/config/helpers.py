@@ -2,7 +2,7 @@ from typing import Dict, Any, List
 from copy import deepcopy
 from random import Random
 
-from archai.discrete_search.search_spaces.builder.discrete_choice import DiscreteChoice
+from archai.discrete_search.search_spaces.config.discrete_choice import DiscreteChoice
 
 
 def repeat_config(config_dict: Dict[str, Any], repeat_times: List[int],
