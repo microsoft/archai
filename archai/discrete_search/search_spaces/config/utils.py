@@ -2,7 +2,7 @@ from typing import Dict, Callable, Type, Iterable, Union, Any
 from copy import deepcopy
 from collections import OrderedDict
 
-from archai.discrete_search.search_spaces.builder.discrete_choice import DiscreteChoice
+from archai.discrete_search.search_spaces.config.discrete_choice import DiscreteChoice
 
 
 def flatten_dict(odict: Dict) -> OrderedDict:

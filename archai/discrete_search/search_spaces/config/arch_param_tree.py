@@ -5,9 +5,9 @@ import operator
 from copy import deepcopy
 from random import Random
 
-from archai.discrete_search.search_spaces.builder import utils
-from archai.discrete_search.search_spaces.builder.discrete_choice import DiscreteChoice
-from archai.discrete_search.search_spaces.builder.arch_config import ArchConfig, build_arch_config
+from archai.discrete_search.search_spaces.config import utils
+from archai.discrete_search.search_spaces.config.discrete_choice import DiscreteChoice
+from archai.discrete_search.search_spaces.config.arch_config import ArchConfig, build_arch_config
 
 
 class ArchParamTree(object):
@@ -41,7 +41,8 @@ class ArchParamTree(object):
         prefix = f'{prefix}.' if prefix else prefix
         output_dict = OrderedDict()
 
-        # if `remove_constants`, initializes the output dictionary with constants first
+        # if not `remove_constants`, initializes the output 
+        # dictionary with constants first
         if not remove_constants:
             output_dict = OrderedDict([
                 (prefix + c_name if flatten else c_name, c_value)
@@ -139,7 +140,7 @@ class ArchParamTree(object):
             
         # Replaces unused params with NaNs if necessary
         if track_unused_params:
-            for feature_name, feature in features.items():
+            for feature_name, _ in features.items():
                 if not flat_used_params[feature_name]:
                     features[feature_name] = float('NaN')
         
