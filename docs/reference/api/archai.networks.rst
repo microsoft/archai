@@ -1,54 +1,35 @@
-archai.networks package
-=======================
-
-Subpackages
------------
+Networks
+========
 
 .. toctree::
-   :maxdepth: 4
-
+   :maxdepth: 2
+   
    archai.networks.shakeshake
 
-Submodules
+PyramidNet
 ----------
-
-archai.networks.pyramidnet module
----------------------------------
 
 .. automodule:: archai.networks.pyramidnet
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.networks.resnet module
------------------------------
+ResNet
+------
 
 .. automodule:: archai.networks.resnet
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.networks.shakedrop module
---------------------------------
+ShakeDrop
+---------
 
 .. automodule:: archai.networks.shakedrop
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.networks.wideresnet module
----------------------------------
+Wide ResNet
+-----------
 
 .. automodule:: archai.networks.wideresnet
    :members:
    :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: archai.networks
-   :members:
-   :undoc-members:
-   :show-inheritance:

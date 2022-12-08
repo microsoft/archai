@@ -1,166 +1,156 @@
-archai.common package
-=====================
+Common Packages
+===============
 
-Submodules
-----------
-
-archai.common.apex\_utils module
---------------------------------
+APEX Utilities
+--------------
 
 .. automodule:: archai.common.apex_utils
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.atomic\_file\_handler module
-------------------------------------------
+Atomic File Handler
+-------------------
 
 .. automodule:: archai.common.atomic_file_handler
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.checkpoint module
--------------------------------
+Checkpoint
+----------
 
 .. automodule:: archai.common.checkpoint
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.cocob module
---------------------------
+Coin-Betting
+------------
 
 .. automodule:: archai.common.cocob
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.common module
----------------------------
+Common Utilities
+----------------
 
 .. automodule:: archai.common.common
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.config module
----------------------------
+Configuration
+-------------
 
 .. automodule:: archai.common.config
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.metrics module
-----------------------------
+Delimited Text
+--------------
+
+.. automodule:: archai.common.delimited_text
+   :members:
+   :undoc-members:
+
+LRU Cache
+---------
+
+.. automodule:: archai.common.lru_cache
+   :members:
+   :undoc-members:
+
+Metrics
+-------
 
 .. automodule:: archai.common.metrics
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.ml\_losses module
--------------------------------
+ML-Based Losses
+---------------
 
 .. automodule:: archai.common.ml_losses
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.ml\_utils module
+ML-Based Performance Utilities
 ------------------------------
+
+.. automodule:: archai.common.ml_perf_utils
+   :members:
+   :undoc-members:
+
+ML-Based Utilities
+------------------
 
 .. automodule:: archai.common.ml_utils
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.model\_summary module
------------------------------------
+Model Summary
+-------------
 
 .. automodule:: archai.common.model_summary
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.multi\_optim module
----------------------------------
+Multi-Optimizer
+---------------
 
 .. automodule:: archai.common.multi_optim
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.ordereddict\_logger module
-----------------------------------------
+OrderedDict Logger
+------------------
 
 .. automodule:: archai.common.ordereddict_logger
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.stopwatch module
-------------------------------
+Stopwatch
+---------
 
 .. automodule:: archai.common.stopwatch
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.tester module
----------------------------
+Tester
+------
 
 .. automodule:: archai.common.tester
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.timing module
----------------------------
+Timing
+------
 
 .. automodule:: archai.common.timing
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.trainer module
-----------------------------
+Trainer
+-------
 
 .. automodule:: archai.common.trainer
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.utils module
---------------------------
+Utilities
+---------
 
 .. automodule:: archai.common.utils
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.warmup\_scheduler module
---------------------------------------
+Warmup Scheduler
+----------------
 
 .. automodule:: archai.common.warmup_scheduler
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.common.yaml\_utils module
---------------------------------
+YAML Utilities
+--------------
 
 .. automodule:: archai.common.yaml_utils
    :members:
    :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: archai.common
-   :members:
-   :undoc-members:
-   :show-inheritance:

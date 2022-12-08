@@ -1,38 +1,23 @@
-archai.algos.manual package
-===========================
+Manual
+======
 
-Submodules
-----------
-
-archai.algos.manual.manual\_evaluater module
---------------------------------------------
+Evaluater
+---------
 
 .. automodule:: archai.algos.manual.manual_evaluater
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.manual.manual\_exp\_runner module
-----------------------------------------------
+Experiment Runner
+-----------------
 
 .. automodule:: archai.algos.manual.manual_exp_runner
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.manual.manual\_searcher module
--------------------------------------------
+Searcher
+--------
 
 .. automodule:: archai.algos.manual.manual_searcher
    :members:
    :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: archai.algos.manual
-   :members:
-   :undoc-members:
-   :show-inheritance:

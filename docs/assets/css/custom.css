@@ -42,7 +42,6 @@ a:visited {
 }
 .wy-menu-vertical li.current a {
     border-right: none;
-    padding: 0.4045em 2.6em;
 }
 .wy-menu-vertical li.toctree-l1.current > a {
     background: #e6e7e9;
@@ -63,7 +62,6 @@ a:visited {
 
 .wy-menu-vertical a {
     color: #262626;
-    padding: 0.4045em 2.6em;
 }
 .wy-menu-vertical a:active {
     color: #262626;
@@ -71,7 +69,6 @@ a:visited {
 .wy-menu-vertical a:hover {
     background-color: #e6e7e9;
 }
-
 .wy-menu-vertical a:hover button.toctree-expand {
     color: #262626;
 }
