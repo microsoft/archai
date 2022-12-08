@@ -10,6 +10,3 @@ The changelog is organized by version, with the most recent changes appearing at
 
 v0.6.9
 ------
-
-v0.6.8
-------

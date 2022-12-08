@@ -13,9 +13,6 @@ It has innovated on both search algorithms and search spaces, explored ideas on 
 
 * 📂 Powerful configuration system and easy-to-use tools.
 
-.. attention::
-
-   Archai requires `Python <http://python.org>`_ 3.7+ and `PyTorch <https://pytorch.org>`_ 1.2+.
 
 Citing Archai
 -------------
@@ -24,8 +21,13 @@ If you use Archai in a scientific publication, please consider citing it:
 
 .. code-block:: latex
 
-   @inproceedings{Archai:20,
-   }
+   @misc{Archai:22,
+      title=Archai: Platform for Neural Architecture Search,
+      url=https://www.microsoft.com/en-us/research/project/archai-platform-for-neural-architecture-search,
+      journal=Microsoft Research,
+      year=2022,
+      month=Jul
+   } 
 
 .. toctree::
    :hidden:
