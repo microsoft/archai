@@ -10,7 +10,7 @@ from torch.utils.data.dataset import Dataset
 import torchvision
 from torchvision.transforms import transforms
 
-from archai.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
+from archai.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 
@@ -30,12 +30,12 @@ class Sport8Provider(DatasetProvider):
             trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
         if load_test:
             testpath = os.path.join(self._dataroot, 'sport8', 'test')
-            testset = torchvision.datasets.ImageFolder(testpath, transform=transform_train)
+            testset = torchvision.datasets.ImageFolder(testpath, transform=transform_test)
 
         return trainset, testset
 
     @overrides
-    def get_transforms(self)->tuple:
+    def get_transforms(self, img_size:ImgSize)->tuple:
         # MEAN, STD computed for sport8
         MEAN = [0.4734, 0.4856, 0.4526]
         STD = [0.2478, 0.2444, 0.2667]

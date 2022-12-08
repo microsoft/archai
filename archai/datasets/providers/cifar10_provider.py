@@ -9,7 +9,7 @@ from torch.utils.data.dataset import Dataset
 import torchvision
 from torchvision.transforms import transforms
 
-from archai.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
+from archai.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 
@@ -33,7 +33,7 @@ class Cifar10Provider(DatasetProvider):
         return trainset, testset
 
     @overrides
-    def get_transforms(self)->tuple:
+    def get_transforms(self, img_size:ImgSize)->tuple:
         MEAN = [0.49139968, 0.48215827, 0.44653124]
         STD = [0.24703233, 0.24348505, 0.26158768]
         transf = [

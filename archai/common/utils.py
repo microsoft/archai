@@ -1,16 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union, Sized
+from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
 import  numpy as np
 import logging
 import csv
 from collections import OrderedDict
 import sys
 import  os
-import functools
 import pathlib
-from pathlib import Path
 import random
 from itertools import zip_longest
 import shutil
@@ -125,7 +123,7 @@ def is_debugging()->bool:
 
 def full_path(path:str, create=False)->str:
     assert path
-    path = os.path.realpath(
+    path = os.path.abspath(
             os.path.expanduser(
                 os.path.expandvars(path)))
     if create:
@@ -139,7 +137,7 @@ def zero_file(filepath)->None:
 def write_string(filepath:str, content:str)->None:
     pathlib.Path(filepath).write_text(content)
 def read_string(filepath:str)->str:
-    return pathlib.Path(filepath).read_text(encoding='utf-8')
+    return pathlib.Path(filepath).read_text()
 
 def create_logger(filepath:Optional[str]=None,
                   name:Optional[str]=None,
@@ -180,8 +178,6 @@ def fmt(val:Any)->str:
 
 def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t'):
     fieldnames, rows = [], []
-
-    # get existing field names and rows
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
             dr = csv.DictReader(f, delimiter=delimiter)
@@ -190,12 +186,10 @@ def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t')
     if fieldnames is None:
         fieldnames = []
 
-    # add field names from old file and new row
     new_fieldnames = OrderedDict([(fn, None) for fn, v in new_row])
     for fn in fieldnames:
         new_fieldnames[fn]=None
 
-    # write new CSV file
     with open(filepath, 'w', newline='') as f:
         dr = csv.DictWriter(f, fieldnames=new_fieldnames.keys(), delimiter=delimiter)
         dr.writeheader()
@@ -281,12 +275,12 @@ def filepath_without_ext(filepath:str)->str:
     return str(pathlib.Path(filepath).with_suffix(''))
 
 def filepath_ext(filepath:str)->str:
-    """Returns 'd.e.f' for '/a/b/c/d.e.f' """
+    """Returns '.f' for '/a/b/c/d.e.f' """
     return pathlib.Path(filepath).suffix
 
 def filepath_name_ext(filepath:str)->str:
-    """Returns '.f' for '/a/b/c/d.e.f' """
-    return pathlib.Path(filepath).suffix
+    """Returns 'd.e.f' for '/a/b/c/d.e.f' """
+    return pathlib.Path(filepath).name
 
 def filepath_name_only(filepath:str)->str:
     """Returns 'd.e' for '/a/b/c/d.e.f' """

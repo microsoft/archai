@@ -15,7 +15,7 @@ from archai.common.config import Config
 from archai.common import utils
 
 
-class Mit67Provider(DatasetProvider):
+class Food101BingProvider(DatasetProvider):
     def __init__(self, conf_dataset:Config):
         super().__init__(conf_dataset)
         self._dataroot = utils.full_path(conf_dataset['dataroot'])
@@ -26,10 +26,10 @@ class Mit67Provider(DatasetProvider):
         trainset, testset = None, None
 
         if load_train:
-            trainpath = os.path.join(self._dataroot, 'mit67', 'train')
+            trainpath = os.path.join(self._dataroot, 'food-101', 'train_bing')
             trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
         if load_test:
-            testpath = os.path.join(self._dataroot, 'mit67', 'test')
+            testpath = os.path.join(self._dataroot, 'food-101', 'test')
             testset = torchvision.datasets.ImageFolder(testpath, transform=transform_test)
 
         return trainset, testset
@@ -41,12 +41,9 @@ class Mit67Provider(DatasetProvider):
         if isinstance(img_size, int):
             img_size = (img_size, img_size)
             
-        # MEAN, STD computed for mit67
-        MEAN = [0.4893, 0.4270, 0.3625]
-        STD = [0.2631, 0.2565, 0.2582]
-
-        # transformations match that in
-        # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
+        # TODO: Need to rethink the food101 transforms
+        MEAN = [0.5451, 0.4435, 0.3436]
+        STD = [0.2171, 0.2251, 0.2260] # TODO: should be [0.2517, 0.2521, 0.2573]
         train_transf = [
             transforms.RandomResizedCrop(img_size, scale=(0.75, 1)),
             transforms.RandomHorizontalFlip(),
@@ -57,6 +54,7 @@ class Mit67Provider(DatasetProvider):
                 hue=0.2)
         ]
 
+        # food101 has images of varying sizes and are ~512 each side
         margin_size = (int(img_size[0] + img_size[0]*0.1), int(img_size[1] + img_size[1]*0.1))
         test_transf = [transforms.Resize(margin_size), transforms.CenterCrop(img_size)]
 
@@ -70,4 +68,4 @@ class Mit67Provider(DatasetProvider):
 
         return train_transform, test_transform
 
-register_dataset_provider('mit67', Mit67Provider)
+register_dataset_provider('food101_bing', Food101BingProvider)
