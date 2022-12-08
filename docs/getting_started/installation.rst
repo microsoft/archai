@@ -5,7 +5,7 @@ There are various methods to install Archai, but it is recommended to use it wit
 
 .. attention::
 
-   Archai requires `Python <http://python.org>`_ 3.7+ and `PyTorch <https://pytorch.org>`_ 1.2+.
+   Archai requires `Python <http://python.org>`_ 3.7+ and `PyTorch <https://pytorch.org>`_ 1.7.0+.
 
 PyPI
 ----
@@ -21,22 +21,30 @@ Source
 
 Installing from source ensures that the latest version of the package is used, including any unpublished changes that have not yet been released on PyPI. This allows developers to stay up-to-date with the latest changes, and ensure that their code is compatible with the latest version of the package.
 
-.. code-block:: sh
+.. tabs::
+    
+    .. group-tab:: Linux
 
-    git clone https://github.com/microsoft/archai.git
-    cd archai
-    install.sh
+        .. code-block:: sh
 
-.. tip::
+            git clone https://github.com/microsoft/archai.git
+            cd archai
+            install.sh
 
-    Windows users should use ``install.bat``.
+    .. group-tab:: Windows
+
+        .. code-block:: sh
+
+            git clone https://github.com/microsoft/archai.git
+            cd archai
+            install.bat
 
 Docker
 ------
 
 Docker is a useful tool for running experiments because it provides a consistent, isolated environment for the experiment to run in. This ensures that the results of the experiment are not affected by external factors, such as the specific operating system or installed packages on the host machine.
 
-The ``docker/Dockerfile`` provides a development environment to run experiments. Additionally, ``docker/build_image.sh`` and ``docker/run_container.sh`` provide scripts to build the image and run the container, respectively:
+The :github:`docker/Dockerfile` provides a development environment to run experiments. Additionally, :github:`docker/build_image.sh` and :github:`docker/run_container.sh` provide scripts to build the image and run the container, respectively:
 
 .. code-block:: sh
 

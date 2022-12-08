@@ -36,8 +36,6 @@ Variation 1
 Variation 2
 ^^^^^^^^^^^
 
-Source: https://nbviewer.jupyter.org/github/shubhajitml/food-101/blob/master/food-101-pytorch.ipynb
-
 .. code-block:: python
 
     train_transforms = transforms.Compose([
@@ -53,10 +51,10 @@ Source: https://nbviewer.jupyter.org/github/shubhajitml/food-101/blob/master/foo
         transforms.Normalize(self.imgenet_mean, self.imgenet_std)
     ])
 
+Source: https://nbviewer.jupyter.org/github/shubhajitml/food-101/blob/master/food-101-pytorch.ipynb
+
 Variation 3
 ^^^^^^^^^^^
-
-Source: https://github.com/dashimaki360/food101/blob/master/src/train.py
 
 .. code-block:: python
 
@@ -73,6 +71,8 @@ Source: https://github.com/dashimaki360/food101/blob/master/src/train.py
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
+
+Source: https://github.com/dashimaki360/food101/blob/master/src/train.py
 
 State-of-The-Art
 ----------------

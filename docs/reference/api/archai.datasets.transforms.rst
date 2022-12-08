@@ -11,7 +11,7 @@ Brightness
    :special-members:
 
 Custom Cut-Out
--------------
+--------------
 
 .. automodule:: archai.datasets.transforms.cutout_custom
    :members:

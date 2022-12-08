@@ -27,6 +27,7 @@ extensions = [
     "sphinx_sitemap",
     "sphinxcontrib.programoutput",
     "sphinxcontrib.mermaid",
+    "sphinx_tabs.tabs"
 ]
 myst_enable_extensions = ["colon_fence", "deflist", "replacements", "substitution"]
 exclude_patterns = [
@@ -37,6 +38,9 @@ exclude_patterns = [
     "scripts/**",
     "tests/**",
 ]
+extlinks = {
+    "github": ("https://github.com/microsoft/archai/tree/master/%s", "%s") 
+}
 source_suffix = ".rst"
 master_doc = "index"
 language = "en"

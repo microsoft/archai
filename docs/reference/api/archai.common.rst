@@ -193,7 +193,7 @@ Warmup Scheduler
 YAML Utilities
 --------------
 
-.. automodule:: archai.common.yaml_utilities
+.. automodule:: archai.common.yaml_utils
     :members:
     :undoc-members:
     :private-members:

@@ -31,4 +31,4 @@ Frequently Asked Questions (FAQ)
 
 **Q:** How can researchers get involved with Archai and NAS?
 
-**A:** Researchers interested in exploring the open problems in NAS and contributing to the Archai project are encouraged to join the Archai community on `GitHub <https://github.com/archaitech/archai>`_. There are many opportunities for collaboration and research within the Archai community, including working on existing open problems, proposing new directions for research, and contributing to the development of the platform.
+**A:** Researchers interested in exploring the open problems in NAS and contributing to the Archai project are encouraged to join the community on `GitHub <https://github.com/microsoft/archai>`_. There are many opportunities for collaboration and research within the Archai community, including working on existing open problems, proposing new directions for research, and contributing to the development of the platform.

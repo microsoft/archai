@@ -29,4 +29,4 @@ Archai is built upon several open-source codebases:
 * `NAS Evaluation is Frustratingly Hard <https://github.com/antoyang/NAS-Benchmark>`_;
 * `NASBench-PyTorch <https://github.com/romulus0914/NASBench-PyTorch>`_.
 
-Please see ``install_requires`` in `setup.py <https://github.com/microsoft/archai/blob/master/setup.py>`_ for up-to-date dependencies list. If you feel credit to any material is missing, please let us know by filing an `issue <https://github.com/microsoft/archai/issues>`_.
+Please see :github:`setup.py` for up-to-date dependencies list. If you feel credit to any material is missing, please let us know by filing an `issue <https://github.com/microsoft/archai/issues>`_.
