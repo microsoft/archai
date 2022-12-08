@@ -1,7 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
+import functools
+from typing import Dict, Iterable, Sized, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
 import  numpy as np
 import logging
 import csv
@@ -9,6 +10,7 @@ from collections import OrderedDict
 import sys
 import  os
 import pathlib
+from pathlib import Path
 import random
 from itertools import zip_longest
 import shutil
