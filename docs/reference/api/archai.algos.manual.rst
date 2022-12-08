@@ -7,8 +7,6 @@ Evaluater
 .. automodule:: archai.algos.manual.manual_evaluater
    :members:
    :undoc-members:
-   :private-members:
-   :special-members:
 
 Experiment Runner
 -----------------
@@ -16,8 +14,6 @@ Experiment Runner
 .. automodule:: archai.algos.manual.manual_exp_runner
    :members:
    :undoc-members:
-   :private-members:
-   :special-members:
 
 Searcher
 --------
@@ -25,5 +21,3 @@ Searcher
 .. automodule:: archai.algos.manual.manual_searcher
    :members:
    :undoc-members:
-   :private-members:
-   :special-members:

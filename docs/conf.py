@@ -44,7 +44,6 @@ extlinks = {
 source_suffix = ".rst"
 master_doc = "index"
 language = "en"
-pygments_style = "sphinx"
 
 # Options for HTML output
 html_title = project

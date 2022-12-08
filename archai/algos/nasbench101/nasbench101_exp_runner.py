@@ -7,7 +7,7 @@ from overrides import overrides
 
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
-from .petridish_model_desc_builder import PetridishModelBuilder
+from archai.algos.petridish.petridish_model_desc_builder import PetridishModelBuilder
 
 class PetridishExperimentRunner(ExperimentRunner):
     @overrides
