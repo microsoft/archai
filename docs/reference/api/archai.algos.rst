@@ -1,5 +1,5 @@
 Algorithms
-===========
+==========
 
 .. automodule:: archai.algos
    :members:
