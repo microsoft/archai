@@ -1,5 +1,5 @@
-Algorithms
-==========
+Available Algorithms
+====================
 
 Petridish
 ---------

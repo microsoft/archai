@@ -26,6 +26,7 @@ extensions = [
     "myst_parser",
     "sphinx_sitemap",
     "sphinxcontrib.programoutput",
+    "sphinxcontrib.mermaid",
 ]
 myst_enable_extensions = ["colon_fence", "deflist", "replacements", "substitution"]
 exclude_patterns = [
