@@ -7,6 +7,3 @@ The changelog is organized by version, with the most recent changes appearing at
 
 .. attention::
     If a specific release is not depicted here, please check at `GitHub <https://github.com/microsoft/archai/releases>`_.
-
-v0.6.9
-------

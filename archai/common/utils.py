@@ -1,7 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+<<<<<<< HEAD
 from typing import Dict, Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union, Sized
+=======
+import functools
+from typing import Dict, Iterable, Sized, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
+>>>>>>> ac2ff86d (fix(docs): Fixes sphinx-tabs not being compatible with other packages.)
 import  numpy as np
 import logging
 import csv
@@ -9,6 +14,7 @@ from collections import OrderedDict
 import sys
 import  os
 import pathlib
+from pathlib import Path
 import random
 from itertools import zip_longest
 import shutil
@@ -375,6 +381,13 @@ def uri2path(file_uri:str, windows_non_standard:bool=False)->str:
         os.path.join(host, url2pathname(unquote(parsed.path)))
     )
 
+def get_ranks(items:list, key=lambda v:v, reverse=False)->List[int]:
+    sorted_t = sorted(zip(items, range(len(items))),
+                      key=lambda t: key(t[0]),
+                      reverse=reverse)
+    sorted_map = dict((t[1], i) for i, t in enumerate(sorted_t))
+    return [sorted_map[i] for i in range(len(items))]
+
 def dedup_list(l:List)->List:
     return list(OrderedDict.fromkeys(l))
 
@@ -388,3 +401,47 @@ def delete_file(filepath:str)->bool:
 def save_as_yaml(obj, filepath:str)->None:
     with open(filepath, 'w', encoding='utf-8') as f:
         yaml.dump(obj, f, default_flow_style=False)
+
+def map_to_list(variable:Union[int,float,Sized], size:int)->Sized:
+    if isinstance(variable, Sized):
+        size_diff = size - len(variable)
+
+        if size_diff < 0:
+            return variable[:size]
+        elif size_diff == 0:
+            return variable
+        elif size_diff > 0:
+            return variable + [variable[0]] * size_diff
+
+    return [variable] * size
+
+def attr_to_dict(obj:Any, recursive:bool=True)->Dict[str, Any]:
+    MAX_LIST_LEN = 10
+    variables = {}
+
+    var_dict = dict(vars(obj.__class__))
+    try:
+        var_dict.update(dict(vars(obj)))
+    except TypeError:
+        pass
+
+    for k, v in var_dict.items():
+        if k[0] == '_':
+            continue
+
+        if isinstance(v, (int, float, str)):
+            variables[k.lower()] = v
+
+        elif isinstance(v, list) and (len(v) == 0 or isinstance(v[0], (int, float, str))):
+            variables[k.lower()] = v[:MAX_LIST_LEN]
+
+        elif isinstance(v, set) and (len(v) == 0 or isinstance(next(iter(v)), (int, float, str))):
+            variables[k.lower()] = list(v)[:MAX_LIST_LEN]
+
+        elif recursive:
+            settings_fn = getattr(v, 'settings', None)
+
+            if callable(settings_fn):
+                variables[k.lower()] = settings_fn()
+
+    return variables

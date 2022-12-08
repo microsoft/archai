@@ -21,23 +21,21 @@ Source
 
 Installing from source ensures that the latest version of the package is used, including any unpublished changes that have not yet been released on PyPI. This allows developers to stay up-to-date with the latest changes, and ensure that their code is compatible with the latest version of the package.
 
-.. tabs::
-    
-    .. group-tab:: Linux
+.. tab:: Linux
 
-        .. code-block:: sh
+    .. code-block:: sh
 
-            git clone https://github.com/microsoft/archai.git
-            cd archai
-            install.sh
+        git clone https://github.com/microsoft/archai.git
+        cd archai
+        install.sh
 
-    .. group-tab:: Windows
+.. tab:: Windows
 
-        .. code-block:: sh
+    .. code-block:: sh
 
-            git clone https://github.com/microsoft/archai.git
-            cd archai
-            install.bat
+        git clone https://github.com/microsoft/archai.git
+        cd archai
+        install.bat
 
 Docker
 ------

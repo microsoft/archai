@@ -27,7 +27,8 @@ extensions = [
     "sphinx_sitemap",
     "sphinxcontrib.programoutput",
     "sphinxcontrib.mermaid",
-    "sphinx_tabs.tabs"
+    "sphinx_inline_tabs",
+    "sphinx_git"
 ]
 myst_enable_extensions = ["colon_fence", "deflist", "replacements", "substitution"]
 exclude_patterns = [
