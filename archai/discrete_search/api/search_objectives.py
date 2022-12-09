@@ -180,3 +180,51 @@ class SearchObjectives(EnforceOverrides):
 
         return np.where(valid_mask)[0]
 
+    def eval_cheap_objs(self, models: List[ArchaiModel], 
+                        dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
+                        budgets: Optional[Dict[str, List]] = None,
+                        progress_bar: bool = False
+                        ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
+        results = self._eval_objs(
+            self.cheap_objs, models, dataset_providers, budgets, progress_bar
+        )
+        valid_archs = self._get_valid_arch_indices(self.cheap_objs, results)
+
+        return results, valid_archs
+
+    def eval_cheap_objs_and_proxies(self, models: List[ArchaiModel], 
+                                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
+                                    budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None,
+                                    progress_bar: bool = False
+                                    ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
+        selected_objs = dict(self.cheap_objs, **self.proxy_objs)
+        
+        results = self._eval_objs(
+            selected_objs, models, dataset_providers, budgets, progress_bar
+        )
+        valid_archs = self._get_valid_arch_indices(selected_objs, results)
+
+        return results, valid_archs
+
+    def eval_expensive_objs(self, models: List[ArchaiModel], 
+                            dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
+                            budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None,
+                            progress_bar: bool = False) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
+        results = self._eval_objs(
+            self.exp_objs, models, dataset_providers, budgets, progress_bar
+        )
+        valid_archs = self._get_valid_arch_indices(self.exp_objs, results)
+
+        return results, valid_archs
+
+    def eval_objs(self, models: List[ArchaiModel], 
+                  dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
+                  budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None):
+        selected_objs = dict(self.exp_objs, **self.cheap_objs)
+
+        results = self._eval_objs(
+            selected_objs, models, dataset_providers, budgets, progress_bar
+        )
+        valid_archs = self._get_valid_arch_indices(selected_objs, results)
+
+        return results, valid_archs
