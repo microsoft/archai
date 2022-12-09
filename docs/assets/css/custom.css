@@ -1,80 +1,36 @@
-a {
-    color: #623eb2;
+:root {
+    --primary: #623eb2;
+    --secondary: #8776ae;
 }
 
+li > a {
+    color: #5a5a5a !important;
+}
+
+a,
+a.current,
+p.prev-next-title {
+    color: var(--primary) !important;
+}
 a:hover {
-    color: #462C80;
+    color: var(--secondary) !important;
+}
+a.nav-link.active {
+    border-left: 2px solid var(--primary) !important;
 }
 
-a:visited {
-    color: #7e7e7e;
+a.navbar-brand > img {
+    max-width: 85% !important;
 }
 
-.wy-nav-content-wrap {
-    background: none;
+.tab-set > input:checked + label {
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+.tab-set > label:hover {
+    color: var(--primary) !important;
 }
 
-.wy-nav-side {
-    background: #f3f4f7;
-}
-
-.wy-side-nav-search {
-    background-color: #623eb2;
-}
-.wy-side-nav-search>a:hover {
-    background: inherit;
-}
-.wy-side-nav-search > a img.logo {
-    max-width: 60%;
-}
-.wy-side-nav-search input[type=text] {
-    border-radius: 0;
-    border-color: #623eb2;
-}
-
-.wy-nav-content {
-    max-width: 100%;
-    padding: 3em;
-}
-
-.wy-menu-vertical li.current {
-    background: #e6e7e9;
-}
-.wy-menu-vertical li.current a {
-    border-right: none;
-}
-.wy-menu-vertical li.toctree-l1.current > a {
-    background: #e6e7e9;
-    border-top: none;
-    border-bottom: none;
-}
-.wy-menu-vertical li.toctree-l2.current > a {
-    background: #e6e7e9;
-}
-.wy-menu-vertical li.current>a:hover button.toctree-expand {
-    color: #262626;
-}
-
-.wy-menu-vertical p.caption {
-    color: #623eb2;
-    margin: 12px 0 6px;
-}
-
-.wy-menu-vertical a {
-    color: #262626;
-}
-.wy-menu-vertical a:active {
-    color: #262626;
-}
-.wy-menu-vertical a:hover {
-    background-color: #e6e7e9;
-}
-.wy-menu-vertical a:hover button.toctree-expand {
-    color: #262626;
-}
-
-html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.citation):not(.glossary):not(.simple)>dt {
-    background: #f0e7fa;
-    color: #623eb2;
-    border-top: 3px solid #7E50E6;
+#site-navigation .bd-sidebar__bottom {
+    margin-bottom: 0 !important;
 }
