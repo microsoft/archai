@@ -70,3 +70,106 @@ class SearchObjectives(EnforceOverrides):
                 'proxy': True
             }
 
+    def _filter_objs(self, objs: Dict[str, Dict], field_name: str, query_fn: Callable) -> Dict[str, Dict]:
+        return {
+            obj_name: obj_dict
+            for obj_name, obj_dict in objs.items()
+            if query_fn(obj_dict[field_name])
+        }
+
+    def _eval_objs(self,
+                   objs: Dict[str, Dict],
+                   models: List[ArchaiModel], 
+                   dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
+                   budgets: Optional[Dict[str, List]] = None) -> Dict[str, np.ndarray]:
+        # Sets `None` budget for objectives not specified in `budgets`
+        budgets = budgets or {}
+        budgets = {
+            obj_name: budgets.get(obj_name, [None] * len(models))
+            for obj_name in objs
+        }
+
+        # Casts dataset_providers to a list if necessary
+        if not isinstance(dataset_providers, list):
+            dataset_providers = [dataset_providers] * len(models)
+        
+        # Splits `objs` in sync and async
+        sync_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, Objective))
+        async_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, AsyncObjective))
+
+        assert all(len(dataset_providers) == len(models) == b for b in budgets.values())
+
+        # Initializes evaluation results with cached results
+        eval_results = {
+            obj_name: [
+                self.cache.get(
+                    (obj_name, obj_d['proxy'], model.archid, data, budget)
+                )
+                for model, data, budget in zip(models, dataset_providers, budgets[obj_name])
+            ]
+            for obj_name, obj_d in objs.items()
+        }
+
+        # Saves model indices that are not in the cache and need to be evaluated
+        eval_indices = {
+            obj_name: [i for i, result in enumerate(obj_results) if result is None]
+            for obj_name, obj_results in eval_results.items()
+        }
+
+        # Dispatches jobs for all async objectives first
+        for obj_name, obj_d in async_objs.items():
+            pbar = (
+                tqdm(eval_indices[obj_name], desc=f'Dispatching jobs for "{obj_name}"...')
+                if self.progress_bar else eval_indices[obj_name]
+            )
+
+            for i in pbar:
+                obj_d['objective'].send(
+                    models[i], dataset_providers[i], budgets[obj_name][i]
+                )
+
+        # Calculates synchronous objectives in order
+        for obj_name, obj_d in sync_objs.items():
+            pbar = (
+                tqdm(eval_indices[obj_name], desc=f'Calculating "{obj_name}"...')
+                if self.progress_bar else eval_indices[obj_name]
+            )
+
+            for i in pbar:
+                eval_results[obj_name][i] = obj_d['objective'].evaluate(
+                    models[i], dataset_providers[i], budgets[obj_name][i]
+                )
+
+        # Gets results from async objectives
+        pbar = (
+            tqdm(async_objs.items(), desc=f'Gathering results from async objectives...')
+            if self.progress_bar
+            else async_objs.items()
+        )
+
+        for obj_name, obj_d in pbar:
+            results = obj_d['objective'].fetch_all()
+            
+            assert len(eval_indices[obj_name]) == len(results), \
+                'Received more results than expected.'
+            
+            for result_i, eval_i in enumerate(eval_indices[obj_name]):
+                eval_results[obj_name][eval_i] = results[result_i]
+        
+        # Updates cache
+        if self.cache_objective_evaluation:
+            for obj_name, obj_d in objs.items():
+                for i in eval_indices[obj_name]:
+                    cache_tuple = (
+                        obj_name, obj_d['proxy'],
+                        models[i].archid, dataset_providers[i],
+                        budgets[obj_name][i]
+                    )
+
+                    self.cache[cache_tuple] = eval_results[obj_name][i]
+
+        return {
+            obj_name: np.ndarray(obj_results, dtype=np.float64)
+            for obj_name, obj_results in eval_results.items()
+        }
+
