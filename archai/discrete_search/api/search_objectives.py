@@ -24,19 +24,12 @@ class SearchObjectives(EnforceOverrides):
         # Cache key: (obj_name, is_proxy, archid, dataset obj, budget)
         self.cache: Dict[Tuple[str, bool, str, DatasetProvider, Optional[float]], Optional[float]] = {}
 
-    @property
-    def objs(self):
-        return {
-            k: v 
-            for d in [self.cheap_objs, self.exp_objs, self.proxy_objs]
-            for k, v in d.items() 
-        }
-
     def add_cheap_objective(self, objective_name: str, objective: Union[Objective, AsyncObjective],
                             higher_is_better: bool,
                             constraint: Optional[Tuple[float, float]] = None) -> None:
         assert isinstance(objective, (AsyncObjective, Objective))
-        assert objective_name not in self.objs, f'There is an objective named {objective_name} already.'
+        assert objective_name not in dict(self.cheap_objs, **self.exp_objs),\
+            f'There is already an objective named {objective_name}.'
 
         self.cheap_objs[objective_name] = {
             'objective': objective,
@@ -51,7 +44,8 @@ class SearchObjectives(EnforceOverrides):
                                 constraint: Optional[Tuple[float, float]] = None,
                                 proxy_constraint: Optional[Tuple[Union[Objective, AsyncObjective], float, float]] = None) -> None:
         assert isinstance(objective, (AsyncObjective, Objective))
-        assert objective_name not in self.objs
+        assert objective_name not in dict(self.cheap_objs, **self.exp_objs),\
+            f'There is already an objective named {objective_name}.'
 
         self.exp_objs[objective_name] = {
             'objective': objective,
@@ -81,7 +75,8 @@ class SearchObjectives(EnforceOverrides):
                    objs: Dict[str, Dict],
                    models: List[ArchaiModel], 
                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
-                   budgets: Optional[Dict[str, List]] = None) -> Dict[str, np.ndarray]:
+                   budgets: Optional[Dict[str, List]] = None,
+                   progress_bar: bool = False) -> Dict[str, np.ndarray]:
         # Sets `None` budget for objectives not specified in `budgets`
         budgets = budgets or {}
         budgets = {
@@ -120,7 +115,7 @@ class SearchObjectives(EnforceOverrides):
         for obj_name, obj_d in async_objs.items():
             pbar = (
                 tqdm(eval_indices[obj_name], desc=f'Dispatching jobs for "{obj_name}"...')
-                if self.progress_bar else eval_indices[obj_name]
+                if progress_bar else eval_indices[obj_name]
             )
 
             for i in pbar:
@@ -132,7 +127,7 @@ class SearchObjectives(EnforceOverrides):
         for obj_name, obj_d in sync_objs.items():
             pbar = (
                 tqdm(eval_indices[obj_name], desc=f'Calculating "{obj_name}"...')
-                if self.progress_bar else eval_indices[obj_name]
+                if progress_bar else eval_indices[obj_name]
             )
 
             for i in pbar:
@@ -143,7 +138,7 @@ class SearchObjectives(EnforceOverrides):
         # Gets results from async objectives
         pbar = (
             tqdm(async_objs.items(), desc=f'Gathering results from async objectives...')
-            if self.progress_bar
+            if progress_bar
             else async_objs.items()
         )
 
@@ -167,6 +162,8 @@ class SearchObjectives(EnforceOverrides):
                     )
 
                     self.cache[cache_tuple] = eval_results[obj_name][i]
+
+        assert len(set(len(r) for r in eval_results.values())) == 1
 
         return {
             obj_name: np.ndarray(obj_results, dtype=np.float64)
