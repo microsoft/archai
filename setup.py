@@ -42,7 +42,7 @@ install_requires = [
 ]
 
 extras_require = {
-    "docs": ["myst-parser>=0.17.2", "sphinx>=4.1.2", "sphinx-rtd-theme>=0.5.2", "sphinx-sitemap>=2.2.0", "sphinxcontrib-programoutput>=0.17", "sphinxcontrib-mermaid>=0.7.1", "sphinx_inline_tabs>=2021.3.28b7", "sphinx-git>=11.0.0"],
+    "docs": ["sphinx>=4.1.2", "sphinx-book-theme>=0.3.3", "sphinx-sitemap>=2.2.0", "sphinxcontrib-programoutput>=0.17", "sphinxcontrib-mermaid>=0.7.1", "sphinx_inline_tabs>=2021.3.28b7", "sphinx-git>=11.0.0"],
     "tests": ["pytest>=6.2.4"],
 }
 
