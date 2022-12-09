@@ -173,3 +173,13 @@ class SearchObjectives(EnforceOverrides):
             for obj_name, obj_results in eval_results.items()
         }
 
+    def _get_valid_arch_indices(self, objs: Dict[str, Dict], 
+                                results: Dict[str, np.ndarray]) -> np.ndarray:
+        valid_mask = np.logical_and.reduce([
+            (obj_r >= objs[obj_name]['constraint'][0]) &\
+            (obj_r <= objs[obj_name]['constraint'][1])
+            for obj_name, obj_r in results.items()
+        ])
+
+        return np.where(valid_mask)[0]
+
