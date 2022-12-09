@@ -219,7 +219,8 @@ class SearchObjectives(EnforceOverrides):
 
     def eval_objs(self, models: List[ArchaiModel], 
                   dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
-                  budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None):
+                  budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None,
+                  progress_bar: bool = False):
         selected_objs = dict(self.exp_objs, **self.cheap_objs)
 
         results = self._eval_objs(
