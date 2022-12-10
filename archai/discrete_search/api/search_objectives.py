@@ -2,7 +2,6 @@
 # Licensed under the MIT license.
 
 from typing import Union, Optional, Tuple, List, Dict, Callable
-from overrides import EnforceOverrides
 
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.objective import Objective, AsyncObjective
@@ -12,7 +11,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-class SearchObjectives(EnforceOverrides):
+class SearchObjectives():
     def __init__(self, cache_objective_evaluation: bool = True, progress_bar: bool = True) -> None:
         self.cheap_objs = {}
         self.exp_objs = {}
@@ -217,7 +216,7 @@ class SearchObjectives(EnforceOverrides):
 
         return results, valid_archs
 
-    def eval_objs(self, models: List[ArchaiModel], 
+    def eval_all_objs(self, models: List[ArchaiModel], 
                   dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                   budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None,
                   progress_bar: bool = False):
