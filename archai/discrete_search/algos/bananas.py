@@ -10,8 +10,9 @@ import numpy as np
 from archai.common.utils import create_logger
 from archai.discrete_search import (
     ArchaiModel,  Objective, AsyncObjective,
-    SearchResults, get_non_dominated_sorting, evaluate_models
+    SearchResults, evaluate_models
 )
+from archai.discrete_search.utils import get_non_dominated_sorting
 from archai.discrete_search import BayesOptSearchSpace, EvolutionarySearchSpace
 from archai.discrete_search.api.predictor import Predictor, MeanVar
 from archai.discrete_search.predictors import PredictiveDNNEnsemble
@@ -141,7 +142,7 @@ class MoBananasSearch(Searcher):
         ][:sample_size]
 
     @overrides
-    def search(self):
+    def search(self) -> SearchResults:
         all_pop, selected_indices, pred_expensive_objs = [], [], {}
         unseen_pop = [self.search_space.random_sample() for _ in range(self.init_num_models)]
 
