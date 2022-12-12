@@ -10,12 +10,11 @@ from tqdm import tqdm
 from archai.common.utils import create_logger
 from archai.discrete_search import (
     ArchaiModel, Objective, AsyncObjective, Searcher, 
-    DatasetProvider
+    DatasetProvider, SearchResults
 )
 
 from archai.discrete_search.api.search_space import EvolutionarySearchSpace
-from archai.discrete_search.algos.utils import SearchResults
-from archai.discrete_search.objectives.utils import evaluate_models
+from archai.discrete_search.utils.evaluation import evaluate_models
 
 
 class EvolutionParetoSearch(Searcher):
