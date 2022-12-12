@@ -18,7 +18,7 @@ def test_darts_zero_model():
     assert isinstance(y, torch.Tensor) and y.shape==(1,10) and aux is None
 
 def test_petridish_zero_model():
-    conf = common_init(config_filepath='benchmarks/confs/petridish_cifar.yaml')
+    conf = common_init(config_filepath='benchmarks/confs/algos/petridish_toy.yaml')
     conf_search = conf['nas']['search']
     model_desc = conf_search['model_desc']
 
