@@ -38,6 +38,7 @@ install_requires = [
     "tokenizers>=0.10.3, <=0.12.1",
     "tqdm>=4.64.0",
     "transformers>=4.16.2, <=4.20.1",
+    "torchvision"
 ]
 
 extras_require = {
