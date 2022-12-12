@@ -31,6 +31,7 @@ AVAILABLE_HARNESS_TASKS = {
     "copa": "COPAHarnessTask",
     "hella_swag": "HellaSwagHarnessTask",
     "human_eval": "HumanEvalHarnessTask",
+    "lambada": "LambadaHarnessTask",
     "mnli_matched": "MNLIMatchedHarnessTask",
     "mnli_mismatched": "MNLIMismatchedHarnessTask",
     "mrpc": "MRPCHarnessTask",

@@ -22,6 +22,7 @@ from archai.nlp.eval.harness.tasks.glue import (
 )
 from archai.nlp.eval.harness.tasks.hella_swag import HellaSwagHarnessTask
 from archai.nlp.eval.harness.tasks.human_eval import HumanEvalHarnessTask
+from archai.nlp.eval.harness.tasks.lambada import LambadaHarnessTask
 from archai.nlp.eval.harness.tasks.open_book_qa import OpenBookQAHarnessTask
 from archai.nlp.eval.harness.tasks.piqa import PIQAHarnessTask
 from archai.nlp.eval.harness.tasks.story_cloze import (
