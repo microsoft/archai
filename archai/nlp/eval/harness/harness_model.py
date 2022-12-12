@@ -200,15 +200,18 @@ class HarnessModel:
 
         return self.decode(generated_tokens)
 
-    def log_likelihood(self, context: str, target: str) -> float:
+    def log_likelihood(self, context: str, target: str, return_exact_match: Optional[bool] = False) -> Union[float, Tuple[float, bool]]:
         """Computes the log-likelihood of generating a target from context.
 
         Args:
             context: Context used as prompt for the generation.
             target: Target to be achieved with the generation.
+            return_exact_match: Whether exact match (generated_tokens == target)
+                should be returned.
 
         Returns:
-            (float): Log-likelihood of achieving target from context.
+            (Union[float, Tuple[float, bool]]): Log-likelihood of achieving target from context
+                and whether generated targets are fully equal to provided target.
 
         """
 
@@ -235,6 +238,13 @@ class HarnessModel:
         # Slices to original sequence length (without target)
         # and retrieves log-probabilities at corresponding target indices
         probs = probs[:, sequence_length - target_length : sequence_length, :]
-        probs = torch.gather(probs, 2, encoded_target.unsqueeze(-1)).squeeze(-1)
+        target_probs = torch.gather(probs, 2, encoded_target.unsqueeze(-1)).squeeze(-1)
 
-        return float(probs.cpu().sum())
+        # Calculates whether generated tokens are fully equal to target
+        if return_exact_match:
+            generated_tokens = probs.argmax(dim=-1)
+            is_exact_match = (generated_tokens == encoded_target).all()
+
+            return float(target_probs.cpu().sum()), bool(is_exact_match.cpu())
+
+        return float(target_probs.cpu().sum())
