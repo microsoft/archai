@@ -19,6 +19,8 @@ class LambadaHarnessTask(HarnessTask):
 
     def __init__(
         self,
+        dataset_name: Optional[str] = "lambada",
+        dataset_config_name: Optional[str] = "plain_text",
         dataset_split: Optional[Union[str, List[str]]] = None,
         dataset_cache: Optional[str] = None,
         dataset_samples: Optional[int] = -1,
@@ -26,8 +28,8 @@ class LambadaHarnessTask(HarnessTask):
         num_proc: Optional[int] = None,
     ) -> None:
         super().__init__(
-            "lambada",
-            dataset_config_name="plain_text",
+            dataset_name,
+            dataset_config_name=dataset_config_name,
             dataset_split=dataset_split,
             dataset_cache=dataset_cache,
             dataset_samples=dataset_samples,
@@ -58,3 +60,10 @@ class LambadaHarnessTask(HarnessTask):
         reference = 1
 
         self.metric.add(predictions=prediction, reference=reference)
+
+
+class LambadaOpenAIHarnessTask(LambadaHarnessTask):
+    """Defines the LAMBADA task (OpenAI version)."""
+
+    def __init__(self, dataset_split: Optional[Union[str, List[str]]] = None, dataset_cache: Optional[str] = None, dataset_samples: Optional[int] = -1, random_seed: Optional[int] = 42, num_proc: Optional[int] = None) -> None:
+        super().__init__(dataset_name="craffel/openai_lambada", dataset_config_name=None, dataset_split=dataset_split, dataset_cache=dataset_cache, dataset_samples=dataset_samples, random_seed=random_seed, num_proc=num_proc)
