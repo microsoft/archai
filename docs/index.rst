@@ -45,6 +45,7 @@ If you use Archai in a scientific publication, please consider citing it:
 
    30-Minute Tutorial <basic_guide/tutorial>
    Notebooks <basic_guide/notebooks>
+   Discrete Search Tutorial <basic_guide/discrete_search>
    Examples & Scripts <basic_guide/examples_scripts>
 
 .. toctree::
