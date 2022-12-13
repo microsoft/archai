@@ -26,7 +26,8 @@ extensions = [
     "sphinxcontrib.programoutput",
     "sphinxcontrib.mermaid",
     "sphinx_inline_tabs",
-    "sphinx_git"
+    "sphinx_git",
+    "nbsphinx"
 ]
 exclude_patterns = [
     "benchmarks/**",
