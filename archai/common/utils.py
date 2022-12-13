@@ -398,9 +398,6 @@ def save_as_yaml(obj, filepath:str)->None:
     with open(filepath, 'w', encoding='utf-8') as f:
         yaml.dump(obj, f, default_flow_style=False)
 
-def create_file_name_identifier(file_name:Path, identifier:str)->Path:
-    return file_name.parent.joinpath(file_name.stem + identifier).with_suffix(file_name.suffix)
-
 def map_to_list(variable:Union[int,float,Sized], size:int)->Sized:
     if isinstance(variable, Sized):
         size_diff = size - len(variable)
@@ -413,19 +410,6 @@ def map_to_list(variable:Union[int,float,Sized], size:int)->Sized:
             return variable + [variable[0]] * size_diff
 
     return [variable] * size
-
-def rsetattr(obj:Any, attr:Any, value:Any)->None:
-    # Copyright @ https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
-    pre_attr, _, post_attr = attr.rpartition('.')
-
-    return setattr(rgetattr(obj, pre_attr) if pre_attr else obj, post_attr, value)
-
-def rgetattr(obj:Any, attr:Any, *args)->Any:
-    # Copyright @ https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
-    def _getattr(obj:Any, attr:Any)->Any:
-        return getattr(obj, attr, *args)
-
-    return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 def attr_to_dict(obj:Any, recursive:bool=True)->Dict[str, Any]:
     MAX_LIST_LEN = 10

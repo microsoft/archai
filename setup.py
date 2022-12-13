@@ -9,6 +9,7 @@ with open("README.md", "r", encoding="utf_8") as f:
 install_requires = [
     "coloredlogs>=15.0.1",
     "datasets>=2.4.0",
+    "evaluate>=0.3.0",
     "ftfy>=6.1.1",
     "gorilla>=0.4.0",
     "h5py>=3.7.0",
@@ -16,8 +17,8 @@ install_requires = [
     "kaleido>=0.2.1",
     "matplotlib>=3.5.3",
     "nvdllogger>=1.0.0",
-    "onnx==1.10.2",
-    "onnxruntime==1.10.0",
+    "onnx>=1.10.2",
+    "onnxruntime>=1.10.0",
     "overrides==3.1.0",
     "plotly>=5.10.0",
     "psutil>=5.9.1",
@@ -35,14 +36,22 @@ install_requires = [
     "sympy>=1.10.1",
     "tensorboard>=2.10.0",
     "tensorwatch>=0.9.1",
-    "tokenizers>=0.10.3, <=0.12.1",
+    "tokenizers>=0.10.3",
     "tqdm>=4.64.0",
-    "transformers>=4.16.2, <=4.20.1",
-    "torchvision"
+    "transformers>=4.25.1",
+    "torchvision",
 ]
 
 extras_require = {
-    "docs": ["sphinx>=4.1.2", "sphinx-book-theme>=0.3.3", "sphinx-sitemap>=2.2.0", "sphinxcontrib-programoutput>=0.17", "sphinxcontrib-mermaid>=0.7.1", "sphinx_inline_tabs>=2021.3.28b7", "sphinx-git>=11.0.0"],
+    "docs": [
+        "sphinx>=4.1.2",
+        "sphinx-book-theme>=0.3.3",
+        "sphinx-sitemap>=2.2.0",
+        "sphinxcontrib-programoutput>=0.17",
+        "sphinxcontrib-mermaid>=0.7.1",
+        "sphinx_inline_tabs>=2021.3.28b7",
+        "sphinx-git>=11.0.0",
+    ],
     "tests": ["pytest>=6.2.4"],
 }
 
