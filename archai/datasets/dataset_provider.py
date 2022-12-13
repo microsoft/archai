@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, Tuple, Type, Optional
+from typing import Dict, Tuple, Type, Optional, Union
 from abc import abstractmethod
 
 from overrides import overrides, EnforceOverrides
@@ -13,6 +13,7 @@ from ..common.config import Config
 
 
 TrainTestDatasets = Tuple[Optional[Dataset], Optional[Dataset]]
+ImgSize = Optional[Union[int, Tuple[int, int]]]
 
 class DatasetProvider(EnforceOverrides):
     def __init__(self, conf_dataset:Config):
@@ -25,7 +26,7 @@ class DatasetProvider(EnforceOverrides):
         pass
 
     @abstractmethod
-    def get_transforms(self)->tuple: # of transforms
+    def get_transforms(self, img_size:ImgSize)->tuple: # of transforms
         pass
 
 DatasetProviderType = type(DatasetProvider)

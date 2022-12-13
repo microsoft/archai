@@ -1,86 +1,65 @@
-archai.algos.divnas package
-===========================
+DivNAS
+======
 
-Submodules
-----------
-
-archai.algos.divnas.analyse\_activations module
------------------------------------------------
+Activations Analyser
+--------------------
 
 .. automodule:: archai.algos.divnas.analyse_activations
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.divnas.divnas\_cell module
----------------------------------------
+Cell
+----
 
 .. automodule:: archai.algos.divnas.divnas_cell
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.divnas.divnas\_exp\_runner module
-----------------------------------------------
+Experiment Runner
+-----------------
 
 .. automodule:: archai.algos.divnas.divnas_exp_runner
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.divnas.divnas\_finalizers module
----------------------------------------------
+Finalizers
+----------
 
 .. automodule:: archai.algos.divnas.divnas_finalizers
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.divnas.divnas\_model\_desc\_builder module
--------------------------------------------------------
+Model Description Builder
+-------------------------
 
 .. automodule:: archai.algos.divnas.divnas_model_desc_builder
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.divnas.divnas\_rank\_finalizer module
---------------------------------------------------
+Rank Finalizer
+--------------
 
 .. automodule:: archai.algos.divnas.divnas_rank_finalizer
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.divnas.divop module
---------------------------------
+Div-Based Operations
+--------------------
 
 .. automodule:: archai.algos.divnas.divop
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.divnas.seqopt module
----------------------------------
+Sequential Operations
+---------------------
 
 .. automodule:: archai.algos.divnas.seqopt
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.divnas.wmr module
-------------------------------
+Randomized Weighted Majority
+----------------------------
 
 .. automodule:: archai.algos.divnas.wmr
    :members:
    :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: archai.algos.divnas
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -103,7 +103,11 @@ class Metrics:
         assert len(x)==len(y) and len(y)==len(logits) and len(loss.shape)==0
         # update metrics after optimizer step
         batch_size = x.size(0)
-        top1, top5 = ml_utils.accuracy(logits, y, topk=(1, 5))
+
+        # NOTE: This is going to be a silent bug when we have a 
+        # dataset which actually has >5 classes
+        top1, top5 = ml_utils.accuracy(logits, y, topk=(1, 1))
+        #top1, top5 = ml_utils.accuracy(logits, y, topk=(1, 5))
 
         epoch = self.run_metrics.cur_epoch()
         epoch.post_step(top1.item(), top5.item(),

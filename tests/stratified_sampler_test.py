@@ -37,15 +37,15 @@ def _dist_no_val(rep_count:int, data_len=1000, labels_len=2, val_ratio=0.0):
     train_samplers, val_samplers = [], []
     for i in range(rep_count):
         train_samplers.append(DistributedStratifiedSampler(dataset,
-                                                     num_replicas=rep_count,
-                                                     rank=i,
-                                                     val_ratio=val_ratio,
-                                                     is_val=False))
+                                                           world_size=rep_count,
+                                                           rank=i,
+                                                           val_ratio=val_ratio,
+                                                           is_val=False))
         val_samplers.append(DistributedStratifiedSampler(dataset,
-                                                     num_replicas=rep_count,
-                                                     rank=i,
-                                                     val_ratio=val_ratio,
-                                                     is_val=True))
+                                                         world_size=rep_count,
+                                                         rank=i,
+                                                         val_ratio=val_ratio,
+                                                         is_val=True))
     tl = [list(iter(s)) for s in train_samplers]
     vl = [list(iter(s)) for s in val_samplers]
 
@@ -91,7 +91,7 @@ def test_combinations():
     print('elapsed', elapsed, 'combs', combs)
 
 def imagenet_test():
-    conf = Config('confs/algos/darts.yaml;confs/datasets/imagenet.yaml',)
+    conf = Config('benchmarks/confs/algos/darts.yaml;benchmarks/confs/datasets/imagenet.yaml',)
     conf_loader = conf['nas']['eval']['loader']
     data_loaders = data.get_data(conf_loader)
 

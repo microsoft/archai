@@ -39,7 +39,13 @@ install_requires = [
     "tokenizers>=0.10.3, <=0.12.1",
     "tqdm>=4.64.0",
     "transformers>=4.25.1",
+    "torchvision"
 ]
+
+extras_require = {
+    "docs": ["sphinx>=4.1.2", "sphinx-book-theme>=0.3.3", "sphinx-sitemap>=2.2.0", "sphinxcontrib-programoutput>=0.17", "sphinxcontrib-mermaid>=0.7.1", "sphinx_inline_tabs>=2021.3.28b7", "sphinx-git>=11.0.0"],
+    "tests": ["pytest>=6.2.4"],
+}
 
 setup(
     name="archai",
@@ -47,9 +53,11 @@ setup(
     description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    author="Microsoft",
     url="https://github.com/microsoft/archai",
     license="MIT",
     install_requires=install_requires,
+    extras_require=extras_require,
     packages=find_packages(),
     include_package_data=True,
     classifiers=[

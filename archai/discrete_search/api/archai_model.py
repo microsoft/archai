@@ -30,23 +30,3 @@ class ArchaiModel():
 
     def __str__(self):
         return repr(self)
-
-# from abc import abstractmethod
-# from overrides import EnforceOverrides
-
-
-# class ArchaiModel(EnforceOverrides):
-  
-#     @property
-#     @abstractmethod
-#     def archid(self) -> str:
-#         ''' Returns the model architecture identifier. ''' 
-
-#     @abstractmethod
-#     def load_weights(self, file: str) -> None:
-#         ''' Loads model weights from `file`  ''' 
-
-#     @abstractmethod
-#     def save_weights(self, file: str) -> None:
-#         ''' Saves current model weights to `file` ''' 
-

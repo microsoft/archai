@@ -5,55 +5,65 @@ import os
 import sys
 from datetime import date
 
+
 # Adds path to local extension
-sys.path.insert(0, os.path.abspath('../archai'))
+sys.path.insert(0, os.path.abspath(".."))
 
 # Project information
-project = 'Archai'
-author = 'Microsoft'
-copyright = f'{date.today().year}, {author}'
+project = "Archai"
+author = "Microsoft"
+copyright = f"{date.today().year}"
+version = "v0.6.9"
 
 # General configuration
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.extlinks',
-    'sphinx.ext.viewcode',
-    'myst_parser',
-    'sphinx_sitemap',
-    'sphinxcontrib.programoutput',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx_sitemap",
+    "sphinxcontrib.programoutput",
+    "sphinxcontrib.mermaid",
+    "sphinx_inline_tabs",
+    "sphinx_git",
+    "nbsphinx"
 ]
-
-myst_enable_extensions = [
-    'colon_fence',
-    'deflist',
-    'replacements',
-    'substitution'
-]
-
 exclude_patterns = [
-    'confs/**',
-    'dockers/**',
-    'models/**',
-    'scripts/**',
-    'tests/**',
-    'tools/**',
+    "benchmarks/**",
+    "devices/**",
+    "devops/**",
+    "docker/**",
+    "scripts/**",
+    "tests/**",
 ]
-
-autodoc_member_order = 'bysource'
+extlinks = {
+    "github": ("https://github.com/microsoft/archai/tree/master/%s", "%s") 
+}
+source_suffix = ".rst"
+master_doc = "index"
+language = "en"
 
 # Options for HTML output
 html_title = project
-html_theme = 'sphinx_rtd_theme'
-html_logo = 'assets/img/logo.png'
-html_favicon = 'assets/img/favicon.ico'
-
-html_last_updated_fmt = ''
-html_static_path = ['assets']
-html_css_files = ['css/custom.css']
-
+html_theme = "sphinx_book_theme"
+html_logo = "assets/img/logo.png"
+html_favicon = "assets/img/favicon.ico"
+html_last_updated_fmt = ""
+html_static_path = ["assets"]
+html_css_files = ["css/custom.css"]
 html_theme_options = {
-    "collapse_navigation": False,
-    "display_version": True,
+    "repository_url": "https://github.com/microsoft/archai",
+    "use_issues_button": True,
+    "use_edit_page_button": True,
+    "use_download_button": False,
+    "use_fullscreen_button": False,
+    "use_repository_button": True,
     "logo_only": True,
+    "show_navbar_depth": 1,
+    "toc_title": "Sections",
 }
+
+# Autodoc
+autodoc_default_options = {"exclude-members": "__weakref__"}
+autodoc_member_order = "bysource"

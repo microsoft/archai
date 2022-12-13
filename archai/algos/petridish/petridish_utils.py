@@ -29,6 +29,10 @@ class JobStage(Enum):
     EVAL = 5
     EVAL_TRAINED = 6
 
+class ExperimentStage(Enum):
+    SEARCH = 1
+    EVAL = 2
+
 class ConvexHullPoint:
     def __init__(self, job_stage:JobStage, parent_id:int,
                  sampling_count:int,
@@ -323,14 +327,15 @@ def _test_convex_hull_insert():
     plt.savefig(os.path.join('./temp', 'debug', 'convex_hull_insert.png'),
         dpi=plt.gcf().dpi, bbox_inches='tight')
 
-def model_descs_on_front(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
-                         lower_hull:bool=True)\
+def model_descs_on_front(hull_points:List[ConvexHullPoint], convex_hull_eps:float, 
+                         stage:ExperimentStage, lower_hull:bool=True)\
         ->Tuple[List[ConvexHullPoint], List[ConvexHullPoint], List[float], List[float]]:
     assert(len(hull_points) > 0)
 
+    top1_list = get_top1_for_stage(hull_points, stage)
+    
     xs = [point.model_stats.MAdd for point in hull_points]
-    ys = [1.0-point.metrics.best_val_top1() if lower_hull else point.metrics.best_val_top1()
-            for point in hull_points]
+    ys = [1.0-top1 if lower_hull else top1 for top1 in top1_list]
 
     hull_indices, eps_indices = _convex_hull_from_points(xs, ys, eps=convex_hull_eps)
     eps_points = [hull_points[i] for i in eps_indices]
@@ -345,6 +350,7 @@ def hull_points2tsv(points:List[ConvexHullPoint])->str:
                         'mread', 'mwrite',
                         'inference_memory', 'parameters',
                         'train_best_epoch', 'train_best_top1',
+                        'val_best_epoch', 'val_best_top1',
                         'test_best_epoch', 'test_best_top1',
                         'paent_id', 'sampling_count'])]
 
@@ -370,6 +376,11 @@ def hull_points2tsv(points:List[ConvexHullPoint])->str:
             vals.extend([val_metrics.index, val_metrics.top1.avg])
         else:
             vals.extend([math.nan, math.nan])
+        if test_metrics:
+            vals.extend([test_metrics.index, test_metrics.top1.avg])
+        else:
+            vals.extend([math.nan, math.nan])
+
 
         # other attributes
         vals.extend([p.parent_id, p.sampling_count])
@@ -379,9 +390,10 @@ def hull_points2tsv(points:List[ConvexHullPoint])->str:
 
     return '\n'.join(lines)
 
-def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float)->ConvexHullPoint:
+def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float, 
+                     stage:ExperimentStage=ExperimentStage.SEARCH)->ConvexHullPoint:
     front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
-        convex_hull_eps)
+        convex_hull_eps, stage)
 
     logger.info(f'num models in pool: {len(hull_points)}')
     logger.info(f'num models on front: {len(front_points)}')
@@ -429,18 +441,30 @@ def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float)->
 
     return sampled_point
 
-def plot_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
-                   expdir:str)->None:
-    front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
-        convex_hull_eps)
+def get_top1_for_stage(hull_points:List[ConvexHullPoint], stage:ExperimentStage)->List[float]:
+    '''Return top1 accuracy according to the experiment stage (SEARCH or EVAL)'''
 
+    if stage == ExperimentStage.SEARCH:
+        top1_list = [point.metrics.best_val_top1() for point in hull_points]
+    else:
+        top1_list = [point.metrics.best_test_top1() for point in hull_points]
+
+    return top1_list
+
+def plot_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
+                   expdir:str, stage:ExperimentStage=ExperimentStage.SEARCH)->None:
+    front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
+        convex_hull_eps, stage)
+
+    top1_list_front = get_top1_for_stage(front_points, stage)
+    top1_list_eps = get_top1_for_stage(eps_points, stage)
+    
     # save a plot of the convex hull to aid debugging
 
     hull_xs = [p.model_stats.MAdd for p in eps_points]
-    hull_ys = [1.0-p.metrics.best_val_top1() for p in eps_points]
+    hull_ys = [1.0-top1 for top1 in top1_list_eps]
     bound_xs = [p.model_stats.MAdd for p in front_points]
-    bound_ys = [(1.0-p.metrics.best_val_top1()) * (1+convex_hull_eps) \
-                for p in front_points]
+    bound_ys = [(1.0-top1) * (1+convex_hull_eps) for top1 in top1_list_front]
 
     # for easier interpretation report everything in million increments
     xs_m = [x/1e6 for x in xs]
@@ -457,18 +481,19 @@ def plot_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
     plt.savefig(os.path.join(expdir, 'convex_hull.png'),
         dpi=plt.gcf().dpi, bbox_inches='tight')
 
-def plot_pool(hull_points:List[ConvexHullPoint], expdir:str)->None:
+def plot_pool(hull_points:List[ConvexHullPoint], expdir:str,
+              stage:ExperimentStage=ExperimentStage.SEARCH)->None:
+
     assert(len(hull_points) > 0)
 
     xs_madd = []
     xs_flops = []
     xs_params = []
-    ys = []
+    ys = get_top1_for_stage(hull_points, stage)
     for p in hull_points:
         xs_madd.append(p.model_stats.MAdd)
         xs_flops.append(p.model_stats.Flops)
         xs_params.append(p.model_stats.parameters)
-        ys.append(p.metrics.best_val_top1())
 
     # for easier interpretation report everything in million increments
     xs_madd_m = [x/1e6 for x in xs_madd]
@@ -514,13 +539,14 @@ def plot_seed_model_stats(seed_model_stats:List[ModelStats], expdir:str)->None:
 
 
 def save_hull_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
-               final_desc_foldername:str, expdir:str)->ConvexHullPoint:
+               final_desc_foldername:str, expdir:str, stage:ExperimentStage=ExperimentStage.SEARCH)->ConvexHullPoint:
     # make folder to save gallery of models after search
     final_desc_dir = utils.full_path(final_desc_foldername, create=True)
 
     # save the front on hull
     front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
-                                                            convex_hull_eps)
+                                                            convex_hull_eps,
+                                                            stage)
     for i, eps_point in enumerate(eps_points):
         # save readable model desc yaml
         eps_point.model_desc.save(os.path.join(final_desc_dir, f'model_desc_{i}.yaml'))

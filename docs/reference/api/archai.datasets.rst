@@ -1,71 +1,57 @@
-archai.datasets package
-=======================
-
-Subpackages
------------
+Datasets
+========
 
 .. toctree::
-   :maxdepth: 4
-
+   :maxdepth: 2
+   
    archai.datasets.providers
    archai.datasets.transforms
 
-Submodules
-----------
-
-archai.datasets.aug\_policies module
-------------------------------------
+Augmentation Policies
+---------------------
 
 .. automodule:: archai.datasets.aug_policies
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.datasets.augmentation module
------------------------------------
+Augmentations
+-------------
 
 .. automodule:: archai.datasets.augmentation
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.datasets.data module
----------------------------
+Data
+----
 
 .. automodule:: archai.datasets.data
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.datasets.dataset\_provider module
-----------------------------------------
+Dataset Provider
+----------------
 
 .. automodule:: archai.datasets.dataset_provider
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.datasets.distributed\_stratified\_sampler module
--------------------------------------------------------
+Distributed Stratified Sampler
+------------------------------
 
 .. automodule:: archai.datasets.distributed_stratified_sampler
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.datasets.limit\_dataset module
--------------------------------------
+Limit Dataset
+-------------
 
 .. automodule:: archai.datasets.limit_dataset
    :members:
    :undoc-members:
-   :show-inheritance:
 
+Meta Dataset
+------------
 
-Module contents
----------------
-
-.. automodule:: archai.datasets
+.. automodule:: archai.datasets.meta_dataset
    :members:
    :undoc-members:
-   :show-inheritance:

@@ -284,4 +284,3 @@ class ApexUtils:
         if self.is_mixed():
             self._amp.load_state_dict(state_dict)
 
-

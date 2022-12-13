@@ -29,9 +29,9 @@ jobs:
       - name: Installs the requirements
         shell: bash -l {0}
         run: |
-          python -m pip install --user -e .
-          cd docs
-          python -m pip install --user -r requirements.txt
+          python -m pip install --user -e .[docs]
+          python -m pip install nbsphinx
+          sudo apt install pandoc -y
       - name: Builds the documentation
         shell: bash -l {0}
         run: |

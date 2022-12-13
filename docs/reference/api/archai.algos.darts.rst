@@ -1,62 +1,44 @@
-archai.algos.darts package
-==========================
+DARTS
+=====
 
-Submodules
-----------
-
-archai.algos.darts.bilevel\_arch\_trainer module
-------------------------------------------------
+Bi-Level Architecture Trainer
+------------------------------
 
 .. automodule:: archai.algos.darts.bilevel_arch_trainer
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.darts.bilevel\_optimizer module
---------------------------------------------
+Bi-Level Optimizer
+------------------
 
 .. automodule:: archai.algos.darts.bilevel_optimizer
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.darts.bilevel\_optimizer\_slow module
---------------------------------------------------
+Bi-Level Optimizer (Slow)
+-------------------------
 
 .. automodule:: archai.algos.darts.bilevel_optimizer_slow
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.darts.darts\_exp\_runner module
---------------------------------------------
+Experiment Runner
+-----------------
 
 .. automodule:: archai.algos.darts.darts_exp_runner
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.darts.darts\_model\_desc\_builder module
------------------------------------------------------
+Model Description Builder
+-------------------------
 
 .. automodule:: archai.algos.darts.darts_model_desc_builder
    :members:
    :undoc-members:
-   :show-inheritance:
 
-archai.algos.darts.mixed\_op module
------------------------------------
+Mixed Operators
+---------------
 
 .. automodule:: archai.algos.darts.mixed_op
    :members:
    :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: archai.algos.darts
-   :members:
-   :undoc-members:
-   :show-inheritance:
