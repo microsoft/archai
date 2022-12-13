@@ -30,7 +30,9 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest nbval
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        sudo apt install -y graphviz
         python -m pip install .
+        python -m pip install graphviz
     - name: Run base tests
       run: |
         pytest tests
