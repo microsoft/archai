@@ -6,9 +6,13 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "archai/**"
   pull_request:
     branches:
       - master
+    paths:
+      - "archai/**"
 
 jobs:
   build:
