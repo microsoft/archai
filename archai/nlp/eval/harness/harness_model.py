@@ -200,7 +200,9 @@ class HarnessModel:
 
         return self.decode(generated_tokens)
 
-    def log_likelihood(self, context: str, target: str, return_exact_match: Optional[bool] = False) -> Union[float, Tuple[float, bool]]:
+    def log_likelihood(
+        self, context: str, target: str, return_exact_match: Optional[bool] = False
+    ) -> Union[float, Tuple[float, bool]]:
         """Computes the log-likelihood of generating a target from context.
 
         Args:

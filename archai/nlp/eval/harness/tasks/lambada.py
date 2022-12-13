@@ -8,10 +8,7 @@ https://arxiv.org/pdf/1606.06031.pdf
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from archai.nlp.eval.harness.harness_task import HarnessTask
-from archai.nlp.eval.harness.harness_utils import (
-    HarnessCall,
-    call_factory,
-)
+from archai.nlp.eval.harness.harness_utils import HarnessCall, call_factory
 
 
 class LambadaHarnessTask(HarnessTask):
@@ -65,5 +62,20 @@ class LambadaHarnessTask(HarnessTask):
 class LambadaOpenAIHarnessTask(LambadaHarnessTask):
     """Defines the LAMBADA task (OpenAI version)."""
 
-    def __init__(self, dataset_split: Optional[Union[str, List[str]]] = None, dataset_cache: Optional[str] = None, dataset_samples: Optional[int] = -1, random_seed: Optional[int] = 42, num_proc: Optional[int] = None) -> None:
-        super().__init__(dataset_name="craffel/openai_lambada", dataset_config_name=None, dataset_split=dataset_split, dataset_cache=dataset_cache, dataset_samples=dataset_samples, random_seed=random_seed, num_proc=num_proc)
+    def __init__(
+        self,
+        dataset_split: Optional[Union[str, List[str]]] = None,
+        dataset_cache: Optional[str] = None,
+        dataset_samples: Optional[int] = -1,
+        random_seed: Optional[int] = 42,
+        num_proc: Optional[int] = None,
+    ) -> None:
+        super().__init__(
+            dataset_name="craffel/openai_lambada",
+            dataset_config_name=None,
+            dataset_split=dataset_split,
+            dataset_cache=dataset_cache,
+            dataset_samples=dataset_samples,
+            random_seed=random_seed,
+            num_proc=num_proc,
+        )
