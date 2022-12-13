@@ -12,8 +12,8 @@ from overrides import overrides
 
 from torch.utils.data import Dataset, Subset
 
-from archai.discrete_search.datasets.dataset_provider import DatasetProvider
-from archai.datasets.providers.lmdb_image_provider import TensorpackLmdbImageDataset
+from archai.datasets.dataset_provider import DatasetProvider
+from archai.discrete_search.datasets.lmdb_image_provider import TensorpackLmdbImageDataset
 
 
 class MultiTensorpackLmdbImageProvider(DatasetProvider):
@@ -56,22 +56,22 @@ class MultiTensorpackLmdbImageProvider(DatasetProvider):
         for k in ['img_key', 'tr_lmdb']:
             assert all(k in d for d in self.datasets), f'`{k}` must be specified for all datasets'
 
+    # def get_train_val_datasets(self) -> Tuple[Dataset, Dataset]:
+    #     tr_d = torch.utils.data.ConcatDataset([
+    #         TensorpackLmdbImageDataset(
+    #             str(self._dataroot / d['tr_lmdb']), **d, augmentation_fn=transform_train
+    #         ) for d in self.datasets
+    #     ])
+
+    #     te_d = torch.utils.data.ConcatDataset([
+    #         TensorpackLmdbImageDataset(
+    #             str(self._dataroot / d['te_lmdb']), **d, augmentation_fn=transform_test
+    #         ) for d in self.datasets
+    #     ])
+
+    #     return tr_d, te_d
+
     @overrides
-    def get_train_val_datasets(self) -> Tuple[Dataset, Dataset]:
-        tr_d = torch.utils.data.ConcatDataset([
-            TensorpackLmdbImageDataset(
-                str(self._dataroot / d['tr_lmdb']), **d, augmentation_fn=transform_train
-            ) for d in self.datasets
-        ])
-
-        te_d = torch.utils.data.ConcatDataset([
-            TensorpackLmdbImageDataset(
-                str(self._dataroot / d['te_lmdb']), **d, augmentation_fn=transform_test
-            ) for d in self.datasets
-        ])
-
-        return tr_d, te_d
-
     def get_train_val_datasets(self, transform_train: Optional[Callable] = None,
                                transform_val: Optional[Callable] = None) -> Tuple[Dataset, Dataset]:
         """Returns train and validation datasets using the `val_split` parameter."""

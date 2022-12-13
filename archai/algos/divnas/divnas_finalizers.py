@@ -101,7 +101,7 @@ class DivnasFinalizers(Finalizers):
     @overrides
     def finalize_node(self, node:nn.ModuleList, node_index:int,
                       node_desc:NodeDesc, max_final_edges:int,
-                      *args, **kwargs)->NodeDesc:
+                      cov, *args, **kwargs)->NodeDesc:
         # node is a list of edges
         assert len(node) >= max_final_edges
 

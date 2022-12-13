@@ -236,8 +236,8 @@ def train_and_eval(conf, val_ratio, val_fold, save_path, only_eval,
     best_top1, best_valid_loss = 0, 10.0e10
     max_epoch = epochs
     for epoch in range(epoch_start, max_epoch + 1):
-        if horovod:
-            trainsampler.set_epoch(epoch)
+        # if horovod:
+        #     trainsampler.set_epoch(epoch)
 
         # run train epoch and update the model
         model.train()
