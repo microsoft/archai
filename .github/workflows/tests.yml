@@ -31,13 +31,13 @@ jobs:
         python -m pip install flake8 pytest nbval
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         python -m pip install .
-    - name: Runs tests
+    - name: Run base tests
       run: |
         pytest tests
-    - name: Runs tests for notebook examples
+    - name: Test documentation notebooks
       run: |
         pytest --nbval-lax docs/basic_guide/discrete_search
-    - name: Catches Python syntax errors and undefined names
+    - name: Python syntax errors and undefined names
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
