@@ -10,6 +10,9 @@ import torchvision
 from torchvision.transforms import transforms
 from torch.utils.data.dataset import Dataset
 from torchvision.datasets.utils import check_integrity, download_url
+from archai.common.utils import download_and_extract_tar, extract_tar
+from archai.common.common import logger
+
 
 
 _ARCHIVE_DICT = {

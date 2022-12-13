@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from archai.discrete_search import AsyncObjective, Objective, ArchaiModel, DiscreteSearchSpace
-from archai.discrete_search.algos.utils.multi_objective import _find_pareto_frontier_points, get_pareto_frontier
+from archai.discrete_search.utils.multi_objective import _find_pareto_frontier_points, get_pareto_frontier
 
 
 class SearchResults():

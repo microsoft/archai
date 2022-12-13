@@ -51,7 +51,7 @@ class SearchObjectives():
             'higher_is_better': higher_is_better,
             'constraint': constraint or [-float('-inf'), float('+inf')],
             'proxy': False
-        })
+        }
 
         if proxy_constraint:
             proxy_objective, *p_constraint = proxy_constraint
