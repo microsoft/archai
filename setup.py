@@ -44,6 +44,7 @@ install_requires = [
 
 extras_require = {
     "docs": [
+        "nbsphinx>=0.8.10",
         "sphinx>=4.1.2",
         "sphinx-book-theme>=0.3.3",
         "sphinx-sitemap>=2.2.0",
@@ -52,7 +53,11 @@ extras_require = {
         "sphinx_inline_tabs>=2021.3.28b7",
         "sphinx-git>=11.0.0",
     ],
-    "tests": ["pytest>=6.2.4"],
+    "tests": [
+        "flake8>=5.0.4",
+        "nbval>=0.9.6",
+        "pytest>=6.2.4"
+    ],
 }
 
 setup(
