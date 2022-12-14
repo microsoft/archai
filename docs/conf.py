@@ -27,7 +27,7 @@ extensions = [
     "sphinxcontrib.mermaid",
     "sphinx_inline_tabs",
     "sphinx_git",
-    "nbsphinx"
+    "nbsphinx",
 ]
 exclude_patterns = [
     "benchmarks/**",
@@ -67,3 +67,7 @@ html_theme_options = {
 # Autodoc
 autodoc_default_options = {"exclude-members": "__weakref__"}
 autodoc_member_order = "bysource"
+
+# Disables `nbsphinx` require.js to avoid
+# conflicts with `sphinxcontrib.mermaid`
+nbsphinx_requirejs_path = ""
