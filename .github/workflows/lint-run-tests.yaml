@@ -37,12 +37,6 @@ jobs:
           sudo apt install -y graphviz
           python -m pip install --user -e .[tests]
           python -m pip install graphviz
-      - name: Runs unitary tests
-        run: |
-          pytest tests
-      - name: Tests documentation notebooks
-        run: |
-          pytest --nbval-lax docs/basic_guide/discrete_search
       - name: Finds Python syntax errors and undefined names
         run: |
           # Stops the build if there are Python syntax errors or undefined names
@@ -51,3 +45,9 @@ jobs:
         run: |
           # Exit-zero treats all errors as warnings (GitHub editor is 127 chars wide)
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Runs unitary tests
+        run: |
+          pytest tests
+      - name: Tests documentation notebooks
+        run: |
+          pytest --nbval-lax docs/basic_guide/discrete_search
