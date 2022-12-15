@@ -1,7 +1,7 @@
-Discrete Search Tutorials
-==============================
+Discrete Search
+===============
 
-This page is under development
+This page is under development.
 
 .. toctree::
    :hidden:
