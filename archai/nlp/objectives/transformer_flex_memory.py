@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Transformer-Flex memory-related objectives.
-"""
+"""Transformer-Flex memory-related objectives."""
 
 import copy
 import os
@@ -22,7 +21,7 @@ from archai.nlp.search_spaces.transformer_flex.search_space import (
 
 
 class TransformerFlexOnnxMemory(Objective):
-    """Implements a Transformer-Flex ONNX memory objective."""
+    """Implement a Transformer-Flex ONNX memory objective."""
 
     higher_is_better: bool = False
 
@@ -30,10 +29,27 @@ class TransformerFlexOnnxMemory(Objective):
         self,
         search_space: TransformerFlexSearchSpace,
     ) -> None:
+        """Initialize the `TransformerFlexOnnxMemory` instance.
+
+        Args:
+            search_space: The search space to use for loading the model.
+
+        """
+
         assert search_space.arch_type in ["gpt2", "gpt2-flex"]
         self.search_space = search_space
 
     def _load_and_prepare(self, config: Dict[str, Any]) -> torch.nn.Module:
+        """Load and prepare a model for ONNX conversion.
+
+        Args:
+            config: The configuration to use for loading the model.
+
+        Returns:
+            The prepared model, ready for ONNX conversion.
+
+        """
+
         config = copy.deepcopy(config)
         config["use_cache"] = True
 

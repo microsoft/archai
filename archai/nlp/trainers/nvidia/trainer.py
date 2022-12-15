@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Customizable trainer using NVIDIA-based pipeline.
-"""
+"""Customizable trainer using NVIDIA-based pipeline."""
 
 import copy
 import itertools
@@ -43,7 +42,17 @@ def save_checkpoint(
     save_all_checkpoints: Optional[bool] = False,
     is_best_model: Optional[bool] = False,
 ) -> None:
-    """Saves a checkpoint that holds enough information to resume the training.
+    """Save a checkpoint that holds enough information to resume the training.
+
+    The checkpoint contains the model's configuration and state, the optimizer's state,
+    the scheduler's state, the scaler's state (if FP16 precision is used),
+    and the trainer's state.
+
+    If `is_best_model` is `True`, the function will also save a copy of the checkpoint
+    with the prefix "checkpoint-best".
+
+    If `save_all_checkpoints` is `True`, the function will also save a copy of the checkpoint
+    with the step number in the file name.
 
     Args:
         output_dir: Folder where checkpoint should be saved.
@@ -93,18 +102,19 @@ def save_checkpoint(
 
 
 class NvidiaTrainer:
-    """Implements an NVIDIA-based trainer."""
+    """Implement an NVIDIA-based trainer."""
 
     def __init__(
         self,
         model: torch.nn.Module,
         args: Optional[NvidiaTrainingArguments] = None,
     ) -> None:
-        """Initializes by verifying model and training arguments, and loading dataset.
+        """Initialize by verifying the model and training arguments, and loading dataset.
 
         Args:
             model: Model to be trained or evaluated.
-            args: NVIDIA-based training arguments.
+            args: NVIDIA-based training arguments. If not provided, a default instance
+                of `NvidiaTrainingArguments` will be used.
 
         """
 
@@ -137,13 +147,13 @@ class NvidiaTrainer:
         }
 
     def load_checkpoint(self, checkpoint_file_path: str) -> Tuple[int, int, int, int]:
-        """Loads states from checkpoint.
+        """Load states from a checkpoint file.
 
         Args:
-            checkpoint_file_path: Path to the checkpoint.
+            checkpoint_file_path: Path to the checkpoint file.
 
         Returns:
-            (Tuple[int, int, int, int]): Current iterator, epoch, batch and step values.
+            Current iterator, epoch, batch, and step values.
 
         """
 
@@ -169,13 +179,13 @@ class NvidiaTrainer:
             return 0, 0, 0, 0
 
     def get_dataloader(self, split: str) -> Iterator:
-        """Gets a data loader from the pre-loaded dataset.
+        """Return a data loader from the pre-loaded dataset.
 
         Args:
             split: Split of dataset to be retrieved as data loader.
 
         Returns:
-            (Iterator): An instance of data loader/iterator based on the loaded dataset.
+            An instance of data loader/iterator based on the loaded dataset.
 
         """
 
@@ -187,7 +197,12 @@ class NvidiaTrainer:
         )
 
     def create_optimizer(self) -> None:
-        """Creates an optimizer and attaches model's parameters."""
+        """Create an optimizer and attaches model's parameters.
+
+        Raises:
+            NotImplementedError: If the optimizer name is not supported.
+
+        """
 
         optimizer_name = self.args.optim.lower()
         if optimizer_name == "sgd":
@@ -210,14 +225,14 @@ class NvidiaTrainer:
             raise NotImplementedError(f"Optimizer: {self.args.optim} is not implemented yet.")
 
     def create_scaler(self) -> None:
-        """Creates an automatic gradient scaler to support FP16 precision."""
+        """Create an automatic gradient scaler to support FP16 precision."""
 
         self.scaler = None
         if self.args.fp16:
             self.scaler = torch.cuda.amp.GradScaler()
 
     def create_scheduler(self) -> None:
-        """Creates a learning rate scheduler."""
+        """Create a learning rate scheduler."""
 
         scheduler_name = self.args.lr_qat_scheduler_type if self.args.qat else self.args.lr_scheduler_type
         if scheduler_name == "cosine":
@@ -256,7 +271,7 @@ class NvidiaTrainer:
             pass
 
     def setup_qat(self) -> None:
-        """Setups whether Quantization Aware Training (QAT) should be used or not."""
+        """Setup whether Quantization Aware Training (QAT) should be used."""
 
         if self.args.qat:
             self.model = prepare_with_qat(self.model, onnx_compatible=True)
@@ -265,7 +280,7 @@ class NvidiaTrainer:
             self.model = MixedQAT(self.model)
 
     def setup_distributed_training(self) -> None:
-        """Setups distributed training."""
+        """Setup distributed training."""
 
         self.dist_model = self.model
 
@@ -284,16 +299,16 @@ class NvidiaTrainer:
     def training_step_chunk(
         self, input_ids: torch.LongTensor, labels: torch.LongTensor, autocast: torch.autocast
     ) -> float:
-        """Performs the training of a single chunk.
+        """Perform the training step of a single chunk.
 
         Args:
-            input_ids: Chunk of input data.
-            labels: Chunk of input labels.
+            input_ids: Input data chunk.
+            labels: Input labels chunk.
             autocast: An autocast instance that automatically performs
                 fp16 or bf16 precision.
 
         Returns:
-            (float): Chunk training loss.
+            Training loss chunk.
 
         """
 
@@ -317,14 +332,14 @@ class NvidiaTrainer:
         start_batch: int,
         step: int,
     ) -> None:
-        """Performs the training over the supplied data loaders.
+        """Perform the training over the supplied data loaders.
 
         Args:
             train_dataloader: Training data iterator.
             eval_dataloader: Validation data iterator.
             iterator: Current iterator.
             epoch: Current epoch.
-            start_batch: At which batch training should start.
+            start_batch: At which batch the training should start.
             step: Current step.
 
         """
@@ -342,7 +357,7 @@ class NvidiaTrainer:
         else:
             train_iterator = train_dataloader
 
-        # Supports `bf16` based on PyTorch version and CUDA availability
+        # Support `bf16` based on PyTorch version and CUDA availability
         autocast = torch.autocast(self.args.device.type, enabled=self.args.fp16)
         if version.parse(torch.__version__) >= version.parse("1.10"):
             dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
@@ -355,7 +370,7 @@ class NvidiaTrainer:
             for param in self.model.parameters():
                 param.grad = None
 
-            # Splits into chunks for gradient accumulation
+            # Split into chunks for gradient accumulation
             input_ids_chunks = torch.chunk(input_ids, self.args.gradient_accumulation_steps, 0)
             labels_chunks = torch.chunk(labels, self.args.gradient_accumulation_steps, 0)
 
@@ -470,12 +485,12 @@ class NvidiaTrainer:
                     save_model = qat_to_float_modules(save_model)
                     prefix = "qat-"
 
-                # Saves original FP32 model when using MixedQAT
+                # Save original FP32 model when using MixedQAT
                 if self.args.mixed_qat:
                     save_model = save_model.model
                     prefix = "mixed-qat-"
 
-                # Checks if current model is the best one
+                # Check if current model is the best one
                 is_best_model = eval_loss < best_eval_loss
                 if is_best_model:
                     best_eval_loss = eval_loss
@@ -500,14 +515,14 @@ class NvidiaTrainer:
         return step
 
     def train(self, checkpoint_file_path: Optional[str] = "") -> Dict[str, Any]:
-        """Trains a model.
+        """Train a model.
 
         Args:
             checkpoint_file_path: Path to the checkpoint that will be used
                 to resume the training.
 
         Returns:
-            (Dict[str, Any]): Training-related metrics.
+            Training-related metrics.
 
         """
 
@@ -554,13 +569,13 @@ class NvidiaTrainer:
         logger.info(f"Training time: {train_time:.3f} seconds")
 
     def evaluation_step(self, eval_dataloader: Iterator) -> Tuple[float, float]:
-        """Performs the evaluation over the supplied data loader.
+        """Perform the evaluation over the supplied data loader.
 
         Args:
             eval_dataloader: Evaluation-related data loader.
 
         Returns:
-            (Tuple[float, float]): Evaluation loss and time.
+            Evaluation loss and time.
 
         """
 
@@ -583,14 +598,14 @@ class NvidiaTrainer:
         return eval_loss, end_time - start_time
 
     def evaluate(self, eval_dataloader: Optional[Iterator] = None) -> Dict[str, Any]:
-        """Evaluates a model.
+        """Evaluate a model.
 
         Args:
             eval_dataloader: Evaluation-based data loader. If not supplied, it will
                 default to the one available in pre-loaded dataset.
 
         Returns:
-            (Dict[str, Any]): Evaluation-related metrics.
+            Evaluation-related metrics.
 
         """
 
@@ -609,10 +624,10 @@ class NvidiaTrainer:
         return eval_metrics
 
     def fine_tune_qat(self, model: Optional[torch.nn.Module] = None, checkpoint_file_path: Optional[str] = "") -> None:
-        """Fine-tunes a model with QAT.
+        """Fine-tune a model with QAT.
 
         Users are allowed to pass in a different model (e.g., without dropout) than the one
-        instantiated with NvidiaTrainer, as well as a pre-trained checkpoint file to load
+        instantiated with `NvidiaTrainer`, as well as a pre-trained checkpoint file to load
         the weights from a previous training.
 
         Args:
@@ -635,6 +650,6 @@ class NvidiaTrainer:
         self.args.qat = True
         self.args.mixed_qat = False
 
-        # Re-loads the checkpoint and performs the fine-tuning
+        # Re-load the checkpoint and perform the fine-tuning
         self.load_checkpoint(checkpoint_file_path)
         self.train()

@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT license.
+# Licensed under the MIT licen
 
-"""Customizable training arguments using NVIDIA-based pipeline.
-"""
+"""Customizable training arguments using NVIDIA-based pipeline."""
 
 import os
 from dataclasses import dataclass, field
@@ -16,7 +15,50 @@ from archai.nlp.datasets.nvidia import corpus_utils, distributed_utils
 
 @dataclass
 class NvidiaTrainingArguments:
-    """Implements a data class that defines arguments used in the NVIDIA training pipeline."""
+    """Define arguments used in the NVIDIA training pipeline.
+
+    Args:
+        experiment_name: Name of the experiment.
+        checkpoint_file_path: Path to the checkpoint file.
+        output_dir: Output folder.
+        seed: Random seed.
+        no_cuda: Whether CUDA should not be used.
+        logging_steps: Number of steps between logs.
+        do_eval: Whether to enable evaluation.
+        eval_steps: Number of steps between evaluations.
+        save_all_checkpoints: Whether to save all checkpoints from `eval_steps` steps.
+        dataset: Name of the dataset.
+        dataset_dir: Dataset folder.
+        dataset_cache_dir: Dataset cache folder.
+        dataset_refresh_cache: Whether cache should be refreshed.
+        vocab: Name of the tokenizer.
+        vocab_size: Size of the vocabulary.
+        iterator_roll: Whether iterator should be rolled.
+        global_batch_size: Global batch size.
+        per_device_global_batch_size: Individual GPU batch size.
+        seq_len: Sequence length.
+        strategy: Multi-GPU strategy.
+        local_rank: Local rank of process.
+        find_unused_parameters: Whether unused parameters should be found.
+        max_steps: Maximum number of training steps.
+        gradient_accumulation_steps: Number of gradient accumulation steps.
+        fp16: Whether FP16 precision should be used.
+        optim: Name of the optimizer.
+        learning_rate: Optimizer learning rate.
+        weight_decay: Optimizer weight decay.
+        momentum: Optimizer momentum.
+        max_grad_norm: Optimizer gradients clipping value.
+        lr_scheduler_type: Name of the scheduler.
+        lr_qat_scheduler_type: Name of the QAT-based scheduler.
+        lr_scheduler_max_steps: Maximum number of scheduler steps.
+        lr_scheduler_warmup_steps: Number of warmup steps for the scheduler.
+        lr_scheduler_patience: Scheduler patience.
+        lr_scheduler_min_lr: Scheduler minimum learning rate.
+        lr_scheduler_decay_rate: Scheduler decay rate.
+        qat: Whether QAT should be used during training.
+        mixed_qat: Whether MixedQAT should be used during training.
+
+    """
 
     experiment_name: str = field(metadata={"help": "Name of the experiment."})
 
@@ -100,17 +142,23 @@ class NvidiaTrainingArguments:
 
     @property
     def device(self) -> torch.device:
-        """PyTorch device.
+        """Return a PyTorch device instance.
 
         Returns:
-            (torch.device): Instance of PyTorch device class.
+            Instance of PyTorch device class.
 
         """
 
         return torch.device("cuda" if not self.no_cuda else "cpu")
 
     def __post_init__(self) -> None:
-        """Overrides post-initialization with custom instructions."""
+        """Override post-initialization with custom instructions.
+
+        Ensure that `qat` and `mixed_qat` are not used together, set the random seed,
+        initialize distributed training, create necessary directories,
+        and set the global batch size.
+
+        """
 
         assert not (self.qat and self.mixed_qat), "`qat` and `mixed_qat` should not be used together."
 
@@ -145,10 +193,10 @@ class NvidiaTrainingArguments:
             self.global_batch_size = world_size * self.per_device_global_batch_size
 
     def to_dict(self) -> Dict[str, Any]:
-        """Converts attributes into a dictionary representation.
+        """Convert attributes into a dictionary representation.
 
         Returns:
-            (Dict[str, Any]): Attributes encoded as a dictionary.
+            Attributes encoded as a dictionary.
 
         """
 
