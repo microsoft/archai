@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Parameters-related objectives.
-"""
+"""Parameters-related objectives."""
 
 from typing import List, Optional
 
@@ -13,15 +12,19 @@ from archai.discrete_search import ArchaiModel, DatasetProvider, Objective
 
 
 class TotalParamsProxy(Objective):
-    """Implements a total parameters objective."""
+    """Implement an objective that calculates the number of total parameters
+    of a PyTorch model.
+
+    """
 
     higher_is_better: bool = True
 
     def __init__(self, trainable_only: Optional[bool] = True) -> None:
-        """Calculates the number of total parameters of a torch model.
+        """Initialize the `TotalParamsProxy` instance.
 
         Args:
-            trainable_only: Only counts parameters with `param.requires_grad`. Defaults to `True`.
+            trainable_only: A flag indicating whether only trainable parameters
+                should be counted.
 
         """
 
@@ -37,16 +40,21 @@ class TotalParamsProxy(Objective):
 
 
 class NonEmbeddingParamsProxy(Objective):
-    """Implements a non-embedding parameters objective."""
+    """Implement an objective that calculates the number of non-embedding parameters
+    of a PyTorch model.
+
+    """
 
     higher_is_better: bool = True
 
     def __init__(self, exclude_cls: Optional[List[nn.Module]] = None, trainable_only: Optional[bool] = True) -> None:
-        """Calculates the number of non-embedding parameters of a torch model.
+        """Initialize the `NonEmbeddingParamsProxy` instance.
 
         Args:
-            exclude_cls: List of `nn.Module` classes to be ignored during parameter counting.
-            trainable_only: Only counts parameters with `param.requires_grad`. Defaults to `True`.
+            exclude_cls: A list of `nn.Module` classes to be ignored
+                during parameter counting.
+            trainable_only: A flag indicating whether only trainable parameters
+                should be counted.
 
         """
 

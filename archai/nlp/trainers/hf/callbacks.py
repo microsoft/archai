@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Customizable callbacks with huggingface/transformers.
-"""
+"""Customizable callbacks with huggingface/transformers."""
 
 import math
 from typing import Dict, Optional
@@ -12,33 +11,33 @@ from transformers.training_args import TrainingArguments
 
 
 class BPCTrainerCallback(TrainerCallback):
-    """Inherits from TrainerCallback and allows the output of bits per character values."""
+    """A `TrainerCallback` that adds bits per character metrics to the logs."""
 
     def __init__(self, *args, **kwargs) -> None:
-        """Overrides with custom arguments and keyword arguments."""
+        """Initialize the `BPCTrainerCallback` with custom arguments and keyword arguments."""
 
         super().__init__(*args, **kwargs)
 
     def on_log(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs) -> None:
-        """Provides a customizable flow when a log event is called.
+        """Add bits per character metrics to the training logs.
 
         Args:
-            args: Training arguments.
-            state: Trainer state.
-            control: Trainer control.
+            args: The training arguments.
+            state: The trainer state.
+            control: The trainer control.
 
         """
 
         current_log = state.log_history[-1]
 
-        # Checks whether last log comes from training step
+        # Check whether the last log comes from the training step
         if "loss" in current_log:
             try:
                 current_log["bpc"] = current_log["loss"] / math.log(2)
             except OverflowError:
                 current_log["bpc"] = math.inf
 
-        # Checks whether last log comes from evaluation step
+        # Check whether the last log comes from the evaluation step
         if "eval_loss" in current_log:
             try:
                 current_log["eval_bpc"] = current_log["eval_loss"] / math.log(2)
@@ -53,13 +52,13 @@ class BPCTrainerCallback(TrainerCallback):
         metrics: Optional[Dict[str, float]] = None,
         **kwargs
     ) -> None:
-        """Provides a customizable flow when an evaluate event is called.
+        """Add bits per character metrics to the evaluation metrics.
 
         Args:
-            args: Training arguments.
-            state: Trainer state.
-            control: Trainer control.
-            metrics: Evaluation metrics.
+            args: The training arguments.
+            state: The trainer state.
+            control: The trainer control.
+            metrics: The evaluation metrics.
 
         """
 
@@ -79,20 +78,20 @@ class BPCTrainerCallback(TrainerCallback):
 
 
 class PerplexityTrainerCallback(TrainerCallback):
-    """Inherits from TrainerCallback and allows the output of perplexity values."""
+    """A `TrainerCallback` that adds perplexity metrics to the logs."""
 
     def __init__(self, *args, **kwargs) -> None:
-        """Overrides with custom arguments and keyword arguments."""
+        """Initialize the `PerplexityTrainerCallback` with custom arguments and keyword arguments."""
 
         super().__init__(*args, **kwargs)
 
     def on_log(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs) -> None:
-        """Provides a customizable flow when a log event is called.
+        """Add perplexity metrics to the training logs.
 
         Args:
-            args: Training arguments.
-            state: Trainer state.
-            control: Trainer control.
+            args: The training arguments.
+            state: The trainer state.
+            control: The trainer control.
 
         """
 
@@ -120,13 +119,13 @@ class PerplexityTrainerCallback(TrainerCallback):
         metrics: Optional[Dict[str, float]] = None,
         **kwargs
     ) -> None:
-        """Provides a customizable flow when an evaluate event is called.
+        """Add perplexity metrics to the evaluation metrics.
 
         Args:
-            args: Training arguments.
-            state: Trainer state.
-            control: Trainer control.
-            metrics: Evaluation metrics.
+            args: The training arguments.
+            state: The trainer state.
+            control: The trainer control.
+            metrics: The evaluation metrics.
 
         """
 

@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""File-related utilities.
-"""
+"""File-related utilities."""
 
 import os
 import re
@@ -16,13 +15,16 @@ CHECKPOINT_REGEX = re.compile(r"^" + CHECKPOINT_FOLDER_PREFIX + r"\-(\d+)$")
 
 
 def calculate_onnx_model_size(model_path: str) -> float:
-    """Calculates an ONNX model size.
+    """Calculate the size of an ONNX model.
+
+    This function calculates the size of an ONNX model by reading the size of
+    the file on disk.
 
     Args:
-        model_path: Path of the ONNX model.
+        model_path: The path to the ONNX model on disk.
 
     Returns:
-        (float): Size of the model (MB).
+        The size of the model in megabytes.
 
     """
 
@@ -32,13 +34,16 @@ def calculate_onnx_model_size(model_path: str) -> float:
 
 
 def calculate_torch_model_size(model: torch.nn.Module) -> float:
-    """Calculates a PyTorch model size.
+    """Calculate the size of a PyTorch model.
+
+    This function calculates the size of a PyTorch model by saving its state
+    dictionary to a temporary file and reading the size of the file on disk.
 
     Args:
-        model: PyTorch model.
+        model: The PyTorch model.
 
     Returns:
-        (float): Size of the model (MB).
+        The size of the model in megabytes.
 
     """
 
@@ -52,13 +57,16 @@ def calculate_torch_model_size(model: torch.nn.Module) -> float:
 
 
 def check_available_checkpoint(folder_name: str) -> bool:
-    """Checks if there are any available checkpoints.
+    """Check if there are any available checkpoints in a given folder.
+
+    This function checks if a given folder contains any checkpoints by looking
+    for directories that match a regular expression for checkpoint names.
 
     Args:
-        folder_name: Path to the folder that might contain checkpoints.
+        folder_name: The path to the folder that might contain checkpoints.
 
     Returns:
-        (bool): Whether there are available checkpoints.
+        `True` if there are available checkpoints, `False` otherwise.
 
     """
 
@@ -79,14 +87,15 @@ def check_available_checkpoint(folder_name: str) -> bool:
 
 
 def create_file_name_identifier(file_name: str, identifier: str) -> str:
-    """Adds an identifier (suffix) to the end of the file name.
+    """Create a new file name by adding an identifier to the end
+    of an existing file name (before the file extension).
 
     Args:
-        file_name: Path to have a suffix added.
-        identifier: Identifier to be added to file_name.
+        file_name: The original file name.
+        identifier: The identifier to be added to the file name.
 
     Returns:
-        (str): Path with `file_name` plus added identifier.
+        The new file name with the added identifier.
 
     """
 
