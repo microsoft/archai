@@ -2,8 +2,7 @@
 # Licensed under the MIT license.
 # https://github.com/abhuse/cyclic-cosine-decay/blob/master/scheduler.py
 
-"""Cyclic-cosine learning rate scheduler.
-"""
+"""Cyclic-cosine learning rate scheduler."""
 
 from collections.abc import Iterable
 from math import cos, floor, log, pi
@@ -14,12 +13,13 @@ from torch.optim.lr_scheduler import _LRScheduler
 
 
 class CyclicCosineDecayLR(_LRScheduler):
-    """Implements the Cyclic Cosine annealing.
+    """A learning rate scheduler for cyclic cosine annealing.
 
-    This learning rate scheduler is useful when doing QAT provinding
+    This scheduler is useful when doing QAT provinding
     a ~0.3 ppl boost over the traditional cosine annealing scheduler.
 
-    Code and additional documentation: https://github.com/abhuse/cyclic-cosine-decay
+    For more details and code, see the project's GitHub repository:
+    https://github.com/abhuse/cyclic-cosine-decay
 
     """
 
@@ -36,18 +36,30 @@ class CyclicCosineDecayLR(_LRScheduler):
         last_epoch: Optional[int] = -1,
         verbose: Optional[bool] = False,
     ) -> None:
-        """Overrides the initialization of _LRScheduler with custom attributes.
+        """Override the initialization of `_LRScheduler` with custom attributes.
 
         Args:
-            optimizer: Wrapped optimizer.
-            init_decay_epochs: Number of initial decay epochs.
-            min_decay_lr: Learning rate at the end of decay.
-            restart_interval: Restart interval for fixed cycles, where `None` disable cycles.
-            restart_interval_multiplier: Multiplication coefficient for geometrically increasing cycles.
-            restart_lr: Learning rate when cycle restarts, where `None` uses optimizer's learning rate.
-            warmup_epochs: Number of warmup epochs, where `None` disables warmup.
-            warmup_start_lr: Learning rate at the beginning of warmup.
-            last_epoch: The index of the last epoch, used to resume a training job.
+            optimizer: The optimizer to use. This should be an instance of
+                `torch.optim.Optimizer`.
+            init_decay_epochs: The number of epochs for the initial decay period.
+            min_decay_lr: The learning rate at the end of the initial decay period.
+            restart_interval: The interval between restarts of the cyclic schedule.
+                This should be a positive integer, or `None` to disable restarts.
+                restart_interval_multiplier: The coefficient used to increase the
+                restart interval between cycles. This should be a positive float,
+                or `None` to use a fixed restart interval.
+            restart_lr: The learning rate at the start of a cycle. This should be
+                a positive float or a list of floats with the same length as
+                `optimizer.param_groups`, or `None` to use the current learning
+                rates of the optimizer.
+            warmup_epochs: The number of epochs to use for a warmup period. This
+                should be a positive integer, or `None` to disable warmup.
+            warmup_start_lr: The learning rate at the start of the warmup period.
+                This should be a positive float or a list of floats with the same
+                length as `optimizer.param_groups`, and must be set if `warmup_epochs`
+                is not `None`.
+            last_epoch: The index of the last epoch. This is used when resuming a
+                training job.
             verbose: Whether to print a message to stdout for each update.
 
         """
@@ -110,10 +122,12 @@ class CyclicCosineDecayLR(_LRScheduler):
         super(CyclicCosineDecayLR, self).__init__(optimizer, last_epoch, verbose=verbose)
 
     def get_lr(self) -> float:
-        """Gathers the current learning rate.
+        """Return the current learning rate.
+
+        This is the learning rate that will be used for the next iteration of training.
 
         Returns:
-            (float): Learning rate.
+            The current learning rate.
 
         """
 
@@ -144,29 +158,29 @@ class CyclicCosineDecayLR(_LRScheduler):
                 return self._min_decay_lr
 
     def _calc(self, t: int, T: int, lrs: List[float], min_lrs: List[float]) -> List[float]:
-        """Calculates the learning rate.
+        """Calculate the learning rate for the current cycle epoch.
 
         Args:
-            t: Current cycle epoch.
-            T: Amount of intervals.
-            lrs: Learning rates.
-            min_lrs: Minimum learning rates.
+            t: The current cycle epoch.
+            T: The total number of epochs in the current cycle.
+            lrs: The initial learning rates for each parameter group.
+            min_lrs: The minimum learning rates for each parameter group.
 
         Returns:
-            (List[float]): Annealed learning rates.
+            The annealed learning rates for each parameter group.
 
         """
 
         return [min_lr + (lr - min_lr) * ((1 + cos(pi * t / T)) / 2) for lr, min_lr in zip(lrs, min_lrs)]
 
     def _get_n(self, epoch: int) -> int:
-        """Gathers the value of `n` for calculating the partial sum.
+        """Return the value of `n` for the current epoch.
 
         Args:
-            epoch: Current epoch.
+            epoch: The current epoch.
 
         Returns:
-            (int): `n` value.
+            int: The value of `n` for the current epoch.
 
         """
 
@@ -175,13 +189,13 @@ class CyclicCosineDecayLR(_LRScheduler):
         return floor(log(_t, self._restart_interval_multiplier))
 
     def _partial_sum(self, n: int) -> float:
-        """Calculate the partial sum.
+        """Calculate the partial sum of the geometric sequence.
 
         Args:
-            n: Exponent for current epoch.
+            n: The exponent of the current epoch.
 
         Returns:
-            (float): Partial sum.
+            The partial sum of the geometric sequence.
 
         """
 
