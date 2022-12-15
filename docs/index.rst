@@ -45,7 +45,6 @@ If you use Archai in a scientific publication, please consider citing it:
 
    30-Minute Tutorial <basic_guide/tutorial>
    Notebooks <basic_guide/notebooks>
-   Discrete Search Tutorial <basic_guide/discrete_search>
    Examples & Scripts <basic_guide/examples_scripts>
 
 .. toctree::
@@ -65,6 +64,15 @@ If you use Archai in a scientific publication, please consider citing it:
    :caption: Benchmarks
 
    Food-101 <benchmark/food_101>
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+   :caption: Contributing
+
+   First Contribution <contributing/first_contribution>
+   Documentation <contributing/documentation>
+   Unitary Tests <contributing/unitary_tests>
 
 .. toctree::
    :hidden:
