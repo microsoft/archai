@@ -32,7 +32,7 @@ The process of using Archai is divided into two phases: search and evaluation. I
 Configuration System
 --------------------
 
-Archai uses a sophisticated YAML based configuration system. As an example, you can view `configuration <https://github.com/microsoft/archai/blob/master/benchmarks/confs/algos/darts.yaml>`_ for running DARTS algorithm. At first it may be a bit overwhelming, but this ensures that all config parameters are isolated from the code and can be freely changed.
+Archai uses a sophisticated YAML based configuration system. As an example, you can view `configuration <https://github.com/microsoft/archai/blob/main/benchmarks/confs/algos/darts.yaml>`_ for running DARTS algorithm. At first it may be a bit overwhelming, but this ensures that all config parameters are isolated from the code and can be freely changed.
 
 The config for search phase is located in ``nas/search`` section while for evaluation phase is located in ``nas/eval`` section. You will observe settings for data loading in ``loader`` section and training in ``trainer`` section. You can easily change the number of epochs, batch size, among others.
 

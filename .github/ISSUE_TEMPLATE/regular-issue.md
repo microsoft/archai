@@ -15,10 +15,10 @@ Thank you!
 
 ### Pre-checkings
 
-- [ ] Check that you are up-to-date with the master branch of Archai. You can update with:
+- [ ] Check that you are up-to-date with the main branch of Archai. You can update with:
 pip install git+git://github.com/microsoft/archai.git --upgrade --no-deps
 
-- [ ] Check that you have read all of our [README](https://github.com/microsoft/archai/blob/master/README.md).
+- [ ] Check that you have read all of our [README](https://github.com/microsoft/archai/blob/main/README.md).
 
 ### Description
 

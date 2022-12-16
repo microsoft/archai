@@ -3,13 +3,13 @@ name: Linter and Tests Runner
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "archai/**"
       - "tests/**"
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - "archai/**"
       - "tests/**"
