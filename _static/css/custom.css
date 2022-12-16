@@ -1,0 +1,36 @@
+:root {
+    --primary: #623eb2;
+    --secondary: #8776ae;
+}
+
+li > a {
+    color: #5a5a5a !important;
+}
+
+a,
+a.current,
+p.prev-next-title {
+    color: var(--primary) !important;
+}
+a:hover {
+    color: var(--secondary) !important;
+}
+a.nav-link.active {
+    border-left: 2px solid var(--primary) !important;
+}
+
+a.navbar-brand > img {
+    max-width: 85% !important;
+}
+
+.tab-set > input:checked + label {
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+.tab-set > label:hover {
+    color: var(--primary) !important;
+}
+
+#site-navigation .bd-sidebar__bottom {
+    margin-bottom: 0 !important;
+}
