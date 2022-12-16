@@ -26,10 +26,6 @@ nas:
       cell:
         n_nodes: 5 # number of nodes in a cell if template desc is not provided
         cell_post_op: 'proj_channels'
-    loader:
-      train_batch: 64
-    trainer:
-      epochs: 600
     petridish:
       cell_count_scale: 1.0 # for eval first multiply number of cells used in search by this factor, limit to n_cells
     trainer:

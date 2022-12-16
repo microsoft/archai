@@ -3,6 +3,7 @@
 
 from typing import Mapping, Optional, Union
 import copy
+import math as ma
 
 import torch
 from torch.utils.data import DataLoader
@@ -17,6 +18,7 @@ from archai.common.config import Config
 from archai.nas.arch_trainer import ArchTrainer
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
+from archai.nas.model_desc import CellType
 from archai.common.checkpoint import CheckPoint
 from archai.common.common import logger
 from archai.datasets import data
@@ -26,14 +28,13 @@ from .xnas_op import XnasOp
 
 class XnasArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: Model,
-                 checkpoint:Optional[CheckPoint]) -> None:
+                 checkpoint: Optional[CheckPoint]) -> None:
         super().__init__(conf_train, model, checkpoint)
 
         self._conf_w_lossfn = conf_train['lossfn']
-        self._conf_alpha_optim = conf_train['alpha_optimizer']
 
     @overrides
-    def create_optimizer(self, conf_optim:Config, params) -> Optimizer:
+    def create_optimizer(self, conf_optim: Config, params) -> Optimizer:
         # return optim that only operates on w, not alphas
         return ml_utils.create_optimizer(conf_optim,
                                          self.model.nonarch_params(recurse=True))
@@ -105,27 +106,43 @@ class XnasArchTrainer(ArchTrainer):
             self._valid_iter = iter(self._val_dl)
             x_val, y_val = next(self._valid_iter)
 
-        x_val, y_val = x_val.to(self.get_device()), y_val.to(self.get_device(), non_blocking=True)
+        x_val, y_val = x_val.to(self.get_device()), y_val.to(
+            self.get_device(), non_blocking=True)
 
         # update alphas
         self._xnas_optim.step(x, y, x_val, y_val)
 
     @overrides
-    def update_checkpoint(self, checkpoint:CheckPoint)->None:
+    def update_checkpoint(self, checkpoint: CheckPoint) -> None:
         super().update_checkpoint(checkpoint)
 
 
 class _XnasOptimizer:
-    def __init__(self, conf_alpha_optim:Config,
-                 model: Model, lossfn: _Loss) -> None:
-        self._alpha_lr = conf_alpha_optim['lr']
+    def __init__(self, ncell_lr: float, rcell_lr: float,
+                 ncell_effective_t: float, rcell_effective_t: float, train_batch: int,
+                 grad_clip: float, optim, apex, model: Model) -> None:
 
-        self._lossfn = lossfn
+        self._ncell_lr = ncell_lr
+        self._rcell_lr = rcell_lr
+        self._ncell_effective_t = ncell_effective_t
+        self._rcell_effective_t = rcell_effective_t
+        self._train_batch = train_batch
+
+        self._grad_clip = grad_clip
+        self._optim = optim
+        self._apex = apex
+
+        self._lossfn = nn.CrossEntropyLoss()
+
+        # to keep track of where we are in effective updates
+        self._t_rcell = 0
+        self._t_ncell = 0
+
         self._model = model  # main model with respect to w and alpha
 
     @staticmethod
     def _get_loss(model, lossfn, x, y):
-        logits, *_ = model(x) # might also return aux tower logits
+        logits, *_ = model(x)  # might also return aux tower logits
         return lossfn(logits, y)
 
     def step(self, x_train: Tensor, y_train: Tensor, x_valid: Tensor, y_valid: Tensor) -> None:

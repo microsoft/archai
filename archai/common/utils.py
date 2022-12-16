@@ -1,12 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-<<<<<<< HEAD
-from typing import Dict, Iterable, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union, Sized
-=======
 import functools
 from typing import Dict, Iterable, Sized, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
->>>>>>> ac2ff86d (fix(docs): Fixes sphinx-tabs not being compatible with other packages.)
 import  numpy as np
 import logging
 import csv

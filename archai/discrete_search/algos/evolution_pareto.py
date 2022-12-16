@@ -119,17 +119,15 @@ class EvolutionParetoSearch(Searcher):
             #         list(self._get_secondary_objectives_proxy(p).values()) for _, p in candidates_list
             #     ])
 
-    @abstractmethod
-    def calc_secondary_objectives(self, population:List[ArchWithMetaData])->None:
-        # computes memory and latency of each model
-        # and updates the meta data
-        pass
+            #     crowd_dist = compute_crowding_distance(secondary_objs_proxy)
+                
+            #     # Deletes mutations that are not on the top k
+            #     for idx in np.argsort(-crowd_dist, axis=None)[mutations_per_parent:]:
+            #         del candidates[candidates_list[idx][0]]
 
-    @abstractmethod
-    def calc_task_accuracy(self, population:List[ArchWithMetaData])->None:
-        # computes task accuracy of each model
-        # and updates the meta data
-        pass
+            mutations.update(candidates)
+
+        return list(mutations.values())
 
     def crossover_parents(self, parents: List[ArchaiModel], num_crossovers: int = 1) -> List[ArchaiModel]:
         # Randomly samples k distinct pairs from `parents`
@@ -147,6 +145,7 @@ class EvolutionParetoSearch(Searcher):
                         children.append(child)
                         children_hashes.add(child.archid)
 
+        return children
 
     def sample_random_models(self, num_models: int) -> List[ArchaiModel]:
         return [self.search_space.random_sample() for _ in range(num_models)]
@@ -181,7 +180,6 @@ class EvolutionParetoSearch(Searcher):
 
         self.all_pop = unseen_pop
 
-        self.all_pop = unseen_pop
         for i in range(self.num_iters):
             self.iter_num = i + 1
 
@@ -249,9 +247,9 @@ class EvolutionParetoSearch(Searcher):
 
             # sample some random samples to add to the parent mix 
             # to mitigage local minima
-            rand_mix = self._sample_random_to_mix()
-
+            rand_mix = self.sample_random_models(self.num_random_mix)
             unseen_pop = crossovered + mutated + rand_mix
+
             # shuffle before we pick a smaller population for the next stage
             self.logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
             unseen_pop = self.select_next_population(unseen_pop)

@@ -90,10 +90,8 @@ def main():
     for dataset_key in ['dataset', 'dataset_search', 'dataset_eval']:
         if dataset_key in conf:
             print(f'dataset_key: {dataset_key}')
-            conf_data = conf[dataset_key]
-            print('conf_data:')
-            print(conf_data)
-            untar_dataset(pt_data_dir, conf_data, args.dataroot)
+            conf_dataset = conf[dataset_key]
+            untar_dataset(dataset_key, pt_data_dir, conf_dataset, args.dataroot)
 
 
 if __name__ == '__main__':

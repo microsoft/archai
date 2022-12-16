@@ -15,7 +15,7 @@ from .searcher_petridish import SearcherPetridish
 from .evaluater_petridish import EvaluaterPetridish
 from archai.common.config import Config
 from archai.common import utils
-from .petridish_cell_builder import PetridishCellBuilder
+
 
 class PetridishExperimentRunner(ExperimentRunner):
     @overrides

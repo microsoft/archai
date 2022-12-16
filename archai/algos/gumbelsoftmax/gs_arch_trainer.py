@@ -10,6 +10,7 @@ from torch import Tensor, nn, autograd
 from torch.nn.modules.loss import _Loss
 from torch.optim.optimizer import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
+import torch.nn.functional as F
 
 from overrides import overrides
 
@@ -18,8 +19,8 @@ from archai.nas.arch_trainer import ArchTrainer
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
-from archai.common.common import logger
-
+from archai.common.common import logger, get_conf
+from archai.algos.gumbelsoftmax.gs_op import GsOp
 
 class GsArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: nn.Module, checkpoint: Optional[CheckPoint]) -> None:

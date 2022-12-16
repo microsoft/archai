@@ -10,6 +10,7 @@ from archai.nas.arch_trainer import TArchTrainer
 from archai.nas.finalizers import Finalizers
 from .gs_model_desc_builder import GsModelDescBuilder
 from .gs_arch_trainer import GsArchTrainer
+from .gs_finalizers import GsFinalizers
 
 class GsExperimentRunner(ExperimentRunner):
     @overrides
