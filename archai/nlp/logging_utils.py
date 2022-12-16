@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Logging-based methods and helpers.
-"""
+"""Logging-based methods and helpers."""
 
 import logging
 import os
@@ -11,31 +10,36 @@ from logging import Filter, Formatter, Logger, LogRecord, StreamHandler
 from logging.handlers import TimedRotatingFileHandler
 
 FORMATTER = Formatter("%(asctime)s - %(name)s — %(levelname)s — %(message)s")
-LOG_FILE = "archai-nlp.log"
+LOG_FILE = "archai.nlp.log"
 LOCAL_RANK = int(os.environ.get("LOCAL_RANK", 0))
 
 
 class RankFilter(Filter):
-    """Filters internal loggings based on the rank of the process."""
+    """A filter for logging records based on the rank of the process.
+
+    Only log records from the process with rank 0 will be logged,
+    while log records from other processes will be filtered out.
+
+    """
 
     def __init__(self, rank: int) -> None:
-        """Overrides initialization method.
+        """Initialize the filter with the rank of the process.
 
         Args:
-            rank: Rank of the process.
+            rank: The rank of the process that will generate log records.
 
         """
 
         self.rank = rank
 
     def filter(self, record: LogRecord) -> bool:
-        """Filters a logging record.
+        """Filter a logging record based on the process rank.
 
         Args:
-            record: Logging record.
+            record: The logging record to be filtered.
 
         Returns:
-            (bool): Whether record should be logged or not.
+            `True` if the record should be logged, `False` otherwise.
 
         """
 
@@ -43,10 +47,13 @@ class RankFilter(Filter):
 
 
 def get_console_handler() -> StreamHandler:
-    """Gets a console handler to handle logging into console.
+    """Get a `StreamHandler` for logging to the console.
+
+    The `StreamHandler` can be used to log messages to the
+    console (i.e., `sys.stdout`) and is configured with a formatter.
 
     Returns:
-        (StreamHandler): Output information into console.
+        A `StreamHandler` for logging to the console.
 
     """
 
@@ -57,10 +64,10 @@ def get_console_handler() -> StreamHandler:
 
 
 def get_timed_file_handler() -> TimedRotatingFileHandler:
-    """Gets a timed file handler to handle logging into files.
+    """Get a `TimedRotatingFileHandler` for logging to timestamped files.
 
     Returns:
-        (TimedRotatingFileHandler): Output information into timed files.
+        A `TimedRotatingFileHandler` for logging to timestamped files.
 
     """
 
@@ -71,13 +78,13 @@ def get_timed_file_handler() -> TimedRotatingFileHandler:
 
 
 def get_logger(logger_name: str) -> Logger:
-    """Gets a log and make it avaliable for further use.
+    """Get a logger with the specified name and default settings.
 
     Args:
-        logger_name: Name of the logger.
+        logger_name: The name of the logger.
 
     Returns:
-        (Logger): Logging-based object.
+        A `Logger` instance with the specified name and default settings.
 
     """
 

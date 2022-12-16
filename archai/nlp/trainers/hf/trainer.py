@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Customizable trainers with huggingface/transformers.
-"""
+"""Customizable trainers with huggingface/transformers."""
 
 import shutil
 from typing import Dict, Optional, Tuple
@@ -16,10 +15,15 @@ from archai.nlp.trainers.hf.training_args import DistillerTrainingArguments
 
 
 class HfTrainer(Trainer):
-    """Inherits from Trainer and allows to be customized."""
+    """A `Trainer` that supports customizations for running on AzureML."""
 
     def _rotate_checkpoints(self, use_mtime: Optional[bool] = False, output_dir: Optional[str] = None) -> None:
-        """Overrides the rotation of checkpoints to allow caching to Azure Storage.
+        """Rotate checkpoints and cache them to Azure Storage.
+
+        The `use_mtime` argument is always set to `False` to avoid having
+        multiple checkpoints with the same timestamp when retrieving them
+        from Azure Storage. This is because Azure Storage does not support
+        sub-second precision for file timestamps.
 
         Args:
             use_mtime: Whether to use mtime to sort the checkpoints.
@@ -60,10 +64,10 @@ class HfTrainer(Trainer):
 
 
 class HfDistillerTrainer(HfTrainer):
-    """Inherits from HfTrainer and allows a distillation-based training."""
+    """Inherit from `HfTrainer` for a distillation-based training."""
 
-    def __init__(self, teacher_model: Optional[torch.nn.Module] = None, **kwargs) -> None:
-        """Overrides with custom keyword arguments.
+    def __init__(self, teacher_model: torch.nn.Module, **kwargs) -> None:
+        """Override with custom keyword arguments.
 
         Args:
             teacher_model: Pre-trained teacher model.
@@ -87,15 +91,19 @@ class HfDistillerTrainer(HfTrainer):
         inputs: Dict[str, torch.Tensor],
         return_outputs: Optional[bool] = False,
     ) -> Tuple[torch.Tensor, ...]:
-        """Overrides the computation of the loss function.
+        """Override the computation of the loss function.
+
+        The loss is a weighted sum of the student's loss, as computed by
+        the original `HfTrainer`, and the KL divergence between the student and
+        teacher models.
 
         Args:
-            model: PyTorch subclassed model.
-            inputs: Dictionary holding the input tensors.
+            model: Student model.
+            inputs: Input tensors.
             return_outputs: Whether outputs should be returned.
 
         Returns:
-            (Tuple[torch.Tensor, ...]): Contains (loss, outputs) or just the loss tensor.
+            (loss, outputs) or the loss tensor.
 
         """
 
@@ -108,7 +116,7 @@ class HfDistillerTrainer(HfTrainer):
             teacher_outputs = self.teacher_model(**inputs)
             teacher_logits = teacher_outputs["logits"]
 
-        # Computes the KL divergence and KD losses
+        # Compute the KL divergence and KD losses
         kl_loss = nn.KLDivLoss(reduction="batchmean")
         kl_divergence = kl_loss(
             F.log_softmax(student_logits / self.args.temperature, dim=-1),
@@ -116,7 +124,7 @@ class HfDistillerTrainer(HfTrainer):
         )
         kd_loss = self.args.temperature**2 * kl_divergence
 
-        # Weighs the final loss
+        # Weigh the final loss
         loss = self.args.alpha * student_loss + (1 - self.args.alpha) * kd_loss
 
         return (loss, student_outputs) if return_outputs else loss

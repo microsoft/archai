@@ -18,6 +18,7 @@ from archai.nlp.onnx.config_utils.gpt2_onnx_config import (
 )
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
+from archai.nlp.onnx.onnx_loader import load_from_onnx
 
 logger = logging_utils.get_logger(__name__)
 
@@ -42,8 +43,7 @@ def validate_onnx_outputs(
 
     logger.info("Validating model ...")
 
-    options = SessionOptions()
-    session = InferenceSession(onnx_model_path, options)
+    session = load_from_onnx(onnx_model_path)
 
     ref_inputs = onnx_config.generate_dummy_inputs()
     ref_outputs = reference_model(**ref_inputs)
