@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""CodeGen-based tokenizer.
-"""
+"""CodeGen-based tokenizer."""
 
 from typing import Optional
 
@@ -21,14 +20,14 @@ from archai.nlp.datasets.hf.tokenizer_utils.tokenizer_base import TokenizerBase
 
 
 class CodeGenTokenizer(TokenizerBase):
-    """Implements a CodeGen-based tokenizer."""
+    """A CodeGen-based tokenizer for processing text data (including code)."""
 
     def __init__(self, vocab_size: Optional[int] = 50257, min_frequency: Optional[int] = 0) -> None:
-        """Defines the tokenization pipeline.
+        """Define the tokenization pipeline.
 
         Args:
-            vocab_size: Maximum size of vocabulary.
-            min_frequency: Minimum frequency of tokens.
+            vocab_size: The maximum size of the vocabulary to be generated.
+            min_frequency: The minimum frequency of tokens to be included in the vocabulary.
 
         """
 

@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for loading and encoding datasets.
-"""
+"""Utilities for loading and encoding datasets."""
 
 import os
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -26,13 +25,18 @@ from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
 
 
 def _should_refresh_cache(refresh: bool) -> DownloadMode:
-    """Refreshes the cached dataset by re-downloading/re-creating it.
+    """Determine whether to refresh the cached dataset.
+
+    This function determines whether the cached dataset should be refreshed by
+    re-downloading or re-creating it based on the value of the `refresh`
+    parameter.
 
     Args:
-        refresh: Whether the dataset cache should be refreshed or not.
+        refresh: If `True`, the cache will be refreshed. If `False`, the
+            existing cache will be used if it exists.
 
     Returns:
-        (DownloadMode): Enumerator that defines whether cache should refresh or not.
+        An enumerator indicating whether the cache should be refreshed or not.
 
     """
 
@@ -57,25 +61,32 @@ def load_dataset(
     random_seed: Optional[int] = 42,
     n_samples: Optional[Union[int, List[int]]] = -1,
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """Loads a dataset from Huggingface's Hub or local files.
+    """Load a dataset from Hugging Face's Hub or local files.
+
+    This function loads a dataset from either Hugging Face's Hub or local
+    files, depending on whether the `dataset_disk` parameter is provided. It
+    also has options for subsampling the dataset, shuffling the order of
+    samples, and keeping the dataset in memory.
 
     Args:
-        dataset_name: Name of dataset to be downloaded.
-        dataset_config_name: Name of configuration of dataset to be downloaded.
+        dataset_name: Name of the dataset to be downloaded.
+        dataset_config_name: Name of the configuration of the dataset to be downloaded.
         dataset_dir: Path to manually downloaded files.
         dataset_files: Files that should be loaded from `dataset_name` (in case it's a folder).
-        dataset_split: Split to be retrieved. `None` defaults to all splits.
+        dataset_split: Split to be retrieved. If `None`, all splits will be retrieved.
         dataset_cache: Folder where cache should be stored/loaded.
-        dataset_keep_in_memory: Whether dataset should be directly loaded in memory or not.
+        dataset_keep_in_memory: Whether the dataset should be directly loaded in memory or not.
         dataset_revision: Version of the dataset to be loaded.
         dataset_disk: Folder where dataset should be stored/loaded (if supplied).
-        dataset_stream: Whether dataset should be streamed or not.
-        dataset_refresh_cache: Whether cache should be refreshed or not.
+        dataset_stream: Whether the dataset should be streamed or not.
+        dataset_refresh_cache: Whether the cache should be refreshed or not.
         random_seed: Fixes the order of samples.
         n_samples: Subsamples into a fixed amount of samples.
+            If `int`, the same number of samples will be used for all splits.
+            If `List[int]`, a different number of samples can be specified for each split.
 
     Returns:
-        (Union[DatasetDict, IterableDatasetDict]): Loaded dataset.
+        The loaded dataset.
 
     """
 
@@ -118,22 +129,27 @@ def encode_dataset(
     num_proc: Optional[int] = None,
     format_column_name: Optional[Union[str, List[str]]] = None,
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """Encodes a dataset.
+    """Encode a dataset using a tokenizer.
 
     Args:
-        dataset: Dataset to be encoded.
-        tokenizer: Tokenizer to transform text into tokens.
-        mapping_fn: Function that maps the dataset.
-        mapping_fn_kwargs: Keyword arguments to `mapping_fn`.
-        mapping_column_name: Columns to be tokenized.
-        batched: Whether mapping should be batched or not.
-        batch_size: Number of examples per batch.
-        writer_batch_size: Number of examples per write operation to cache.
-        num_proc: Number of processes for multi-processing.
-        format_column_name: Columns that should be available on dataset.
+        dataset: The dataset to be encoded.
+        tokenizer: The tokenizer to use for encoding.
+        mapping_fn: A function that maps the dataset. If not provided,
+            the default `tokenize_dataset` function will be used.
+        mapping_fn_kwargs: Keyword arguments to pass to `mapping_fn`.
+        mapping_column_name: The columns in the dataset to be tokenized.
+            If `str`, only one column will be tokenized.
+            If `List[str]`, multiple columns will be tokenized.
+        batched: Whether the mapping should be done in batches or not.
+        batch_size: The number of examples per batch when mapping in batches.
+        writer_batch_size: The number of examples per write operation to cache.
+        num_proc: The number of processes to use for multi-processing.
+        format_column_name: The columns that should be available on the resulting dataset.
+            If `str`, only one column will be available.
+            If `List[str]`, multiple columns will be available.
 
     Returns:
-        (Union[DatasetDict, IterableDatasetDict]): Encoded dataset.
+        The encoded dataset.
 
     """
 

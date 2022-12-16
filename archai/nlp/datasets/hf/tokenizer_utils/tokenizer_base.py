@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for tokenization pipelines with huggingface/tokenizers.
-"""
+"""Utilities for tokenization pipelines with huggingface/tokenizers."""
 
 from __future__ import annotations
 
@@ -16,15 +15,18 @@ from archai.nlp.datasets.hf.tokenizer_utils.token_config import TokenConfig
 
 
 class TokenizerBase:
-    """Implements a base class for a customizable tokenization pipeline."""
+    """A base class for building a customizable tokenization pipeline
+        using the huggingface/tokenizers library.
+
+    """
 
     def __init__(self, token_config: TokenConfig, tokenizer: Tokenizer, trainer: Trainer) -> None:
-        """Attaches attributes to class.
+        """Initializes the `TokenizerBase` object by attaching attributes.
 
         Args:
-            token_config: TokenConfig class with tokens' configuration.
-            tokenizer: Tokenizer class with model from huggingface/tokenizers.
-            trainer: Trainer class from huggingface/tokenizers.
+            token_config: A `TokenConfig` object with tokens' configuration.
+            tokenizer: A `Tokenizer` object from the huggingface/transformers library.
+            trainer: A `Trainer` object from the huggingface/transformers library.
 
         """
 
@@ -33,10 +35,10 @@ class TokenizerBase:
         self.trainer = trainer
 
     def train(self, files: List[str]) -> None:
-        """Trains tokenizer from a list of files.
+        """Train the tokenizer on a list of text files.
 
         Args:
-            files: List of paths to input files.
+            files: A list of paths to input files.
 
         """
 
@@ -45,7 +47,7 @@ class TokenizerBase:
     def train_from_iterator(
         self, iterator: Iterator, batch_size: Optional[int] = 10000, column_name: Optional[str] = "text"
     ) -> None:
-        """Trains tokenizer from in-memory data.
+        """Train the tokenizer on in-memory data.
 
         Args:
             iterator: Raw data to be tokenized.
@@ -61,7 +63,7 @@ class TokenizerBase:
         return self.tokenizer.train_from_iterator(_batch_iterator(iterator), trainer=self.trainer, length=len(iterator))
 
     def save(self, path: str, pretty: Optional[bool] = True) -> None:
-        """Saves the pre-trained tokenizer.
+        """Save the pre-trained tokenizer to a file.
 
         Args:
             path: Path to tokenizer file.

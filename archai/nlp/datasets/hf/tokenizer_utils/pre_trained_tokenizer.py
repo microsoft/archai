@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for loading pre-trained tokenizers.
-"""
+"""Utilities for loading pre-trained tokenizers."""
 
 from typing import Optional
 
@@ -12,7 +11,7 @@ from archai.nlp.datasets.hf.tokenizer_utils.token_config import TokenConfig
 
 
 class ArchaiPreTrainedTokenizerFast(PreTrainedTokenizerFast):
-    """Implements a pre-trained fast tokenizer with tokens' configuration."""
+    """A pre-trained fast tokenizer with the configuration of special tokens."""
 
     def __init__(
         self,
@@ -21,7 +20,8 @@ class ArchaiPreTrainedTokenizerFast(PreTrainedTokenizerFast):
         token_config_file: Optional[str] = None,
         **kwargs,
     ) -> None:
-        """Overrides with additional keyword arguments.
+        """Initialize the `ArchaiPreTrainedTokenizerFast` class with
+            additional keyword arguments.
 
         Args:
             tokenizer_file: Path to the tokenizer's file.

@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for processing datasets, such as tokenization, shuffling, among others.
-"""
+"""Utilities for processing datasets, such as tokenization, shuffling, among others."""
 
 import random
 import re
@@ -25,14 +24,21 @@ def map_dataset_to_dict(
     dataset: Union[Dataset, IterableDataset, List[Dataset], List[IterableDataset]],
     splits: Optional[Union[str, List[str]]] = None,
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """Maps either an instance of dataset or list of datasets to a dictionary.
+    """Map a dataset or list of datasets to a dictionary.
+
+    This function maps either a single dataset or a list of datasets to a
+    dictionary, using the provided `splits` as the keys. If `splits` is not
+    provided, the keys will be determined by the type of the dataset(s)
+    (e.g. 'train', 'validation', 'test').
 
     Args:
-        dataset: Input dataset.
-        splits: Splits used to create the keys of dictionary.
+        dataset: The input dataset(s).
+        splits: The splits to use as the keys of the dictionary.
+            If `str`, only one split will be used.
+            If `List[str]`, multiple splits will be used.
 
     Returns:
-        (Union[DatasetDict, IterableDatasetDict]): Dataset mapped as dictionary.
+        Dataset mapped as dictionary.
 
     """
 
@@ -65,13 +71,17 @@ def map_dataset_to_dict(
 def merge_datasets(
     datasets: Union[List[DatasetDict], List[IterableDatasetDict]]
 ) -> Union[DatasetDict, IterableDatasetDict]:
-    """Merges a list of datasets.
+    """Merge a list of datasets.
+
+    This function merges a list of datasets, which must have identical splits
+    and be of the same type (either `DatasetDict` or `IterableDatasetDict`).
+    The resulting dataset will be of the same type as the input datasets.
 
     Args:
-        datasets: Input datasets.
+        datasets: The input datasets to be merged.
 
     Returns:
-        (Union[DatasetDict, IterableDatasetDict]): Merged dataset.
+        The merged dataset.
 
     """
 
@@ -99,14 +109,18 @@ def merge_datasets(
 
 
 def resize_dataset(dataset: Dataset, n_samples: int) -> Dataset:
-    """Resizes a dataset according to a supplied size.
+    """Resize a dataset to a specified number of samples.
+
+    This function resizes a dataset to the specified number of samples, by
+    selecting a subset of the original dataset. If `n_samples` is negative,
+    the original dataset will be returned unmodified.
 
     Args:
-        dataset: Input dataset.
-        n_samples: Amount of samples.
+        dataset: The input dataset to be resized.
+        n_samples: The number of samples to retain in the resized dataset.
 
     Returns:
-        (Dataset): Resized dataset.
+        The resized dataset.
 
     """
 
@@ -117,14 +131,18 @@ def resize_dataset(dataset: Dataset, n_samples: int) -> Dataset:
 
 
 def shuffle_dataset(dataset: Union[Dataset, IterableDataset], seed: int) -> Union[Dataset, IterableDataset]:
-    """Shuffles a dataset according to a supplied seed.
+    """Shuffle a dataset using a specified random seed.
+
+    This function shuffles a dataset using the provided random seed. If
+    `seed` is negative, the original dataset will be returned unmodified.
+    The resulting dataset will be of the same type as the input dataset.
 
     Args:
-        dataset: Input dataset.
-        seed: Random seed.
+        dataset: The input dataset to be shuffled.
+        seed: The random seed to use for shuffling the dataset.
 
     Returns:
-        (Union[Dataset, IterableDataset]): Shuffled dataset.
+        The shuffled dataset.
 
     """
 
@@ -142,17 +160,17 @@ def tokenize_dataset(
     padding: Optional[Union[bool, str]] = "max_length",
     **kwargs,
 ) -> Dict[str, Any]:
-    """Tokenizes a dataset.
+    """Tokenize a list of examples using a specified tokenizer.
 
     Args:
-        examples: Examples to be tokenized.
-        tokenizer: Tokenizer to transform text into tokens.
-        mapping_column_name: Columns to be tokenized.
+        examples: A list of examples to be tokenized.
+        tokenizer: The tokenizer to use.
+        mapping_column_name: The columns in `examples` that should be tokenized.
         truncate: Whether truncation should be applied.
         padding: Whether padding should be applied.
 
     Returns:
-        (Dict[str, Any): Tokenized examples.
+        Tokenized examples.
 
     """
 
@@ -168,16 +186,17 @@ def tokenize_contiguous_dataset(
     model_max_length: Optional[int] = 1024,
     **kwargs,
 ) -> Dict[str, Any]:
-    """Tokenizes a dataset with contiguous-length batches (no truncation nor padding).
+    """Tokenize a list of examples using a specified tokenizer and
+        with contiguous-length batches (no truncation nor padding).
 
     Args:
-        examples: Examples to be tokenized.
-        tokenizer: Tokenizer to transform text into tokens.
-        mapping_column_name: Columns to be tokenized.
-        model_max_length: Length of sequences.
+        examples: A list of examples to be tokenized.
+        tokenizer: The tokenizer to use.
+        mapping_column_name: The columns in `examples` that should be tokenized.
+        model_max_length: Maximum length of sequences.
 
     Returns:
-        (Dict[str, Any): Tokenized contiguous examples.
+        Contiguous-length tokenized examples.
 
     """
 
@@ -207,17 +226,18 @@ def tokenize_nsp_dataset(
     padding: Optional[Union[bool, str]] = "max_length",
     **kwargs,
 ) -> Dict[str, Any]:
-    """Tokenizes a dataset with next-sentence prediction (NSP).
+    """Tokenizes a list of examples using a specified tokenizer and
+        with next-sentence prediction (NSP).
 
     Args:
-        examples: Examples to be tokenized.
-        tokenizer: Tokenizer to transform text into tokens.
-        mapping_column_name: Columns to be tokenized.
+        examples: A list of examples to be tokenized.
+        tokenizer: The tokenizer to use.
+        mapping_column_name: The columns in `examples` that should be tokenized.
         truncate: Whether truncation should be applied.
         padding: Whether padding should be applied.
 
     Returns:
-        (Dict[str, Any): Tokenized examples (with NSP meta-data).
+        Tokenized examples with NSP labels.
 
     """
 

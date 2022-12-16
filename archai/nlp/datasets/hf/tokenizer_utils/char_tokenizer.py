@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Character-based tokenizer.
-"""
+"""Character-based tokenizer."""
 
 from typing import Optional
 
@@ -20,14 +19,14 @@ from archai.nlp.datasets.hf.tokenizer_utils.tokenizer_base import TokenizerBase
 
 
 class CharTokenizer(TokenizerBase):
-    """Implements a character-based tokenizer."""
+    """A character-based tokenizer for processing text data."""
 
     def __init__(self, vocab_size: Optional[int] = 256, min_frequency: Optional[int] = 0) -> None:
-        """Defines the tokenization pipeline.
+        """Define the tokenization pipeline.
 
         Args:
-            vocab_size: Maximum size of vocabulary.
-            min_frequency: Minimum frequency of tokens.
+            vocab_size: The maximum size of the vocabulary to be generated.
+            min_frequency: The minimum frequency of tokens to be included in the vocabulary.
 
         """
 

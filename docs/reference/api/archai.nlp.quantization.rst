@@ -1,13 +1,6 @@
 Quantization
 ============
 
-Mixed-QAT
----------
-
-.. automodule:: archai.nlp.quantization.mixed_qat
-   :members:
-   :undoc-members:
-
 Modules
 -------
 
@@ -22,17 +15,31 @@ Observers
    :members:
    :undoc-members:
 
-Post-Training Quantization
---------------------------
+Quantizers
+----------
+
+.. automodule:: archai.nlp.quantization.quantizers
+   :members:
+   :undoc-members:
+
+Post-Training Quantization (PTQ)
+--------------------------------
 
 .. automodule:: archai.nlp.quantization.ptq
    :members:
    :undoc-members:
 
-Quantization Aware Training
----------------------------
+Quantization Aware Training (QAT)
+---------------------------------
 
 .. automodule:: archai.nlp.quantization.qat
+   :members:
+   :undoc-members:
+
+Mixed-QAT
+---------
+
+.. automodule:: archai.nlp.quantization.mixed_qat
    :members:
    :undoc-members:
 
@@ -40,12 +47,5 @@ Quantization Utilities
 ----------------------
 
 .. automodule:: archai.nlp.quantization.quantization_utils
-   :members:
-   :undoc-members:
-
-Quantizers
-----------
-
-.. automodule:: archai.nlp.quantization.quantizers
    :members:
    :undoc-members:

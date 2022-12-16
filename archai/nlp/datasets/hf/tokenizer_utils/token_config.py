@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for defining tokens' configuration.
-"""
+"""Utilities for defining tokens' configuration."""
 
 from __future__ import annotations
 
@@ -23,7 +22,7 @@ SPECIAL_TOKENS = {
 
 
 class TokenConfig:
-    """Implements a base class for tokens' configuration."""
+    """A base class for storing and manipulating the configuration of special tokens."""
 
     def __init__(
         self,
@@ -36,7 +35,7 @@ class TokenConfig:
         mask_token: Optional[str] = None,
         **kwargs,
     ) -> None:
-        """Initializes class by setting attributes.
+        """Initialize class by setting attributes.
 
         Args:
             bos_token: Begin-of-sentence token.
@@ -59,10 +58,10 @@ class TokenConfig:
 
     @property
     def special_tokens(self) -> List[str]:
-        """Gathers available special tokens.
+        """Get a list of available special tokens.
 
         Returns:
-            (List[str]): List of available special tokens.
+            A list of available special tokens.
 
         """
 
@@ -82,20 +81,20 @@ class TokenConfig:
         )
 
     def to_dict(self) -> Dict[str, Any]:
-        """Converts class to a dictionary representation.
+        """Convert the `TokenConfig` object to a dictionary representation.
 
         Returns:
-            (Dict[str, Any]): Class attributes encoded as a dictionary.
+            `TokenConfig` attributes encoded as dictionary.
 
         """
 
         return self.__dict__
 
     def save(self, token_config_path: str) -> None:
-        """Saves the tokens' configuration to a JSON file.
+        """Save the `TokenConfig` attributes to a JSON file.
 
         Args:
-            token_config_path: Path to tokens' configuration file.
+            token_config_path: Path to the output file.
 
         """
 
@@ -104,13 +103,13 @@ class TokenConfig:
 
     @classmethod
     def from_file(cls: TokenConfig, token_config_path: str) -> TokenConfig:
-        """Creates a class instance from an input JSON file.
+        """Create a `TokenConfig` from an input JSON file.
 
         Args:
-            token_config_path: Path to the tokens' configuration file.
+            token_config_path: Path to the input file.
 
         Returns:
-            (TokenConfig): Instance of the TokenConfig class.
+            Instance of `TokenConfig`.
 
         """
 

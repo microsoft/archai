@@ -8,23 +8,23 @@ Evaluation
    archai.nlp.eval.profiler
    archai.nlp.eval.text_predict
 
-Evaluation Utilities
---------------------
-
-.. automodule:: archai.nlp.eval_utils
-   :members:
-   :undoc-members:
-
 ONNX Evaluator
 --------------
 
-.. automodule:: archai.nlp.onnx_evaluator
+.. automodule:: archai.nlp.eval.onnx_evaluator
    :members:
    :undoc-members:
 
 PyTorch Evaluator
 -----------------
 
-.. automodule:: archai.nlp.torch_evaluator
+.. automodule:: archai.nlp.eval.torch_evaluator
+   :members:
+   :undoc-members:
+
+Utilities
+---------
+
+.. automodule:: archai.nlp.eval.eval_utils
    :members:
    :undoc-members:
