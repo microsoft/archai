@@ -4,7 +4,7 @@
 """Transformer-Flex latency-related objectives."""
 
 import copy
-import tempfile
+import os
 import timeit
 from typing import Any, Dict, Optional
 
@@ -116,12 +116,17 @@ class TransformerFlexOnnxLatency(Objective):
     def evaluate(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
         model = self._load_and_prepare(arch.metadata["config"])
 
-        with tempfile.NamedTemporaryFile() as tmp:
-            tmp_path = tmp.name
+        # There is a bug for Python < 3.10 when using TemporaryFile with Windows,
+        # thus, we opted to manually save and remove the temporary file
+        tmp_path = "tmp.onnx"
 
-            onnx_config = export_to_onnx(model, tmp_path, task="causal-lm", use_past=True, share_weights=True, opset=11)
-            opt_tmp_path = optimize_onnx(tmp_path, onnx_config, opt_level=0)
+        onnx_config = export_to_onnx(model, tmp_path, task="causal-lm", use_past=True, share_weights=True, opset=11)
+        opt_tmp_path = optimize_onnx(tmp_path, onnx_config, opt_level=0)
 
-            session = load_from_onnx(opt_tmp_path)
+        session = load_from_onnx(opt_tmp_path)
+        latency = self._benchmark_model(session, onnx_config)
 
-            return self._benchmark_model(session, onnx_config)
+        os.remove(tmp_path)
+        os.remove(opt_tmp_path)
+
+        return latency
