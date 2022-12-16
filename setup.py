@@ -62,7 +62,7 @@ extras_require = {
 
 setup(
     name="archai",
-    version="0.6.8",
+    version="0.7.0",
     description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
