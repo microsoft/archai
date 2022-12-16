@@ -22,7 +22,7 @@ def retry_on_exception(func: Callable[[], Any], num_retries: int) -> Any:
         except Exception as e:
             exceptions.append(e)
 
-        raise exceptions[0]
+    raise exceptions[0]
 
 
 class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
