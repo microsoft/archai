@@ -35,7 +35,7 @@ def load_from_onnx(onnx_model_path: str) -> InferenceSession:
     options.intra_op_num_threads = OMP_NUM_THREADS
     options.graph_optimization_level = GraphOptimizationLevel.ORT_ENABLE_ALL
 
-    session = InferenceSession(onnx_model_path, options)
+    session = InferenceSession(onnx_model_path, sess_options=options)
     session.disable_fallback()
 
     return session
