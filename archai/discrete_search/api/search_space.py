@@ -111,19 +111,3 @@ class BayesOptSearchSpace(DiscreteSearchSpace, EnforceOverrides):
         Returns:
             np.ndarray: Fixed-length vector representation of `arch`
         """
-
-
-class RLSearchSpace(DiscreteSearchSpace, EnforceOverrides):
-    ''' Base class for Discrete Search Spaces compatible with Reinforcement Learning search algorithms. '''
-    
-    @abstractmethod
-    def get(self, idx_vector: float) -> ArchaiModel:
-        ''' Gets a ArchaiModel from the search space using `idx_vector`. '''
-
-    @abstractmethod
-    def step(self):
-        pass
-
-    @abstractmethod
-    def reset(self):
-        pass

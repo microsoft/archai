@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import copy
 import re
 from pathlib import Path
@@ -8,13 +11,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from archai.discrete_search import AsyncObjective, Objective, ArchaiModel, DiscreteSearchSpace
+from archai.discrete_search import SearchObjectives, ArchaiModel, DiscreteSearchSpace
 from archai.discrete_search.utils.multi_objective import _find_pareto_frontier_points, get_pareto_frontier
 
 
 class SearchResults():
-    def __init__(self, search_space: DiscreteSearchSpace,
-                 objectives: Dict[str, Union[Objective, AsyncObjective]]):
+    def __init__(self, search_space: DiscreteSearchSpace, objectives: SearchObjectives):
         self.search_space = search_space
         self.objectives = objectives
         self.iteration_num = 0
@@ -24,13 +26,13 @@ class SearchResults():
         self.results = []
 
     @property
-    def all_evaluation_results(self):
+    def all_evaluated_objs(self):
         return {
             obj_name: np.array([
                 r 
                 for iter_results in self.results
                 for r in iter_results[obj_name]
-            ], dtype=np.float32) for obj_name in self.objectives
+            ], dtype=np.float32) for obj_name in self.objectives.objs
         }
 
     def add_iteration_results(self, models: List[ArchaiModel],
@@ -40,12 +42,12 @@ class SearchResults():
 
         Args:
             models (List[ArchaiModel]): Models evaluated in the search iteration
-            evaluation_results (Dict[str, np.ndarray]): Evaluation results from `archai.metrics.evaluate_models()`
+            evaluation_results (Dict[str, np.ndarray]): Evaluation results from `SearchObjectives.eval_all_objs()`
             extra_model_data (Dict[str, List], optional): Additional model information to be
                 stored in the search state file. Must be a list of the same size as `models` and
                 csv-serializable.
         """
-        assert len(self.objectives) == len(evaluation_results)
+        assert all(obj_name in evaluation_results for obj_name in self.objectives.objs)
         assert all(len(r) == len(models) for r in evaluation_results.values())
 
         extra_model_data = copy.deepcopy(extra_model_data) or dict()
@@ -92,7 +94,7 @@ class SearchResults():
                 self.results[it][obj_name]
                 for it in range(start_iteration, end_iteration)
             ], axis=0)
-            for obj_name in self.objectives.keys()
+            for obj_name in self.objectives.objs.keys()
         }
 
         all_iteration_nums = np.array([
@@ -151,10 +153,10 @@ class SearchResults():
         max_x, max_y = status_df[obj_x].max(), status_df[obj_y].max()
         status_df['x'], status_df['y'] = status_df[obj_x], status_df[obj_y]
 
-        if self.objectives[obj_x].higher_is_better:
+        if self.objectives.objs[obj_x]['higher_is_better']:
             status_df['x'] = (max_x - status_df['x'])
         
-        if self.objectives[obj_y].higher_is_better:
+        if self.objectives.objs[obj_y]['higher_is_better']:
             status_df['y'] = (max_y - status_df['y'])
 
         colors = plt.cm.plasma(np.linspace(0, 1, self.iteration_num + 1))
@@ -185,7 +187,7 @@ class SearchResults():
         path = Path(directory)
         path.mkdir(exist_ok=True, parents=True)
 
-        objective_names = list(self.objectives.keys())
+        objective_names = list(self.objectives.objs.keys())
         plots = []
 
         for i, obj_x in enumerate(objective_names):

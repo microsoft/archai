@@ -9,12 +9,12 @@ from pathlib import Path
 from archai.common.utils import create_logger
 from archai.discrete_search import (
     Objective, AsyncObjective,
-    DiscreteSearchSpace, DatasetProvider, Searcher,
-    SearchResults
+    DiscreteSearchSpace, DatasetProvider, Searcher
 )
 
-from archai.discrete_search.utils import get_non_dominated_sorting
-from archai.discrete_search.utils.evaluation import evaluate_models
+from archai.discrete_search.algos.utils import get_non_dominated_sorting
+from archai.discrete_search.objectives.utils import evaluate_models
+from archai.discrete_search.algos.utils import SearchResults
 
 
 class SucessiveHalvingSearch(Searcher):

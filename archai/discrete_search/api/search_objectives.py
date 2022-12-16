@@ -12,56 +12,78 @@ from tqdm import tqdm
 
 
 class SearchObjectives():
-    def __init__(self, cache_objective_evaluation: bool = True, progress_bar: bool = True) -> None:
+    def __init__(self, cache_objective_evaluation: bool = True) -> None:
+        """Class used by search algorithms to evaluate and cache search objectives and constraints.
+        
+        Search objectives can be either registered as `cheap` or `expensive`. This distinction is used
+        to signal search algorithms on how to optimize their execution. Objectives labeled as 'cheap' can 
+        be evaluated multiple times by a search algorithm to look for suitable candidate architectures, while expensive
+        objectives will be evaluated much less frequently. NAS algorithms based on surrogate models
+        will typically only predict the value of expensive objectives and evaluate cheap objectives
+        directly.
+
+        To see how this distinction is used by each search algorithm, please refer to the documentation
+        of the search algorithm.
+
+        Additionally to objectives, this class can also hold search constraints. Constraints are used to
+        filter out candidate architectures that do not satisfy a given constraint (e.g number of parameters, FLOPs, etc.).
+        Constraints are tipically evaluated multiple times by search algorithms to look for suitable candidate and
+        should not be computationally expensive to evaluate.
+
+        Args:
+            cache_objective_evaluation (bool, optional): If True, objective evaluations are cached.
+                Defaults to True.
+        """        
+        self.cache_objective_evaluation = cache_objective_evaluation
+
         self.cheap_objs = {}
         self.exp_objs = {}
-        self.proxy_objs = {}
+        self.extra_constraints = {}
 
-        self.progress_bar = progress_bar
-        self.cache_objective_evaluation = cache_objective_evaluation
-        
-        # Cache key: (obj_name, is_proxy, archid, dataset obj, budget)
-        self.cache: Dict[Tuple[str, bool, str, DatasetProvider, Optional[float]], Optional[float]] = {}
+        # Cache key: (obj_name, archid, dataset provider name, budget)
+        self.cache: Dict[Tuple[str, str, str, Optional[float]], Optional[float]] = {}
 
-    def add_cheap_objective(self, objective_name: str, objective: Union[Objective, AsyncObjective],
-                            higher_is_better: bool,
-                            constraint: Optional[Tuple[float, float]] = None) -> None:
+    @property
+    def objs(self) -> Dict[str, Dict]:
+        return dict(self.cheap_objs, **self.exp_objs)
+
+    @property
+    def objs_and_constraints(self) -> Dict[str, Dict]:
+        return dict(self.objs, **self.extra_constraints)
+
+    def add_cheap_objective(self, name: str, objective: Union[Objective, AsyncObjective],
+                            higher_is_better: bool, constraint: Optional[Tuple[float, float]] = None) -> None:
         assert isinstance(objective, (AsyncObjective, Objective))
-        assert objective_name not in dict(self.cheap_objs, **self.exp_objs),\
-            f'There is already an objective named {objective_name}.'
+        assert name not in dict(self.objs, **self.extra_constraints),\
+            f'There is already an objective or constraint named {name}.'
 
-        self.cheap_objs[objective_name] = {
+        self.cheap_objs[name] = {
             'objective': objective,
             'higher_is_better': higher_is_better,
-            'constraint': constraint or [-float('-inf'), float('+inf')],
-            'proxy': False
+            'constraint': constraint
         }
     
-    def add_expensive_objective(self, objective_name: str,
-                                objective: Union[Objective, AsyncObjective],
-                                higher_is_better: bool,
-                                constraint: Optional[Tuple[float, float]] = None,
-                                proxy_constraint: Optional[Tuple[Union[Objective, AsyncObjective], float, float]] = None) -> None:
+    def add_expensive_objective(self, name: str, objective: Union[Objective, AsyncObjective],
+                                higher_is_better: bool) -> None:
         assert isinstance(objective, (AsyncObjective, Objective))
-        assert objective_name not in dict(self.cheap_objs, **self.exp_objs),\
-            f'There is already an objective named {objective_name}.'
+        assert name not in dict(self.objs, **self.extra_constraints),\
+            f'There is already an objective or constraint named {name}.'
 
-        self.exp_objs[objective_name] = {
+        self.exp_objs[name] = {
             'objective': objective,
-            'higher_is_better': higher_is_better,
-            'constraint': constraint or [-float('-inf'), float('+inf')],
-            'proxy': False
+            'higher_is_better': higher_is_better
         }
 
-        if proxy_constraint:
-            proxy_objective, *p_constraint = proxy_constraint
+    def add_extra_constraint(self, name: str, constraint_fn: Union[Objective, AsyncObjective],
+                             constraint: Tuple[float, float]):
+        assert isinstance(constraint_fn, (AsyncObjective, Objective))
+        assert name not in dict(self.extra_constraints, **self.objs),\
+            f'There is already an objective or constraint named {name}.'
 
-            self.proxy_objs[objective_name] = {
-                'objective': proxy_objective,
-                'higher_is_better': higher_is_better,
-                'constraint': p_constraint,
-                'proxy': True
-            }
+        self.extra_constraints[name] = {
+            'objective': constraint_fn,
+            'constraint': constraint,
+        }
 
     def _filter_objs(self, objs: Dict[str, Dict], field_name: str, query_fn: Callable) -> Dict[str, Dict]:
         return {
@@ -76,6 +98,9 @@ class SearchObjectives():
                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                    budgets: Optional[Dict[str, List]] = None,
                    progress_bar: bool = False) -> Dict[str, np.ndarray]:
+        if not objs or not models:
+            return {}
+        
         # Sets `None` budget for objectives not specified in `budgets`
         budgets = budgets or {}
         budgets = {
@@ -91,17 +116,17 @@ class SearchObjectives():
         sync_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, Objective))
         async_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, AsyncObjective))
 
-        assert all(len(dataset_providers) == len(models) == b for b in budgets.values())
+        assert all(len(dataset_providers) == len(models) == len(b) for b in budgets.values())
 
         # Initializes evaluation results with cached results
         eval_results = {
             obj_name: [
                 self.cache.get(
-                    (obj_name, obj_d['proxy'], model.archid, data, budget)
+                    (obj_name, model.archid, data.__class__.__name__, budget)
                 )
                 for model, data, budget in zip(models, dataset_providers, budgets[obj_name])
             ]
-            for obj_name, obj_d in objs.items()
+            for obj_name in objs
         }
 
         # Saves model indices that are not in the cache and need to be evaluated
@@ -145,18 +170,18 @@ class SearchObjectives():
             results = obj_d['objective'].fetch_all()
             
             assert len(eval_indices[obj_name]) == len(results), \
-                'Received more results than expected.'
+                'Received a different amount of results than expected.'
             
             for result_i, eval_i in enumerate(eval_indices[obj_name]):
                 eval_results[obj_name][eval_i] = results[result_i]
         
         # Updates cache
         if self.cache_objective_evaluation:
-            for obj_name, obj_d in objs.items():
+            for obj_name in objs:
                 for i in eval_indices[obj_name]:
                     cache_tuple = (
-                        obj_name, obj_d['proxy'],
-                        models[i].archid, dataset_providers[i],
+                        obj_name, models[i].archid,
+                        dataset_providers[i].__class__.__name__,
                         budgets[obj_name][i]
                     )
 
@@ -165,66 +190,141 @@ class SearchObjectives():
         assert len(set(len(r) for r in eval_results.values())) == 1
 
         return {
-            obj_name: np.ndarray(obj_results, dtype=np.float64)
+            obj_name: np.array(obj_results, dtype=np.float64)
             for obj_name, obj_results in eval_results.items()
         }
 
-    def _get_valid_arch_indices(self, objs: Dict[str, Dict], 
-                                results: Dict[str, np.ndarray]) -> np.ndarray:
+    def _get_valid_arch_indices(self, objs_or_constraints: Dict[str, Dict], results: Dict[str, np.ndarray]) -> np.ndarray:
+        eval_lens = {len(r) for r in results.values()}
+        assert len(eval_lens) == 1
+
+        if list(eval_lens)[0] == 0:
+            return np.array([])
+        
         valid_mask = np.logical_and.reduce([
-            (obj_r >= objs[obj_name]['constraint'][0]) &\
-            (obj_r <= objs[obj_name]['constraint'][1])
+            (obj_r >= objs_or_constraints[obj_name]['constraint'][0]) &\
+            (obj_r <= objs_or_constraints[obj_name]['constraint'][1])
             for obj_name, obj_r in results.items()
         ])
 
         return np.where(valid_mask)[0]
 
+    def eval_constraints(self, models: List[ArchaiModel],
+                         dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
+                         progress_bar: bool = False
+                         ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
+        """Evaluate constraints for a list of models and return a tuple of
+        results and valid model indices.
+
+        Args:
+            models (List[ArchaiModel]): List of models to evaluate.
+            dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or list of dataset providers.
+            progress_bar (bool, optional): Whether to show progress bar. Defaults to False.
+
+        Returns:
+            Tuple[Dict[str, np.ndarray], np.ndarray]: Tuple of results and indices of valid models.
+        """        
+        # Gets all constraints from cheap_objectives and extra_constraints
+        constraints = dict(
+            self.extra_constraints,
+            **self._filter_objs(self.cheap_objs, 'constraint', lambda x: x is not None)
+        )
+
+        if not constraints:
+            return {}, np.arange(len(models))
+
+        eval_results = self._eval_objs(
+            constraints, models,
+            dataset_providers,
+            budgets=None, progress_bar=progress_bar
+        )
+
+        return eval_results, self._get_valid_arch_indices(constraints, eval_results)
+
+    def check_model_valid(self, model: ArchaiModel, dataset_provider: DatasetProvider) -> bool:
+        """Checks if a model is valid.
+
+        Args:
+            model (ArchaiModel): Model to check.
+            dataset_provider (DatasetProvider): Dataset provider.
+
+        Returns:
+            bool: True if model is valid, False otherwise.
+        """        
+        _, idx = self.eval_constraints([model], dataset_provider, progress_bar=False)
+        return len(idx) > 0
+
     def eval_cheap_objs(self, models: List[ArchaiModel], 
                         dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                         budgets: Optional[Dict[str, List]] = None,
-                        progress_bar: bool = False
-                        ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
-        results = self._eval_objs(
+                        progress_bar: bool = False) -> Dict[str, np.ndarray]:
+        """Evaluates all registered cheap objectives for a list of models and
+        dataset provider(s).
+
+        Args:
+            models (List[ArchaiModel]): List of models to evaluate.
+            
+            dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or 
+                list of dataset providers.
+            
+            budgets (Optional[Dict[str, List]], optional): Budgets for each objective. Defaults to None.
+            
+            progress_bar (bool, optional): Weather to show progress bar. Defaults to False.
+
+        Returns:
+            Dict[str, np.ndarray]: Dictionary with evaluation results.
+        """        
+        return self._eval_objs(
             self.cheap_objs, models, dataset_providers, budgets, progress_bar
         )
-        valid_archs = self._get_valid_arch_indices(self.cheap_objs, results)
-
-        return results, valid_archs
-
-    def eval_cheap_objs_and_proxies(self, models: List[ArchaiModel], 
-                                    dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
-                                    budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None,
-                                    progress_bar: bool = False
-                                    ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
-        selected_objs = dict(self.cheap_objs, **self.proxy_objs)
-        
-        results = self._eval_objs(
-            selected_objs, models, dataset_providers, budgets, progress_bar
-        )
-        valid_archs = self._get_valid_arch_indices(selected_objs, results)
-
-        return results, valid_archs
 
     def eval_expensive_objs(self, models: List[ArchaiModel], 
                             dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
-                            budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None,
-                            progress_bar: bool = False) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
-        results = self._eval_objs(
+                            budgets: Optional[Dict[str, List]] = None,
+                            progress_bar: bool = False) -> Dict[str, np.ndarray]:
+        """Evaluates all registered expensive objectives for a list of models and
+        dataset provider(s).
+
+        Args:
+            models (List[ArchaiModel]): List of models to evaluate.
+            
+            dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or 
+                list of dataset providers.
+
+            budgets (Optional[Dict[str, List]], optional): Budgets for each objective.
+                Defaults to None.
+
+            progress_bar (bool, optional): Weather to show progress bar. Defaults to False.
+
+        Returns:
+            Dict[str, np.ndarray]: Dictionary with evaluation results.
+        """        
+        return self._eval_objs(
             self.exp_objs, models, dataset_providers, budgets, progress_bar
         )
-        valid_archs = self._get_valid_arch_indices(self.exp_objs, results)
-
-        return results, valid_archs
 
     def eval_all_objs(self, models: List[ArchaiModel], 
-                  dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
-                  budgets: Union[Dict[str, float], Dict[str, List[float]], None] = None,
-                  progress_bar: bool = False):
-        selected_objs = dict(self.exp_objs, **self.cheap_objs)
+                      dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
+                      budgets: Optional[Dict[str, List]] = None,
+                      progress_bar: bool = False) -> Dict[str, np.ndarray]:
+        """Evaluates all registered objectives for a list of models and
+        dataset provider(s).
 
-        results = self._eval_objs(
-            selected_objs, models, dataset_providers, budgets, progress_bar
+        Args:
+            models (List[ArchaiModel]): List of models to evaluate.
+            
+            dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or
+                list of dataset providers.
+
+            budgets (Optional[Dict[str, List]], optional): Budgets for each objective.
+                Defaults to None.
+            
+            progress_bar (bool, optional): Weather to show progress bar. Defaults to False.
+
+        Returns:
+            Dict[str, np.ndarray]: Dictionary with evaluation results.
+        """        
+        return self._eval_objs(
+            dict(self.exp_objs, **self.cheap_objs), models, dataset_providers,
+            budgets, progress_bar
         )
-        valid_archs = self._get_valid_arch_indices(selected_objs, results)
-
-        return results, valid_archs

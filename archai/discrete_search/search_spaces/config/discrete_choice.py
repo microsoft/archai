@@ -1,8 +1,8 @@
-from typing import Sequence, Any
+from typing import List, Any
 
 
 class DiscreteChoice():
-    def __init__(self, choices: Sequence[Any]):
+    def __init__(self, choices: List[Any]):
         self.choices = choices
 
     def __getitem__(self, idx):
