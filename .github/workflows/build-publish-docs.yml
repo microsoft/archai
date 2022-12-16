@@ -3,12 +3,12 @@ name: Documentation Builder and Publisher
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - "docs/**"
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - "docs/**"
 
@@ -38,7 +38,7 @@ jobs:
           make clean
           make html
       - name: Pushes to gh-pages branch
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

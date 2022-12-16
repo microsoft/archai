@@ -38,7 +38,7 @@ exclude_patterns = [
     "tests/**",
 ]
 extlinks = {
-    "github": ("https://github.com/microsoft/archai/tree/master/%s", "%s") 
+    "github": ("https://github.com/microsoft/archai/tree/main/%s", "%s") 
 }
 source_suffix = ".rst"
 master_doc = "index"

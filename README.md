@@ -92,4 +92,4 @@ This project may contain trademarks or logos for projects, products, or services
 
 ### License
 
-This project is released under the MIT License. Please review the [file](https://github.com/microsoft/archai/blob/master/LICENSE) for more details.
+This project is released under the MIT License. Please review the [file](https://github.com/microsoft/archai/blob/main/LICENSE) for more details.
