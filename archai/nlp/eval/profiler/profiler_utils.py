@@ -58,7 +58,7 @@ def _silu_hook(input: torch.Tensor, inplace: Optional[bool] = False) -> Tuple[in
     return torch.numel(input), 0
 
 
-def _gelu_hook(input: torch.Tensor) -> Tuple[int, int]:
+def _gelu_hook(input: torch.Tensor, approximate: str = 'none') -> Tuple[int, int]:
     return torch.numel(input), 0
 
 
@@ -288,6 +288,11 @@ def _addmm_hook(
 
 def _einsum_hook(equation: str, *operands) -> Tuple[int, int]:
     equation = equation.replace(" ", "")
+    
+    # Fix for `opt_einsum.contract`
+    if len(operands) == 1 and isinstance(operands[0], tuple):
+        operands = operands[0]
+
     input_shapes = [o.shape for o in operands]
 
     letter_order = OrderedDict((k, 0) for k in equation if k.isalpha()).keys()
