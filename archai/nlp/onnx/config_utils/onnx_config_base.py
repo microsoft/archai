@@ -8,10 +8,12 @@ from collections import OrderedDict
 from typing import Any, Mapping, Optional, Tuple
 
 import torch
+from overrides import overrides
+from overrides.enforce import EnforceOverrides
 from transformers.configuration_utils import PretrainedConfig
 
 
-class OnnxConfig:
+class OnnxConfig(EnforceOverrides):
     """Base ONNX configuration.
 
     This class defines a base ONNX configuration for a specific task, which includes the
@@ -63,8 +65,7 @@ class OnnxConfig:
 
         return None
 
-    @property
-    def inputs(self) -> Mapping[str, Mapping[int, str]]:
+    def get_inputs(self) -> Mapping[str, Mapping[int, str]]:
         """Get the ONNX-based inputs structure.
 
         Returns:
@@ -74,8 +75,7 @@ class OnnxConfig:
 
         return OrderedDict({"input_ids": {0: "batch_size", 1: "seq_len"}})
 
-    @property
-    def outputs(self) -> Mapping[str, Mapping[int, str]]:
+    def get_outputs(self) -> Mapping[str, Mapping[int, str]]:
         """Get the ONNX-based outputs structure.
 
         Returns:
@@ -184,16 +184,9 @@ class OnnxConfigWithPast(OnnxConfig):
 
         return self.config.num_attention_heads
 
-    @property
-    def inputs(self) -> Mapping[str, Mapping[int, str]]:
-        """Get the ONNX-based inputs structure.
-
-        Returns:
-            ONNX-based inputs.
-
-        """
-
-        inputs = super().inputs
+    @overrides
+    def get_inputs(self) -> Mapping[str, Mapping[int, str]]:
+        inputs = super().get_inputs()
 
         if self.use_past:
             for i in range(self.num_layers):
@@ -202,16 +195,9 @@ class OnnxConfigWithPast(OnnxConfig):
 
         return inputs
 
-    @property
-    def outputs(self) -> Mapping[str, Mapping[int, str]]:
-        """Get the ONNX-based outputs structure.
-
-        Returns:
-            ONNX-based outputs.
-
-        """
-
-        outputs = super().outputs
+    @overrides
+    def get_outputs(self) -> Mapping[str, Mapping[int, str]]:
+        outputs = super().get_outputs()
 
         if self.use_past:
             for i in range(self.num_layers):
@@ -221,6 +207,7 @@ class OnnxConfigWithPast(OnnxConfig):
 
         return outputs
 
+    @overrides
     def generate_dummy_inputs(
         self, batch_size: Optional[int] = 2, seq_len: Optional[int] = 8, past_seq_len: Optional[int] = 8
     ) -> Mapping[str, torch.Tensor]:

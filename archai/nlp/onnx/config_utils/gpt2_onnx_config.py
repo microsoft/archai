@@ -6,6 +6,7 @@
 from typing import Any, Mapping, Optional, Tuple
 
 import torch
+from overrides import overrides
 from transformers.configuration_utils import PretrainedConfig
 
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig, OnnxConfigWithPast
@@ -55,6 +56,7 @@ class GPT2FlexOnnxConfig(OnnxConfigWithPast):
     def ort_graph_optimizer_args(self) -> Tuple[Any, ...]:
         return (self.num_attention_heads[0], self.hidden_size)
 
+    @overrides
     def generate_dummy_inputs(
         self, batch_size: int = 2, seq_len: int = 8, past_seq_len: int = 8
     ) -> Mapping[str, torch.Tensor]:

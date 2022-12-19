@@ -79,11 +79,11 @@ def validate_onnx_outputs(
             onnx_inputs[name] = value.numpy()
 
     # Performs the ONNX inference session
-    onnx_named_outputs = [output for output in onnx_config.outputs.keys()]
+    onnx_named_outputs = [output for output in onnx_config.get_outputs().keys()]
     onnx_outputs = session.run(onnx_named_outputs, onnx_inputs)
 
     # Checks whether subset of ONNX outputs is valid
-    ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(onnx_config.outputs)
+    ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(onnx_config.get_outputs())
     if not onnx_outputs_set.issubset(ref_outputs_set):
         error = f"Unmatched outputs: {onnx_outputs_set} (ONNX) and {ref_outputs_set} (reference)"
         logger.error(error)
@@ -92,7 +92,7 @@ def validate_onnx_outputs(
         logger.debug(f"Matched outputs: {onnx_outputs_set}")
 
     # Checks whether shapes and values are within expected tolerance
-    for name, ort_value in zip(onnx_config.outputs, onnx_outputs):
+    for name, ort_value in zip(onnx_config.get_outputs(), onnx_outputs):
         logger.debug(f"Validating output: {name}")
 
         ref_value = ref_outputs_dict[name].detach().numpy()
@@ -151,15 +151,17 @@ def export_to_onnx(
     )
 
     model = prepare_model_for_onnx(model, model_type)
-    dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}
+    dynamic_axes = {
+        name: axes for name, axes in chain(onnx_config.get_inputs().items(), onnx_config.get_outputs().items())
+    }
 
     torch.onnx.export(
         model,
         (onnx_config.generate_dummy_inputs(),),
         f=output_model_path,
         export_params=True,
-        input_names=list(onnx_config.inputs.keys()),
-        output_names=list(onnx_config.outputs.keys()),
+        input_names=list(onnx_config.get_inputs().keys()),
+        output_names=list(onnx_config.get_outputs().keys()),
         dynamic_axes=dynamic_axes,
         opset_version=opset,
         do_constant_folding=True,
