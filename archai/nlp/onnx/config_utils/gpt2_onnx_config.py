@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT-2 ONNX configuration.
-"""
+"""GPT-2 ONNX configuration."""
 
 from typing import Any, Mapping, Optional, Tuple
 
@@ -13,7 +12,7 @@ from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig, OnnxConfig
 
 
 class GPT2OnnxConfig(OnnxConfigWithPast):
-    """Implements a GPT-2 ONNX configuration (with past key/values support)."""
+    """GPT-2 ONNX configuration (with past key/values support)."""
 
     def __init__(
         self,
@@ -37,7 +36,7 @@ class GPT2OnnxConfig(OnnxConfigWithPast):
 
 
 class GPT2FlexOnnxConfig(OnnxConfigWithPast):
-    """Implements a GPT-2 Flex ONNX configuration (with past key/values support)."""
+    """GPT-2 Flex ONNX configuration (with past key/values support)."""
 
     def __init__(
         self, config: PretrainedConfig, task: Optional[str] = "causal-lm", use_past: Optional[bool] = False

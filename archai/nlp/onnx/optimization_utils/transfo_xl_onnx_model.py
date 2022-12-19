@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Transformer-XL ONNX optimization model.
-"""
+"""Transformer-XL ONNX optimization model."""
 
 from typing import List, Optional, Tuple
 
@@ -22,10 +21,14 @@ from archai.nlp.onnx.optimization_utils.fusion_options import FusionOptions
 
 
 class TransfoXLOnnxModel(OnnxModel):
-    """TransfoXLOnnxModel that enables additional ONNX optimizations."""
+    """ONNX model optimized for Transformer-XL models.
+
+    This model extends the `OnnxModel` class by enabling additional ONNX optimizations.
+
+    """
 
     def __init__(self, model: ModelProto) -> None:
-        """Overrides initialization method.
+        """Initialize the `TransfoXLOnnxModel` instance.
 
         Args:
             model: ONNX-based model.
@@ -43,16 +46,15 @@ class TransfoXLOnnxModel(OnnxModel):
         graph_input: ValueInfoProto,
         new_type: Optional[int] = TensorProto.INT32,
     ) -> Tuple[NodeProto, List[NodeProto]]:
-        """Changes the input type of the graph and add Cast nodes if necessary.
+        """Change the input type of the graph and add `Cast` nodes if necessary.
 
         Args:
             graph: Graph instance.
-            graph_input: Graph inputs.
+            graph_input: Graph input value.
             new_type: New data type.
 
         Returns:
-            (Tuple[NodeProto, List[NodeProto]]): Cast node to be added and
-                list of Cast nodes to be removed.
+            A tuple containing a `Cast` node to be added and a list of `Cast` nodes to be removed.
 
         """
 
@@ -104,7 +106,7 @@ class TransfoXLOnnxModel(OnnxModel):
         return new_cast_node, nodes_to_remove
 
     def change_graph_inputs_to_int32(self) -> None:
-        """Changes the inputs to int32."""
+        """Change the inputs to `int32`."""
 
         graph = self.graph()
 
@@ -119,37 +121,37 @@ class TransfoXLOnnxModel(OnnxModel):
             remove_cast_count += len(removed_nodes)
 
     def fuse_layer_norm(self) -> None:
-        """Fuses the appropriate nodes into a LayerNormalization layer."""
+        """Fuse the appropriate nodes into a `LayerNormalization` layer."""
 
         fusion = FusionLayerNormalization(self)
         fusion.apply()
 
     def fuse_skip_layer_norm(self) -> None:
-        """Fuses the appropriate nodes into a SkipLayerNormalization layer."""
+        """Fuse the appropriate nodes into a `SkipLayerNormalization` layer."""
 
         fusion = FusionSkipLayerNormalization(self)
         fusion.apply()
 
     def fuse_add_bias_skip_layer_norm(self) -> None:
-        """Fuses the appropriate nodes into a BiasSkipLayerNormalization layer."""
+        """Fuse the appropriate nodes into a `BiasSkipLayerNormalization` layer."""
 
         fusion = FusionBiasSkipLayerNormalization(self)
         fusion.apply()
 
     def fuse_attention(self) -> None:
-        """Fuses the appropriate nodes into an Attention layer."""
+        """Fuse the appropriate nodes into an `Attention` layer."""
 
         fusion = FusionAttention(self, 0, 0, self.attention_mask)
         fusion.apply()
 
     def fuse_reshape(self) -> None:
-        """Fuses the appropriate nodes into a Reshape layer."""
+        """Fuse the appropriate nodes into a `Reshape` layer."""
 
         fusion = FusionReshape(self)
         fusion.apply()
 
     def fuse_shape(self) -> None:
-        """Fuses the appropriate nodes into a Shape layer."""
+        """Fuse the appropriate nodes into a `Shape` layer."""
 
         fusion = FusionShape(self)
         fusion.apply()
@@ -159,7 +161,7 @@ class TransfoXLOnnxModel(OnnxModel):
         dynamic_batch_dim: Optional[str] = "batch",
         dynamic_seq_len: Optional[str] = "sequence",
     ) -> None:
-        """Updates inputs and outputs shapes to use dynamic axes.
+        """Update inputs and outputs shapes to use dynamic axes.
 
         Args:
             dynamic_batch_dim: Name of batch size dimension.
@@ -185,7 +187,7 @@ class TransfoXLOnnxModel(OnnxModel):
             dim_proto.dim_param = dynamic_batch_dim
 
     def adjust_reshape_and_expand(self) -> None:
-        """Cleans up unncessary reshape nodes."""
+        """Clean up unncessary reshape nodes."""
 
         nodes_to_remove = []
 
@@ -227,7 +229,7 @@ class TransfoXLOnnxModel(OnnxModel):
             self.remove_nodes(nodes_to_remove)
 
     def clean_graph(self) -> None:
-        """Cleans the graph after fusing nodes."""
+        """Clean the graph after fusing nodes."""
 
         output_name_to_node = self.output_name_to_node()
         nodes_to_remove = []
@@ -294,7 +296,7 @@ class TransfoXLOnnxModel(OnnxModel):
         options: Optional[FusionOptions] = None,
         add_dynamic_axes: Optional[bool] = False,
     ) -> None:
-        """Performs the additional transformer-based optimization.
+        """Perform additional transformer-based optimization.
 
         Args:
             options: Options holding which operators should be fused.

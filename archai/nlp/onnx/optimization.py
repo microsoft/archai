@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX optimization-related tools.
-"""
+"""ONNX optimization-related tools."""
 
 from typing import Optional
 
@@ -29,7 +28,8 @@ def optimize_onnx(
     float16: Optional[bool] = False,
     input_int32: Optional[bool] = False,
 ) -> str:
-    """Optimizes an ONNX model.
+    """Optimizes an ONNX model using a combination of standard ORT-based optimization
+    and additional transformer-based optimization.
 
     Args:
         onnx_model_path: Path to the ONNX model to be optimized.
@@ -41,7 +41,7 @@ def optimize_onnx(
         input_int32: Whether to use inputs with int32.
 
     Returns:
-        (str): Path to the optimized ONNX model.
+        Path to the optimized ONNX model.
 
     """
 

@@ -1,15 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-related export and validation.
-"""
+"""ONNX-related export and validation."""
 
 from itertools import chain
 from typing import Optional
 
 import numpy as np
 import torch
-from onnxruntime import InferenceSession, SessionOptions
 
 from archai.nlp import logging_utils
 from archai.nlp.onnx.config_utils.gpt2_onnx_config import (
@@ -31,13 +29,17 @@ def validate_onnx_outputs(
     onnx_model_path: str,
     atol: float,
 ) -> None:
-    """Validates the ONNX outputs.
+    """Validate the outputs of an ONNX model against a reference PyTorch model.
 
     Args:
-        onnx_config: ONNX configuration.
-        reference_model: PyTorch reference model.
+        onnx_config: Configuration for ONNX model.
+        reference_model: PyTorch model to use as reference.
         onnx_model_path: Path to the ONNX model.
-        atol: Tolerance value.
+        atol: Tolerance value for comparing the model outputs.
+
+    Raises:
+        ValueError: If the shapes or values of the ONNX model outputs do not match
+            the reference model outputs within the specified tolerance.
 
     """
 
@@ -120,19 +122,19 @@ def export_to_onnx(
     opset: Optional[int] = 11,
     atol: Optional[float] = 1e-4,
 ) -> OnnxConfig:
-    """Exports a pre-trained model to ONNX.
+    """Export a pre-trained PyTorch model to ONNX format.
 
     Args:
-        model: Instance of model to be exported.
-        output_model_path: Path to save the exported model.
+        model: Instance of the PyTorch model to be exported.
+        output_model_path: Path to save the exported ONNX model.
         task: Task identifier to use proper inputs/outputs.
-        use_past: Whether past key/values (`use_cache`) should be used.
-        share_weights: Whether embedding/softmax weights should be shared.
+        use_past: Whether to include past key/values in the model.
+        share_weights: Whether to share the embedding and softmax weights.
         opset: Set of operations to use with ONNX.
         atol: Tolerance between input and exported model.
 
     Returns:
-        (OnnxConfig): ONNX configuration of model that was exported.
+        ONNX configuration of the model that was exported.
 
     """
 

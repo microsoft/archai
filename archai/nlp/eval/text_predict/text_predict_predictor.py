@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Text Predict-based predictor.
-"""
+"""Text Predict-based predictor."""
 
 import copy
 import functools
@@ -25,7 +24,7 @@ from archai.nlp.eval.text_predict.text_predict_tokenizer import (
 
 
 class Predictor:
-    """Implements the Text Predict predictor pipeline."""
+    """Text Predict-based predictor."""
 
     # Maximum number of forward passes
     MAX_FORWARD_PASS = 6
@@ -64,7 +63,7 @@ class Predictor:
         max_body_length: Optional[int] = 1000000,
         min_pred_length: Optional[int] = 6,
     ) -> None:
-        """Overrides initialization method.
+        """Initialize predictor.
 
         Args:
             model: An instance of a Text Predict-based model.
@@ -82,13 +81,13 @@ class Predictor:
         self.bos_token_id = None
 
     def _truncate_text(self, text: str) -> str:
-        """Truncates a text based on the maximium allowed length.
+        """Truncate a text based on the maximium allowed length.
 
         Args:
-            text: Text to be truncated.
+            text: The text to truncate.
 
         Returns:
-            (str): Truncated text.
+            The truncated text.
 
         """
 
@@ -100,13 +99,13 @@ class Predictor:
 
     @functools.lru_cache(maxsize=1024)
     def _check_end_with_complete_word(self, input_ids: Tuple[int, ...]) -> bool:
-        """Checks if predicted word (set of tokens) is complete according to threshold.
+        """Check if predicted word (set of tokens) is complete according to threshold.
 
         Args:
-            input_ids: Tokens that identify predicted word.
+            input_ids: The tokens that identify predicted word.
 
         Returns:
-            (bool): Whether word is complete or not.
+            Whether predicted word is complete or not.
 
         """
 
@@ -121,13 +120,13 @@ class Predictor:
         return probs_sum > Predictor.COMPLETE_WORD_PROB_THRESHOLD
 
     def _update_end_with_complete_word(self, prediction: TextPredictPrediction) -> bool:
-        """Updates whether prediction defines a complete word or not.
+        """Update whether prediction defines a complete word or not.
 
         Args:
-            prediction: Prediction.
+            prediction: The prediction.
 
         Returns:
-            (bool): Whether prediction defines a complete word or not.
+            Whether prediction defines a complete word or not.
 
         """
 
@@ -141,13 +140,13 @@ class Predictor:
         return prediction.end_with_complete_word
 
     def _check_valid_prediction(self, prediction: TextPredictPrediction) -> bool:
-        """Checks whether prediction is valid or not.
+        """Check whether prediction is valid or not.
 
         Args:
-            prediction: Prediction.
+            prediction: The prediction.
 
         Returns:
-            (bool): Whether prediction is valid or not.
+            Whether prediction is valid or not.
 
         """
 
@@ -175,11 +174,11 @@ class Predictor:
         """Core computation to predict and filter tokens according to the supplied prefix.
 
         Args:
-            input_ids: Input identifiers to calculate next tokens.
-            filter_prefix: Prefix to filter tokens.
+            input_ids: The input tokens.
+            filter_prefix: The prefix to filter.
 
         Returns:
-            (Tuple[int, ...]): Filtered tokens.
+            A list of filtered tokens.
 
         """
 
@@ -212,16 +211,16 @@ class Predictor:
         idxs: Optional[List[int]] = None,
         global_prob: Optional[float] = 1.0,
     ) -> Tuple[int, ...]:
-        """Predicts and filters tokens according to the supplied prefix.
+        """Predict and filter tokens according to the supplied prefix.
 
         Args:
-            input_ids: Input identifiers to calculate next tokens.
-            filter_prefix: Prefix to filter tokens.
+            input_ids: The input tokens.
+            filter_prefix: The prefix to filter.
             idxs: Additional indexes from the expansion procedure.
-            global_prob: Global probability.
+            global_prob: The global probability of the expansion procedure.
 
         Returns:
-            (Tuple[int, ...]): Filtered tokens.
+            A list of filtered tokens.
 
         """
 
@@ -243,14 +242,14 @@ class Predictor:
         return filtered_tokens
 
     def _find_initial_prediction(self, input_ids: Tuple[int, ...], prefix: str) -> TextPredictPrediction:
-        """Predicts prefix from a supplied word.
+        """Predict prefix from a supplied word.
 
         Args:
-            input_ids: Input identifiers to initialize the prediction.
-            prefix: Prefix to filter tokens.
+            input_ids: The input tokens.
+            prefix: The prefix to predict.
 
         Returns:
-            (TextPredictPrediction): Instance of initial prediction.
+            The initial prediction.
 
         """
 
@@ -312,10 +311,10 @@ class Predictor:
         """Core computation to perform the prediction pipeline.
 
         Args:
-            text: Input text to be predicted.
+            text: The text to predict.
 
         Returns:
-            (TextPredictPrediction): Instance of predicted text.
+            The prediction.
 
         """
 
@@ -365,11 +364,11 @@ class Predictor:
         return TextPredictPrediction.empty()
 
     def predict(self, sequences: List[TextPredictionSequence], output_file: Optional[str] = None) -> None:
-        """Predicts a set of sequences.
+        """Predict a set of sequences.
 
         Args:
-            sequences: Set of sequences to be predicted.
-            output_file: Path to the output file.
+            sequences: List of sequences to predict.
+            output_file: Optional output file to write the predictions.
 
         """
 
@@ -402,12 +401,12 @@ class Predictor:
         min_scores: Union[float, List[float]],
         expected_match_rate: Optional[float] = None,
     ) -> None:
-        """Scores a set of sequences (that have already been predicted).
+        """Score a set of sequences (that have already been predicted).
 
         Args:
-            sequences: Sequences (with predictions) to be scored.
-            min_scores: Minimum scores.
-            expected_match_rate: Expected match rate to find best score.
+            sequences: List of sequences to score.
+            min_scores: Minimum score to consider.
+            expected_match_rate: Expected match rate to compute the minimum score.
 
         """
 

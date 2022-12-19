@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Text Predict-based evaluation.
-"""
+"""Text Predict-based evaluation."""
 
 from typing import Optional
 
@@ -28,21 +27,22 @@ def evaluate(
     score_step: Optional[float] = 0.1,
     expected_match_rate: Optional[float] = 0.5,
 ) -> None:
-    """Performs the Text Predict evaluation.
+    """Evaluate a Text Predict model and tokenizer on a given data file.
 
     Args:
-        tp_model: Text Predict-based model.
-        tp_tokenizer: Text Predict-based tokenizer.
-        data_file_path: Path to the input data file.
-        output_dir: Output folder.
-        max_body_length: Maximum length of the input text.
-        min_pred_length: Minimum length of the prediction.
-        save_step: Amount of steps to save results.
-        current_paragraph_only: Only predicts information from current paragraph.
-        min_score: Minimum score.
-        max_score: Maximum score.
-        score_step: Step between minimum and maximum scores.
-        expected_match_rate: Expected match rate.
+        tp_model: The Text Predict model to use for prediction.
+        tp_tokenizer: The Text Predict tokenizer to use for preprocessing.
+        data_file_path: The path to the input data file.
+            The file should be in either .ljson or .txt format.
+        output_dir: The output directory to save the results to.
+        max_body_length: The maximum length of the input text.
+        min_pred_length: The minimum length of the prediction.
+        save_step: The number of steps between saving results.
+        current_paragraph_only: Whether to only predict information from the current paragraph.
+        min_score: The minimum score to consider a prediction a match.
+        max_score: The maximum score to consider a prediction a match.
+        score_step: The step between the minimum and maximum scores.
+        expected_match_rate: The expected rate of correct predictions.
 
     """
 
