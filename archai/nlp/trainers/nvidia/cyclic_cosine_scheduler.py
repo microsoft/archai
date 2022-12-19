@@ -122,12 +122,12 @@ class CyclicCosineDecayLR(_LRScheduler):
         super(CyclicCosineDecayLR, self).__init__(optimizer, last_epoch, verbose=verbose)
 
     def get_lr(self) -> float:
-        """Return the current learning rate.
+        """Return the learning rate.
 
         This is the learning rate that will be used for the next iteration of training.
 
         Returns:
-            The current learning rate.
+            The learning rate.
 
         """
 

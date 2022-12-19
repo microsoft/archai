@@ -102,7 +102,7 @@ def save_checkpoint(
 
 
 class NvidiaTrainer:
-    """Implement an NVIDIA-based trainer."""
+    """NVIDIA-based trainer."""
 
     def __init__(
         self,

@@ -73,6 +73,7 @@ def float_to_qat_modules(
     This function converts all float-based modules in the input model to QAT-ready
     modules using the provided module mapping. It does this recursively, so all sub-modules
     within the input model will also be converted if applicable.
+
     A quantization configuration can also be supplied.
 
     Args:

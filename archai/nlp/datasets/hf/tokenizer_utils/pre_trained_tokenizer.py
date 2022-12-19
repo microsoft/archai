@@ -21,7 +21,7 @@ class ArchaiPreTrainedTokenizerFast(PreTrainedTokenizerFast):
         **kwargs,
     ) -> None:
         """Initialize the `ArchaiPreTrainedTokenizerFast` class with
-            additional keyword arguments.
+        additional keyword arguments.
 
         Args:
             tokenizer_file: Path to the tokenizer's file.

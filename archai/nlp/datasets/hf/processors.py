@@ -187,7 +187,7 @@ def tokenize_contiguous_dataset(
     **kwargs,
 ) -> Dict[str, Any]:
     """Tokenize a list of examples using a specified tokenizer and
-        with contiguous-length batches (no truncation nor padding).
+    with contiguous-length batches (no truncation nor padding).
 
     Args:
         examples: A list of examples to be tokenized.
@@ -227,7 +227,7 @@ def tokenize_nsp_dataset(
     **kwargs,
 ) -> Dict[str, Any]:
     """Tokenizes a list of examples using a specified tokenizer and
-        with next-sentence prediction (NSP).
+    with next-sentence prediction (NSP).
 
     Args:
         examples: A list of examples to be tokenized.
