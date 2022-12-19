@@ -1,19 +1,29 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for defining tokens' configuration.
-"""
+"""Utilities for defining tokens' configuration."""
 
+from enum import Enum
 from typing import List, Optional
 
 from archai.common import utils
-from archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum import (
-    SpecialTokenEnum,
-)
+
+
+class SpecialTokenEnum(Enum):
+    """Enumerate special tokens."""
+
+    UNK = 0
+    BOS = 1
+    EOS = 2
+    PAD = 3
+    MASK = 4
 
 
 class TokenConfig:
-    """Implements a base class for tokens' configuration."""
+    """Store and access configuration options for special tokens,
+    such as BOS, EOS, UNK, and PAD.
+
+    """
 
     def __init__(
         self,
@@ -25,7 +35,7 @@ class TokenConfig:
         add_prefix_new_line: Optional[bool] = False,
         lower_case: Optional[bool] = False,
     ) -> None:
-        """Initializes class by setting attributes.
+        """Initialize the `TokenConfig` class by setting the specified attributes.
 
         Args:
             bos_token: Begin-of-sentence token.
@@ -47,10 +57,10 @@ class TokenConfig:
         self.lower_case = lower_case
 
     def get_special_tokens(self) -> List[str]:
-        """Gets available special tokens.
+        """Return a list of all available special tokens.
 
         Returns:
-            (List[str]): Special tokens.
+            Special tokens.
 
         """
 
@@ -59,13 +69,13 @@ class TokenConfig:
         )
 
     def special_token_name(self, sp: SpecialTokenEnum) -> str:
-        """Gets the name of the special token.
+        """Return the name of a special token.
 
         Args:
             sp: Special token enumerator.
 
         Returns:
-            (str): Special token name.
+            Special token name.
 
         """
 
