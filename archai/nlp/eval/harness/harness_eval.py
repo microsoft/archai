@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Harness-based evaluation.
-"""
+"""Harness-based evaluation."""
 
 from typing import Any, Dict, Optional
 
@@ -18,16 +17,19 @@ def evaluate(
     n_few_shot: Optional[int] = 0,
     description: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Performs the harness-based evaluation.
+    """Evaluate a harness-based model on a harness-based task.
+
+    This function performs the evaluation of a harness-based model on a harness-based task
+    using a few-shot evaluation approach.
 
     Args:
-        harness_model: Harness-based model.
-        harness_task: Harness-based task.
-        n_few_shot: Number of few-shot samples.
+        harness_model: Harness-based model to be evaluated.
+        harness_task: Harness-based task on which the model is evaluated.
+        n_few_shot: Number of few-shot samples to be used for the evaluation.
         description: Additional description to be added to the few-shot context.
 
     Returns:
-        (Dict[str, Any]): Output configuration and metrics.
+        Output configuration and evaluation metrics.
 
     """
 

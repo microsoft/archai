@@ -8,13 +8,14 @@ https://arxiv.org/pdf/1907.10641.pdf
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+from overrides import overrides
 
 from archai.nlp.eval.harness.harness_task import HarnessTask
 from archai.nlp.eval.harness.harness_utils import HarnessCall, call_factory
 
 
 class WinoGrandeHarnessTask(HarnessTask):
-    """Defines the WinoGrande task."""
+    """WinoGrande harness task."""
 
     def __init__(
         self,
@@ -44,6 +45,7 @@ class WinoGrandeHarnessTask(HarnessTask):
         pronoun_loc = sentence.index("_")
         return sentence[:pronoun_loc] + option
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         answer = sample["answer"]
         option = sample["option" + answer]
@@ -54,6 +56,7 @@ class WinoGrandeHarnessTask(HarnessTask):
         pronoun_loc = sentence.index("_") + 1
         return f" {sentence[pronoun_loc:].strip()}"
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return self._get_partial_label_from_sample(sample["sentence"])
 
@@ -63,6 +66,7 @@ class WinoGrandeHarnessTask(HarnessTask):
 
         return "\n\n".join([*context, partial_context]) if context else partial_context
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         label = self._get_partial_label_from_sample(sample["sentence"])
         options = [sample["option1"], sample["option2"]]
@@ -76,6 +80,7 @@ class WinoGrandeHarnessTask(HarnessTask):
 
         return lls
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         prediction = np.argmax(results)
         reference = 0 if sample["answer"] == "1" else 1

@@ -9,13 +9,14 @@ import re
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+from overrides import overrides
 
 from archai.nlp.eval.harness.harness_task import HarnessTask
 from archai.nlp.eval.harness.harness_utils import HarnessCall, call_factory
 
 
 class HellaSwagHarnessTask(HarnessTask):
-    """Defines the HellaSwag task."""
+    """HellaSwag harness task."""
 
     def __init__(
         self,
@@ -41,9 +42,11 @@ class HellaSwagHarnessTask(HarnessTask):
     def has_test_set(self) -> bool:
         return False
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         return sample["query"]
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return f" {sample['choices'][sample['label']]}"
 
@@ -55,6 +58,7 @@ class HellaSwagHarnessTask(HarnessTask):
 
         return text
 
+    @overrides
     def _pre_process_sample(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         context = f"{sample['ctx_a']} {sample['ctx_b'].capitalize()}"
 
@@ -64,9 +68,11 @@ class HellaSwagHarnessTask(HarnessTask):
             "label": int(sample["label"]),
         }
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         return [call_factory.log_likelihood(context, f" {choice}") for choice in sample["choices"]]
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         prediction = np.argmax(results)
         reference = sample["label"]

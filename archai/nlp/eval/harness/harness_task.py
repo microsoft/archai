@@ -1,18 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Harness-based task.
-"""
+"""Harness-based task."""
 
 from __future__ import annotations
 
 import importlib
 import random
+from abc import abstractmethod
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import datasets
 from datasets.arrow_dataset import Dataset
 from evaluate import load as hf_load_metric
+from overrides.enforce import EnforceOverrides
 
 from archai.nlp.datasets.hf.loaders import load_dataset
 from archai.nlp.eval.eval_utils import cached_property
@@ -55,13 +56,20 @@ AVAILABLE_HARNESS_TASKS = {
 
 
 def load_harness_task(task_name: str, **kwargs) -> HarnessTask:
-    """Instantiates a new harness task.
+    """Instantiate a new harness task of the specified type.
+
+    This function loads a harness task class based on the provided `task_name`
+    and creates an instance of the class with the provided keyword arguments.
 
     Args:
-        task_name: Name of harness task to be instantiated.
+        task_name: The name of the harness task to instantiate.
 
     Returns:
-        (HarnessTask): A harness task wrapped into corresponding class.
+        An instance of the specified harness task class.
+
+    Raises:
+        AssertionError: If the provided `task_name` is not a valid key
+            in the `AVAILABLE_HARNESS_TASKS` dictionary.
 
     """
 
@@ -75,8 +83,16 @@ def load_harness_task(task_name: str, **kwargs) -> HarnessTask:
     return task_cls(**kwargs)
 
 
-class HarnessTask:
-    """Implements a harness-based task."""
+class HarnessTask(EnforceOverrides):
+    """Abstract base class for harness-based tasks.
+
+    A harness-based task is a task that involves evaluating a model's performance
+    on a particular task using a dataset, a metric, and possibly some pre-processing steps.
+
+    HarnessTask subclasses must override the `_create_inputs`, `_create_label`,
+    `create_sampling_calls` and `compute_results` method.
+
+    """
 
     def __init__(
         self,
@@ -91,19 +107,19 @@ class HarnessTask:
         metric_name: Optional[str] = None,
         metric_config_name: Optional[str] = None,
     ) -> None:
-        """Initializes with custom arguments and keyword arguments.
+        """Initialize a new harness task.
 
         Args:
-            dataset_name: Name of dataset to be downloaded.
-            dataset_config_name: Name of configuration of dataset to be downloaded.
-            dataset_dir: Path to manually downloaded files.
-            dataset_split: Split to be retrieved. `None` defaults to all splits.
-            dataset_cache: Folder where cache should be stored/loaded.
-            dataset_samples: Subsamples into a fixed amount of samples.
-            random_seed: Fixes the order of samples.
-            num_proc: Number of processes for multiprocessing.
-            metric_name: Name of metric to be instantiated.
-            metric_config_name: Configuration name of metric to be instantiated.
+            dataset_name: The name of the dataset to load.
+            dataset_config_name: The name of the configuration for the dataset to load.
+            dataset_dir: The directory where the dataset files can be found.
+            dataset_split: The splits of the dataset to load.
+            dataset_samples: The number of samples to subsample from the dataset.
+            random_seed: The seed used to shuffle the samples in the dataset.
+            num_proc: The number of processes to use for multiprocessing
+                when preparing the data.
+            metric_name: The name of the metric to instantiate.
+            metric_config_name: The name of the configuration for the metric to instantiate.
 
         """
 
@@ -136,7 +152,7 @@ class HarnessTask:
         """Whether task has an available training set.
 
         Returns:
-            (bool): Availability of training set.
+            Availability of training set.
 
         """
 
@@ -147,7 +163,7 @@ class HarnessTask:
         """Training set.
 
         Returns:
-            (Dataset): Training set with `_pre_process_sample` function applied.
+            The training set, with the `_pre_process_sample` function applied.
 
         """
 
@@ -164,7 +180,7 @@ class HarnessTask:
         """Whether task has an available validation set.
 
         Returns:
-            (bool): Availability of validation set.
+            Availability of validation set.
 
         """
 
@@ -175,7 +191,7 @@ class HarnessTask:
         """Validation set.
 
         Returns:
-            (Dataset): Validation set with `_pre_process_sample` function applied.
+            The validation set, with the `_pre_process_sample` function applied.
 
         """
 
@@ -192,7 +208,7 @@ class HarnessTask:
         """Whether task has an available testing set.
 
         Returns:
-            (bool): Availability of testing set.
+            Availability of testing set.
 
         """
 
@@ -203,7 +219,7 @@ class HarnessTask:
         """Testing set.
 
         Returns:
-            (Dataset): Testing set with `_pre_process_sample` function applied.
+            The testing set, with the `_pre_process_sample` function applied.
 
         """
 
@@ -217,10 +233,11 @@ class HarnessTask:
 
     @property
     def config(self) -> Dict[str, Any]:
-        """Task's configuration.
+        """Configuration of the task.
 
         Returns:
-            (Dict[str, Any]): Information about the task.
+            A dictionary containing the configuration of the task, including information about
+                the dataset and metric used.
 
         """
 
@@ -238,101 +255,97 @@ class HarnessTask:
         }
 
     def _pre_process_sample(self, sample: Dict[str, Any]) -> Dict[str, Any]:
-        """Pre-processes a dataset by using a map function.
+        """Pre-process a sample.
 
         Args:
-            samples: Incoming samples.
+            sample: The input sample.
 
         Returns:
-            (List[Dict[str, Any]]): Pre-processed samples.
+            The pre-processed sample.
 
         """
 
         return sample
 
+    @abstractmethod
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
-        """Creates the string-based content of sample.
+        """Create the string-based content of the sample.
 
-        This function needs to be overidden by childs due to different
+        This function needs to be overidden by children due to different
         data format of tasks.
 
         Args:
-            sample: Sample.
+            sample: The input sample.
 
         Returns:
-            (str): String-based content of sample.
+            String-based content of sample.
 
         """
 
-        raise NotImplementedError
-
+    @abstractmethod
     def _create_label(self, sample: Dict[str, Any]) -> str:
-        """Creates the string-based label of sample.
+        """Create the string-based label of the sample.
 
-        This function needs to be overidden by childs due to different
+        This function needs to be overidden by children due to different
         data format of tasks.
 
         Args:
-            sample: Sample.
+            sample: The input sample.
 
         Returns:
-            (str): String-based label of sample.
+            String-based label of sample.
 
         """
 
-        raise NotImplementedError
-
+    @abstractmethod
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
-        """Creates a tuple of HarnessCall that runs the sampling procedure.
+        """Create a tuple of `HarnessCall` that runs the sampling procedure.
 
-        This function needs to be overidden by childs due to different
+        This function needs to be overidden by children due to different
         sampling of tasks.
 
         Args:
-            sample: Sample.
-            context: Context.
+            sample: The input sample.
+            context: The context of the sample.
 
         Returns:
-            (Tuple[HarnessCall, ...]): Sampling procedures.
+            Tuple of `HarnessCall` that runs the sampling procedure.
 
         """
 
-        raise NotImplementedError
-
+    @abstractmethod
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         """Computes a tuple of results from the sampling procedure and
-            adds current prediction/reference to metric.
+        add current prediction/reference to metric.
 
-        This function needs to be overidden by childs due to different
+        This function needs to be overidden by children due to different
         post-processing of tasks.
 
         Args:
-            sample: Sample.
-            results: Results.
+            sample: The input sample.
+            results: A tuple of results from the sampling procedure.
 
         """
 
-        raise NotImplementedError
-
     def compute_metrics(self) -> Dict[str, Any]:
-        """Computes metrics from stored predictions and references.
+        """Compute metrics from stored predictions and references.
 
         Returns:
-            (Dict[str, Any]): Dictionary of metrics.
+            Dictionary of metrics.
 
         """
 
         return self.metric.compute()
 
     def _get_few_shot_samples(self, sample_set: Dataset, k: int) -> List[Dict[str, Any]]:
-        """Gets `k` few-shot samples.
+        """Get `k` few-shot samples.
 
         Args:
-            sample_set: Set to be sampled from.
+            sample_set: Dataset of few-shot samples.
             k: Number of few-shot samples.
 
         Returns:
-            (List[Dict[str, Any]]): Few-shot samples.
+            List of few-shot samples.
 
         """
 
@@ -350,15 +363,15 @@ class HarnessTask:
         n_few_shot: Optional[int] = 0,
         description: Optional[str] = None,
     ) -> str:
-        """Creates a context based on current evaluation sample and few-shot samples.
+        """Create a context based on current evaluation sample and few-shot samples.
 
         Args:
-            sample: Current evaluation sample.
+            sample: The input sample.
             n_few_shot: Number of few-shot samples.
-            description: Additional description to be added to the context.
+            description: An additional description to be added to the context.
 
         Returns:
-            (str): String-based context.
+            String-based context of sample.
 
         """
 
