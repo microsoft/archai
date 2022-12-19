@@ -34,8 +34,6 @@ class VocabBase(EnforceOverrides, abc.Sized):
 
         """
 
-        pass
-
     @abstractmethod
     def train(self, filepaths: List[str]) -> None:
         """Train the tokenizer on a list of files.
@@ -44,8 +42,6 @@ class VocabBase(EnforceOverrides, abc.Sized):
             filepaths: A list of paths to input files.
 
         """
-
-        pass
 
     @abstractmethod
     def is_trained(self) -> bool:
@@ -56,13 +52,9 @@ class VocabBase(EnforceOverrides, abc.Sized):
 
         """
 
-        pass
-
     @abstractmethod
     def load(self) -> None:
         """Load a pre-trained tokenizer."""
-
-        pass
 
     @abstractmethod
     def encode_text(self, text: str) -> List[int]:
@@ -76,8 +68,6 @@ class VocabBase(EnforceOverrides, abc.Sized):
 
         """
 
-        pass
-
     @abstractmethod
     def decode_text(self, ids: List[int]) -> str:
         """Decode tokens into text.
@@ -89,8 +79,6 @@ class VocabBase(EnforceOverrides, abc.Sized):
             The decoded tokens (text).
 
         """
-
-        pass
 
     @abstractmethod
     def special_token_id(self, sp: SpecialTokenEnum) -> int:
@@ -104,8 +92,6 @@ class VocabBase(EnforceOverrides, abc.Sized):
 
         """
 
-        pass
-
     @abstractmethod
     def token_to_id(self, t: str) -> int:
         """Convert a string-based token to its identifier.
@@ -118,8 +104,6 @@ class VocabBase(EnforceOverrides, abc.Sized):
 
         """
 
-        pass
-
     @abstractmethod
     def id_to_token(self, id: int) -> str:
         """Convert a token identifier to its string-based representation.
@@ -131,8 +115,6 @@ class VocabBase(EnforceOverrides, abc.Sized):
             The string-based token.
 
         """
-
-        pass
 
     def tokens_to_ids(self, ts: List[str]) -> List[int]:
         """Convert a list of string-based tokens to their corresponding identifiers.

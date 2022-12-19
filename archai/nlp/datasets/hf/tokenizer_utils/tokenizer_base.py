@@ -8,13 +8,14 @@ from __future__ import annotations
 import os
 from typing import Iterator, List, Optional
 
+from overrides.enforce import EnforceOverrides
 from tokenizers import Tokenizer
 from tokenizers.trainers import Trainer
 
 from archai.nlp.datasets.hf.tokenizer_utils.token_config import TokenConfig
 
 
-class TokenizerBase:
+class TokenizerBase(EnforceOverrides):
     """A base class for building a customizable tokenization pipeline
     using the huggingface/tokenizers library.
 
