@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""PyTorch mappings between float-based and quantization-ready modules.
-"""
+"""PyTorch mappings between float-based and quantization-ready modules."""
 
 from __future__ import annotations
 
@@ -16,10 +15,10 @@ from archai.nlp.quantization.quantizers import FakeDynamicQuant
 
 
 class FakeQuantEmbedding(torch.nn.Embedding):
-    """Translates a torch-based Embedding layer into a QAT-ready Embedding."""
+    """Translate a torch-based Embedding layer into a QAT-ready Embedding layer."""
 
     def __init__(self, *args, **kwargs) -> None:
-        """Initializes a fake quantized Embedding layer."""
+        """Initialize a fake quantized Embedding layer."""
 
         bits = kwargs.pop("bits", 8)
         onnx_compatible = kwargs.pop("onnx_compatible", False)
@@ -35,23 +34,23 @@ class FakeQuantEmbedding(torch.nn.Embedding):
 
     @property
     def fake_quant_weight(self) -> torch.Tensor:
-        """Performs a fake quantization over the weight matrix.
+        """Perform a fake quantization over the weight matrix.
 
         Returns:
-            (torch.Tensor): Fake quantized weight matrix.
+            Fake quantized weight matrix.
 
         """
 
         return self.weight_fake_quant(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Performs a forward pass over the fake quantized Embedding layer.
+        """Perform a forward pass over the fake quantized Embedding layer.
 
         Args:
             x: Input tensor.
 
         Returns:
-            (torch.Tensor): Quantized tensor.
+            Quantized tensor.
 
         """
 
@@ -64,14 +63,14 @@ class FakeQuantEmbedding(torch.nn.Embedding):
         qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
         **kwargs,
     ) -> FakeQuantEmbedding:
-        """Maps module from float to QAT-ready.
+        """Map module from float to QAT-ready.
 
         Args:
             mod: Module to be mapped.
             qconfig: Quantization configuration.
 
         Returns:
-            (FakeQuantEmbedding): QAT-ready module.
+            QAT-ready module.
 
         """
 
@@ -83,10 +82,10 @@ class FakeQuantEmbedding(torch.nn.Embedding):
         return module
 
     def to_float(self) -> torch.nn.Module:
-        """Maps module from QAT-ready to float.
+        """Map module from QAT-ready to float.
 
         Returns:
-            (torch.nn.Module): Float-based module.
+            Float-based module.
 
         """
 
@@ -99,10 +98,10 @@ class FakeQuantEmbedding(torch.nn.Embedding):
 
 
 class FakeQuantEmbeddingForOnnx(FakeQuantEmbedding):
-    """Allows a QAT-ready Embedding layer to be exported with ONNX."""
+    """Allow a QAT-ready Embedding layer to be exported with ONNX."""
 
     def __init__(self, *args, **kwargs) -> None:
-        """Initializes a fake quantized Embedding layer compatible with ONNX."""
+        """Initialize a fake quantized Embedding layer compatible with ONNX."""
 
         kwargs["onnx_compatible"] = True
 
@@ -110,7 +109,7 @@ class FakeQuantEmbeddingForOnnx(FakeQuantEmbedding):
 
 
 class FakeDynamicQuantLinear(torch.nn.Linear):
-    """Translates a torch-based Linear layer into a QAT-ready Linear."""
+    """Translate a torch-based Linear layer into a QAT-ready Linear layer."""
 
     _FLOAT_MODULE = torch.nn.Linear
 
@@ -124,7 +123,7 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
         qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
         **kwargs,
     ) -> None:
-        """Initializes a fake quantized Linear layer.
+        """Initialize a fake quantized Linear layer.
 
         Args:
             dynamic_weight: Whether to use dynamic weights.
@@ -155,23 +154,23 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
 
     @property
     def fake_quant_weight(self) -> torch.Tensor:
-        """Performs a fake quantization over the weight matrix.
+        """Perform a fake quantization over the weight matrix.
 
         Returns:
-            (torch.Tensor): Fake quantized weight matrix.
+            Fake quantized weight matrix.
 
         """
 
         return self.weight_fake_quant(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Performs a forward pass over the fake quantized Linear layer.
+        """Perform a forward pass over the fake quantized Linear layer.
 
         Args:
             x: Input tensor.
 
         Returns:
-            (torch.Tensor): Quantized tensor.
+            Quantized tensor.
 
         """
 
@@ -187,7 +186,7 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
         activation_reduce_range: Optional[bool] = True,
         **kwargs,
     ) -> FakeDynamicQuantLinear:
-        """Maps module from float to QAT-ready.
+        """Map module from float to QAT-ready.
 
         Args:
             mod: Module to be mapped.
@@ -195,7 +194,7 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
             activation_reduce_range: Whether to reduce the range of activations.
 
         Returns:
-            (FakeDynamicQuantLinear): QAT-ready module.
+            QAT-ready module.
 
         """
 
@@ -223,10 +222,10 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
         return qat_linear
 
     def to_float(self) -> torch.nn.Module:
-        """Maps module from QAT-ready to float.
+        """Map module from QAT-ready to float.
 
         Returns:
-            (torch.nn.Module): Float-based module.
+            Float-based module.
 
         """
 
@@ -241,10 +240,10 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
 
 
 class FakeDynamicQuantLinearForOnnx(FakeDynamicQuantLinear):
-    """Allows a QAT-ready Linear layer to be exported with ONNX."""
+    """Allow a QAT-ready Linear layer to be exported with ONNX."""
 
     def __init__(self, *args, **kwargs) -> None:
-        """Initializes a fake quantized Linear layer compatible with ONNX."""
+        """Initialize a fake quantized Linear layer compatible with ONNX."""
 
         kwargs["activation_reduce_range"] = False
         kwargs["onnx_compatible"] = True
@@ -253,7 +252,7 @@ class FakeDynamicQuantLinearForOnnx(FakeDynamicQuantLinear):
 
 
 class FakeDynamicQuantConv1d(torch.nn.Conv1d):
-    """Translates a torch-based Conv1d layer into a QAT-ready Conv1d."""
+    """Translate a torch-based Conv1d layer into a QAT-ready Conv1d layer."""
 
     _FLOAT_MODULE = torch.nn.Conv1d
 
@@ -267,7 +266,7 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
         qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
         **kwargs,
     ) -> None:
-        """Initializes a fake quantized Conv1d layer.
+        """Initialize a fake quantized Conv1d layer.
 
         Args:
             dynamic_weight: Whether to use dynamic weights.
@@ -298,23 +297,23 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
 
     @property
     def fake_quant_weight(self) -> torch.Tensor:
-        """Performs a fake quantization over the weight matrix.
+        """Perform a fake quantization over the weight matrix.
 
         Returns:
-            (torch.Tensor): Fake quantized weight matrix.
+            Fake quantized weight matrix.
 
         """
 
         return self.weight_fake_quant(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Performs a forward pass over the fake quantized Conv1d layer.
+        """Perform a forward pass over the fake quantized Conv1d layer.
 
         Args:
             x: Input tensor.
 
         Returns:
-            (torch.Tensor): Quantized tensor.
+            Quantized tensor.
 
         """
 
@@ -330,7 +329,7 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
         activation_reduce_range: Optional[bool] = True,
         **kwargs,
     ) -> FakeDynamicQuantConv1d:
-        """Maps module from float to QAT-ready.
+        """Map module from float to QAT-ready.
 
         Args:
             mod: Module to be mapped.
@@ -338,7 +337,7 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
             activation_reduce_range: Whether to reduce the range of activations.
 
         Returns:
-            (FakeDynamicQuantConv1d): QAT-ready module.
+            QAT-ready module.
 
         """
 
@@ -372,10 +371,10 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
         return qat_conv1d
 
     def to_float(self) -> torch.nn.Module:
-        """Maps module from QAT-ready to float.
+        """Map module from QAT-ready to float.
 
         Returns:
-            (torch.nn.Module): Float-based module.
+            Float-based module.
 
         """
 
@@ -400,10 +399,10 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
 
 
 class FakeDynamicQuantConv1dForOnnx(FakeDynamicQuantConv1d):
-    """Allows a QAT-ready Conv1d layer to be exported with ONNX."""
+    """Allow a QAT-ready Conv1d layer to be exported with ONNX."""
 
     def __init__(self, *args, **kwargs) -> None:
-        """Initializes a fake quantized Conv1d layer compatible with ONNX."""
+        """Initialize a fake quantized Conv1d layer compatible with ONNX."""
 
         kwargs["activation_reduce_range"] = False
         kwargs["onnx_compatible"] = True
@@ -412,7 +411,7 @@ class FakeDynamicQuantConv1dForOnnx(FakeDynamicQuantConv1d):
 
 
 class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
-    """Translates a huggingface/transformers Conv1D to QAT-ready."""
+    """Translate a huggingface/transformers Conv1D layer into a QAT-ready Conv1D layer."""
 
     _FLOAT_MODULE = transformers.modeling_utils.Conv1D
 
@@ -426,7 +425,7 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
         qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
         **kwargs,
     ) -> None:
-        """Initializes a fake quantized Conv1D layer.
+        """Initialize a fake quantized Conv1D layer.
 
         Args:
             dynamic_weight: Whether to use dynamic weights.
@@ -456,23 +455,23 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
 
     @property
     def fake_quant_weight(self) -> torch.Tensor:
-        """Performs a fake quantization over the weight matrix.
+        """Perform a fake quantization over the weight matrix.
 
         Returns:
-            (torch.Tensor): Fake quantized weight matrix.
+            Fake quantized weight matrix.
 
         """
 
         return self.weight_fake_quant(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Performs a forward pass over the fake quantized Conv1D layer.
+        """Perform a forward pass over the fake quantized Conv1D layer.
 
         Args:
             x: Input tensor.
 
         Returns:
-            (torch.Tensor): Quantized tensor.
+            Quantized tensor.
 
         """
 
@@ -492,7 +491,7 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
         activation_reduce_range: Optional[bool] = True,
         **kwargs,
     ) -> FakeDynamicQuantHFConv1D:
-        """Maps module from float to QAT-ready.
+        """Map module from float to QAT-ready.
 
         Args:
             mod: Module to be mapped.
@@ -500,7 +499,7 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
             activation_reduce_range: Whether to reduce the range of activations.
 
         Returns:
-            (FakeDynamicQuantConv1d): QAT-ready module.
+            QAT-ready module.
 
         """
 
@@ -527,10 +526,10 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
         return qat_conv1d
 
     def to_float(self) -> torch.nn.Module:
-        """Maps module from QAT-ready to float.
+        """Map module from QAT-ready to float.
 
         Returns:
-            (torch.nn.Module): Float-based module.
+            Float-based module.
 
         """
 
@@ -545,10 +544,10 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
 
 
 class FakeDynamicQuantHFConv1DForOnnx(FakeDynamicQuantHFConv1D):
-    """Allows a QAT-ready huggingface/transformers Conv1D layer to be exported with ONNX."""
+    """Allow a QAT-ready huggingface/transformers Conv1D layer to be exported with ONNX."""
 
     def __init__(self, *args, **kwargs):
-        """Initializes a fake quantized Conv1D layer compatible with ONNX."""
+        """Initialize a fake quantized Conv1D layer compatible with ONNX."""
 
         kwargs["activation_reduce_range"] = False
         kwargs["onnx_compatible"] = True

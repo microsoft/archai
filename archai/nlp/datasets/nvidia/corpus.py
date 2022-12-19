@@ -45,7 +45,7 @@ class Corpus:
             dataset_dir: Path to the dataset folder.
             cache_dir: Path to the cache folder.
             vocab_type: Type of vocabulary/tokenizer.
-                Valid options are 'word', 'bbpe', 'gpt2', or 'bpe'.
+                Valid options are `word`, `bbpe`, `gpt2`, or `bpe`.
             vocab_size: Vocabulary size.
             refresh_cache: Whether to refresh the cache.
 

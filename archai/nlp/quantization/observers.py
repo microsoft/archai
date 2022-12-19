@@ -1,25 +1,26 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Quantization-ready observers.
-"""
+"""Quantization-ready observers."""
 
 import torch
 
 
 class OnnxDynamicObserver:
-    """Provides a DynamicObserver that is compliant with ONNX-based graphs.
+    """DynamicObserver that is compliant with ONNX-based graphs.
 
-    Note that usually `qint8` is used for symmetric quantization, while
-        `quint8` is used for assymetric quantization.
+    This class can be used to perform symmetric or assymetric quantization, depending on the
+    `dtype` provided. `qint8` is usually used for symmetric quantization, while `quint8` is
+    used for assymetric quantization.
 
     """
 
     def __init__(self, dtype: str) -> None:
-        """Initializes the class by setting appropriate values for quantization bounds.
+        """Initialize the class by setting appropriate values for quantization bounds.
 
         Args:
-            dtype: Type of quantization operators.
+            dtype: Type of quantization operators. This should be either `torch.quint8` or
+                `torch.qint8`.
 
         """
 
@@ -34,7 +35,7 @@ class OnnxDynamicObserver:
             self.qmin, self.qmax = -128, 127
 
     def __call__(self, x: torch.Tensor) -> None:
-        """Performs a call to set minimum and maximum tensor values.
+        """Perform a call to set minimum and maximum tensor values.
 
         Args:
             x: Input tensor.
@@ -45,7 +46,7 @@ class OnnxDynamicObserver:
         self.min_val, self.max_val = x.min().view(-1), x.max().view(-1)
 
     def calculate_qparams(self) -> None:
-        """Calculates the quantization parameters."""
+        """Calculate the quantization parameters."""
 
         if self.dtype == torch.qint8:
             scale = torch.max(self.max_val.clamp(min=0), -self.min_val.clamp(max=0)) / 127

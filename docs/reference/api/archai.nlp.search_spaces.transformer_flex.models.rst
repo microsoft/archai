@@ -12,8 +12,8 @@ GPT-2 Flex
    :members:
    :undoc-members:
 
-Memory Transformer
-------------------
+NVIDIA Memory Transformer
+-------------------------
 
 .. automodule:: archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer
    :members:
