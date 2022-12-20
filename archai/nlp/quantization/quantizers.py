@@ -112,6 +112,12 @@ class FakeDynamicQuant(torch.nn.Module):
 
                 scale, zero_pointer = initial_scale, initial_zero_pointer
 
+            # Prevents `zero_pointer` from being outside the range of the quantized dtype
+            if zero_pointer > self.qmax:
+                zero_pointer = torch.tensor(self.qmax)
+            elif zero_pointer < self.qmin:
+                zero_pointer = torch.tensor(self.qmin)
+
             x = torch.fake_quantize_per_tensor_affine(
                 x, float(scale.item()), int(zero_pointer.item()), self.qmin, self.qmax
             )

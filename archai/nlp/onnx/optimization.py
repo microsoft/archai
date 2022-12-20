@@ -66,7 +66,7 @@ def optimize_onnx(
                 ]
 
         # Performs the standard ORT optimization
-        ort_model_path = create_file_name_identifier(onnx_model_path, "-ort")
+        ort_model_path = create_file_name_identifier(onnx_model_path, "-opt")
         optimize_by_onnxruntime(
             onnx_model_path,
             use_gpu=use_gpu,

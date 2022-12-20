@@ -23,7 +23,7 @@ def rgetattr(obj: Any, attr: str, *args) -> Any:
 
     Example:
         >>> obj = MyObject()
-        >>> rgetattr(obj, "attr1.attr2.attr3", default=None)
+        >>> rgetattr(obj, "attr1.attr2.attr3")
 
     Reference:
         https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
