@@ -1,6 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import os
+
 import pytest
 from transformers import GPT2LMHeadModel
 
@@ -75,6 +77,22 @@ def test_transformer_flex_search_space_random_sample(config):
     arch_model = search_space.random_sample()
     assert arch_model.archid == "gpt2_df9751a4db6ffaa963687eeae3f04d8c764f5f9c"
     assert isinstance(arch_model.arch, GPT2LMHeadModel)
+
+
+def test_transformer_flex_search_space_save_arch(config):
+    # Assert that a model is saved correctly
+    search_space = TransformerFlexSearchSpace(**config)
+    arch_model = search_space.random_sample()
+    search_space.save_arch(arch_model, "test_arch.json")
+    assert os.path.exists("test_arch.json")
+
+
+def test_transformer_flex_search_space_load_arch(config):
+    # Assert that a model is loaded correctly
+    search_space = TransformerFlexSearchSpace(**config)
+    arch_model = search_space.load_arch("test_arch.json")
+    os.remove("test_arch.json")
+    assert arch_model.archid == "gpt2_df9751a4db6ffaa963687eeae3f04d8c764f5f9c"
 
 
 def test_transformer_flex_search_space_mutate(config):
