@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Depth-Wise Convolution layer.
-"""
+"""Depth-Wise Convolution layer."""
 
 from typing import Optional
 

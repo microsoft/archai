@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Mixed Quantization Aware-Training model.
-"""
+"""Mixed Quantization-Aware Training model."""
 
 import copy
 from typing import Optional, Tuple
@@ -13,19 +12,19 @@ from archai.nlp.quantization.qat import prepare_with_qat
 
 
 class MixedQAT(torch.nn.Module):
-    """Implements a mixed QAT model, which can be fine-tuned using a linear combination of
-    regular and QAT losses.
+    """Mixed QAT (Quantization-Aware Training) model, which can be fine-tuned
+    using a linear combination of regular and QAT losses.
 
     """
 
     def __init__(self, model: torch.nn.Module, qat_weight: Optional[float] = 0.2) -> None:
-        """Initializes the class by creating standard and QAT-based attributes
-            of the incoming model.
+        """Initialize the class by creating standard and QAT-based attributes
+        of the incoming model.
 
         Args:
             model: Instance of the model that will be fine-tuned with Mixed QAT.
             qat_weight: Amount of QAT-based loss that should be used in the linear combination.
-
+                This value should be between 0 and 1.
         """
 
         super().__init__()
@@ -47,16 +46,16 @@ class MixedQAT(torch.nn.Module):
                 qat_module.bias = module.bias
 
         # Adds fake quantization
-        self.qat_model = prepare_with_qat(self.qat_model, onnx_compatible=True)
+        prepare_with_qat(self.qat_model, onnx_compatible=True)
 
         for param, qat_param in zip(self.model.parameters(), self.qat_model.parameters()):
             assert qat_param is param, "MixedQAT parameters are not fully shared."
 
     def forward(self, *args, **kwargs) -> Tuple[torch.Tensor, ...]:
-        """Forward pass over the module.
+        """Perform a forward pass over the module.
 
         Returns:
-            (Tuple[torch.Tensor, ...]): QAT-based model outputs.
+            A tuple containing the QAT-based model outputs.
 
         """
 

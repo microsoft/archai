@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-"""Profiler-based evaluation.
-"""
+"""Profiler-based evaluation."""
 
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -18,18 +17,22 @@ def profile(
     n_warmups: Optional[int] = 1,
     ignore_layers: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """Performs the profiler-based evaluation.
+    """Profiles the performance of a PyTorch model.
 
     Args:
-        model: PyTorch-based model.
-        model_args: Model's forward arguments.
-        model_kwargs: Model's forward keyword arguments.
-        n_warmups: Number of warmups before profiling.
-        ignore_layers: Layers that should be ignored during profiling.
+        model: The PyTorch model to evaluate.
+        model_args: The forward arguments for the model.
+        model_kwargs: The forward keyword arguments for the model.
+        n_warmups: The number of warmup iterations to run before profiling.
+        ignore_layers: A list of layer names to ignore during profiling.
 
     Returns:
-        (Dict[str, Any]): FLOPs, MACs, number of parameters,
-            latency (seconds) and peak memory (bytes).
+        A dictionary containing the following performance metrics:
+            - flops: The number of floating point operations (FLOPs) performed by the model.
+            - macs: The number of multiply-accumulate operations (MACs) performed by the model.
+            - n_parameters: The number of parameters in the model.
+            - latency: The latency of the model, in seconds.
+            - peak_memory: The peak memory usage of the model, in bytes.
 
     """
 

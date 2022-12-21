@@ -2,8 +2,7 @@
 # Licensed under the MIT License.
 # https://github.com/microsoft/DeepSpeed/blob/master/deepspeed/profiling/flops_profiler/profiler.py
 
-"""Profiler-based utilities, such as flops and macs calculation hooks.
-"""
+"""Profiler-based utilities, such as flops and macs calculation hooks."""
 
 from collections import OrderedDict
 from typing import Callable, List, Optional, Tuple, Union
@@ -58,7 +57,7 @@ def _silu_hook(input: torch.Tensor, inplace: Optional[bool] = False) -> Tuple[in
     return torch.numel(input), 0
 
 
-def _gelu_hook(input: torch.Tensor, approximate: str = 'none') -> Tuple[int, int]:
+def _gelu_hook(input: torch.Tensor, approximate: str = "none") -> Tuple[int, int]:
     return torch.numel(input), 0
 
 
@@ -292,7 +291,7 @@ def _einsum_hook(equation: str, *operands) -> Tuple[int, int]:
     # Fix for `opt_einsum.contract`
     if len(operands) == 1 and isinstance(operands[0], tuple):
         operands = operands[0]
-        
+
     input_shapes = [o.shape for o in operands]
 
     letter_order = OrderedDict((k, 0) for k in equation if k.isalpha()).keys()
@@ -350,17 +349,6 @@ def _add_hook(
 
 
 def _wrap_fn(fn: Callable, new_fn: Callable) -> Callable:
-    """Wraps a function with another function.
-
-    Args:
-        fn: Current function.
-        new_fn: New function.
-
-    Returns:
-        (Callable): Wrapped function.
-
-    """
-
     old_fn = fn
     name = fn.__name__
     TORCH_FUNCTIONS[name] = old_fn
@@ -381,7 +369,7 @@ def _wrap_fn(fn: Callable, new_fn: Callable) -> Callable:
 
 
 def enable_functional_hooks() -> None:
-    """Enables functional API profiler hooks."""
+    """Enable functional API profiler hooks."""
 
     F.linear = _wrap_fn(F.linear, _linear_hook)
 
@@ -426,7 +414,7 @@ def enable_functional_hooks() -> None:
 
 
 def disable_functional_hooks() -> None:
-    """Disables functional API profiler hooks."""
+    """Disable functional API profiler hooks."""
 
     F.linear = TORCH_FUNCTIONS[F.linear.__name__]
 
@@ -468,7 +456,7 @@ def disable_functional_hooks() -> None:
 
 
 def enable_tensor_hooks() -> None:
-    """Enables tensor-based operations profiler hooks."""
+    """Enable tensor-based operations profiler hooks."""
 
     torch.matmul = _wrap_fn(torch.matmul, _matmul_hook)
     torch.mm = _wrap_fn(torch.mm, _matmul_hook)
@@ -480,7 +468,7 @@ def enable_tensor_hooks() -> None:
 
 
 def disable_tensor_hooks() -> None:
-    """Disables tensor-based operations profiler hooks."""
+    """Disable tensor-based operations profiler hooks."""
 
     torch.matmul = TORCH_FUNCTIONS[torch.matmul.__name__]
     torch.mm = TORCH_FUNCTIONS[torch.mm.__name__]

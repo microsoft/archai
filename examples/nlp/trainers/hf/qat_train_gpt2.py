@@ -35,7 +35,7 @@ if __name__ == "__main__":
         n_head=8,
     )
     model = GPT2LMHeadModel(config=config)
-    model = prepare_with_qat(model, onnx_compatible=True)
+    prepare_with_qat(model, onnx_compatible=True)
 
     print(f"Total parameters: {sum(p.numel() for p in model.parameters())}")
 

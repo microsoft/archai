@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Corpus-related class for loading and encoding datasets.
-"""
+"""Corpus-related class for loading and encoding datasets."""
 
 import glob
 import os
@@ -27,8 +26,7 @@ logger = logging_utils.get_logger(__name__)
 
 
 class Corpus:
-    """Implements a corpus-based class responsible for creating and training
-    the vocabulary/tokenizer, loading the dataset and encoding the data."""
+    """Creates and trains the vocabulary/tokenizer, loads the dataset and encodes the data."""
 
     def __init__(
         self,
@@ -39,15 +37,17 @@ class Corpus:
         vocab_size: Optional[int] = None,
         refresh_cache: Optional[bool] = False,
     ) -> None:
-        """Initializes by defining attributes and creating cache-related paths.
+        """Initialize the `Corpus` class by defining attributes and creating
+        cache-related paths.
 
         Args:
             dataset: Name of the dataset.
-            dataset_dir: Dataset folder.
-            cache_dir: Cache folder.
+            dataset_dir: Path to the dataset folder.
+            cache_dir: Path to the cache folder.
             vocab_type: Type of vocabulary/tokenizer.
+                Valid options are `word`, `bbpe`, `gpt2`, or `bpe`.
             vocab_size: Vocabulary size.
-            refresh_cache: Whether cache should be refreshed.
+            refresh_cache: Whether to refresh the cache.
 
         """
 
@@ -79,16 +79,16 @@ class Corpus:
     def _create_vocab(
         dataset: str, vocab_type: str, vocab_cache_dir: str, vocab_size: Optional[int] = None
     ) -> VocabBase:
-        """Creates the vocabulary.
+        """Create the vocabulary.
 
         Args:
             dataset: Name of the dataset.
             vocab_type: Type of vocabulary.
-            vocab_cache_dir: Vocabulary cache folder.
+            vocab_cache_dir: Path to the vocabulary cache folder.
             vocab_size: Vocabulary size.
 
         Returns:
-            (VocabBase): Vocabulary.
+            Vocabulary.
 
         """
 
@@ -127,15 +127,15 @@ class Corpus:
         return vocab
 
     def _clear_cache(self) -> None:
-        """Clears the cache."""
+        """Clear the cache."""
 
         self.train = self.valid = self.test = self.vocab = None
 
     def _dataset_filepaths(self) -> Tuple[str, str, str]:
-        """Gets the dataset's file paths.
+        """Get the dataset's file paths.
 
         Returns:
-            (Tuple[str, str, str]): Training, validation and testing file paths.
+            Training, validation and testing file paths.
 
         """
 
@@ -167,7 +167,7 @@ class Corpus:
         )
 
     def _train_vocab(self) -> None:
-        """Trains vocabulary."""
+        """Train the vocabulary."""
 
         # If vocabulary cache does not exist
         if self.refresh_cache or not self.vocab.is_trained():
@@ -185,10 +185,10 @@ class Corpus:
             logger.debug(f"Loading vocabulary ({self.vocab_type}, {self.vocab_size}) from: {self.vocab_cache_dir}")
 
     def _create_train_vocab(self) -> VocabBase:
-        """Creates and trains the vocabulary.
+        """Create and trains the vocabulary.
 
         Returns:
-            (VocabBase): Pre-trained vocabulary.
+            Pre-trained vocabulary.
 
         """
 
@@ -200,7 +200,7 @@ class Corpus:
         return self.vocab
 
     def _encode_files(self) -> None:
-        """Encodes dataset (training, validation and testing sets)."""
+        """Encode dataset (training, validation and testing sets)."""
 
         train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
 
@@ -213,7 +213,7 @@ class Corpus:
         self.test = self.vocab.encode_file(test_filepath)
 
     def train_and_encode(self) -> None:
-        """Trains vocabulary/tokenizer and encodes the corpus."""
+        """Train the vocabulary/tokenizer and encodes the corpus."""
 
         logger.info(
             f"Training corpus: dataset = {self.dataset} | vocab_type = {self.vocab_type} | vocab_size = {self.vocab_size}"
@@ -226,10 +226,10 @@ class Corpus:
         logger.debug(f"Size: train = {train_size} | valid = {self.valid.size(0)} | test = {self.test.size(0)}")
 
     def load(self) -> bool:
-        """Loads a pre-trained corpus.
+        """Load a pre-trained corpus.
 
         Returns:
-            (bool): Whether pre-trained corpus has been successfully loaded.
+            Whether pre-trained corpus has been successfully loaded.
 
         """
 
@@ -270,7 +270,7 @@ class Corpus:
         return False
 
     def save_cache(self) -> None:
-        """Saves the cache."""
+        """Save the cache."""
 
         assert self.vocab is not None and self.vocab.is_trained()
 
@@ -287,7 +287,7 @@ class Corpus:
         mem_len: Optional[int] = 0,
         ext_len: Optional[int] = 0,
     ) -> Union[LMOrderedIterator, LMMultiFileIterator]:
-        """Gets an iterator based on current corpus.
+        """Get an iterator based on current corpus.
 
         Args:
             split: Name of the split.
@@ -298,7 +298,7 @@ class Corpus:
             ext_len: Length of extended context (for Transformer-XL).
 
         Returns:
-            (Union[LMOrderedIterator, LMMultiFileIterator]): Iterator.
+            Iterator.
 
         """
 
@@ -346,18 +346,18 @@ def load_corpus(
     vocab_size: Optional[int] = None,
     refresh_cache=False,
 ) -> Corpus:
-    """Loads a pre-trained corpus if available, or pre-trains a new one.
+    """Load a pre-trained corpus if available, or pre-trains a new one.
 
     Args:
         dataset: Name of the dataset.
         dataset_dir: Dataset folder.
-        cache_dir: Cache folder.
+        cache_dir: Path to the cache folder.
         vocab_type: Type of vocabulary/tokenizer.
         vocab_size: Vocabulary size.
         refresh_cache: Whether cache should be refreshed.
 
     Returns:
-        (Corpus): Corpus with pre-trained vocabulary and encoded data.
+        Corpus with pre-trained vocabulary and encoded data.
 
     """
 

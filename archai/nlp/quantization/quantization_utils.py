@@ -1,25 +1,32 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Quantization-related utilities.
-"""
+"""Quantization-related utilities."""
 
 import functools
 from typing import Any
 
 
 def rgetattr(obj: Any, attr: str, *args) -> Any:
-    """Recursively gets an attribute.
+    """Recursively get an attribute from an object.
+
+    This function allows accessing nested attributes by separating each level with a dot (e.g., "attr1.attr2.attr3").
+    If any attribute along the chain does not exist, the function returns the default value
+    specified in the `*args` parameter.
+
+    Args:
+        obj: Object from which the attribute will be retrieved.
+        attr: Name of the attribute to be retrieved, with each level separated by a dot.
+
+    Returns:
+        Attribute from the object.
+
+    Example:
+        >>> obj = MyObject()
+        >>> rgetattr(obj, "attr1.attr2.attr3")
 
     Reference:
         https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
-
-    Args:
-        obj: Object that will have attribute gathered.
-        attr: Name of attribute that will be gathered.
-
-    Returns:
-        (Any): Attribute from object.
 
     """
 
@@ -30,15 +37,21 @@ def rgetattr(obj: Any, attr: str, *args) -> Any:
 
 
 def rsetattr(obj: Any, attr: str, value: Any) -> None:
-    """Recursively sets an attribute.
+    """Recursively set an attribute on an object.
+
+    This function allows setting nested attributes by separating each level with a dot (e.g., "attr1.attr2.attr3").
+
+    Args:
+        obj: Object on which the attribute will be set.
+        attr: Name of the attribute to be set, with each level separated by a dot.
+        value: New value for the attribute.
+
+    Example:
+        >>> obj = MyObject()
+        >>> rsetattr(obj, "attr1.attr2.attr3", new_value)
 
     Reference:
         https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427
-
-    Args:
-        obj: Object that will have attribute set.
-        attr: Name of attribute that will be set.
-        value: New value for the attribute.
 
     """
 

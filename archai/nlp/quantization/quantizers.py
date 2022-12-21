@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Quantization-ready quantizers.
-"""
+"""Quantization-ready quantizers."""
 
 from typing import Optional
 
@@ -14,8 +13,15 @@ from archai.nlp.quantization.observers import OnnxDynamicObserver
 
 
 class FakeDynamicQuant(torch.nn.Module):
-    """Inserts a fake dynamic quantizer to allow for a proper scale/zero point calculating
-    when performing Quantization Aware Training.
+    """Fake dynamic quantizer to allow for scale/zero point calculation during Quantization-Aware Training.
+
+    This class allows inserting a fake dynamic quantization operator in a PyTorch model,
+    in order to calculate scale and zero point values that can be used to quantize the
+    model during training. The operator can be customized to use different quantization types
+    (quint8 or qint8) and bit widths, and it can be made compatible with ONNX.
+
+    Note: This module is only meant to be used during training, and should not be present
+    in the final, deployed model.
 
     """
 
@@ -26,13 +32,15 @@ class FakeDynamicQuant(torch.nn.Module):
         bits: Optional[int] = 8,
         onnx_compatible: Optional[bool] = False,
     ) -> None:
-        """Initializes a customizable operator for inserting a fake dynamic quantizer.
+        """Initialize a customizable fake dynamic quantization operator.
 
         Args:
-            reduce_range: Whether to reduce the range of quantization.
-            dtype: Type of quantization operators.
-            bits: Number of bits used in the quantization.
-            onnx_compatible: Whether quantization is compatible with ONNX.
+            reduce_range: Whether to reduce the range of quantization. This option is
+                only supported for 8-bit quantization.
+            dtype: Type of quantization operators. Supported values are `torch.quint8` and
+                `torch.qint8`.
+            bits: Number of bits used in the quantization. Supported values are 8 and 16.
+            onnx_compatible: Whether the quantization should be compatible with ONNX.
 
         """
 
@@ -58,13 +66,13 @@ class FakeDynamicQuant(torch.nn.Module):
                 self.qmin, self.qmax = -(2 ** (bits - 1)), 2 ** (bits - 1) - 1
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Performs a forward pass over the fake dynamic quantization module.
+        """Perform a forward pass over the fake dynamic quantization operator.
 
         Args:
             x: Input tensor.
 
         Returns:
-            (torch.Tensor): Fake dynamically quantized tensor.
+            Fake dynamically quantized tensor.
 
         """
 
@@ -103,6 +111,12 @@ class FakeDynamicQuant(torch.nn.Module):
                 initial_zero_pointer = initial_zero_pointer.round()
 
                 scale, zero_pointer = initial_scale, initial_zero_pointer
+
+            # Prevents `zero_pointer` from being outside the range of the quantized dtype
+            if zero_pointer > self.qmax:
+                zero_pointer = torch.tensor(self.qmax)
+            elif zero_pointer < self.qmin:
+                zero_pointer = torch.tensor(self.qmin)
 
             x = torch.fake_quantize_per_tensor_affine(
                 x, float(scale.item()), int(zero_pointer.item()), self.qmin, self.qmax

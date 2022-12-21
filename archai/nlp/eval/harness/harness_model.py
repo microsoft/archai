@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Harness-based model.
-"""
+"""Harness-based model."""
 
 from typing import List, Optional, Tuple, Union
 
@@ -18,18 +17,18 @@ from archai.nlp.eval.harness.harness_utils import MultipleTokenStoppingCriteria
 
 
 class HarnessModel:
-    """Prepares a model used for harness-based evaluation."""
+    """Prepares a model for use in harness-based evaluation."""
 
     def __init__(
         self,
         model: torch.nn.Module,
         tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast],
     ) -> None:
-        """Initializes with custom arguments and keyword arguments.
+        """Initialize the `HarnessModel` object with the specified model and tokenizer.
 
         Args:
-            model: Pre-trained model.
-            tokenizer: Pre-trained tokenizer.
+            model: The pre-trained model.
+            tokenizer: The pre-trained tokenizer.
 
         """
 
@@ -40,11 +39,10 @@ class HarnessModel:
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
     def __call__(self, **kwargs) -> Tuple[torch.FloatTensor, ...]:
-        """Performs a forward pass over the pre-trained model
-            without storing the gradients.
+        """Performs a forward pass over the pre-trained model without storing gradients.
 
         Returns:
-            (Tuple[torch.FloatTensor, ...]): Model outputs.
+            The outputs of the model.
 
         """
 
@@ -53,10 +51,10 @@ class HarnessModel:
 
     @property
     def device(self) -> str:
-        """Device to compute forward passes.
+        """The device to use for computing forward passes.
 
         Returns:
-            (str): Device.
+            The device to use. Can be either 'cpu' or 'cuda'.
 
         """
 
@@ -67,10 +65,10 @@ class HarnessModel:
 
     @property
     def eos_token(self) -> str:
-        """End-of-sentence token.
+        """The end-of-sentence token.
 
         Returns:
-            (str): End-of-sentence token.
+            The end-of-sentence token.
 
         """
 
@@ -78,10 +76,10 @@ class HarnessModel:
 
     @property
     def eos_token_id(self) -> int:
-        """End-of-sentence token identifier.
+        """The end-of-sentence token identifier.
 
         Returns:
-            (int): End-of-sentence token identifier.
+            The end-of-sentence token identifier.
 
         """
 
@@ -89,10 +87,10 @@ class HarnessModel:
 
     @property
     def max_length(self) -> int:
-        """Maximum length of model.
+        """The maximum length of the model.
 
         Returns:
-            (int): Maximum length.
+            The maximum length of the model.
 
         """
 
@@ -103,23 +101,23 @@ class HarnessModel:
 
     @property
     def model_name(self) -> str:
-        """Name of the model.
+        """The name of the model.
 
         Returns:
-            (str): Model's name.
+            The name of the model.
 
         """
 
         return self.model.config._name_or_path
 
     def encode(self, text: Union[str, List[str]], **kwargs) -> torch.LongTensor:
-        """Encodes text with the tokenizer.
+        """Encode text with the tokenizer.
 
         Args:
-            text: Text to be encoded.
+            text: The text to be encoded.
 
         Returns:
-            (torch.LongTensor): Encoded tokens.
+            A tensor of tokens.
 
         """
 
@@ -132,27 +130,27 @@ class HarnessModel:
         ).input_ids.to(self.device)
 
     def decode(self, tokens: List[int]) -> str:
-        """Decodes text with the tokenizer.
+        """Decode text with the tokenizer.
 
         Args:
-            tokens: Tokens to be decoded.
+            tokens: The tokens to be decoded.
 
         Returns:
-            (str): Decoded tokens.
+            A string representing the decoded tokens.
 
         """
 
         return self.tokenizer.decode(tokens)
 
     def cosine_similarity(self, sample: str, target: str) -> float:
-        """Computes the cosine similarity between pair of samples.
+        """Compute the cosine similarity between pair of samples.
 
         Args:
             sample: First sample in the pair.
             target: Second sample in the pair.
 
         Returns:
-            (float): Cosine similarity between `sample` and `target`.
+            Cosine similarity between `sample` and `target`.
 
         """
 
@@ -166,14 +164,14 @@ class HarnessModel:
         return float(similarity.cpu().mean())
 
     def generate(self, context: str, stop_tokens: Optional[List[str]] = None, **kwargs) -> str:
-        """Generates a set of tokens from a context.
+        """Generate a set of tokens from a context.
 
         Args:
-            context: Context used as prompt for the generation.
-            stop_tokens: Whether generation should stop at particular tokens.
+            context: The context from which to generate tokens.
+            stop_tokens: The tokens to stop generation.
 
         Returns:
-            (str): String representing the generated tokens.
+            A string representing the generated tokens.
 
         """
 
@@ -203,17 +201,17 @@ class HarnessModel:
     def log_likelihood(
         self, context: str, target: str, return_exact_match: Optional[bool] = False
     ) -> Union[float, Tuple[float, bool]]:
-        """Computes the log-likelihood of generating a target from context.
+        """Compute the log-likelihood of generating a target from context.
 
         Args:
-            context: Context used as prompt for the generation.
-            target: Target to be achieved with the generation.
+            context: The context from which to generate tokens.
+            target: The target to be generated.
             return_exact_match: Whether exact match (generated_tokens == target)
                 should be returned.
 
         Returns:
-            (Union[float, Tuple[float, bool]]): Log-likelihood of achieving target from context
-                and whether generated targets are fully equal to provided target.
+            Log-likelihood of achieving target from context and whether generated targets
+                are fully equal to provided target.
 
         """
 

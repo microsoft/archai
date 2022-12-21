@@ -1,14 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Options that enables nodes' fusion.
-"""
+"""Options that enables nodes' fusion."""
 
 from typing import Optional
 
 
 class AttentionMaskFormat:
-    """Enumerator for attention mask shape."""
+    """Enumerate the attention mask shape."""
 
     MaskIndexEnd = 0
     MaskIndexEndAndStart = 1
@@ -17,10 +16,10 @@ class AttentionMaskFormat:
 
 
 class FusionOptions:
-    """Operators that should be fused in the ONNX graph."""
+    """Options to control the fusion of operators in the ONNX graph."""
 
     def __init__(self, model_type: str) -> None:
-        """Defines an initialization method.
+        """Initialize the fusion options.
 
         Args:
             model_type: Type of model.
@@ -48,7 +47,7 @@ class FusionOptions:
         self.attention_mask_format = AttentionMaskFormat.AttentionMask
 
     def use_raw_attention_mask(self, use_raw_mask: Optional[bool] = True) -> None:
-        """Enables the usage of raw attention mask.
+        """Enable the usage of raw attention mask.
 
         Args:
             use_raw_mask: Whether raw mask should be used or not.
@@ -61,6 +60,6 @@ class FusionOptions:
             self.attention_mask_format = AttentionMaskFormat.MaskIndexEnd
 
     def disable_attention_mask(self) -> None:
-        """Disables the usage of attention mask."""
+        """Disable the usage of attention mask."""
 
         self.attention_mask_format = AttentionMaskFormat.NoMask

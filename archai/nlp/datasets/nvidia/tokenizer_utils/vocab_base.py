@@ -1,172 +1,161 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for tokenization pipelines with huggingface/tokenizers.
-"""
+"""Utilities for tokenization pipelines with huggingface/tokenizers."""
 
 from abc import abstractmethod
 from collections import abc
 from typing import List, Optional
 
 import torch
-from overrides import EnforceOverrides, overrides
+from overrides import EnforceOverrides
 
 from archai.nlp import logging_utils
-from archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum import (
-    SpecialTokenEnum,
-)
+from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import SpecialTokenEnum
 
 logger = logging_utils.get_logger(__name__)
 
 
 class VocabBase(EnforceOverrides, abc.Sized):
-    """Implements a base class for a customizable tokenization pipeline."""
+    """A customizable tokenization pipeline for encoding and decoding text.
+
+    This is an abstract base class that defines the interface for implementing a
+    vocabulary class that can be used for tokenization. Subclasses should override
+    the abstract methods in this class to provide specific implementations.
+
+    """
 
     @abstractmethod
-    @overrides
     def __len__(self) -> int:
-        """Length of the vocabulary.
+        """Get the length of the vocabulary.
 
         Returns:
-            (int): Length of the vocabulary.
+            The length of the vocabulary.
 
         """
-
-        pass
 
     @abstractmethod
     def train(self, filepaths: List[str]) -> None:
-        """Trains tokenizer from a list of files.
+        """Train the tokenizer on a list of files.
 
         Args:
-            filepaths: List of paths to input files.
+            filepaths: A list of paths to input files.
 
         """
-
-        pass
 
     @abstractmethod
     def is_trained(self) -> bool:
-        """Checks whether vocabulary has been trained.
+        """Check if the vocabulary has been trained.
 
         Returns:
-            (bool): Whether vocabulary has been trained.
+            `True` if the vocabulary has been trained, `False` otherwise.
 
         """
-
-        pass
 
     @abstractmethod
     def load(self) -> None:
-        """Loads pre-trained tokenizer."""
-
-        pass
+        """Load a pre-trained tokenizer."""
 
     @abstractmethod
     def encode_text(self, text: str) -> List[int]:
-        """Encodes text into tokens.
+        """Encode text into tokens.
 
         Args:
-            text: Input text.
+            text: The input text to encode.
 
         Returns:
-            (List[int]): Encoded text (tokens).
+            The encoded text (tokens).
 
         """
-
-        pass
 
     @abstractmethod
     def decode_text(self, ids: List[int]) -> str:
-        """Decodes tokens into text.
+        """Decode tokens into text.
 
         Args:
-            ids: Tokens.
+            ids: The tokens to decode.
 
         Returns:
-            (str): Decoded tokens (text).
+            The decoded tokens (text).
 
         """
-
-        pass
 
     @abstractmethod
     def special_token_id(self, sp: SpecialTokenEnum) -> int:
-        """Gets the identifier of special token.
+        """Get the identifier of a special token.
 
         Args:
-            sp: Special token's enumerator.
+            sp: The special token's enumerator.
 
         Returns:
-            (int): Special token's identifier.
+            The special token's identifier.
 
         """
-
-        pass
 
     @abstractmethod
     def token_to_id(self, t: str) -> int:
-        """Converts a string-based token to its identifier.
+        """Convert a string-based token to its identifier.
 
         Args:
-            t: String-based token.
+            t: The string-based token.
 
         Returns:
-            (int): Token's identifier.
+            The token's identifier.
 
         """
-
-        pass
 
     @abstractmethod
     def id_to_token(self, id: int) -> str:
-        """Converts a token identifier to its string-based representation.
+        """Convert a token identifier to its string-based representation.
 
         Args:
-            id: Token's identifier.
+            id: The token's identifier.
 
         Returns:
-            (str): String-based token.
+            The string-based token.
 
         """
 
-        pass
-
     def tokens_to_ids(self, ts: List[str]) -> List[int]:
-        """Converts a set of string-based tokens to their identifiers.
+        """Convert a list of string-based tokens to their corresponding identifiers.
 
         Args:
-            ts: String-based tokens.
+            ts: A list of string-based tokens.
 
         Returns:
-            (List[int]): Tokens' identifiers.
+            The identifiers corresponding to the input tokens.
 
         """
 
         return [self.token_to_id(t) for t in ts]
 
     def ids_to_tokens(self, ids: List[int]) -> List[str]:
-        """Converts a set of tokens' identifiers to their string-based representations.
+        """Convert a list of tokens' identifiers to their string-based representations.
 
         Args:
-            ids: Tokens' identifiers.
+            ids: A list of tokens' identifiers.
 
         Returns:
-            (List[str]): String-based tokens.
+            The string-based representations of the input tokens.
 
         """
 
         return [self.id_to_token(id) for id in ids]
 
     def encode_file(self, path: str, verbose: Optional[bool] = True) -> torch.Tensor:
-        """Encodes text from an input file.
+        """Encode text from an input file.
+
+        This method reads text from the specified file and encodes it using
+        the `encode_text` method. It also includes options for verbosity and
+        efficiently handling large datasets by converting the encoded tokens
+        to a `torch.Tensor` every 500k lines.
 
         Args:
-            path: Input file.
-            verbose: Whether should add verbosity to logger.
+            path: The path to the input file.
+            verbose: Whether to add verbosity to the logger.
 
         Returns:
-            (torch.Tensor): Encoded tokens.
+            The encoded tokens.
 
         """
 
