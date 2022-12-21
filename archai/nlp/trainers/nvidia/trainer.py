@@ -274,7 +274,7 @@ class NvidiaTrainer:
         """Setup whether Quantization Aware Training (QAT) should be used."""
 
         if self.args.qat:
-            self.model = prepare_with_qat(self.model, onnx_compatible=True)
+            prepare_with_qat(self.model, onnx_compatible=True)
 
         if self.args.mixed_qat:
             self.model = MixedQAT(self.model)
@@ -482,7 +482,7 @@ class NvidiaTrainer:
 
                 # Model needs to be converted back to FP32 when using QAT
                 if self.args.qat:
-                    save_model = qat_to_float_modules(save_model)
+                    qat_to_float_modules(save_model)
                     prefix = "qat-"
 
                 # Save original FP32 model when using MixedQAT

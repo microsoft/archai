@@ -46,7 +46,7 @@ class MixedQAT(torch.nn.Module):
                 qat_module.bias = module.bias
 
         # Adds fake quantization
-        self.qat_model = prepare_with_qat(self.qat_model, onnx_compatible=True)
+        prepare_with_qat(self.qat_model, onnx_compatible=True)
 
         for param, qat_param in zip(self.model.parameters(), self.qat_model.parameters()):
             assert qat_param is param, "MixedQAT parameters are not fully shared."
