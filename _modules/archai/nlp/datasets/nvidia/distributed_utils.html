@@ -783,8 +783,7 @@ title="Open an issue"
 <span class="c1"># Licensed under the Apache License, Version 2.0.</span>
 <span class="c1"># https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/LanguageModeling/Transformer-XL/pytorch/utils/distributed.py</span>
 
-<span class="sd">&quot;&quot;&quot;Utilities for initializing distributed training.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Utilities for initializing distributed training.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
@@ -794,11 +793,17 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="init_distributed"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.distributed_utils.init_distributed">[docs]</a><span class="k">def</span> <span class="nf">init_distributed</span><span class="p">(</span><span class="n">use_cuda</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Initializes distributed backend.</span>
+    <span class="sd">&quot;&quot;&quot;Initialize distributed backend for parallel training.</span>
+
+<span class="sd">    This method sets up the distributed backend for parallel training based on the specified</span>
+<span class="sd">    `use_cuda` flag. If `use_cuda` is `True`, it initializes the distributed mode using the</span>
+<span class="sd">    CUDA/NCCL backend. Otherwise, it uses the Gloo backend.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        use_cuda: Whether to initialize distributed mode using the CUDA/NCLL backend, e.g.,</span>
-<span class="sd">            `False` will use Gloo.</span>
+<span class="sd">        use_cuda (bool): Whether to initialize the distributed mode using the CUDA/NCCL backend.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        AssertionError: If the distributed mode is not initialized successfully.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -813,18 +818,24 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="barrier"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.distributed_utils.barrier">[docs]</a><span class="k">def</span> <span class="nf">barrier</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Calls torch.distributed.barrier() if using distributed mode.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Synchronize all processes in the distributed backend.</span>
+
+<span class="sd">    This method calls the `torch.distributed.barrier` function if the distributed mode is</span>
+<span class="sd">    available and initialized. The `barrier` function synchronizes all processes in the</span>
+<span class="sd">    distributed backend by blocking the processes until all processes have reached this point.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">():</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="get_rank"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.distributed_utils.get_rank">[docs]</a><span class="k">def</span> <span class="nf">get_rank</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Gets the distributed rank.</span>
+    <span class="sd">&quot;&quot;&quot;Return the rank of the current process in the distributed backend.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (int): Distributed rank, where `0` indicates that distributed mode was</span>
-<span class="sd">            not initialized.</span>
+<span class="sd">        The rank of the current process in the distributed backend. If the distributed mode</span>
+<span class="sd">            is not available or not initialized, the returned rank will be `0`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -835,11 +846,11 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="get_world_size"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.distributed_utils.get_world_size">[docs]</a><span class="k">def</span> <span class="nf">get_world_size</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Gets the total number of distributed workers.</span>
+    <span class="sd">&quot;&quot;&quot;Return the total number of processes in the distributed backend.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (int): Total number of distributed workers, where `1` indicates that distributed</span>
-<span class="sd">            mode was not initialized.</span>
+<span class="sd">        The total number of processes in the distributed backend. If the distributed mode</span>
+<span class="sd">            is not available or not initialized, the returned world size will be `1`.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -850,14 +861,24 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="all_reduce"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.distributed_utils.all_reduce">[docs]</a><span class="k">def</span> <span class="nf">all_reduce</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">op</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sum&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Reduces tensor into a scalar value when using distributed mode.</span>
+    <span class="sd">&quot;&quot;&quot;Reduce the input tensor/value into a scalar using the specified reduction operator.</span>
+
+<span class="sd">    This method applies the specified reduction operator to the input tensor/value in a distributed</span>
+<span class="sd">    manner. The result is a scalar value that is computed by aggregating the values from all</span>
+<span class="sd">    processes in the distributed backend.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        tensor: Input tensor/value.</span>
-<span class="sd">        op: Type of reduction operator.</span>
+<span class="sd">        tensor: Input tensor/value to be reduced.</span>
+<span class="sd">        op: Type of reduction operator. The supported operators are &quot;sum&quot;, &quot;mean&quot;,</span>
+<span class="sd">            &quot;min&quot;, &quot;max&quot;, and &quot;product&quot;.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Union[int, float]): Scalar value.</span>
+<span class="sd">        The scalar value obtained by applying the reduction operator to the input</span>
+<span class="sd">            tensor/value. If the distributed mode is not available or not initialized,</span>
+<span class="sd">            the inputvtensor/value is returned as is.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If the specified reduction operator is not supported.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -893,10 +914,18 @@ title="Open an issue"
 
 <div class="viewcode-block" id="sync_workers"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.distributed_utils.sync_workers">[docs]</a><span class="nd">@contextmanager</span>
 <span class="k">def</span> <span class="nf">sync_workers</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Yields the distributed rank and synchronizes all workers on exit.</span>
+    <span class="sd">&quot;&quot;&quot;Context manager for synchronizing the processes in the distributed backend.</span>
+
+<span class="sd">    This context manager yields the rank of the current process in the distributed backend and</span>
+<span class="sd">    synchronizes all processes on exit.</span>
 
 <span class="sd">    Yields:</span>
-<span class="sd">        (Generator[int, None, None]): Rank.</span>
+<span class="sd">        The rank of the current process in the distributed backend.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; with sync_workers():</span>
+<span class="sd">        &gt;&gt;&gt;     # Execute some code that should be synchronized across all processes.</span>
+<span class="sd">        &gt;&gt;&gt;     pass</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -923,7 +952,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

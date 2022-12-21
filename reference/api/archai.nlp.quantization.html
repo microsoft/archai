@@ -818,7 +818,7 @@ title="Edit this page"
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.nlp.quantization.qat">
-   Quantization Aware Training (QAT)
+   Quantization-Aware Training (QAT)
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -872,7 +872,7 @@ title="Edit this page"
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.nlp.quantization.qat">
-   Quantization Aware Training (QAT)
+   Quantization-Aware Training (QAT)
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -903,17 +903,14 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeQuantEmbedding">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeQuantEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeQuantEmbedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeQuantEmbedding" title="Permalink to this definition">#</a></dt>
-<dd><p>Translates a torch-based Embedding layer into a QAT-ready Embedding.</p>
+<dd><p>Translate a torch-based Embedding layer into a QAT-ready Embedding layer.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeQuantEmbedding.fake_quant_weight">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.nlp.quantization.modules.FakeQuantEmbedding.fake_quant_weight" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a fake quantization over the weight matrix.</p>
+<dd><p>Perform a fake quantization over the weight matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Fake quantized weight matrix.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -921,7 +918,7 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeQuantEmbedding.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeQuantEmbedding.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeQuantEmbedding.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a forward pass over the fake quantized Embedding layer.</p>
+<dd><p>Perform a forward pass over the fake quantized Embedding layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> – Input tensor.</p>
@@ -929,16 +926,13 @@ title="Edit this page"
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Quantized tensor.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.Tensor)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeQuantEmbedding.from_float">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.nlp.quantization.modules.FakeQuantEmbedding" title="archai.nlp.quantization.modules.FakeQuantEmbedding"><span class="pre">archai.nlp.quantization.modules.FakeQuantEmbedding</span></a></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeQuantEmbedding.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeQuantEmbedding.from_float" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps module from float to QAT-ready.</p>
+<dd><p>Map module from float to QAT-ready.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -949,22 +943,16 @@ title="Edit this page"
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>QAT-ready module.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(<a class="reference internal" href="#archai.nlp.quantization.modules.FakeQuantEmbedding" title="archai.nlp.quantization.modules.FakeQuantEmbedding">FakeQuantEmbedding</a>)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeQuantEmbedding.to_float">
 <span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeQuantEmbedding.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeQuantEmbedding.to_float" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps module from QAT-ready to float.</p>
+<dd><p>Map module from QAT-ready to float.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Float-based module.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(torch.nn.Module)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1014,7 +1002,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeQuantEmbeddingForOnnx">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeQuantEmbeddingForOnnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeQuantEmbeddingForOnnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeQuantEmbeddingForOnnx" title="Permalink to this definition">#</a></dt>
-<dd><p>Allows a QAT-ready Embedding layer to be exported with ONNX.</p>
+<dd><p>Allow a QAT-ready Embedding layer to be exported with ONNX.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeQuantEmbeddingForOnnx.num_embeddings">
 <span class="sig-name descname"><span class="pre">num_embeddings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#archai.nlp.quantization.modules.FakeQuantEmbeddingForOnnx.num_embeddings" title="Permalink to this definition">#</a></dt>
@@ -1065,17 +1053,14 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantLinear">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantLinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantLinear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinear" title="Permalink to this definition">#</a></dt>
-<dd><p>Translates a torch-based Linear layer into a QAT-ready Linear.</p>
+<dd><p>Translate a torch-based Linear layer into a QAT-ready Linear layer.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantLinear.fake_quant_weight">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinear.fake_quant_weight" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a fake quantization over the weight matrix.</p>
+<dd><p>Perform a fake quantization over the weight matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Fake quantized weight matrix.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1083,7 +1068,7 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantLinear.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantLinear.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinear.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a forward pass over the fake quantized Linear layer.</p>
+<dd><p>Perform a forward pass over the fake quantized Linear layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> – Input tensor.</p>
@@ -1091,16 +1076,13 @@ title="Edit this page"
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Quantized tensor.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.Tensor)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantLinear.from_float">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinear" title="archai.nlp.quantization.modules.FakeDynamicQuantLinear"><span class="pre">archai.nlp.quantization.modules.FakeDynamicQuantLinear</span></a></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantLinear.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinear.from_float" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps module from float to QAT-ready.</p>
+<dd><p>Map module from float to QAT-ready.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1112,22 +1094,16 @@ title="Edit this page"
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>QAT-ready module.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(<a class="reference internal" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinear" title="archai.nlp.quantization.modules.FakeDynamicQuantLinear">FakeDynamicQuantLinear</a>)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantLinear.to_float">
 <span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantLinear.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinear.to_float" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps module from QAT-ready to float.</p>
+<dd><p>Map module from QAT-ready to float.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Float-based module.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(torch.nn.Module)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1152,7 +1128,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantLinearForOnnx">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantLinearForOnnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantLinearForOnnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinearForOnnx" title="Permalink to this definition">#</a></dt>
-<dd><p>Allows a QAT-ready Linear layer to be exported with ONNX.</p>
+<dd><p>Allow a QAT-ready Linear layer to be exported with ONNX.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantLinearForOnnx.in_features">
 <span class="sig-name descname"><span class="pre">in_features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantLinearForOnnx.in_features" title="Permalink to this definition">#</a></dt>
@@ -1178,17 +1154,14 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantConv1d">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantConv1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantConv1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1d" title="Permalink to this definition">#</a></dt>
-<dd><p>Translates a torch-based Conv1d layer into a QAT-ready Conv1d.</p>
+<dd><p>Translate a torch-based Conv1d layer into a QAT-ready Conv1d layer.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantConv1d.fake_quant_weight">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1d.fake_quant_weight" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a fake quantization over the weight matrix.</p>
+<dd><p>Perform a fake quantization over the weight matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Fake quantized weight matrix.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1196,7 +1169,7 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantConv1d.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantConv1d.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1d.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a forward pass over the fake quantized Conv1d layer.</p>
+<dd><p>Perform a forward pass over the fake quantized Conv1d layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> – Input tensor.</p>
@@ -1204,16 +1177,13 @@ title="Edit this page"
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Quantized tensor.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.Tensor)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantConv1d.from_float">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1d" title="archai.nlp.quantization.modules.FakeDynamicQuantConv1d"><span class="pre">archai.nlp.quantization.modules.FakeDynamicQuantConv1d</span></a></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantConv1d.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1d.from_float" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps module from float to QAT-ready.</p>
+<dd><p>Map module from float to QAT-ready.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1225,22 +1195,16 @@ title="Edit this page"
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>QAT-ready module.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(<a class="reference internal" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1d" title="archai.nlp.quantization.modules.FakeDynamicQuantConv1d">FakeDynamicQuantConv1d</a>)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantConv1d.to_float">
 <span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantConv1d.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1d.to_float" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps module from QAT-ready to float.</p>
+<dd><p>Map module from QAT-ready to float.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Float-based module.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(torch.nn.Module)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1310,7 +1274,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantConv1dForOnnx">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantConv1dForOnnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantConv1dForOnnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1dForOnnx" title="Permalink to this definition">#</a></dt>
-<dd><p>Allows a QAT-ready Conv1d layer to be exported with ONNX.</p>
+<dd><p>Allow a QAT-ready Conv1d layer to be exported with ONNX.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantConv1dForOnnx.bias">
 <span class="sig-name descname"><span class="pre">bias</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1dForOnnx.bias" title="Permalink to this definition">#</a></dt>
@@ -1381,17 +1345,14 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantHFConv1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantHFConv1D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D" title="Permalink to this definition">#</a></dt>
-<dd><p>Translates a huggingface/transformers Conv1D to QAT-ready.</p>
+<dd><p>Translate a huggingface/transformers Conv1D layer into a QAT-ready Conv1D layer.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.fake_quant_weight">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.fake_quant_weight" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a fake quantization over the weight matrix.</p>
+<dd><p>Perform a fake quantization over the weight matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Fake quantized weight matrix.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1399,7 +1360,7 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantHFConv1D.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a forward pass over the fake quantized Conv1D layer.</p>
+<dd><p>Perform a forward pass over the fake quantized Conv1D layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> – Input tensor.</p>
@@ -1407,16 +1368,13 @@ title="Edit this page"
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Quantized tensor.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.Tensor)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.from_float">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D" title="archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D"><span class="pre">archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D</span></a></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantHFConv1D.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.from_float" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps module from float to QAT-ready.</p>
+<dd><p>Map module from float to QAT-ready.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1428,22 +1386,16 @@ title="Edit this page"
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>QAT-ready module.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(<a class="reference internal" href="#archai.nlp.quantization.modules.FakeDynamicQuantConv1d" title="archai.nlp.quantization.modules.FakeDynamicQuantConv1d">FakeDynamicQuantConv1d</a>)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.to_float">
 <span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantHFConv1D.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.to_float" title="Permalink to this definition">#</a></dt>
-<dd><p>Maps module from QAT-ready to float.</p>
+<dd><p>Map module from QAT-ready to float.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Float-based module.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(torch.nn.Module)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1458,7 +1410,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantHFConv1DForOnnx">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantHFConv1DForOnnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/modules.html#FakeDynamicQuantHFConv1DForOnnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1DForOnnx" title="Permalink to this definition">#</a></dt>
-<dd><p>Allows a QAT-ready huggingface/transformers Conv1D layer to be exported with ONNX.</p>
+<dd><p>Allow a QAT-ready huggingface/transformers Conv1D layer to be exported with ONNX.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.quantization.modules.FakeDynamicQuantHFConv1DForOnnx.training">
 <span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1DForOnnx.training" title="Permalink to this definition">#</a></dt>
@@ -1473,15 +1425,14 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.observers.OnnxDynamicObserver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.observers.</span></span><span class="sig-name descname"><span class="pre">OnnxDynamicObserver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/observers.html#OnnxDynamicObserver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.observers.OnnxDynamicObserver" title="Permalink to this definition">#</a></dt>
-<dd><p>Provides a DynamicObserver that is compliant with ONNX-based graphs.</p>
-<dl class="simple">
-<dt>Note that usually <cite>qint8</cite> is used for symmetric quantization, while</dt><dd><p><cite>quint8</cite> is used for assymetric quantization.</p>
-</dd>
-</dl>
+<dd><p>DynamicObserver that is compliant with ONNX-based graphs.</p>
+<p>This class can be used to perform symmetric or assymetric quantization, depending on the
+<cite>dtype</cite> provided. <cite>qint8</cite> is usually used for symmetric quantization, while <cite>quint8</cite> is
+used for assymetric quantization.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.observers.OnnxDynamicObserver.calculate_qparams">
 <span class="sig-name descname"><span class="pre">calculate_qparams</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/observers.html#OnnxDynamicObserver.calculate_qparams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.observers.OnnxDynamicObserver.calculate_qparams" title="Permalink to this definition">#</a></dt>
-<dd><p>Calculates the quantization parameters.</p>
+<dd><p>Calculate the quantization parameters.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1493,8 +1444,13 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.quantizers.FakeDynamicQuant">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.quantizers.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.dtype</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">torch.quint8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/quantizers.html#FakeDynamicQuant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.quantizers.FakeDynamicQuant" title="Permalink to this definition">#</a></dt>
-<dd><p>Inserts a fake dynamic quantizer to allow for a proper scale/zero point calculating
-when performing Quantization Aware Training.</p>
+<dd><p>Fake dynamic quantizer to allow for scale/zero point calculation during Quantization-Aware Training.</p>
+<p>This class allows inserting a fake dynamic quantization operator in a PyTorch model,
+in order to calculate scale and zero point values that can be used to quantize the
+model during training. The operator can be customized to use different quantization types
+(quint8 or qint8) and bit widths, and it can be made compatible with ONNX.</p>
+<p>Note: This module is only meant to be used during training, and should not be present
+in the final, deployed model.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.quantization.quantizers.FakeDynamicQuant.training">
 <span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.nlp.quantization.quantizers.FakeDynamicQuant.training" title="Permalink to this definition">#</a></dt>
@@ -1503,16 +1459,13 @@ when performing Quantization Aware Training.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.quantizers.FakeDynamicQuant.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/quantizers.html#FakeDynamicQuant.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.quantizers.FakeDynamicQuant.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs a forward pass over the fake dynamic quantization module.</p>
+<dd><p>Perform a forward pass over the fake dynamic quantization operator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> – Input tensor.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Fake dynamically quantized tensor.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1526,11 +1479,14 @@ when performing Quantization Aware Training.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.ptq.GemmQuant">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.ptq.</span></span><span class="sig-name descname"><span class="pre">GemmQuant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_quantizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnxruntime.quantization.onnx_quantizer.ONNXQuantizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnx.onnx_ml_pb2.NodeProto</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/ptq.html#GemmQuant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.ptq.GemmQuant" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a quantized version of the Gemm operator.</p>
+<dd><p>Quantized version of the Gemm operator.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.ptq.GemmQuant.quantize">
 <span class="sig-name descname"><span class="pre">quantize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/ptq.html#GemmQuant.quantize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.ptq.GemmQuant.quantize" title="Permalink to this definition">#</a></dt>
-<dd><p>Quantizes a Gemm node into QGemm.</p>
+<dd><p>Quantize a Gemm node into QGemm.</p>
+<p>This method replaces the original <cite>Gemm</cite> node with a <cite>QGemm</cite> node, which is a quantized
+version of the <cite>Gemm</cite> operator. It also adds a <cite>Cast</cite> node to cast the output of <cite>QGemm</cite>
+to float, and an <cite>Add</cite> node to sum the remaining bias to the <cite>Gemm</cite> output.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1538,14 +1494,16 @@ when performing Quantization Aware Training.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.quantization.ptq.add_new_quant_operators">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.ptq.</span></span><span class="sig-name descname"><span class="pre">add_new_quant_operators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/ptq.html#add_new_quant_operators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.ptq.add_new_quant_operators" title="Permalink to this definition">#</a></dt>
-<dd><p>Adds support for new quantization operators by changing
+<dd><p>Add support for new quantization operators by changing
 internal onnxruntime registry dictionaries.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.quantization.ptq.dynamic_quantization_onnx">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.ptq.</span></span><span class="sig-name descname"><span class="pre">dynamic_quantization_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/ptq.html#dynamic_quantization_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.ptq.dynamic_quantization_onnx" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs the dynamic quantization over an ONNX model.</p>
+<dd><p>Perform dynamic quantization on an ONNX model.</p>
+<p>The quantized model is saved to a new file with “-int8” appended
+to the original file name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>onnx_model_path</strong> – Path to the ONNX model to be quantized.</p>
@@ -1553,21 +1511,20 @@ internal onnxruntime registry dictionaries.</p>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Path to the dynamic quantized ONNX model.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
-</dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.quantization.ptq.dynamic_quantization_torch">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.ptq.</span></span><span class="sig-name descname"><span class="pre">dynamic_quantization_torch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['word_emb',</span> <span class="pre">'transformer.wpe',</span> <span class="pre">'transformer.wte']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/ptq.html#dynamic_quantization_torch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.ptq.dynamic_quantization_torch" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs the dynamic quantization over a PyTorch model.</p>
+<dd><p>Perform dynamic quantization on a PyTorch model.</p>
+<p>This function performs dynamic quantization on the input PyTorch model, including
+any specified embedding layers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – PyTorch model to be quantized.</p></li>
-<li><p><strong>embedding_layers</strong> – List with string-based identifiers of embedding layers.</p></li>
+<li><p><strong>embedding_layers</strong> – List of string-based identifiers of embedding layers to be quantized.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1575,63 +1532,58 @@ internal onnxruntime registry dictionaries.</p>
 
 </section>
 <section id="module-archai.nlp.quantization.qat">
-<span id="quantization-aware-training-qat"></span><h2>Quantization Aware Training (QAT)<a class="headerlink" href="#module-archai.nlp.quantization.qat" title="Permalink to this headline">#</a></h2>
-<p>Pipeline for performing PyTorch-based Quantization Aware Training (QAT).</p>
+<span id="quantization-aware-training-qat"></span><h2>Quantization-Aware Training (QAT)<a class="headerlink" href="#module-archai.nlp.quantization.qat" title="Permalink to this headline">#</a></h2>
+<p>Pipeline for performing PyTorch-based Quantization-Aware Training (QAT).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.quantization.qat.qat_to_float_modules">
-<span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">qat_to_float_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/qat.html#qat_to_float_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.qat.qat_to_float_modules" title="Permalink to this definition">#</a></dt>
-<dd><p>Changes QAT-ready modules to float-based modules.</p>
+<span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">qat_to_float_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/qat.html#qat_to_float_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.qat.qat_to_float_modules" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert QAT-ready modules to float-based modules.</p>
+<p>This function converts all QAT-ready modules in the input model to float-based modules.
+It does this recursively, so all sub-modules within the input model will also be
+converted if applicable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>model</strong> – QAT-ready module.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Float-based module.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.nn.Module)</p>
+<dd class="field-odd"><p><strong>model</strong> – QAT-ready module to be converted.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.quantization.qat.float_to_qat_modules">
-<span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">float_to_qat_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_mapping:</span> <span class="pre">typing.Optional[typing.Dict[torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">torch.nn.modules.module.Module]]</span> <span class="pre">=</span> <span class="pre">{&lt;class</span> <span class="pre">'torch.nn.modules.sparse.Embedding'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.nlp.quantization.modules.FakeQuantEmbedding'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'torch.nn.modules.linear.Linear'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.nlp.quantization.modules.FakeDynamicQuantLinear'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'torch.nn.modules.conv.Conv1d'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.nlp.quantization.modules.FakeDynamicQuantConv1d'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'transformers.pytorch_utils.Conv1D'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D'&gt;}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig:</span> <span class="pre">typing.Optional[typing.Dict[torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Any]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/qat.html#float_to_qat_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.qat.float_to_qat_modules" title="Permalink to this definition">#</a></dt>
-<dd><p>Changes float-based modules to QAT-ready modules.</p>
+<span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">float_to_qat_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_mapping:</span> <span class="pre">typing.Optional[typing.Dict[torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">torch.nn.modules.module.Module]]</span> <span class="pre">=</span> <span class="pre">{&lt;class</span> <span class="pre">'torch.nn.modules.sparse.Embedding'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.nlp.quantization.modules.FakeQuantEmbedding'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'torch.nn.modules.linear.Linear'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.nlp.quantization.modules.FakeDynamicQuantLinear'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'torch.nn.modules.conv.Conv1d'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.nlp.quantization.modules.FakeDynamicQuantConv1d'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'transformers.pytorch_utils.Conv1D'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D'&gt;}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig:</span> <span class="pre">typing.Optional[typing.Dict[torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typing.Any]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/qat.html#float_to_qat_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.qat.float_to_qat_modules" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert float-based modules to QAT-ready modules.</p>
+<p>This function converts all float-based modules in the input model to QAT-ready
+modules using the provided module mapping. It does this recursively, so all sub-modules
+within the input model will also be converted if applicable.</p>
+<p>A quantization configuration can also be supplied.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – Float-based module.</p></li>
+<li><p><strong>model</strong> – Float-based module to be converted.</p></li>
 <li><p><strong>module_mapping</strong> – Maps between float and QAT-ready modules.</p></li>
-<li><p><strong>qconfig</strong> – Quantization configuration.</p></li>
+<li><p><strong>qconfig</strong> – Quantization configuration to be used for the conversion.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>QAT-ready module.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.nn.Module)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.quantization.qat.prepare_with_qat">
-<span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">prepare_with_qat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'qnnpack'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/qat.html#prepare_with_qat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.qat.prepare_with_qat" title="Permalink to this definition">#</a></dt>
-<dd><p>Prepares a float-based model and inserts QAT-based modules and configurations.</p>
+<span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">prepare_with_qat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'qnnpack'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/qat.html#prepare_with_qat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.qat.prepare_with_qat" title="Permalink to this definition">#</a></dt>
+<dd><p>Prepare a float-based PyTorch model for quantization-aware training (QAT).</p>
+<p>This function modifies the input model in place by inserting
+QAT-based modules and configurations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – Float-based module.</p></li>
-<li><p><strong>onnx_compatible</strong> – Whether QAT-ready module is compatible with ONNX.</p></li>
-<li><p><strong>backend</strong> – Quantization backend.</p></li>
+<li><p><strong>model</strong> – Float-based PyTorch module to be prepared for QAT.</p></li>
+<li><p><strong>inplace</strong> – Whether the prepared QAT model should replace the original model.</p></li>
+<li><p><strong>onnx_compatible</strong> – Whether the prepared QAT model should be compatible with ONNX.</p></li>
+<li><p><strong>backend</strong> – Quantization backend to be used.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>QAT-ready module.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.nn.Module)</p>
+<dd class="field-even"><p>The input model, modified in place (or not) to be ready for QAT.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1639,22 +1591,19 @@ internal onnxruntime registry dictionaries.</p>
 </section>
 <section id="module-archai.nlp.quantization.mixed_qat">
 <span id="mixed-qat"></span><h2>Mixed-QAT<a class="headerlink" href="#module-archai.nlp.quantization.mixed_qat" title="Permalink to this headline">#</a></h2>
-<p>Mixed Quantization Aware-Training model.</p>
+<p>Mixed Quantization-Aware Training model.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.quantization.mixed_qat.MixedQAT">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.mixed_qat.</span></span><span class="sig-name descname"><span class="pre">MixedQAT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qat_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/quantization/mixed_qat.html#MixedQAT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.mixed_qat.MixedQAT" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a mixed QAT model, which can be fine-tuned using a linear combination of
-regular and QAT losses.</p>
+<dd><p>Mixed QAT (Quantization-Aware Training) model, which can be fine-tuned
+using a linear combination of regular and QAT losses.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.quantization.mixed_qat.MixedQAT.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/mixed_qat.html#MixedQAT.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.mixed_qat.MixedQAT.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Forward pass over the module.</p>
+<dd><p>Perform a forward pass over the module.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>QAT-based model outputs.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Tuple[torch.Tensor, …])</p>
+<dd class="field-odd"><p>A tuple containing the QAT-based model outputs.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1673,23 +1622,28 @@ regular and QAT losses.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.quantization.quantization_utils.rgetattr">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.quantization_utils.</span></span><span class="sig-name descname"><span class="pre">rgetattr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/quantization_utils.html#rgetattr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.quantization_utils.rgetattr" title="Permalink to this definition">#</a></dt>
-<dd><p>Recursively gets an attribute.</p>
-<dl class="simple">
-<dt>Reference:</dt><dd><p><a class="reference external" href="https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427">https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</a></p>
-</dd>
-</dl>
+<dd><p>Recursively get an attribute from an object.</p>
+<p>This function allows accessing nested attributes by separating each level with a dot (e.g., “attr1.attr2.attr3”).
+If any attribute along the chain does not exist, the function returns the default value
+specified in the <cite>*args</cite> parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> – Object that will have attribute gathered.</p></li>
-<li><p><strong>attr</strong> – Name of attribute that will be gathered.</p></li>
+<li><p><strong>obj</strong> – Object from which the attribute will be retrieved.</p></li>
+<li><p><strong>attr</strong> – Name of the attribute to be retrieved, with each level separated by a dot.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Attribute from object.</p>
+<dd class="field-even"><p>Attribute from the object.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Any)</p>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">MyObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rgetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;attr1.attr2.attr3&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Reference:</dt><dd><p><a class="reference external" href="https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427">https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1697,18 +1651,24 @@ regular and QAT losses.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.quantization.quantization_utils.rsetattr">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.quantization.quantization_utils.</span></span><span class="sig-name descname"><span class="pre">rsetattr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/quantization/quantization_utils.html#rsetattr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.quantization.quantization_utils.rsetattr" title="Permalink to this definition">#</a></dt>
-<dd><p>Recursively sets an attribute.</p>
-<dl class="simple">
-<dt>Reference:</dt><dd><p><a class="reference external" href="https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427">https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</a></p>
-</dd>
-</dl>
+<dd><p>Recursively set an attribute on an object.</p>
+<p>This function allows setting nested attributes by separating each level with a dot (e.g., “attr1.attr2.attr3”).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> – Object that will have attribute set.</p></li>
-<li><p><strong>attr</strong> – Name of attribute that will be set.</p></li>
+<li><p><strong>obj</strong> – Object on which the attribute will be set.</p></li>
+<li><p><strong>attr</strong> – Name of the attribute to be set, with each level separated by a dot.</p></li>
 <li><p><strong>value</strong> – New value for the attribute.</p></li>
 </ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">MyObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;attr1.attr2.attr3&quot;</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Reference:</dt><dd><p><a class="reference external" href="https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427">https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1748,7 +1708,7 @@ regular and QAT losses.</p>
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

@@ -819,7 +819,7 @@ title="Open an issue"
     <span class="n">scaler</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">GradScaler</span><span class="p">,</span>
     <span class="n">trainer_state</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">fp16</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">prefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">prefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="n">save_all_checkpoints</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">is_best_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -883,7 +883,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="NvidiaTrainer"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.trainers.nvidia.html#archai.nlp.trainers.nvidia.trainer.NvidiaTrainer">[docs]</a><span class="k">class</span> <span class="nc">NvidiaTrainer</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Implement an NVIDIA-based trainer.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;NVIDIA-based trainer.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1055,7 +1055,7 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Setup whether Quantization Aware Training (QAT) should be used.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">qat</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">prepare_with_qat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">onnx_compatible</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">prepare_with_qat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">onnx_compatible</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">mixed_qat</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">MixedQAT</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span></div>
@@ -1263,7 +1263,7 @@ title="Open an issue"
 
                 <span class="c1"># Model needs to be converted back to FP32 when using QAT</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">qat</span><span class="p">:</span>
-                    <span class="n">save_model</span> <span class="o">=</span> <span class="n">qat_to_float_modules</span><span class="p">(</span><span class="n">save_model</span><span class="p">)</span>
+                    <span class="n">qat_to_float_modules</span><span class="p">(</span><span class="n">save_model</span><span class="p">)</span>
                     <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;qat-&quot;</span>
 
                 <span class="c1"># Save original FP32 model when using MixedQAT</span>
@@ -1453,7 +1453,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

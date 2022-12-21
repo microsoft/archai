@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;ONNX-loading utilities.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;ONNX-loading utilities.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">environ</span>
 
@@ -795,13 +794,16 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="load_from_onnx"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.onnx.html#archai.nlp.onnx.onnx_loader.load_from_onnx">[docs]</a><span class="k">def</span> <span class="nf">load_from_onnx</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InferenceSession</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Loads an ONNX-based model from file.</span>
+    <span class="sd">&quot;&quot;&quot;Load an ONNX-based model from file.</span>
+
+<span class="sd">    This function loads an ONNX-based model from the specified file path and</span>
+<span class="sd">    returns an ONNX inference session. Performance optimization constants are set as well.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        onnx_model_path: Path to the ONNX model file.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (InferenceSession): ONNX inference session.</span>
+<span class="sd">        ONNX inference session.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -839,7 +841,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

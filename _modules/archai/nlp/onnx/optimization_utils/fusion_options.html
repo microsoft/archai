@@ -782,14 +782,13 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Options that enables nodes&#39; fusion.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Options that enables nodes&#39; fusion.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 
 <div class="viewcode-block" id="AttentionMaskFormat"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.fusion_options.AttentionMaskFormat">[docs]</a><span class="k">class</span> <span class="nc">AttentionMaskFormat</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Enumerator for attention mask shape.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Enumerate the attention mask shape.&quot;&quot;&quot;</span>
 
     <span class="n">MaskIndexEnd</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">MaskIndexEndAndStart</span> <span class="o">=</span> <span class="mi">1</span>
@@ -798,10 +797,10 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FusionOptions"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions">[docs]</a><span class="k">class</span> <span class="nc">FusionOptions</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Operators that should be fused in the ONNX graph.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Options to control the fusion of operators in the ONNX graph.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Defines an initialization method.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the fusion options.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model_type: Type of model.</span>
@@ -829,7 +828,7 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">attention_mask_format</span> <span class="o">=</span> <span class="n">AttentionMaskFormat</span><span class="o">.</span><span class="n">AttentionMask</span>
 
 <div class="viewcode-block" id="FusionOptions.use_raw_attention_mask"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask">[docs]</a>    <span class="k">def</span> <span class="nf">use_raw_attention_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_raw_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Enables the usage of raw attention mask.</span>
+        <span class="sd">&quot;&quot;&quot;Enable the usage of raw attention mask.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            use_raw_mask: Whether raw mask should be used or not.</span>
@@ -842,7 +841,7 @@ title="Open an issue"
             <span class="bp">self</span><span class="o">.</span><span class="n">attention_mask_format</span> <span class="o">=</span> <span class="n">AttentionMaskFormat</span><span class="o">.</span><span class="n">MaskIndexEnd</span></div>
 
 <div class="viewcode-block" id="FusionOptions.disable_attention_mask"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions.disable_attention_mask">[docs]</a>    <span class="k">def</span> <span class="nf">disable_attention_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Disables the usage of attention mask.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Disable the usage of attention mask.&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">attention_mask_format</span> <span class="o">=</span> <span class="n">AttentionMaskFormat</span><span class="o">.</span><span class="n">NoMask</span></div></div>
 </pre></div>
@@ -864,7 +863,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

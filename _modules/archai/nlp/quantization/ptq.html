@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Pipeline for performing Post-Training Quantization (PTQ).</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Pipeline for performing Post-Training Quantization (PTQ).&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -805,10 +804,10 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="GemmQuant"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.ptq.GemmQuant">[docs]</a><span class="k">class</span> <span class="nc">GemmQuant</span><span class="p">(</span><span class="n">QuantOperatorBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a quantized version of the Gemm operator.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Quantized version of the Gemm operator.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onnx_quantizer</span><span class="p">:</span> <span class="n">ONNXQuantizer</span><span class="p">,</span> <span class="n">onnx_node</span><span class="p">:</span> <span class="n">NodeProto</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization method with custom arguments.</span>
+        <span class="sd">&quot;&quot;&quot;Override initialization method with custom arguments.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            onnx_quantizer: An instance of the quantizer itself.</span>
@@ -819,7 +818,13 @@ title="Open an issue"
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">onnx_quantizer</span><span class="p">,</span> <span class="n">onnx_node</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GemmQuant.quantize"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.ptq.GemmQuant.quantize">[docs]</a>    <span class="k">def</span> <span class="nf">quantize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Quantizes a Gemm node into QGemm.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Quantize a Gemm node into QGemm.</span>
+
+<span class="sd">        This method replaces the original `Gemm` node with a `QGemm` node, which is a quantized</span>
+<span class="sd">        version of the `Gemm` operator. It also adds a `Cast` node to cast the output of `QGemm`</span>
+<span class="sd">        to float, and an `Add` node to sum the remaining bias to the `Gemm` output.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span>
         <span class="k">assert</span> <span class="n">node</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;Gemm&quot;</span>
@@ -867,7 +872,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="add_new_quant_operators"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.ptq.add_new_quant_operators">[docs]</a><span class="k">def</span> <span class="nf">add_new_quant_operators</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Adds support for new quantization operators by changing</span>
+    <span class="sd">&quot;&quot;&quot;Add support for new quantization operators by changing</span>
 <span class="sd">    internal onnxruntime registry dictionaries.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -878,13 +883,16 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="dynamic_quantization_onnx"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.ptq.dynamic_quantization_onnx">[docs]</a><span class="k">def</span> <span class="nf">dynamic_quantization_onnx</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Performs the dynamic quantization over an ONNX model.</span>
+    <span class="sd">&quot;&quot;&quot;Perform dynamic quantization on an ONNX model.</span>
+
+<span class="sd">    The quantized model is saved to a new file with &quot;-int8&quot; appended</span>
+<span class="sd">    to the original file name.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        onnx_model_path: Path to the ONNX model to be quantized.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (str): Path to the dynamic quantized ONNX model.</span>
+<span class="sd">        Path to the dynamic quantized ONNX model.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -904,11 +912,14 @@ title="Open an issue"
 <div class="viewcode-block" id="dynamic_quantization_torch"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.ptq.dynamic_quantization_torch">[docs]</a><span class="k">def</span> <span class="nf">dynamic_quantization_torch</span><span class="p">(</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">embedding_layers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;word_emb&quot;</span><span class="p">,</span> <span class="s2">&quot;transformer.wpe&quot;</span><span class="p">,</span> <span class="s2">&quot;transformer.wte&quot;</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Performs the dynamic quantization over a PyTorch model.</span>
+    <span class="sd">&quot;&quot;&quot;Perform dynamic quantization on a PyTorch model.</span>
+
+<span class="sd">    This function performs dynamic quantization on the input PyTorch model, including</span>
+<span class="sd">    any specified embedding layers.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        model: PyTorch model to be quantized.</span>
-<span class="sd">        embedding_layers: List with string-based identifiers of embedding layers.</span>
+<span class="sd">        embedding_layers: List of string-based identifiers of embedding layers to be quantized.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -953,7 +964,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

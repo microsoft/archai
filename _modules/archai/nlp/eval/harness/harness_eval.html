@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Harness-based evaluation.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Harness-based evaluation.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -799,16 +798,19 @@ title="Open an issue"
     <span class="n">n_few_shot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Performs the harness-based evaluation.</span>
+    <span class="sd">&quot;&quot;&quot;Evaluate a harness-based model on a harness-based task.</span>
+
+<span class="sd">    This function performs the evaluation of a harness-based model on a harness-based task</span>
+<span class="sd">    using a few-shot evaluation approach.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        harness_model: Harness-based model.</span>
-<span class="sd">        harness_task: Harness-based task.</span>
-<span class="sd">        n_few_shot: Number of few-shot samples.</span>
+<span class="sd">        harness_model: Harness-based model to be evaluated.</span>
+<span class="sd">        harness_task: Harness-based task on which the model is evaluated.</span>
+<span class="sd">        n_few_shot: Number of few-shot samples to be used for the evaluation.</span>
 <span class="sd">        description: Additional description to be added to the few-shot context.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Dict[str, Any]): Output configuration and metrics.</span>
+<span class="sd">        Output configuration and evaluation metrics.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -859,7 +861,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

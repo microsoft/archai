@@ -853,7 +853,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.fusion_options.AttentionMaskFormat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.optimization_utils.fusion_options.</span></span><span class="sig-name descname"><span class="pre">AttentionMaskFormat</span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/fusion_options.html#AttentionMaskFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.fusion_options.AttentionMaskFormat" title="Permalink to this definition">#</a></dt>
-<dd><p>Enumerator for attention mask shape.</p>
+<dd><p>Enumerate the attention mask shape.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.fusion_options.AttentionMaskFormat.MaskIndexEnd">
 <span class="sig-name descname"><span class="pre">MaskIndexEnd</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.fusion_options.AttentionMaskFormat.MaskIndexEnd" title="Permalink to this definition">#</a></dt>
@@ -879,11 +879,11 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.optimization_utils.fusion_options.</span></span><span class="sig-name descname"><span class="pre">FusionOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/fusion_options.html#FusionOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions" title="Permalink to this definition">#</a></dt>
-<dd><p>Operators that should be fused in the ONNX graph.</p>
+<dd><p>Options to control the fusion of operators in the ONNX graph.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask">
 <span class="sig-name descname"><span class="pre">use_raw_attention_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_raw_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/fusion_options.html#FusionOptions.use_raw_attention_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask" title="Permalink to this definition">#</a></dt>
-<dd><p>Enables the usage of raw attention mask.</p>
+<dd><p>Enable the usage of raw attention mask.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>use_raw_mask</strong> – Whether raw mask should be used or not.</p>
@@ -894,7 +894,7 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions.disable_attention_mask">
 <span class="sig-name descname"><span class="pre">disable_attention_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/fusion_options.html#FusionOptions.disable_attention_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions.disable_attention_mask" title="Permalink to this definition">#</a></dt>
-<dd><p>Disables the usage of attention mask.</p>
+<dd><p>Disable the usage of attention mask.</p>
 </dd></dl>
 
 </dd></dl>
@@ -906,28 +906,22 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.</span></span><span class="sig-name descname"><span class="pre">TransfoXLOnnxModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnx.onnx_ml_pb2.ModelProto</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel" title="Permalink to this definition">#</a></dt>
-<dd><p>TransfoXLOnnxModel that enables additional ONNX optimizations.</p>
+<dd><p>ONNX model optimized for Transformer-XL models.</p>
+<p>This model extends the <cite>OnnxModel</cite> class by enabling additional ONNX optimizations.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_input_type">
 <span class="sig-name descname"><span class="pre">change_graph_input_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnx.onnx_ml_pb2.GraphProto</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnx.onnx_ml_pb2.ValueInfoProto</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">onnx.onnx_ml_pb2.NodeProto</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">onnx.onnx_ml_pb2.NodeProto</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.change_graph_input_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_input_type" title="Permalink to this definition">#</a></dt>
-<dd><p>Changes the input type of the graph and add Cast nodes if necessary.</p>
+<dd><p>Change the input type of the graph and add <cite>Cast</cite> nodes if necessary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> – Graph instance.</p></li>
-<li><p><strong>graph_input</strong> – Graph inputs.</p></li>
+<li><p><strong>graph_input</strong> – Graph input value.</p></li>
 <li><p><strong>new_type</strong> – New data type.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Cast node to be added and</dt><dd><p>list of Cast nodes to be removed.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Tuple[NodeProto, List[NodeProto]])</p>
+<dd class="field-even"><p>A tuple containing a <cite>Cast</cite> node to be added and a list of <cite>Cast</cite> nodes to be removed.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -935,49 +929,49 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_inputs_to_int32">
 <span class="sig-name descname"><span class="pre">change_graph_inputs_to_int32</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.change_graph_inputs_to_int32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_inputs_to_int32" title="Permalink to this definition">#</a></dt>
-<dd><p>Changes the inputs to int32.</p>
+<dd><p>Change the inputs to <cite>int32</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_layer_norm">
 <span class="sig-name descname"><span class="pre">fuse_layer_norm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.fuse_layer_norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_layer_norm" title="Permalink to this definition">#</a></dt>
-<dd><p>Fuses the appropriate nodes into a LayerNormalization layer.</p>
+<dd><p>Fuse the appropriate nodes into a <cite>LayerNormalization</cite> layer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_skip_layer_norm">
 <span class="sig-name descname"><span class="pre">fuse_skip_layer_norm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.fuse_skip_layer_norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_skip_layer_norm" title="Permalink to this definition">#</a></dt>
-<dd><p>Fuses the appropriate nodes into a SkipLayerNormalization layer.</p>
+<dd><p>Fuse the appropriate nodes into a <cite>SkipLayerNormalization</cite> layer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm">
 <span class="sig-name descname"><span class="pre">fuse_add_bias_skip_layer_norm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm" title="Permalink to this definition">#</a></dt>
-<dd><p>Fuses the appropriate nodes into a BiasSkipLayerNormalization layer.</p>
+<dd><p>Fuse the appropriate nodes into a <cite>BiasSkipLayerNormalization</cite> layer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_attention">
 <span class="sig-name descname"><span class="pre">fuse_attention</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.fuse_attention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_attention" title="Permalink to this definition">#</a></dt>
-<dd><p>Fuses the appropriate nodes into an Attention layer.</p>
+<dd><p>Fuse the appropriate nodes into an <cite>Attention</cite> layer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_reshape">
 <span class="sig-name descname"><span class="pre">fuse_reshape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.fuse_reshape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_reshape" title="Permalink to this definition">#</a></dt>
-<dd><p>Fuses the appropriate nodes into a Reshape layer.</p>
+<dd><p>Fuse the appropriate nodes into a <cite>Reshape</cite> layer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_shape">
 <span class="sig-name descname"><span class="pre">fuse_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.fuse_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_shape" title="Permalink to this definition">#</a></dt>
-<dd><p>Fuses the appropriate nodes into a Shape layer.</p>
+<dd><p>Fuse the appropriate nodes into a <cite>Shape</cite> layer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.use_dynamic_axes">
 <span class="sig-name descname"><span class="pre">use_dynamic_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dynamic_batch_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sequence'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.use_dynamic_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.use_dynamic_axes" title="Permalink to this definition">#</a></dt>
-<dd><p>Updates inputs and outputs shapes to use dynamic axes.</p>
+<dd><p>Update inputs and outputs shapes to use dynamic axes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -991,19 +985,19 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.adjust_reshape_and_expand">
 <span class="sig-name descname"><span class="pre">adjust_reshape_and_expand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.adjust_reshape_and_expand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.adjust_reshape_and_expand" title="Permalink to this definition">#</a></dt>
-<dd><p>Cleans up unncessary reshape nodes.</p>
+<dd><p>Clean up unncessary reshape nodes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.clean_graph">
 <span class="sig-name descname"><span class="pre">clean_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.clean_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.clean_graph" title="Permalink to this definition">#</a></dt>
-<dd><p>Cleans the graph after fusing nodes.</p>
+<dd><p>Clean the graph after fusing nodes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.optimize">
 <span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions" title="archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions"><span class="pre">archai.nlp.onnx.optimization_utils.fusion_options.FusionOptions</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_dynamic_axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.optimize" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs the additional transformer-based optimization.</p>
+<dd><p>Perform additional transformer-based optimization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1051,7 +1045,7 @@ title="Edit this page"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

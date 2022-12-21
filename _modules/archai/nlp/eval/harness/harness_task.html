@@ -782,18 +782,19 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Harness-based task.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Harness-based task.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">datasets</span>
 <span class="kn">from</span> <span class="nn">datasets.arrow_dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">evaluate</span> <span class="kn">import</span> <span class="n">load</span> <span class="k">as</span> <span class="n">hf_load_metric</span>
+<span class="kn">from</span> <span class="nn">overrides.enforce</span> <span class="kn">import</span> <span class="n">EnforceOverrides</span>
 
 <span class="kn">from</span> <span class="nn">archai.nlp.datasets.hf.loaders</span> <span class="kn">import</span> <span class="n">load_dataset</span>
 <span class="kn">from</span> <span class="nn">archai.nlp.eval.eval_utils</span> <span class="kn">import</span> <span class="n">cached_property</span>
@@ -836,13 +837,20 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="load_harness_task"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_task.load_harness_task">[docs]</a><span class="k">def</span> <span class="nf">load_harness_task</span><span class="p">(</span><span class="n">task_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HarnessTask</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Instantiates a new harness task.</span>
+    <span class="sd">&quot;&quot;&quot;Instantiate a new harness task of the specified type.</span>
+
+<span class="sd">    This function loads a harness task class based on the provided `task_name`</span>
+<span class="sd">    and creates an instance of the class with the provided keyword arguments.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        task_name: Name of harness task to be instantiated.</span>
+<span class="sd">        task_name: The name of the harness task to instantiate.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (HarnessTask): A harness task wrapped into corresponding class.</span>
+<span class="sd">        An instance of the specified harness task class.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        AssertionError: If the provided `task_name` is not a valid key</span>
+<span class="sd">            in the `AVAILABLE_HARNESS_TASKS` dictionary.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -856,8 +864,16 @@ title="Open an issue"
     <span class="k">return</span> <span class="n">task_cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="HarnessTask"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_task.HarnessTask">[docs]</a><span class="k">class</span> <span class="nc">HarnessTask</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Implements a harness-based task.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="HarnessTask"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_task.HarnessTask">[docs]</a><span class="k">class</span> <span class="nc">HarnessTask</span><span class="p">(</span><span class="n">EnforceOverrides</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstract base class for harness-based tasks.</span>
+
+<span class="sd">    A harness-based task is a task that involves evaluating a model&#39;s performance</span>
+<span class="sd">    on a particular task using a dataset, a metric, and possibly some pre-processing steps.</span>
+
+<span class="sd">    HarnessTask subclasses must override the `_create_inputs`, `_create_label`,</span>
+<span class="sd">    `create_sampling_calls` and `compute_results` method.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -872,19 +888,19 @@ title="Open an issue"
         <span class="n">metric_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metric_config_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes with custom arguments and keyword arguments.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a new harness task.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            dataset_name: Name of dataset to be downloaded.</span>
-<span class="sd">            dataset_config_name: Name of configuration of dataset to be downloaded.</span>
-<span class="sd">            dataset_dir: Path to manually downloaded files.</span>
-<span class="sd">            dataset_split: Split to be retrieved. `None` defaults to all splits.</span>
-<span class="sd">            dataset_cache: Folder where cache should be stored/loaded.</span>
-<span class="sd">            dataset_samples: Subsamples into a fixed amount of samples.</span>
-<span class="sd">            random_seed: Fixes the order of samples.</span>
-<span class="sd">            num_proc: Number of processes for multiprocessing.</span>
-<span class="sd">            metric_name: Name of metric to be instantiated.</span>
-<span class="sd">            metric_config_name: Configuration name of metric to be instantiated.</span>
+<span class="sd">            dataset_name: The name of the dataset to load.</span>
+<span class="sd">            dataset_config_name: The name of the configuration for the dataset to load.</span>
+<span class="sd">            dataset_dir: The directory where the dataset files can be found.</span>
+<span class="sd">            dataset_split: The splits of the dataset to load.</span>
+<span class="sd">            dataset_samples: The number of samples to subsample from the dataset.</span>
+<span class="sd">            random_seed: The seed used to shuffle the samples in the dataset.</span>
+<span class="sd">            num_proc: The number of processes to use for multiprocessing</span>
+<span class="sd">                when preparing the data.</span>
+<span class="sd">            metric_name: The name of the metric to instantiate.</span>
+<span class="sd">            metric_config_name: The name of the configuration for the metric to instantiate.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -917,7 +933,7 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Whether task has an available training set.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Availability of training set.</span>
+<span class="sd">            Availability of training set.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -928,7 +944,7 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Training set.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Dataset): Training set with `_pre_process_sample` function applied.</span>
+<span class="sd">            The training set, with the `_pre_process_sample` function applied.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -945,7 +961,7 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Whether task has an available validation set.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Availability of validation set.</span>
+<span class="sd">            Availability of validation set.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -956,7 +972,7 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Validation set.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Dataset): Validation set with `_pre_process_sample` function applied.</span>
+<span class="sd">            The validation set, with the `_pre_process_sample` function applied.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -973,7 +989,7 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Whether task has an available testing set.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Availability of testing set.</span>
+<span class="sd">            Availability of testing set.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -984,7 +1000,7 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Testing set.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Dataset): Testing set with `_pre_process_sample` function applied.</span>
+<span class="sd">            The testing set, with the `_pre_process_sample` function applied.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -998,10 +1014,11 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Task&#39;s configuration.</span>
+        <span class="sd">&quot;&quot;&quot;Configuration of the task.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Dict[str, Any]): Information about the task.</span>
+<span class="sd">            A dictionary containing the configuration of the task, including information about</span>
+<span class="sd">                the dataset and metric used.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1019,101 +1036,97 @@ title="Open an issue"
         <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">_pre_process_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Pre-processes a dataset by using a map function.</span>
+        <span class="sd">&quot;&quot;&quot;Pre-process a sample.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            samples: Incoming samples.</span>
+<span class="sd">            sample: The input sample.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[Dict[str, Any]]): Pre-processed samples.</span>
+<span class="sd">            The pre-processed sample.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">sample</span>
 
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_create_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Creates the string-based content of sample.</span>
+        <span class="sd">&quot;&quot;&quot;Create the string-based content of the sample.</span>
 
-<span class="sd">        This function needs to be overidden by childs due to different</span>
+<span class="sd">        This function needs to be overidden by children due to different</span>
 <span class="sd">        data format of tasks.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample: Sample.</span>
+<span class="sd">            sample: The input sample.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): String-based content of sample.</span>
+<span class="sd">            String-based content of sample.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_create_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Creates the string-based label of sample.</span>
+        <span class="sd">&quot;&quot;&quot;Create the string-based label of the sample.</span>
 
-<span class="sd">        This function needs to be overidden by childs due to different</span>
+<span class="sd">        This function needs to be overidden by children due to different</span>
 <span class="sd">        data format of tasks.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample: Sample.</span>
+<span class="sd">            sample: The input sample.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): String-based label of sample.</span>
+<span class="sd">            String-based label of sample.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+<div class="viewcode-block" id="HarnessTask.create_sampling_calls"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_task.HarnessTask.create_sampling_calls">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">create_sampling_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">context</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">HarnessCall</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Create a tuple of `HarnessCall` that runs the sampling procedure.</span>
 
-<div class="viewcode-block" id="HarnessTask.create_sampling_calls"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_task.HarnessTask.create_sampling_calls">[docs]</a>    <span class="k">def</span> <span class="nf">create_sampling_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">context</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">HarnessCall</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Creates a tuple of HarnessCall that runs the sampling procedure.</span>
-
-<span class="sd">        This function needs to be overidden by childs due to different</span>
+<span class="sd">        This function needs to be overidden by children due to different</span>
 <span class="sd">        sampling of tasks.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample: Sample.</span>
-<span class="sd">            context: Context.</span>
+<span class="sd">            sample: The input sample.</span>
+<span class="sd">            context: The context of the sample.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[HarnessCall, ...]): Sampling procedures.</span>
+<span class="sd">            Tuple of `HarnessCall` that runs the sampling procedure.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
-<div class="viewcode-block" id="HarnessTask.compute_results"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_task.HarnessTask.compute_results">[docs]</a>    <span class="k">def</span> <span class="nf">compute_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">results</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="HarnessTask.compute_results"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_task.HarnessTask.compute_results">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">compute_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">results</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Computes a tuple of results from the sampling procedure and</span>
-<span class="sd">            adds current prediction/reference to metric.</span>
+<span class="sd">        add current prediction/reference to metric.</span>
 
-<span class="sd">        This function needs to be overidden by childs due to different</span>
+<span class="sd">        This function needs to be overidden by children due to different</span>
 <span class="sd">        post-processing of tasks.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample: Sample.</span>
-<span class="sd">            results: Results.</span>
+<span class="sd">            sample: The input sample.</span>
+<span class="sd">            results: A tuple of results from the sampling procedure.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="HarnessTask.compute_metrics"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_task.HarnessTask.compute_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Computes metrics from stored predictions and references.</span>
+        <span class="sd">&quot;&quot;&quot;Compute metrics from stored predictions and references.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Dict[str, Any]): Dictionary of metrics.</span>
+<span class="sd">            Dictionary of metrics.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_get_few_shot_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_set</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets `k` few-shot samples.</span>
+        <span class="sd">&quot;&quot;&quot;Get `k` few-shot samples.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample_set: Set to be sampled from.</span>
+<span class="sd">            sample_set: Dataset of few-shot samples.</span>
 <span class="sd">            k: Number of few-shot samples.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[Dict[str, Any]]): Few-shot samples.</span>
+<span class="sd">            List of few-shot samples.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1131,15 +1144,15 @@ title="Open an issue"
         <span class="n">n_few_shot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Creates a context based on current evaluation sample and few-shot samples.</span>
+        <span class="sd">&quot;&quot;&quot;Create a context based on current evaluation sample and few-shot samples.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample: Current evaluation sample.</span>
+<span class="sd">            sample: The input sample.</span>
 <span class="sd">            n_few_shot: Number of few-shot samples.</span>
-<span class="sd">            description: Additional description to be added to the context.</span>
+<span class="sd">            description: An additional description to be added to the context.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): String-based context.</span>
+<span class="sd">            String-based context of sample.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1188,7 +1201,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

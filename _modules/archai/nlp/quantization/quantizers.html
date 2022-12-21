@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Quantization-ready quantizers.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Quantization-ready quantizers.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
@@ -795,8 +794,15 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeDynamicQuant"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.quantizers.FakeDynamicQuant">[docs]</a><span class="k">class</span> <span class="nc">FakeDynamicQuant</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Inserts a fake dynamic quantizer to allow for a proper scale/zero point calculating</span>
-<span class="sd">    when performing Quantization Aware Training.</span>
+    <span class="sd">&quot;&quot;&quot;Fake dynamic quantizer to allow for scale/zero point calculation during Quantization-Aware Training.</span>
+
+<span class="sd">    This class allows inserting a fake dynamic quantization operator in a PyTorch model,</span>
+<span class="sd">    in order to calculate scale and zero point values that can be used to quantize the</span>
+<span class="sd">    model during training. The operator can be customized to use different quantization types</span>
+<span class="sd">    (quint8 or qint8) and bit widths, and it can be made compatible with ONNX.</span>
+
+<span class="sd">    Note: This module is only meant to be used during training, and should not be present</span>
+<span class="sd">    in the final, deployed model.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -807,13 +813,15 @@ title="Open an issue"
         <span class="n">bits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
         <span class="n">onnx_compatible</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a customizable operator for inserting a fake dynamic quantizer.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a customizable fake dynamic quantization operator.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            reduce_range: Whether to reduce the range of quantization.</span>
-<span class="sd">            dtype: Type of quantization operators.</span>
-<span class="sd">            bits: Number of bits used in the quantization.</span>
-<span class="sd">            onnx_compatible: Whether quantization is compatible with ONNX.</span>
+<span class="sd">            reduce_range: Whether to reduce the range of quantization. This option is</span>
+<span class="sd">                only supported for 8-bit quantization.</span>
+<span class="sd">            dtype: Type of quantization operators. Supported values are `torch.quint8` and</span>
+<span class="sd">                `torch.qint8`.</span>
+<span class="sd">            bits: Number of bits used in the quantization. Supported values are 8 and 16.</span>
+<span class="sd">            onnx_compatible: Whether the quantization should be compatible with ONNX.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -839,13 +847,13 @@ title="Open an issue"
                 <span class="bp">self</span><span class="o">.</span><span class="n">qmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qmax</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">bits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span> <span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">bits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="FakeDynamicQuant.forward"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.quantizers.FakeDynamicQuant.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a forward pass over the fake dynamic quantization module.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a forward pass over the fake dynamic quantization operator.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x: Input tensor.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Fake dynamically quantized tensor.</span>
+<span class="sd">            Fake dynamically quantized tensor.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -885,6 +893,12 @@ title="Open an issue"
 
                 <span class="n">scale</span><span class="p">,</span> <span class="n">zero_pointer</span> <span class="o">=</span> <span class="n">initial_scale</span><span class="p">,</span> <span class="n">initial_zero_pointer</span>
 
+            <span class="c1"># Prevents `zero_pointer` from being outside the range of the quantized dtype</span>
+            <span class="k">if</span> <span class="n">zero_pointer</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">qmax</span><span class="p">:</span>
+                <span class="n">zero_pointer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qmax</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">zero_pointer</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">qmin</span><span class="p">:</span>
+                <span class="n">zero_pointer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qmin</span><span class="p">)</span>
+
             <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">fake_quantize_per_tensor_affine</span><span class="p">(</span>
                 <span class="n">x</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="o">.</span><span class="n">item</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="n">zero_pointer</span><span class="o">.</span><span class="n">item</span><span class="p">()),</span> <span class="bp">self</span><span class="o">.</span><span class="n">qmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qmax</span>
             <span class="p">)</span>
@@ -911,7 +925,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

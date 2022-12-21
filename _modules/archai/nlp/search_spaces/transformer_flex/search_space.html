@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Transformer-Flex Search Space.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Transformer-Flex Search Space.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
@@ -823,6 +822,17 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="TransformerFlexSearchSpace"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.search_spaces.transformer_flex.html#archai.nlp.search_spaces.transformer_flex.search_space.TransformerFlexSearchSpace">[docs]</a><span class="k">class</span> <span class="nc">TransformerFlexSearchSpace</span><span class="p">(</span><span class="n">EvolutionarySearchSpace</span><span class="p">,</span> <span class="n">BayesOptSearchSpace</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Search space for Transformer models with flexible architecture.</span>
+
+<span class="sd">    This class allows defining a search space for Transformer models with flexible architectures,</span>
+<span class="sd">    using evolutionary or Bayesian optimization algorithms.</span>
+
+<span class="sd">    The search space can be customized to include different values for hyperparameters,</span>
+<span class="sd">    such as the number of layers, embedding dimensions, and number of attention heads.</span>
+<span class="sd">    It also supports different Transformer variants, such as CodeGen, GPT-2, and Transformer-XL.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_DEFAULT_MODELS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;codegen&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;d_model&quot;</span><span class="p">:</span> <span class="s2">&quot;n_embd&quot;</span><span class="p">,</span> <span class="s2">&quot;d_inner&quot;</span><span class="p">:</span> <span class="s2">&quot;n_inner&quot;</span><span class="p">,</span> <span class="s2">&quot;n_head&quot;</span><span class="p">:</span> <span class="s2">&quot;n_head&quot;</span><span class="p">,</span> <span class="s2">&quot;n_layer&quot;</span><span class="p">:</span> <span class="s2">&quot;n_layer&quot;</span><span class="p">},</span>
         <span class="s2">&quot;gpt2&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -874,6 +884,25 @@ title="Open an issue"
         <span class="n">att_dropout_rate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a `TransformerFlexSearchSpace` object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            arch_type: Type of Transformer architecture.</span>
+<span class="sd">                Must be one of `gpt2`, `gpt2-flex`, `mem-transformer`, `opt`, `transfo-xl`.</span>
+<span class="sd">            min_layers: Minimum number of layers in the model.</span>
+<span class="sd">            max_layers: Maximum number of layers in the model.</span>
+<span class="sd">            d_inner_options: List of options for the intermediate dimension (`d_inner`).</span>
+<span class="sd">            d_model_options: List of options for the model dimension (`d_model`).</span>
+<span class="sd">            n_head_options: List of options for the number of attention heads (`n_head`).</span>
+<span class="sd">            share_d_inner: Whether to share the intermediate dimension (`d_inner`) across layers.</span>
+<span class="sd">            mutation_prob: Probability of mutating a hyperparameter during evolution.</span>
+<span class="sd">            vocab_size: Size of the vocabulary.</span>
+<span class="sd">            max_sequence_length: Maximum sequence length.</span>
+<span class="sd">            att_dropout_rate: Dropout rate for attention.</span>
+<span class="sd">            random_seed: Random seed for reproducibility.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">arch_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_MODELS</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The value of `arch_type` must be one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_MODELS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -897,6 +926,16 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">att_dropout_rate</span> <span class="o">=</span> <span class="n">att_dropout_rate</span>
 
     <span class="k">def</span> <span class="nf">_load_model_from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Loads a model from a configuration dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_config: Configuration dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A `torch.nn.Module` object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">param_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_MODELS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">arch_type</span><span class="p">]</span>
         <span class="n">mapped_config</span> <span class="o">=</span> <span class="p">{</span><span class="n">param_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p_name</span><span class="p">,</span> <span class="n">p_name</span><span class="p">):</span> <span class="n">p_value</span> <span class="k">for</span> <span class="n">p_name</span><span class="p">,</span> <span class="n">p_value</span> <span class="ow">in</span> <span class="n">model_config</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
@@ -904,6 +943,16 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TransformerFlexSearchSpace.get_archid"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.search_spaces.transformer_flex.html#archai.nlp.search_spaces.transformer_flex.search_space.TransformerFlexSearchSpace.get_archid">[docs]</a>    <span class="k">def</span> <span class="nf">get_archid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns a unique identifier for a given configuration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config: Configuration dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A unique identifier for the configuration.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">pruned_config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">n_layer</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;n_layer&quot;</span><span class="p">]</span>
 
@@ -1043,7 +1092,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Mixed Quantization Aware-Training model.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Mixed Quantization-Aware Training model.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
@@ -794,19 +793,19 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="MixedQAT"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.mixed_qat.MixedQAT">[docs]</a><span class="k">class</span> <span class="nc">MixedQAT</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a mixed QAT model, which can be fine-tuned using a linear combination of</span>
-<span class="sd">    regular and QAT losses.</span>
+    <span class="sd">&quot;&quot;&quot;Mixed QAT (Quantization-Aware Training) model, which can be fine-tuned</span>
+<span class="sd">    using a linear combination of regular and QAT losses.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">qat_weight</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the class by creating standard and QAT-based attributes</span>
-<span class="sd">            of the incoming model.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the class by creating standard and QAT-based attributes</span>
+<span class="sd">        of the incoming model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model: Instance of the model that will be fine-tuned with Mixed QAT.</span>
 <span class="sd">            qat_weight: Amount of QAT-based loss that should be used in the linear combination.</span>
-
+<span class="sd">                This value should be between 0 and 1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -828,16 +827,16 @@ title="Open an issue"
                 <span class="n">qat_module</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">bias</span>
 
         <span class="c1"># Adds fake quantization</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qat_model</span> <span class="o">=</span> <span class="n">prepare_with_qat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qat_model</span><span class="p">,</span> <span class="n">onnx_compatible</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">prepare_with_qat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qat_model</span><span class="p">,</span> <span class="n">onnx_compatible</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">qat_param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">qat_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">()):</span>
             <span class="k">assert</span> <span class="n">qat_param</span> <span class="ow">is</span> <span class="n">param</span><span class="p">,</span> <span class="s2">&quot;MixedQAT parameters are not fully shared.&quot;</span>
 
 <div class="viewcode-block" id="MixedQAT.forward"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.mixed_qat.MixedQAT.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Forward pass over the module.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a forward pass over the module.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[torch.Tensor, ...]): QAT-based model outputs.</span>
+<span class="sd">            A tuple containing the QAT-based model outputs.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -869,7 +868,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

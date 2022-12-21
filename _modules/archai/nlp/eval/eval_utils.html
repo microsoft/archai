@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT License.</span>
 
-<span class="sd">&quot;&quot;&quot;Evaluation-related utilities.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Evaluation-related utilities.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -792,14 +791,19 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="lm_accuracy"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.eval.html#archai.nlp.eval.eval_utils.lm_accuracy">[docs]</a><span class="k">def</span> <span class="nf">lm_accuracy</span><span class="p">(</span><span class="n">predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">references</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Calculates a language modeling-compatible accuracy.</span>
+    <span class="sd">&quot;&quot;&quot;Calculate language modeling accuracy.</span>
+
+<span class="sd">    This function calculates the accuracy score for language modeling by comparing</span>
+<span class="sd">    the predictions and ground-truth labels. Any predictions or references with a</span>
+<span class="sd">    value of -100 are ignored.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        predictions: Predictions.</span>
-<span class="sd">        references: Ground-truth labels.</span>
+<span class="sd">        predictions: 1D array of predictions.</span>
+<span class="sd">        references: 1D array of ground-truth labels.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Dict[str, float]): Accuracy score for language modeling.</span>
+<span class="sd">        Dictionary with a single key, &quot;lm_accuracy&quot;, and the corresponding accuracy</span>
+<span class="sd">            score as a float.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -820,16 +824,21 @@ title="Open an issue"
     <span class="n">max_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span>
     <span class="n">stride</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">512</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Calculates the fixed-length perplexity.</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the fixed-length perplexity of a pre-trained model on a given dataset.</span>
+
+<span class="sd">    This function calculates the perplexity of the given model on the input data,</span>
+<span class="sd">    using a sliding window approach with the specified maximum length and stride.</span>
+<span class="sd">    Any input tokens that fall outside the current window are masked with a value of -100.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: Pre-trained model.</span>
-<span class="sd">        input_ids: Encoded data to be evaluated.</span>
-<span class="sd">        max_length: Maximum length of sequences.</span>
+<span class="sd">        model: Pre-trained model to evaluate.</span>
+<span class="sd">        input_ids: Encoded input data to evaluate the model on.</span>
+<span class="sd">        max_length: Maximum length of sequences to consider.</span>
 <span class="sd">        stride: Sliding window size.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Dict[str, float]): Fixed-length perplexity.</span>
+<span class="sd">        Dictionary with a single key, &quot;fixed_length_perplexity&quot;, and the</span>
+<span class="sd">            corresponding perplexity score as a float.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -859,17 +868,24 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="cached_property"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.eval.html#archai.nlp.eval.eval_utils.cached_property">[docs]</a><span class="k">class</span> <span class="nc">cached_property</span><span class="p">(</span><span class="nb">property</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Mimics the @property decorator but caches the output.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Decorator that caches the output of the decorated function.</span>
+
+<span class="sd">    This class is a subclass of the built-in `property` class, and can be used to</span>
+<span class="sd">    decorate a function in a class in the same way as the `@property` decorator.</span>
+<span class="sd">    The output of the decorated function is cached on the first call,</span>
+<span class="sd">    and subsequent calls will return the cached value rather than re-running the function.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Returns either an object or its cached version.</span>
+        <span class="sd">&quot;&quot;&quot;Return the value of the decorated function, or its cached version.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            obj: Object to be returned.</span>
+<span class="sd">            obj: Object that the decorated function belongs to.</span>
 <span class="sd">            obj_type: Optional argument for compatibility.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Any): Object or its cached version.</span>
+<span class="sd">            Value of the decorated function, or its cached version.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -906,7 +922,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

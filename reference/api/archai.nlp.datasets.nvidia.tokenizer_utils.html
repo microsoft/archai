@@ -797,11 +797,6 @@ title="Edit this page"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum">
-   Special Token Enumerator
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.nlp.datasets.nvidia.tokenizer_utils.token_config">
    Token Configuration
   </a>
@@ -846,11 +841,6 @@ title="Edit this page"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum">
-   Special Token Enumerator
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.nlp.datasets.nvidia.tokenizer_utils.token_config">
    Token Configuration
   </a>
@@ -887,75 +877,66 @@ title="Edit this page"
                 
   <section id="tokenizer-utilities">
 <h1>Tokenizer Utilities<a class="headerlink" href="#tokenizer-utilities" title="Permalink to this headline">#</a></h1>
-<section id="module-archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum">
-<span id="special-token-enumerator"></span><h2>Special Token Enumerator<a class="headerlink" href="#module-archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum" title="Permalink to this headline">#</a></h2>
-<p>Special tokens enumerator.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.</span></span><span class="sig-name descname"><span class="pre">SpecialTokenEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/special_token_enum.html#SpecialTokenEnum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements an enumerator for special tokens.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.UNK">
-<span class="sig-name descname"><span class="pre">UNK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.UNK" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.BOS">
-<span class="sig-name descname"><span class="pre">BOS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.BOS" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.EOS">
-<span class="sig-name descname"><span class="pre">EOS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.EOS" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.PAD">
-<span class="sig-name descname"><span class="pre">PAD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.PAD" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.MASK">
-<span class="sig-name descname"><span class="pre">MASK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum.MASK" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-archai.nlp.datasets.nvidia.tokenizer_utils.token_config">
 <span id="token-configuration"></span><h2>Token Configuration<a class="headerlink" href="#module-archai.nlp.datasets.nvidia.tokenizer_utils.token_config" title="Permalink to this headline">#</a></h2>
 <p>Utilities for defining tokens’ configuration.</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.token_config.</span></span><span class="sig-name descname"><span class="pre">SpecialTokenEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/token_config.html#SpecialTokenEnum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum" title="Permalink to this definition">#</a></dt>
+<dd><p>Enumerate special tokens.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.UNK">
+<span class="sig-name descname"><span class="pre">UNK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.UNK" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.BOS">
+<span class="sig-name descname"><span class="pre">BOS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.BOS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.EOS">
+<span class="sig-name descname"><span class="pre">EOS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.EOS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.PAD">
+<span class="sig-name descname"><span class="pre">PAD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.PAD" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.MASK">
+<span class="sig-name descname"><span class="pre">MASK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum.MASK" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.token_config.</span></span><span class="sig-name descname"><span class="pre">TokenConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bos_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&lt;|endoftext|&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eos_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&lt;|endoftext|&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unk_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&lt;|endoftext|&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_prefix_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_prefix_new_line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/token_config.html#TokenConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a base class for tokens’ configuration.</p>
+<dd><p>Store and access configuration options for special tokens,
+such as BOS, EOS, UNK, and PAD.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig.get_special_tokens">
 <span class="sig-name descname"><span class="pre">get_special_tokens</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/token_config.html#TokenConfig.get_special_tokens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig.get_special_tokens" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets available special tokens.</p>
+<dd><p>Return a list of all available special tokens.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Special tokens.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(List[str])</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig.special_token_name">
-<span class="sig-name descname"><span class="pre">special_token_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum" title="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/token_config.html#TokenConfig.special_token_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig.special_token_name" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the name of the special token.</p>
+<span class="sig-name descname"><span class="pre">special_token_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum" title="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/token_config.html#TokenConfig.special_token_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig.special_token_name" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the name of a special token.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>sp</strong> – Special token enumerator.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Special token name.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -969,14 +950,17 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.</span></span><span class="sig-name descname"><span class="pre">VocabBase</span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a base class for a customizable tokenization pipeline.</p>
+<dd><p>A customizable tokenization pipeline for encoding and decoding text.</p>
+<p>This is an abstract base class that defines the interface for implementing a
+vocabulary class that can be used for tokenization. Subclasses should override
+the abstract methods in this class to provide specific implementations.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.train">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepaths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.train" title="Permalink to this definition">#</a></dt>
-<dd><p>Trains tokenizer from a list of files.</p>
+<dd><p>Train the tokenizer on a list of files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filepaths</strong> – List of paths to input files.</p>
+<dd class="field-odd"><p><strong>filepaths</strong> – A list of paths to input files.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -984,13 +968,10 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.is_trained">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_trained</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.is_trained"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.is_trained" title="Permalink to this definition">#</a></dt>
-<dd><p>Checks whether vocabulary has been trained.</p>
+<dd><p>Check if the vocabulary has been trained.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Whether vocabulary has been trained.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bool)</p>
+<dd class="field-odd"><p><cite>True</cite> if the vocabulary has been trained, <cite>False</cite> otherwise.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -998,22 +979,19 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.load">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.load" title="Permalink to this definition">#</a></dt>
-<dd><p>Loads pre-trained tokenizer.</p>
+<dd><p>Load a pre-trained tokenizer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.encode_text">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.encode_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.encode_text" title="Permalink to this definition">#</a></dt>
-<dd><p>Encodes text into tokens.</p>
+<dd><p>Encode text into tokens.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>text</strong> – Input text.</p>
+<dd class="field-odd"><p><strong>text</strong> – The input text to encode.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Encoded text (tokens).</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(List[int])</p>
+<dd class="field-even"><p>The encoded text (tokens).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1021,33 +999,27 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.decode_text">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decode_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.decode_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.decode_text" title="Permalink to this definition">#</a></dt>
-<dd><p>Decodes tokens into text.</p>
+<dd><p>Decode tokens into text.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ids</strong> – Tokens.</p>
+<dd class="field-odd"><p><strong>ids</strong> – The tokens to decode.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Decoded tokens (text).</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
+<dd class="field-even"><p>The decoded tokens (text).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.special_token_id">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">special_token_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum" title="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.special_token_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.special_token_id" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the identifier of special token.</p>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">special_token_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum" title="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.special_token_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.special_token_id" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the identifier of a special token.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sp</strong> – Special token’s enumerator.</p>
+<dd class="field-odd"><p><strong>sp</strong> – The special token’s enumerator.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Special token’s identifier.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(int)</p>
+<dd class="field-even"><p>The special token’s identifier.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1055,16 +1027,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.token_to_id">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">token_to_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.token_to_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.token_to_id" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a string-based token to its identifier.</p>
+<dd><p>Convert a string-based token to its identifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>t</strong> – String-based token.</p>
+<dd class="field-odd"><p><strong>t</strong> – The string-based token.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Token’s identifier.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(int)</p>
+<dd class="field-even"><p>The token’s identifier.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1072,16 +1041,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.id_to_token">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">id_to_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.id_to_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.id_to_token" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a token identifier to its string-based representation.</p>
+<dd><p>Convert a token identifier to its string-based representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>id</strong> – Token’s identifier.</p>
+<dd class="field-odd"><p><strong>id</strong> – The token’s identifier.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>String-based token.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
+<dd class="field-even"><p>The string-based token.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1089,16 +1055,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.tokens_to_ids">
 <span class="sig-name descname"><span class="pre">tokens_to_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.tokens_to_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.tokens_to_ids" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a set of string-based tokens to their identifiers.</p>
+<dd><p>Convert a list of string-based tokens to their corresponding identifiers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ts</strong> – String-based tokens.</p>
+<dd class="field-odd"><p><strong>ts</strong> – A list of string-based tokens.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Tokens’ identifiers.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(List[int])</p>
+<dd class="field-even"><p>The identifiers corresponding to the input tokens.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1106,16 +1069,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.ids_to_tokens">
 <span class="sig-name descname"><span class="pre">ids_to_tokens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.ids_to_tokens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.ids_to_tokens" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a set of tokens’ identifiers to their string-based representations.</p>
+<dd><p>Convert a list of tokens’ identifiers to their string-based representations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ids</strong> – Tokens’ identifiers.</p>
+<dd class="field-odd"><p><strong>ids</strong> – A list of tokens’ identifiers.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>String-based tokens.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(List[str])</p>
+<dd class="field-even"><p>The string-based representations of the input tokens.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1123,19 +1083,20 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.encode_file">
 <span class="sig-name descname"><span class="pre">encode_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/vocab_base.html#VocabBase.encode_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.encode_file" title="Permalink to this definition">#</a></dt>
-<dd><p>Encodes text from an input file.</p>
+<dd><p>Encode text from an input file.</p>
+<p>This method reads text from the specified file and encodes it using
+the <cite>encode_text</cite> method. It also includes options for verbosity and
+efficiently handling large datasets by converting the encoded tokens
+to a <cite>torch.Tensor</cite> every 500k lines.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> – Input file.</p></li>
-<li><p><strong>verbose</strong> – Whether should add verbosity to logger.</p></li>
+<li><p><strong>path</strong> – The path to the input file.</p></li>
+<li><p><strong>verbose</strong> – Whether to add verbosity to the logger.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Encoded tokens.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.Tensor)</p>
+<dd class="field-even"><p>The encoded tokens.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1145,18 +1106,18 @@ title="Edit this page"
 </section>
 <section id="module-archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab">
 <span id="bbpe-vocabulary"></span><h2>BBPE Vocabulary<a class="headerlink" href="#module-archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab" title="Permalink to this headline">#</a></h2>
-<p>BBPE-based tokenizer.</p>
+<p>Byte-BPE-based tokenizer.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.</span></span><span class="sig-name descname"><span class="pre">BbpeVocab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vocab_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_vocab_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bos_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_BOS_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eos_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unk_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_OOV_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_max_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_prefix_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_prefix_new_line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sorted_vocab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode_special_tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_special_tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a BBPE-based vocabulary/tokenizer.</p>
+<dd><p>Byte-BPE-based vocabulary/tokenizer.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.train">
 <span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepaths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.train" title="Permalink to this definition">#</a></dt>
-<dd><p>Trains tokenizer from a list of files.</p>
+<dd><p>Train the tokenizer on a list of files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filepaths</strong> – List of paths to input files.</p>
+<dd class="field-odd"><p><strong>filepaths</strong> – A list of paths to input files.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1164,13 +1125,10 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.is_trained">
 <span class="sig-name descname"><span class="pre">is_trained</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.is_trained"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.is_trained" title="Permalink to this definition">#</a></dt>
-<dd><p>Checks whether vocabulary has been trained.</p>
+<dd><p>Check if the vocabulary has been trained.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Whether vocabulary has been trained.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bool)</p>
+<dd class="field-odd"><p><cite>True</cite> if the vocabulary has been trained, <cite>False</cite> otherwise.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1178,22 +1136,19 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.load">
 <span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.load" title="Permalink to this definition">#</a></dt>
-<dd><p>Loads pre-trained tokenizer.</p>
+<dd><p>Load a pre-trained tokenizer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.encode_text">
 <span class="sig-name descname"><span class="pre">encode_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.encode_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.encode_text" title="Permalink to this definition">#</a></dt>
-<dd><p>Encodes text into tokens.</p>
+<dd><p>Encode text into tokens.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>text</strong> – Input text.</p>
+<dd class="field-odd"><p><strong>text</strong> – The input text to encode.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Encoded text (tokens).</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(List[int])</p>
+<dd class="field-even"><p>The encoded text (tokens).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1201,33 +1156,27 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.decode_text">
 <span class="sig-name descname"><span class="pre">decode_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.decode_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.decode_text" title="Permalink to this definition">#</a></dt>
-<dd><p>Decodes tokens into text.</p>
+<dd><p>Decode tokens into text.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ids</strong> – Tokens.</p>
+<dd class="field-odd"><p><strong>ids</strong> – The tokens to decode.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Decoded tokens (text).</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
+<dd class="field-even"><p>The decoded tokens (text).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.special_token_id">
-<span class="sig-name descname"><span class="pre">special_token_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum" title="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.special_token_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.special_token_id" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the identifier of special token.</p>
+<span class="sig-name descname"><span class="pre">special_token_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum" title="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.special_token_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.special_token_id" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the identifier of a special token.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sp</strong> – Special token’s enumerator.</p>
+<dd class="field-odd"><p><strong>sp</strong> – The special token’s enumerator.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Special token’s identifier.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(int)</p>
+<dd class="field-even"><p>The special token’s identifier.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1235,16 +1184,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.token_to_id">
 <span class="sig-name descname"><span class="pre">token_to_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.token_to_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.token_to_id" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a string-based token to its identifier.</p>
+<dd><p>Convert a string-based token to its identifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>t</strong> – String-based token.</p>
+<dd class="field-odd"><p><strong>t</strong> – The string-based token.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Token’s identifier.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(int)</p>
+<dd class="field-even"><p>The token’s identifier.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1252,16 +1198,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.id_to_token">
 <span class="sig-name descname"><span class="pre">id_to_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/bbpe_vocab.html#BbpeVocab.id_to_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.id_to_token" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a token identifier to its string-based representation.</p>
+<dd><p>Convert a token identifier to its string-based representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>id</strong> – Token’s identifier.</p>
+<dd class="field-odd"><p><strong>id</strong> – The token’s identifier.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>String-based token.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
+<dd class="field-even"><p>The string-based token.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1275,7 +1218,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.gpt2_vocab.Gpt2Vocab">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.gpt2_vocab.</span></span><span class="sig-name descname"><span class="pre">Gpt2Vocab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vocab_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50257</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_vocab_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bos_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&lt;|endoftext|&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eos_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&lt;|endoftext|&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unk_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&lt;|unk|&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_max_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_prefix_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_prefix_new_line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sorted_vocab</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/gpt2_vocab.html#Gpt2Vocab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.gpt2_vocab.Gpt2Vocab" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a GPT-2 based vocabulary/tokenizer.</p>
+<dd><p>GPT-2 based vocabulary/tokenizer.</p>
 </dd></dl>
 
 </section>
@@ -1285,51 +1228,45 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.</span></span><span class="sig-name descname"><span class="pre">WordVocab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vocab_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bos_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eos_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&lt;eos&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unk_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&lt;unk&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode_special_tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_special_tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a word-based vocabulary/tokenizer.</p>
+<dd><p>Word-based vocabulary/tokenizer.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.load">
-<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.load" title="Permalink to this definition">#</a></dt>
-<dd><p>Loads a previously cached vocabulary file.</p>
+<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepaths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.train" title="Permalink to this definition">#</a></dt>
+<dd><p>Train the tokenizer on a list of files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepaths</strong> – A list of paths to input files.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.is_trained">
 <span class="sig-name descname"><span class="pre">is_trained</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.is_trained"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.is_trained" title="Permalink to this definition">#</a></dt>
-<dd><p>Checks whether vocabulary has been trained.</p>
+<dd><p>Check if the vocabulary has been trained.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Whether vocabulary has been trained.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bool)</p>
+<dd class="field-odd"><p><cite>True</cite> if the vocabulary has been trained, <cite>False</cite> otherwise.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.train">
-<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepaths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.train" title="Permalink to this definition">#</a></dt>
-<dd><p>Trains tokenizer from a list of files.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filepaths</strong> – List of paths to input files.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.load" title="Permalink to this definition">#</a></dt>
+<dd><p>Load a previously cached vocabulary file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.encode_text">
 <span class="sig-name descname"><span class="pre">encode_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.encode_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.encode_text" title="Permalink to this definition">#</a></dt>
-<dd><p>Encodes text into tokens.</p>
+<dd><p>Encode text into tokens.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>text</strong> – Input text.</p>
+<dd class="field-odd"><p><strong>text</strong> – The input text to encode.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Encoded text (tokens).</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(List[int])</p>
+<dd class="field-even"><p>The encoded text (tokens).</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1337,33 +1274,27 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.decode_text">
 <span class="sig-name descname"><span class="pre">decode_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.decode_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.decode_text" title="Permalink to this definition">#</a></dt>
-<dd><p>Decodes tokens into text.</p>
+<dd><p>Decode tokens into text.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ids</strong> – Tokens.</p>
+<dd class="field-odd"><p><strong>ids</strong> – The tokens to decode.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Decoded tokens (text).</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
+<dd class="field-even"><p>The decoded tokens (text).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.special_token_id">
-<span class="sig-name descname"><span class="pre">special_token_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum" title="archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum.SpecialTokenEnum</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.special_token_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.special_token_id" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the identifier of special token.</p>
+<span class="sig-name descname"><span class="pre">special_token_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum" title="archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum"><span class="pre">archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.special_token_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.special_token_id" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the identifier of a special token.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>sp</strong> – Special token’s enumerator.</p>
+<dd class="field-odd"><p><strong>sp</strong> – The special token’s enumerator.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Special token’s identifier.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(int)</p>
+<dd class="field-even"><p>The special token’s identifier.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1371,16 +1302,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.token_to_id">
 <span class="sig-name descname"><span class="pre">token_to_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.token_to_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.token_to_id" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a string-based token to its identifier.</p>
+<dd><p>Convert a string-based token to its identifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>t</strong> – String-based token.</p>
+<dd class="field-odd"><p><strong>t</strong> – The string-based token.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Token’s identifier.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(int)</p>
+<dd class="field-even"><p>The token’s identifier.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1388,16 +1316,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.id_to_token">
 <span class="sig-name descname"><span class="pre">id_to_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.id_to_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.id_to_token" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a token identifier to its string-based representation.</p>
+<dd><p>Convert a token identifier to its string-based representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>id</strong> – Token’s identifier.</p>
+<dd class="field-odd"><p><strong>id</strong> – The token’s identifier.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>String-based token.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
+<dd class="field-even"><p>The string-based token.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1405,16 +1330,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.tokens_to_ids">
 <span class="sig-name descname"><span class="pre">tokens_to_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.tokens_to_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.tokens_to_ids" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a set of string-based tokens to their identifiers.</p>
+<dd><p>Convert a list of string-based tokens to their corresponding identifiers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ts</strong> – String-based tokens.</p>
+<dd class="field-odd"><p><strong>ts</strong> – A list of string-based tokens.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Tokens’ identifiers.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(List[int])</p>
+<dd class="field-even"><p>The identifiers corresponding to the input tokens.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1422,16 +1344,13 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.ids_to_tokens">
 <span class="sig-name descname"><span class="pre">ids_to_tokens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/datasets/nvidia/tokenizer_utils/word_vocab.html#WordVocab.ids_to_tokens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.datasets.nvidia.tokenizer_utils.word_vocab.WordVocab.ids_to_tokens" title="Permalink to this definition">#</a></dt>
-<dd><p>Converts a set of tokens’ identifiers to their string-based representations.</p>
+<dd><p>Convert a list of tokens’ identifiers to their string-based representations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ids</strong> – Tokens’ identifiers.</p>
+<dd class="field-odd"><p><strong>ids</strong> – A list of tokens’ identifiers.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>String-based tokens.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(List[str])</p>
+<dd class="field-even"><p>The string-based representations of the input tokens.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1473,7 +1392,7 @@ title="Edit this page"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

@@ -783,8 +783,7 @@ title="Open an issue"
 <span class="c1"># Licensed under the MIT License.</span>
 <span class="c1"># https://github.com/microsoft/DeepSpeed/blob/master/deepspeed/profiling/flops_profiler/profiler.py</span>
 
-<span class="sd">&quot;&quot;&quot;Profiler-based model.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Profiler-based model.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
@@ -803,13 +802,13 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="ProfilerModel"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel">[docs]</a><span class="k">class</span> <span class="nc">ProfilerModel</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Prepares a model used for profiler-based evaluation.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Prepares a model for profiler-based evaluation.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes with custom arguments and keyword arguments.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the profiler with a PyTorch model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model: Pre-trained model.</span>
+<span class="sd">            model: The PyTorch model to profile.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -818,10 +817,11 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">is_patched</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="ProfilerModel.start"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ignore_layers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Starts profiling.</span>
+        <span class="sd">&quot;&quot;&quot;Start profiling the model.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            ignore_layers: Layers to be ignored when profiling.</span>
+<span class="sd">            ignore_layers: A list of layer names to ignore during profiling.</span>
+<span class="sd">                If not provided, all layers will be included in the profiling.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -881,7 +881,7 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">is_patched</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="ProfilerModel.stop"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Stops profiling.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Stop profiling the model.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_profiling</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_patched</span><span class="p">:</span>
             <span class="n">disable_functional_hooks</span><span class="p">()</span>
@@ -912,7 +912,7 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">remove_hooks</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProfilerModel.reset"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Resets the profiler.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Reset the profiler.&quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">reset_attrs</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">module</span><span class="o">.</span><span class="n">__flops__</span> <span class="o">=</span> <span class="mi">0</span>
@@ -925,7 +925,7 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">reset_attrs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProfilerModel.end"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.end">[docs]</a>    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Ends the profiler.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;End the profiler.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_profiling</span><span class="p">:</span>
             <span class="k">return</span>
@@ -950,10 +950,10 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">remove_attrs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProfilerModel.get_flops"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_flops">[docs]</a>    <span class="k">def</span> <span class="nf">get_flops</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the model&#39;s number of FLOPs.</span>
+        <span class="sd">&quot;&quot;&quot;Get the number of floating point operations (FLOPs) performed by the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Number of floating point operations.</span>
+<span class="sd">            The number of FLOPs performed by the model.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -966,10 +966,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProfilerModel.get_macs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_macs">[docs]</a>    <span class="k">def</span> <span class="nf">get_macs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the model&#39;s number of MACs.</span>
+        <span class="sd">&quot;&quot;&quot;Get the number of multiply-accumulate operations (MACs) performed by the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Number of multiply-accumulate operations.</span>
+<span class="sd">            The number of MACs performed by the model.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -982,20 +982,20 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProfilerModel.get_params"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the model&#39;s total number of parameters.</span>
+        <span class="sd">&quot;&quot;&quot;Get the number of parameters in the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Number of parameters.</span>
+<span class="sd">            The number of parameters in the model.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">__params__</span></div>
 
 <div class="viewcode-block" id="ProfilerModel.get_latency"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_latency">[docs]</a>    <span class="k">def</span> <span class="nf">get_latency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the model&#39;s latency.</span>
+        <span class="sd">&quot;&quot;&quot;Get the latency of the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Latency (seconds).</span>
+<span class="sd">            The latency of the model, in seconds.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1009,10 +1009,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProfilerModel.get_peak_memory"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.profiler.html#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_peak_memory">[docs]</a>    <span class="k">def</span> <span class="nf">get_peak_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the model&#39;s peak memory.</span>
+        <span class="sd">&quot;&quot;&quot;Get the peak memory usage of the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Peak memory (bytes).</span>
+<span class="sd">            The peak memory usage of the model, in bytes.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1042,7 +1042,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

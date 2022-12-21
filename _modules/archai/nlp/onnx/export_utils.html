@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;ONNX export-related utilities, such as model preparation and weight sharing.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;ONNX export-related utilities, such as model preparation and weight sharing.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">types</span>
 
@@ -795,15 +794,15 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="prepare_model_for_onnx"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.onnx.html#archai.nlp.onnx.export_utils.prepare_model_for_onnx">[docs]</a><span class="k">def</span> <span class="nf">prepare_model_for_onnx</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Prepares model for ONNX export by replacing forward function and</span>
-<span class="sd">        performing any additional pre-processing.</span>
+    <span class="sd">&quot;&quot;&quot;Prepare a PyTorch model for ONNX export by modifying the forward function and performing</span>
+<span class="sd">    any additional pre-processing steps.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: Instance of model.</span>
+<span class="sd">        model: Instance of the model to prepare for ONNX export.</span>
 <span class="sd">        model_type: Type of model.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (torch.nn.Module): PyTorch model prepared for ONNX export.</span>
+<span class="sd">        The prepared PyTorch model, ready for ONNX export.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -822,7 +821,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="weight_sharing"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.onnx.html#archai.nlp.onnx.export_utils.weight_sharing">[docs]</a><span class="k">def</span> <span class="nf">weight_sharing</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Shares weights between embedding and softmax layers.</span>
+    <span class="sd">&quot;&quot;&quot;Share weights between embedding and softmax layers in an ONNX model.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        onnx_model_path: Path to the ONNX model that will have weights shared.</span>
@@ -903,7 +902,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

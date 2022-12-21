@@ -782,19 +782,26 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;ONNX-based configuration.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;ONNX-based configuration.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+<span class="kn">from</span> <span class="nn">overrides.enforce</span> <span class="kn">import</span> <span class="n">EnforceOverrides</span>
 <span class="kn">from</span> <span class="nn">transformers.configuration_utils</span> <span class="kn">import</span> <span class="n">PretrainedConfig</span>
 
 
-<div class="viewcode-block" id="OnnxConfig"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig">[docs]</a><span class="k">class</span> <span class="nc">OnnxConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Implements the base ONNX configuration.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="OnnxConfig"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig">[docs]</a><span class="k">class</span> <span class="nc">OnnxConfig</span><span class="p">(</span><span class="n">EnforceOverrides</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base ONNX configuration.</span>
+
+<span class="sd">    This class defines a base ONNX configuration for a specific task, which includes the</span>
+<span class="sd">    input and output structure required for ONNX models, as well as additional properties</span>
+<span class="sd">    and methods for handling ONNX Runtime graph optimization.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">DEFAULT_TASK_OUTPUTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;causal-lm&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;probs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;batch_size&quot;</span><span class="p">}})}</span>
 
@@ -803,11 +810,12 @@ title="Open an issue"
         <span class="n">config</span><span class="p">:</span> <span class="n">PretrainedConfig</span><span class="p">,</span>
         <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;causal-lm&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes by verifying whether `task` is supported.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the ONNX configuration by verifying whether the</span>
+<span class="sd">            specified `task` is supported.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            config: Model&#39;s configuration.</span>
-<span class="sd">            task: Type of task that the exported model will be used.</span>
+<span class="sd">            config: Configuration of the model being exported.</span>
+<span class="sd">            task: Type of task that the exported model will be used for.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -818,10 +826,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_ort_graph_optimizable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Supports additional ONNX Runtime graph optimization.</span>
+        <span class="sd">&quot;&quot;&quot;Whether configuation support additional ONNX Runtime graph optimization.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Whether configuration supports additional graph optimization.</span>
+<span class="sd">            Whether configuration supports additional graph optimization.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -829,48 +837,46 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ort_graph_optimizer_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;ONNX Runtime additional graph optimization arguments.</span>
+        <span class="sd">&quot;&quot;&quot;Get the ONNX Runtime additional graph optimization arguments.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[Any, ...]): Additional arguments used by the ORT graph optimizer.</span>
+<span class="sd">            Additional arguments used by the ORT graph optimizer.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;ONNX-based inputs structure.</span>
+<div class="viewcode-block" id="OnnxConfig.get_inputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.get_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">get_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the ONNX-based inputs structure.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Mapping[str, Mapping[int, str]]): ONNX-based inputs.</span>
+<span class="sd">            ONNX-based inputs.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;input_ids&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;seq_len&quot;</span><span class="p">}})</span>
+        <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">({</span><span class="s2">&quot;input_ids&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;seq_len&quot;</span><span class="p">}})</span></div>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;ONNX-based outputs structure.</span>
+<div class="viewcode-block" id="OnnxConfig.get_outputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.get_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">get_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Get the ONNX-based outputs structure.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Mapping[str, Mapping[int, str]]): ONNX-based outputs.</span>
+<span class="sd">            ONNX-based outputs.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_TASK_OUTPUTS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_TASK_OUTPUTS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="OnnxConfig.generate_dummy_inputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.generate_dummy_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">generate_dummy_inputs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Generates dummy inputs for the ONNX exporter.</span>
+        <span class="sd">&quot;&quot;&quot;Generate dummy inputs for the ONNX exporter.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            batch_size: Batch size.</span>
 <span class="sd">            seq_len: Sequence length.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Mapping[str, Any]): Keyword arguments for the model&#39;s forward.</span>
+<span class="sd">            Keyword arguments for the model&#39;s `forward()` function.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -883,7 +889,12 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="OnnxConfigWithPast"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast">[docs]</a><span class="k">class</span> <span class="nc">OnnxConfigWithPast</span><span class="p">(</span><span class="n">OnnxConfig</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements the base ONNX configuration with support for past key/values.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;ONNX configuration with support for past key/values.</span>
+
+<span class="sd">    This class is a subclass of `OnnxConfig` that adds the ability to use past key/values</span>
+<span class="sd">    (also known as &#39;use_cache&#39;) in the model&#39;s ONNX export.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -892,15 +903,16 @@ title="Open an issue"
         <span class="n">use_past</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">past_key_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization and defines whether past key/values are used.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the ONNX configuration with past key/values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            config: Model&#39;s configuration.</span>
-<span class="sd">            task: Type of task that the exported model will be used.</span>
-<span class="sd">            use_past: Whether past key/values (`use_cache`) should be used.</span>
+<span class="sd">            task: Type of task that the exported model will be used for.</span>
+<span class="sd">            use_past: Whether past key/values should be used.</span>
 <span class="sd">            past_key_values: Number of past-related information (2 for key and values).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">use_past</span><span class="p">:</span>
@@ -913,10 +925,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hidden_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Dimensionality of hidden units.</span>
+        <span class="sd">&quot;&quot;&quot;Get the dimensionality of hidden units.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Hidden units size.</span>
+<span class="sd">            Hidden units size.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -927,10 +939,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Number of layers.</span>
+        <span class="sd">&quot;&quot;&quot;Get the number of layers.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Number of layers.</span>
+<span class="sd">            Number of layers.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -941,10 +953,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_attention_heads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Number of attention heads.</span>
+        <span class="sd">&quot;&quot;&quot;Get the number of attention heads.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Number of attention heads.</span>
+<span class="sd">            Number of attention heads.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -953,34 +965,20 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">num_attention_heads</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;ONNX-based inputs structure.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (Mapping[str, Mapping[int, str]]): ONNX-based inputs.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">inputs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">inputs</span>
+<div class="viewcode-block" id="OnnxConfigWithPast.get_inputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.get_inputs">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_past</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
                 <span class="c1"># [past_key_values, batch_size, n_head, past_seq_len, d_head]</span>
                 <span class="n">inputs</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;past_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;past_seq_len&quot;</span><span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">inputs</span>
+        <span class="k">return</span> <span class="n">inputs</span></div>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;ONNX-based outputs structure.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (Mapping[str, Mapping[int, str]]): ONNX-based outputs.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">outputs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">outputs</span>
+<div class="viewcode-block" id="OnnxConfigWithPast.get_outputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.get_outputs">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_past</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
@@ -988,12 +986,13 @@ title="Open an issue"
                 <span class="c1"># Note that total_seq_len is seq_len + past_seq_len</span>
                 <span class="n">outputs</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;present_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;total_seq_len&quot;</span><span class="p">}</span>
 
-        <span class="k">return</span> <span class="n">outputs</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
 
-<div class="viewcode-block" id="OnnxConfigWithPast.generate_dummy_inputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.generate_dummy_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">generate_dummy_inputs</span><span class="p">(</span>
+<div class="viewcode-block" id="OnnxConfigWithPast.generate_dummy_inputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.generate_dummy_inputs">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">generate_dummy_inputs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">past_seq_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Generates dummy inputs for the ONNX exporter.</span>
+        <span class="sd">&quot;&quot;&quot;Generate dummy inputs for the ONNX exporter.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            batch_size: Batch size.</span>
@@ -1001,7 +1000,7 @@ title="Open an issue"
 <span class="sd">            past_seq_len: Past key/values sequence length.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Mapping[str, Any]): Keyword arguments for the model&#39;s forward.</span>
+<span class="sd">            Keyword arguments for the model&#39;s `forward()` function.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1047,7 +1046,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Text Predict-based predictions and sequences.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Text Predict-based predictions and sequences.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
@@ -805,7 +804,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="TextPredictPrediction"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction">[docs]</a><span class="k">class</span> <span class="nc">TextPredictPrediction</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Defines a single prediction from Text Predict.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Single prediction from Text Predict.&quot;&quot;&quot;</span>
 
     <span class="c1"># Constants for P(Accept) calculation</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mf">0.04218</span>
@@ -821,16 +820,16 @@ title="Open an issue"
         <span class="n">end_with_complete_word</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">has_matched</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization method.</span>
+        <span class="sd">&quot;&quot;&quot;Override initialization method.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Predicted text.</span>
-<span class="sd">            probability: Probability of prediction.</span>
-<span class="sd">            score: Score of prediction.</span>
-<span class="sd">            input_ids: Input identifiers.</span>
-<span class="sd">            token_ids: Token identifiers</span>
-<span class="sd">            end_with_complete_word: Whether prediction ends with a complete word.</span>
-<span class="sd">            has_matched: Whether prediction has matched the reference.</span>
+<span class="sd">            text: The predicted text.</span>
+<span class="sd">            probability: The probability of the prediction.</span>
+<span class="sd">            score: The score of the prediction.</span>
+<span class="sd">            input_ids: The input identifiers.</span>
+<span class="sd">            token_ids: The token identifiers.</span>
+<span class="sd">            end_with_complete_word: Whether the prediction ends with a complete word.</span>
+<span class="sd">            has_matched: Whether the prediction has matched the reference.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -846,50 +845,50 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">has_matched</span> <span class="o">=</span> <span class="n">has_matched</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Length of the prediction.</span>
+        <span class="sd">&quot;&quot;&quot;Return the length of the prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Prediction length.</span>
+<span class="sd">            Prediction length.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;String representation of the prediction.</span>
+        <span class="sd">&quot;&quot;&quot;Return the string representation of the prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Predicted text.</span>
+<span class="sd">            String representation.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Print representation of the prediction.</span>
+        <span class="sd">&quot;&quot;&quot;Return the print representation of the prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Prediction, probability and score.</span>
+<span class="sd">            Print representation.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">probability</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span>
 
 <div class="viewcode-block" id="TextPredictPrediction.p_match"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.p_match">[docs]</a>    <span class="k">def</span> <span class="nf">p_match</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Probability of prediction being matched.</span>
+        <span class="sd">&quot;&quot;&quot;Return the probability of the prediction being matched.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Match probability.</span>
+<span class="sd">            Match probability.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">probability</span></div>
 
 <div class="viewcode-block" id="TextPredictPrediction.p_accept"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.p_accept">[docs]</a>    <span class="k">def</span> <span class="nf">p_accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Probability of prediction being accepted.</span>
+        <span class="sd">&quot;&quot;&quot;Return the probability of the prediction being accepted.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Accept probability.</span>
+<span class="sd">            Accept probability.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -901,10 +900,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="TextPredictPrediction.p_accept_given_match"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.p_accept_given_match">[docs]</a>    <span class="k">def</span> <span class="nf">p_accept_given_match</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Probability of prediction being accepted given match.</span>
+        <span class="sd">&quot;&quot;&quot;Return the probability of the prediction being accepted given a match.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Accept probability given match.</span>
+<span class="sd">            Accept probability given match.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -916,20 +915,20 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">result</span></div>
 
 <div class="viewcode-block" id="TextPredictPrediction.p_char_accept"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.p_char_accept">[docs]</a>    <span class="k">def</span> <span class="nf">p_char_accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Probability of characters from prediction being accepted.</span>
+        <span class="sd">&quot;&quot;&quot;Return the probability of the characters from the prediction being accepted.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Character accept probability.</span>
+<span class="sd">            Character accept probability.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_accept</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TextPredictPrediction.all_ids"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.all_ids">[docs]</a>    <span class="k">def</span> <span class="nf">all_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Combines the `input_ids` and `token_ids` from the prediction.</span>
+        <span class="sd">&quot;&quot;&quot;Return the combined `input_ids` and `token_ids` of the prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[int, ...]): Combined `input_ids` and `token_ids`.</span>
+<span class="sd">            Combined `input_ids` and `token_ids`.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -939,10 +938,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_ids</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_ids</span></div>
 
 <div class="viewcode-block" id="TextPredictPrediction.length_type"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.length_type">[docs]</a>    <span class="k">def</span> <span class="nf">length_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Defines the type of prediction based on its length.</span>
+        <span class="sd">&quot;&quot;&quot;Return the type of the prediction based on its length.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Type based on prediction length.</span>
+<span class="sd">            Type based on prediction length.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -960,10 +959,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="s2">&quot;3:L&quot;</span></div>
 
 <div class="viewcode-block" id="TextPredictPrediction.word_count"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.word_count">[docs]</a>    <span class="k">def</span> <span class="nf">word_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the number of words in the prediction.</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of words in the prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Amount of words in prediction.</span>
+<span class="sd">            Amount of words in prediction.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -973,20 +972,20 @@ title="Open an issue"
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span> <span class="o">+</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="TextPredictPrediction.is_empty"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates whether prediction is empty or not.</span>
+        <span class="sd">&quot;&quot;&quot;Return whether prediction is empty or not.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            (bool): Whether prediction is empty or not.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Whether prediction is empty or not.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="TextPredictPrediction.to_dict"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates meta-information about the prediction.</span>
+        <span class="sd">&quot;&quot;&quot;Return meta-information about the prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Dict[str, Any]): Meta-information about prediction.</span>
+<span class="sd">            Meta-information about prediction.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1005,10 +1004,10 @@ title="Open an issue"
 
 <div class="viewcode-block" id="TextPredictPrediction.empty"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictPrediction.empty">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">TextPredictPrediction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextPredictPrediction</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Creates an empty prediction.</span>
+        <span class="sd">&quot;&quot;&quot;Create an empty prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (TextPredictPrediction): Empty prediction.</span>
+<span class="sd">            Empty prediction.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1022,16 +1021,16 @@ title="Open an issue"
         <span class="n">probability</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">token_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextPredictPrediction</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Creates the next prediction given a previous prediction.</span>
+        <span class="sd">&quot;&quot;&quot;Create the next prediction given a previous prediction.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            prediction: Previous prediction.</span>
-<span class="sd">            text: Next prediction text.</span>
-<span class="sd">            probability: Next prediction probability.</span>
-<span class="sd">            token_id: Next prediction token identifier.</span>
+<span class="sd">            prediction: The previous prediction.</span>
+<span class="sd">            text: The next prediction text.</span>
+<span class="sd">            probability: The next prediction probability.</span>
+<span class="sd">            token_id: The next prediction token identifier.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (TextPredictPrediction): Next prediction.</span>
+<span class="sd">            Next prediction.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1045,7 +1044,17 @@ title="Open an issue"
 
 <div class="viewcode-block" id="TextPredictionPosition"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictionPosition">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">TextPredictionPosition</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Represents the position from a Text Predict-based prediction.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Represents the position from a Text Predict-based prediction.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line_id: The line identifier.</span>
+<span class="sd">        char_id: The character identifier.</span>
+<span class="sd">        body: The body (context) of information.</span>
+<span class="sd">        body_continued: The continued body (reference) of information.</span>
+<span class="sd">        prediction: The prediction for this position.</span>
+<span class="sd">        time: The time spent to calculate the prediction.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">line_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="s2">&quot;Line identifier.&quot;</span><span class="p">})</span>
 
@@ -1061,10 +1070,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">unique_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Unique identifier of position.</span>
+        <span class="sd">&quot;&quot;&quot;Return the unique identifier of position.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Unique identifier.</span>
+<span class="sd">            Unique identifier.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1072,13 +1081,13 @@ title="Open an issue"
 
 <div class="viewcode-block" id="TextPredictionPosition.from_ljson"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictionPosition.from_ljson">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_ljson</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">TextPredictionPosition</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextPredictionPosition</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Loads a position from a .ljson file.</span>
+        <span class="sd">&quot;&quot;&quot;Load a position from a .ljson file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            line: Encoded line with .ljson.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (TextPredictionPosition): Text Predict-based position.</span>
+<span class="sd">            Text Predict-based position.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1115,10 +1124,10 @@ title="Open an issue"
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextPredictionPosition.to_ljson"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictionPosition.to_ljson">[docs]</a>    <span class="k">def</span> <span class="nf">to_ljson</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Converts position to a .ljson encoded string.</span>
+        <span class="sd">&quot;&quot;&quot;Convert position to a .ljson encoded string.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Encoded position with .ljson.</span>
+<span class="sd">            Encoded position with .ljson.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1187,13 +1196,13 @@ title="Open an issue"
         <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextPredictionSequence</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Loads a sequence (list of positions) from a file.</span>
+        <span class="sd">&quot;&quot;&quot;Load a sequence (list of positions) from a file.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            file_path: Path to load the sequence.</span>
+<span class="sd">            file_path: The path to a file with the sequence data.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (TextPredictionSequence): Instance of sequence.</span>
+<span class="sd">            Instance of sequence.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1211,13 +1220,13 @@ title="Open an issue"
         <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextPredictionSequence</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Loads a sequence (list of positions) from a .ljson file.</span>
+        <span class="sd">&quot;&quot;&quot;Load a sequence (list of positions) from a .ljson file.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            file_path: Path to load the sequence.</span>
+<span class="sd">            file_path: The path to a file with the sequence data.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (TextPredictionSequence): Instance of sequence.</span>
+<span class="sd">            Instance of sequence.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1239,14 +1248,14 @@ title="Open an issue"
         <span class="n">new_document_regex</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n</span><span class="se">\\</span><span class="s2">n+&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextPredictionSequence</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Loads a sequence (list of positions) from a .txt file.</span>
+        <span class="sd">&quot;&quot;&quot;Load a sequence (list of positions) from a .txt file.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            file_path: Path to load the sequence.</span>
-<span class="sd">            new_document_regex: Regex to identify a new document.</span>
+<span class="sd">            file_path: The path to a file with the sequence data.</span>
+<span class="sd">            new_document_regex: The regex to identify a new document.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (TextPredictionSequence): Instance of sequence.</span>
+<span class="sd">            Instance of sequence.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1274,13 +1283,13 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">sequence</span></div>
 
     <span class="k">def</span> <span class="nf">_filter_keys_char_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">char_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Filters keys based on the character identifier.</span>
+        <span class="sd">&quot;&quot;&quot;Filter keys based on the character identifier.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            char_id: Character identifier.</span>
+<span class="sd">            char_id: The character identifier.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[str]): Filtered keys.</span>
+<span class="sd">            A list of filtered keys.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1288,10 +1297,10 @@ title="Open an issue"
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">word_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the word count of sequence.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the word count of sequence.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Sequence word count.</span>
+<span class="sd">            The word count.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1303,10 +1312,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">word_count</span>
 
 <div class="viewcode-block" id="TextPredictionSequence.save"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictionSequence.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Saves predictions, scoring summary and triggered predictions to output files.</span>
+        <span class="sd">&quot;&quot;&quot;Save predictions, scoring summary and triggered predictions to output files.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            output_dir: Output folder.</span>
+<span class="sd">            output_dir: The output directory.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1331,10 +1340,10 @@ title="Open an issue"
             <span class="bp">self</span><span class="o">.</span><span class="n">triggered_preds</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">triggered_prediction_file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextPredictionSequence.get_predictions"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictionSequence.get_predictions">[docs]</a>    <span class="k">def</span> <span class="nf">get_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Converts instance into a data frame of predictions.</span>
+        <span class="sd">&quot;&quot;&quot;Convert instance into a data frame of predictions.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (pd.DataFrame): Predictions data frame.</span>
+<span class="sd">            A data frame of predictions.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1398,14 +1407,14 @@ title="Open an issue"
 <div class="viewcode-block" id="TextPredictionSequence.calculate_triggered_predictions"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictionSequence.calculate_triggered_predictions">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_triggered_predictions</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">min_score</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">predictions_df</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the triggered predictions.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the triggered predictions.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            min_score: Minimum score.</span>
-<span class="sd">            predictions_df: Predictions data frame.</span>
+<span class="sd">            min_score: The minimum score.</span>
+<span class="sd">            predictions_df: The predictions data frame.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (pd.DataFrame): Triggered predictions data frame.</span>
+<span class="sd">            A data frame of triggered predictions.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1453,14 +1462,14 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">triggered_df</span></div>
 
 <div class="viewcode-block" id="TextPredictionSequence.calculate_perplexity"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_prediction.TextPredictionSequence.calculate_perplexity">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_perplexity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">TextPredictModel</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">:</span> <span class="n">TextPredictTokenizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the perplexity of sequence.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the perplexity of sequence.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model: Text Predict-based model used to calculate the perplexity.</span>
 <span class="sd">            tokenizer: Text Predict-based tokenizer used to calculate the perplexity.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Perplexity of sequence.</span>
+<span class="sd">            The perplexity of the sequence.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1487,16 +1496,16 @@ title="Open an issue"
         <span class="n">tokenizer</span><span class="p">:</span> <span class="n">TextPredictTokenizer</span><span class="p">,</span>
         <span class="n">min_score</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Scores the triggered predictions.</span>
+        <span class="sd">&quot;&quot;&quot;Score the triggered predictions.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            triggered_df: Triggered predictions.</span>
-<span class="sd">            min_score: Minimum score.</span>
+<span class="sd">            triggered_df: The triggered predictions data frame.</span>
+<span class="sd">            min_score: The minimum score.</span>
 <span class="sd">            model: Text Predict-based model used to calculate the perplexity.</span>
 <span class="sd">            tokenizer: Text Predict-based tokenizer used to calculate the perplexity.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (OrderedDict): Score-based meta-information.</span>
+<span class="sd">            A dictionary of the triggered predictions and their scores.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1575,7 +1584,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

@@ -897,7 +897,9 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.onnx.onnx_forward.gpt2_onnx_forward">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.onnx_forward.</span></span><span class="sig-name descname"><span class="pre">gpt2_onnx_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.LongTensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">past_key_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.FloatTensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.FloatTensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/onnx_forward.html#gpt2_onnx_forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.onnx_forward.gpt2_onnx_forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Overrides the GPT-2 forward by returning probabilities and past key/values.</p>
+<dd><p>Forward pass through the GPT-2 model with ONNX exportability.</p>
+<p>This method overrides the default GPT-2 forward method and returns
+both output probabilities and past key/values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -907,9 +909,6 @@ title="Edit this page"
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Output probabilities and past key/values.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Dict[str, torch.FloatTensor])</p>
 </dd>
 </dl>
 </dd></dl>
@@ -921,16 +920,15 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.onnx.onnx_loader.load_from_onnx">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.onnx_loader.</span></span><span class="sig-name descname"><span class="pre">load_from_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">onnxruntime.capi.onnxruntime_inference_collection.InferenceSession</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/onnx_loader.html#load_from_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.onnx_loader.load_from_onnx" title="Permalink to this definition">#</a></dt>
-<dd><p>Loads an ONNX-based model from file.</p>
+<dd><p>Load an ONNX-based model from file.</p>
+<p>This function loads an ONNX-based model from the specified file path and
+returns an ONNX inference session. Performance optimization constants are set as well.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>onnx_model_path</strong> – Path to the ONNX model file.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>ONNX inference session.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(InferenceSession)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -942,15 +940,19 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.onnx.export.validate_onnx_outputs">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.export.</span></span><span class="sig-name descname"><span class="pre">validate_onnx_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/export.html#validate_onnx_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.export.validate_onnx_outputs" title="Permalink to this definition">#</a></dt>
-<dd><p>Validates the ONNX outputs.</p>
+<dd><p>Validate the outputs of an ONNX model against a reference PyTorch model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>onnx_config</strong> – ONNX configuration.</p></li>
-<li><p><strong>reference_model</strong> – PyTorch reference model.</p></li>
+<li><p><strong>onnx_config</strong> – Configuration for ONNX model.</p></li>
+<li><p><strong>reference_model</strong> – PyTorch model to use as reference.</p></li>
 <li><p><strong>onnx_model_path</strong> – Path to the ONNX model.</p></li>
-<li><p><strong>atol</strong> – Tolerance value.</p></li>
+<li><p><strong>atol</strong> – Tolerance value for comparing the model outputs.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the shapes or values of the ONNX model outputs do not match
+    the reference model outputs within the specified tolerance.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -958,24 +960,21 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.onnx.export.export_to_onnx">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.export.</span></span><span class="sig-name descname"><span class="pre">export_to_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'causal-lm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_past</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig</span></a></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/export.html#export_to_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.export.export_to_onnx" title="Permalink to this definition">#</a></dt>
-<dd><p>Exports a pre-trained model to ONNX.</p>
+<dd><p>Export a pre-trained PyTorch model to ONNX format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – Instance of model to be exported.</p></li>
-<li><p><strong>output_model_path</strong> – Path to save the exported model.</p></li>
+<li><p><strong>model</strong> – Instance of the PyTorch model to be exported.</p></li>
+<li><p><strong>output_model_path</strong> – Path to save the exported ONNX model.</p></li>
 <li><p><strong>task</strong> – Task identifier to use proper inputs/outputs.</p></li>
-<li><p><strong>use_past</strong> – Whether past key/values (<cite>use_cache</cite>) should be used.</p></li>
-<li><p><strong>share_weights</strong> – Whether embedding/softmax weights should be shared.</p></li>
+<li><p><strong>use_past</strong> – Whether to include past key/values in the model.</p></li>
+<li><p><strong>share_weights</strong> – Whether to share the embedding and softmax weights.</p></li>
 <li><p><strong>opset</strong> – Set of operations to use with ONNX.</p></li>
 <li><p><strong>atol</strong> – Tolerance between input and exported model.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>ONNX configuration of model that was exported.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(<a class="reference internal" href="archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig">OnnxConfig</a>)</p>
+<dd class="field-even"><p>ONNX configuration of the model that was exported.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -987,22 +986,17 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.onnx.export_utils.prepare_model_for_onnx">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.export_utils.</span></span><span class="sig-name descname"><span class="pre">prepare_model_for_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/export_utils.html#prepare_model_for_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.export_utils.prepare_model_for_onnx" title="Permalink to this definition">#</a></dt>
-<dd><dl class="simple">
-<dt>Prepares model for ONNX export by replacing forward function and</dt><dd><p>performing any additional pre-processing.</p>
-</dd>
-</dl>
+<dd><p>Prepare a PyTorch model for ONNX export by modifying the forward function and performing
+any additional pre-processing steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – Instance of model.</p></li>
+<li><p><strong>model</strong> – Instance of the model to prepare for ONNX export.</p></li>
 <li><p><strong>model_type</strong> – Type of model.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>PyTorch model prepared for ONNX export.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.nn.Module)</p>
+<dd class="field-even"><p>The prepared PyTorch model, ready for ONNX export.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1010,7 +1004,7 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.onnx.export_utils.weight_sharing">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.export_utils.</span></span><span class="sig-name descname"><span class="pre">weight_sharing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/export_utils.html#weight_sharing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.export_utils.weight_sharing" title="Permalink to this definition">#</a></dt>
-<dd><p>Shares weights between embedding and softmax layers.</p>
+<dd><p>Share weights between embedding and softmax layers in an ONNX model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1028,7 +1022,8 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.onnx.optimization.optimize_onnx">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.optimization.</span></span><span class="sig-name descname"><span class="pre">optimize_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_ort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float16</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_int32</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/optimization.html#optimize_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.optimization.optimize_onnx" title="Permalink to this definition">#</a></dt>
-<dd><p>Optimizes an ONNX model.</p>
+<dd><p>Optimizes an ONNX model using a combination of standard ORT-based optimization
+and additional transformer-based optimization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1043,9 +1038,6 @@ title="Edit this page"
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Path to the optimized ONNX model.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(str)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1085,7 +1077,7 @@ title="Edit this page"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

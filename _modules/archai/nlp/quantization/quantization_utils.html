@@ -782,25 +782,32 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Quantization-related utilities.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Quantization-related utilities.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
 
 <div class="viewcode-block" id="rgetattr"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.quantization_utils.rgetattr">[docs]</a><span class="k">def</span> <span class="nf">rgetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Recursively gets an attribute.</span>
+    <span class="sd">&quot;&quot;&quot;Recursively get an attribute from an object.</span>
+
+<span class="sd">    This function allows accessing nested attributes by separating each level with a dot (e.g., &quot;attr1.attr2.attr3&quot;).</span>
+<span class="sd">    If any attribute along the chain does not exist, the function returns the default value</span>
+<span class="sd">    specified in the `*args` parameter.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: Object from which the attribute will be retrieved.</span>
+<span class="sd">        attr: Name of the attribute to be retrieved, with each level separated by a dot.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Attribute from the object.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; obj = MyObject()</span>
+<span class="sd">        &gt;&gt;&gt; rgetattr(obj, &quot;attr1.attr2.attr3&quot;)</span>
 
 <span class="sd">    Reference:</span>
 <span class="sd">        https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        obj: Object that will have attribute gathered.</span>
-<span class="sd">        attr: Name of attribute that will be gathered.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        (Any): Attribute from object.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -811,15 +818,21 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="rsetattr"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.quantization_utils.rsetattr">[docs]</a><span class="k">def</span> <span class="nf">rsetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Recursively sets an attribute.</span>
+    <span class="sd">&quot;&quot;&quot;Recursively set an attribute on an object.</span>
+
+<span class="sd">    This function allows setting nested attributes by separating each level with a dot (e.g., &quot;attr1.attr2.attr3&quot;).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: Object on which the attribute will be set.</span>
+<span class="sd">        attr: Name of the attribute to be set, with each level separated by a dot.</span>
+<span class="sd">        value: New value for the attribute.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; obj = MyObject()</span>
+<span class="sd">        &gt;&gt;&gt; rsetattr(obj, &quot;attr1.attr2.attr3&quot;, new_value)</span>
 
 <span class="sd">    Reference:</span>
 <span class="sd">        https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        obj: Object that will have attribute set.</span>
-<span class="sd">        attr: Name of attribute that will be set.</span>
-<span class="sd">        value: New value for the attribute.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -845,7 +858,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

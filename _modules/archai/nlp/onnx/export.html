@@ -782,15 +782,13 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;ONNX-related export and validation.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;ONNX-related export and validation.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">onnxruntime</span> <span class="kn">import</span> <span class="n">InferenceSession</span><span class="p">,</span> <span class="n">SessionOptions</span>
 
 <span class="kn">from</span> <span class="nn">archai.nlp</span> <span class="kn">import</span> <span class="n">logging_utils</span>
 <span class="kn">from</span> <span class="nn">archai.nlp.onnx.config_utils.gpt2_onnx_config</span> <span class="kn">import</span> <span class="p">(</span>
@@ -812,13 +810,17 @@ title="Open an issue"
     <span class="n">onnx_model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">atol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Validates the ONNX outputs.</span>
+    <span class="sd">&quot;&quot;&quot;Validate the outputs of an ONNX model against a reference PyTorch model.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        onnx_config: ONNX configuration.</span>
-<span class="sd">        reference_model: PyTorch reference model.</span>
+<span class="sd">        onnx_config: Configuration for ONNX model.</span>
+<span class="sd">        reference_model: PyTorch model to use as reference.</span>
 <span class="sd">        onnx_model_path: Path to the ONNX model.</span>
-<span class="sd">        atol: Tolerance value.</span>
+<span class="sd">        atol: Tolerance value for comparing the model outputs.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the shapes or values of the ONNX model outputs do not match</span>
+<span class="sd">            the reference model outputs within the specified tolerance.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -858,11 +860,11 @@ title="Open an issue"
             <span class="n">onnx_inputs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 
     <span class="c1"># Performs the ONNX inference session</span>
-    <span class="n">onnx_named_outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">output</span> <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">onnx_config</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+    <span class="n">onnx_named_outputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">output</span> <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">onnx_config</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
     <span class="n">onnx_outputs</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">onnx_named_outputs</span><span class="p">,</span> <span class="n">onnx_inputs</span><span class="p">)</span>
 
     <span class="c1"># Checks whether subset of ONNX outputs is valid</span>
-    <span class="n">ref_outputs_set</span><span class="p">,</span> <span class="n">onnx_outputs_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ref_outputs_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="nb">set</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="n">ref_outputs_set</span><span class="p">,</span> <span class="n">onnx_outputs_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ref_outputs_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="nb">set</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">())</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">onnx_outputs_set</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">ref_outputs_set</span><span class="p">):</span>
         <span class="n">error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unmatched outputs: </span><span class="si">{</span><span class="n">onnx_outputs_set</span><span class="si">}</span><span class="s2"> (ONNX) and </span><span class="si">{</span><span class="n">ref_outputs_set</span><span class="si">}</span><span class="s2"> (reference)&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
@@ -871,7 +873,7 @@ title="Open an issue"
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Matched outputs: </span><span class="si">{</span><span class="n">onnx_outputs_set</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Checks whether shapes and values are within expected tolerance</span>
-    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ort_value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">outputs</span><span class="p">,</span> <span class="n">onnx_outputs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ort_value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">(),</span> <span class="n">onnx_outputs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validating output: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">ref_value</span> <span class="o">=</span> <span class="n">ref_outputs_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
@@ -901,19 +903,19 @@ title="Open an issue"
     <span class="n">opset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span>
     <span class="n">atol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OnnxConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Exports a pre-trained model to ONNX.</span>
+    <span class="sd">&quot;&quot;&quot;Export a pre-trained PyTorch model to ONNX format.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: Instance of model to be exported.</span>
-<span class="sd">        output_model_path: Path to save the exported model.</span>
+<span class="sd">        model: Instance of the PyTorch model to be exported.</span>
+<span class="sd">        output_model_path: Path to save the exported ONNX model.</span>
 <span class="sd">        task: Task identifier to use proper inputs/outputs.</span>
-<span class="sd">        use_past: Whether past key/values (`use_cache`) should be used.</span>
-<span class="sd">        share_weights: Whether embedding/softmax weights should be shared.</span>
+<span class="sd">        use_past: Whether to include past key/values in the model.</span>
+<span class="sd">        share_weights: Whether to share the embedding and softmax weights.</span>
 <span class="sd">        opset: Set of operations to use with ONNX.</span>
 <span class="sd">        atol: Tolerance between input and exported model.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (OnnxConfig): ONNX configuration of model that was exported.</span>
+<span class="sd">        ONNX configuration of the model that was exported.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -930,15 +932,17 @@ title="Open an issue"
     <span class="p">)</span>
 
     <span class="n">model</span> <span class="o">=</span> <span class="n">prepare_model_for_onnx</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_type</span><span class="p">)</span>
-    <span class="n">dynamic_axes</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">axes</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">axes</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">onnx_config</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
+    <span class="n">dynamic_axes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">axes</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">axes</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">onnx_config</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="p">}</span>
 
     <span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
         <span class="n">model</span><span class="p">,</span>
         <span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">generate_dummy_inputs</span><span class="p">(),),</span>
         <span class="n">f</span><span class="o">=</span><span class="n">output_model_path</span><span class="p">,</span>
         <span class="n">export_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">input_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
-        <span class="n">output_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+        <span class="n">input_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">get_inputs</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+        <span class="n">output_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">onnx_config</span><span class="o">.</span><span class="n">get_outputs</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
         <span class="n">dynamic_axes</span><span class="o">=</span><span class="n">dynamic_axes</span><span class="p">,</span>
         <span class="n">opset_version</span><span class="o">=</span><span class="n">opset</span><span class="p">,</span>
         <span class="n">do_constant_folding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -968,7 +972,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

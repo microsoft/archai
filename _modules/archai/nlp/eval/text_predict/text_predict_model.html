@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Text Predict-based model.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Text Predict-based model.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -798,18 +797,18 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="TextPredictModel"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_model.TextPredictModel">[docs]</a><span class="k">class</span> <span class="nc">TextPredictModel</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Wraps a model for Text Predict.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for a model used in the Text Predict framework.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">space_token_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">max_seq_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization method.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the `TextPredictModel` with the given arguments.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            space_token_id: Space token identifier.</span>
-<span class="sd">            max_seq_length: Maximum sequence length.</span>
+<span class="sd">            space_token_id: The identifier for the space token.</span>
+<span class="sd">            max_seq_length: The maximum length of the input sequence.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -818,13 +817,13 @@ title="Open an issue"
 
     <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_create_fixed_length_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Creates a PyTorch-ready tensor with fixed sequence length.</span>
+        <span class="sd">&quot;&quot;&quot;Create a PyTorch-compatible tensor with a fixed sequence length.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            inputs: Inputs to be converted to tensor.</span>
+<span class="sd">            inputs: The input tokens to be converted to a tensor.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Tensor with shape (batch_size x max_seq_length).</span>
+<span class="sd">            A tensor with shape (batch_size x max_seq_length).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -840,13 +839,13 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">tensor</span>
 
 <div class="viewcode-block" id="TextPredictModel.get_loss"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_model.TextPredictModel.get_loss">[docs]</a>    <span class="k">def</span> <span class="nf">get_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the model&#39;s loss.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the loss of the model on the given input tokens.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input tokens.</span>
+<span class="sd">            input_ids: The input tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Loss.</span>
+<span class="sd">            The loss.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -870,13 +869,13 @@ title="Open an issue"
 
 <div class="viewcode-block" id="TextPredictModel.get_next_token_probs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_model.TextPredictModel.get_next_token_probs">[docs]</a>    <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_next_token_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the probabilities of next token.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the probabilities of next token.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input tokens.</span>
+<span class="sd">            input_ids: The input tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[float]): Next token&#39;s probabilities.</span>
+<span class="sd">            Next token&#39;s probabilities.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -890,13 +889,13 @@ title="Open an issue"
 
 <div class="viewcode-block" id="TextPredictModel.get_top_next_token_probs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_model.TextPredictModel.get_top_next_token_probs">[docs]</a>    <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_top_next_token_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the probability of top-1 next token.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the probability of top-1 next token.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input tokens.</span>
+<span class="sd">            input_ids: The input tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[int, float]): Top-1 next token&#39;s identifier and probability.</span>
+<span class="sd">            Tuple with top-1 next token and probability.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -907,7 +906,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="TextPredictTorchModel"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_model.TextPredictTorchModel">[docs]</a><span class="k">class</span> <span class="nc">TextPredictTorchModel</span><span class="p">(</span><span class="n">TextPredictModel</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Wraps a PyTorch model for Text Predict.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for a PyTorch model used in the Text Predict framework.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -916,13 +915,13 @@ title="Open an issue"
         <span class="n">max_seq_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
         <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization method.</span>
+        <span class="sd">&quot;&quot;&quot;Override initialization method.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model: PyTorch model.</span>
-<span class="sd">            space_token_id: Space token identifier.</span>
-<span class="sd">            max_seq_length: Maximum sequence length.</span>
-<span class="sd">            device: Device where model should be placed.</span>
+<span class="sd">            model: A PyTorch model.</span>
+<span class="sd">            space_token_id: The space token identifier.</span>
+<span class="sd">            max_seq_length: The maximum sequence length.</span>
+<span class="sd">            device: The device where the model should be placed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -936,7 +935,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="TextPredictONNXModel"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_model.TextPredictONNXModel">[docs]</a><span class="k">class</span> <span class="nc">TextPredictONNXModel</span><span class="p">(</span><span class="n">TextPredictModel</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Wraps an ONNX model for Text Predict.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for an ONNX model used in the Text Predict framework.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -944,12 +943,12 @@ title="Open an issue"
         <span class="n">space_token_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">max_seq_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization method.</span>
+        <span class="sd">&quot;&quot;&quot;Override initialization method.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            onnx_model_path: Path to the ONNX model file.</span>
-<span class="sd">            space_token_id: Space token identifier.</span>
-<span class="sd">            max_seq_length: Maximum sequence length.</span>
+<span class="sd">            onnx_model_path: A path to the ONNX model file.</span>
+<span class="sd">            space_token_id: The space token identifier.</span>
+<span class="sd">            max_seq_length: The maximum sequence length.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -978,15 +977,15 @@ title="Open an issue"
         <span class="n">min_cutoff</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">max_cutoff</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Retrieves past key/values from cache.</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve past key/values from cache.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input tokens.</span>
-<span class="sd">            min_cutoff: Minimum cutoff of the cache.</span>
-<span class="sd">            max_cutoff: Maximum cutoff of the cache.</span>
+<span class="sd">            input_ids: The input tokens.</span>
+<span class="sd">            min_cutoff: The minimum cutoff of the cache.</span>
+<span class="sd">            max_cutoff: The maximum cutoff of the cache.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[List[int], int]): Past key/values and their length.</span>
+<span class="sd">            Tuple with past key/values and their length.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1001,11 +1000,11 @@ title="Open an issue"
         <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_update_past_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">past_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Updates the past key/values cache.</span>
+        <span class="sd">&quot;&quot;&quot;Update the past key/values cache.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input tokens.</span>
-<span class="sd">            past_ids: Past key/values.</span>
+<span class="sd">            input_ids: The input tokens.</span>
+<span class="sd">            past_ids: The past key/values.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1016,13 +1015,13 @@ title="Open an issue"
 
 <div class="viewcode-block" id="TextPredictONNXModel.get_next_token_probs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_model.TextPredictONNXModel.get_next_token_probs">[docs]</a>    <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_next_token_probs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the probabilities of next token.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the probabilities of next token.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input tokens.</span>
+<span class="sd">            input_ids: The input tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[float]): Next token&#39;s probabilities.</span>
+<span class="sd">            A list with the next tokens&#39; probabilities.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1069,13 +1068,13 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">probs</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TextPredictONNXModel.get_loss"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_model.TextPredictONNXModel.get_loss">[docs]</a>    <span class="k">def</span> <span class="nf">get_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the model&#39;s loss.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the model&#39;s loss.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Inputs.</span>
+<span class="sd">            input_ids: The input tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Loss.</span>
+<span class="sd">            The loss.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1107,7 +1106,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

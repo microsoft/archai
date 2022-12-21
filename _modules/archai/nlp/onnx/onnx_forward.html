@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;ONNX-compliant forward functions.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;ONNX-compliant forward functions.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
@@ -796,14 +795,17 @@ title="Open an issue"
     <span class="n">input_ids</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">,</span>
     <span class="n">past_key_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Overrides the GPT-2 forward by returning probabilities and past key/values.</span>
+    <span class="sd">&quot;&quot;&quot;Forward pass through the GPT-2 model with ONNX exportability.</span>
+
+<span class="sd">    This method overrides the default GPT-2 forward method and returns</span>
+<span class="sd">    both output probabilities and past key/values.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        input_ids: Input tensor.</span>
 <span class="sd">        past_key_values: Past pre-computed key/values tensor.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Dict[str, torch.FloatTensor]): Output probabilities and past key/values.</span>
+<span class="sd">        Output probabilities and past key/values.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -840,7 +842,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

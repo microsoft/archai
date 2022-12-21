@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Harness-based model.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Harness-based model.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -799,18 +798,18 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="HarnessModel"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_model.HarnessModel">[docs]</a><span class="k">class</span> <span class="nc">HarnessModel</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Prepares a model used for harness-based evaluation.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Prepares a model for use in harness-based evaluation.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span>
         <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">ArchaiPreTrainedTokenizerFast</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes with custom arguments and keyword arguments.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the `HarnessModel` object with the specified model and tokenizer.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model: Pre-trained model.</span>
-<span class="sd">            tokenizer: Pre-trained tokenizer.</span>
+<span class="sd">            model: The pre-trained model.</span>
+<span class="sd">            tokenizer: The pre-trained tokenizer.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -821,11 +820,10 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a forward pass over the pre-trained model</span>
-<span class="sd">            without storing the gradients.</span>
+        <span class="sd">&quot;&quot;&quot;Performs a forward pass over the pre-trained model without storing gradients.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[torch.FloatTensor, ...]): Model outputs.</span>
+<span class="sd">            The outputs of the model.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -834,10 +832,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Device to compute forward passes.</span>
+        <span class="sd">&quot;&quot;&quot;The device to use for computing forward passes.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Device.</span>
+<span class="sd">            The device to use. Can be either &#39;cpu&#39; or &#39;cuda&#39;.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -848,10 +846,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">eos_token</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;End-of-sentence token.</span>
+        <span class="sd">&quot;&quot;&quot;The end-of-sentence token.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): End-of-sentence token.</span>
+<span class="sd">            The end-of-sentence token.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -859,10 +857,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">eos_token_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;End-of-sentence token identifier.</span>
+        <span class="sd">&quot;&quot;&quot;The end-of-sentence token identifier.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): End-of-sentence token identifier.</span>
+<span class="sd">            The end-of-sentence token identifier.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -870,10 +868,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">max_length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maximum length of model.</span>
+        <span class="sd">&quot;&quot;&quot;The maximum length of the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Maximum length.</span>
+<span class="sd">            The maximum length of the model.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -884,23 +882,23 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Name of the model.</span>
+        <span class="sd">&quot;&quot;&quot;The name of the model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Model&#39;s name.</span>
+<span class="sd">            The name of the model.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_name_or_path</span>
 
 <div class="viewcode-block" id="HarnessModel.encode"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_model.HarnessModel.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Encodes text with the tokenizer.</span>
+        <span class="sd">&quot;&quot;&quot;Encode text with the tokenizer.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Text to be encoded.</span>
+<span class="sd">            text: The text to be encoded.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.LongTensor): Encoded tokens.</span>
+<span class="sd">            A tensor of tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -913,27 +911,27 @@ title="Open an issue"
         <span class="p">)</span><span class="o">.</span><span class="n">input_ids</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HarnessModel.decode"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_model.HarnessModel.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Decodes text with the tokenizer.</span>
+        <span class="sd">&quot;&quot;&quot;Decode text with the tokenizer.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            tokens: Tokens to be decoded.</span>
+<span class="sd">            tokens: The tokens to be decoded.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Decoded tokens.</span>
+<span class="sd">            A string representing the decoded tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HarnessModel.cosine_similarity"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_model.HarnessModel.cosine_similarity">[docs]</a>    <span class="k">def</span> <span class="nf">cosine_similarity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Computes the cosine similarity between pair of samples.</span>
+        <span class="sd">&quot;&quot;&quot;Compute the cosine similarity between pair of samples.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            sample: First sample in the pair.</span>
 <span class="sd">            target: Second sample in the pair.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float): Cosine similarity between `sample` and `target`.</span>
+<span class="sd">            Cosine similarity between `sample` and `target`.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -947,14 +945,14 @@ title="Open an issue"
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">similarity</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="HarnessModel.generate"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_model.HarnessModel.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stop_tokens</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Generates a set of tokens from a context.</span>
+        <span class="sd">&quot;&quot;&quot;Generate a set of tokens from a context.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            context: Context used as prompt for the generation.</span>
-<span class="sd">            stop_tokens: Whether generation should stop at particular tokens.</span>
+<span class="sd">            context: The context from which to generate tokens.</span>
+<span class="sd">            stop_tokens: The tokens to stop generation.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): String representing the generated tokens.</span>
+<span class="sd">            A string representing the generated tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -984,17 +982,17 @@ title="Open an issue"
 <div class="viewcode-block" id="HarnessModel.log_likelihood"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.harness.html#archai.nlp.eval.harness.harness_model.HarnessModel.log_likelihood">[docs]</a>    <span class="k">def</span> <span class="nf">log_likelihood</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">return_exact_match</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Computes the log-likelihood of generating a target from context.</span>
+        <span class="sd">&quot;&quot;&quot;Compute the log-likelihood of generating a target from context.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            context: Context used as prompt for the generation.</span>
-<span class="sd">            target: Target to be achieved with the generation.</span>
+<span class="sd">            context: The context from which to generate tokens.</span>
+<span class="sd">            target: The target to be generated.</span>
 <span class="sd">            return_exact_match: Whether exact match (generated_tokens == target)</span>
 <span class="sd">                should be returned.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Union[float, Tuple[float, bool]]): Log-likelihood of achieving target from context</span>
-<span class="sd">                and whether generated targets are fully equal to provided target.</span>
+<span class="sd">            Log-likelihood of achieving target from context and whether generated targets</span>
+<span class="sd">                are fully equal to provided target.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1050,7 +1048,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

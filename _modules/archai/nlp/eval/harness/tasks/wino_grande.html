@@ -789,13 +789,14 @@ title="Open an issue"
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 
 <span class="kn">from</span> <span class="nn">archai.nlp.eval.harness.harness_task</span> <span class="kn">import</span> <span class="n">HarnessTask</span>
 <span class="kn">from</span> <span class="nn">archai.nlp.eval.harness.harness_utils</span> <span class="kn">import</span> <span class="n">HarnessCall</span><span class="p">,</span> <span class="n">call_factory</span>
 
 
 <div class="viewcode-block" id="WinoGrandeHarnessTask"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.eval.harness.tasks.html#archai.nlp.eval.harness.tasks.wino_grande.WinoGrandeHarnessTask">[docs]</a><span class="k">class</span> <span class="nc">WinoGrandeHarnessTask</span><span class="p">(</span><span class="n">HarnessTask</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines the WinoGrande task.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;WinoGrande harness task.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -825,6 +826,7 @@ title="Open an issue"
         <span class="n">pronoun_loc</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sentence</span><span class="p">[:</span><span class="n">pronoun_loc</span><span class="p">]</span> <span class="o">+</span> <span class="n">option</span>
 
+    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">_create_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">answer</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span>
         <span class="n">option</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;option&quot;</span> <span class="o">+</span> <span class="n">answer</span><span class="p">]</span>
@@ -835,6 +837,7 @@ title="Open an issue"
         <span class="n">pronoun_loc</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">sentence</span><span class="p">[</span><span class="n">pronoun_loc</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
 
+    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">_create_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_partial_label_from_sample</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;sentence&quot;</span><span class="p">])</span>
 
@@ -844,7 +847,8 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="o">*</span><span class="n">context</span><span class="p">,</span> <span class="n">partial_context</span><span class="p">])</span> <span class="k">if</span> <span class="n">context</span> <span class="k">else</span> <span class="n">partial_context</span>
 
-<div class="viewcode-block" id="WinoGrandeHarnessTask.create_sampling_calls"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.eval.harness.tasks.html#archai.nlp.eval.harness.tasks.wino_grande.WinoGrandeHarnessTask.create_sampling_calls">[docs]</a>    <span class="k">def</span> <span class="nf">create_sampling_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">context</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">HarnessCall</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<div class="viewcode-block" id="WinoGrandeHarnessTask.create_sampling_calls"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.eval.harness.tasks.html#archai.nlp.eval.harness.tasks.wino_grande.WinoGrandeHarnessTask.create_sampling_calls">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">create_sampling_calls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">context</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">HarnessCall</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_partial_label_from_sample</span><span class="p">(</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;sentence&quot;</span><span class="p">])</span>
         <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;option1&quot;</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;option2&quot;</span><span class="p">]]</span>
 
@@ -857,7 +861,8 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="n">lls</span></div>
 
-<div class="viewcode-block" id="WinoGrandeHarnessTask.compute_results"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.eval.harness.tasks.html#archai.nlp.eval.harness.tasks.wino_grande.WinoGrandeHarnessTask.compute_results">[docs]</a>    <span class="k">def</span> <span class="nf">compute_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">results</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="WinoGrandeHarnessTask.compute_results"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.eval.harness.tasks.html#archai.nlp.eval.harness.tasks.wino_grande.WinoGrandeHarnessTask.compute_results">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">compute_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">results</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
         <span class="n">reference</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span> <span class="k">else</span> <span class="mi">1</span>
 
@@ -881,7 +886,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

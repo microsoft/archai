@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;ONNX-based manual evaluation.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;ONNX-based manual evaluation.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -800,14 +799,19 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="generate"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.eval.html#archai.nlp.eval.onnx_evaluator.generate">[docs]</a><span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="n">onnx_session</span><span class="p">:</span> <span class="n">InferenceSession</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">inputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Manually generates a set of tokens through greedy search.</span>
+    <span class="sd">&quot;&quot;&quot;Generate a sequence of tokens using greedy search with an ONNX model.</span>
+
+<span class="sd">    This function generates a sequence of tokens by repeatedly running the provided</span>
+<span class="sd">    ONNX session with the given inputs, and selecting the token with the highest</span>
+<span class="sd">    predicted probability at each step. The process is repeated for the specified</span>
+<span class="sd">    maximum number of steps.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        onnx_session: An already instantiated ONNX-based session.</span>
-<span class="sd">        max_length: Maximum amount of generated tokens.</span>
+<span class="sd">        onnx_session: An already instantiated ONNX-based session to use for prediction.</span>
+<span class="sd">        max_length: Maximum number of tokens to generate.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (torch.LongTensor): Tensor holding the input + predicted tokens.</span>
+<span class="sd">        Tensor holding the input tokens plus the predicted tokens.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -833,18 +837,18 @@ title="Open an issue"
     <span class="n">n_seed_tokens</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">n_accuracy_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Manually evaluates an ONNX model.</span>
+    <span class="sd">&quot;&quot;&quot;Evaluate an ONNX model.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        onnx_session: An already instantiated ONNX-based session.</span>
+<span class="sd">        onnx_session: An already instantiated ONNX-based session to use for prediction.</span>
 <span class="sd">        eval_dataset: Evaluation (testing) dataset.</span>
-<span class="sd">        data_collator: Collation function to be applied into data loader.</span>
-<span class="sd">        batch_size: Size of batches.</span>
-<span class="sd">        n_seed_tokens: Number of seed tokens.</span>
-<span class="sd">        n_accuracy_type: Number of accuracies to be used, e.g., acc@1, acc@2, ..., acc@n.</span>
+<span class="sd">        data_collator: Collation function to be applied to the data in the dataset.</span>
+<span class="sd">        batch_size: Size of batches to use when iterating through the dataset.</span>
+<span class="sd">        n_seed_tokens: Number of seed tokens to use when generating sequences.</span>
+<span class="sd">        n_accuracy_type: Number of accuracies to calculate, ranging from &quot;acc@1&quot; to &quot;acc@n&quot;.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Dict[str, Any]): A dictionary holding the evaluation metrics.</span>
+<span class="sd">        A dictionary containing the evaluation metrics and runtime statistics.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -921,7 +925,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

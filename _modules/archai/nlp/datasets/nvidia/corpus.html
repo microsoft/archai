@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Corpus-related class for loading and encoding datasets.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Corpus-related class for loading and encoding datasets.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -808,8 +807,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="Corpus"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.corpus.Corpus">[docs]</a><span class="k">class</span> <span class="nc">Corpus</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Implements a corpus-based class responsible for creating and training</span>
-<span class="sd">    the vocabulary/tokenizer, loading the dataset and encoding the data.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Creates and trains the vocabulary/tokenizer, loads the dataset and encodes the data.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -820,15 +818,17 @@ title="Open an issue"
         <span class="n">vocab_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">refresh_cache</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes by defining attributes and creating cache-related paths.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the `Corpus` class by defining attributes and creating</span>
+<span class="sd">        cache-related paths.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dataset: Name of the dataset.</span>
-<span class="sd">            dataset_dir: Dataset folder.</span>
-<span class="sd">            cache_dir: Cache folder.</span>
+<span class="sd">            dataset_dir: Path to the dataset folder.</span>
+<span class="sd">            cache_dir: Path to the cache folder.</span>
 <span class="sd">            vocab_type: Type of vocabulary/tokenizer.</span>
+<span class="sd">                Valid options are `word`, `bbpe`, `gpt2`, or `bpe`.</span>
 <span class="sd">            vocab_size: Vocabulary size.</span>
-<span class="sd">            refresh_cache: Whether cache should be refreshed.</span>
+<span class="sd">            refresh_cache: Whether to refresh the cache.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -860,16 +860,16 @@ title="Open an issue"
     <span class="k">def</span> <span class="nf">_create_vocab</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vocab_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vocab_cache_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vocab_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VocabBase</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Creates the vocabulary.</span>
+        <span class="sd">&quot;&quot;&quot;Create the vocabulary.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dataset: Name of the dataset.</span>
 <span class="sd">            vocab_type: Type of vocabulary.</span>
-<span class="sd">            vocab_cache_dir: Vocabulary cache folder.</span>
+<span class="sd">            vocab_cache_dir: Path to the vocabulary cache folder.</span>
 <span class="sd">            vocab_size: Vocabulary size.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (VocabBase): Vocabulary.</span>
+<span class="sd">            Vocabulary.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -908,15 +908,15 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">vocab</span>
 
     <span class="k">def</span> <span class="nf">_clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Clears the cache.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Clear the cache.&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_dataset_filepaths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the dataset&#39;s file paths.</span>
+        <span class="sd">&quot;&quot;&quot;Get the dataset&#39;s file paths.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[str, str, str]): Training, validation and testing file paths.</span>
+<span class="sd">            Training, validation and testing file paths.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -948,7 +948,7 @@ title="Open an issue"
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_train_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Trains vocabulary.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Train the vocabulary.&quot;&quot;&quot;</span>
 
         <span class="c1"># If vocabulary cache does not exist</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_cache</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">is_trained</span><span class="p">():</span>
@@ -966,10 +966,10 @@ title="Open an issue"
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading vocabulary (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab_type</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span><span class="si">}</span><span class="s2">) from: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab_cache_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_create_train_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VocabBase</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Creates and trains the vocabulary.</span>
+        <span class="sd">&quot;&quot;&quot;Create and trains the vocabulary.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (VocabBase): Pre-trained vocabulary.</span>
+<span class="sd">            Pre-trained vocabulary.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -981,7 +981,7 @@ title="Open an issue"
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span>
 
     <span class="k">def</span> <span class="nf">_encode_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Encodes dataset (training, validation and testing sets).&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Encode dataset (training, validation and testing sets).&quot;&quot;&quot;</span>
 
         <span class="n">train_filepath</span><span class="p">,</span> <span class="n">valid_filepath</span><span class="p">,</span> <span class="n">test_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_filepaths</span><span class="p">()</span>
 
@@ -994,7 +994,7 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">encode_file</span><span class="p">(</span><span class="n">test_filepath</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Corpus.train_and_encode"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.corpus.Corpus.train_and_encode">[docs]</a>    <span class="k">def</span> <span class="nf">train_and_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Trains vocabulary/tokenizer and encodes the corpus.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Train the vocabulary/tokenizer and encodes the corpus.&quot;&quot;&quot;</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Training corpus: dataset = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2"> | vocab_type = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab_type</span><span class="si">}</span><span class="s2"> | vocab_size = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -1007,10 +1007,10 @@ title="Open an issue"
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Size: train = </span><span class="si">{</span><span class="n">train_size</span><span class="si">}</span><span class="s2"> | valid = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">valid</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2"> | test = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Corpus.load"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.corpus.Corpus.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Loads a pre-trained corpus.</span>
+        <span class="sd">&quot;&quot;&quot;Load a pre-trained corpus.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Whether pre-trained corpus has been successfully loaded.</span>
+<span class="sd">            Whether pre-trained corpus has been successfully loaded.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1051,7 +1051,7 @@ title="Open an issue"
         <span class="k">return</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Corpus.save_cache"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.corpus.Corpus.save_cache">[docs]</a>    <span class="k">def</span> <span class="nf">save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Saves the cache.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Save the cache.&quot;&quot;&quot;</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">is_trained</span><span class="p">()</span>
 
@@ -1068,7 +1068,7 @@ title="Open an issue"
         <span class="n">mem_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">ext_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">LMOrderedIterator</span><span class="p">,</span> <span class="n">LMMultiFileIterator</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets an iterator based on current corpus.</span>
+        <span class="sd">&quot;&quot;&quot;Get an iterator based on current corpus.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            split: Name of the split.</span>
@@ -1079,7 +1079,7 @@ title="Open an issue"
 <span class="sd">            ext_len: Length of extended context (for Transformer-XL).</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Union[LMOrderedIterator, LMMultiFileIterator]): Iterator.</span>
+<span class="sd">            Iterator.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1127,18 +1127,18 @@ title="Open an issue"
     <span class="n">vocab_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">refresh_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Corpus</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Loads a pre-trained corpus if available, or pre-trains a new one.</span>
+    <span class="sd">&quot;&quot;&quot;Load a pre-trained corpus if available, or pre-trains a new one.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dataset: Name of the dataset.</span>
 <span class="sd">        dataset_dir: Dataset folder.</span>
-<span class="sd">        cache_dir: Cache folder.</span>
+<span class="sd">        cache_dir: Path to the cache folder.</span>
 <span class="sd">        vocab_type: Type of vocabulary/tokenizer.</span>
 <span class="sd">        vocab_size: Vocabulary size.</span>
 <span class="sd">        refresh_cache: Whether cache should be refreshed.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Corpus): Corpus with pre-trained vocabulary and encoded data.</span>
+<span class="sd">        Corpus with pre-trained vocabulary and encoded data.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1170,7 +1170,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

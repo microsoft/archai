@@ -782,9 +782,9 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Pipeline for performing PyTorch-based Quantization Aware Training (QAT).</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Pipeline for performing PyTorch-based Quantization-Aware Training (QAT).&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -818,14 +818,15 @@ title="Open an issue"
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging_utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="qat_to_float_modules"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.qat.qat_to_float_modules">[docs]</a><span class="k">def</span> <span class="nf">qat_to_float_modules</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Changes QAT-ready modules to float-based modules.</span>
+<div class="viewcode-block" id="qat_to_float_modules"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.qat.qat_to_float_modules">[docs]</a><span class="k">def</span> <span class="nf">qat_to_float_modules</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert QAT-ready modules to float-based modules.</span>
+
+<span class="sd">    This function converts all QAT-ready modules in the input model to float-based modules.</span>
+<span class="sd">    It does this recursively, so all sub-modules within the input model will also be</span>
+<span class="sd">    converted if applicable.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: QAT-ready module.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        (torch.nn.Module): Float-based module.</span>
+<span class="sd">        model: QAT-ready module to be converted.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -835,9 +836,7 @@ title="Open an issue"
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;to_float&quot;</span><span class="p">):</span>
             <span class="n">model</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">to_float</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">qat_to_float_modules</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">model</span></div>
+            <span class="n">qat_to_float_modules</span><span class="p">(</span><span class="n">module</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="float_to_qat_modules"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.qat.float_to_qat_modules">[docs]</a><span class="k">def</span> <span class="nf">float_to_qat_modules</span><span class="p">(</span>
@@ -845,16 +844,19 @@ title="Open an issue"
     <span class="n">module_mapping</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]]</span> <span class="o">=</span> <span class="n">DYNAMIC_QAT_MODULE_MAP</span><span class="p">,</span>
     <span class="n">qconfig</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Changes float-based modules to QAT-ready modules.</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert float-based modules to QAT-ready modules.</span>
+
+<span class="sd">    This function converts all float-based modules in the input model to QAT-ready</span>
+<span class="sd">    modules using the provided module mapping. It does this recursively, so all sub-modules</span>
+<span class="sd">    within the input model will also be converted if applicable.</span>
+
+<span class="sd">    A quantization configuration can also be supplied.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: Float-based module.</span>
+<span class="sd">        model: Float-based module to be converted.</span>
 <span class="sd">        module_mapping: Maps between float and QAT-ready modules.</span>
-<span class="sd">        qconfig: Quantization configuration.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        (torch.nn.Module): QAT-ready module.</span>
+<span class="sd">        qconfig: Quantization configuration to be used for the conversion.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -868,34 +870,44 @@ title="Open an issue"
             <span class="n">model</span><span class="o">.</span><span class="n">_modules</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module_mapping</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">module</span><span class="p">)]</span><span class="o">.</span><span class="n">from_float</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">qconfig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">float_to_qat_modules</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_mapping</span><span class="o">=</span><span class="n">module_mapping</span><span class="p">,</span> <span class="n">qconfig</span><span class="o">=</span><span class="n">qconfig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">model</span></div>
+            <span class="n">float_to_qat_modules</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">module_mapping</span><span class="o">=</span><span class="n">module_mapping</span><span class="p">,</span> <span class="n">qconfig</span><span class="o">=</span><span class="n">qconfig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="prepare_with_qat"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.qat.prepare_with_qat">[docs]</a><span class="k">def</span> <span class="nf">prepare_with_qat</span><span class="p">(</span>
-    <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">onnx_compatible</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;qnnpack&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span>
+    <span class="n">inplace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">onnx_compatible</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;qnnpack&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Prepares a float-based model and inserts QAT-based modules and configurations.</span>
+    <span class="sd">&quot;&quot;&quot;Prepare a float-based PyTorch model for quantization-aware training (QAT).</span>
+
+<span class="sd">    This function modifies the input model in place by inserting</span>
+<span class="sd">    QAT-based modules and configurations.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: Float-based module.</span>
-<span class="sd">        onnx_compatible: Whether QAT-ready module is compatible with ONNX.</span>
-<span class="sd">        backend: Quantization backend.</span>
+<span class="sd">        model: Float-based PyTorch module to be prepared for QAT.</span>
+<span class="sd">        inplace: Whether the prepared QAT model should replace the original model.</span>
+<span class="sd">        onnx_compatible: Whether the prepared QAT model should be compatible with ONNX.</span>
+<span class="sd">        backend: Quantization backend to be used.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (torch.nn.Module): QAT-ready module.</span>
+<span class="sd">        The input model, modified in place (or not) to be ready for QAT.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing model with QAT ...&quot;</span><span class="p">)</span>
 
+    <span class="n">prepared_model</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">inplace</span><span class="p">:</span>
+        <span class="n">prepared_model</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
     <span class="n">qconfig</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">quantization</span><span class="o">.</span><span class="n">get_default_qat_qconfig</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
     <span class="n">module_mapping</span> <span class="o">=</span> <span class="n">ONNX_DYNAMIC_QAT_MODULE_MAP</span> <span class="k">if</span> <span class="n">onnx_compatible</span> <span class="k">else</span> <span class="n">DYNAMIC_QAT_MODULE_MAP</span>
 
-    <span class="n">float_to_qat_modules</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">module_mapping</span><span class="o">=</span><span class="n">module_mapping</span><span class="p">,</span> <span class="n">qconfig</span><span class="o">=</span><span class="n">qconfig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">float_to_qat_modules</span><span class="p">(</span><span class="n">prepared_model</span><span class="p">,</span> <span class="n">module_mapping</span><span class="o">=</span><span class="n">module_mapping</span><span class="p">,</span> <span class="n">qconfig</span><span class="o">=</span><span class="n">qconfig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">model</span></div>
+    <span class="k">return</span> <span class="n">prepared_model</span></div>
 </pre></div>
 
               </div>
@@ -915,7 +927,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

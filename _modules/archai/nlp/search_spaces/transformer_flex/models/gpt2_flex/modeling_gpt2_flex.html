@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;GPT-2 Flexible Transformer.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;GPT-2 Flexible Transformer.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
@@ -806,23 +805,12 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="GPT2FlexAttention"><a class="viewcode-back" href="../../../../../../../reference/api/archai.nlp.search_spaces.transformer_flex.models.html#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexAttention">[docs]</a><span class="k">class</span> <span class="nc">GPT2FlexAttention</span><span class="p">(</span><span class="n">GPT2Attention</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a GPT-2 Attention flexible layer.&quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">GPT2FlexConfig</span><span class="p">,</span>
         <span class="n">is_cross_attention</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">layer_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides with custom initialization.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config: Dictionary holding model&#39;s configuration.</span>
-<span class="sd">            is_cross_attention: Whether attention is standard or cross-attention.</span>
-<span class="sd">            layer_idx: Number of current layer (identifier).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="n">max_positions</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">max_position_embeddings</span>
@@ -864,17 +852,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="GPT2FlexMLP"><a class="viewcode-back" href="../../../../../../../reference/api/archai.nlp.search_spaces.transformer_flex.models.html#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexMLP">[docs]</a><span class="k">class</span> <span class="nc">GPT2FlexMLP</span><span class="p">(</span><span class="n">GPT2MLP</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a GPT-2 Multi-Layer Perceptron flexible layer.&quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intermediate_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">GPT2FlexConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides with custom initialization.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            intermediate_size: Size of inner dimension.</span>
-<span class="sd">            config: Dictionary holding model&#39;s configuration.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="n">embed_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">hidden_size</span>
@@ -887,16 +865,6 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">primer_square</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">primer_square</span>
 
 <div class="viewcode-block" id="GPT2FlexMLP.forward"><a class="viewcode-back" href="../../../../../../../reference/api/archai.nlp.search_spaces.transformer_flex.models.html#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexMLP.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_states</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides forward method to add PrimerEZ-square primitive.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            hidden_states: Input hidden states.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (torch.FloatTensor): Output hidden states.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">hidden_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_fc</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">)</span>
         <span class="n">hidden_states</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">)</span>
 
@@ -910,17 +878,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="GPT2FlexBlock"><a class="viewcode-back" href="../../../../../../../reference/api/archai.nlp.search_spaces.transformer_flex.models.html#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexBlock">[docs]</a><span class="k">class</span> <span class="nc">GPT2FlexBlock</span><span class="p">(</span><span class="n">GPT2Block</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a GPT-2 flexible block.&quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">GPT2FlexConfig</span><span class="p">,</span> <span class="n">layer_idx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides with custom initialization.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config: Dictionary holding model&#39;s configuration.</span>
-<span class="sd">            layer_idx: Number of current layer (identifier).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="n">hidden_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">hidden_size</span>
@@ -938,18 +896,9 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="GPT2FlexModel"><a class="viewcode-back" href="../../../../../../../reference/api/archai.nlp.search_spaces.transformer_flex.models.html#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexModel">[docs]</a><span class="k">class</span> <span class="nc">GPT2FlexModel</span><span class="p">(</span><span class="n">GPT2Model</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a GPT-2 flexible model.&quot;&quot;&quot;</span>
-
     <span class="n">config_class</span> <span class="o">=</span> <span class="n">GPT2FlexConfig</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">GPT2FlexConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides with custom initialization.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config: Dictionary holding model&#39;s configuration.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">GPT2PreTrainedModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">embed_dim</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">hidden_size</span>
@@ -969,18 +918,9 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="GPT2FlexLMHeadModel"><a class="viewcode-back" href="../../../../../../../reference/api/archai.nlp.search_spaces.transformer_flex.models.html#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexLMHeadModel">[docs]</a><span class="k">class</span> <span class="nc">GPT2FlexLMHeadModel</span><span class="p">(</span><span class="n">GPT2LMHeadModel</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a GPT-2 language modeling flexible head.&quot;&quot;&quot;</span>
-
     <span class="n">config_class</span> <span class="o">=</span> <span class="n">GPT2FlexConfig</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">GPT2FlexConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides with custom initialization.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            config: Dictionary holding model&#39;s configuration.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">GPT2PreTrainedModel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">GPT2FlexModel</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
@@ -1009,7 +949,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

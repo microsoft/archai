@@ -782,172 +782,161 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Utilities for tokenization pipelines with huggingface/tokenizers.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Utilities for tokenization pipelines with huggingface/tokenizers.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">abc</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">EnforceOverrides</span><span class="p">,</span> <span class="n">overrides</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">EnforceOverrides</span>
 
 <span class="kn">from</span> <span class="nn">archai.nlp</span> <span class="kn">import</span> <span class="n">logging_utils</span>
-<span class="kn">from</span> <span class="nn">archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SpecialTokenEnum</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">archai.nlp.datasets.nvidia.tokenizer_utils.token_config</span> <span class="kn">import</span> <span class="n">SpecialTokenEnum</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging_utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="VocabBase"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase">[docs]</a><span class="k">class</span> <span class="nc">VocabBase</span><span class="p">(</span><span class="n">EnforceOverrides</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">Sized</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a base class for a customizable tokenization pipeline.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A customizable tokenization pipeline for encoding and decoding text.</span>
+
+<span class="sd">    This is an abstract base class that defines the interface for implementing a</span>
+<span class="sd">    vocabulary class that can be used for tokenization. Subclasses should override</span>
+<span class="sd">    the abstract methods in this class to provide specific implementations.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Length of the vocabulary.</span>
+        <span class="sd">&quot;&quot;&quot;Get the length of the vocabulary.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Length of the vocabulary.</span>
+<span class="sd">            The length of the vocabulary.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">pass</span>
 
 <div class="viewcode-block" id="VocabBase.train"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.train">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Trains tokenizer from a list of files.</span>
+        <span class="sd">&quot;&quot;&quot;Train the tokenizer on a list of files.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filepaths: List of paths to input files.</span>
+<span class="sd">            filepaths: A list of paths to input files.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">pass</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="VocabBase.is_trained"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.is_trained">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">is_trained</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether vocabulary has been trained.</span>
+        <span class="sd">&quot;&quot;&quot;Check if the vocabulary has been trained.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Whether vocabulary has been trained.</span>
+<span class="sd">            `True` if the vocabulary has been trained, `False` otherwise.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">pass</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="VocabBase.load"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.load">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Loads pre-trained tokenizer.&quot;&quot;&quot;</span>
-
-        <span class="k">pass</span></div>
+        <span class="sd">&quot;&quot;&quot;Load a pre-trained tokenizer.&quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="VocabBase.encode_text"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.encode_text">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">encode_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Encodes text into tokens.</span>
+        <span class="sd">&quot;&quot;&quot;Encode text into tokens.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Input text.</span>
+<span class="sd">            text: The input text to encode.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[int]): Encoded text (tokens).</span>
+<span class="sd">            The encoded text (tokens).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">pass</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="VocabBase.decode_text"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.decode_text">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">decode_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Decodes tokens into text.</span>
+        <span class="sd">&quot;&quot;&quot;Decode tokens into text.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            ids: Tokens.</span>
+<span class="sd">            ids: The tokens to decode.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Decoded tokens (text).</span>
+<span class="sd">            The decoded tokens (text).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">pass</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="VocabBase.special_token_id"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.special_token_id">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">special_token_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="n">SpecialTokenEnum</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the identifier of special token.</span>
+        <span class="sd">&quot;&quot;&quot;Get the identifier of a special token.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sp: Special token&#39;s enumerator.</span>
+<span class="sd">            sp: The special token&#39;s enumerator.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Special token&#39;s identifier.</span>
+<span class="sd">            The special token&#39;s identifier.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">pass</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="VocabBase.token_to_id"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.token_to_id">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">token_to_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Converts a string-based token to its identifier.</span>
+        <span class="sd">&quot;&quot;&quot;Convert a string-based token to its identifier.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            t: String-based token.</span>
+<span class="sd">            t: The string-based token.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Token&#39;s identifier.</span>
+<span class="sd">            The token&#39;s identifier.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">pass</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="VocabBase.id_to_token"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.id_to_token">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">id_to_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Converts a token identifier to its string-based representation.</span>
+        <span class="sd">&quot;&quot;&quot;Convert a token identifier to its string-based representation.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            id: Token&#39;s identifier.</span>
+<span class="sd">            id: The token&#39;s identifier.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): String-based token.</span>
+<span class="sd">            The string-based token.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">pass</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div>
 
 <div class="viewcode-block" id="VocabBase.tokens_to_ids"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.tokens_to_ids">[docs]</a>    <span class="k">def</span> <span class="nf">tokens_to_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Converts a set of string-based tokens to their identifiers.</span>
+        <span class="sd">&quot;&quot;&quot;Convert a list of string-based tokens to their corresponding identifiers.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            ts: String-based tokens.</span>
+<span class="sd">            ts: A list of string-based tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[int]): Tokens&#39; identifiers.</span>
+<span class="sd">            The identifiers corresponding to the input tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">token_to_id</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ts</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="VocabBase.ids_to_tokens"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.ids_to_tokens">[docs]</a>    <span class="k">def</span> <span class="nf">ids_to_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Converts a set of tokens&#39; identifiers to their string-based representations.</span>
+        <span class="sd">&quot;&quot;&quot;Convert a list of tokens&#39; identifiers to their string-based representations.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            ids: Tokens&#39; identifiers.</span>
+<span class="sd">            ids: A list of tokens&#39; identifiers.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[str]): String-based tokens.</span>
+<span class="sd">            The string-based representations of the input tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id_to_token</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="VocabBase.encode_file"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base.VocabBase.encode_file">[docs]</a>    <span class="k">def</span> <span class="nf">encode_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Encodes text from an input file.</span>
+        <span class="sd">&quot;&quot;&quot;Encode text from an input file.</span>
+
+<span class="sd">        This method reads text from the specified file and encodes it using</span>
+<span class="sd">        the `encode_text` method. It also includes options for verbosity and</span>
+<span class="sd">        efficiently handling large datasets by converting the encoded tokens</span>
+<span class="sd">        to a `torch.Tensor` every 500k lines.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            path: Input file.</span>
-<span class="sd">            verbose: Whether should add verbosity to logger.</span>
+<span class="sd">            path: The path to the input file.</span>
+<span class="sd">            verbose: Whether to add verbosity to the logger.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Encoded tokens.</span>
+<span class="sd">            The encoded tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -993,7 +982,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

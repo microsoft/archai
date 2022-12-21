@@ -853,17 +853,14 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.config_utils.gpt2_onnx_config.</span></span><span class="sig-name descname"><span class="pre">GPT2OnnxConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">transformers.configuration_utils.PretrainedConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'causal-lm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_past</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/gpt2_onnx_config.html#GPT2OnnxConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a GPT-2 ONNX configuration (with past key/values support).</p>
+<dd><p>GPT-2 ONNX configuration (with past key/values support).</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig.num_layers">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig.num_layers" title="Permalink to this definition">#</a></dt>
-<dd><p>Number of layers.</p>
+<dd><p>Get the number of layers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Number of layers.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -871,13 +868,10 @@ title="Edit this page"
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig.is_ort_graph_optimizable">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_ort_graph_optimizable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig.is_ort_graph_optimizable" title="Permalink to this definition">#</a></dt>
-<dd><p>Supports additional ONNX Runtime graph optimization.</p>
+<dd><p>Whether configuation support additional ONNX Runtime graph optimization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Whether configuration supports additional graph optimization.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -885,13 +879,10 @@ title="Edit this page"
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig.ort_graph_optimizer_args">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ort_graph_optimizer_args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig.ort_graph_optimizer_args" title="Permalink to this definition">#</a></dt>
-<dd><p>ONNX Runtime additional graph optimization arguments.</p>
+<dd><p>Get the ONNX Runtime additional graph optimization arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Additional arguments used by the ORT graph optimizer.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Tuple[Any, …])</p>
 </dd>
 </dl>
 </dd></dl>
@@ -901,17 +892,14 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.config_utils.gpt2_onnx_config.</span></span><span class="sig-name descname"><span class="pre">GPT2FlexOnnxConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">transformers.configuration_utils.PretrainedConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'causal-lm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_past</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/gpt2_onnx_config.html#GPT2FlexOnnxConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a GPT-2 Flex ONNX configuration (with past key/values support).</p>
+<dd><p>GPT-2 Flex ONNX configuration (with past key/values support).</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.num_layers">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.num_layers" title="Permalink to this definition">#</a></dt>
-<dd><p>Number of layers.</p>
+<dd><p>Get the number of layers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Number of layers.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -919,13 +907,10 @@ title="Edit this page"
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.is_ort_graph_optimizable">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_ort_graph_optimizable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.is_ort_graph_optimizable" title="Permalink to this definition">#</a></dt>
-<dd><p>Supports additional ONNX Runtime graph optimization.</p>
+<dd><p>Whether configuation support additional ONNX Runtime graph optimization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Whether configuration supports additional graph optimization.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -933,13 +918,10 @@ title="Edit this page"
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.ort_graph_optimizer_args">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ort_graph_optimizer_args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.ort_graph_optimizer_args" title="Permalink to this definition">#</a></dt>
-<dd><p>ONNX Runtime additional graph optimization arguments.</p>
+<dd><p>Get the ONNX Runtime additional graph optimization arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Additional arguments used by the ORT graph optimizer.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Tuple[Any, …])</p>
 </dd>
 </dl>
 </dd></dl>
@@ -947,7 +929,7 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.generate_dummy_inputs">
 <span class="sig-name descname"><span class="pre">generate_dummy_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">past_seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/gpt2_onnx_config.html#GPT2FlexOnnxConfig.generate_dummy_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.generate_dummy_inputs" title="Permalink to this definition">#</a></dt>
-<dd><p>Generates dummy inputs for the ONNX exporter.</p>
+<dd><p>Generate dummy inputs for the ONNX exporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -957,10 +939,7 @@ title="Edit this page"
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Keyword arguments for the model’s forward.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Mapping[str, Any])</p>
+<dd class="field-even"><p>Keyword arguments for the model’s <cite>forward()</cite> function.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -974,7 +953,10 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.config_utils.onnx_config_base.</span></span><span class="sig-name descname"><span class="pre">OnnxConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">transformers.configuration_utils.PretrainedConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'causal-lm'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/onnx_config_base.html#OnnxConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements the base ONNX configuration.</p>
+<dd><p>Base ONNX configuration.</p>
+<p>This class defines a base ONNX configuration for a specific task, which includes the
+input and output structure required for ONNX models, as well as additional properties
+and methods for handling ONNX Runtime graph optimization.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.DEFAULT_TASK_OUTPUTS">
 <span class="sig-name descname"><span class="pre">DEFAULT_TASK_OUTPUTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'causal-lm':</span> <span class="pre">{'probs':</span> <span class="pre">{0:</span> <span class="pre">'batch_size'}}}</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.DEFAULT_TASK_OUTPUTS" title="Permalink to this definition">#</a></dt>
@@ -983,13 +965,10 @@ title="Edit this page"
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.is_ort_graph_optimizable">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_ort_graph_optimizable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.is_ort_graph_optimizable" title="Permalink to this definition">#</a></dt>
-<dd><p>Supports additional ONNX Runtime graph optimization.</p>
+<dd><p>Whether configuation support additional ONNX Runtime graph optimization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Whether configuration supports additional graph optimization.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bool)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -997,41 +976,32 @@ title="Edit this page"
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.ort_graph_optimizer_args">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ort_graph_optimizer_args</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.ort_graph_optimizer_args" title="Permalink to this definition">#</a></dt>
-<dd><p>ONNX Runtime additional graph optimization arguments.</p>
+<dd><p>Get the ONNX Runtime additional graph optimization arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Additional arguments used by the ORT graph optimizer.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Tuple[Any, …])</p>
-</dd>
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.inputs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.inputs" title="Permalink to this definition">#</a></dt>
-<dd><p>ONNX-based inputs structure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.get_inputs">
+<span class="sig-name descname"><span class="pre">get_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/onnx_config_base.html#OnnxConfig.get_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.get_inputs" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the ONNX-based inputs structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>ONNX-based inputs.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Mapping[str, Mapping[int, str]])</p>
-</dd>
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.outputs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.outputs" title="Permalink to this definition">#</a></dt>
-<dd><p>ONNX-based outputs structure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.get_outputs">
+<span class="sig-name descname"><span class="pre">get_outputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/onnx_config_base.html#OnnxConfig.get_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.get_outputs" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the ONNX-based outputs structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>ONNX-based outputs.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Mapping[str, Mapping[int, str]])</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1039,7 +1009,7 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.generate_dummy_inputs">
 <span class="sig-name descname"><span class="pre">generate_dummy_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/onnx_config_base.html#OnnxConfig.generate_dummy_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfig.generate_dummy_inputs" title="Permalink to this definition">#</a></dt>
-<dd><p>Generates dummy inputs for the ONNX exporter.</p>
+<dd><p>Generate dummy inputs for the ONNX exporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1048,10 +1018,7 @@ title="Edit this page"
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Keyword arguments for the model’s forward.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Mapping[str, Any])</p>
+<dd class="field-even"><p>Keyword arguments for the model’s <cite>forward()</cite> function.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1061,17 +1028,16 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.onnx.config_utils.onnx_config_base.</span></span><span class="sig-name descname"><span class="pre">OnnxConfigWithPast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">transformers.configuration_utils.PretrainedConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'causal-lm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_past</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">past_key_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/onnx_config_base.html#OnnxConfigWithPast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements the base ONNX configuration with support for past key/values.</p>
+<dd><p>ONNX configuration with support for past key/values.</p>
+<p>This class is a subclass of <cite>OnnxConfig</cite> that adds the ability to use past key/values
+(also known as ‘use_cache’) in the model’s ONNX export.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.hidden_size">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hidden_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.hidden_size" title="Permalink to this definition">#</a></dt>
-<dd><p>Dimensionality of hidden units.</p>
+<dd><p>Get the dimensionality of hidden units.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Hidden units size.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1079,13 +1045,10 @@ title="Edit this page"
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.num_layers">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_layers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.num_layers" title="Permalink to this definition">#</a></dt>
-<dd><p>Number of layers.</p>
+<dd><p>Get the number of layers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Number of layers.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1093,41 +1056,32 @@ title="Edit this page"
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.num_attention_heads">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_attention_heads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.num_attention_heads" title="Permalink to this definition">#</a></dt>
-<dd><p>Number of attention heads.</p>
+<dd><p>Get the number of attention heads.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Number of attention heads.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
-</dd>
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.inputs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.inputs" title="Permalink to this definition">#</a></dt>
-<dd><p>ONNX-based inputs structure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.get_inputs">
+<span class="sig-name descname"><span class="pre">get_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/onnx_config_base.html#OnnxConfigWithPast.get_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.get_inputs" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the ONNX-based inputs structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>ONNX-based inputs.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Mapping[str, Mapping[int, str]])</p>
-</dd>
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.outputs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.outputs" title="Permalink to this definition">#</a></dt>
-<dd><p>ONNX-based outputs structure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.get_outputs">
+<span class="sig-name descname"><span class="pre">get_outputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/onnx_config_base.html#OnnxConfigWithPast.get_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.get_outputs" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the ONNX-based outputs structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>ONNX-based outputs.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(Mapping[str, Mapping[int, str]])</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1135,7 +1089,7 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.generate_dummy_inputs">
 <span class="sig-name descname"><span class="pre">generate_dummy_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">past_seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/onnx/config_utils/onnx_config_base.html#OnnxConfigWithPast.generate_dummy_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.onnx.config_utils.onnx_config_base.OnnxConfigWithPast.generate_dummy_inputs" title="Permalink to this definition">#</a></dt>
-<dd><p>Generates dummy inputs for the ONNX exporter.</p>
+<dd><p>Generate dummy inputs for the ONNX exporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1145,10 +1099,7 @@ title="Edit this page"
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Keyword arguments for the model’s forward.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Mapping[str, Any])</p>
+<dd class="field-even"><p>Keyword arguments for the model’s <cite>forward()</cite> function.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1190,7 +1141,7 @@ title="Edit this page"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

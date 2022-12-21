@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Text Predict-based evaluation.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Text Predict-based evaluation.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
@@ -809,21 +808,22 @@ title="Open an issue"
     <span class="n">score_step</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
     <span class="n">expected_match_rate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Performs the Text Predict evaluation.</span>
+    <span class="sd">&quot;&quot;&quot;Evaluate a Text Predict model and tokenizer on a given data file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        tp_model: Text Predict-based model.</span>
-<span class="sd">        tp_tokenizer: Text Predict-based tokenizer.</span>
-<span class="sd">        data_file_path: Path to the input data file.</span>
-<span class="sd">        output_dir: Output folder.</span>
-<span class="sd">        max_body_length: Maximum length of the input text.</span>
-<span class="sd">        min_pred_length: Minimum length of the prediction.</span>
-<span class="sd">        save_step: Amount of steps to save results.</span>
-<span class="sd">        current_paragraph_only: Only predicts information from current paragraph.</span>
-<span class="sd">        min_score: Minimum score.</span>
-<span class="sd">        max_score: Maximum score.</span>
-<span class="sd">        score_step: Step between minimum and maximum scores.</span>
-<span class="sd">        expected_match_rate: Expected match rate.</span>
+<span class="sd">        tp_model: The Text Predict model to use for prediction.</span>
+<span class="sd">        tp_tokenizer: The Text Predict tokenizer to use for preprocessing.</span>
+<span class="sd">        data_file_path: The path to the input data file.</span>
+<span class="sd">            The file should be in either .ljson or .txt format.</span>
+<span class="sd">        output_dir: The output directory to save the results to.</span>
+<span class="sd">        max_body_length: The maximum length of the input text.</span>
+<span class="sd">        min_pred_length: The minimum length of the prediction.</span>
+<span class="sd">        save_step: The number of steps between saving results.</span>
+<span class="sd">        current_paragraph_only: Whether to only predict information from the current paragraph.</span>
+<span class="sd">        min_score: The minimum score to consider a prediction a match.</span>
+<span class="sd">        max_score: The maximum score to consider a prediction a match.</span>
+<span class="sd">        score_step: The step between the minimum and maximum scores.</span>
+<span class="sd">        expected_match_rate: The expected rate of correct predictions.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -870,7 +870,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

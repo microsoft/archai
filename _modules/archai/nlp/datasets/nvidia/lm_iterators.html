@@ -783,8 +783,7 @@ title="Open an issue"
 <span class="c1"># Licensed under the Apache License, Version 2.0.</span>
 <span class="c1"># https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/LanguageModeling/Transformer-XL/pytorch/data_utils.py</span>
 
-<span class="sd">&quot;&quot;&quot;Language Modeling-based iterators.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Language modeling-based iterators.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
@@ -796,7 +795,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="LMOrderedIterator"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.lm_iterators.LMOrderedIterator">[docs]</a><span class="k">class</span> <span class="nc">LMOrderedIterator</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Implements an ordered-token iterator, e.g., there is no padding as tokens are contiguous.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Iterator that provides contiguous batches of input tokens without padding.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -808,10 +807,10 @@ title="Open an issue"
         <span class="n">ext_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">warmup</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes by sharding inputs across GPUs, if distributed training is available.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the iterator with the input sequence and batch parameters.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Inputs.</span>
+<span class="sd">            input_ids: Input sequence of tokens.</span>
 <span class="sd">            bsz: Batch size.</span>
 <span class="sd">            bptt: Sequence length (backpropagation through time).</span>
 <span class="sd">            device: Device to place the iterator.</span>
@@ -852,6 +851,10 @@ title="Open an issue"
 <div class="viewcode-block" id="LMOrderedIterator.roll"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.lm_iterators.LMOrderedIterator.roll">[docs]</a>    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Rolls/shifts the data according to a random seed.</span>
 
+<span class="sd">        This method shuffles the input sequence for each batch in the iterator by</span>
+<span class="sd">        rolling/shifting the data according to the specified seed. This is useful for</span>
+<span class="sd">        creating diverse training data and preventing overfitting.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            seed: Seed used to roll/shift the data.</span>
 
@@ -869,15 +872,14 @@ title="Open an issue"
             <span class="bp">self</span><span class="o">.</span><span class="n">input_ids</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">row</span></div>
 
 <div class="viewcode-block" id="LMOrderedIterator.get_batch"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.lm_iterators.LMOrderedIterator.get_batch">[docs]</a>    <span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bptt</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets a batch of `bptt` size.</span>
+        <span class="sd">&quot;&quot;&quot;Get a batch of `bptt` size.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            i: Identifier of batch.</span>
 <span class="sd">            bptt: Sequence length.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[torch.LongTensor, torch.LongTensor, int, bool]): Inputs, labels,</span>
-<span class="sd">                sequence length and whether it is a warmup batch.</span>
+<span class="sd">            Tuple of inputs, labels, sequence length and whether batch is from warmup.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -899,13 +901,22 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">input_ids</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">,</span> <span class="n">warmup</span></div>
 
 <div class="viewcode-block" id="LMOrderedIterator.get_fixlen_iter"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.lm_iterators.LMOrderedIterator.get_fixlen_iter">[docs]</a>    <span class="k">def</span> <span class="nf">get_fixlen_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets a fixed-length iterator.</span>
+        <span class="sd">&quot;&quot;&quot;Return a generator for generating fixed-length batches.</span>
+
+<span class="sd">        This method returns a generator that yields fixed-length batches of the specified size,</span>
+<span class="sd">        starting from the specified starting point. The batches are contiguous in the original</span>
+<span class="sd">        sequence.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            start: Starting point.</span>
+<span class="sd">            start: Starting point for the generator.</span>
 
 <span class="sd">        Yields:</span>
-<span class="sd">            (Generator[Tuple, None, None]): Fixed-length batches.</span>
+<span class="sd">            Fixed-length batches.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; for batch in iterator.get_fixlen_iter():</span>
+<span class="sd">            &gt;&gt;&gt;     # Process the batch.</span>
+<span class="sd">            &gt;&gt;&gt;     pass</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -923,16 +934,25 @@ title="Open an issue"
         <span class="n">min_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">max_std</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets a variable-length iterator.</span>
+        <span class="sd">&quot;&quot;&quot;Return a generator for generating variable-length batches.</span>
+
+<span class="sd">        This method returns a generator that yields variable-length batches of data,</span>
+<span class="sd">        starting from the specified starting point. The length of each batch is determined</span>
+<span class="sd">        by a Gaussian distribution with the specified mean and standard deviation.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            start: Starting point.</span>
+<span class="sd">            start: Starting point for the generator.</span>
 <span class="sd">            std: Standard deviation.</span>
 <span class="sd">            min_len: Minimum length.</span>
 <span class="sd">            max_std: Max standard deviation.</span>
 
 <span class="sd">        Yields:</span>
-<span class="sd">            (Generator[Tuple, None, None]): Variable-length batches.</span>
+<span class="sd">            Variable-length batches.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; for batch in iterator.get_varlen_iter():</span>
+<span class="sd">            &gt;&gt;&gt;     # Process the batch.</span>
+<span class="sd">            &gt;&gt;&gt;     pass</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -951,10 +971,10 @@ title="Open an issue"
                 <span class="k">break</span></div>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Defaults standard iteration to fixed-length batches.</span>
+        <span class="sd">&quot;&quot;&quot;Default the standard iteration to fixed-length batches.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            (Generator[Tuple, None, None]): Fixed-length batches.</span>
+<span class="sd">        Yields:</span>
+<span class="sd">            Fixed-length batches.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -962,8 +982,8 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="LMMultiFileIterator"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.lm_iterators.LMMultiFileIterator">[docs]</a><span class="k">class</span> <span class="nc">LMMultiFileIterator</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Implements a multi-file non-ordered iterator, e.g., tokens are contiguous yet they come</span>
-<span class="sd">    from different files.</span>
+    <span class="sd">&quot;&quot;&quot;Multi-file non-ordered iterator, i.e. tokens come from different</span>
+<span class="sd">    files but are contiguous.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -979,7 +999,7 @@ title="Open an issue"
         <span class="n">n_chunks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
         <span class="n">shuffle</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes by adding support to multi-file inputs and sharding files</span>
+        <span class="sd">&quot;&quot;&quot;Initialize by adding support to multi-file inputs and sharding files</span>
 <span class="sd">            across GPUs, if distributed training is available.</span>
 
 <span class="sd">        Args:</span>
@@ -1016,18 +1036,18 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths_chunks</span><span class="p">[</span><span class="n">rank</span><span class="p">]</span>
 
 <div class="viewcode-block" id="LMMultiFileIterator.roll"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.lm_iterators.LMMultiFileIterator.roll">[docs]</a>    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Backward compatibility for using same APIs.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Backward compatibility for using same API.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="LMMultiFileIterator.get_sequences"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.lm_iterators.LMMultiFileIterator.get_sequences">[docs]</a>    <span class="k">def</span> <span class="nf">get_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">LongTensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets sequences from a file.</span>
+        <span class="sd">&quot;&quot;&quot;Get a tensor of sequences from an input file.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            path: Input file.</span>
+<span class="sd">            path: A path to the input file.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.LongTensor): Tensor with encoded inputs from file.</span>
+<span class="sd">            Tensor with encoded inputs.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1038,13 +1058,13 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">sequences</span></div>
 
 <div class="viewcode-block" id="LMMultiFileIterator.stream_iterator"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.lm_iterators.LMMultiFileIterator.stream_iterator">[docs]</a>    <span class="k">def</span> <span class="nf">stream_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Creates a streaming-based iterator.</span>
+        <span class="sd">&quot;&quot;&quot;Create a streaming-based iterator.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            iterator: Iterator with chunks of sequences.</span>
 
 <span class="sd">        Yields:</span>
-<span class="sd">            (Generator[Tuple, None, None]): Stream-based batch.</span>
+<span class="sd">            Stream-based batch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1092,10 +1112,10 @@ title="Open an issue"
             <span class="n">input_ids</span><span class="o">.</span><span class="n">resize_</span><span class="p">(</span><span class="n">input_ids</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">n_retain</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bptt</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Defaults standard iteration to stream-based batches.</span>
+        <span class="sd">&quot;&quot;&quot;Default the standard iteration to stream-based batches.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            (Generator[Tuple, None, None]): Stream-based batches.</span>
+<span class="sd">        Yields:</span>
+<span class="sd">            Stream-based batches.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1130,7 +1150,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

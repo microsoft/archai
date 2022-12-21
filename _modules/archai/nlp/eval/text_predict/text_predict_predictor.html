@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Text Predict-based predictor.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Text Predict-based predictor.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">functools</span>
@@ -806,7 +805,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="Predictor"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_predictor.Predictor">[docs]</a><span class="k">class</span> <span class="nc">Predictor</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Implements the Text Predict predictor pipeline.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Text Predict-based predictor.&quot;&quot;&quot;</span>
 
     <span class="c1"># Maximum number of forward passes</span>
     <span class="n">MAX_FORWARD_PASS</span> <span class="o">=</span> <span class="mi">6</span>
@@ -845,7 +844,7 @@ title="Open an issue"
         <span class="n">max_body_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1000000</span><span class="p">,</span>
         <span class="n">min_pred_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization method.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize predictor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model: An instance of a Text Predict-based model.</span>
@@ -863,13 +862,13 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">bos_token_id</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_truncate_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Truncates a text based on the maximium allowed length.</span>
+        <span class="sd">&quot;&quot;&quot;Truncate a text based on the maximium allowed length.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Text to be truncated.</span>
+<span class="sd">            text: The text to truncate.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Truncated text.</span>
+<span class="sd">            The truncated text.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -881,13 +880,13 @@ title="Open an issue"
 
     <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">_check_end_with_complete_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks if predicted word (set of tokens) is complete according to threshold.</span>
+        <span class="sd">&quot;&quot;&quot;Check if predicted word (set of tokens) is complete according to threshold.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Tokens that identify predicted word.</span>
+<span class="sd">            input_ids: The tokens that identify predicted word.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Whether word is complete or not.</span>
+<span class="sd">            Whether predicted word is complete or not.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -902,13 +901,13 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">probs_sum</span> <span class="o">&gt;</span> <span class="n">Predictor</span><span class="o">.</span><span class="n">COMPLETE_WORD_PROB_THRESHOLD</span>
 
     <span class="k">def</span> <span class="nf">_update_end_with_complete_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">:</span> <span class="n">TextPredictPrediction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Updates whether prediction defines a complete word or not.</span>
+        <span class="sd">&quot;&quot;&quot;Update whether prediction defines a complete word or not.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            prediction: Prediction.</span>
+<span class="sd">            prediction: The prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Whether prediction defines a complete word or not.</span>
+<span class="sd">            Whether prediction defines a complete word or not.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -922,13 +921,13 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">prediction</span><span class="o">.</span><span class="n">end_with_complete_word</span>
 
     <span class="k">def</span> <span class="nf">_check_valid_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">:</span> <span class="n">TextPredictPrediction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether prediction is valid or not.</span>
+        <span class="sd">&quot;&quot;&quot;Check whether prediction is valid or not.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            prediction: Prediction.</span>
+<span class="sd">            prediction: The prediction.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (bool): Whether prediction is valid or not.</span>
+<span class="sd">            Whether prediction is valid or not.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -956,11 +955,11 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Core computation to predict and filter tokens according to the supplied prefix.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input identifiers to calculate next tokens.</span>
-<span class="sd">            filter_prefix: Prefix to filter tokens.</span>
+<span class="sd">            input_ids: The input tokens.</span>
+<span class="sd">            filter_prefix: The prefix to filter.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[int, ...]): Filtered tokens.</span>
+<span class="sd">            A list of filtered tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -993,16 +992,16 @@ title="Open an issue"
         <span class="n">idxs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">global_prob</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Predicts and filters tokens according to the supplied prefix.</span>
+        <span class="sd">&quot;&quot;&quot;Predict and filter tokens according to the supplied prefix.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input identifiers to calculate next tokens.</span>
-<span class="sd">            filter_prefix: Prefix to filter tokens.</span>
+<span class="sd">            input_ids: The input tokens.</span>
+<span class="sd">            filter_prefix: The prefix to filter.</span>
 <span class="sd">            idxs: Additional indexes from the expansion procedure.</span>
-<span class="sd">            global_prob: Global probability.</span>
+<span class="sd">            global_prob: The global probability of the expansion procedure.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[int, ...]): Filtered tokens.</span>
+<span class="sd">            A list of filtered tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1024,14 +1023,14 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">filtered_tokens</span>
 
     <span class="k">def</span> <span class="nf">_find_initial_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextPredictPrediction</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Predicts prefix from a supplied word.</span>
+        <span class="sd">&quot;&quot;&quot;Predict prefix from a supplied word.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_ids: Input identifiers to initialize the prediction.</span>
-<span class="sd">            prefix: Prefix to filter tokens.</span>
+<span class="sd">            input_ids: The input tokens.</span>
+<span class="sd">            prefix: The prefix to predict.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (TextPredictPrediction): Instance of initial prediction.</span>
+<span class="sd">            The initial prediction.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1093,10 +1092,10 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Core computation to perform the prediction pipeline.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Input text to be predicted.</span>
+<span class="sd">            text: The text to predict.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (TextPredictPrediction): Instance of predicted text.</span>
+<span class="sd">            The prediction.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1146,11 +1145,11 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">TextPredictPrediction</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Predictor.predict"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_predictor.Predictor.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TextPredictionSequence</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Predicts a set of sequences.</span>
+        <span class="sd">&quot;&quot;&quot;Predict a set of sequences.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sequences: Set of sequences to be predicted.</span>
-<span class="sd">            output_file: Path to the output file.</span>
+<span class="sd">            sequences: List of sequences to predict.</span>
+<span class="sd">            output_file: Optional output file to write the predictions.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1183,12 +1182,12 @@ title="Open an issue"
         <span class="n">min_scores</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
         <span class="n">expected_match_rate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Scores a set of sequences (that have already been predicted).</span>
+        <span class="sd">&quot;&quot;&quot;Score a set of sequences (that have already been predicted).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sequences: Sequences (with predictions) to be scored.</span>
-<span class="sd">            min_scores: Minimum scores.</span>
-<span class="sd">            expected_match_rate: Expected match rate to find best score.</span>
+<span class="sd">            sequences: List of sequences to score.</span>
+<span class="sd">            min_scores: Minimum score to consider.</span>
+<span class="sd">            expected_match_rate: Expected match rate to compute the minimum score.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1247,7 +1246,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Text Predict-based tokenizer.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Text Predict-based tokenizer.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -802,7 +801,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="TextPredictTokenizer"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_tokenizer.TextPredictTokenizer">[docs]</a><span class="k">class</span> <span class="nc">TextPredictTokenizer</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Wraps a tokenizer for Text Predict.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for a tokenizer used in the Text Predict framework.&quot;&quot;&quot;</span>
 
     <span class="n">BOS_TEXT</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> &quot;</span>
     <span class="n">FILTER_TOKENS_CACHE_SIZE</span> <span class="o">=</span> <span class="mi">65536</span>
@@ -813,10 +812,10 @@ title="Open an issue"
     <span class="n">REGEX_NEW_LINE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;\s*[</span><span class="se">\r\n</span><span class="s2">]+\s*&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">ArchaiPreTrainedTokenizerFast</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization method.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a `TextPredictTokenizer`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            tokenizer: Pre-trained tokenizer.</span>
+<span class="sd">            tokenizer: A pre-trained tokenizer.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -824,33 +823,33 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">filter_tokens_cache</span> <span class="o">=</span> <span class="n">LRUCache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILTER_TOKENS_CACHE_SIZE</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Provides an iterator over the tokenizer&#39;s vocabulary.</span>
+        <span class="sd">&quot;&quot;&quot;Provide an iterator over the tokenizer&#39;s vocabulary.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            (int): Token identifier from vocabulary.</span>
+<span class="sd">        Yields:</span>
+<span class="sd">            Token identifier.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">vocab</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Provides the length of vocabulary.</span>
+        <span class="sd">&quot;&quot;&quot;Return the length of vocabulary.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            (int): Length of vocabulary.</span>
+<span class="sd">            Length of vocabulary.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Retrieves a string-based token based on identifier.</span>
+        <span class="sd">&quot;&quot;&quot;Return a string-based token based on identifier.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            idx: Token identifier.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): String-based token.</span>
+<span class="sd">            Token.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -858,10 +857,10 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">bos_token_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Begin-of-sentence token identifier.</span>
+        <span class="sd">&quot;&quot;&quot;Return the begin-of-sentence token identifier.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (int): Begin-of-sentence token identifier.</span>
+<span class="sd">            Begin-of-sentence token identifier.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -869,10 +868,10 @@ title="Open an issue"
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">separator_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Computes the available tokens separators.</span>
+        <span class="sd">&quot;&quot;&quot;Compute the tokens separators.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Set): Available token separators.</span>
+<span class="sd">            Token separators.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -880,10 +879,10 @@ title="Open an issue"
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">upper_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Computes the available upper-cased tokens.</span>
+        <span class="sd">&quot;&quot;&quot;Compute the upper-cased tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Set): Available upper-cased tokens.</span>
+<span class="sd">            Upper-cased tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -893,26 +892,26 @@ title="Open an issue"
 
 <div class="viewcode-block" id="TextPredictTokenizer.encode"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_tokenizer.TextPredictTokenizer.encode">[docs]</a>    <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Encodes text with the tokenizer.</span>
+        <span class="sd">&quot;&quot;&quot;Encode text with the tokenizer.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Text to be encoded.</span>
+<span class="sd">            text: The text to be encoded.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[int]): Encoded tokens.</span>
+<span class="sd">            A list of encoded tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextPredictTokenizer.decode"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_tokenizer.TextPredictTokenizer.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Decodes text with the tokenizer.</span>
+        <span class="sd">&quot;&quot;&quot;Decode tokens with the tokenizer.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            tokens: Tokens to be decoded.</span>
+<span class="sd">            tokens: The tokens to be decoded.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Decoded tokens.</span>
+<span class="sd">            The decoded text.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -922,10 +921,10 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Core computation to filter tokens according to the supplied prefix.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filter_prefix: Prefix to filter tokens.</span>
+<span class="sd">            filter_prefix: The prefix to filter tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[int, ...]): Filtered tokens.</span>
+<span class="sd">            A list of filtered tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -965,13 +964,13 @@ title="Open an issue"
 
 <div class="viewcode-block" id="TextPredictTokenizer.filter_tokens"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_tokenizer.TextPredictTokenizer.filter_tokens">[docs]</a>    <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">32768</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">filter_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Filters tokens according to the supplied prefix.</span>
+        <span class="sd">&quot;&quot;&quot;Filter tokens according to the supplied prefix.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filter_prefix: Prefix to filter tokens.</span>
+<span class="sd">            filter_prefix: The prefix to filter tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[int, ...]): Filtered tokens.</span>
+<span class="sd">            A list of filtered tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -980,14 +979,14 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">filtered_tokens</span></div>
 
 <div class="viewcode-block" id="TextPredictTokenizer.clean_text"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_tokenizer.TextPredictTokenizer.clean_text">[docs]</a>    <span class="k">def</span> <span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">add_bos_text</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs pre-processing to clean text.</span>
+        <span class="sd">&quot;&quot;&quot;Perform pre-processing to clean text.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Input text.</span>
-<span class="sd">            add_bos_text: Whether `BOS_TEXT` should be added or not.</span>
+<span class="sd">            text: The text to be cleaned.</span>
+<span class="sd">            add_bos_text: Whether to add the begin-of-sentence text.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Cleaned text.</span>
+<span class="sd">            The cleaned text.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1004,13 +1003,13 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">text</span></div>
 
 <div class="viewcode-block" id="TextPredictTokenizer.find_context_and_prefix"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.eval.text_predict.html#archai.nlp.eval.text_predict.text_predict_tokenizer.TextPredictTokenizer.find_context_and_prefix">[docs]</a>    <span class="k">def</span> <span class="nf">find_context_and_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Finds context and prefix from input text.</span>
+        <span class="sd">&quot;&quot;&quot;Find context and prefix from input text.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Input text.</span>
+<span class="sd">            text: The text to be processed.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[str, str]): Context and prefix from text.</span>
+<span class="sd">            A tuple of context and prefix.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1043,7 +1042,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

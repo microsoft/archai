@@ -863,14 +863,15 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.profiler.profiler_model.</span></span><span class="sig-name descname"><span class="pre">ProfilerModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel" title="Permalink to this definition">#</a></dt>
-<dd><p>Prepares a model used for profiler-based evaluation.</p>
+<dd><p>Prepares a model for profiler-based evaluation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ignore_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.start" title="Permalink to this definition">#</a></dt>
-<dd><p>Starts profiling.</p>
+<dd><p>Start profiling the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ignore_layers</strong> – Layers to be ignored when profiling.</p>
+<dd class="field-odd"><p><strong>ignore_layers</strong> – A list of layer names to ignore during profiling.
+If not provided, all layers will be included in the profiling.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -878,31 +879,28 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.stop">
 <span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.stop" title="Permalink to this definition">#</a></dt>
-<dd><p>Stops profiling.</p>
+<dd><p>Stop profiling the model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.reset" title="Permalink to this definition">#</a></dt>
-<dd><p>Resets the profiler.</p>
+<dd><p>Reset the profiler.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.end">
 <span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.end" title="Permalink to this definition">#</a></dt>
-<dd><p>Ends the profiler.</p>
+<dd><p>End the profiler.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_flops">
 <span class="sig-name descname"><span class="pre">get_flops</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.get_flops"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_flops" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the model’s number of FLOPs.</p>
+<dd><p>Get the number of floating point operations (FLOPs) performed by the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Number of floating point operations.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
+<dd class="field-odd"><p>The number of FLOPs performed by the model.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -910,13 +908,10 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_macs">
 <span class="sig-name descname"><span class="pre">get_macs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.get_macs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_macs" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the model’s number of MACs.</p>
+<dd><p>Get the number of multiply-accumulate operations (MACs) performed by the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Number of multiply-accumulate operations.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
+<dd class="field-odd"><p>The number of MACs performed by the model.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -924,13 +919,10 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_params" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the model’s total number of parameters.</p>
+<dd><p>Get the number of parameters in the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Number of parameters.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(int)</p>
+<dd class="field-odd"><p>The number of parameters in the model.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -938,13 +930,10 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_latency">
 <span class="sig-name descname"><span class="pre">get_latency</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.get_latency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_latency" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the model’s latency.</p>
+<dd><p>Get the latency of the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Latency (seconds).</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(float)</p>
+<dd class="field-odd"><p>The latency of the model, in seconds.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -952,13 +941,10 @@ title="Edit this page"
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_peak_memory">
 <span class="sig-name descname"><span class="pre">get_peak_memory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_model.html#ProfilerModel.get_peak_memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_model.ProfilerModel.get_peak_memory" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets the model’s peak memory.</p>
+<dd><p>Get the peak memory usage of the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Peak memory (bytes).</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(float)</p>
+<dd class="field-odd"><p>The peak memory usage of the model, in bytes.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -972,26 +958,29 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_eval.profile">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.profiler.profiler_eval.</span></span><span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_warmups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_eval.html#profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_eval.profile" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs the profiler-based evaluation.</p>
+<dd><p>Profiles the performance of a PyTorch model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – PyTorch-based model.</p></li>
-<li><p><strong>model_args</strong> – Model’s forward arguments.</p></li>
-<li><p><strong>model_kwargs</strong> – Model’s forward keyword arguments.</p></li>
-<li><p><strong>n_warmups</strong> – Number of warmups before profiling.</p></li>
-<li><p><strong>ignore_layers</strong> – Layers that should be ignored during profiling.</p></li>
+<li><p><strong>model</strong> – The PyTorch model to evaluate.</p></li>
+<li><p><strong>model_args</strong> – The forward arguments for the model.</p></li>
+<li><p><strong>model_kwargs</strong> – The forward keyword arguments for the model.</p></li>
+<li><p><strong>n_warmups</strong> – The number of warmup iterations to run before profiling.</p></li>
+<li><p><strong>ignore_layers</strong> – A list of layer names to ignore during profiling.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>FLOPs, MACs, number of parameters,</dt><dd><p>latency (seconds) and peak memory (bytes).</p>
-</dd>
-</dl>
+<dd class="field-even"><p><ul class="simple">
+<li><p>flops: The number of floating point operations (FLOPs) performed by the model.</p></li>
+<li><p>macs: The number of multiply-accumulate operations (MACs) performed by the model.</p></li>
+<li><p>n_parameters: The number of parameters in the model.</p></li>
+<li><p>latency: The latency of the model, in seconds.</p></li>
+<li><p>peak_memory: The peak memory usage of the model, in bytes.</p></li>
+</ul>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Dict[str, Any])</p>
+<dd class="field-odd"><p>A dictionary containing the following performance metrics</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1003,25 +992,25 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_utils.enable_functional_hooks">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.profiler.profiler_utils.</span></span><span class="sig-name descname"><span class="pre">enable_functional_hooks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_utils.html#enable_functional_hooks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_utils.enable_functional_hooks" title="Permalink to this definition">#</a></dt>
-<dd><p>Enables functional API profiler hooks.</p>
+<dd><p>Enable functional API profiler hooks.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_utils.disable_functional_hooks">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.profiler.profiler_utils.</span></span><span class="sig-name descname"><span class="pre">disable_functional_hooks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_utils.html#disable_functional_hooks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_utils.disable_functional_hooks" title="Permalink to this definition">#</a></dt>
-<dd><p>Disables functional API profiler hooks.</p>
+<dd><p>Disable functional API profiler hooks.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_utils.enable_tensor_hooks">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.profiler.profiler_utils.</span></span><span class="sig-name descname"><span class="pre">enable_tensor_hooks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_utils.html#enable_tensor_hooks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_utils.enable_tensor_hooks" title="Permalink to this definition">#</a></dt>
-<dd><p>Enables tensor-based operations profiler hooks.</p>
+<dd><p>Enable tensor-based operations profiler hooks.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.profiler.profiler_utils.disable_tensor_hooks">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.profiler.profiler_utils.</span></span><span class="sig-name descname"><span class="pre">disable_tensor_hooks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/profiler/profiler_utils.html#disable_tensor_hooks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.profiler.profiler_utils.disable_tensor_hooks" title="Permalink to this definition">#</a></dt>
-<dd><p>Disables tensor-based operations profiler hooks.</p>
+<dd><p>Disable tensor-based operations profiler hooks.</p>
 </dd></dl>
 
 </section>
@@ -1059,7 +1048,7 @@ title="Edit this page"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

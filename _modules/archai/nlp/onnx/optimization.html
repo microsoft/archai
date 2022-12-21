@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;ONNX optimization-related tools.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;ONNX optimization-related tools.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
@@ -810,7 +809,8 @@ title="Open an issue"
     <span class="n">float16</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">input_int32</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Optimizes an ONNX model.</span>
+    <span class="sd">&quot;&quot;&quot;Optimizes an ONNX model using a combination of standard ORT-based optimization</span>
+<span class="sd">    and additional transformer-based optimization.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        onnx_model_path: Path to the ONNX model to be optimized.</span>
@@ -822,7 +822,7 @@ title="Open an issue"
 <span class="sd">        input_int32: Whether to use inputs with int32.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (str): Path to the optimized ONNX model.</span>
+<span class="sd">        Path to the optimized ONNX model.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -847,7 +847,7 @@ title="Open an issue"
                 <span class="p">]</span>
 
         <span class="c1"># Performs the standard ORT optimization</span>
-        <span class="n">ort_model_path</span> <span class="o">=</span> <span class="n">create_file_name_identifier</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">,</span> <span class="s2">&quot;-ort&quot;</span><span class="p">)</span>
+        <span class="n">ort_model_path</span> <span class="o">=</span> <span class="n">create_file_name_identifier</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">,</span> <span class="s2">&quot;-opt&quot;</span><span class="p">)</span>
         <span class="n">optimize_by_onnxruntime</span><span class="p">(</span>
             <span class="n">onnx_model_path</span><span class="p">,</span>
             <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">,</span>
@@ -902,7 +902,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

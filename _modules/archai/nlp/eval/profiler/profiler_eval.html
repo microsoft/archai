@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT License.</span>
 
-<span class="sd">&quot;&quot;&quot;Profiler-based evaluation.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Profiler-based evaluation.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
@@ -799,18 +798,22 @@ title="Open an issue"
     <span class="n">n_warmups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">ignore_layers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Performs the profiler-based evaluation.</span>
+    <span class="sd">&quot;&quot;&quot;Profiles the performance of a PyTorch model.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        model: PyTorch-based model.</span>
-<span class="sd">        model_args: Model&#39;s forward arguments.</span>
-<span class="sd">        model_kwargs: Model&#39;s forward keyword arguments.</span>
-<span class="sd">        n_warmups: Number of warmups before profiling.</span>
-<span class="sd">        ignore_layers: Layers that should be ignored during profiling.</span>
+<span class="sd">        model: The PyTorch model to evaluate.</span>
+<span class="sd">        model_args: The forward arguments for the model.</span>
+<span class="sd">        model_kwargs: The forward keyword arguments for the model.</span>
+<span class="sd">        n_warmups: The number of warmup iterations to run before profiling.</span>
+<span class="sd">        ignore_layers: A list of layer names to ignore during profiling.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Dict[str, Any]): FLOPs, MACs, number of parameters,</span>
-<span class="sd">            latency (seconds) and peak memory (bytes).</span>
+<span class="sd">        A dictionary containing the following performance metrics:</span>
+<span class="sd">            - flops: The number of floating point operations (FLOPs) performed by the model.</span>
+<span class="sd">            - macs: The number of multiply-accumulate operations (MACs) performed by the model.</span>
+<span class="sd">            - n_parameters: The number of parameters in the model.</span>
+<span class="sd">            - latency: The latency of the model, in seconds.</span>
+<span class="sd">            - peak_memory: The peak memory usage of the model, in bytes.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -859,7 +862,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

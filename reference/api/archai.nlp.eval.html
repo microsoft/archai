@@ -890,19 +890,20 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.onnx_evaluator.generate">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.onnx_evaluator.</span></span><span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnxruntime.capi.onnxruntime_inference_collection.InferenceSession</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.LongTensor</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/onnx_evaluator.html#generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.onnx_evaluator.generate" title="Permalink to this definition">#</a></dt>
-<dd><p>Manually generates a set of tokens through greedy search.</p>
+<dd><p>Generate a sequence of tokens using greedy search with an ONNX model.</p>
+<p>This function generates a sequence of tokens by repeatedly running the provided
+ONNX session with the given inputs, and selecting the token with the highest
+predicted probability at each step. The process is repeated for the specified
+maximum number of steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>onnx_session</strong> – An already instantiated ONNX-based session.</p></li>
-<li><p><strong>max_length</strong> – Maximum amount of generated tokens.</p></li>
+<li><p><strong>onnx_session</strong> – An already instantiated ONNX-based session to use for prediction.</p></li>
+<li><p><strong>max_length</strong> – Maximum number of tokens to generate.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Tensor holding the input + predicted tokens.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.LongTensor)</p>
+<dd class="field-even"><p>Tensor holding the input tokens plus the predicted tokens.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -910,23 +911,20 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.onnx_evaluator.manual_evaluate">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.onnx_evaluator.</span></span><span class="sig-name descname"><span class="pre">manual_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnxruntime.capi.onnxruntime_inference_collection.InferenceSession</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_collator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_seed_tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_accuracy_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/onnx_evaluator.html#manual_evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.onnx_evaluator.manual_evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Manually evaluates an ONNX model.</p>
+<dd><p>Evaluate an ONNX model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>onnx_session</strong> – An already instantiated ONNX-based session.</p></li>
+<li><p><strong>onnx_session</strong> – An already instantiated ONNX-based session to use for prediction.</p></li>
 <li><p><strong>eval_dataset</strong> – Evaluation (testing) dataset.</p></li>
-<li><p><strong>data_collator</strong> – Collation function to be applied into data loader.</p></li>
-<li><p><strong>batch_size</strong> – Size of batches.</p></li>
-<li><p><strong>n_seed_tokens</strong> – Number of seed tokens.</p></li>
-<li><p><strong>n_accuracy_type</strong> – Number of accuracies to be used, e.g., acc&#64;1, acc&#64;2, …, acc&#64;n.</p></li>
+<li><p><strong>data_collator</strong> – Collation function to be applied to the data in the dataset.</p></li>
+<li><p><strong>batch_size</strong> – Size of batches to use when iterating through the dataset.</p></li>
+<li><p><strong>n_seed_tokens</strong> – Number of seed tokens to use when generating sequences.</p></li>
+<li><p><strong>n_accuracy_type</strong> – Number of accuracies to calculate, ranging from “acc&#64;1” to “acc&#64;n”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary holding the evaluation metrics.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Dict[str, Any])</p>
+<dd class="field-even"><p>A dictionary containing the evaluation metrics and runtime statistics.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -938,23 +936,20 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.torch_evaluator.manual_evaluate">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.torch_evaluator.</span></span><span class="sig-name descname"><span class="pre">manual_evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">torch_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_collator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_seed_tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_accuracy_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/torch_evaluator.html#manual_evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.torch_evaluator.manual_evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Manually evaluates a PyTorch model.</p>
+<dd><p>Evaluate a PyTorch model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>torch_model</strong> – An already instantiated PyTorch-based model.</p></li>
+<li><p><strong>torch_model</strong> – A PyTorch model to be evaluated.</p></li>
 <li><p><strong>eval_dataset</strong> – Evaluation (testing) dataset.</p></li>
-<li><p><strong>data_collator</strong> – Collation function to be applied into data loader.</p></li>
-<li><p><strong>batch_size</strong> – Size of batches.</p></li>
-<li><p><strong>n_seed_tokens</strong> – Number of seed tokens.</p></li>
-<li><p><strong>n_accuracy_type</strong> – Number of accuracies to be used, e.g., acc&#64;1, acc&#64;2, …, acc&#64;n.</p></li>
+<li><p><strong>data_collator</strong> – Collation function to be applied to the data in the dataset.</p></li>
+<li><p><strong>batch_size</strong> – Size of batches to use when iterating through the dataset.</p></li>
+<li><p><strong>n_seed_tokens</strong> – Number of seed tokens to use when generating sequences.</p></li>
+<li><p><strong>n_accuracy_type</strong> – Number of accuracies to calculate, ranging from “acc&#64;1” to “acc&#64;n”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary holding the evaluation metrics.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Dict[str, Any])</p>
+<dd class="field-even"><p>A dictionary containing the evaluation metrics and runtime statistics.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -966,19 +961,23 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.eval_utils.lm_accuracy">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.eval_utils.</span></span><span class="sig-name descname"><span class="pre">lm_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/eval_utils.html#lm_accuracy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.eval_utils.lm_accuracy" title="Permalink to this definition">#</a></dt>
-<dd><p>Calculates a language modeling-compatible accuracy.</p>
+<dd><p>Calculate language modeling accuracy.</p>
+<p>This function calculates the accuracy score for language modeling by comparing
+the predictions and ground-truth labels. Any predictions or references with a
+value of -100 are ignored.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>predictions</strong> – Predictions.</p></li>
-<li><p><strong>references</strong> – Ground-truth labels.</p></li>
+<li><p><strong>predictions</strong> – 1D array of predictions.</p></li>
+<li><p><strong>references</strong> – 1D array of ground-truth labels.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Accuracy score for language modeling.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary with a single key, “lm_accuracy”, and the corresponding accuracy</dt><dd><p>score as a float.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Dict[str, float])</p>
+</dl>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -986,21 +985,25 @@ title="Edit this page"
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.nlp.eval.eval_utils.fixed_length_perplexity">
 <span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.eval_utils.</span></span><span class="sig-name descname"><span class="pre">fixed_length_perplexity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.LongTensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/nlp/eval/eval_utils.html#fixed_length_perplexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.eval_utils.fixed_length_perplexity" title="Permalink to this definition">#</a></dt>
-<dd><p>Calculates the fixed-length perplexity.</p>
+<dd><p>Calculate the fixed-length perplexity of a pre-trained model on a given dataset.</p>
+<p>This function calculates the perplexity of the given model on the input data,
+using a sliding window approach with the specified maximum length and stride.
+Any input tokens that fall outside the current window are masked with a value of -100.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – Pre-trained model.</p></li>
-<li><p><strong>input_ids</strong> – Encoded data to be evaluated.</p></li>
-<li><p><strong>max_length</strong> – Maximum length of sequences.</p></li>
+<li><p><strong>model</strong> – Pre-trained model to evaluate.</p></li>
+<li><p><strong>input_ids</strong> – Encoded input data to evaluate the model on.</p></li>
+<li><p><strong>max_length</strong> – Maximum length of sequences to consider.</p></li>
 <li><p><strong>stride</strong> – Sliding window size.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Fixed-length perplexity.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary with a single key, “fixed_length_perplexity”, and the</dt><dd><p>corresponding perplexity score as a float.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(Dict[str, float])</p>
+</dl>
+</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1008,7 +1011,11 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.eval.eval_utils.cached_property">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.eval.eval_utils.</span></span><span class="sig-name descname"><span class="pre">cached_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/eval/eval_utils.html#cached_property"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.eval.eval_utils.cached_property" title="Permalink to this definition">#</a></dt>
-<dd><p>Mimics the &#64;property decorator but caches the output.</p>
+<dd><p>Decorator that caches the output of the decorated function.</p>
+<p>This class is a subclass of the built-in <cite>property</cite> class, and can be used to
+decorate a function in a class in the same way as the <cite>&#64;property</cite> decorator.
+The output of the decorated function is cached on the first call,
+and subsequent calls will return the cached value rather than re-running the function.</p>
 </dd></dl>
 
 </section>
@@ -1046,7 +1053,7 @@ title="Edit this page"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

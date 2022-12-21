@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Transformer-XL ONNX optimization model.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Transformer-XL ONNX optimization model.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
@@ -803,10 +802,14 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="TransfoXLOnnxModel"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel">[docs]</a><span class="k">class</span> <span class="nc">TransfoXLOnnxModel</span><span class="p">(</span><span class="n">OnnxModel</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;TransfoXLOnnxModel that enables additional ONNX optimizations.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;ONNX model optimized for Transformer-XL models.</span>
+
+<span class="sd">    This model extends the `OnnxModel` class by enabling additional ONNX optimizations.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ModelProto</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Overrides initialization method.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the `TransfoXLOnnxModel` instance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model: ONNX-based model.</span>
@@ -824,16 +827,15 @@ title="Open an issue"
         <span class="n">graph_input</span><span class="p">:</span> <span class="n">ValueInfoProto</span><span class="p">,</span>
         <span class="n">new_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">TensorProto</span><span class="o">.</span><span class="n">INT32</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">NodeProto</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">NodeProto</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Changes the input type of the graph and add Cast nodes if necessary.</span>
+        <span class="sd">&quot;&quot;&quot;Change the input type of the graph and add `Cast` nodes if necessary.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            graph: Graph instance.</span>
-<span class="sd">            graph_input: Graph inputs.</span>
+<span class="sd">            graph_input: Graph input value.</span>
 <span class="sd">            new_type: New data type.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Tuple[NodeProto, List[NodeProto]]): Cast node to be added and</span>
-<span class="sd">                list of Cast nodes to be removed.</span>
+<span class="sd">            A tuple containing a `Cast` node to be added and a list of `Cast` nodes to be removed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -885,7 +887,7 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">new_cast_node</span><span class="p">,</span> <span class="n">nodes_to_remove</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.change_graph_inputs_to_int32"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_inputs_to_int32">[docs]</a>    <span class="k">def</span> <span class="nf">change_graph_inputs_to_int32</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Changes the inputs to int32.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Change the inputs to `int32`.&quot;&quot;&quot;</span>
 
         <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
 
@@ -900,37 +902,37 @@ title="Open an issue"
             <span class="n">remove_cast_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">removed_nodes</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.fuse_layer_norm"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_layer_norm">[docs]</a>    <span class="k">def</span> <span class="nf">fuse_layer_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fuses the appropriate nodes into a LayerNormalization layer.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Fuse the appropriate nodes into a `LayerNormalization` layer.&quot;&quot;&quot;</span>
 
         <span class="n">fusion</span> <span class="o">=</span> <span class="n">FusionLayerNormalization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">fusion</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.fuse_skip_layer_norm"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_skip_layer_norm">[docs]</a>    <span class="k">def</span> <span class="nf">fuse_skip_layer_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fuses the appropriate nodes into a SkipLayerNormalization layer.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Fuse the appropriate nodes into a `SkipLayerNormalization` layer.&quot;&quot;&quot;</span>
 
         <span class="n">fusion</span> <span class="o">=</span> <span class="n">FusionSkipLayerNormalization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">fusion</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm">[docs]</a>    <span class="k">def</span> <span class="nf">fuse_add_bias_skip_layer_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fuses the appropriate nodes into a BiasSkipLayerNormalization layer.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Fuse the appropriate nodes into a `BiasSkipLayerNormalization` layer.&quot;&quot;&quot;</span>
 
         <span class="n">fusion</span> <span class="o">=</span> <span class="n">FusionBiasSkipLayerNormalization</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">fusion</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.fuse_attention"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_attention">[docs]</a>    <span class="k">def</span> <span class="nf">fuse_attention</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fuses the appropriate nodes into an Attention layer.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Fuse the appropriate nodes into an `Attention` layer.&quot;&quot;&quot;</span>
 
         <span class="n">fusion</span> <span class="o">=</span> <span class="n">FusionAttention</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention_mask</span><span class="p">)</span>
         <span class="n">fusion</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.fuse_reshape"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_reshape">[docs]</a>    <span class="k">def</span> <span class="nf">fuse_reshape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fuses the appropriate nodes into a Reshape layer.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Fuse the appropriate nodes into a `Reshape` layer.&quot;&quot;&quot;</span>
 
         <span class="n">fusion</span> <span class="o">=</span> <span class="n">FusionReshape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">fusion</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.fuse_shape"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_shape">[docs]</a>    <span class="k">def</span> <span class="nf">fuse_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Fuses the appropriate nodes into a Shape layer.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Fuse the appropriate nodes into a `Shape` layer.&quot;&quot;&quot;</span>
 
         <span class="n">fusion</span> <span class="o">=</span> <span class="n">FusionShape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">fusion</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span></div>
@@ -940,7 +942,7 @@ title="Open an issue"
         <span class="n">dynamic_batch_dim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;batch&quot;</span><span class="p">,</span>
         <span class="n">dynamic_seq_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sequence&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Updates inputs and outputs shapes to use dynamic axes.</span>
+        <span class="sd">&quot;&quot;&quot;Update inputs and outputs shapes to use dynamic axes.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dynamic_batch_dim: Name of batch size dimension.</span>
@@ -966,7 +968,7 @@ title="Open an issue"
             <span class="n">dim_proto</span><span class="o">.</span><span class="n">dim_param</span> <span class="o">=</span> <span class="n">dynamic_batch_dim</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.adjust_reshape_and_expand"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.adjust_reshape_and_expand">[docs]</a>    <span class="k">def</span> <span class="nf">adjust_reshape_and_expand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Cleans up unncessary reshape nodes.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Clean up unncessary reshape nodes.&quot;&quot;&quot;</span>
 
         <span class="n">nodes_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1008,7 +1010,7 @@ title="Open an issue"
             <span class="bp">self</span><span class="o">.</span><span class="n">remove_nodes</span><span class="p">(</span><span class="n">nodes_to_remove</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TransfoXLOnnxModel.clean_graph"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.optimization_utils.html#archai.nlp.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.clean_graph">[docs]</a>    <span class="k">def</span> <span class="nf">clean_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Cleans the graph after fusing nodes.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Clean the graph after fusing nodes.&quot;&quot;&quot;</span>
 
         <span class="n">output_name_to_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_name_to_node</span><span class="p">()</span>
         <span class="n">nodes_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1075,7 +1077,7 @@ title="Open an issue"
         <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FusionOptions</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">add_dynamic_axes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs the additional transformer-based optimization.</span>
+        <span class="sd">&quot;&quot;&quot;Perform additional transformer-based optimization.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            options: Options holding which operators should be fused.</span>
@@ -1131,7 +1133,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

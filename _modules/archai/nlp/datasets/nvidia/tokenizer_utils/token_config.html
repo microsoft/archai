@@ -782,19 +782,29 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Utilities for defining tokens&#39; configuration.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Utilities for defining tokens&#39; configuration.&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SpecialTokenEnum</span><span class="p">,</span>
-<span class="p">)</span>
+
+
+<div class="viewcode-block" id="SpecialTokenEnum"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.SpecialTokenEnum">[docs]</a><span class="k">class</span> <span class="nc">SpecialTokenEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enumerate special tokens.&quot;&quot;&quot;</span>
+
+    <span class="n">UNK</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">BOS</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">EOS</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">PAD</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">MASK</span> <span class="o">=</span> <span class="mi">4</span></div>
 
 
 <div class="viewcode-block" id="TokenConfig"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig">[docs]</a><span class="k">class</span> <span class="nc">TokenConfig</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Implements a base class for tokens&#39; configuration.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Store and access configuration options for special tokens,</span>
+<span class="sd">    such as BOS, EOS, UNK, and PAD.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -806,7 +816,7 @@ title="Open an issue"
         <span class="n">add_prefix_new_line</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">lower_case</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes class by setting attributes.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the `TokenConfig` class by setting the specified attributes.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            bos_token: Begin-of-sentence token.</span>
@@ -828,10 +838,10 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_case</span> <span class="o">=</span> <span class="n">lower_case</span>
 
 <div class="viewcode-block" id="TokenConfig.get_special_tokens"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig.get_special_tokens">[docs]</a>    <span class="k">def</span> <span class="nf">get_special_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Gets available special tokens.</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of all available special tokens.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (List[str]): Special tokens.</span>
+<span class="sd">            Special tokens.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -840,13 +850,13 @@ title="Open an issue"
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="TokenConfig.special_token_name"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.token_config.TokenConfig.special_token_name">[docs]</a>    <span class="k">def</span> <span class="nf">special_token_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="n">SpecialTokenEnum</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the name of the special token.</span>
+        <span class="sd">&quot;&quot;&quot;Return the name of a special token.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            sp: Special token enumerator.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Special token name.</span>
+<span class="sd">            Special token name.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -879,7 +889,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

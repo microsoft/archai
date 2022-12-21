@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Corpus-related utilities, such as datasets&#39; folders and path creation.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Corpus-related utilities, such as datasets&#39; folders and path creation.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
@@ -792,13 +791,16 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="get_dataset_dir_name"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.nvidia.html#archai.nlp.datasets.nvidia.corpus_utils.get_dataset_dir_name">[docs]</a><span class="k">def</span> <span class="nf">get_dataset_dir_name</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Gets the name of the datasets&#39; directory.</span>
+    <span class="sd">&quot;&quot;&quot;Get the name of the datasets&#39; directory.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dataset: Name of dataset.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (str): Name of the datasets directory.</span>
+<span class="sd">        Name of the datasets directory.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If the dataset is not supported.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -822,7 +824,7 @@ title="Open an issue"
     <span class="n">pretrained_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Creates dataset-related folders with proper paths.</span>
+    <span class="sd">&quot;&quot;&quot;Create dataset-related folders with proper paths.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dataroot: Dataset folder.</span>
@@ -833,7 +835,7 @@ title="Open an issue"
 <span class="sd">        cache_dir: Dataset cache folder.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        (Tuple[str, str, str, str]): Dataset, output, pre-trained checkpoint and cache folders.</span>
+<span class="sd">        Tuple containing dataset, output, pre-trained checkpoint and cache folders.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -874,7 +876,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

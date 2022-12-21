@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;PyTorch mappings between float-based and quantization-ready modules.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;PyTorch mappings between float-based and quantization-ready modules.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
@@ -797,10 +796,10 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeQuantEmbedding"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeQuantEmbedding">[docs]</a><span class="k">class</span> <span class="nc">FakeQuantEmbedding</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Translates a torch-based Embedding layer into a QAT-ready Embedding.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Translate a torch-based Embedding layer into a QAT-ready Embedding layer.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a fake quantized Embedding layer.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a fake quantized Embedding layer.&quot;&quot;&quot;</span>
 
         <span class="n">bits</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;bits&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
         <span class="n">onnx_compatible</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;onnx_compatible&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -816,23 +815,23 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fake_quant_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a fake quantization over the weight matrix.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a fake quantization over the weight matrix.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Fake quantized weight matrix.</span>
+<span class="sd">            Fake quantized weight matrix.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_fake_quant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FakeQuantEmbedding.forward"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeQuantEmbedding.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a forward pass over the fake quantized Embedding layer.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a forward pass over the fake quantized Embedding layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x: Input tensor.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Quantized tensor.</span>
+<span class="sd">            Quantized tensor.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -845,14 +844,14 @@ title="Open an issue"
         <span class="n">qconfig</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeQuantEmbedding</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maps module from float to QAT-ready.</span>
+        <span class="sd">&quot;&quot;&quot;Map module from float to QAT-ready.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            mod: Module to be mapped.</span>
 <span class="sd">            qconfig: Quantization configuration.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (FakeQuantEmbedding): QAT-ready module.</span>
+<span class="sd">            QAT-ready module.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -864,10 +863,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">module</span></div>
 
 <div class="viewcode-block" id="FakeQuantEmbedding.to_float"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeQuantEmbedding.to_float">[docs]</a>    <span class="k">def</span> <span class="nf">to_float</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maps module from QAT-ready to float.</span>
+        <span class="sd">&quot;&quot;&quot;Map module from QAT-ready to float.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.nn.Module): Float-based module.</span>
+<span class="sd">            Float-based module.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -880,10 +879,10 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeQuantEmbeddingForOnnx"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeQuantEmbeddingForOnnx">[docs]</a><span class="k">class</span> <span class="nc">FakeQuantEmbeddingForOnnx</span><span class="p">(</span><span class="n">FakeQuantEmbedding</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Allows a QAT-ready Embedding layer to be exported with ONNX.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Allow a QAT-ready Embedding layer to be exported with ONNX.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a fake quantized Embedding layer compatible with ONNX.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a fake quantized Embedding layer compatible with ONNX.&quot;&quot;&quot;</span>
 
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;onnx_compatible&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -891,7 +890,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeDynamicQuantLinear"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantLinear">[docs]</a><span class="k">class</span> <span class="nc">FakeDynamicQuantLinear</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Translates a torch-based Linear layer into a QAT-ready Linear.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Translate a torch-based Linear layer into a QAT-ready Linear layer.&quot;&quot;&quot;</span>
 
     <span class="n">_FLOAT_MODULE</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span>
 
@@ -905,7 +904,7 @@ title="Open an issue"
         <span class="n">qconfig</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a fake quantized Linear layer.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a fake quantized Linear layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dynamic_weight: Whether to use dynamic weights.</span>
@@ -936,23 +935,23 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fake_quant_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a fake quantization over the weight matrix.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a fake quantization over the weight matrix.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Fake quantized weight matrix.</span>
+<span class="sd">            Fake quantized weight matrix.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_fake_quant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FakeDynamicQuantLinear.forward"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantLinear.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a forward pass over the fake quantized Linear layer.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a forward pass over the fake quantized Linear layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x: Input tensor.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Quantized tensor.</span>
+<span class="sd">            Quantized tensor.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -968,7 +967,7 @@ title="Open an issue"
         <span class="n">activation_reduce_range</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeDynamicQuantLinear</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maps module from float to QAT-ready.</span>
+        <span class="sd">&quot;&quot;&quot;Map module from float to QAT-ready.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            mod: Module to be mapped.</span>
@@ -976,7 +975,7 @@ title="Open an issue"
 <span class="sd">            activation_reduce_range: Whether to reduce the range of activations.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (FakeDynamicQuantLinear): QAT-ready module.</span>
+<span class="sd">            QAT-ready module.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1004,10 +1003,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">qat_linear</span></div>
 
 <div class="viewcode-block" id="FakeDynamicQuantLinear.to_float"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantLinear.to_float">[docs]</a>    <span class="k">def</span> <span class="nf">to_float</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maps module from QAT-ready to float.</span>
+        <span class="sd">&quot;&quot;&quot;Map module from QAT-ready to float.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.nn.Module): Float-based module.</span>
+<span class="sd">            Float-based module.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1022,10 +1021,10 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeDynamicQuantLinearForOnnx"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantLinearForOnnx">[docs]</a><span class="k">class</span> <span class="nc">FakeDynamicQuantLinearForOnnx</span><span class="p">(</span><span class="n">FakeDynamicQuantLinear</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Allows a QAT-ready Linear layer to be exported with ONNX.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Allow a QAT-ready Linear layer to be exported with ONNX.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a fake quantized Linear layer compatible with ONNX.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a fake quantized Linear layer compatible with ONNX.&quot;&quot;&quot;</span>
 
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;activation_reduce_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;onnx_compatible&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1034,7 +1033,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeDynamicQuantConv1d"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantConv1d">[docs]</a><span class="k">class</span> <span class="nc">FakeDynamicQuantConv1d</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv1d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Translates a torch-based Conv1d layer into a QAT-ready Conv1d.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Translate a torch-based Conv1d layer into a QAT-ready Conv1d layer.&quot;&quot;&quot;</span>
 
     <span class="n">_FLOAT_MODULE</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv1d</span>
 
@@ -1048,7 +1047,7 @@ title="Open an issue"
         <span class="n">qconfig</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a fake quantized Conv1d layer.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a fake quantized Conv1d layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dynamic_weight: Whether to use dynamic weights.</span>
@@ -1079,23 +1078,23 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fake_quant_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a fake quantization over the weight matrix.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a fake quantization over the weight matrix.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Fake quantized weight matrix.</span>
+<span class="sd">            Fake quantized weight matrix.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_fake_quant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FakeDynamicQuantConv1d.forward"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantConv1d.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a forward pass over the fake quantized Conv1d layer.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a forward pass over the fake quantized Conv1d layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x: Input tensor.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Quantized tensor.</span>
+<span class="sd">            Quantized tensor.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1111,7 +1110,7 @@ title="Open an issue"
         <span class="n">activation_reduce_range</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeDynamicQuantConv1d</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maps module from float to QAT-ready.</span>
+        <span class="sd">&quot;&quot;&quot;Map module from float to QAT-ready.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            mod: Module to be mapped.</span>
@@ -1119,7 +1118,7 @@ title="Open an issue"
 <span class="sd">            activation_reduce_range: Whether to reduce the range of activations.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (FakeDynamicQuantConv1d): QAT-ready module.</span>
+<span class="sd">            QAT-ready module.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1153,10 +1152,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">qat_conv1d</span></div>
 
 <div class="viewcode-block" id="FakeDynamicQuantConv1d.to_float"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantConv1d.to_float">[docs]</a>    <span class="k">def</span> <span class="nf">to_float</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maps module from QAT-ready to float.</span>
+        <span class="sd">&quot;&quot;&quot;Map module from QAT-ready to float.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.nn.Module): Float-based module.</span>
+<span class="sd">            Float-based module.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1181,10 +1180,10 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeDynamicQuantConv1dForOnnx"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantConv1dForOnnx">[docs]</a><span class="k">class</span> <span class="nc">FakeDynamicQuantConv1dForOnnx</span><span class="p">(</span><span class="n">FakeDynamicQuantConv1d</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Allows a QAT-ready Conv1d layer to be exported with ONNX.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Allow a QAT-ready Conv1d layer to be exported with ONNX.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a fake quantized Conv1d layer compatible with ONNX.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a fake quantized Conv1d layer compatible with ONNX.&quot;&quot;&quot;</span>
 
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;activation_reduce_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;onnx_compatible&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1193,7 +1192,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeDynamicQuantHFConv1D"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D">[docs]</a><span class="k">class</span> <span class="nc">FakeDynamicQuantHFConv1D</span><span class="p">(</span><span class="n">transformers</span><span class="o">.</span><span class="n">modeling_utils</span><span class="o">.</span><span class="n">Conv1D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Translates a huggingface/transformers Conv1D to QAT-ready.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Translate a huggingface/transformers Conv1D layer into a QAT-ready Conv1D layer.&quot;&quot;&quot;</span>
 
     <span class="n">_FLOAT_MODULE</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">modeling_utils</span><span class="o">.</span><span class="n">Conv1D</span>
 
@@ -1207,7 +1206,7 @@ title="Open an issue"
         <span class="n">qconfig</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a fake quantized Conv1D layer.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a fake quantized Conv1D layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dynamic_weight: Whether to use dynamic weights.</span>
@@ -1237,23 +1236,23 @@ title="Open an issue"
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fake_quant_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a fake quantization over the weight matrix.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a fake quantization over the weight matrix.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Fake quantized weight matrix.</span>
+<span class="sd">            Fake quantized weight matrix.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_fake_quant</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FakeDynamicQuantHFConv1D.forward"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a forward pass over the fake quantized Conv1D layer.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a forward pass over the fake quantized Conv1D layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x: Input tensor.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.Tensor): Quantized tensor.</span>
+<span class="sd">            Quantized tensor.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1273,7 +1272,7 @@ title="Open an issue"
         <span class="n">activation_reduce_range</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FakeDynamicQuantHFConv1D</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maps module from float to QAT-ready.</span>
+        <span class="sd">&quot;&quot;&quot;Map module from float to QAT-ready.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            mod: Module to be mapped.</span>
@@ -1281,7 +1280,7 @@ title="Open an issue"
 <span class="sd">            activation_reduce_range: Whether to reduce the range of activations.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (FakeDynamicQuantConv1d): QAT-ready module.</span>
+<span class="sd">            QAT-ready module.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1308,10 +1307,10 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">qat_conv1d</span></div>
 
 <div class="viewcode-block" id="FakeDynamicQuantHFConv1D.to_float"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1D.to_float">[docs]</a>    <span class="k">def</span> <span class="nf">to_float</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Maps module from QAT-ready to float.</span>
+        <span class="sd">&quot;&quot;&quot;Map module from QAT-ready to float.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (torch.nn.Module): Float-based module.</span>
+<span class="sd">            Float-based module.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1326,10 +1325,10 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="FakeDynamicQuantHFConv1DForOnnx"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.modules.FakeDynamicQuantHFConv1DForOnnx">[docs]</a><span class="k">class</span> <span class="nc">FakeDynamicQuantHFConv1DForOnnx</span><span class="p">(</span><span class="n">FakeDynamicQuantHFConv1D</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Allows a QAT-ready huggingface/transformers Conv1D layer to be exported with ONNX.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Allow a QAT-ready huggingface/transformers Conv1D layer to be exported with ONNX.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a fake quantized Conv1D layer compatible with ONNX.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a fake quantized Conv1D layer compatible with ONNX.&quot;&quot;&quot;</span>
 
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;activation_reduce_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;onnx_compatible&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1354,7 +1353,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

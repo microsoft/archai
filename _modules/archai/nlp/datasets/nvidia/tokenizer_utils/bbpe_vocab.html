@@ -782,8 +782,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;BBPE-based tokenizer.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Byte-BPE-based tokenizer.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -797,17 +796,17 @@ title="Open an issue"
 <span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">utils</span>
 <span class="kn">from</span> <span class="nn">archai.nlp</span> <span class="kn">import</span> <span class="n">logging_utils</span>
 <span class="kn">from</span> <span class="nn">archai.nlp.datasets.nvidia</span> <span class="kn">import</span> <span class="n">distributed_utils</span>
-<span class="kn">from</span> <span class="nn">archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">archai.nlp.datasets.nvidia.tokenizer_utils.token_config</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">SpecialTokenEnum</span><span class="p">,</span>
+    <span class="n">TokenConfig</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">archai.nlp.datasets.nvidia.tokenizer_utils.token_config</span> <span class="kn">import</span> <span class="n">TokenConfig</span>
 <span class="kn">from</span> <span class="nn">archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base</span> <span class="kn">import</span> <span class="n">VocabBase</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging_utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BbpeVocab"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab">[docs]</a><span class="k">class</span> <span class="nc">BbpeVocab</span><span class="p">(</span><span class="n">VocabBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a BBPE-based vocabulary/tokenizer.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Byte-BPE-based vocabulary/tokenizer.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -826,7 +825,7 @@ title="Open an issue"
         <span class="n">encode_special_tokens</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">decode_special_tokens</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Defines the tokenization pipeline.</span>
+        <span class="sd">&quot;&quot;&quot;Define the tokenization pipeline.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            save_path: Path to save the vocabulary.</span>
@@ -876,24 +875,10 @@ title="Open an issue"
 
     <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Length of the vocabulary.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (int): Length of the vocabulary.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BbpeVocab.train"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.train">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Trains tokenizer from a list of files.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            filepaths: List of paths to input files.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">with</span> <span class="n">distributed_utils</span><span class="o">.</span><span class="n">sync_workers</span><span class="p">()</span> <span class="k">as</span> <span class="n">rank</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training vocabulary with size = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer_filepath</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">)</span>
@@ -907,19 +892,10 @@ title="Open an issue"
 
 <div class="viewcode-block" id="BbpeVocab.is_trained"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.is_trained">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">is_trained</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks whether vocabulary has been trained.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (bool): Whether vocabulary has been trained.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer_filepath</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BbpeVocab.load"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.load">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Loads pre-trained tokenizer.&quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="n">PreTrainedTokenizerFast</span><span class="p">(</span>
             <span class="n">tokenizer_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer_filepath</span><span class="p">,</span>
             <span class="n">model_max_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_max_length</span><span class="p">,</span>
@@ -939,16 +915,6 @@ title="Open an issue"
 
 <div class="viewcode-block" id="BbpeVocab.encode_text"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.encode_text">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">encode_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Encodes text into tokens.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            text: Input text.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (List[int]): Encoded text (tokens).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
         <span class="c1"># Always set add_special_tokens=False because Huggingface&#39;s implementation is buggy</span>
@@ -963,65 +929,25 @@ title="Open an issue"
 
 <div class="viewcode-block" id="BbpeVocab.decode_text"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.decode_text">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">decode_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Decodes tokens into text.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            ids: Tokens.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (str): Decoded tokens (text).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">decode_special_tokens</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BbpeVocab.special_token_id"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.special_token_id">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">special_token_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">:</span> <span class="n">SpecialTokenEnum</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Gets the identifier of special token.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            sp: Special token&#39;s enumerator.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (int): Special token&#39;s identifier.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_to_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">special_token_name</span><span class="p">(</span><span class="n">sp</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="BbpeVocab.token_to_id"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.token_to_id">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">token_to_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Converts a string-based token to its identifier.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            t: String-based token.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (int): Token&#39;s identifier.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">convert_tokens_to_ids</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BbpeVocab.id_to_token"><a class="viewcode-back" href="../../../../../../reference/api/archai.nlp.datasets.nvidia.tokenizer_utils.html#archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab.BbpeVocab.id_to_token">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">id_to_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Converts a token identifier to its string-based representation.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            id: Token&#39;s identifier.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            (str): String-based token.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">convert_ids_to_tokens</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_rewrite_json_sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Re-writes a sorted version of the vocabulary.</span>
+        <span class="sd">&quot;&quot;&quot;Re-write a sorted version of the vocabulary.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filepaths: Input files.</span>
+<span class="sd">            filepaths: A list of paths to input files.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1053,7 +979,7 @@ title="Open an issue"
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">tok_json</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_finalize_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Finalizes the tokenizer by padding the vocabulary.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Finalize the tokenizer by padding the vocabulary.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad_vocab_size</span><span class="p">:</span>
             <span class="n">vocab_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="p">)</span>
@@ -1064,13 +990,13 @@ title="Open an issue"
                 <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">add_tokens</span><span class="p">([</span><span class="n">token</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">_preprocess_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Pre-processes the text.</span>
+        <span class="sd">&quot;&quot;&quot;Pre-process the text.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            text: Input text.</span>
+<span class="sd">            text: The input text.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (str): Pre-processed text.</span>
+<span class="sd">            Pre-processed text.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1089,13 +1015,13 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">text</span>
 
     <span class="k">def</span> <span class="nf">_count_token_freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Counter</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Counts the frequency of tokens.</span>
+        <span class="sd">&quot;&quot;&quot;Count the frequency of tokens.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filepaths: Input files.</span>
+<span class="sd">            filepaths: A list of paths to input files.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (Counter): Tokens&#39; frequencies.</span>
+<span class="sd">            Tokens&#39; frequencies.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1123,7 +1049,7 @@ title="Open an issue"
         <span class="sd">&quot;&quot;&quot;Inner loop of tokenizer&#39;s training.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            filepaths: Input files.</span>
+<span class="sd">            filepaths: A list of paths to input files.</span>
 <span class="sd">            dropout: Dropout ratio.</span>
 <span class="sd">            added_tokens: Additional tokens.</span>
 
@@ -1175,7 +1101,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

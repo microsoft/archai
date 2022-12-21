@@ -782,25 +782,26 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;Quantization-ready observers.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Quantization-ready observers.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 
 
 <div class="viewcode-block" id="OnnxDynamicObserver"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.observers.OnnxDynamicObserver">[docs]</a><span class="k">class</span> <span class="nc">OnnxDynamicObserver</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Provides a DynamicObserver that is compliant with ONNX-based graphs.</span>
+    <span class="sd">&quot;&quot;&quot;DynamicObserver that is compliant with ONNX-based graphs.</span>
 
-<span class="sd">    Note that usually `qint8` is used for symmetric quantization, while</span>
-<span class="sd">        `quint8` is used for assymetric quantization.</span>
+<span class="sd">    This class can be used to perform symmetric or assymetric quantization, depending on the</span>
+<span class="sd">    `dtype` provided. `qint8` is usually used for symmetric quantization, while `quint8` is</span>
+<span class="sd">    used for assymetric quantization.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the class by setting appropriate values for quantization bounds.</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the class by setting appropriate values for quantization bounds.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            dtype: Type of quantization operators.</span>
+<span class="sd">            dtype: Type of quantization operators. This should be either `torch.quint8` or</span>
+<span class="sd">                `torch.qint8`.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -815,7 +816,7 @@ title="Open an issue"
             <span class="bp">self</span><span class="o">.</span><span class="n">qmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qmax</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span><span class="p">,</span> <span class="mi">127</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Performs a call to set minimum and maximum tensor values.</span>
+        <span class="sd">&quot;&quot;&quot;Perform a call to set minimum and maximum tensor values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x: Input tensor.</span>
@@ -826,7 +827,7 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">min_val</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_val</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OnnxDynamicObserver.calculate_qparams"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.quantization.html#archai.nlp.quantization.observers.OnnxDynamicObserver.calculate_qparams">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_qparams</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates the quantization parameters.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the quantization parameters.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">qint8</span><span class="p">:</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_val</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">min_val</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="mi">127</span>
@@ -861,7 +862,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

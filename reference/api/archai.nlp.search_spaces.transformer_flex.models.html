@@ -803,7 +803,7 @@ title="Edit this page"
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer">
-   Memory Transformer
+   NVIDIA Memory Transformer
   </a>
  </li>
 </ul>
@@ -832,7 +832,7 @@ title="Edit this page"
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer">
-   Memory Transformer
+   NVIDIA Memory Transformer
   </a>
  </li>
 </ul>
@@ -864,8 +864,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexAttention">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.</span></span><span class="sig-name descname"><span class="pre">GPT2FlexAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig" title="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_cross_attention</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/search_spaces/transformer_flex/models/gpt2_flex/modeling_gpt2_flex.html#GPT2FlexAttention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexAttention" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a GPT-2 Attention flexible layer.</p>
-<dl class="py attribute">
+<dd><dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexAttention.training">
 <span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexAttention.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
@@ -875,22 +874,18 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexMLP">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.</span></span><span class="sig-name descname"><span class="pre">GPT2FlexMLP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intermediate_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig" title="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/search_spaces/transformer_flex/models/gpt2_flex/modeling_gpt2_flex.html#GPT2FlexMLP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexMLP" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a GPT-2 Multi-Layer Perceptron flexible layer.</p>
-<dl class="py method">
+<dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexMLP.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.FloatTensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.FloatTensor</span></span></span><a class="reference internal" href="../../_modules/archai/nlp/search_spaces/transformer_flex/models/gpt2_flex/modeling_gpt2_flex.html#GPT2FlexMLP.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexMLP.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Overrides forward method to add PrimerEZ-square primitive.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>hidden_states</strong> – Input hidden states.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Output hidden states.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(torch.FloatTensor)</p>
-</dd>
-</dl>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
 </dd></dl>
 
 <dl class="py attribute">
@@ -903,8 +898,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexBlock">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.</span></span><span class="sig-name descname"><span class="pre">GPT2FlexBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig" title="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/search_spaces/transformer_flex/models/gpt2_flex/modeling_gpt2_flex.html#GPT2FlexBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexBlock" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a GPT-2 flexible block.</p>
-<dl class="py attribute">
+<dd><dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexBlock.training">
 <span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexBlock.training" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
@@ -914,8 +908,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.</span></span><span class="sig-name descname"><span class="pre">GPT2FlexModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig" title="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/search_spaces/transformer_flex/models/gpt2_flex/modeling_gpt2_flex.html#GPT2FlexModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexModel" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a GPT-2 flexible model.</p>
-<dl class="py attribute">
+<dd><dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexModel.config_class">
 <span class="sig-name descname"><span class="pre">config_class</span></span><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexModel.config_class" title="Permalink to this definition">#</a></dt>
 <dd><p>alias of <a class="reference internal" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig" title="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig</span></code></a></p>
@@ -931,8 +924,7 @@ title="Edit this page"
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexLMHeadModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.</span></span><span class="sig-name descname"><span class="pre">GPT2FlexLMHeadModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig" title="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/search_spaces/transformer_flex/models/gpt2_flex/modeling_gpt2_flex.html#GPT2FlexLMHeadModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexLMHeadModel" title="Permalink to this definition">#</a></dt>
-<dd><p>Implements a GPT-2 language modeling flexible head.</p>
-<dl class="py attribute">
+<dd><dl class="py attribute">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexLMHeadModel.config_class">
 <span class="sig-name descname"><span class="pre">config_class</span></span><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex.GPT2FlexLMHeadModel.config_class" title="Permalink to this definition">#</a></dt>
 <dd><p>alias of <a class="reference internal" href="#archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig" title="archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex.GPT2FlexConfig</span></code></a></p>
@@ -947,8 +939,8 @@ title="Edit this page"
 
 </section>
 <section id="module-archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer">
-<span id="memory-transformer"></span><h2>Memory Transformer<a class="headerlink" href="#module-archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer" title="Permalink to this headline">#</a></h2>
-<p>NVIDIA’s Memory Transformer configuration.</p>
+<span id="nvidia-memory-transformer"></span><h2>NVIDIA Memory Transformer<a class="headerlink" href="#module-archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer" title="Permalink to this headline">#</a></h2>
+<p>NVIDIA Memory Transformer configuration.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer.MemTransformerConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer.</span></span><span class="sig-name descname"><span class="pre">MemTransformerConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/nlp/search_spaces/transformer_flex/models/mem_transformer/configuration_mem_transformer.html#MemTransformerConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer.MemTransformerConfig" title="Permalink to this definition">#</a></dt>
@@ -959,7 +951,7 @@ title="Edit this page"
 
 </dd></dl>
 
-<span class="target" id="module-archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer"></span><p>NVIDIA’s Memory Transformer.</p>
+<span class="target" id="module-archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer"></span><p>NVIDIA Memory Transformer.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer.MemTransformerBaseOutput">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer.</span></span><span class="sig-name descname"><span class="pre">MemTransformerBaseOutput</span></span><a class="reference internal" href="../../_modules/archai/nlp/search_spaces/transformer_flex/models/mem_transformer/modeling_mem_transformer.html#MemTransformerBaseOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer.MemTransformerBaseOutput" title="Permalink to this definition">#</a></dt>
@@ -1198,7 +1190,7 @@ registered hooks while the latter silently ignores them.</p>
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>

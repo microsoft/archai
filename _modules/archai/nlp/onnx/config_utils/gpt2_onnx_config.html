@@ -782,19 +782,19 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="sd">&quot;&quot;&quot;GPT-2 ONNX configuration.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;GPT-2 ONNX configuration.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 <span class="kn">from</span> <span class="nn">transformers.configuration_utils</span> <span class="kn">import</span> <span class="n">PretrainedConfig</span>
 
 <span class="kn">from</span> <span class="nn">archai.nlp.onnx.config_utils.onnx_config_base</span> <span class="kn">import</span> <span class="n">OnnxConfig</span><span class="p">,</span> <span class="n">OnnxConfigWithPast</span>
 
 
 <div class="viewcode-block" id="GPT2OnnxConfig"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2OnnxConfig">[docs]</a><span class="k">class</span> <span class="nc">GPT2OnnxConfig</span><span class="p">(</span><span class="n">OnnxConfigWithPast</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a GPT-2 ONNX configuration (with past key/values support).&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;GPT-2 ONNX configuration (with past key/values support).&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -818,7 +818,7 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="GPT2FlexOnnxConfig"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig">[docs]</a><span class="k">class</span> <span class="nc">GPT2FlexOnnxConfig</span><span class="p">(</span><span class="n">OnnxConfigWithPast</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements a GPT-2 Flex ONNX configuration (with past key/values support).&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;GPT-2 Flex ONNX configuration (with past key/values support).&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">PretrainedConfig</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;causal-lm&quot;</span><span class="p">,</span> <span class="n">use_past</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
@@ -837,7 +837,8 @@ title="Open an issue"
     <span class="k">def</span> <span class="nf">ort_graph_optimizer_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_attention_heads</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
 
-<div class="viewcode-block" id="GPT2FlexOnnxConfig.generate_dummy_inputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.generate_dummy_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">generate_dummy_inputs</span><span class="p">(</span>
+<div class="viewcode-block" id="GPT2FlexOnnxConfig.generate_dummy_inputs"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.onnx.config_utils.html#archai.nlp.onnx.config_utils.gpt2_onnx_config.GPT2FlexOnnxConfig.generate_dummy_inputs">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">generate_dummy_inputs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">past_seq_len</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
         <span class="n">dummy_inputs</span> <span class="o">=</span> <span class="n">OnnxConfig</span><span class="o">.</span><span class="n">generate_dummy_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">)</span>
@@ -877,7 +878,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 16, 2022.<br/>
+    Last updated on Dec 21, 2022.<br/>
 </p>
         </footer>
     </div>
