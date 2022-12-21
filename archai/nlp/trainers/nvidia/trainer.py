@@ -38,7 +38,7 @@ def save_checkpoint(
     scaler: torch.cuda.amp.GradScaler,
     trainer_state: Dict[str, Any],
     fp16: bool,
-    prefix: Optional[str] = None,
+    prefix: Optional[str] = "",
     save_all_checkpoints: Optional[bool] = False,
     is_best_model: Optional[bool] = False,
 ) -> None:
