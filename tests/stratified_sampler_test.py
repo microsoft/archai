@@ -11,8 +11,8 @@ import random
 import torch
 from torch.utils.data import Dataset
 
-from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
-from archai.datasets import data
+from archai.cv.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.cv.datasets import data
 from archai.common import common
 
 class ListDataset(Dataset):
