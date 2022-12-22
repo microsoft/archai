@@ -9,7 +9,7 @@ import numpy as np
 from archai.discrete_search import ArchaiModel, EvolutionarySearchSpace, BayesOptSearchSpace, SearchObjectives
 from archai.discrete_search.api.predictor import Predictor, MeanVar
 from archai.discrete_search.algos.bananas import MoBananasSearch
-from archai.discrete_search.objectives.functional import EvaluationFunction
+from archai.discrete_search.evaluators.functional import EvaluationFunction
 
 
 class DummySearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
@@ -57,9 +57,9 @@ def search_objectives():
     rng2 = Random(2)
     rng3 = Random(3)
 
-    o1 = EvaluationFunction(lambda m, d, b: rng1.random(), False)
-    o2 = EvaluationFunction(lambda m, d, b: rng2.random(), False)
-    r = EvaluationFunction(lambda m, d, b: rng3.random(), False)
+    o1 = EvaluationFunction(lambda m, d, b: rng1.random())
+    o2 = EvaluationFunction(lambda m, d, b: rng2.random())
+    r = EvaluationFunction(lambda m, d, b: rng3.random())
 
     so = SearchObjectives()
     so.add_cheap_objective('Random1', o1, higher_is_better=False, constraint=(0.0, 0.4))

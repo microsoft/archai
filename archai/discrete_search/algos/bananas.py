@@ -10,7 +10,7 @@ import numpy as np
 from archai.common.utils import create_logger
 from archai.discrete_search import (
     ArchaiModel,  SearchObjectives,
-    SearchResults, get_non_dominated_sorting, evaluate_models
+    SearchResults, get_non_dominated_sorting
 )
 from archai.discrete_search import BayesOptSearchSpace, EvolutionarySearchSpace
 from archai.discrete_search.api.predictor import Predictor, MeanVar

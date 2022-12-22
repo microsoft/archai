@@ -142,7 +142,7 @@ class SearchResults():
         for model in pareto_frontier['models']:
             self.search_space.save_arch(model, str(dir_path / f'{model.archid}'))
  
-    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str) -> Any:
+    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str):
         obj_x, obj_y = objective_names
         status_df = self.get_search_state_df().copy()
 
@@ -181,9 +181,7 @@ class SearchResults():
         fig.colorbar(sm, ax=ax)
         fig.savefig(path)
 
-        return fig
-
-    def save_all_2d_pareto_evolution_plots(self, directory: Union[str, Path]) -> List[Any]:
+    def save_all_2d_pareto_evolution_plots(self, directory: Union[str, Path]):
         path = Path(directory)
         path.mkdir(exist_ok=True, parents=True)
 
@@ -199,5 +197,3 @@ class SearchResults():
                 plots.append(
                     self.save_2d_pareto_evolution_plot((obj_x, obj_y), str(path / fname))
                 )
-
-        return plots

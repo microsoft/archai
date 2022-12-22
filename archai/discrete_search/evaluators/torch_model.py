@@ -6,10 +6,10 @@ import tensorwatch as tw
 
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.datasets.dataset_provider import DatasetProvider
-from archai.discrete_search.api.objective import Objective
+from archai.discrete_search.api.evaluator import SyncEvaluator
 
 
-class TensorwatchStat(Objective):
+class TensorwatchStat(SyncEvaluator):
     def __init__(self, stat_name: str, input_shape: Tuple):
         """Calculates an evaluation statistic for a PyTorch model using Tensorwatch.
 
@@ -21,7 +21,6 @@ class TensorwatchStat(Objective):
         """
         self.stat_name = stat_name
         self.input_shape = input_shape
-        self.higher_is_better = False
 
     @overrides
     def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, 

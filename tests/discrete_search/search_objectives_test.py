@@ -1,14 +1,12 @@
 import pytest
 import random
 
-from archai.discrete_search.api.objective import Objective, AsyncObjective, ArchaiModel, DatasetProvider
 from archai.discrete_search.api.search_objectives import SearchObjectives
 from archai.discrete_search.search_spaces.segmentation_dag import SegmentationDagSearchSpace
 
-from archai.discrete_search.objectives.onnx_model import AvgOnnxLatency
-from archai.discrete_search.objectives.torch_model import TorchFlops, TorchNumParameters
-from archai.discrete_search.objectives.functional import EvaluationFunction
-from archai.discrete_search.objectives.ray import RayParallelObjective
+from archai.discrete_search.evaluators.onnx_model import AvgOnnxLatency
+from archai.discrete_search.evaluators.torch_model import TorchFlops, TorchNumParameters
+from archai.discrete_search.evaluators.functional import EvaluationFunction
 
 
 @pytest.fixture
@@ -35,7 +33,7 @@ def test_eval_all_objs(models):
     )
 
     search_objectives.add_expensive_objective(
-        'Budget Value', EvaluationFunction(lambda m, d, b: b, False),
+        'Budget Value', EvaluationFunction(lambda m, d, b: b),
         higher_is_better=True
     )
 
@@ -71,7 +69,7 @@ def test_eval_subsets(models):
     )
 
     search_objectives.add_expensive_objective(
-        'Budget Value', EvaluationFunction(lambda m, d, b: b, False),
+        'Budget Value', EvaluationFunction(lambda m, d, b: b),
         higher_is_better=True
     )
 
@@ -118,7 +116,7 @@ def test_eval_cache(models):
 
     so.add_extra_constraint(
         'Random number', 
-        EvaluationFunction(lambda m, d, b: random.random(), False), 
+        EvaluationFunction(lambda m, d, b: random.random()), 
         (0.0, 1.0)
     )
 

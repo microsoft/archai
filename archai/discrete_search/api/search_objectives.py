@@ -4,7 +4,7 @@
 from typing import Union, Optional, Tuple, List, Dict, Callable
 
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.discrete_search.api.objective import Objective, AsyncObjective
+from archai.discrete_search.api.evaluator import SyncEvaluator, AsyncEvaluator
 from archai.discrete_search.api.dataset import DatasetProvider
 
 import numpy as np
@@ -13,26 +13,22 @@ from tqdm import tqdm
 
 class SearchObjectives():
     def __init__(self, cache_objective_evaluation: bool = True) -> None:
-        """Class used by search algorithms to evaluate and cache search objectives and constraints.
+        """Class used to register, evaluate and cache search objectives and constraints for search algorithms.
         
-        Search objectives can be either registered as `cheap` or `expensive`. This distinction is used
-        to signal search algorithms on how to optimize their execution. Objectives labeled as 'cheap' can 
-        be evaluated multiple times by a search algorithm to look for suitable candidate architectures, while expensive
-        objectives will be evaluated much less frequently. NAS algorithms based on surrogate models
-        will typically only predict the value of expensive objectives and evaluate cheap objectives
-        directly.
+        Model evaluators (`SyncEvaluator`, `AsyncEvaluator`) can be either registered as 'cheap' or 'expensive' search objectives.
+        The 'cheap' label is used to indicate that the objective function can be evaluated multiple times by the search algorithm 
+        (e.g to look for suitable candidate architectures), while 'expensive' objectives will be evaluated much less frequently.
+         
+        Additionaly, NAS algorithms based on surrogate models (e.g bayesian optimization algorithms) will also use this distinction
+        to determine which objectives to predict with the surrogate model and which to evaluate directly.
 
-        To see how this distinction is used by each search algorithm, please refer to the documentation
-        of the search algorithm.
-
-        Additionally to objectives, this class can also hold search constraints. Constraints are used to
-        filter out candidate architectures that do not satisfy a given constraint (e.g number of parameters, FLOPs, etc.).
-        Constraints are tipically evaluated multiple times by search algorithms to look for suitable candidate and
-        should not be computationally expensive to evaluate.
-
+        Besides objectives, `SearchObjectives` also supports registering search constraints, which are used to filter out candidate
+        architectures that do not meet certain criteria (e.g., number of parameters, FLOPs). Constraints are typically evaluated
+        multiple times by search algorithms and should not be computationally expensive to evaluate.
+        
         Args:
-            cache_objective_evaluation (bool, optional): If True, objective evaluations are cached.
-                Defaults to True.
+            cache_objective_evaluation (bool, optional): If `True`, objective evaluations are cached.
+                using the tuple `(obj_name, archid, dataset_provider_name, budget)` as key. Defaults to `True`.
         """        
         self.cache_objective_evaluation = cache_objective_evaluation
 
@@ -51,37 +47,63 @@ class SearchObjectives():
     def objs_and_constraints(self) -> Dict[str, Dict]:
         return dict(self.objs, **self.extra_constraints)
 
-    def add_cheap_objective(self, name: str, objective: Union[Objective, AsyncObjective],
+    def add_cheap_objective(self, name: str, evaluator: Union[SyncEvaluator, AsyncEvaluator],
                             higher_is_better: bool, constraint: Optional[Tuple[float, float]] = None) -> None:
-        assert isinstance(objective, (AsyncObjective, Objective))
+        """Adds a 'cheap' objective to be evaluated and cached by search algorithms.
+
+        'Cheap' objectives are typically evaluated multiple times by search algorithms to look for 
+        suitable candidate architectures. These objectives should not be computationally
+        expensive to evaluate.
+
+        Args:
+            name (str): The name of the objective.
+            evaluator (Union[SyncEvaluator, AsyncEvaluator]): The model evaluator responsible 
+                for evaluating the objective. Can be either a synchronous or asynchronous evaluator.
+            higher_is_better (bool): Weather the objective should be maximized (`True`) or minimized (`False`).
+            constraint (Optional[Tuple[float, float]], optional): An optional constraint to apply to the
+                objective. This should be a tuple of the form (lower_bound, upper_bound). Any candidate 
+                architectures with an objective value outside of this range will be filtered out. Defaults to None.
+        """
+        assert isinstance(evaluator, (SyncEvaluator, AsyncEvaluator))
         assert name not in dict(self.objs, **self.extra_constraints),\
             f'There is already an objective or constraint named {name}.'
 
         self.cheap_objs[name] = {
-            'objective': objective,
+            'objective': evaluator,
             'higher_is_better': higher_is_better,
             'constraint': constraint
         }
     
-    def add_expensive_objective(self, name: str, objective: Union[Objective, AsyncObjective],
+    def add_expensive_objective(self, name: str, evaluator: Union[SyncEvaluator, AsyncEvaluator],
                                 higher_is_better: bool) -> None:
-        assert isinstance(objective, (AsyncObjective, Objective))
+        """Adds an 'expensive' objective to be evaluated and cached by search algorithms.
+
+        'Expensive' objectives are typically evaluated less frequently by search algorithms 
+        and can be computationally expensive to evaluate (e.g partial-training performance of a model). 
+
+        Args:
+            name (str): The name of the objective.
+            evaluator (Union[SyncEvaluator, AsyncEvaluator]): The model evaluator responsible 
+                for evaluating the objective. Can be either a synchronous or asynchronous evaluator.
+            higher_is_better (bool): Weather the objective should be maximized (`True`) or minimized (`False`).
+        """        
+        assert isinstance(evaluator, (SyncEvaluator, AsyncEvaluator))
         assert name not in dict(self.objs, **self.extra_constraints),\
             f'There is already an objective or constraint named {name}.'
 
         self.exp_objs[name] = {
-            'objective': objective,
+            'objective': evaluator,
             'higher_is_better': higher_is_better
         }
 
-    def add_extra_constraint(self, name: str, constraint_fn: Union[Objective, AsyncObjective],
+    def add_extra_constraint(self, name: str, evaluator: Union[SyncEvaluator, AsyncEvaluator],
                              constraint: Tuple[float, float]):
-        assert isinstance(constraint_fn, (AsyncObjective, Objective))
+        assert isinstance(evaluator, (SyncEvaluator, AsyncEvaluator))
         assert name not in dict(self.extra_constraints, **self.objs),\
             f'There is already an objective or constraint named {name}.'
 
         self.extra_constraints[name] = {
-            'objective': constraint_fn,
+            'objective': evaluator,
             'constraint': constraint,
         }
 
@@ -113,8 +135,8 @@ class SearchObjectives():
             dataset_providers = [dataset_providers] * len(models)
         
         # Splits `objs` in sync and async
-        sync_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, Objective))
-        async_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, AsyncObjective))
+        sync_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, SyncEvaluator))
+        async_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, AsyncEvaluator))
 
         assert all(len(dataset_providers) == len(models) == len(b) for b in budgets.values())
 
