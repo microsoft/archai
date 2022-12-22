@@ -142,11 +142,12 @@ class SearchResults():
         for model in pareto_frontier['models']:
             self.search_space.save_arch(model, str(dir_path / f'{model.archid}'))
  
-    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str):
+    def plot_2d_pareto_evolution(self, objective_names: Tuple[str, str], 
+                                 figsize: Tuple[int, int] = (10, 5)) -> plt.Figure:
         obj_x, obj_y = objective_names
         status_df = self.get_search_state_df().copy()
 
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=figsize)
         status_range = range(0, self.iteration_num + 1)
         
         # Transforms dimensions to be decreasing if necessary
@@ -178,7 +179,15 @@ class SearchResults():
         
         ax.set_xlabel(obj_x)
         ax.set_ylabel(obj_y)
-        fig.colorbar(sm, ax=ax)
+        cbar = fig.colorbar(sm, ax=ax)
+        cbar.set_label('Iteration number', rotation=270, labelpad=15)
+        
+        ax.set_title('Evolution of Pareto Frontier (2D projection)')
+        plt.close()
+        return fig
+
+    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str):
+        fig = self.plot_2d_pareto_evolution(objective_names)
         fig.savefig(path)
 
     def save_all_2d_pareto_evolution_plots(self, directory: Union[str, Path]):
