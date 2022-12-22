@@ -11,7 +11,7 @@ from archai.nas.operations import Op
 from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc
 from archai.common.config import Config
-from .divop import DivOp
+from archai.algos.divnas.divop import DivOp
 
 class DivnasModelDescBuilder(ModelDescBuilder):
     @overrides

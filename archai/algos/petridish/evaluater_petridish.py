@@ -26,7 +26,7 @@ import glob
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import get_expdir, logger
-from archai.datasets import data
+from archai.cv.datasets import data
 from archai.nas.model_desc import CellType, ModelDesc
 from archai.nas.model import Model
 from archai.nas.model_desc_builder import ModelDescBuilder

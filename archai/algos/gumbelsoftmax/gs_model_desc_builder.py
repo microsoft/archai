@@ -12,7 +12,7 @@ from archai.nas.operations import Op, MultiOp
 from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.common.config import Config
-from .gs_op import GsOp
+from archai.algos.gumbelsoftmax.gs_op import GsOp
 
 class GsModelDescBuilder(ModelDescBuilder):
     @overrides

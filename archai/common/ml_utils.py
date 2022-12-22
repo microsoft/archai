@@ -17,10 +17,10 @@ import torch.nn.functional as F
 
 import statopt
 
-from .config import Config
-from .cocob import CocobBackprop
-from .ml_losses import SmoothCrossEntropyLoss
-from .warmup_scheduler import GradualWarmupScheduler
+from archai.common.config import Config
+from archai.common.cocob import CocobBackprop
+from archai.common.ml_losses import SmoothCrossEntropyLoss
+from archai.common.warmup_scheduler import GradualWarmupScheduler
 
 
 def create_optimizer(conf_opt:Config, params)->Optimizer:

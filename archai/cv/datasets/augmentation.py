@@ -10,9 +10,9 @@ from collections import defaultdict
 import PIL, PIL.ImageOps, PIL.ImageEnhance, PIL.ImageDraw
 import numpy as np
 
-from .aug_policies import fa_reduced_cifar10, fa_reduced_svhn, fa_resnet50_rimagenet
-from ..common.common import logger
-from .transforms.cutout_custom import CutoutCustom
+from archai.cv.datasets.aug_policies import fa_reduced_cifar10, fa_reduced_svhn, fa_resnet50_rimagenet
+from archai.common.common import logger
+from archai.cv.datasets.transforms.cutout_custom import CutoutCustom
 
 _random_mirror = True
 

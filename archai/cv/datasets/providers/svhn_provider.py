@@ -10,7 +10,7 @@ import torchvision
 from torchvision.transforms import transforms
 from torch.utils.data import ConcatDataset
 
-from archai.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
+from archai.cv.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 

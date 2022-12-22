@@ -8,9 +8,9 @@ from overrides import overrides
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas.finalizers import Finalizers
-from .gs_model_desc_builder import GsModelDescBuilder
-from .gs_arch_trainer import GsArchTrainer
-from .gs_finalizers import GsFinalizers
+from archai.algos.gumbelsoftmax.gs_model_desc_builder import GsModelDescBuilder
+from archai.algos.gumbelsoftmax.gs_arch_trainer import GsArchTrainer
+from archai.algos.gumbelsoftmax.gs_finalizers import GsFinalizers
 
 class GsExperimentRunner(ExperimentRunner):
     @overrides

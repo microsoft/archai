@@ -25,7 +25,7 @@ from transformers import (
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 
-from archai.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
+from archai.cv.datasets.dataset_provider import DatasetProvider, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 from archai.nlp.data_training_arguments import DataTrainingArguments

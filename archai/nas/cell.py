@@ -1,14 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Callable, Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional
 
-from torch import nn, tensor
+from torch import nn
 from overrides import overrides, EnforceOverrides
 
-from ..common.common import logger
 from archai.nas.dag_edge import DagEdge
-from archai.nas.model_desc import ConvMacroParams, CellDesc, OpDesc, NodeDesc
+from archai.nas.model_desc import CellDesc, NodeDesc
 from archai.nas.operations import Op
 from archai.nas.arch_module import ArchModule
 

@@ -16,10 +16,10 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.backends.cudnn as cudnn
 import psutil
 
-from .config import Config
-from . import utils
-from .ordereddict_logger import OrderedDictLogger
-from .apex_utils import ApexUtils
+from archai.common.config import Config
+from archai.common import utils
+from archai.common.ordereddict_logger import OrderedDictLogger
+from archai.common.apex_utils import ApexUtils
 from send2trash import send2trash
 
 class SummaryWriterDummy:

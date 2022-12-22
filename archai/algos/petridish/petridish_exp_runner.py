@@ -9,10 +9,10 @@ from overrides import overrides
 
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
-from .petridish_model_desc_builder import PetridishModelBuilder
+from archai.algos.petridish.petridish_model_desc_builder import PetridishModelBuilder
 
-from .searcher_petridish import SearcherPetridish
-from .evaluater_petridish import EvaluaterPetridish
+from archai.algos.petridish.searcher_petridish import SearcherPetridish
+from archai.algos.petridish.evaluater_petridish import EvaluaterPetridish
 from archai.common.config import Config
 from archai.common import utils
 

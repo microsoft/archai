@@ -11,14 +11,14 @@ import numpy as np
 
 from archai.common.common import get_conf
 from archai.common.common import logger
-from archai.datasets.data import get_data
+from archai.cv.datasets.data import get_data
 from archai.nas.model import Model
 from archai.nas.cell import Cell
 from archai.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
 from archai.nas.finalizers import Finalizers
 from archai.algos.divnas.analyse_activations import compute_brute_force_sol
 from archai.algos.divnas.divop import DivOp
-from .divnas_cell import Divnas_Cell
+from archai.algos.divnas.divnas_cell import Divnas_Cell
 
 class DivnasFinalizers(Finalizers):
 

@@ -4,8 +4,8 @@ import logging
 import torch
 from torch import nn
 
-from .model import Network
-from .model_spec import ModelSpec
+from archai.algos.nasbench101.model import Network
+from archai.algos.nasbench101.model_spec import ModelSpec
 
 from archai.common import ml_utils
 

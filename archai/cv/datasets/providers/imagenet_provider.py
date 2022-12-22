@@ -16,11 +16,11 @@ from PIL import Image
 from overrides import overrides, EnforceOverrides
 
 from archai.common.common import logger
-from archai.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
+from archai.cv.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
-from archai.datasets.transforms.lighting import Lighting
-from .imagenet_folder import ImageNetFolder
+from archai.cv.datasets.transforms.lighting import Lighting
+
 
 class ImagenetProvider(DatasetProvider):
     def __init__(self, conf_dataset:Config):

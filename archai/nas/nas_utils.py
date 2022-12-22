@@ -1,10 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Tuple, Optional
-
-from torch import nn
-from torch.utils.data.dataloader import DataLoader
+from typing import Optional
 
 import tensorwatch as tw
 

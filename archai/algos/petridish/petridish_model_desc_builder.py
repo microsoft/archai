@@ -13,7 +13,7 @@ from archai.nas.operations import MultiOp, Op
 from archai.common.config import Config
 from archai.algos.random.random_model_desc_builder import RandomModelDescBuilder
 
-from .petridish_op import PetridishOp, TempIdentityOp
+from archai.algos.petridish.petridish_op import PetridishOp, TempIdentityOp
 
 
 class PetridishModelBuilder(RandomModelDescBuilder):

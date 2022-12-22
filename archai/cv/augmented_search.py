@@ -15,16 +15,16 @@ import time
 import os
 from tqdm import tqdm
 
-from ..common.aug_policies import remove_deplicates, policy_decoder
-from ..common.data import get_dataloaders
-from ..common.metrics import Accumulator
-from ..networks import get_model, num_class
-from ..common.augmentations import augment_list
-from .train import train_and_eval
-from ..common.common import logger, expdir_abspath
+from archai.cv.datasets.aug_policies import remove_deplicates, policy_decoder
+from archai.cv.datasets.data import get_dataloaders
+from archai.common.metrics import Accumulator
+from archai.cv.models import get_model, num_class
+from archai.cv.datasets.augmentation import augment_list
+from archai.cv.augmented_train import train_and_eval
+from archai.common.common import logger, expdir_abspath
 
-from ..common.config import Config
-from ..common.stopwatch import StopWatch
+from archai.common.config import Config
+from archai.common.stopwatch import StopWatch
 
 
 # this method is overriden version of ray.tune.trial_runner.TrialRunner.step using monkey patching

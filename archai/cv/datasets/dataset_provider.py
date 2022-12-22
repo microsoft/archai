@@ -9,7 +9,7 @@ from overrides import overrides, EnforceOverrides
 from torch.utils.data.dataset import Dataset
 from torchvision.transforms import transforms
 
-from ..common.config import Config
+from archai.common.config import Config
 
 
 TrainTestDatasets = Tuple[Optional[Dataset], Optional[Dataset]]
