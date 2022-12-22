@@ -20,10 +20,11 @@ from archai.discrete_search.api.searcher import Searcher
 
 
 class MoBananasSearch(Searcher):
-    def __init__(self, output_dir: str,
+    def __init__(self, 
                  search_space: BayesOptSearchSpace, 
                  search_objectives: SearchObjectives, 
                  dataset_provider: DatasetProvider,
+                 output_dir: str,
                  surrogate_model: Optional[Predictor] = None,
                  num_iters: int = 10, init_num_models: int = 10,
                  num_parents: int = 10, mutations_per_parent: int = 5,
@@ -158,7 +159,7 @@ class MoBananasSearch(Searcher):
             all_pop.extend(unseen_pop)
 
             self.logger.info(f'Evaluating objectives for {len(unseen_pop)} architectures')
-            iter_results = self.so.eval_all_objs(unseen_pop, self.dataset_provider, progress_bar=True)
+            iter_results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
 
             self.seen_archs.update([m.archid for m in unseen_pop])
             
@@ -193,10 +194,10 @@ class MoBananasSearch(Searcher):
 
             # Predicts expensive objectives using surrogate model 
             # and calculates cheap objectives for mutated architectures
-            self.logger.info(f'Predicting {str(self.so.exp_objs)} for new architectures using surrogate model')
+            self.logger.info(f'Predicting {list(self.so.exp_objs.keys())} for new architectures using surrogate model')
             pred_expensive_objs = self.predict_expensive_objectives(mutated)
 
-            self.logger.info(f'Calculating cheap objectives {str(self.so.cheap_objs)} for new architectures')
+            self.logger.info(f'Calculating cheap objectives {list(self.so.cheap_objs.keys())} for new architectures')
             cheap_objs = self.so.eval_cheap_objs(mutated, self.dataset_provider)
 
             # Selects `num_mutations`-archtiectures for next iteration using Thompson Sampling
