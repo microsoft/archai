@@ -50,9 +50,10 @@ def get_non_dominated_sorting(models: List[ArchaiModel],
     # Converts results to an array of shape (len(models), len(objectives))
     results_array = np.vstack(list(inverted_results.values())).T
 
-    frontiers = np.array(
-        _find_non_dominated_sorting(results_array)
-    )
+    frontiers = [
+        np.array(frontier) 
+        for frontier in _find_non_dominated_sorting(results_array)
+    ]
 
     return [{
         'models': [models[idx] for idx in frontier],
