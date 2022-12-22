@@ -209,9 +209,12 @@ class EvolutionParetoSearch(Searcher):
             unseen_pop = crossovered + mutated + rand_mix
 
             # shuffle before we pick a smaller population for the next stage
-            self.logger.info(f'iter {i}: total unseen population before restriction {len(unseen_pop)}')
+            self.logger.info(f'iter {i}: total unseen population {len(unseen_pop)}')
             unseen_pop = self.select_next_population(unseen_pop)
-            self.logger.info(f'iter {i}: total unseen population after restriction {len(unseen_pop)}')
+            self.logger.info(
+                f'iter {i}: total unseen population after `max_unseen_population`'
+                f' restriction {len(unseen_pop)}'
+            )
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)
