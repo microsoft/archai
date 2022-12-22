@@ -18,7 +18,7 @@ import torchvision.transforms as transforms
 import yaml
 
 from archai.common import utils
-from archai import cifar10_models
+from archai.cv import models
 
 
 def train(epochs, train_dl, val_dal, net, device, crit, optim,
@@ -256,7 +256,7 @@ def create_crit(device, half):
 
 
 def create_model(model_name, device, half) -> nn.Module:
-    model_class = getattr(cifar10_models, model_name)
+    model_class = getattr(models, model_name)
     net = model_class()
     logging.info(f'param_size_m={param_size(net):.1e}')
     net = net.to(device)

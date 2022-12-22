@@ -2,18 +2,18 @@
 # Licensed under the MIT license.
 
 import torch
-from archai import cifar10_models
+from archai.cv import models
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import common_init
-from archai.datasets import data
+from archai.cv.datasets import data
 
 def train_test(conf_eval:Config):
     conf_loader = conf_eval['loader']
     conf_trainer = conf_eval['trainer']
 
     # create model
-    Net = cifar10_models.resnet34
+    Net = models.resnet34
     model = Net().to(torch.device('cuda', 0))
 
     # get data

@@ -5,7 +5,7 @@ from __future__ import print_function
 
 from collections import defaultdict
 
-from archai.augmentations import get_augment, augment_list
+from archai.cv.datasets.augmentation import get_augment, augment_list
 
 
 def arsaug_policy():
