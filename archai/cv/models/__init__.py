@@ -10,6 +10,14 @@ from archai.cv.models.shakeshake.shake_resnet import ShakeResNet
 from archai.cv.models.wideresnet import WideResNet
 from archai.cv.models.shakeshake.shake_resnext import ShakeResNeXt
 
+from archai.cv.models.mobilenetv2 import *
+from archai.cv.models.resnet_cifar10 import *
+from archai.cv.models.vgg import *
+from archai.cv.models.densenet import *
+from archai.cv.models.resnet_orig import *
+from archai.cv.models.googlenet import *
+from archai.cv.models.inception import *
+
 
 def get_model(conf, num_class=10):
     name = conf['type']
