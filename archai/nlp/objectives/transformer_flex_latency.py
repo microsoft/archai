@@ -13,7 +13,7 @@ import torch
 from onnxruntime import InferenceSession
 from overrides import overrides
 
-from archai.discrete_search import ArchaiModel, DatasetProvider, Objective
+from archai.discrete_search import ArchaiModel, DatasetProvider, SyncEvaluator
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.nlp.onnx.export import export_to_onnx
 from archai.nlp.onnx.export_utils import prepare_model_for_onnx
@@ -24,11 +24,7 @@ from archai.nlp.search_spaces.transformer_flex.search_space import (
 )
 
 
-class TransformerFlexOnnxLatency(Objective):
-    """Implement a Transformer-Flex ONNX latency objective."""
-
-    higher_is_better: bool = False
-
+class TransformerFlexOnnxLatency(SyncEvaluator):
     def __init__(
         self,
         search_space: TransformerFlexSearchSpace,
@@ -38,17 +34,17 @@ class TransformerFlexOnnxLatency(Objective):
         n_trials: Optional[int] = 1,
         use_median: Optional[bool] = False,
     ) -> None:
-        """Initialize the `TransformerFlexOnnxLatency` instance.
+        """Measures the average latency of models from the Transformer-Flex search space.
 
         Args:
-            search_space: The search space to use for loading the model.
-            batch_size: The batch size to use when benchmarking the model.
-            seq_len: The sequence length to use when benchmarking the model.
-            past_seq_len: The past sequence length to use when benchmarking the model.
-            n_trials: The number of trials to use when benchmarking the model.
-            use_median: Whether to use the median or the mean of the measured
-                times as the result.
-
+            search_space (TransformerFlexSearchSpace): A Transformer-Flex search space.
+            batch_size (Optional[int], optional): Benchmark batch size. Defaults to 1.
+            seq_len (Optional[int], optional): Benchmark sequence length. Defaults to 192.
+            past_seq_len (Optional[int], optional): Benchmark past sequence length. Defaults to 0.
+            n_trials (Optional[int], optional): Number of trials used to compute the
+                average latency. Defaults to 1.
+            use_median (Optional[bool], optional): Compute the median of the measured
+                latencies instead of the mean. Defaults to False.
         """
 
         assert search_space.arch_type in ["gpt2", "gpt2-flex"]
