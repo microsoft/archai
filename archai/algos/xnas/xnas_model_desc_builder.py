@@ -12,7 +12,7 @@ from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc
 from archai.common.config import Config
 
-from .xnas_op import XnasOp
+from archai.algos.xnas.xnas_op import XnasOp
 
 class XnasModelDescBuilder(ModelDescBuilder):
     @overrides

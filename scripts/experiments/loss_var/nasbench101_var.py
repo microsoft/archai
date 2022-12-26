@@ -18,7 +18,6 @@ import torchvision.transforms as transforms
 import yaml
 
 from archai.common import utils, common
-from archai import cifar10_models
 from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 
 

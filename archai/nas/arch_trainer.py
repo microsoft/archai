@@ -5,19 +5,15 @@ from typing import Optional, Callable, Type
 import os
 
 import torch
-from torch.utils.data import DataLoader
 from torch import Tensor
-from torch.optim.optimizer import Optimizer
-from torch.optim.lr_scheduler import _LRScheduler
 
 from overrides import overrides, EnforceOverrides
 
 from archai.common.config import Config
-from archai.common import common, utils
+from archai.common import utils
 from archai.nas.model import Model
-from archai.nas.model_desc import ModelDesc
 from archai.common.trainer import Trainer
-from archai.datasets import data
+from archai.cv.datasets import data
 from archai.nas.vis_model_desc import draw_model_desc
 from archai.common.checkpoint import CheckPoint
 

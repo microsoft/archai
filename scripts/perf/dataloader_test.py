@@ -4,7 +4,7 @@
 
 import logging
 
-from archai.datasets import data
+from archai.cv.datasets import data
 from archai.common import utils
 from archai.common.timing import MeasureTime, print_all_timings, print_timing, get_timing
 from archai.common.common import logger, common_init

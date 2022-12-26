@@ -13,7 +13,7 @@ from archai import cifar10_models
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common import common
-from archai.datasets import data
+from archai.cv.datasets import data
 from archai.common.metrics import Metrics
 
 def train_test()->Metrics:

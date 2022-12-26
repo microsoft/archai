@@ -1,16 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Collection, Optional, Tuple, List
+from typing import Optional, Tuple, List
 import copy
 
 from overrides import EnforceOverrides
 
 from archai.common.config import Config
-from archai.nas.model_desc import ModelDesc, OpDesc, CellType, NodeDesc, EdgeDesc, \
+from archai.nas.model_desc import ModelDesc, OpDesc, CellType, NodeDesc, \
                                   CellDesc, AuxTowerDesc, ConvMacroParams, \
                                   TensorShape, TensorShapes, TensorShapesList
-from archai.common.common import logger
 from archai.nas.operations import StemBase, Op
 
 

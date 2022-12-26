@@ -8,11 +8,11 @@ class A:
         self.a1 = 3.14
 
 class B:
-	def __init__(self):
-	    self.a=A()
-	    self.i = 3
-	    self.s = 'eeee'
-	    self.d={'k':{'kk':5}}
+    def __init__(self):
+        self.a = A()
+        self.i = 3
+        self.s = 'eeee'
+        self.d = {'k':{'kk':5}}
 
 
 def test_state_dict():

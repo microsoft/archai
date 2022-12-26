@@ -2,21 +2,20 @@
 # Licensed under the MIT license.
 
 from argparse import ArgumentError
-from typing import Any, Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
-from abc import ABC, abstractmethod
+from typing import Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
+from abc import ABC
 import copy
 import math
 
 from overrides import overrides, EnforceOverrides
 
 import torch
-from torch import affine_grid_generator, nn, Tensor, strided
+from torch import nn, Tensor
 
-from archai.common import utils, ml_utils
+from archai.common import ml_utils
 from archai.nas.model_desc import OpDesc, ConvMacroParams
 from archai.nas.arch_params import ArchParams
 from archai.nas.arch_module import ArchModule
-from archai.common.utils import zip_eq
 
 # type alias
 OpFactoryFn = Callable[[OpDesc, Iterable[nn.Parameter]], 'Op']

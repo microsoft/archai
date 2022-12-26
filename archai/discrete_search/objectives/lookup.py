@@ -6,7 +6,7 @@ import nats_bench
 
 from archai.discrete_search import Objective, ArchaiModel
 from archai.discrete_search.search_spaces.natsbench_tss.search_space import NatsbenchTssSearchSpace
-from archai.datasets.dataset_provider import DatasetProvider
+from archai.cv.datasets.dataset_provider import DatasetProvider
 
 
 class NatsbenchMetric(Objective):

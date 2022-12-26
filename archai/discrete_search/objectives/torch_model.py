@@ -5,7 +5,7 @@ from overrides import overrides
 import tensorwatch as tw
 
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.datasets.dataset_provider import DatasetProvider
+from archai.cv.datasets.dataset_provider import DatasetProvider
 from archai.discrete_search.api.objective import Objective
 
 

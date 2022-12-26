@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from archai.common.config import Config
-from archai.datasets import data
+from archai.cv.datasets import data
 from torchvision import transforms
 from archai.common.ml_utils import channel_norm
 

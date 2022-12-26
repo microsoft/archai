@@ -14,7 +14,7 @@ from os import stat
 
 import yaml
 
-from . import yaml_utils
+from archai.common import yaml_utils
 
 
 # global config instance

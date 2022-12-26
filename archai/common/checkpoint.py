@@ -8,8 +8,8 @@ import os
 
 import torch
 
-from .config import Config
-from . import utils
+from archai.common.config import Config
+from archai.common import utils
 
 _CallbackType = Callable #[['CheckPoint', *kargs: Any, **kwargs: Any], None]
 class CheckPoint(UserDict):

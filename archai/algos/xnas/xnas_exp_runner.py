@@ -7,8 +7,8 @@ from overrides import overrides
 
 from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import TArchTrainer
-from .xnas_model_desc_builder import XnasModelDescBuilder
-from .xnas_arch_trainer import XnasArchTrainer
+from archai.algos.xnas.xnas_model_desc_builder import XnasModelDescBuilder
+from archai.algos.xnas.xnas_arch_trainer import XnasArchTrainer
 
 class XnasExperimentRunner(ExperimentRunner):
     @overrides
