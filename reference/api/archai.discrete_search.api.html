@@ -964,7 +964,7 @@ please refer to <cite>archai.discrete_search.AsyncObjective</cite>.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>arch</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Model to be evaluated</p></li>
-<li><p><strong>dataset</strong> (<a class="reference internal" href="archai.datasets.html#archai.datasets.dataset_provider.DatasetProvider" title="archai.datasets.dataset_provider.DatasetProvider"><em>DatasetProvider</em></a>) – A dataset provider object</p></li>
+<li><p><strong>dataset</strong> (<em>DatasetProvider</em>) – A dataset provider object</p></li>
 <li><p><strong>budget</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A budget multiplier value, used by search algorithms like
 <cite>SucessiveHalving</cite> to specify how much compute should be spent in this evaluation.
 In order to use this type of search algorithm, the implementation of <cite>eval</cite> must
@@ -1031,7 +1031,7 @@ sent evaluation jobs and cleans the job queue.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>arch</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Evaluated model</p></li>
-<li><p><strong>dataset</strong> (<a class="reference internal" href="archai.datasets.html#archai.datasets.dataset_provider.DatasetProvider" title="archai.datasets.dataset_provider.DatasetProvider"><em>DatasetProvider</em></a>) – Dataset</p></li>
+<li><p><strong>dataset</strong> (<em>DatasetProvider</em>) – Dataset</p></li>
 <li><p><strong>budget</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A budget multiplier value, used by search algorithms like
 <cite>SucessiveHalving</cite> to specify how much compute should be spent in this evaluation.
 Defaults to None.</p></li>
@@ -1334,7 +1334,7 @@ by a subclass implementation of <cite>BayesOptSearchSpaceBase.encode</cite></p>
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 21, 2022.<br/>
+    Last updated on Dec 26, 2022.<br/>
 </p>
         </footer>
     </div>

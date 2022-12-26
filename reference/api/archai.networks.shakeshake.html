@@ -797,12 +797,12 @@ title="Edit this page"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.networks.shakeshake.shake_resnet">
+  <a class="reference internal nav-link" href="#shake-resnet">
    Shake ResNet
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.networks.shakeshake.shake_resnext">
+  <a class="reference internal nav-link" href="#shake-resnext">
    Shake ResNext
   </a>
  </li>
@@ -831,12 +831,12 @@ title="Edit this page"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.networks.shakeshake.shake_resnet">
+  <a class="reference internal nav-link" href="#shake-resnet">
    Shake ResNet
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.networks.shakeshake.shake_resnext">
+  <a class="reference internal nav-link" href="#shake-resnext">
    Shake ResNext
   </a>
  </li>
@@ -857,177 +857,14 @@ title="Edit this page"
                 
   <section id="shakeshake">
 <h1>ShakeShake<a class="headerlink" href="#shakeshake" title="Permalink to this headline">#</a></h1>
-<section id="module-archai.networks.shakeshake.shake_resnet">
-<span id="shake-resnet"></span><h2>Shake ResNet<a class="headerlink" href="#module-archai.networks.shakeshake.shake_resnet" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnet.ShakeBlock">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.networks.shakeshake.shake_resnet.</span></span><span class="sig-name descname"><span class="pre">ShakeBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shake_resnet.html#ShakeBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shake_resnet.ShakeBlock" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnet.ShakeBlock.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shake_resnet.html#ShakeBlock.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shake_resnet.ShakeBlock.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnet.ShakeBlock.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.networks.shakeshake.shake_resnet.ShakeBlock.training" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnet.ShakeResNet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.networks.shakeshake.shake_resnet.</span></span><span class="sig-name descname"><span class="pre">ShakeResNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shake_resnet.html#ShakeResNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shake_resnet.ShakeResNet" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnet.ShakeResNet.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shake_resnet.html#ShakeResNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shake_resnet.ShakeResNet.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnet.ShakeResNet.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.networks.shakeshake.shake_resnet.ShakeResNet.training" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="shake-resnet">
+<h2>Shake ResNet<a class="headerlink" href="#shake-resnet" title="Permalink to this headline">#</a></h2>
 </section>
-<section id="module-archai.networks.shakeshake.shake_resnext">
-<span id="shake-resnext"></span><h2>Shake ResNext<a class="headerlink" href="#module-archai.networks.shakeshake.shake_resnext" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnext.ShakeBottleNeck">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.networks.shakeshake.shake_resnext.</span></span><span class="sig-name descname"><span class="pre">ShakeBottleNeck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cardinary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shake_resnext.html#ShakeBottleNeck"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shake_resnext.ShakeBottleNeck" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnext.ShakeBottleNeck.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shake_resnext.html#ShakeBottleNeck.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shake_resnext.ShakeBottleNeck.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnext.ShakeBottleNeck.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.networks.shakeshake.shake_resnext.ShakeBottleNeck.training" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnext.ShakeResNeXt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.networks.shakeshake.shake_resnext.</span></span><span class="sig-name descname"><span class="pre">ShakeResNeXt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cardinary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shake_resnext.html#ShakeResNeXt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shake_resnext.ShakeResNeXt" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnext.ShakeResNeXt.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shake_resnext.html#ShakeResNeXt.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shake_resnext.ShakeResNeXt.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shake_resnext.ShakeResNeXt.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.networks.shakeshake.shake_resnext.ShakeResNeXt.training" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="shake-resnext">
+<h2>Shake ResNext<a class="headerlink" href="#shake-resnext" title="Permalink to this headline">#</a></h2>
 </section>
 <section id="id1">
 <h2>ShakeShake<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h2>
-<span class="target" id="module-archai.networks.shakeshake.shakeshake"></span><dl class="py class">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shakeshake.ShakeShake">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.networks.shakeshake.shakeshake.</span></span><span class="sig-name descname"><span class="pre">ShakeShake</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shakeshake.html#ShakeShake"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shakeshake.ShakeShake" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shakeshake.ShakeShake.forward">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shakeshake.html#ShakeShake.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shakeshake.ShakeShake.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs the operation.</p>
-<p>This function is to be overridden by all subclasses.</p>
-<p>It must accept a context ctx as the first argument, followed by any
-number of arguments (tensors or other types).</p>
-<p>The context can be used to store arbitrary data that can be then
-retrieved during the backward pass. Tensors should not be stored
-directly on <cite>ctx</cite> (though this is not currently enforced for
-backward compatibility). Instead, tensors should be saved either with
-<code class="xref py py-func docutils literal notranslate"><span class="pre">ctx.save_for_backward()</span></code> if they are intended to be used in
-<code class="docutils literal notranslate"><span class="pre">backward</span></code> (equivalently, <code class="docutils literal notranslate"><span class="pre">vjp</span></code>) or <code class="xref py py-func docutils literal notranslate"><span class="pre">ctx.save_for_forward()</span></code>
-if they are intended to be used for in <code class="docutils literal notranslate"><span class="pre">jvp</span></code>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shakeshake.ShakeShake.backward">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shakeshake.html#ShakeShake.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shakeshake.ShakeShake.backward" title="Permalink to this definition">#</a></dt>
-<dd><p>Defines a formula for differentiating the operation with backward mode
-automatic differentiation (alias to the vjp function).</p>
-<p>This function is to be overridden by all subclasses.</p>
-<p>It must accept a context <code class="xref py py-attr docutils literal notranslate"><span class="pre">ctx</span></code> as the first argument, followed by
-as many outputs as the <a class="reference internal" href="#archai.networks.shakeshake.shakeshake.ShakeShake.forward" title="archai.networks.shakeshake.shakeshake.ShakeShake.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a> returned (None will be passed in
-for non tensor outputs of the forward function),
-and it should return as many tensors, as there were inputs to
-<a class="reference internal" href="#archai.networks.shakeshake.shakeshake.ShakeShake.forward" title="archai.networks.shakeshake.shakeshake.ShakeShake.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a>. Each argument is the gradient w.r.t the given output,
-and each returned value should be the gradient w.r.t. the
-corresponding input. If an input is not a Tensor or is a Tensor not
-requiring grads, you can just pass None as a gradient for that input.</p>
-<p>The context can be used to retrieve tensors saved during the forward
-pass. It also has an attribute <code class="xref py py-attr docutils literal notranslate"><span class="pre">ctx.needs_input_grad</span></code> as a tuple
-of booleans representing whether each input needs gradient. E.g.,
-<a class="reference internal" href="#archai.networks.shakeshake.shakeshake.ShakeShake.backward" title="archai.networks.shakeshake.shakeshake.ShakeShake.backward"><code class="xref py py-func docutils literal notranslate"><span class="pre">backward()</span></code></a> will have <code class="docutils literal notranslate"><span class="pre">ctx.needs_input_grad[0]</span> <span class="pre">=</span> <span class="pre">True</span></code> if the
-first input to <a class="reference internal" href="#archai.networks.shakeshake.shakeshake.ShakeShake.forward" title="archai.networks.shakeshake.shakeshake.ShakeShake.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a> needs gradient computated w.r.t. the
-output.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shakeshake.Shortcut">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.networks.shakeshake.shakeshake.</span></span><span class="sig-name descname"><span class="pre">Shortcut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shakeshake.html#Shortcut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shakeshake.Shortcut" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shakeshake.Shortcut.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/networks/shakeshake/shakeshake.html#Shortcut.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.networks.shakeshake.shakeshake.Shortcut.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Defines the computation performed at every call.</p>
-<p>Should be overridden by all subclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although the recipe for forward pass needs to be defined within
-this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
-instead of this since the former takes care of running the
-registered hooks while the latter silently ignores them.</p>
-</div>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.networks.shakeshake.shakeshake.Shortcut.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.networks.shakeshake.shakeshake.Shortcut.training" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </section>
 </section>
 
@@ -1063,7 +900,7 @@ registered hooks while the latter silently ignores them.</p>
     By Microsoft<br/>
   
       &copy; Copyright 2022.<br/>
-    Last updated on Dec 21, 2022.<br/>
+    Last updated on Dec 26, 2022.<br/>
 </p>
         </footer>
     </div>
