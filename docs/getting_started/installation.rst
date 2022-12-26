@@ -26,7 +26,7 @@ Installing from source ensures that the latest version of the package is used, i
     .. code-block:: sh
 
         git clone https://github.com/microsoft/archai.git
-        cd archai
+        cd archai/scripts
         install.sh
 
 .. tab:: Windows
@@ -34,7 +34,7 @@ Installing from source ensures that the latest version of the package is used, i
     .. code-block:: sh
 
         git clone https://github.com/microsoft/archai.git
-        cd archai
+        cd archai/scripts
         install.bat
 
 Docker
