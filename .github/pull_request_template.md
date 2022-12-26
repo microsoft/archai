@@ -15,14 +15,11 @@ Please delete options that are not relevant.
 - [ ] Breaking change (causes existing functionality to not work as expected)
 - [ ] Documentation update
 
-## Tests
-
-The unitary tests suite will be built.
 
 **Configuration**:
 * Archai version:
-* Platform:
 * Environment:
+* OS:
 
 ## Final checks:
 
