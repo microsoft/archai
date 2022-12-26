@@ -12,7 +12,7 @@ from overrides import overrides
 
 from torch.utils.data import Dataset, Subset
 
-from archai.datasets.dataset_provider import DatasetProvider
+from archai.cv.datasets.dataset_provider import DatasetProvider
 from archai.discrete_search.datasets.lmdb_image_provider import TensorpackLmdbImageDataset
 
 
