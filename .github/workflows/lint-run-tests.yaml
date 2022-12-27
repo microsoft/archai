@@ -35,7 +35,7 @@ jobs:
         shell: bash -l {0}
         run: |
           sudo apt install -y graphviz
-          python -m pip install --user -e .[tests]
+          python -m pip install --user -e .[dev]
           python -m pip install graphviz
       - name: Finds Python syntax errors and undefined names
         shell: bash -l {0}
