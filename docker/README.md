@@ -1,21 +1,23 @@
-# Running Archai with Docker
+# Using Docker to Run Archai
 
-This folder provides tools for creating secure development and production environments, such as Docker and gVisor.
+This folder contains tools for creating development and production environments that are secure and isolated from the host system, including Docker and gVisor.
 
 ## Docker
 
-The `Dockerfile` provides a development environment to run experiments. Additionally, `build_image.sh` and `run_container.sh` provides scripts to build the image and run the container, respectively:
+The Dockerfile can be used to build a development environment for running experiments. The `build_image.sh` and `run_container.sh` scripts can be used to build the Docker image and run the container, respectively:
 
 ```bash
 bash build_image.sh
 bash run_container.sh
 ```
 
-## Docker + gVisor (safe environment)
+## Docker and gVisor for Enhanced Security
 
-[gVisor](https://gvisor.dev) implements an additional security layer for containers by intercepting and monitoring runtime instructions before they reach the underlying host. Its main goal is to allow untrusted workloads without compromising other workloads or underlying infrastructure.
+[gVisor](https://gvisor.dev) is a runtime that provides an additional layer of security for containers by intercepting and monitoring runtime instructions before they reach the host system. Its primary goal is to enable the execution of untrusted workloads without compromising the security of other workloads or the underlying infrastructure.
 
-The following steps describe how to download and install the latest release:
+To install the latest release of gVisor and use it as a Docker runtime:
+
+Download and install gVisor:
 
 ```bash
 (
@@ -30,14 +32,14 @@ The following steps describe how to download and install the latest release:
 )
 ```
 
-Additionally, one needs to install gVisor as a Docker runtime:
+Set gVisor as the Docker runtime:
 
 ```bash
 sudo /usr/local/bin/runsc install
 sudo systemctl restart docker
 ```
 
-Finally, the container (Docker + gVisor) can be run as follows:
+To run the container with Docker and gVisor:
 
 ```bash
 bash run_container_with_gvisor.sh
