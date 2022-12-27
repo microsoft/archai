@@ -30,7 +30,7 @@ jobs:
         shell: bash -l {0}
         run: |
           sudo apt install pandoc -y
-          python -m pip install --user -e .[docs]
+          python -m pip install --user -e .[dev]
       - name: Builds the documentation
         shell: bash -l {0}
         run: |
