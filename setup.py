@@ -65,6 +65,7 @@ extras_require["cv"] = filter_dependencies(
 extras_require["nlp"] = filter_dependencies(
     "coloredlogs", "datasets", "evaluate", "ftfy", "sacremoses", "sympy", "tokenizers", "transformers"
 )
+extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
 
 extras_require["docs"] = filter_dependencies(
     "nbsphinx",
@@ -77,7 +78,6 @@ extras_require["docs"] = filter_dependencies(
     "sphinxcontrib-mermaid",
 )
 extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest")
-
 extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
 
 install_requires = filter_dependencies(
