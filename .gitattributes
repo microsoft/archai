@@ -2,3 +2,6 @@
 # Licensed under the MIT license.
 
 *.sh text eol=lf 
+
+# Removes documentation from stats
+docs/** linguist-documentation
