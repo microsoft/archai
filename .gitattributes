@@ -3,5 +3,7 @@
 
 *.sh text eol=lf 
 
-# Removes documentation from stats
+# Removes documentation and jupyter notebooks from stats
 docs/** linguist-vendored
+*.ipynb linguist-language=Python
+
