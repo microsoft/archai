@@ -11,8 +11,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Creates a corpus (tokenizer + encoded dataset).")
 
     parser.add_argument(
-        "-dn",
-        "--dataset_name",
+        "-d",
+        "--dataset",
         type=str,
         choices=["wt103"],
         default="wt103",
@@ -48,7 +48,7 @@ def parse_args() -> argparse.Namespace:
         type=str,
         choices=["word", "bbpe", "gpt2"],
         default="gpt2",
-        help="Type of vocabulary.",
+        help="Type of vocabulary/tokenizer.",
     )
 
     parser.add_argument(
@@ -69,12 +69,12 @@ if __name__ == "__main__":
 
     args.dataset_dir, _, _, args.dataset_cache_dir = create_dirs(
         args.dataset_dir,
-        args.dataset_name,
+        args.dataset,
         cache_dir=args.dataset_cache_dir,
     )
 
     dataset = load_corpus(
-        args.dataset_name,
+        args.dataset,
         args.dataset_dir,
         args.dataset_cache_dir,
         args.vocab,

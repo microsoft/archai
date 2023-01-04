@@ -1,7 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import torch
+import argparse
+
 from transformers import (
     BertConfig,
     BertForPreTraining,
@@ -16,17 +17,56 @@ from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
 )
 from archai.nlp.trainers.hf.trainer import HfTrainer
 
-if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    tokenizer = ArchaiPreTrainedTokenizerFast.from_pretrained("bert-base-uncased", model_max_length=192)
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Pre-trains a BERT using the Huggingface trainer.")
+
+    parser.add_argument(
+        "-dn",
+        "--dataset_name",
+        type=str,
+        default="wikitext",
+        help="Name of the dataset to use (via the datasets library).",
+    )
+
+    parser.add_argument(
+        "-dcn",
+        "--dataset_config_name",
+        type=str,
+        default="wikitext-103-raw-v1",
+        help="Configuration name of the dataset to use (via the datasets library).",
+    )
+
+    parser.add_argument("-seq", "--seq_len", type=int, default=192, help="Sequence length.")
+
+    parser.add_argument("-ls", "--logging_steps", type=int, default=10, help="Number of steps between logs.")
+
+    parser.add_argument("-es", "--eval_steps", type=int, default=100, help="Number of steps between evaluations.")
+
+    parser.add_argument("-bsz", "--per_device_train_batch_size", type=int, default=64, help="Batch size per device.")
+
+    parser.add_argument("-lr", "--learning_rate", type=float, default=0.01, help="Learning rate.")
+
+    parser.add_argument("-wd", "--weight_decay", type=float, default=0.0, help="Weight decay.")
+
+    parser.add_argument("-n", "--max_steps", type=int, default=250, help="Maximum number of steps.")
+
+    args = parser.parse_args()
+
+    return args
+
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    tokenizer = ArchaiPreTrainedTokenizerFast.from_pretrained("bert-base-uncased", model_max_length=args.seq_len)
     tokenizer.add_special_tokens(
         {"pad_token": "[PAD]", "unk_token": "[UNK]", "cls_token": "[CLS]", "sep_token": "[SEP]", "mask_token": "[MASK]"}
     )
 
     collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True)
 
-    dataset = load_dataset("wikitext", "wikitext-103-v1")
+    dataset = load_dataset(args.dataset_name, args.dataset_config_name)
     dataset = encode_dataset(dataset, tokenizer, mapping_fn=tokenize_nsp_dataset)
 
     config = BertConfig(
@@ -34,7 +74,7 @@ if __name__ == "__main__":
         num_hidden_layers=12,
         num_attention_heads=12,
         intermediate_size=3072,
-        max_position_embeddings=512,
+        max_position_embeddings=args.seq_len,
         pad_token_id=3,
         vocab_size=30522,
     )
@@ -45,12 +85,12 @@ if __name__ == "__main__":
     training_args = TrainingArguments(
         "hf-bert",
         evaluation_strategy="steps",
-        eval_steps=250,
-        logging_steps=10,
-        per_device_train_batch_size=64,
-        learning_rate=0.01,
-        weight_decay=0.0,
-        max_steps=250,
+        logging_steps=args.logging_steps,
+        eval_steps=args.eval_steps,
+        per_device_train_batch_size=args.per_device_train_batch_size,
+        learning_rate=args.learning_rate,
+        weight_decay=args.weight_decay,
+        max_steps=args.max_steps,
     )
     trainer = HfTrainer(
         model=model,

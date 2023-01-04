@@ -28,7 +28,7 @@ def parse_args() -> argparse.Namespace:
             "transfo-xl",
         ],
         default="gpt2",
-        help="Type of the tokenizer to use",
+        help="Type of the tokenizer to use.",
     )
 
     parser.add_argument(
