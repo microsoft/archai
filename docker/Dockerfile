@@ -26,4 +26,4 @@ RUN apt-get install -y apt-utils git
 # Note that APEX is not needed because it comes with NVIDIA's image
 RUN git clone -b v0.7.0 --single-branch https://github.com/microsoft/archai.git
 WORKDIR /workspace/archai
-RUN pip install --user --no-cache-dir .
+RUN pip install --user --no-cache-dir .[dev]
