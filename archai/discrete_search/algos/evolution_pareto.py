@@ -149,7 +149,7 @@ class EvolutionParetoSearch(Searcher):
         for i in range(self.num_iters):
             self.iter_num = i + 1
 
-            self.logger.info(f'starting evolution pareto iter {i}')
+            self.logger.info(f'starting iter {i}')
             self.on_search_iteration_start(unseen_pop)
 
             # Calculates objectives
@@ -173,7 +173,7 @@ class EvolutionParetoSearch(Searcher):
             self.seen_archs.update([m.archid for m in unseen_pop])
 
             # update the pareto frontier
-            self.logger.info(f'iter {i}: updating the pareto')
+            self.logger.info(f'iter {i}: updating Pareto Frontier')
             pareto = self.search_state.get_pareto_frontier()['models']
             self.logger.info(f'iter {i}: found {len(pareto)} members')
 
