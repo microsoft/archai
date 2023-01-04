@@ -1,4 +1,4 @@
-from typing import Dict, Union, Any
+from typing import Dict, Union, Any, Optional
 from collections import OrderedDict
 from copy import deepcopy
 import json
