@@ -12,4 +12,4 @@ set -o xtrace
 
 conda install -y -c anaconda pydot graphviz
 bash scripts/apex_install.sh
-pip install -e .
+pip install -e .[dev]
