@@ -20,8 +20,7 @@ class RandomSearch(Searcher):
                  search_objectives: SearchObjectives, 
                  dataset_provider: DatasetProvider,
                  output_dir: str, num_iters: int = 10,
-                 samples_per_iter: int = 10, 
-                 seed: int = 1):
+                 samples_per_iter: int = 10, seed: int = 1):
         
         assert isinstance(search_space, DiscreteSearchSpace), \
             f'{str(search_space.__class__)} is not compatible with {str(self.__class__)}'
@@ -41,46 +40,48 @@ class RandomSearch(Searcher):
         self.search_state = SearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
-        self.evaluated_architectures = set()
+        self.seen_archs = set()
         self.num_sampled_archs = 0
         self.logger = create_logger(str(self.output_dir / 'log.log'), enable_stdout=True)
 
         assert self.samples_per_iter > 0 
         assert self.num_iters > 0
 
-    def sample_random_models(self, num_models: int) -> List[ArchaiModel]:
-        return [self.search_space.random_sample() for _ in range(num_models)]
+    def sample_models(self, num_models: int, patience: int = 5) -> List[ArchaiModel]:
+        nb_tries, valid_sample = 0, []
+
+        while len(valid_sample) < num_models and nb_tries < patience:
+            sample = [self.search_space.random_sample() for _ in range(num_models)]
+
+            _, valid_indices = self.so.eval_constraints(sample, self.dataset_provider)
+            valid_sample += [sample[i] for i in valid_indices 
+                             if sample[i].archid not in self.seen_archs]
+
+        return valid_sample[:num_models]
 
     @overrides
     def search(self) -> SearchResults:
-        # sample the initial population
-        self.iter_num = 0
-        self.logger.info(
-            f'Using {self.samples_per_iter} random architectures as the initial population'
-        )
-        unseen_pop = self.sample_random_models(self.samples_per_iter)
-
-        self.all_pop = unseen_pop
         for i in range(self.num_iters):
             self.iter_num = i + 1
-            self.logger.info(f'starting random search iter {i}')
+            self.logger.info(f'starting iter {i}')
+            
+            self.logger.info(f'Sampling {self.init_num_models} random models')
+            unseen_pop = self.sample_models(self.init_num_models)
 
             # Calculates objectives
             self.logger.info(
-                f'iter {i}: calculating search objectives {str(self.objectives)} for'
+                f'iter {i}: calculating search objectives {list(self.so.objs.keys())} for'
                 f' {len(unseen_pop)} models'
             )
 
-            results = evaluate_models(unseen_pop, self.objectives, self.dataset_provider)
-            self.search_state.add_iteration_results(
-                unseen_pop, results,
-            )
+            results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
+            self.search_state.add_iteration_results(unseen_pop, results)
 
             # Records evaluated archs to avoid computing the same architecture twice
-            self.evaluated_architectures.update([m.archid for m in unseen_pop])
+            self.seen_archs.update([m.archid for m in unseen_pop])
 
             # update the pareto frontier
-            self.logger.info(f'iter {i}: updating the pareto')
+            self.logger.info(f'iter {i}: updating Pareto Frontier')
             pareto = self.search_state.get_pareto_frontier()['models']
             self.logger.info(f'iter {i}: found {len(pareto)} members')
 
@@ -94,9 +95,5 @@ class RandomSearch(Searcher):
             )
 
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
-            unseen_pop = self.sample_random_models(self.samples_per_iter)
-
-            # update the set of architectures ever visited
-            self.all_pop.extend(unseen_pop)
 
         return self.search_state
