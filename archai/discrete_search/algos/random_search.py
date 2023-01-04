@@ -65,8 +65,8 @@ class RandomSearch(Searcher):
             self.iter_num = i + 1
             self.logger.info(f'starting iter {i}')
             
-            self.logger.info(f'Sampling {self.init_num_models} random models')
-            unseen_pop = self.sample_models(self.init_num_models)
+            self.logger.info(f'Sampling {self.samples_per_iter} random models')
+            unseen_pop = self.sample_models(self.samples_per_iter)
 
             # Calculates objectives
             self.logger.info(
