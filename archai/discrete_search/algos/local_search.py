@@ -49,8 +49,6 @@ class LocalSearch(Searcher):
 
         assert self.init_num_models > 0 
         assert self.num_iters > 0
-        assert self.num_random_mix > 0
-        assert self.max_unseen_population > 0
 
     def mutate_parents(self, parents:List[ArchaiModel],
                        mutations_per_parent: int = 1,
@@ -109,9 +107,11 @@ class LocalSearch(Searcher):
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
-
             self.logger.info(f'starting iter {i}')
-            self.on_search_iteration_start(unseen_pop)
+
+            if len(unseen_pop) == 0:
+                self.logger.info(f'iter {i}: no models to evaluate, stopping search.')
+                break
 
             # Calculates objectives
             self.logger.info(
@@ -152,7 +152,7 @@ class LocalSearch(Searcher):
             # while ensuring the mutations fall within 
             # desired constraint limits
             unseen_pop = self.mutate_parents(pareto, self.mutations_per_parent)
-            self.logger.info(f'iter {i}: mutation yielded {len(mutated)} new models')
+            self.logger.info(f'iter {i}: mutation yielded {len(unseen_pop)} new models')
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)
