@@ -1,9 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Validates the usage of past key/values with an ONNX model.
-"""
-
 import argparse
 
 import numpy as np
@@ -43,10 +40,7 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    # Gathers the command line arguments
     args = parse_args()
-
-    # Transforms the command lines arguments into variables
     onnx_model_path = args.onnx_model_path
     n_head = args.n_head
     d_head = args.d_head
@@ -59,18 +53,14 @@ if __name__ == "__main__":
     n_runs = args.n_runs
     new_token_id = args.new_token_id
 
-    # Initializes accuracy as 0
     accuracy = 0.0
 
     for i in range(n_runs):
-        # Sets torch and numpy seeds
         torch.manual_seed(i)
         np.random.seed(i)
 
-        # Loads ONNX model
         model_onnx = load_from_onnx(onnx_model_path)
 
-        # Defines random inputs and zero-valued past states
         inputs = {"input_ids": np.random.randint(0, n_tokens, (batch_size, seq_len), dtype=np.int64)}
         for i in range(n_layers):
             key = f"past_{i}"
@@ -90,7 +80,6 @@ if __name__ == "__main__":
         inputs["input_ids"] = np.expand_dims(np.append(inputs["input_ids"], new_token_id), 0)
         outputs_full = model_onnx.run(None, inputs)
 
-        # Calculates the accuracy
         accuracy += np.argmax(outputs_partial[0]) == np.argmax(outputs_full[0])
 
         print(f"Partial pass (with past key/value) sample token: {np.argmax(outputs_partial[0])}")

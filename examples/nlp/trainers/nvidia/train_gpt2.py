@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 import argparse
+
 from transformers import GPT2Config, GPT2LMHeadModel
 
 from archai.nlp.trainers.nvidia.trainer import NvidiaTrainer
@@ -9,7 +10,7 @@ from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Trains a GPT-2 model using the NVIDIA trainer.")
+    parser = argparse.ArgumentParser(description="Trains a GPT-2 using the NVIDIA trainer.")
 
     parser.add_argument("-s", "--seed", type=int, default=42, help="Random seed.")
 
@@ -33,7 +34,9 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("-n", "--max_steps", type=int, default=250, help="Maximum number of training steps.")
 
-    parser.add_argument("-ng", "--gradient_accumulation_steps", type=int, default=1, help="Number of gradient accumulation steps.")
+    parser.add_argument(
+        "-ng", "--gradient_accumulation_steps", type=int, default=1, help="Number of gradient accumulation steps."
+    )
 
     parser.add_argument("-o", "--optim", type=str, default="jitlamb", help="Name of the optimizer.")
 
@@ -46,7 +49,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     training_args = NvidiaTrainingArguments(
-        "gpt2",
+        "nvidia-gpt2",
         seed=args.seed,
         no_cuda=args.no_cuda,
         logging_steps=args.logging_steps,
