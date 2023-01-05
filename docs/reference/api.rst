@@ -9,11 +9,8 @@ This section of the documentation is intended for developers and researchers who
    :maxdepth: 2
 
    api/archai.algos
-   api/archai.cifar10_models
    api/archai.common
-   api/archai.data_aug
-   api/archai.datasets
+   api/archai.cv
    api/archai.discrete_search
    api/archai.nas
-   api/archai.networks
    api/archai.nlp

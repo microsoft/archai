@@ -4,20 +4,20 @@ Transforms
 Brightness
 ----------
 
-.. automodule:: archai.datasets.transforms.brightness
+.. automodule:: archai.cv.datasets.transforms.brightness
    :members:
    :undoc-members:
 
 Custom Cut-Out
 --------------
 
-.. automodule:: archai.datasets.transforms.cutout_custom
+.. automodule:: archai.cv.datasets.transforms.cutout_custom
    :members:
    :undoc-members:
 
 Lighting
 --------
 
-.. automodule:: archai.datasets.transforms.lighting
+.. automodule:: archai.cv.datasets.transforms.lighting
    :members:
    :undoc-members:
