@@ -4,6 +4,14 @@
 import os
 from typing import Optional, Union
 
+from src.modeling_codegen_conv_att import (
+    CodeGenConvAttConfig,
+    CodeGenConvAttForCausalLM,
+)
+from src.modeling_codegen_hard_coded import (
+    CodeGenHardCodedConfig,
+    CodeGenHardCodedForCausalLM,
+)
 from src.modeling_codegen_sgconv import CodeGenSGConvConfig, CodeGenSGConvForCausalLM
 from src.utils import from_yaml_file, load_collator
 from transformers import (
@@ -22,7 +30,12 @@ from archai.nlp.trainers.hf.trainer import HfTrainer
 logger = logging_utils.get_logger(__name__)
 
 # Register internal models to be compatible with auto classes
+AutoConfig.register("codegen_conv_att", CodeGenConvAttConfig)
+AutoConfig.register("codegen_hard_coded", CodeGenHardCodedConfig)
 AutoConfig.register("codegen_sgconv", CodeGenSGConvConfig)
+
+AutoModelForCausalLM.register(CodeGenConvAttConfig, CodeGenConvAttForCausalLM)
+AutoModelForCausalLM.register(CodeGenHardCodedConfig, CodeGenHardCodedForCausalLM)
 AutoModelForCausalLM.register(CodeGenSGConvConfig, CodeGenSGConvForCausalLM)
 
 
