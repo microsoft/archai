@@ -1,0 +1,3 @@
+archai[nlp]
+einops
+opt_einsum
