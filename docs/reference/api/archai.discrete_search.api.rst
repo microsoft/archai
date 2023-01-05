@@ -11,7 +11,7 @@ ArchaiModel
 Objectives
 ----------
 
-.. automodule:: archai.discrete_search.api.objective 
+.. automodule:: archai.discrete_search.api.objective
    :members:
    :undoc-members:
 
