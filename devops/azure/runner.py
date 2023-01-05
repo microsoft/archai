@@ -382,6 +382,8 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
 
     if not converted and onnx_model_found:
         model = convert(name, entity, long_name, onnx_model)
+        if model == 'error':
+            return
     elif converted:
         model_found, long_name, model = download_model(name, snpe_model_dir, conn_string, 'model.dlc')
         if not model_found:
@@ -558,10 +560,11 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
             log(f"# skipping {name} because something went wrong on previous step.")
             continue
         if not is_complete(entity, 'macs') or not is_true(entity, 'quantized'):
-            if not no_quantization:
-                continue
             if quantizing:
-                log(f"skip {name} for now until other quantization finishes on our node")
+                if no_quantization:
+                    log(f"No quantization work is done on this node. Skip {name} for now until other node works on it.")
+                else:
+                    log(f"skip {name} for now until other quantization finishes on our node")
                 continue
             priority = 20
         elif use_device and (total_benchmark_runs < MAX_BENCHMARK_RUNS):
