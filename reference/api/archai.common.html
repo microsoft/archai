@@ -39,8 +39,8 @@
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Data Augmentation" href="archai.data_aug.html" />
-    <link rel="prev" title="CIFAR-10 Models" href="archai.cifar10_models.html" />
+    <link rel="next" title="Computer Vision" href="archai.cv.html" />
+    <link rel="prev" title="XNAS" href="archai.algos.xnas.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -164,6 +164,11 @@
       </a>
      </li>
     </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../basic_guide/notebooks/cv.html">
+     Computer Vision
+    </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="../../basic_guide/notebooks/nlp.html">
@@ -290,25 +295,13 @@
 </ul>
 <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
-  Benchmarks
- </span>
-</p>
-<ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="../../benchmark/food_101.html">
-   Food-101
-  </a>
- </li>
-</ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
   Contributing
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../../contributing/first_contribution.html">
-   First Contribution
+   First Time Contributor
   </a>
  </li>
  <li class="toctree-l1">
@@ -417,24 +410,14 @@
      </li>
     </ul>
    </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="archai.cifar10_models.html">
-     CIFAR-10 Models
-    </a>
-   </li>
    <li class="toctree-l2 current active">
     <a class="current reference internal" href="#">
      Common Packages
     </a>
    </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="archai.data_aug.html">
-     Data Augmentation
-    </a>
-   </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="archai.datasets.html">
-     Datasets
+    <a class="reference internal" href="archai.cv.html">
+     Computer Vision
     </a>
     <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
     <label for="toctree-checkbox-9">
@@ -442,15 +425,44 @@
      </i>
     </label>
     <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.datasets.providers.html">
-       Providers
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.cv.datasets.html">
+       Datasets
       </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.cv.datasets.providers.html">
+         Providers
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.cv.datasets.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
      </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.datasets.transforms.html">
-       Transforms
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.cv.models.html">
+       Models
       </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.cv.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
      </li>
     </ul>
    </li>
@@ -458,8 +470,8 @@
     <a class="reference internal" href="archai.discrete_search.html">
      Discrete Search
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
-    <label for="toctree-checkbox-10">
+    <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+    <label for="toctree-checkbox-12">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -502,28 +514,11 @@
     </a>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="archai.networks.html">
-     Networks
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-    <label for="toctree-checkbox-11">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.networks.shakeshake.html">
-       ShakeShake
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
     <a class="reference internal" href="archai.nlp.html">
      Natural Language Processing
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
-    <label for="toctree-checkbox-12">
+    <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+    <label for="toctree-checkbox-13">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -532,8 +527,8 @@
       <a class="reference internal" href="archai.nlp.datasets.html">
        Datasets
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
-      <label for="toctree-checkbox-13">
+      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+      <label for="toctree-checkbox-14">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -554,8 +549,8 @@
       <a class="reference internal" href="archai.nlp.eval.html">
        Evaluation
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
-      <label for="toctree-checkbox-14">
+      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+      <label for="toctree-checkbox-15">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -586,8 +581,8 @@
       <a class="reference internal" href="archai.nlp.onnx.html">
        ONNX
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
-      <label for="toctree-checkbox-15">
+      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+      <label for="toctree-checkbox-16">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -613,8 +608,8 @@
       <a class="reference internal" href="archai.nlp.search_spaces.html">
        Search Spaces
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
-      <label for="toctree-checkbox-16">
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -630,8 +625,8 @@
       <a class="reference internal" href="archai.nlp.trainers.html">
        Trainers
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
-      <label for="toctree-checkbox-17">
+      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -2212,7 +2207,7 @@ registered hooks while the latter silently ignores them.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.common.trainer.</span></span><span class="sig-name descname"><span class="pre">Trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.common.checkpoint.CheckPoint" title="archai.common.checkpoint.CheckPoint"><span class="pre">archai.common.checkpoint.CheckPoint</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.common.trainer.Trainer.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.cv.datasets.data.DataLoaders</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.common.metrics.Metrics" title="archai.common.metrics.Metrics"><span class="pre">archai.common.metrics.Metrics</span></a></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.fit" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.data.DataLoaders" title="archai.cv.datasets.data.DataLoaders"><span class="pre">archai.cv.datasets.data.DataLoaders</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.common.metrics.Metrics" title="archai.common.metrics.Metrics"><span class="pre">archai.common.metrics.Metrics</span></a></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.fit" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2247,22 +2242,22 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.common.trainer.Trainer.pre_fit">
-<span class="sig-name descname"><span class="pre">pre_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.cv.datasets.data.DataLoaders</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.pre_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.pre_fit" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pre_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.data.DataLoaders" title="archai.cv.datasets.data.DataLoaders"><span class="pre">archai.cv.datasets.data.DataLoaders</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.pre_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.pre_fit" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.common.trainer.Trainer.post_fit">
-<span class="sig-name descname"><span class="pre">post_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.cv.datasets.data.DataLoaders</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.post_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.post_fit" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">post_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.data.DataLoaders" title="archai.cv.datasets.data.DataLoaders"><span class="pre">archai.cv.datasets.data.DataLoaders</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.post_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.post_fit" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.common.trainer.Trainer.pre_epoch">
-<span class="sig-name descname"><span class="pre">pre_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.cv.datasets.data.DataLoaders</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.pre_epoch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.pre_epoch" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pre_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.data.DataLoaders" title="archai.cv.datasets.data.DataLoaders"><span class="pre">archai.cv.datasets.data.DataLoaders</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.pre_epoch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.pre_epoch" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.common.trainer.Trainer.post_epoch">
-<span class="sig-name descname"><span class="pre">post_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.cv.datasets.data.DataLoaders</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.post_epoch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.post_epoch" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">post_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_loaders</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.data.DataLoaders" title="archai.cv.datasets.data.DataLoaders"><span class="pre">archai.cv.datasets.data.DataLoaders</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/trainer.html#Trainer.post_epoch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.trainer.Trainer.post_epoch" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2327,7 +2322,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.common.utils.deep_update">
-<span class="sig-prename descclassname"><span class="pre">archai.common.utils.</span></span><span class="sig-name descname"><span class="pre">deep_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d:</span> <span class="pre">typing.MutableMapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u:</span> <span class="pre">typing.Mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_type:</span> <span class="pre">typing.Type[typing.MutableMapping]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'dict'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MutableMapping</span></span></span><a class="reference internal" href="../../_modules/archai/common/utils.html#deep_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.utils.deep_update" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.common.utils.</span></span><span class="sig-name descname"><span class="pre">deep_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d:</span> <span class="pre">MutableMapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u:</span> <span class="pre">Mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_type:</span> <span class="pre">Type[MutableMapping]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'dict'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MutableMapping</span></span></span><a class="reference internal" href="../../_modules/archai/common/utils.html#deep_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.utils.deep_update" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -2603,17 +2598,17 @@ Proposed in ‘Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour’.</p
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="archai.cifar10_models.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="archai.algos.xnas.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">CIFAR-10 Models</p>
+            <p class="prev-next-title">XNAS</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="archai.data_aug.html" title="next page">
+    <a class='right-next' id="next-link" href="archai.cv.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Data Augmentation</p>
+        <p class="prev-next-title">Computer Vision</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
@@ -2626,8 +2621,8 @@ Proposed in ‘Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour’.</p
   
     By Microsoft<br/>
   
-      &copy; Copyright 2022.<br/>
-    Last updated on Dec 26, 2022.<br/>
+      &copy; Copyright 2023.<br/>
+    Last updated on Jan 05, 2023.<br/>
 </p>
         </footer>
     </div>

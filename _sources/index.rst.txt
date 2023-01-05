@@ -27,7 +27,7 @@ If you use Archai in a scientific publication, please consider citing it:
       journal=Microsoft Research,
       year=2022,
       month=Jul
-   } 
+   }
 
 .. toctree::
    :hidden:
@@ -61,16 +61,9 @@ If you use Archai in a scientific publication, please consider citing it:
 .. toctree::
    :hidden:
    :maxdepth: 2
-   :caption: Benchmarks
-
-   Food-101 <benchmark/food_101>
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
    :caption: Contributing
 
-   First Contribution <contributing/first_contribution>
+   First Time Contributor <contributing/first_contribution>
    Documentation <contributing/documentation>
    Unitary Tests <contributing/unitary_tests>
 

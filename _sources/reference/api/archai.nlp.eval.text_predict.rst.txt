@@ -7,7 +7,7 @@ Model
 .. automodule:: archai.nlp.eval.text_predict.text_predict_model
    :members:
    :undoc-members:
-   
+
 Tokenizer
 ---------
 

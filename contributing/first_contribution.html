@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>First Contribution &#8212; Archai</title>
+    <title>First Time Contributor &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -40,7 +40,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Documentation" href="documentation.html" />
-    <link rel="prev" title="Food-101" href="../benchmark/food_101.html" />
+    <link rel="prev" title="Azure" href="../advanced_guide/devops/azure.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -164,6 +164,11 @@
       </a>
      </li>
     </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../basic_guide/notebooks/cv.html">
+     Computer Vision
+    </a>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="../basic_guide/notebooks/nlp.html">
@@ -290,25 +295,13 @@
 </ul>
 <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
-  Benchmarks
- </span>
-</p>
-<ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="../benchmark/food_101.html">
-   Food-101
-  </a>
- </li>
-</ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
   Contributing
  </span>
 </p>
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   First Contribution
+   First Time Contributor
   </a>
  </li>
  <li class="toctree-l1">
@@ -418,23 +411,13 @@
     </ul>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../reference/api/archai.cifar10_models.html">
-     CIFAR-10 Models
-    </a>
-   </li>
-   <li class="toctree-l2">
     <a class="reference internal" href="../reference/api/archai.common.html">
      Common Packages
     </a>
    </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../reference/api/archai.data_aug.html">
-     Data Augmentation
-    </a>
-   </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../reference/api/archai.datasets.html">
-     Datasets
+    <a class="reference internal" href="../reference/api/archai.cv.html">
+     Computer Vision
     </a>
     <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
     <label for="toctree-checkbox-9">
@@ -442,15 +425,44 @@
      </i>
     </label>
     <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.datasets.providers.html">
-       Providers
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../reference/api/archai.cv.datasets.html">
+       Datasets
       </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.cv.datasets.providers.html">
+         Providers
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.cv.datasets.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
      </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.datasets.transforms.html">
-       Transforms
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../reference/api/archai.cv.models.html">
+       Models
       </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.cv.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
      </li>
     </ul>
    </li>
@@ -458,8 +470,8 @@
     <a class="reference internal" href="../reference/api/archai.discrete_search.html">
      Discrete Search
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
-    <label for="toctree-checkbox-10">
+    <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+    <label for="toctree-checkbox-12">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -502,28 +514,11 @@
     </a>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../reference/api/archai.networks.html">
-     Networks
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-    <label for="toctree-checkbox-11">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.networks.shakeshake.html">
-       ShakeShake
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
     <a class="reference internal" href="../reference/api/archai.nlp.html">
      Natural Language Processing
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
-    <label for="toctree-checkbox-12">
+    <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+    <label for="toctree-checkbox-13">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -532,8 +527,8 @@
       <a class="reference internal" href="../reference/api/archai.nlp.datasets.html">
        Datasets
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
-      <label for="toctree-checkbox-13">
+      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+      <label for="toctree-checkbox-14">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -554,8 +549,8 @@
       <a class="reference internal" href="../reference/api/archai.nlp.eval.html">
        Evaluation
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
-      <label for="toctree-checkbox-14">
+      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+      <label for="toctree-checkbox-15">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -586,8 +581,8 @@
       <a class="reference internal" href="../reference/api/archai.nlp.onnx.html">
        ONNX
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
-      <label for="toctree-checkbox-15">
+      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+      <label for="toctree-checkbox-16">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -613,8 +608,8 @@
       <a class="reference internal" href="../reference/api/archai.nlp.search_spaces.html">
        Search Spaces
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
-      <label for="toctree-checkbox-16">
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -630,8 +625,8 @@
       <a class="reference internal" href="../reference/api/archai.nlp.trainers.html">
        Trainers
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
-      <label for="toctree-checkbox-17">
+      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -786,7 +781,7 @@ title="Edit this page"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>First Contribution</h1>
+                <h1>First Time Contributor</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -798,11 +793,20 @@ title="Edit this page"
                 
               <div>
                 
-  <section id="first-contribution">
-<h1>First Contribution<a class="headerlink" href="#first-contribution" title="Permalink to this headline">#</a></h1>
-<p>This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <a class="reference external" href="https://cla.microsoft.com">https://cla.microsoft.com</a>.</p>
-<p>When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repositories using our CLA.</p>
-<p>This project has adopted the <a class="reference external" href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>. For more information see the <a class="reference external" href="https://opensource.microsoft.com/codeofconduct/faq/">Code of Conduct FAQ</a> or contact <a class="reference external" href="mailto:opencode&#37;&#52;&#48;microsoft&#46;com">opencode<span>&#64;</span>microsoft<span>&#46;</span>com</a> with any additional questions or comments.</p>
+  <section id="first-time-contributor">
+<h1>First Time Contributor<a class="headerlink" href="#first-time-contributor" title="Permalink to this headline">#</a></h1>
+<p>We are excited to have you as a contributor to our platform. Most contributions require you to agree to a <a class="reference external" href="https://cla.microsoft.com">Contributor License Agreement (CLA)</a> declaring that you have the right to, and actually do, grant us the rights to use your contribution.</p>
+<p>If this is your first time contributing to Archai, please follow these guidelines:</p>
+<ol class="arabic simple">
+<li><p>Familiarize yourself with the project’s codebase and community guidelines. This can be done by reading through the documentation and exploring the codebase on GitHub.</p></li>
+<li><p>Create a new branch for your changes. This will allow you to easily submit your code as a pull request when you are finished.</p></li>
+<li><p>Follow the project’s style guidelines. This may include specific formatting or naming conventions.</p></li>
+<li><p>Test your code thoroughly. This may involve writing unit tests or manually testing the functionality.</p></li>
+<li><p>Document your code. This may include in-line documentation as well as updating relevant documentation files.</p></li>
+<li><p>Submit your code as a pull request. Include a clear and concise description of the changes made and any relevant issue references. When you submit a pull request, a CLA-bot will automatically determine if you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repositories using our CLA.</p></li>
+<li><p>Be open to feedback and iteration on your code. It is common for pull requests to go through multiple rounds of review before being merged.</p></li>
+</ol>
+<p>We appreciate your contributions and look forward to working with you to continue the impactful progress of Archai as a positive feedback loop between the engineering and research aspects of NAS. This project has adopted the <a class="reference external" href="https://opensource.microsoft.com/codeofconduct/">Microsoft Open Source Code of Conduct</a>. For more information see the <a class="reference external" href="https://opensource.microsoft.com/codeofconduct/faq/">Code of Conduct FAQ</a> or contact <a class="reference external" href="mailto:opencode&#37;&#52;&#48;microsoft&#46;com">opencode<span>&#64;</span>microsoft<span>&#46;</span>com</a> with any additional questions or comments.</p>
 </section>
 
 
@@ -813,11 +817,11 @@ title="Edit this page"
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="../benchmark/food_101.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="../advanced_guide/devops/azure.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Food-101</p>
+            <p class="prev-next-title">Azure</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="documentation.html" title="next page">
@@ -836,8 +840,8 @@ title="Edit this page"
   
     By Microsoft<br/>
   
-      &copy; Copyright 2022.<br/>
-    Last updated on Dec 26, 2022.<br/>
+      &copy; Copyright 2023.<br/>
+    Last updated on Jan 05, 2023.<br/>
 </p>
         </footer>
     </div>
