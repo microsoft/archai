@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import json
 from typing import Union, Optional, Tuple, List, Dict, Callable
 
 from archai.discrete_search.api.archai_model import ArchaiModel
@@ -350,3 +351,21 @@ class SearchObjectives():
             dict(self.exp_objs, **self.cheap_objs), models, dataset_providers,
             budgets, progress_bar
         )
+
+    def save_cache(self, path: str) -> None:
+        """Saves the state of the SearchObjectives object to a JSON file.
+
+        Args:
+            path (str): Path to save JSON file.
+        """        
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(self.cache, f, indent=2, sort_keys=True, ensure_ascii=False)
+    
+    def load_cache(self, path: str) -> None:
+        """Loads the state of the SearchObjectives object from a JSON file.
+
+        Args:
+            path (str): Path to JSON file.
+        """        
+        with open(path, 'r', encoding='utf-8') as f:
+            self.cache = json.load(f)
