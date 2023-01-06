@@ -6,7 +6,7 @@ import random
 import sys
 import platform
 from azure.storage.blob import BlobClient, ContainerClient
-from status import get_status, merge_status_entity, get_all_status_entities, get_utc_date
+from status import get_status, update_status_entity, get_all_status_entities, get_utc_date
 from reset import reset_metrics
 from delete import delete_blobs
 
@@ -74,7 +74,7 @@ def upload(model, name, priority=None, benchmark_only=False, use_pillow=False):
 
     e['status'] = 'uploading'
     e['node'] = get_node_id()  # lock the row until upload complete
-    merge_status_entity(e)
+    update_status_entity(e)
     try:
         upload_blob(name, model)
         # remove any cached dlc files since they need to be redone now.
@@ -95,7 +95,7 @@ def upload(model, name, priority=None, benchmark_only=False, use_pillow=False):
     if use_pillow:
         e['use_pillow'] = 1 if use_pillow else 0
 
-    merge_status_entity(e)
+    update_status_entity(e)
 
 
 if __name__ == '__main__':
