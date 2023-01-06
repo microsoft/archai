@@ -1,6 +1,8 @@
 Documentation
 =============
 
+The Archai project welcomes contributions through the implementation of documentation files using Sphinx and RST. If you are interested in contributing to the project in this way, please follow these steps:
+
 #. Ensure that Sphinx is installed. You can install it using ``pip install archai[docs]``.
 
 #. Check out the Archai codebase and create a new branch for your changes. This will allow for easy submission of your code as a pull request upon completion.
@@ -29,7 +31,7 @@ Documentation
 
     .. tab:: Windows
 
-        .. code-block:: sh
+        .. code-block:: bat
 
             cd archai/docs
             .\make.bat html

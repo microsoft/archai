@@ -50,7 +50,9 @@ class LMOrderedIterator:
         # Divides cleanly the inputs into batches and trims the remaining elements
         n_step = input_ids.size(0) // bsz
         input_ids = input_ids[: n_step * bsz]
-        self.input_ids = input_ids.view(bsz, -1).contiguous().pin_memory()
+        self.input_ids = input_ids.view(bsz, -1).contiguous()
+        if device != "cpu":
+            self.input_ids = self.input_ids.pin_memory()
 
         # Creates warmup batches if memory is being used
         if mem_len and warmup:
