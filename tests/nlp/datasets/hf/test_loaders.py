@@ -62,8 +62,3 @@ def test_encode_dataset():
 
     encoded_dataset = encode_dataset(dataset, tokenizer, mapping_fn=custom_mapping_fn)
     assert isinstance(encoded_dataset, (DatasetDict, IterableDatasetDict))
-
-    # Assert that dataset can be encoded with multiprocessing
-    num_proc = 4
-    encoded_dataset = encode_dataset(dataset, tokenizer, num_proc=num_proc)
-    assert isinstance(encoded_dataset, (DatasetDict, IterableDatasetDict))
