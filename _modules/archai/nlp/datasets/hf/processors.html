@@ -798,7 +798,7 @@ title="Open an issue"
 
 <div class="viewcode-block" id="map_dataset_to_dict"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.hf.html#archai.nlp.datasets.hf.processors.map_dataset_to_dict">[docs]</a><span class="k">def</span> <span class="nf">map_dataset_to_dict</span><span class="p">(</span>
     <span class="n">dataset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">IterableDataset</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dataset</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">IterableDataset</span><span class="p">]],</span>
-    <span class="n">splits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">splits</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetDict</span><span class="p">,</span> <span class="n">IterableDatasetDict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Map a dataset or list of datasets to a dictionary.</span>
 
@@ -931,7 +931,7 @@ title="Open an issue"
 <div class="viewcode-block" id="tokenize_dataset"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.hf.html#archai.nlp.datasets.hf.processors.tokenize_dataset">[docs]</a><span class="k">def</span> <span class="nf">tokenize_dataset</span><span class="p">(</span>
     <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">ArchaiPreTrainedTokenizerFast</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+    <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">truncate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">padding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;max_length&quot;</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -950,6 +950,9 @@ title="Open an issue"
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">if</span> <span class="n">mapping_column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mapping_column_name</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+
     <span class="n">examples_mapping</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">mapping_column_name</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">tokenizer</span><span class="p">(</span><span class="o">*</span><span class="n">examples_mapping</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="n">truncate</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">)</span></div>
@@ -958,7 +961,7 @@ title="Open an issue"
 <div class="viewcode-block" id="tokenize_contiguous_dataset"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.hf.html#archai.nlp.datasets.hf.processors.tokenize_contiguous_dataset">[docs]</a><span class="k">def</span> <span class="nf">tokenize_contiguous_dataset</span><span class="p">(</span>
     <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">ArchaiPreTrainedTokenizerFast</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+    <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_max_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -997,7 +1000,7 @@ title="Open an issue"
 <div class="viewcode-block" id="tokenize_nsp_dataset"><a class="viewcode-back" href="../../../../../reference/api/archai.nlp.datasets.hf.html#archai.nlp.datasets.hf.processors.tokenize_nsp_dataset">[docs]</a><span class="k">def</span> <span class="nf">tokenize_nsp_dataset</span><span class="p">(</span>
     <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">ArchaiPreTrainedTokenizerFast</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+    <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">truncate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">padding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;max_length&quot;</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -1016,6 +1019,9 @@ title="Open an issue"
 <span class="sd">        Tokenized examples with NSP labels.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">mapping_column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mapping_column_name</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mapping_column_name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;`mapping_column_name` must have a single value.&quot;</span>
     <span class="n">examples_mapping</span> <span class="o">=</span> <span class="n">examples</span><span class="p">[</span><span class="n">mapping_column_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
@@ -1052,7 +1058,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 05, 2023.<br/>
+    Last updated on Jan 06, 2023.<br/>
 </p>
         </footer>
     </div>

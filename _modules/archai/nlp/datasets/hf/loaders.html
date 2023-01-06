@@ -883,7 +883,7 @@ title="Open an issue"
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="p">(</span><span class="n">DatasetDict</span><span class="p">,</span> <span class="n">IterableDatasetDict</span><span class="p">)):</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">map_dataset_to_dict</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">splits</span><span class="o">=</span><span class="n">dataset_split</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">map_dataset_to_dict</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">dataset_split</span><span class="p">)</span>
 
     <span class="n">n_samples_list</span> <span class="o">=</span> <span class="n">map_to_list</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
     <span class="k">for</span> <span class="n">split</span><span class="p">,</span> <span class="n">n_samples</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">n_samples_list</span><span class="p">):</span>
@@ -978,7 +978,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 05, 2023.<br/>
+    Last updated on Jan 06, 2023.<br/>
 </p>
         </footer>
     </div>
