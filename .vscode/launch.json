@@ -368,6 +368,14 @@
             "args": []
         },
         {
+            "name": "Train SGConv",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/examples/research_projects/sgconv/run_experiment.py",
+            "console": "integratedTerminal",
+            "args": ["${cwd}/examples/research_projects/sgconv/configs/clm-codegen-sgconv-sm.yaml"]
+        },
+        {
             "name": "CurrentFile",
             "type": "python",
             "request": "launch",

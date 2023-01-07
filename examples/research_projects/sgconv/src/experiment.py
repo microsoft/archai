@@ -104,7 +104,12 @@ class Experiment:
                 for dataset_config in self.dataset_config
             ]
             dataset = merge_datasets(datasets)
-            dataset = encode_dataset(dataset, tokenizer, **self.data_config)
+            pre_encoded_path = self.data_config.get('encoded_dataset_path', None)
+            if not pre_encoded_path:
+                logger.info("Pre-encoded dataset not found. Encoding...")
+                dataset = encode_dataset(dataset, tokenizer, **self.data_config)
+            else:
+                dataset = load_dataset(dataset_disk=pre_encoded_path)
 
         config = AutoConfig.for_model(self.model_type, **self.model_config)
         model = AutoModelForCausalLM.from_config(config=config)
