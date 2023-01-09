@@ -21,7 +21,7 @@ def get_utc_date():
     return current_date.isoformat()
 
 
-class RemoteAzureBenchmarkObjective(AsyncEvaluator):
+class RemoteAzureBenchmarkEvaluator(AsyncEvaluator):
     def __init__(self, 
                  input_shape: Union[Tuple, List[Tuple]],
                  connection_string: str,
