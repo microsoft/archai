@@ -140,14 +140,15 @@ class TorchLatency(SyncEvaluator):
         )['latency']
 
 
-class TorchPeakMemory(SyncEvaluator):
+class TorchCudaPeakMemory(SyncEvaluator):
     def __init__(self, sample_args: Optional[Tuple[torch.Tensor]] = None,
                  sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
                  num_warmups: Optional[int] = 1,
                  num_samples: Optional[int] = 1,
                  use_median: Optional[bool] = False,
                  ignore_layers: Optional[List[str]] = None):
-        """Calculates the average/median latency (in seconds) of a PyTorch model using a sample input.
+        """Calculates the average/median CUDA peak memory (in bytes) of a PyTorch model using a sample input.
+        All inputs passed must be on the same CUDA device as the model.
 
         Args:
             sample_args (Optional[Tuple[torch.Tensor]], optional): `model.forward` arguments used
