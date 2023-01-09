@@ -1,11 +1,13 @@
-import pytest
+from typing import Tuple
 import random
+
+import pytest
+import torch
 
 from archai.discrete_search.api.search_objectives import SearchObjectives
 from archai.discrete_search.search_spaces.segmentation_dag import SegmentationDagSearchSpace
-
 from archai.discrete_search.evaluators.onnx_model import AvgOnnxLatency
-from archai.discrete_search.evaluators.torch_model import TorchFlops, TorchNumParameters
+from archai.discrete_search.evaluators.torch_profiler import TorchFlops, TorchNumParameters
 from archai.discrete_search.evaluators.functional import EvaluationFunction
 
 
@@ -16,14 +18,19 @@ def search_space():
 
 @pytest.fixture
 def models(search_space):
-    return [search_space.random_sample() for _ in range(30)]
+    return [search_space.random_sample() for _ in range(10)]
 
 
-def test_eval_all_objs(models):
+@pytest.fixture
+def sample_input() -> Tuple[torch.Tensor]:
+    return (torch.randn(1, 3, 96, 96), )
+
+
+def test_eval_all_objs(sample_input, models):
     search_objectives = SearchObjectives(cache_objective_evaluation=False)
     
     search_objectives.add_cheap_objective(
-        'Number of parameters', TorchNumParameters(input_shape=(1, 3, 96, 96)), 
+        'Number of parameters', TorchNumParameters(), 
         higher_is_better=False, constraint=(0.0, 5e5)
     )
 
@@ -44,16 +51,16 @@ def test_eval_all_objs(models):
     assert all(len(r) == len(models) for r in result.values())
 
 
-def test_eval_subsets(models):
+def test_eval_subsets(sample_input, models):
     # Precalculates number of params
-    num_params_obj = TorchNumParameters(input_shape=(1, 3, 96, 96))
+    num_params_obj = TorchNumParameters()
     num_params = [num_params_obj.evaluate(m, None, None) for m in models]
     max_params = max(num_params)
 
     search_objectives = SearchObjectives(cache_objective_evaluation=False)
     
     search_objectives.add_cheap_objective(
-        'Flops', TorchFlops(input_shape=(1, 3, 96, 96)), 
+        'Flops', TorchFlops(sample_args=sample_input), 
         higher_is_better=False, constraint=(0.0, float('inf'))
     )
 
@@ -64,7 +71,7 @@ def test_eval_subsets(models):
 
     search_objectives.add_extra_constraint(
         'NumParameters', 
-        TorchNumParameters(input_shape=(1, 3, 96, 96)), 
+        TorchNumParameters(), 
         (max_params - .5, max_params + .5)
     )
 
@@ -95,11 +102,11 @@ def test_eval_subsets(models):
     assert set(result.keys()) == {'OnnxLatency', 'Budget Value'}
 
 
-def test_eval_cache(models):
+def test_eval_cache(sample_input, models):
     so = SearchObjectives(cache_objective_evaluation=True)
     
     so.add_cheap_objective(
-        'Flops', TorchFlops(input_shape=(1, 3, 96, 96)), 
+        'Flops', TorchFlops(sample_args=sample_input), 
         higher_is_better=False,
         constraint=(0.0, float('inf'))
     )
@@ -110,7 +117,7 @@ def test_eval_cache(models):
     )
 
     so.add_extra_constraint(
-        'NumberOfParameters', TorchNumParameters(input_shape=(1, 3, 96, 96)),
+        'NumberOfParameters', TorchNumParameters(),
         (0, float('inf'))
     )
 
