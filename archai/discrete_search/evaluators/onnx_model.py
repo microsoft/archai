@@ -12,15 +12,15 @@ from archai.common.timing import MeasureBlockTime
 
 
 class AvgOnnxLatency(SyncEvaluator):
-    def __init__(self, input_shape: Union[Tuple, List[Tuple]], num_trials: int = 1,
+    def __init__(self, input_shape: Union[Tuple[int, ...], List[Tuple[int, ...]]], num_trials: int = 1,
                  input_dtype: str = 'torch.FloatTensor', rand_range: Tuple[float, float] = (0.0, 1.0),
                  export_kwargs: Optional[Dict] = None, inf_session_kwargs: Optional[Dict] = None):
         """Evaluates the average ONNX Latency (in seconds) of an architecture. The latency is measured
         by running the model on random inputs and averaging the latency over `num_trials` trials.
 
         Args:
-            input_shape (Union[Tuple, List[Tuple]]): Shape of the input to the model. If the model
-                takes multiple inputs, then this should be a list of shapes.
+            input_shape (Union[Tuple, List[Tuple]]): input shape(s) of the model. If a list of shapes
+                is provided, the model is assumed to have multiple inputs.
             
             num_trials (int, optional): Number of trials to run. Defaults to 1.
             input_dtype (str, optional): Data type of the input. Defaults to 'torch.FloatTensor'.
