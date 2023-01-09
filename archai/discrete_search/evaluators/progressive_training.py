@@ -4,10 +4,10 @@ import tempfile
 import ray
 from overrides import overrides
 
-from archai.discrete_search import (
-    ArchaiModel, DiscreteSearchSpace,
-    DatasetProvider, SyncEvaluator, AsyncEvaluator
-)
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_space import DiscreteSearchSpace
+from archai.discrete_search.api.dataset import DatasetProvider
+from archai.discrete_search.api.evaluator import SyncEvaluator, AsyncEvaluator
 
 
 def ray_wrap_training_fn(training_fn):
