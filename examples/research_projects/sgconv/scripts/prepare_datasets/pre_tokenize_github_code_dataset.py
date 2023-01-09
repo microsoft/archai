@@ -4,8 +4,9 @@
 import argparse
 from typing import Any, Dict
 
-from codexs.core import ArchaiPreTrainedTokenizer
-from codexs.data import load_dataset
+from transformers import AutoTokenizer
+
+from archai.nlp.datasets.hf.loaders import load_dataset
 
 
 def parse_args() -> argparse.Namespace:
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     context_length = 2048
     languages = {"C++": "//", "GO": "//", "Java": "//", "JavaScript": "//", "Python": "#"}
 
-    tokenizer = ArchaiPreTrainedTokenizer.from_pretrained("Salesforce/codegen-350M-mono")
+    tokenizer = AutoTokenizer.from_pretrained("Salesforce/codegen-350M-mono")
     dataset = load_dataset(
         dataset_name="codeparrot/github-code",
         dataset_config_name="all-all",

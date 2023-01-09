@@ -6,8 +6,8 @@ from typing import List
 
 import numpy as np
 import plotly.graph_objects as go
-from codexs.core.tokenizer import ArchaiPreTrainedTokenizerFastForPython
 from datasets import load_dataset, load_from_disk
+from src.python_tokenizer import PreTrainedTokenizerFastForPython
 from tqdm import tqdm
 from transformers import (
     AutoModel,
