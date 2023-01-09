@@ -4,10 +4,10 @@
 import argparse
 from typing import Any, Dict
 
-from codexs.core import ArchaiPreTrainedTokenizer, ArchaiPreTrainedTokenizerFast
-from codexs.data import load_dataset
-from codexs.utils.general_utils import xor
-from datasets import DatasetDict, load_from_disk
+from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import ArchaiPreTrainedTokenizerFast
+from archai.nlp.datasets.hf.loaders import load_dataset
+from operator import xor
+from transformers import AutoTokenizer 
 
 
 def parse_args() -> argparse.Namespace:
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
     # Sanity checks
     assert xor(
-        args.tokenizer_path, args.hub_tokenizer_path
+        bool(args.tokenizer_path), bool(args.hub_tokenizer_path)
     ), "`tokenizer_path` and `hub_tokenizer_path` are mutually exclusive."
 
     if args.tokenizer_path:
@@ -126,7 +126,11 @@ if __name__ == "__main__":
             tokenizer_file=args.tokenizer_path,
         )
     if args.hub_tokenizer_path:
-        tokenizer = ArchaiPreTrainedTokenizer.from_pretrained(args.hub_tokenizer_path)
+        # TODO: using ArchaiPreTrainedTokenizer gives some warnings
+        # using HF directly for now
+        tokenizer = AutoTokenizer.from_pretrained(args.hub_tokenizer_path)
+        # tokenizer = ArchaiPreTrainedTokenizerFast.from_pretrained(args.hub_tokenizer_path)
+
 
     # `load_dataset` will always return a DatasetDict with a `train` split
     # which will be used to remove the columns
