@@ -2,8 +2,6 @@
 # Licensed under the MIT License.
 # https://github.com/microsoft/DeepSpeed/blob/master/deepspeed/profiling/flops_profiler/profiler.py
 
-"""Profiler-based model.
-"""
 
 import time
 from functools import partial
@@ -11,7 +9,7 @@ from typing import List, Optional
 
 import torch
 
-from archai.nlp.eval.profiler.profiler_utils import (
+from archai.discrete_search.evaluators.torch_profiler_utils.hooks import (
     FLOPS,
     MACS,
     disable_functional_hooks,
@@ -22,7 +20,7 @@ from archai.nlp.eval.profiler.profiler_utils import (
 
 
 class ProfilerModel:
-    """Prepares a model used for profiler-based evaluation."""
+    """Prepares a model to be used with profilling."""
 
     def __init__(self, model: torch.nn.Module) -> None:
         """Initializes with custom arguments and keyword arguments.

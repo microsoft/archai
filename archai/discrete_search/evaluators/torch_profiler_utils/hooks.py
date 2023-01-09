@@ -2,8 +2,6 @@
 # Licensed under the MIT License.
 # https://github.com/microsoft/DeepSpeed/blob/master/deepspeed/profiling/flops_profiler/profiler.py
 
-"""Profiler-based utilities, such as flops and macs calculation hooks.
-"""
 
 from collections import OrderedDict
 from typing import Callable, List, Optional, Tuple, Union
@@ -230,6 +228,7 @@ def _upsample_hook(
     scale_factor: Optional[Union[float, Tuple[float]]] = None,
     mode: Optional[str] = "nearest",
     align_corners: Optional[bool] = None,
+    recompute_scale_factor: Optional[bool] = None
 ) -> Tuple[int, int]:
     if size is not None:
         if isinstance(size, tuple):
