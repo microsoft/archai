@@ -13,7 +13,7 @@ from src.modeling_codegen_hard_coded import (
     CodeGenHardCodedForCausalLM,
 )
 from src.modeling_codegen_sgconv import CodeGenSGConvConfig, CodeGenSGConvForCausalLM
-from src.utils import from_yaml_file, load_collator
+from src.utils import load_collator, load_config
 from transformers import (
     AutoConfig,
     AutoModelForCausalLM,
@@ -47,7 +47,7 @@ class Experiment:
     ) -> None:
         logger.info(f"Creating experiment: {experiment_config}")
 
-        config = from_yaml_file(experiment_config)
+        config = load_config(experiment_config)
 
         collator_config = config.get("collator", {}) or {}
         data_config = config.get("data", {}) or {}
@@ -104,7 +104,7 @@ class Experiment:
                 for dataset_config in self.dataset_config
             ]
             dataset = merge_datasets(datasets)
-            pre_encoded_path = self.data_config.get('encoded_dataset_path', None)
+            pre_encoded_path = self.data_config.get("encoded_dataset_path", None)
             if not pre_encoded_path:
                 logger.info("Pre-encoded dataset not found. Encoding...")
                 dataset = encode_dataset(dataset, tokenizer, **self.data_config)

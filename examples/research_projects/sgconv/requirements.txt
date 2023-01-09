@@ -1,3 +1,4 @@
 git+https://github.com/microsoft/archai#egg=archai[nlp]
 einops
+omegaconf
 opt_einsum

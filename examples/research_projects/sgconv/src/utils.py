@@ -1,30 +1,61 @@
 # Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+# Licensed under the MIT license.
 
-import os
-from typing import Any, Dict, Union
+import argparse
+import pathlib
+from typing import Any, Dict, Mapping
 
-import yaml
-
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
-
+from omegaconf import OmegaConf
 from transformers.data.data_collator import (
     DataCollator,
     DataCollatorForLanguageModeling,
 )
 
 
-def from_yaml_file(yaml_file: Union[str, os.PathLike]) -> Dict[str, Any]:
-    with open(yaml_file, "r") as f:
-        output_dict = yaml.load(f, Loader=Loader)
+def _convert_nested_attrs_to_dict(attrs: Dict[str, Any]) -> Dict[str, Any]:
+    def _attr_to_dict(key: str, value: Any) -> Dict[str, Any]:
+        if len(key) == 1:
+            return {key[0]: value}
+        return _attr_to_dict(key[:-1], {key[-1]: value})
 
-    if output_dict is None:
-        return {}
+    def _deep_update(d: Dict[str, Any], u: Dict[str, Any]) -> Dict[str, Any]:
+        for k, v in u.items():
+            if isinstance(v, Mapping):
+                d[k] = _deep_update(d.get(k, {}), v)
+            else:
+                d[k] = v
 
-    return output_dict
+        return d
+
+    converted_attrs = {}
+    for key, value in attrs.items():
+        _deep_update(converted_attrs, _attr_to_dict(key.split("."), value))
+
+    return converted_attrs
+
+
+def load_config(*configs) -> Dict[str, Any]:
+    loaded_configs = []
+    for cfg in configs:
+        # If the config is a dictionary, we use OmegaConf.create()
+        if isinstance(cfg, dict):
+            loaded_configs.append(OmegaConf.create(cfg))
+
+        # If the config is a string, we parse it to find its extension
+        if isinstance(cfg, str):
+            file_extension = pathlib.Path(cfg).suffix
+
+            # If the extension is .yaml, we use OmegaConf.load()
+            if file_extension == ".yaml":
+                loaded_configs.append(OmegaConf.load(cfg))
+
+        # If the config is a argparse.Namespace, we convert it to a dictionary
+        # and use OmegaConf.create()
+        if isinstance(cfg, argparse.Namespace):
+            cfg = _convert_nested_attrs_to_dict(vars(cfg))
+            loaded_configs.append(OmegaConf.create(cfg))
+
+    return OmegaConf.merge(*loaded_configs)
 
 
 def load_collator(collator_name: str, **kwargs) -> DataCollator:
