@@ -1,9 +1,9 @@
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import numpy as np
-from tqdm import tqdm
 
-from archai.discrete_search import ArchaiModel, SearchObjectives
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_objectives import SearchObjectives
 
 
 def get_pareto_frontier(models: List[ArchaiModel], 

@@ -2,10 +2,9 @@
 # Licensed under the MIT license.
 
 from abc import abstractmethod
-from typing import List, Union
+from typing import List
 from overrides.enforce import EnforceOverrides
 
-import torch
 import numpy as np
 from archai.discrete_search.api.archai_model import ArchaiModel
 
