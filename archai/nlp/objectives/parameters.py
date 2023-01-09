@@ -8,10 +8,10 @@ from typing import List, Optional
 from overrides import overrides
 from torch import nn
 
-from archai.discrete_search import ArchaiModel, DatasetProvider, SyncEvaluator
+from archai.discrete_search import ArchaiModel, DatasetProvider, ModelEvaluator
 
 
-class TotalParamsProxy(SyncEvaluator):
+class TotalParamsProxy(ModelEvaluator):
     def __init__(self, trainable_only: Optional[bool] = True) -> None:
         """Counts the total number of trainable parameters
 
@@ -30,7 +30,7 @@ class TotalParamsProxy(SyncEvaluator):
         return total_params
 
 
-class NonEmbeddingParamsProxy(SyncEvaluator):
+class NonEmbeddingParamsProxy(ModelEvaluator):
     def __init__(self, exclude_cls: Optional[List[nn.Module]] = None, trainable_only: Optional[bool] = True) -> None:
         """Total number of non-embedding parameters.
             Used as a proxy for the perplexity of decoder-only transformer LMs.

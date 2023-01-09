@@ -5,7 +5,7 @@ import json
 from typing import Union, Optional, Tuple, List, Dict, Callable
 
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.discrete_search.api.evaluator import SyncEvaluator, AsyncEvaluator
+from archai.discrete_search.api.model_evaluator import ModelEvaluator, AsyncModelEvaluator
 from archai.discrete_search.api.dataset import DatasetProvider
 
 import numpy as np
@@ -16,7 +16,7 @@ class SearchObjectives():
     def __init__(self, cache_objective_evaluation: bool = True) -> None:
         """Class used to register, evaluate and cache search objectives and constraints for search algorithms.
         
-        Model evaluators (`SyncEvaluator`, `AsyncEvaluator`) can be either registered as 'cheap' or 'expensive' search objectives.
+        Model evaluators (`ModelEvaluator`, `AsyncModelEvaluator`) can be either registered as 'cheap' or 'expensive' search objectives.
         The 'cheap' label is used to indicate that the objective function can be evaluated multiple times by the search algorithm 
         (e.g to look for suitable candidate architectures), while 'expensive' objectives will be evaluated much less frequently.
          
@@ -48,7 +48,7 @@ class SearchObjectives():
     def objs_and_constraints(self) -> Dict[str, Dict]:
         return dict(self.objs, **self.extra_constraints)
 
-    def add_cheap_objective(self, name: str, evaluator: Union[SyncEvaluator, AsyncEvaluator],
+    def add_cheap_objective(self, name: str, evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
                             higher_is_better: bool, constraint: Optional[Tuple[float, float]] = None) -> None:
         """Adds a 'cheap' objective to be evaluated and cached by search algorithms.
 
@@ -58,14 +58,14 @@ class SearchObjectives():
 
         Args:
             name (str): The name of the objective.
-            evaluator (Union[SyncEvaluator, AsyncEvaluator]): The model evaluator responsible 
+            evaluator (Union[ModelEvaluator, AsyncModelEvaluator]): The model evaluator responsible 
                 for evaluating the objective. Can be either a synchronous or asynchronous evaluator.
             higher_is_better (bool): Weather the objective should be maximized (`True`) or minimized (`False`).
             constraint (Optional[Tuple[float, float]], optional): An optional constraint to apply to the
                 objective. This should be a tuple of the form (lower_bound, upper_bound). Any candidate 
                 architectures with an objective value outside of this range will be filtered out. Defaults to None.
         """
-        assert isinstance(evaluator, (SyncEvaluator, AsyncEvaluator))
+        assert isinstance(evaluator, (ModelEvaluator, AsyncModelEvaluator))
         assert name not in dict(self.objs, **self.extra_constraints),\
             f'There is already an objective or constraint named {name}.'
 
@@ -75,7 +75,7 @@ class SearchObjectives():
             'constraint': constraint
         }
     
-    def add_expensive_objective(self, name: str, evaluator: Union[SyncEvaluator, AsyncEvaluator],
+    def add_expensive_objective(self, name: str, evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
                                 higher_is_better: bool) -> None:
         """Adds an 'expensive' objective to be evaluated and cached by search algorithms.
 
@@ -84,11 +84,11 @@ class SearchObjectives():
 
         Args:
             name (str): The name of the objective.
-            evaluator (Union[SyncEvaluator, AsyncEvaluator]): The model evaluator responsible 
+            evaluator (Union[ModelEvaluator, AsyncModelEvaluator]): The model evaluator responsible 
                 for evaluating the objective. Can be either a synchronous or asynchronous evaluator.
             higher_is_better (bool): Weather the objective should be maximized (`True`) or minimized (`False`).
         """        
-        assert isinstance(evaluator, (SyncEvaluator, AsyncEvaluator))
+        assert isinstance(evaluator, (ModelEvaluator, AsyncModelEvaluator))
         assert name not in dict(self.objs, **self.extra_constraints),\
             f'There is already an objective or constraint named {name}.'
 
@@ -97,9 +97,9 @@ class SearchObjectives():
             'higher_is_better': higher_is_better
         }
 
-    def add_extra_constraint(self, name: str, evaluator: Union[SyncEvaluator, AsyncEvaluator],
+    def add_extra_constraint(self, name: str, evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
                              constraint: Tuple[float, float]):
-        assert isinstance(evaluator, (SyncEvaluator, AsyncEvaluator))
+        assert isinstance(evaluator, (ModelEvaluator, AsyncModelEvaluator))
         assert name not in dict(self.extra_constraints, **self.objs),\
             f'There is already an objective or constraint named {name}.'
 
@@ -136,8 +136,8 @@ class SearchObjectives():
             dataset_providers = [dataset_providers] * len(models)
         
         # Splits `objs` in sync and async
-        sync_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, SyncEvaluator))
-        async_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, AsyncEvaluator))
+        sync_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, ModelEvaluator))
+        async_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, AsyncModelEvaluator))
 
         assert all(len(dataset_providers) == len(models) == len(b) for b in budgets.values())
 

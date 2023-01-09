@@ -7,11 +7,11 @@ import onnxruntime as rt
 
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.datasets.dataset_provider import DatasetProvider
-from archai.discrete_search.api.evaluator import SyncEvaluator
+from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.common.timing import MeasureBlockTime
 
 
-class AvgOnnxLatency(SyncEvaluator):
+class AvgOnnxLatency(ModelEvaluator):
     def __init__(self, input_shape: Union[Tuple[int, ...], List[Tuple[int, ...]]], num_trials: int = 1,
                  input_dtype: str = 'torch.FloatTensor', rand_range: Tuple[float, float] = (0.0, 1.0),
                  export_kwargs: Optional[Dict] = None, inf_session_kwargs: Optional[Dict] = None):

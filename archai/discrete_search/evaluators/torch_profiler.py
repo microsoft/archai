@@ -6,11 +6,11 @@ from overrides import overrides
 
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.datasets.dataset_provider import DatasetProvider
-from archai.discrete_search.api.evaluator import SyncEvaluator
+from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.evaluators.torch_profiler_utils import profile
 
 
-class TorchNumParameters(SyncEvaluator):
+class TorchNumParameters(ModelEvaluator):
     def __init__(self, exclude_cls: Optional[List[torch.nn.Module]] = None, trainable_only: Optional[bool] = True) -> None:
         """Counts the total number of trainable parameters
 
@@ -39,7 +39,7 @@ class TorchNumParameters(SyncEvaluator):
         return total_params - exclude_params
 
 
-class TorchFlops(SyncEvaluator):
+class TorchFlops(ModelEvaluator):
     def __init__(self, sample_args: Optional[Tuple[torch.Tensor]] = None,
                  sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
                  ignore_layers: Optional[List[str]] = None):
@@ -68,7 +68,7 @@ class TorchFlops(SyncEvaluator):
         )['flops']
 
 
-class TorchMacs(SyncEvaluator):
+class TorchMacs(ModelEvaluator):
     def __init__(self, sample_args: Optional[Tuple[torch.Tensor]] = None,
                  sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
                  ignore_layers: Optional[List[str]] = None):
@@ -97,7 +97,7 @@ class TorchMacs(SyncEvaluator):
         )['macs']
 
 
-class TorchLatency(SyncEvaluator):
+class TorchLatency(ModelEvaluator):
     def __init__(self, sample_args: Optional[Tuple[torch.Tensor]] = None,
                  sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
                  num_warmups: Optional[int] = 1,
@@ -140,7 +140,7 @@ class TorchLatency(SyncEvaluator):
         )['latency']
 
 
-class TorchCudaPeakMemory(SyncEvaluator):
+class TorchCudaPeakMemory(ModelEvaluator):
     def __init__(self, sample_args: Optional[Tuple[torch.Tensor]] = None,
                  sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
                  num_warmups: Optional[int] = 1,

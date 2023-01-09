@@ -4,12 +4,12 @@ import re
 
 import nats_bench
 
-from archai.discrete_search import SyncEvaluator, ArchaiModel
+from archai.discrete_search import ModelEvaluator, ArchaiModel
 from archai.discrete_search.search_spaces.natsbench_tss.search_space import NatsbenchTssSearchSpace
 from archai.datasets.dataset_provider import DatasetProvider
 
 
-class NatsbenchMetric(SyncEvaluator):
+class NatsbenchMetric(ModelEvaluator):
     def __init__(self, search_space: NatsbenchTssSearchSpace,
                  metric_name: str,
                  epochs: Optional[int] = None,

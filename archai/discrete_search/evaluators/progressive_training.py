@@ -7,7 +7,7 @@ from overrides import overrides
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
 from archai.discrete_search.api.dataset import DatasetProvider
-from archai.discrete_search.api.evaluator import SyncEvaluator, AsyncEvaluator
+from archai.discrete_search.api.model_evaluator import ModelEvaluator, AsyncModelEvaluator
 
 
 def ray_wrap_training_fn(training_fn):
@@ -18,7 +18,7 @@ def ray_wrap_training_fn(training_fn):
     return stateful_training_fn
 
 
-class ProgressiveTraining(SyncEvaluator):
+class ProgressiveTraining(ModelEvaluator):
     def __init__(self, search_space: DiscreteSearchSpace, 
                  training_fn: Callable):
         self.search_space = search_space
@@ -40,7 +40,7 @@ class ProgressiveTraining(SyncEvaluator):
         return metric_result
 
 
-class RayProgressiveTraining(AsyncEvaluator):
+class RayProgressiveTraining(AsyncModelEvaluator):
     def __init__(self, search_space: DiscreteSearchSpace, 
                  training_fn: Callable, timeout: Optional[float] = None,
                  force_stop: bool = False, **ray_kwargs):

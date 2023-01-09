@@ -1,10 +1,10 @@
 from typing import Callable, Optional
 from overrides import overrides
 
-from archai.discrete_search import SyncEvaluator, ArchaiModel, DatasetProvider
+from archai.discrete_search import ModelEvaluator, ArchaiModel, DatasetProvider
 
 
-class EvaluationFunction(SyncEvaluator):
+class EvaluationFunction(ModelEvaluator):
     def __init__(self, evaluation_fn: Callable):
         """Custom function evaluator. This evaluator is used to wrap a custom evaluation function.
 

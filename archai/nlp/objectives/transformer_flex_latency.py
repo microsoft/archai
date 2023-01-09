@@ -13,7 +13,7 @@ import torch
 from onnxruntime import InferenceSession
 from overrides import overrides
 
-from archai.discrete_search import ArchaiModel, DatasetProvider, SyncEvaluator
+from archai.discrete_search import ArchaiModel, DatasetProvider, ModelEvaluator
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.nlp.onnx.export import export_to_onnx
 from archai.nlp.onnx.export_utils import prepare_model_for_onnx
@@ -24,7 +24,7 @@ from archai.nlp.search_spaces.transformer_flex.search_space import (
 )
 
 
-class TransformerFlexOnnxLatency(SyncEvaluator):
+class TransformerFlexOnnxLatency(ModelEvaluator):
     def __init__(
         self,
         search_space: TransformerFlexSearchSpace,

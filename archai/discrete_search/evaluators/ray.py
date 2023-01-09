@@ -5,7 +5,7 @@ from overrides import overrides
 
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.dataset import DatasetProvider
-from archai.discrete_search.api.evaluator import SyncEvaluator, AsyncEvaluator
+from archai.discrete_search.api.model_evaluator import ModelEvaluator, AsyncModelEvaluator
 
 
 def _wrap_metric_calculate(class_method):
@@ -14,15 +14,15 @@ def _wrap_metric_calculate(class_method):
     return calculate
 
 
-class RayParallelEvaluator(AsyncEvaluator):
-    def __init__(self, obj: SyncEvaluator, timeout: Optional[float] = None,
+class RayParallelEvaluator(AsyncModelEvaluator):
+    def __init__(self, obj: ModelEvaluator, timeout: Optional[float] = None,
                  force_stop: bool = False, **ray_kwargs):
-        """Wraps a `SyncEvaluator` object into an `AsyncEvaluator` with parallel execution using Ray.
+        """Wraps a `ModelEvaluator` object into an `AsyncModelEvaluator` with parallel execution using Ray.
         `RayParallelEvaluator` expects a stateless objective function as input, meaning that 
-        any `SyncEvaluator.evaluate(arch, ...)` will not alter the state of `obj` or `arch` in any way. 
+        any `ModelEvaluator.evaluate(arch, ...)` will not alter the state of `obj` or `arch` in any way. 
 
         Args:
-            obj (SyncEvaluator): A `SyncEvaluator` object
+            obj (ModelEvaluator): A `ModelEvaluator` object
             timeout (Optional[float], optional): Timeout for receiving results from Ray. If None, then
                 Ray will wait indefinitely for results. If timeout is reached, then incomplete tasks
                 are canceled and returned as None. Defaults to None.
@@ -30,7 +30,7 @@ class RayParallelEvaluator(AsyncEvaluator):
                 set to `False`, Ray will just send a `KeyboardInterrupt` signal to the process.
             **ray_kwargs: Key-value arguments for ray.remote(), e.g: num_gpus, num_cpus, max_task_retries.
         """        
-        assert isinstance(obj, SyncEvaluator)
+        assert isinstance(obj, ModelEvaluator)
 
         # Wraps metric.calculate as a standalone function. This only works with stateless metrics
         if ray_kwargs:

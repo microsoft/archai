@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 import torch
 from overrides import overrides
 
-from archai.discrete_search import ArchaiModel, DatasetProvider, SyncEvaluator
+from archai.discrete_search import ArchaiModel, DatasetProvider, ModelEvaluator
 from archai.nlp.onnx.export import export_to_onnx
 from archai.nlp.onnx.export_utils import prepare_model_for_onnx
 from archai.nlp.onnx.optimization import optimize_onnx
@@ -19,7 +19,7 @@ from archai.nlp.search_spaces.transformer_flex.search_space import (
 )
 
 
-class TransformerFlexOnnxMemory(SyncEvaluator):
+class TransformerFlexOnnxMemory(ModelEvaluator):
     def __init__(self, search_space: TransformerFlexSearchSpace) -> None:
         """Estimates the memory footprint of models from the Transformer-Flex search space
         using disk space.

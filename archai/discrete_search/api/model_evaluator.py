@@ -10,14 +10,14 @@ from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.dataset import DatasetProvider
 
 
-class SyncEvaluator(EnforceOverrides):
+class ModelEvaluator(EnforceOverrides):
     """Abstract base class for synchronous evaluators. Evaluators are general-use classes used 
     to evaluate architectures in given criteria (task performance, speed, size, etc.).
 
-    Subclasses of `SyncEvaluator` are expected to implement `SyncEvaluator.evaluate`.
+    Subclasses of `ModelEvaluator` are expected to implement `ModelEvaluator.evaluate`.
 
     Synchronous evaluators are computed by search algorithms sequentially. For parallel / async. execution, 
-    please refer to `archai.discrete_search.api.AsyncEvaluator`.
+    please refer to `archai.discrete_search.api.AsyncModelEvaluator`.
 
     **Examples**
 
@@ -25,7 +25,7 @@ class SyncEvaluator(EnforceOverrides):
     .. code-block:: python
        :caption: Task Accuracy
 
-        class MyValTaskAccuracy(SyncEvaluator):
+        class MyValTaskAccuracy(ModelEvaluator):
             def __init__(self, batch_size: int = 32):
                 self.batch_size = batch_size
             
@@ -47,7 +47,7 @@ class SyncEvaluator(EnforceOverrides):
     .. code-block:: python
        :caption: Number of modules
 
-        class NumberOfModules(SyncEvaluator):
+        class NumberOfModules(ModelEvaluator):
             ''' Class that measures the size of a model by
             the number of torch modules '''
 
@@ -79,26 +79,26 @@ class SyncEvaluator(EnforceOverrides):
         """
 
 
-class AsyncEvaluator(EnforceOverrides):
+class AsyncModelEvaluator(EnforceOverrides):
     """Abstract base class for asynchronous evaluators. Evaluators are general-use classes used 
     to evaluate architectures in given criteria (task performance, speed, size, etc.).
 
-    Unlike `archai.discrete_search.api.SyncEvaluator`, `AsyncEvaluator` evaluates models
+    Unlike `archai.discrete_search.api.ModelEvaluator`, `AsyncModelEvaluator` evaluates models
     in asynchronous fashion, by sending evaluation jobs to a queue and fetching the results later.
     
-    Subclasses of `AsyncEvaluator` are expected to implement
-    `AsyncEvaluator.send(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float])` 
-    and `AsyncEvaluator.fetch_all()`.
+    Subclasses of `AsyncModelEvaluator` are expected to implement
+    `AsyncModelEvaluator.send(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float])` 
+    and `AsyncModelEvaluator.fetch_all()`.
 
-    `AsyncEvaluator.send` is a non-blocking call that schedules an evaluation job for a given (model, dataset, budget)
-    triplet. `AsyncEvaluator.fetch_all` is a blocking call that waits and gathers the results from current
+    `AsyncModelEvaluator.send` is a non-blocking call that schedules an evaluation job for a given (model, dataset, budget)
+    triplet. `AsyncModelEvaluator.fetch_all` is a blocking call that waits and gathers the results from current
     evaluation jobs and cleans the job queue.
 
     .. highlight:: python
     .. code-block:: python
-        :caption: AsyncEvaluator usage example
+        :caption: AsyncModelEvaluator usage example
 
-        my_obj = MyAsyncObj()  # My AsyncEvaluator subclass
+        my_obj = MyAsyncObj()  # My AsyncModelEvaluator subclass
         
         # Non blocking calls
         my_obj.send(model_1, dataset_provider, budget=None)
