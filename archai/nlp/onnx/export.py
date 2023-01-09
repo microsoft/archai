@@ -10,6 +10,7 @@ import numpy as np
 import torch
 
 from archai.nlp import logging_utils
+from archai.nlp.onnx.config_utils.codegen_onnx_config import CodeGenOnnxConfig
 from archai.nlp.onnx.config_utils.gpt2_onnx_config import (
     GPT2FlexOnnxConfig,
     GPT2OnnxConfig,
@@ -20,7 +21,7 @@ from archai.nlp.onnx.onnx_loader import load_from_onnx
 
 logger = logging_utils.get_logger(__name__)
 
-AVAILABLE_ONNX_CONFIGS = {"gpt2": GPT2OnnxConfig, "gpt2-flex": GPT2FlexOnnxConfig}
+AVAILABLE_ONNX_CONFIGS = {"codegen": CodeGenOnnxConfig, "gpt2": GPT2OnnxConfig, "gpt2-flex": GPT2FlexOnnxConfig}
 
 
 def validate_onnx_outputs(
