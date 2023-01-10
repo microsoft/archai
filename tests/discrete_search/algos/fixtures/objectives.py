@@ -18,9 +18,9 @@ def search_objectives():
     r = EvaluationFunction(lambda m, d, b: rng3.random())
 
     so = SearchObjectives()
-    so.add_cheap_objective('Random1', o1, higher_is_better=False, constraint=(0.0, 0.4))
-    so.add_expensive_objective('Random2', o2, higher_is_better=True)
+    so.add_objective('Random1', o1, higher_is_better=False, expensive=False, constraint=(0.0, 0.4))
+    so.add_objective('Random2', o2, higher_is_better=True)
 
-    so.add_extra_constraint('Random3 constraint', r, constraint=(0.0, 0.6))
+    so.add_constraint('Random3 constraint', r, constraint=(0.0, 0.6))
 
     return so

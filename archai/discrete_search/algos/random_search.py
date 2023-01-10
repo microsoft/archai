@@ -53,7 +53,7 @@ class RandomSearch(Searcher):
         while len(valid_sample) < num_models and nb_tries < patience:
             sample = [self.search_space.random_sample() for _ in range(num_models)]
 
-            _, valid_indices = self.so.eval_constraints(sample, self.dataset_provider)
+            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
             valid_sample += [sample[i] for i in valid_indices 
                              if sample[i].archid not in self.seen_archs]
 

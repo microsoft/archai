@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import json
+import yaml
 from typing import Union, Optional, Tuple, List, Dict, Callable
 
 from archai.discrete_search.api.archai_model import ArchaiModel
@@ -14,16 +14,9 @@ from tqdm import tqdm
 
 class SearchObjectives():
     def __init__(self, cache_objective_evaluation: bool = True) -> None:
-        """Class used to register, evaluate and cache search objectives and constraints for search algorithms.
+        """Class used to create, evaluate and cache search objectives and constraints for search algorithms.
         
-        Model evaluators (`ModelEvaluator`, `AsyncModelEvaluator`) can be either registered as 'cheap' or 'expensive' search objectives.
-        The 'cheap' label is used to indicate that the objective function can be evaluated multiple times by the search algorithm 
-        (e.g to look for suitable candidate architectures), while 'expensive' objectives will be evaluated much less frequently.
-         
-        Additionaly, NAS algorithms based on surrogate models (e.g bayesian optimization algorithms) will also use this distinction
-        to determine which objectives to predict with the surrogate model and which to evaluate directly.
-
-        Besides objectives, `SearchObjectives` also supports registering search constraints, which are used to filter out candidate
+        Besides objectives, this class also supports registering search constraints, which are used to filter out candidate
         architectures that do not meet certain criteria (e.g., number of parameters, FLOPs). Constraints are typically evaluated
         multiple times by search algorithms and should not be computationally expensive to evaluate.
         
@@ -48,63 +41,64 @@ class SearchObjectives():
     def objs_and_constraints(self) -> Dict[str, Dict]:
         return dict(self.objs, **self.extra_constraints)
 
-    def add_cheap_objective(self, name: str, evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
-                            higher_is_better: bool, constraint: Optional[Tuple[float, float]] = None) -> None:
-        """Adds a 'cheap' objective to be evaluated and cached by search algorithms.
-
-        'Cheap' objectives are typically evaluated multiple times by search algorithms to look for 
-        suitable candidate architectures. These objectives should not be computationally
-        expensive to evaluate.
+    def add_objective(self, name: str,
+                      model_evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
+                      higher_is_better: bool, expensive: bool = True,
+                      constraint: Optional[Tuple[float, float]] = None):
+        """Adds an objective function to the `SearchObjectives` object.
 
         Args:
             name (str): The name of the objective.
-            evaluator (Union[ModelEvaluator, AsyncModelEvaluator]): The model evaluator responsible 
-                for evaluating the objective. Can be either a synchronous or asynchronous evaluator.
+            model_evaluator (Union[ModelEvaluator, AsyncModelEvaluator]): The model evaluator responsible 
+                for evaluating the objective.
+
             higher_is_better (bool): Weather the objective should be maximized (`True`) or minimized (`False`).
-            constraint (Optional[Tuple[float, float]], optional): An optional constraint to apply to the
-                objective. This should be a tuple of the form (lower_bound, upper_bound). Any candidate 
-                architectures with an objective value outside of this range will be filtered out. Defaults to None.
+
+            expensive (bool, optional): If `True`, the objective is considered computationally expensive and
+                will be estimated using surrogate models when possible. Defaults to `True`.
+
+            constraint (Optional[Tuple[float, float]], optional): Optional objective constraint used to filter 
+                out candidate architectures. Expects `(lower_bound, upper_bound)` tuple. Can only be set
+                if `expensive=False`. Defaults to None.
         """
-        assert isinstance(evaluator, (ModelEvaluator, AsyncModelEvaluator))
+        assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
         assert name not in dict(self.objs, **self.extra_constraints),\
             f'There is already an objective or constraint named {name}.'
-
-        self.cheap_objs[name] = {
-            'objective': evaluator,
+        
+        obj = {
+            'evaluator': model_evaluator,
             'higher_is_better': higher_is_better,
             'constraint': constraint
         }
-    
-    def add_expensive_objective(self, name: str, evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
-                                higher_is_better: bool) -> None:
-        """Adds an 'expensive' objective to be evaluated and cached by search algorithms.
 
-        'Expensive' objectives are typically evaluated less frequently by search algorithms 
-        and can be computationally expensive to evaluate (e.g partial-training performance of a model). 
+        if expensive:
+            assert constraint is None,\
+                'Constraints can only be set for cheap objectives (expensive=False).'
+            self.exp_objs[name] = obj
+        else:
+            self.cheap_objs[name] = obj
+
+    def add_constraint(self, name: str,
+                       model_evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
+                       constraint: Tuple[float, float]):
+        """Adds a search constraint to the `SearchObjectives` object. Constraints are typically evaluated
+        multiple times by search algorithms to validate candidate architectures and should not be computationally
+        expensive to evaluate.
 
         Args:
-            name (str): The name of the objective.
-            evaluator (Union[ModelEvaluator, AsyncModelEvaluator]): The model evaluator responsible 
-                for evaluating the objective. Can be either a synchronous or asynchronous evaluator.
-            higher_is_better (bool): Weather the objective should be maximized (`True`) or minimized (`False`).
-        """        
-        assert isinstance(evaluator, (ModelEvaluator, AsyncModelEvaluator))
-        assert name not in dict(self.objs, **self.extra_constraints),\
-            f'There is already an objective or constraint named {name}.'
+            name (str): The name of the constraint.
+            model_evaluator (Union[ModelEvaluator, AsyncModelEvaluator]): The model evaluator responsible
+                for evaluating the constraint.
 
-        self.exp_objs[name] = {
-            'objective': evaluator,
-            'higher_is_better': higher_is_better
-        }
-
-    def add_extra_constraint(self, name: str, evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
-                             constraint: Tuple[float, float]):
-        assert isinstance(evaluator, (ModelEvaluator, AsyncModelEvaluator))
+            constraint (Tuple[float, float]): The valid range of the constraint. Expects
+                a `(lower_bound, upper_bound)` tuple.
+        """
+        assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
         assert name not in dict(self.extra_constraints, **self.objs),\
             f'There is already an objective or constraint named {name}.'
 
         self.extra_constraints[name] = {
-            'objective': evaluator,
+            'evaluator': model_evaluator,
             'constraint': constraint,
         }
 
@@ -136,8 +130,8 @@ class SearchObjectives():
             dataset_providers = [dataset_providers] * len(models)
         
         # Splits `objs` in sync and async
-        sync_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, ModelEvaluator))
-        async_objs = self._filter_objs(objs, 'objective', lambda x: isinstance(x, AsyncModelEvaluator))
+        sync_objs = self._filter_objs(objs, 'evaluator', lambda x: isinstance(x, ModelEvaluator))
+        async_objs = self._filter_objs(objs, 'evaluator', lambda x: isinstance(x, AsyncModelEvaluator))
 
         assert all(len(dataset_providers) == len(models) == len(b) for b in budgets.values())
 
@@ -166,7 +160,7 @@ class SearchObjectives():
             )
 
             for i in pbar:
-                obj_d['objective'].send(
+                obj_d['evaluator'].send(
                     models[i], dataset_providers[i], budgets[obj_name][i]
                 )
 
@@ -178,7 +172,7 @@ class SearchObjectives():
             )
 
             for i in pbar:
-                eval_results[obj_name][i] = obj_d['objective'].evaluate(
+                eval_results[obj_name][i] = obj_d['evaluator'].evaluate(
                     models[i], dataset_providers[i], budgets[obj_name][i]
                 )
 
@@ -190,7 +184,7 @@ class SearchObjectives():
         )
 
         for obj_name, obj_d in pbar:
-            results = obj_d['objective'].fetch_all()
+            results = obj_d['evaluator'].fetch_all()
             
             assert len(eval_indices[obj_name]) == len(results), \
                 'Received a different amount of results than expected.'
@@ -217,7 +211,8 @@ class SearchObjectives():
             for obj_name, obj_results in eval_results.items()
         }
 
-    def _get_valid_arch_indices(self, objs_or_constraints: Dict[str, Dict], results: Dict[str, np.ndarray]) -> np.ndarray:
+    def _get_valid_arch_indices(self, objs_or_constraints: Dict[str, Dict],
+                                results: Dict[str, np.ndarray]) -> np.ndarray:
         eval_lens = {len(r) for r in results.values()}
         assert len(eval_lens) == 1
 
@@ -232,12 +227,11 @@ class SearchObjectives():
 
         return np.where(valid_mask)[0]
 
-    def eval_constraints(self, models: List[ArchaiModel],
+    def validate_constraints(self, models: List[ArchaiModel],
                          dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                          progress_bar: bool = False
                          ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
-        """Evaluate constraints for a list of models and return a tuple of
-        results and valid model indices.
+        """Evaluates constraints for a list of models and returns the indices of models that satisfy all constraints.
 
         Args:
             models (List[ArchaiModel]): List of models to evaluate.
@@ -245,7 +239,8 @@ class SearchObjectives():
             progress_bar (bool, optional): Whether to show progress bar. Defaults to False.
 
         Returns:
-            Tuple[Dict[str, np.ndarray], np.ndarray]: Tuple of results and indices of valid models.
+            Tuple[Dict[str, np.ndarray], np.ndarray]: Tuple containing evaluation results 
+                and indices of models that satisfy all constraints.
         """        
         # Gets all constraints from cheap_objectives and extra_constraints
         constraints = dict(
@@ -264,8 +259,8 @@ class SearchObjectives():
 
         return eval_results, self._get_valid_arch_indices(constraints, eval_results)
 
-    def check_model_valid(self, model: ArchaiModel, dataset_provider: DatasetProvider) -> bool:
-        """Checks if a model is valid.
+    def is_model_valid(self, model: ArchaiModel, dataset_provider: DatasetProvider) -> bool:
+        """Checks if a model satisfies all constraints.
 
         Args:
             model (ArchaiModel): Model to check.
@@ -274,15 +269,14 @@ class SearchObjectives():
         Returns:
             bool: True if model is valid, False otherwise.
         """        
-        _, idx = self.eval_constraints([model], dataset_provider, progress_bar=False)
+        _, idx = self.validate_constraints([model], dataset_provider, progress_bar=False)
         return len(idx) > 0
 
     def eval_cheap_objs(self, models: List[ArchaiModel], 
                         dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                         budgets: Optional[Dict[str, List]] = None,
                         progress_bar: bool = False) -> Dict[str, np.ndarray]:
-        """Evaluates all registered cheap objectives for a list of models and
-        dataset provider(s).
+        """Evaluates all cheap objectives for a list of models and dataset provider(s).
 
         Args:
             models (List[ArchaiModel]): List of models to evaluate.
@@ -305,8 +299,7 @@ class SearchObjectives():
                             dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                             budgets: Optional[Dict[str, List]] = None,
                             progress_bar: bool = False) -> Dict[str, np.ndarray]:
-        """Evaluates all registered expensive objectives for a list of models and
-        dataset provider(s).
+        """Evaluates all expensive objective functions for a list of models and dataset provider(s).
 
         Args:
             models (List[ArchaiModel]): List of models to evaluate.
@@ -330,8 +323,7 @@ class SearchObjectives():
                       dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
                       budgets: Optional[Dict[str, List]] = None,
                       progress_bar: bool = False) -> Dict[str, np.ndarray]:
-        """Evaluates all registered objectives for a list of models and
-        dataset provider(s).
+        """Evaluates all objective functions for a list of models and dataset provider(s).
 
         Args:
             models (List[ArchaiModel]): List of models to evaluate.
@@ -353,19 +345,20 @@ class SearchObjectives():
         )
 
     def save_cache(self, path: str) -> None:
-        """Saves the state of the SearchObjectives object to a JSON file.
+        """Saves the state of the SearchObjectives object to a YAML file.
 
         Args:
-            path (str): Path to save JSON file.
+            path (str): Path to save YAML file.
         """        
         with open(path, 'w', encoding='utf-8') as f:
-            json.dump(self.cache, f, indent=2, sort_keys=True, ensure_ascii=False)
+            yaml.dump(self.cache, f)
     
     def load_cache(self, path: str) -> None:
-        """Loads the state of the SearchObjectives object from a JSON file.
+        """Loads the state of the SearchObjectives object from a YAML file.
 
         Args:
-            path (str): Path to JSON file.
+            path (str): Path to YAML file.
         """        
         with open(path, 'r', encoding='utf-8') as f:
-            self.cache = json.load(f)
+            self.cache = yaml.load(f)
+

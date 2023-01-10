@@ -29,17 +29,18 @@ def sample_input() -> Tuple[torch.Tensor]:
 def test_eval_all_objs(sample_input, models):
     search_objectives = SearchObjectives(cache_objective_evaluation=False)
     
-    search_objectives.add_cheap_objective(
+    search_objectives.add_objective(
         'Number of parameters', TorchNumParameters(), 
-        higher_is_better=False, constraint=(0.0, 5e5)
+        higher_is_better=False, expensive=False,
+        constraint=(0.0, 5e5),
     )
 
-    search_objectives.add_expensive_objective(
+    search_objectives.add_objective(
         'OnnxLatency', AvgOnnxLatency(input_shape=(1, 3, 96, 96), num_trials=3), 
         higher_is_better=False
     )
 
-    search_objectives.add_expensive_objective(
+    search_objectives.add_objective(
         'Budget Value', EvaluationFunction(lambda m, d, b: b),
         higher_is_better=True
     )
@@ -59,23 +60,24 @@ def test_eval_subsets(sample_input, models):
 
     search_objectives = SearchObjectives(cache_objective_evaluation=False)
     
-    search_objectives.add_cheap_objective(
+    search_objectives.add_objective(
         'Flops', TorchFlops(sample_args=sample_input), 
-        higher_is_better=False, constraint=(0.0, float('inf'))
+        higher_is_better=False, expensive=False,
+        constraint=(0.0, float('inf'))
     )
 
-    search_objectives.add_expensive_objective(
+    search_objectives.add_objective(
         'OnnxLatency', AvgOnnxLatency(input_shape=(1, 3, 96, 96), num_trials=3), 
         higher_is_better=False
     )
 
-    search_objectives.add_extra_constraint(
+    search_objectives.add_constraint(
         'NumParameters', 
         TorchNumParameters(), 
         (max_params - .5, max_params + .5)
     )
 
-    search_objectives.add_expensive_objective(
+    search_objectives.add_objective(
         'Budget Value', EvaluationFunction(lambda m, d, b: b),
         higher_is_better=True
     )
@@ -87,7 +89,7 @@ def test_eval_subsets(sample_input, models):
 
     assert set(result.keys()) == {'Flops'}
 
-    c_values, c_indices = search_objectives.eval_constraints(
+    c_values, c_indices = search_objectives.validate_constraints(
         models, None
     )
 
@@ -105,23 +107,23 @@ def test_eval_subsets(sample_input, models):
 def test_eval_cache(sample_input, models):
     so = SearchObjectives(cache_objective_evaluation=True)
     
-    so.add_cheap_objective(
+    so.add_objective(
         'Flops', TorchFlops(sample_args=sample_input), 
         higher_is_better=False,
-        constraint=(0.0, float('inf'))
+        expensive=False, constraint=(0.0, float('inf'))
     )
 
-    so.add_expensive_objective(
+    so.add_objective(
         'OnnxLatency', AvgOnnxLatency(input_shape=(1, 3, 96, 96), num_trials=3), 
         higher_is_better=False
     )
 
-    so.add_extra_constraint(
+    so.add_constraint(
         'NumberOfParameters', TorchNumParameters(),
         (0, float('inf'))
     )
 
-    so.add_extra_constraint(
+    so.add_constraint(
         'Random number', 
         EvaluationFunction(lambda m, d, b: random.random()), 
         (0.0, 1.0)
@@ -134,12 +136,12 @@ def test_eval_cache(sample_input, models):
     assert len(result) == 1
     assert ('Flops', models[0].archid, 'NoneType', None) in so.cache
 
-    assert so.check_model_valid(models[0], None)
+    assert so.is_model_valid(models[0], None)
     assert ('NumberOfParameters', models[0].archid, 'NoneType', None) in so.cache
     assert ('Random number', models[0].archid, 'NoneType', None) in so.cache
 
     cached_val = so.cache[('Random number', models[0].archid, 'NoneType', None)]
-    cons_vals, cons_filtered =  so.eval_constraints(models, None, False)
+    cons_vals, cons_filtered =  so.validate_constraints(models, None, False)
 
     assert len(cons_filtered) == len(models)
     assert cons_vals['Random number'][0] == cached_val
