@@ -6,7 +6,7 @@ from abc import abstractmethod
 from overrides import EnforceOverrides
 
 
-class DatasetProvider(EnforceOverrides):
+class DataLoaderProvider(EnforceOverrides):
     """"""
 
     def __init__(self) -> None:
@@ -15,9 +15,5 @@ class DatasetProvider(EnforceOverrides):
         super().__init__()
 
     @abstractmethod
-    def get_dataset():
-        """"""
-
-    @abstractmethod
-    def get_transform():
+    def get_data_loader():
         """"""
